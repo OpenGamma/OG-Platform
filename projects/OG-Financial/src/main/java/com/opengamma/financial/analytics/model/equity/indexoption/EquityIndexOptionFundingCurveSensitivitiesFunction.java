@@ -12,6 +12,7 @@ import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
@@ -56,24 +57,29 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> result = super.getRequirements(context, target, desiredValue);
+    if (result == null) {
+      return null;
+    }
     // Get Funding Curve Name
     final Set<String> fundingCurves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
     if (fundingCurves == null || fundingCurves.size() != 1) {
       return null;
     }
-    final String fundingCurveName = fundingCurves.iterator().next();
-    result.add(getCurveSpecRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), fundingCurveName));
+    final String fundingCurveName = Iterables.getOnlyElement(fundingCurves);
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    result.add(getCurveSpecRequirement(currency, fundingCurveName));
     return result;
   }
 
   // Need to do this to get labels for the output
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
-    ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
+    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     // 1. Build the analytic derivative to be priced
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final EquityIndexOptionSecurity security = getEquityIndexOptionSecurity(target);
@@ -88,7 +94,7 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     final StaticReplicationDataBundle market = buildMarketBundle(security.getUnderlyingId(), executionContext, inputs, target, desiredValues);
 
     // Unpack the curve we're bumping
-    ValueRequirement desiredValue = desiredValues.iterator().next();
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String fundingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String curveConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final Object fundingObject = inputs.getValue(getDiscountCurveRequirement(fundingCurveName, curveConfigName, security));
@@ -97,7 +103,7 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
     }
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingObject;
     // Put curve into a bundle
-    YieldCurveBundle curveBundle = new YieldCurveBundle();
+    final YieldCurveBundle curveBundle = new YieldCurveBundle();
     curveBundle.setCurve(fundingCurveName, fundingCurve);
     if (!(fundingCurve instanceof YieldCurve)) {
       throw new IllegalArgumentException("Can only handle YieldCurve");
@@ -112,7 +118,7 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
       // Sensitivity to the rate to expiry might be used to estimate the underlying's forward, but we don't include this here.
       // The sensitivity to settlement rate is in the discounting, the ZeroBond price: PV = Z(t,S) * C(F,K,sig,T)
       final double settle = derivative.getTimeToSettlement();
-      EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
+      final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
       final double rhoSettle = -1 * settle * model.presentValue(derivative, market);
       //  We use PresentValueNodeSensitivityCalculator to distribute this risk across the curve
       final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
@@ -140,7 +146,7 @@ public class EquityIndexOptionFundingCurveSensitivitiesFunction extends EquityIn
   }
 
   @Override
-  protected Object computeValues(EquityIndexOption derivative, StaticReplicationDataBundle market) {
+  protected Object computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market) {
     return null;
   }
 

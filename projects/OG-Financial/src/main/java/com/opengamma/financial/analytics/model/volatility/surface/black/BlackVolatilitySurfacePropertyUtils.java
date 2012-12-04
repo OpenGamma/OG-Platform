@@ -250,29 +250,26 @@ public class BlackVolatilitySurfacePropertyUtils {
 
   public static ValueProperties.Builder addVolatilityInterpolatorProperties(final ValueProperties properties, final ValueRequirement desiredValue) {
     final String smileInterpolator = desiredValue.getConstraint(PROPERTY_SMILE_INTERPOLATOR);
-    if (smileInterpolator == null) {
-      throw new OpenGammaRuntimeException(PROPERTY_SMILE_INTERPOLATOR + " not set");
-    }
-    if (smileInterpolator.equals(SPLINE)) {
+    if (SPLINE.equals(smileInterpolator)) {
       return BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(properties, desiredValue);
     }
-    if (smileInterpolator.equals(SABR)) {
+    if (SABR.equals(smileInterpolator)) {
       return BlackVolatilitySurfacePropertyUtils.addSABRVolatilityInterpolatorProperties(properties, desiredValue);
     }
-    if (smileInterpolator.equals(MIXED_LOG_NORMAL)) {
+    if (MIXED_LOG_NORMAL.equals(smileInterpolator)) {
       return BlackVolatilitySurfacePropertyUtils.addMixedLogNormalVolatilityInterpolatorProperties(properties, desiredValue);
     }
     throw new OpenGammaRuntimeException("Did not recognise smile interpolator type " + smileInterpolator);
   }
 
   public static ValueProperties.Builder addVolatilityInterpolatorProperties(final ValueProperties properties, final String smileInterpolator) {
-    if (smileInterpolator.equals(SPLINE)) {
+    if (SPLINE.equals(smileInterpolator)) {
       return BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(properties);
     }
-    if (smileInterpolator.equals(SABR)) {
+    if (SABR.equals(smileInterpolator)) {
       return BlackVolatilitySurfacePropertyUtils.addSABRVolatilityInterpolatorProperties(properties);
     }
-    if (smileInterpolator.equals(MIXED_LOG_NORMAL)) {
+    if (MIXED_LOG_NORMAL.equals(smileInterpolator)) {
       return BlackVolatilitySurfacePropertyUtils.addMixedLogNormalVolatilityInterpolatorProperties(properties);
     }
     throw new OpenGammaRuntimeException("Did not recognise smile interpolator type " + smileInterpolator);

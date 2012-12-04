@@ -26,6 +26,7 @@ public abstract class BlackVolatilitySurfaceDefaults extends DefaultPropertyFunc
     ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR,
     ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
     ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
+    ValueRequirementNames.PURE_VOLATILITY_SURFACE,
     ValueRequirementNames.FORWARD_DELTA,
     ValueRequirementNames.DUAL_DELTA,
     ValueRequirementNames.DUAL_GAMMA,
@@ -55,9 +56,9 @@ public abstract class BlackVolatilitySurfaceDefaults extends DefaultPropertyFunc
   private final String _timeLeftExtrapolator;
   private final String _timeRightExtrapolator;
 
-  public BlackVolatilitySurfaceDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public BlackVolatilitySurfaceDefaults(final ComputationTargetType target, final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(target, true);
     ArgumentChecker.notNull(timeAxis, "time axis");
     ArgumentChecker.notNull(yAxis, "y axis");
     ArgumentChecker.notNull(volatilityTransform, "volatility transform");

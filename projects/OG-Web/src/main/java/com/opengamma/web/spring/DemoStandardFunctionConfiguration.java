@@ -24,8 +24,6 @@ import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.xml.FudgeXMLSettings;
 import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 
-import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.WeightingFunctionFactory;
-import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionFactory;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
@@ -103,7 +101,6 @@ import com.opengamma.financial.analytics.model.credit.ISDALegacyVanillaCDSDefaul
 import com.opengamma.financial.analytics.model.credit.ISDALegacyVanillaCDSDirtyPriceFunction;
 import com.opengamma.financial.analytics.model.credit.ISDAYieldCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.ISDAYieldCurveFunction;
-import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.AffineDividendFunction;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveFunction;
@@ -275,8 +272,6 @@ import com.opengamma.financial.analytics.model.option.BlackScholesMertonModelFun
 import com.opengamma.financial.analytics.model.option.BlackScholesModelCostOfCarryFunction;
 import com.opengamma.financial.analytics.model.pnl.EquityPnLDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.EquityPnLFunction;
-import com.opengamma.financial.analytics.model.pnl.ExternallyProvidedSensitivityPnLDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.pnl.ExternallyProvidedSensitivityPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.FXForwardCurrencyExposurePnLCurrencyConversionFunction;
 import com.opengamma.financial.analytics.model.pnl.FXForwardYCNSPnLCurrencyConversionFunction;
 import com.opengamma.financial.analytics.model.pnl.PortfolioExchangeTradedDailyPnLFunction;
@@ -348,7 +343,9 @@ import com.opengamma.financial.analytics.model.volatility.local.EquityDupireLoca
 import com.opengamma.financial.analytics.model.volatility.local.ForexDupireLocalVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.BackwardPDEDefaults;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.ForwardPDEDefaults;
-import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceDefaults;
+import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfacePrimitiveDefaults;
+import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceSecurityDefaults;
+import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceTradeDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction;
@@ -359,11 +356,21 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVol
 import com.opengamma.financial.analytics.model.volatility.surface.black.CommodityBlackVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.EquityBlackVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.ForexBlackVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceMixedLogNormalDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSABRDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSplineDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfaceDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceMixedLogNormalPrimitiveDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceMixedLogNormalSecurityDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceMixedLogNormalTradeDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSABRPrimitiveDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSABRSecurityDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSABRTradeDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSplinePrimitiveDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSplineSecurityDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSplineTradeDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfacePrimitiveDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfaceSecurityDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfaceTradeDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfacePrimitiveDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceSecurityDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceTradeDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.pure.PureBlackVolatilitySurfaceDividendCorrectionFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.pure.PureBlackVolatilitySurfaceNoDividendCorrectionFunction;
 import com.opengamma.financial.analytics.timeseries.DefaultHistoricalTimeSeriesShiftFunction;
@@ -408,6 +415,9 @@ import com.opengamma.financial.value.PositionValueFunction;
 import com.opengamma.financial.value.SecurityValueFunction;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.web.spring.defaults.GeneralBlackVolatilityInterpolationDefaults;
+import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
+import com.opengamma.web.spring.defaults.TargetSpecificBlackVolatilitySurfaceDefaults;
 
 /**
  * Constructs a standard function repository.
@@ -611,9 +621,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addCDSCalculators(functionConfigs);
     
     addBlackVolatilitySurface(functionConfigs);
-    addFXBlackVolatilitySurface(functionConfigs);
-    addEquityBlackVolatilitySurface(functionConfigs);
     addCommodityBlackVolatilitySurface(functionConfigs);
+    addFXOptionBlackVolatilitySurface(functionConfigs);
+    addEquityIndexOptionBlackVolatilitySurface(functionConfigs);
     addLocalVolatilitySurface(functionConfigs);
     
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
@@ -1233,53 +1243,51 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   //TODO move next few methods into the surface configuration class
   private static void addBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
-    final List<String> commonProperties = Arrays.asList(
-      BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME,
-      BlackVolatilitySurfacePropertyNamesAndValues.LOG_Y,
-      BlackVolatilitySurfacePropertyNamesAndValues.INTEGRATED_VARIANCE,
-      Interpolator1DFactory.DOUBLE_QUADRATIC,
-      Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
-      Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-    final List<String> sabrProperties = new ArrayList<String>(commonProperties);
-    sabrProperties.add(VolatilityFunctionFactory.HAGAN);
-    sabrProperties.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
-    sabrProperties.add("false");
-    sabrProperties.add("0.5");
-    final List<String> mixedLogNormalProperties = new ArrayList<String>(commonProperties);
-    mixedLogNormalProperties.add(WeightingFunctionFactory.SINE_WEIGHTING_FUNCTION_NAME);
-    final List<String> splineProperties = new ArrayList<String>(commonProperties);
-    splineProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
-    splineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-    splineProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-    // Spline default is: Quiet - if ShiftedLogNormalTailExtrapolationFitter fails on boundary, try on next strike in interior of domain
-    splineProperties.add(BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
-    
     functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSABRInterpolatorFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalInterpolatorFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.Exception.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorFunction.Quiet.class.getName()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSABRDefaults.class.getName(), sabrProperties));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalDefaults.class.getName(), mixedLogNormalProperties));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineDefaults.class.getName(), splineProperties));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSABRPrimitiveDefaults.class.getName(), 
+        GeneralBlackVolatilityInterpolationDefaults.getSABRInterpolationDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalPrimitiveDefaults.class.getName(), 
+        GeneralBlackVolatilityInterpolationDefaults.getMixedLogNormalInterpolationDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplinePrimitiveDefaults.class.getName(), 
+        GeneralBlackVolatilityInterpolationDefaults.getSplineInterpolationDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSABRSecurityDefaults.class.getName(), 
+        GeneralBlackVolatilityInterpolationDefaults.getSABRInterpolationDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalSecurityDefaults.class.getName(), 
+        GeneralBlackVolatilityInterpolationDefaults.getMixedLogNormalInterpolationDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineSecurityDefaults.class.getName(), 
+        GeneralBlackVolatilityInterpolationDefaults.getSplineInterpolationDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSABRTradeDefaults.class.getName(), 
+        GeneralBlackVolatilityInterpolationDefaults.getSABRInterpolationDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceMixedLogNormalTradeDefaults.class.getName(), 
+        GeneralBlackVolatilityInterpolationDefaults.getMixedLogNormalInterpolationDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineTradeDefaults.class.getName(), 
+        GeneralBlackVolatilityInterpolationDefaults.getSplineInterpolationDefaults()));
   }
     
-  private static void addFXBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
+  private static void addFXOptionBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.MixedLogNormal.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.SABR.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.Spline.class.getName()));
-    
-    functionConfigs.add(functionConfiguration(FXBlackVolatilitySurfaceDefaults.class,
-        "EURUSD", "DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "DEFAULT"));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FXBlackVolatilitySurfacePrimitiveDefaults.class.getName(), 
+        TargetSpecificBlackVolatilitySurfaceDefaults.getAllFXDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FXBlackVolatilitySurfaceSecurityDefaults.class.getName(), 
+        TargetSpecificBlackVolatilitySurfaceDefaults.getAllFXDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FXBlackVolatilitySurfaceTradeDefaults.class.getName(), 
+        TargetSpecificBlackVolatilitySurfaceDefaults.getAllFXDefaults()));
   }
   
-  private static void addEquityBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
+  private static void addEquityIndexOptionBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.SABR.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.Spline.class.getName())); 
-    
-    functionConfigs.add(functionConfiguration(EquityBlackVolatilitySurfaceDefaults.class,
-        "DJX Index", "Discounting", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "USD", "DefaultTwoCurveUSDConfig", "BBG",
-        "SPX Index", "Discounting", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "USD", "DefaultTwoCurveUSDConfig", "BBG",
-        "NKY Index", "Discounting", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "JPY", "DefaultTwoCurveJPYConfig", "BBG"));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfacePrimitiveDefaults.class.getName(), 
+        TargetSpecificBlackVolatilitySurfaceDefaults.getAllEquityDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceSecurityDefaults.class.getName(), 
+        TargetSpecificBlackVolatilitySurfaceDefaults.getAllEquityDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceTradeDefaults.class.getName(), 
+        TargetSpecificBlackVolatilitySurfaceDefaults.getAllEquityDefaults()));
   }
   
   private static void addCommodityBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
@@ -1296,35 +1304,18 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(EquityDupireLocalVolatilitySurfaceFunction.SABR.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(EquityDupireLocalVolatilitySurfaceFunction.Spline.class.getName()));
 
-    functionConfigs.add(functionConfiguration(LocalVolatilitySurfaceDefaults.class, "0.001"));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfacePrimitiveDefaults.class.getName(), 
+        GeneralLocalVolatilitySurfaceDefaults.getLocalVolatilitySurfaceDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceSecurityDefaults.class.getName(), 
+        GeneralLocalVolatilitySurfaceDefaults.getLocalVolatilitySurfaceDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceTradeDefaults.class.getName(), 
+        GeneralLocalVolatilitySurfaceDefaults.getLocalVolatilitySurfaceDefaults()));
   }
   
   private static void addEquityPureVolatilitySurfaceCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new StaticFunctionConfiguration(PureBlackVolatilitySurfaceNoDividendCorrectionFunction.Spline.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(PureBlackVolatilitySurfaceDividendCorrectionFunction.Spline.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(AffineDividendFunction.class.getName()));
-//    final List<String> commonBlackSurfaceInterpolatorProperties = Arrays.asList(
-//        BlackVolatilitySurfacePropertyNamesAndValues.LOG_TIME,
-//        BlackVolatilitySurfacePropertyNamesAndValues.LOG_Y,
-//        BlackVolatilitySurfacePropertyNamesAndValues.INTEGRATED_VARIANCE,
-//        Interpolator1DFactory.DOUBLE_QUADRATIC,
-//        Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
-//        Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-//    final List<String> splineProperties = getFXSplineBlackSurfaceProperties(commonBlackSurfaceInterpolatorProperties);
-//
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceSplineInterpolatorDefaults.class.getName(), splineProperties));
-//
-//    final List<String> commonPureSurfaceProperties = new ArrayList<String>(commonBlackSurfaceInterpolatorProperties);
-//    commonPureSurfaceProperties.add("Discounting");
-//    commonPureSurfaceProperties.add("DefaultTwoCurveUSDConfig");
-//    commonPureSurfaceProperties.add("BBG_PRICE");
-//    commonPureSurfaceProperties.add("USD");
-//    commonPureSurfaceProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
-//    commonPureSurfaceProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-//    commonPureSurfaceProperties.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-//    commonPureSurfaceProperties.add(BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
-//
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(PureVolatilitySurfaceSplineDefaults.class.getName(), commonPureSurfaceProperties));
   }
 
   private static void addSABRCalculators(final List<FunctionConfiguration> functionConfigs) {

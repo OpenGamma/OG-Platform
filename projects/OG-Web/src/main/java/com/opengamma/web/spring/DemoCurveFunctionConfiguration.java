@@ -30,8 +30,9 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction
 import com.opengamma.financial.analytics.model.commodity.CommodityForwardCurveFromFutureCurveFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromMarketQuotesDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromMarketQuotesFunction;
-import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesFunction;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesPrimitiveDefaults;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesSecurityDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveMarketDataFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardSwapCurveFromMarketQuotesFunction;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardSwapCurveMarketDataFunction;
@@ -154,7 +155,13 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromMarketQuotesDefaults.class.getName(),
         Arrays.asList("DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator")));
     configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurvesFunction.class.getName()));
-    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurvesDefaults.class.getName(),
+    //TODO pull out values into separate class
+    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurvesPrimitiveDefaults.class.getName(),
+        Arrays.asList(
+            "USD", "DefaultTwoCurveUSDConfig", "Discounting",
+            "EUR", "DefaultTwoCurveEURConfig", "Discounting",
+            "CHF", "DefaultTwoCurveCHFConfig", "Discounting")));    
+    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurvesSecurityDefaults.class.getName(),
         Arrays.asList(
             "USD", "DefaultTwoCurveUSDConfig", "Discounting",
             "EUR", "DefaultTwoCurveEURConfig", "Discounting",

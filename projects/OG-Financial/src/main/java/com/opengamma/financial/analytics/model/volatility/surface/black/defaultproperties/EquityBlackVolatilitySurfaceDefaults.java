@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -21,28 +21,25 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
-public class EquityBlackVolatilitySurfaceDefaults extends DefaultPropertyFunction {
+public abstract class EquityBlackVolatilitySurfaceDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXBlackVolatilitySurfaceDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
     ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
+    ValueRequirementNames.PURE_VOLATILITY_SURFACE,
     ValueRequirementNames.FORWARD_DELTA,
     ValueRequirementNames.DUAL_DELTA,
     ValueRequirementNames.DUAL_GAMMA,
     ValueRequirementNames.FORWARD_GAMMA,
-    ValueRequirementNames.FOREX_DOMESTIC_PRICE,
-    ValueRequirementNames.FOREX_PV_QUOTES,
     ValueRequirementNames.FORWARD_VEGA,
     ValueRequirementNames.FORWARD_VOMMA,
     ValueRequirementNames.FORWARD_VANNA,
     ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.FX_PRESENT_VALUE,
     ValueRequirementNames.IMPLIED_VOLATILITY,
     ValueRequirementNames.GRID_DUAL_DELTA,
     ValueRequirementNames.GRID_DUAL_GAMMA,
@@ -60,8 +57,8 @@ public class EquityBlackVolatilitySurfaceDefaults extends DefaultPropertyFunctio
   private final Map<String, String> _tickerToCurveCalculationConfig;
   private final Map<String, String> _tickerToSurfaceName;
 
-  public EquityBlackVolatilitySurfaceDefaults(final String... defaultsPerTicker) {
-    super(ComputationTargetType.PRIMITIVE, true);
+  public EquityBlackVolatilitySurfaceDefaults(final ComputationTargetType target, final String... defaultsPerTicker) {
+    super(target, true);
     ArgumentChecker.notNull(defaultsPerTicker, "defaults per currency");
     final int n = defaultsPerTicker.length;
     ArgumentChecker.isTrue(n % 6 == 0, "Need one forward curve name, forward curve calculation method, curve currency, curve calculation config name and surface name per ticker value");
@@ -81,20 +78,7 @@ public class EquityBlackVolatilitySurfaceDefaults extends DefaultPropertyFunctio
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    final UniqueId uniqueId = target.getUniqueId();
-    final String targetScheme = uniqueId.getScheme();
-    if (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) || targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
-      final String ticker = uniqueId.getValue();
-      if (_tickerToCurveName.containsKey(ticker)) {
-        return true;
-      }
-    }
-    return false;
-  }
+  public abstract boolean canApplyTo(FunctionCompilationContext context, final ComputationTarget target);
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
@@ -109,7 +93,7 @@ public class EquityBlackVolatilitySurfaceDefaults extends DefaultPropertyFunctio
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final String ticker = target.getUniqueId().getValue();
+    final String ticker = getTicker(target);
     final String curveName = _tickerToCurveName.get(ticker);
     if (curveName == null) {
       s_logger.error("Could not get curve name for {}; should never happen", target.getValue());
@@ -133,4 +117,10 @@ public class EquityBlackVolatilitySurfaceDefaults extends DefaultPropertyFunctio
     s_logger.error("Could not find default value for {} in this function", propertyName);
     return null;
   }
+
+  protected Collection<String> getAllTickers() {
+    return _tickerToCurveName.keySet();
+  }
+
+  protected abstract String getTicker(ComputationTarget target);
 }

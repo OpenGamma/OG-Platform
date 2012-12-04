@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
@@ -21,16 +22,16 @@ import com.opengamma.util.ArgumentChecker;
  *   BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_RIGHT_EXTRAPOLATOR
  *   BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SPLINE_EXTRAPOLATOR_FAILURE
  */
-public class BlackVolatilitySurfaceSplineDefaults extends BlackVolatilitySurfaceDefaults {
+public abstract class BlackVolatilitySurfaceSplineDefaults extends BlackVolatilitySurfaceDefaults {
   private final String _splineInterpolator;
   private final String _splineLeftExtrapolator;
   private final String _splineRightExtrapolator;
   private final String _splineExtrapolatorFailBehaviour;
 
-  public BlackVolatilitySurfaceSplineDefaults(final String timeAxis, final String yAxis, final String volatilityTransform,
+  public BlackVolatilitySurfaceSplineDefaults(final ComputationTargetType target, final String timeAxis, final String yAxis, final String volatilityTransform,
       final String timeInterpolator, final String timeLeftExtrapolator, final String timeRightExtrapolator,
       final String splineInterpolator, final String splineLeftExtrapolator, final String splineRightExtrapolator, final String splineExtrapolatorFailBehaviour) {
-    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator);
+    super(target, timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator);
     ArgumentChecker.notNull(splineInterpolator, "spline interpolator");
     ArgumentChecker.notNull(splineLeftExtrapolator, "spline left extrapolator");
     ArgumentChecker.notNull(splineRightExtrapolator, "spline right extrapolator");
