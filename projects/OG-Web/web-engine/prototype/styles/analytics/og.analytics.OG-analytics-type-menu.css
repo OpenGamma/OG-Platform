@@ -60,7 +60,7 @@
 }
 
 .OG-analytics-typemenu .og-menu-toggle {
-    padding: 0 18px 0 3px;
+    padding: 0 20px 0 3px;
 }
 
 .OG-analytics-typemenu .og-active:after {
@@ -68,8 +68,17 @@
 }
 
 /* POSITION ICONS */
+.OG-analytics-typemenu .og-menu .OG-icon {
+    padding-right: 18px;
+}
+
 .OG-analytics-typemenu .og-menu-toggle .og-icon-Depgraph {
     top: 2px;
+    height: 14px;
+}
+
+.OG-analytics-typemenu .og-menu .og-icon-Depgraph {
+    top: 3px;
     height: 14px;
 }
 
@@ -78,18 +87,14 @@
     height: 13px;
 }
 
-.OG-analytics-typemenu .og-menu-toggle .og-icon-Data {
+.OG-analytics-typemenu .og-menu .og-icon-Curve {
     top: 3px;
     height: 13px;
 }
 
-.OG-analytics-typemenu .og-menu-toggle .og-icon-Depgraph {
-    top: 2px;
-    height: 14px;
-}
-
-.OG-analytics-typemenu .og-menu .OG-icon {
-    padding-right: 18px;
+.OG-analytics-typemenu .og-menu-toggle .og-icon-Data {
+    top: 3px;
+    height: 13px;
 }
 
 .OG-analytics-typemenu .og-menu .og-icon-Data {
@@ -97,8 +102,60 @@
     height: 13px;
 }
 
-.OG-analytics-typemenu .og-menu .og-icon-Depgraph {
+.OG-analytics-typemenu .og-menu-toggle .og-icon-Surface {
+    top: 2px;
+    height: 15px;
+}
+
+.OG-analytics-typemenu .og-menu .og-icon-Surface {
+    top: 3px;
+    height: 15px;
+}
+
+.OG-analytics-typemenu .og-menu-toggle .og-icon-Timeseries {
+    top: 2px;
+    height: 13px;
+}
+
+.OG-analytics-typemenu .og-menu .og-icon-Timeseries {
+    top: 3px;
+    height: 13px;
+}
+
+.OG-analytics-typemenu .og-menu-toggle .og-icon-Histogram {
+    top: 2px;
+    height: 11px;
+}
+
+.OG-analytics-typemenu .og-menu .og-icon-Histogram {
+    top: 3px;
+    height: 11px;
+}
+
+.OG-analytics-typemenu .og-menu-toggle .og-icon-Log {
+    top: 2px;
+    height: 14px;
+}
+
+.OG-analytics-typemenu .og-menu .og-icon-Log {
     top: 3px;
     height: 14px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
