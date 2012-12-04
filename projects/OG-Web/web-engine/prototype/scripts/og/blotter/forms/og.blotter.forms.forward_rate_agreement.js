@@ -17,6 +17,7 @@ $.register_module({
                     selector: '.OG-blotter-form-block',
                     extras:{}
                 });
+                form.children.push(new og.common.util.ui.Attributes({form: form}));
                 form.dom();
             }; 
             constructor.load();

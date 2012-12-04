@@ -25,7 +25,8 @@ $.register_module({
                      new form.Block({
                         module: 'og.blotter.forms.blocks.security_ids_tash',
                         extras: {}
-                    })
+                    }),
+                    new og.common.util.ui.Attributes({form: form})
                 );
                 form.dom();
             }; 
