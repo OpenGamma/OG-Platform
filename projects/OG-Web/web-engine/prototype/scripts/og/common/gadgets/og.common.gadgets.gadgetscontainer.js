@@ -147,10 +147,10 @@ $.register_module({
                             depgraph = val.gadget.config.options.source.depgraph,
                             tmpl_data = og.common.gadgets.mapping.available_types(val.data_type, depgraph);
                         menu_template = typemenu_template(tmpl_data);
-                        menu_config = ({$cntr: $('.og-tab-'+ val.id + ' .OG-multiselect'), tmpl: menu_template});
+                        menu_config = {$cntr: $('.og-tab-' + val.id + ' .OG-multiselect'), tmpl: menu_template};
                         menu = new og.common.util.ui.DropMenu(menu_config);
                         menu.$dom.toggle.on('click', menu.toggle_handler.bind(menu));
-                        radios = menu.$dom.menu.find('[type=radio]').on('click', function(){
+                        radios = menu.$dom.menu.find('[type=radio]').on('click', function () {
                             menu.$dom.toggle.html($(this).attr('title'));
                             swap_config = {
                                 gadget: 'og.common.gadgets.' + $(this).attr('value'),
@@ -200,7 +200,7 @@ $.register_module({
                         .css({
                             position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                             display: idx === data.length - 1 ? 'block' : 'none'
-                        });  
+                        });
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};
                     if(swap) {
                         $(selector + ' .OG-gadget-container .OG-gadget-' + gadgets[index].id).remove();
@@ -256,7 +256,7 @@ $.register_module({
                     api.text({module: 'og.analytics.tabs_overflow_tash'}),
                     api.text({module: 'og.analytics.dropbox_tash'}),
                     api.text({module: 'og.analytics.typemenu_tash'})
-                ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl, typemenu_tmpl, gadget_tmpl) {
+                ).then(function (tabs_tmpl, overflow_tmpl, dropbox_tmpl, typemenu_tmpl) {
                     if (!tabs_template) tabs_template = Handlebars.compile(tabs_tmpl);
                     if (!overflow_template) overflow_template = Handlebars.compile(overflow_tmpl);
                     if (!dropbox_template) dropbox_template = Handlebars.compile(dropbox_tmpl);
