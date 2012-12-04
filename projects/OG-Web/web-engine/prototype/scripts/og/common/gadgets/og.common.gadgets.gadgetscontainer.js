@@ -116,7 +116,8 @@ $.register_module({
                         $overflow_panel.css({'right': overflow.right + 'px', 'top': overflow.top + 'px'});
                         $tabs.each(function () { // add tooltips to truncated tabs only
                             var $this = $(this);
-                            if (!!$this.attr('style')) $this.attr('title', $this.text().replace(/\s+/g , ' ').trim());
+                            if (!!$this.attr('style')) $this.find('.OG-gadget-tabs-label')
+                                .attr('title', $this.text().replace(/\s+/g , ' ').trim());
                         });
                     }
                     // implement drag
