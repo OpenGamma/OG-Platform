@@ -122,3 +122,7 @@
     border: 1px solid #6fd66f;
     color: #fff;
 }
+
+.OG-cell-options .og-menu .OG-icon:hover {
+    background-color: transparent;
+}
