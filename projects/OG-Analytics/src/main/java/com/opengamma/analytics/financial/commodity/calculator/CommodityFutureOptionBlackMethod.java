@@ -13,12 +13,15 @@ import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Pricing method for CommodityFuture Options with Black function.
+ * Black methods for commodity future option prices and greeks.
  */
 public final class CommodityFutureOptionBlackMethod {
-
+  /** A static instance of this class */
   private static final CommodityFutureOptionBlackMethod INSTANCE = new CommodityFutureOptionBlackMethod();
 
+  /**
+   * @return The static instance of this class
+   */
   public static CommodityFutureOptionBlackMethod getInstance() {
     return INSTANCE;
   }
