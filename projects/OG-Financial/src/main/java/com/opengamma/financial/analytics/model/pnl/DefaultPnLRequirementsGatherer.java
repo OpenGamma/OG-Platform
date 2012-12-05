@@ -27,6 +27,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -336,6 +337,20 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
             .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
         return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
       }
+
+      @Override
+      public Set<ValueRequirement> visitCashSecurity(final CashSecurity security) {
+        final String currency = security.getCurrency().getCode();
+        final String config = _curveCalculationConfigs.get(currency);
+        if (config == null) {
+          throw new OpenGammaRuntimeException("Could not get curve calculation configuration for " + currency);
+        }
+        final ValueProperties properties = commonProperties.copy()
+            .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, config)
+            .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES).get();
+        return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, properties));
+      }
+
     };
   }
 
