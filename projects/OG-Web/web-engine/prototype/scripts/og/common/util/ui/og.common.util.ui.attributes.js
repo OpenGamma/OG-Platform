@@ -20,7 +20,6 @@ $.register_module({
                 if (!key || !value) return;
                 $(add_list).prepend(attribute({key: key, value: value}));
                 $group.find('[name^=attr]').val('');
-                block.load();
             });
         };
         Attributes.prototype = new Block; // inherit Block prototype

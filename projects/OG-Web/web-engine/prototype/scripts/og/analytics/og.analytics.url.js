@@ -63,9 +63,11 @@ $.register_module({
                             last_object[panel][index] = JSON.parse(fingerprint);
                             if (last_fingerprint[panel][index] === fingerprint) return fingerprint;
                             gadget.fingerprint = fingerprint;
-                            return new_gadgets.push(gadget), fingerprint;
+                            new_gadgets.push(gadget);
+                            if (typeof new_gadgets.add_index === 'undefined') new_gadgets.add_index = index;
+                            return fingerprint;
                         });
-                        if (new_gadgets.length) og.analytics.containers[panel].add(new_gadgets);
+                        if (new_gadgets.length) og.analytics.containers[panel].add(new_gadgets, new_gadgets.add_index);
                     });
                     panels.forEach(function (panel) {og.analytics.containers[panel].verify(last_fingerprint[panel]);});
                     if (handler) handler();
@@ -81,8 +83,7 @@ $.register_module({
                 return (!silent && go()), url;
             },
             swap: function (container, params, index) {
-                last_object[container][index] = JSON.parse(last_fingerprint[container][index] = JSON.stringify(params));
-                return go(), url;
+                return (last_object[container][index] = params), go(), url;
             }
         };
     }

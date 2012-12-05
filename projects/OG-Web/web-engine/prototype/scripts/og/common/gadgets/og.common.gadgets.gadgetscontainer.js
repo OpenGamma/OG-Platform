@@ -168,9 +168,8 @@ $.register_module({
                                 col_name: val.gadget.config.col_name, data_type: val.gadget.config.data_type,
                                 row_name: val.gadget.config.row_name
                             };
-                            swap_config.fingerprint = JSON.stringify(swap_config);
                             if (false !== container.fire('swap', swap_config, val.gadget_index))
-                                container.add([swap_config], val.gadget_index);
+                                container.add([swap_config], val.gadget_index, true);
                         });
                         menu.$dom.toggle.html($icon);
                     });
@@ -188,8 +187,8 @@ $.register_module({
              *     obj.name     String
              *     obj.margin   Boolean
              */
-            container.add = function (data, index) {
-                var panel_container = selector + ' .OG-gadget-container', new_gadgets, swap = index >= 0;
+            container.add = function (data, index, swap) {
+                var panel_container = selector + ' .OG-gadget-container', new_gadgets;
                 if (!loading && !initialized)
                     return container.init(), setTimeout(container.add.partial(data, index), 10), container;
                 if (!initialized) return setTimeout(container.add.partial(data, index), 10), container;
@@ -200,18 +199,17 @@ $.register_module({
                         options = $.extend(true, obj.options || {}, {selector: panel_container + ' .' + gadget_class}),
                         constructor = obj.gadget.split('.').reduce(function (acc, val) {return acc[val];}, window),
                         type = obj.gadget.replace(/^[a-z0-9.-_]+\.([a-z0-9.-_]+?)$/, '$1').toLowerCase();
-                    $(panel_container).append('<div class="' + gadget_class + '" />').find('.' + gadget_class)
-                        .css({
-                            position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                            display: idx === data.length - 1 ? 'block' : 'none'
-                        });
+                    $(panel_container).append('<div class="' + gadget_class + '" />').find('.' + gadget_class).css({
+                        position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+                        display: idx === data.length - 1 ? 'block' : 'none'
+                    });
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};
-                    if (swap) {
+                    if (swap && gadgets[index])
                         $(selector + ' .OG-gadget-container .OG-gadget-' + gadgets[index].id).remove();
-                        gadgets[index].gadget.alive();
+                    if (typeof index === 'number') {
+                        if (gadgets[index]) gadgets[index].gadget.alive();
                         gadgets.splice(index, 1, gadget);
-                    }
-                    else gadgets.push(gadget);
+                    } else gadgets.push(gadget);
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;
                     return gadget;
                 });
