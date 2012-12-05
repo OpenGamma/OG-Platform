@@ -123,7 +123,7 @@ $.register_module({
                     // implement drag
                     $tabs.each(function (i) {
                         $(this).draggable({
-                            cursor: 'move', zIndex: 3, cursorAt: {top: 25}, scroll: false,
+                            cursor: 'move', zIndex: 5, cursorAt: {top: 25}, scroll: false,
                             iframeFix: true, appendTo: 'body', distance: 20,
                             revert: new_window.partial(i),
                             stop: function () {$(this).draggable('option','revert', new_window.partial(i));},
