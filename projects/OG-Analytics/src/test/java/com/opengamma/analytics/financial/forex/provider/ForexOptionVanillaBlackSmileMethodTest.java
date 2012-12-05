@@ -695,7 +695,6 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_FBS_C.calculateSensitivity(forexOptionCall, SMILE_FLAT_MULTICURVES, SMILE_FLAT_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_FBS_FDC.calculateSensitivity(forexOptionCall, SMILE_FLAT_MULTICURVES);
     AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
-
   }
 
   @Test

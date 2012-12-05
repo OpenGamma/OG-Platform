@@ -6,9 +6,13 @@
 package com.opengamma.analytics.financial.provider.calculator.forexblack;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.financial.forex.provider.ForexNonDeliverableOptionBlackSmileMethod;
+import com.opengamma.analytics.financial.forex.provider.ForexOptionDigitalBlackSmileMethod;
+import com.opengamma.analytics.financial.forex.provider.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.analytics.financial.forex.provider.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
@@ -44,6 +48,8 @@ public final class PresentValueForexVolatilitySensitivityForexBlackSmileCalculat
    */
   private static final ForexOptionVanillaBlackSmileMethod METHOD_FX_VAN = ForexOptionVanillaBlackSmileMethod.getInstance();
   private static final ForexNonDeliverableOptionBlackSmileMethod METHOD_NDO = ForexNonDeliverableOptionBlackSmileMethod.getInstance();
+  private static final ForexOptionDigitalBlackSmileMethod METHOD_DIG = ForexOptionDigitalBlackSmileMethod.getInstance();
+  private static final ForexOptionSingleBarrierBlackMethod METHOD_BARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
 
   @Override
   public PresentValueForexBlackVolatilitySensitivity visit(final InstrumentDerivative derivative, final ForexBlackSmileProviderInterface blackSmile) {
@@ -60,6 +66,16 @@ public final class PresentValueForexVolatilitySensitivityForexBlackSmileCalculat
   @Override
   public PresentValueForexBlackVolatilitySensitivity visitForexNonDeliverableOption(final ForexNonDeliverableOption option, final ForexBlackSmileProviderInterface blackSmile) {
     return METHOD_NDO.presentValueBlackVolatilitySensitivity(option, blackSmile);
+  }
+
+  @Override
+  public PresentValueForexBlackVolatilitySensitivity visitForexOptionDigital(final ForexOptionDigital option, final ForexBlackSmileProviderInterface blackSmile) {
+    return METHOD_DIG.presentValueBlackVolatilitySensitivity(option, blackSmile);
+  }
+
+  @Override
+  public PresentValueForexBlackVolatilitySensitivity visitForexOptionSingleBarrier(final ForexOptionSingleBarrier option, final ForexBlackSmileProviderInterface blackSmile) {
+    return METHOD_BARRIER.presentValueBlackVolatilitySensitivity(option, blackSmile);
   }
 
   @Override

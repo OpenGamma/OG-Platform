@@ -34,7 +34,7 @@ public class ForexOptionDigitalCallSpreadBlackMethod extends ForexOptionDigitalC
   }
 
   /**
-   * Computes the relative gamma of the Forex option. The relative gamma is the second oder derivative of the pv relative to the option notional.
+   * Computes the relative gamma of the Forex option. The relative gamma is the second order derivative of the pv relative to the option notional.
    * @param optionDigital The option.
    * @param smile The curve and smile data.
    * @return The gamma.
@@ -45,7 +45,7 @@ public class ForexOptionDigitalCallSpreadBlackMethod extends ForexOptionDigitalC
   }
 
   /**
-   * Computes the gamma of the Forex option. The relative is the second oder derivative of the pv.
+   * Computes the gamma of the Forex option. The relative is the second order derivative of the pv.
    * @param optionDigital The option.
    * @param curves The yield curve bundle.
    * @return The gamma.
@@ -142,8 +142,8 @@ public class ForexOptionDigitalCallSpreadBlackMethod extends ForexOptionDigitalC
         }
       }
     }
-    return new PresentValueForexBlackVolatilityNodeSensitivityDataBundle(optionDigital.getUnderlyingForex().getCurrency1(), optionDigital.getUnderlyingForex().getCurrency2(),
-        new DoubleMatrix1D(volatilityModel.getTimeToExpiration()), new DoubleMatrix1D(volatilityModel.getDeltaFull()), new DoubleMatrix2D(vega));
+    return new PresentValueForexBlackVolatilityNodeSensitivityDataBundle(optionDigital.getUnderlyingForex().getCurrency1(), optionDigital.getUnderlyingForex().getCurrency2(), new DoubleMatrix1D(
+        volatilityModel.getTimeToExpiration()), new DoubleMatrix1D(volatilityModel.getDeltaFull()), new DoubleMatrix2D(vega));
   }
 
 }

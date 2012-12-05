@@ -6,8 +6,12 @@
 package com.opengamma.analytics.financial.provider.calculator.forexblack;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.provider.ForexNonDeliverableOptionBlackSmileMethod;
+import com.opengamma.analytics.financial.forex.provider.ForexOptionDigitalBlackSmileMethod;
+import com.opengamma.analytics.financial.forex.provider.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.analytics.financial.forex.provider.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
@@ -43,6 +47,8 @@ public final class PresentValueCurveSensitivityForexBlackSmileCalculator extends
    */
   private static final ForexOptionVanillaBlackSmileMethod METHOD_FX_VAN = ForexOptionVanillaBlackSmileMethod.getInstance();
   private static final ForexNonDeliverableOptionBlackSmileMethod METHOD_NDO = ForexNonDeliverableOptionBlackSmileMethod.getInstance();
+  private static final ForexOptionDigitalBlackSmileMethod METHOD_DIG = ForexOptionDigitalBlackSmileMethod.getInstance();
+  private static final ForexOptionSingleBarrierBlackMethod METHOD_BARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
 
   @Override
   public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative derivative, final ForexBlackSmileProviderInterface blackSmile) {
@@ -59,6 +65,16 @@ public final class PresentValueCurveSensitivityForexBlackSmileCalculator extends
   @Override
   public MultipleCurrencyMulticurveSensitivity visitForexNonDeliverableOption(final ForexNonDeliverableOption option, final ForexBlackSmileProviderInterface blackSmile) {
     return METHOD_NDO.presentValueCurveSensitivity(option, blackSmile);
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitForexOptionDigital(final ForexOptionDigital option, final ForexBlackSmileProviderInterface blackSmile) {
+    return METHOD_DIG.presentValueCurveSensitivity(option, blackSmile);
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitForexOptionSingleBarrier(final ForexOptionSingleBarrier option, final ForexBlackSmileProviderInterface blackSmile) {
+    return METHOD_BARRIER.presentValueCurveSensitivity(option, blackSmile);
   }
 
   @Override
