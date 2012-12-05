@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFutu
  * Convert from a specialized future to a simple one.
  */
 public final class SimpleFutureConverter extends InstrumentDerivativeVisitorAdapter<Object, SimpleFuture> {
-
+  /** The converter */
   private static SimpleFutureConverter s_instance;
 
   /**
@@ -21,6 +21,9 @@ public final class SimpleFutureConverter extends InstrumentDerivativeVisitorAdap
   private SimpleFutureConverter() {
   }
 
+  /**
+   * @return A static instance of this converter
+   */
   public static SimpleFutureConverter getInstance() {
     if (s_instance == null) {
       s_instance = new SimpleFutureConverter();
@@ -29,17 +32,17 @@ public final class SimpleFutureConverter extends InstrumentDerivativeVisitorAdap
   }
 
   @Override
-  public SimpleFuture visitAgricultureFuture(AgricultureFuture visitor) {
+  public SimpleFuture visitAgricultureFuture(final AgricultureFuture visitor) {
     return new SimpleFuture(visitor.getExpiry(), visitor.getSettlement(), visitor.getReferencePrice(), visitor.getUnitAmount(), visitor.getCurrency());
   }
 
   @Override
-  public SimpleFuture visitEnergyFuture(EnergyFuture visitor) {
+  public SimpleFuture visitEnergyFuture(final EnergyFuture visitor) {
     return new SimpleFuture(visitor.getExpiry(), visitor.getSettlement(), visitor.getReferencePrice(), visitor.getUnitAmount(), visitor.getCurrency());
   }
 
   @Override
-  public SimpleFuture visitMetalFuture(MetalFuture visitor) {
+  public SimpleFuture visitMetalFuture(final MetalFuture visitor) {
     return new SimpleFuture(visitor.getExpiry(), visitor.getSettlement(), visitor.getReferencePrice(), visitor.getUnitAmount(), visitor.getCurrency());
   }
 
