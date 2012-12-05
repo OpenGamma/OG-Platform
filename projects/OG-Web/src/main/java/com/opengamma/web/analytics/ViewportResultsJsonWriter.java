@@ -150,12 +150,12 @@ public class ViewportResultsJsonWriter {
         logMap.put(EXCEPTION_MESSAGE, log.getExceptionMessage());
         logMap.put(EXCEPTION_STACK_TRACE, log.getExceptionStackTrace());
       }
-      if (log.getEvents() != null && !log.getEvents().isEmpty()) {
-        List<Map<String, Object>> events = Lists.newArrayList();
+      List<Map<String, Object>> events = Lists.newArrayList();
+      logMap.put(EVENTS, events);
+      if (log.getEvents() != null) {
         for (LogEvent logEvent : log.getEvents()) {
           events.add(ImmutableMap.<String, Object>of(LEVEL, logEvent.getLevel(), MESSAGE, logEvent.getMessage()));
         }
-        logMap.put(EVENTS, events);
       }
       output.add(logMap);
     }

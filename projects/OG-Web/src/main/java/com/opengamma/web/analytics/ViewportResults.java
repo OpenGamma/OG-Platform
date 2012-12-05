@@ -179,6 +179,8 @@ public class ViewportResults {
    */
   /* package */ static final class Cell {
 
+    // TODO add execution log to hashCode and equals
+
     private final Object _value;
     private final ValueSpecification _valueSpecification;
     private final Collection<Object> _history;
