@@ -80,6 +80,14 @@ $.register_module({
                     (!viewport.rows || !viewport.rows.length || !viewport.cols || !viewport.cols.length);
             };
             var reconnect_handler = function () {initialize();};
+            var same_viewport = function (one, two) {
+                if ((!one || !two) && one !== two) return false; // if either viewport is null
+                if ((one.cells && two.rows) || (one.rows && two.cells)) return false;
+                if (one.cells && two.cells)
+                    return one.cells.join('|') === two.cells.join('|') && one.format === two.format;
+                return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|') &&
+                    one.format === two.format;
+            };
             var structure_handler = function (result) {
                 if (!grid_type || (depgraph && !graph_id)) return;
                 if (result.error) return fire('fatal', data.prefix + result.message);
@@ -90,14 +98,6 @@ $.register_module({
                 meta.columns.scroll = result.data[SETS].slice(1);
                 fire('meta', meta, {grid_type: grid_type, view_id: view_id, graph_id: graph_id, meta: result});
                 if (!subscribed) return data_setup();
-            };
-            var same_viewport = function (one, two) {
-                if ((!one || !two) && one !== two) return false; // if either viewport is null
-                if ((one.cells && two.rows) || (one.rows && two.cells)) return false;
-                if (one.cells && two.cells)
-                    return one.cells.join('|') === two.cells.join('|') && one.format === two.format;
-                return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|') &&
-                    one.format === two.format;
             };
             var structure_setup = function (update) {
                 var initial = !update;
