@@ -14,58 +14,112 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * The Barone-Adesi and Whaley approximation for the price of an American Option 
+ * The Barone-Adesi and Whaley approximation for the price of an American Option.
  */
 public class BaroneAdesiWhaleyModel {
-
+  /** Normal probability distribution */
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
+  /**
+   * Calculates the price of an option
+   * @param s0 The spot
+   * @param k The strike
+   * @param r The interest rate
+   * @param b The cost-of-carry
+   * @param t The time to expiry, greater than zero
+   * @param sigma The volatility
+   * @param isCall is the option a call
+   * @return The price of the option
+   */
   public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
 
     if (isCall) {
-      CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
+      final CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
       return solver.getPrice();
     }
 
-    PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
+    final PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
     return solver.getPrice();
   }
 
+  /**
+   * Calculates the greeks of an option and returns them as an array, with elements
+   * <ol>
+   * <li> delta
+   * <li> dual delta
+   * <li> rho
+   * <li> carry rho
+   * <li> theta
+   * <li> vega
+   * </ol>
+   * @param s0 The spot
+   * @param k The strike
+   * @param r The interest rate
+   * @param b The cost-of-carry
+   * @param t The time to expiry, greater than zero
+   * @param sigma The volatility
+   * @param isCall is the option a call
+   * @return The greeks of the option
+   */
   public double[] getPriceAdjoint(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
 
     if (isCall) {
-      CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
+      final CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
       return solver.getPriceAdjoint();
     }
-    PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
+    final PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
     return solver.getPriceAdjoint();
 
   }
 
-  public double[] getPriceAndVega(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall)
-  {
+  /**
+   * Calculates the price and vega of an option and returns them as an array, with elements
+   * <ol>
+   * <li> price
+   * <li> vega
+   * </ol>
+   * @param s0 The spot
+   * @param k The strike
+   * @param r The interest rate
+   * @param b The cost-of-carry
+   * @param t The time to expiry, greater than zero
+   * @param sigma The volatility
+   * @param isCall is the option a call
+   * @return The price and vega of the option
+   */
+  public double[] getPriceAndVega(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
     if (isCall) {
-      CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
-      double p = solver.getPrice();
-      double vega = solver.getPriceAdjoint()[5];  //TODO calculate vega separate from other Greeks 
+      final CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
+      final double p = solver.getPrice();
+      final double vega = solver.getPriceAdjoint()[5];  //TODO calculate vega separate from other Greeks
       return new double[] {p, vega };
     }
-    PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
-    double p = solver.getPrice();
-    double vega = solver.getPriceAdjoint()[5];  //TODO calculate vega separate from other Greeks 
+    final PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
+    final double p = solver.getPrice();
+    final double vega = solver.getPriceAdjoint()[5];  //TODO calculate vega separate from other Greeks
     return new double[] {p, vega };
 
   }
 
+  /**
+   * Returns a function that calculates the price and vega of an option. The argument of the function is the volatility
+   * @param s0 The spot
+   * @param k The strike
+   * @param r The interest rate
+   * @param b The cost-of-carry
+   * @param t The time to expiry, greater than zero
+   * @param isCall is the option a call
+   * @return A function that can calculate the price and the vega
+   */
   public Function1D<Double, double[]> getPriceAndVegaFunction(final double s0, final double k, final double r, final double b, final double t, final boolean isCall) {
     if (isCall) {
       return new Function1D<Double, double[]>() {
 
         @Override
-        public double[] evaluate(Double sigma) {
-          CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
-          double p = solver.getPrice();
-          double vega = solver.getPriceAdjoint()[5];  //TODO calculate vega separate from other Greeks 
+        public double[] evaluate(final Double sigma) {
+          final CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
+          final double p = solver.getPrice();
+          final double vega = solver.getPriceAdjoint()[5];  //TODO calculate vega separate from other Greeks
           return new double[] {p, vega };
         }
       };
@@ -74,59 +128,110 @@ public class BaroneAdesiWhaleyModel {
     return new Function1D<Double, double[]>() {
 
       @Override
-      public double[] evaluate(Double sigma) {
-        PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
-        double p = solver.getPrice();
-        double vega = solver.getPriceAdjoint()[5];  //TODO calculate vega separate from other Greeks 
+      public double[] evaluate(final Double sigma) {
+        final PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
+        final double p = solver.getPrice();
+        final double vega = solver.getPriceAdjoint()[5];  //TODO calculate vega separate from other Greeks
         return new double[] {p, vega };
       }
     };
 
   }
 
+  /**
+   * Calculates the implied volatility of an option
+   * @param price The price
+   * @param s0 The spot
+   * @param k The strike
+   * @param r The interest rate
+   * @param b The cost-of-carry
+   * @param t The time to expiry, greater than zero
+   * @param isCall is the option a call
+   * @return The implied volatility
+   */
   public double impliedVolatility(final double price, final double s0, final double k, final double r, final double b, final double t, final boolean isCall) {
     final Function1D<Double, double[]> func = getPriceAndVegaFunction(s0, k, r, b, t, isCall);
     return GenericImpliedVolatiltySolver.impliedVolatility(price, func);
   }
 
+  /**
+   * Calculates the critical value
+   * @param s0 The spot
+   * @param k The strike
+   * @param r The interest rate
+   * @param b The cost-of-carry
+   * @param t The time to expiry, greater than zero
+   * @param sigma The volatility
+   * @param isCall is the option a call
+   * @return The critical value
+   */
   public double sCrit(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
     if (isCall) {
-      CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
+      final CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
       return solver.getSStar();
     }
-    PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
+    final PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
     return solver.getSStar();
   }
 
+  /**
+   * Calculate the adjoints of the critical value
+   * @param s0 The spot
+   * @param k The strike
+   * @param r The interest rate
+   * @param b The cost-of-carry
+   * @param t The time to expiry, greater than zero
+   * @param sigma The volatility
+   * @param isCall is the option a call
+   * @return The adjoints of the critical value
+   */
   protected double[] getsCritAdjoint(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
     if (isCall) {
-      CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
+      final CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
       final double sStar = solver.getSStar();
       return solver.getSStarAdjoint(sStar, solver.getA2Adjoint(sStar, solver.getQ2Adjoint()));
     }
-    PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
+    final PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
     final double sStar = solver.getSStar();
     return solver.getSStarAdjoint(sStar, solver.getA1Adjoint(sStar, solver.getQ1Adjoint()));
   }
 
+  /**
+   * Calculates the price for a call
+   */
   private class CallSolver {
-
+    /** The tolerance */
     private static final double TOL = 1e-8;
+    /** The maximum number of iterations */
     private static final int MAX_INT = 50;
+    /** The spot */
     private final double _s0;
+    /** The strike */
     private final double _k;
+    /** The interest rate */
     private final double _r;
+    /** The cost of carry */
     private final double _b;
+    /** The volatility */
     private final double _sigma;
+    /** The time to expiry */
     private final double _t;
 
+    /** Can the option be treated as European (i.e. is b >= r) */
     private final boolean _isEuropean;
+    /** The square root of time */
     private final double _rootT;
+    /** volatility * sqrt(t) */
     private final double _sigmaRootT;
+    /** phi */
     private final double _phi;
+    /** q2 */
     private final double _q2;
+    /** discount factor */
     private final double _df1;
+    /** discount factor including the cost-of-carry */
     private final double _df2;
+    /** s star */
     private final double _sStar;
 
     public CallSolver(final double s0, final double k, final double r, final double b, final double t, final double sigma) {
@@ -157,8 +262,8 @@ public class BaroneAdesiWhaleyModel {
         _q2 = (-y + Math.sqrt(y * y + 4 * x / z)) / 2;
         final double sInf = k / (1 - 2 / (-y + Math.sqrt(y * y + 4 * x)));
         final double h2 = -(b * t + 2 * _sigmaRootT) * k / (sInf - k);
-        final double inital = k + (sInf - k) * (1 - Math.exp(h2));
-        _sStar = getSStar(inital);
+        final double initial = k + (sInf - k) * (1 - Math.exp(h2));
+        _sStar = getSStar(initial);
       }
     }
 
@@ -174,10 +279,9 @@ public class BaroneAdesiWhaleyModel {
 
       if (_s0 >= _sStar) {
         return _s0 - _k;
-      } else {
-        final double a2 = getA2(_sStar);
-        return getBSPrice(_s0) + a2 * Math.pow(_s0 / _sStar, _q2);
       }
+      final double a2 = getA2(_sStar);
+      return getBSPrice(_s0) + a2 * Math.pow(_s0 / _sStar, _q2);
     }
 
     private double getd1(final double s) {
@@ -185,9 +289,10 @@ public class BaroneAdesiWhaleyModel {
       return (Math.log(s / _k) + _phi) / _sigmaRootT;
     }
 
+    @SuppressWarnings("synthetic-access")
     private double getA2(final double s) {
       final double d1 = getd1(s);
-      double res = s * (1 - _df2 * NORMAL.getCDF(d1)) / _q2;
+      final double res = s * (1 - _df2 * NORMAL.getCDF(d1)) / _q2;
       return res;
     }
 
@@ -195,6 +300,7 @@ public class BaroneAdesiWhaleyModel {
       return _df1 * BlackFormulaRepository.price(s * _df2 / _df1, _k, _t, _sigma, true);
     }
 
+    @SuppressWarnings("synthetic-access")
     private double getSStar(final double initalValue) {
 
       double s = initalValue;
@@ -217,14 +323,14 @@ public class BaroneAdesiWhaleyModel {
       if (count == MAX_INT) {
         throw new MathException("max iterations exceeded");
       }
-      s = (_k + rhs - h * s) / (1 - h); //since we've calculated h & rhs, might as well update s 
+      s = (_k + rhs - h * s) / (1 - h); //since we've calculated h & rhs, might as well update s
 
       return s;
     }
 
     /**
      * The sensitivity of price to the parameters  s0, k, r, b, t, sigma
-     * @return arrays in order s0 (delta), k (dual-delta), r (rho), b (b-rho), t (theta), sigma (vega) 
+     * @return arrays in order s0 (delta), k (dual-delta), r (rho), b (b-rho), t (theta), sigma (vega)
      */
     public double[] getPriceAdjoint() {
 
@@ -240,10 +346,10 @@ public class BaroneAdesiWhaleyModel {
         return res;
       }
 
-      double[] q2Adjoint = getQ2Adjoint();
-      double[] a2Adjoint = getA2Adjoint(_sStar, q2Adjoint);
-      double[] sStarAdjoint = getSStarAdjoint(_sStar, a2Adjoint);
-      double[] bsmAdjoint = getBSMPriceAdjoint(_s0);
+      final double[] q2Adjoint = getQ2Adjoint();
+      final double[] a2Adjoint = getA2Adjoint(_sStar, q2Adjoint);
+      final double[] sStarAdjoint = getSStarAdjoint(_sStar, a2Adjoint);
+      final double[] bsmAdjoint = getBSMPriceAdjoint(_s0);
       final double q2 = q2Adjoint[0];
       final double a2 = a2Adjoint[0];
       final double x = Math.pow(_s0 / _sStar, q2);
@@ -265,9 +371,10 @@ public class BaroneAdesiWhaleyModel {
 
     /**
      * The first order Greeks for BSM call
-     * @param s spot level 
+     * @param s spot level
      * @return Order is delta, dual-delta, rho, b-rho, theta and vega
      */
+    @SuppressWarnings("synthetic-access")
     private double[] getBSMPriceAdjoint(final double s) {
 
       final double[] res = new double[6];
@@ -279,24 +386,18 @@ public class BaroneAdesiWhaleyModel {
       final double pnd1 = NORMAL.getPDF(d1);
       res[0] = _df2 * cnd1; //delta
       res[1] = -_df1 * cnd2; //dual delta
-      res[2] = -_t * (_df2 * s * cnd1 - _df1 * _k * cnd2); //rho (r sensitivity) 
-      res[3] = s * _t * _df2 * cnd1; //b sensitivity 
+      res[2] = -_t * (_df2 * s * cnd1 - _df1 * _k * cnd2); //rho (r sensitivity)
+      res[3] = s * _t * _df2 * cnd1; //b sensitivity
       res[4] = _df2 * s * (_sigma / 2 / _rootT * pnd1 + (_b - _r) * cnd1) + _r * _k * _df1 * cnd2; //theta
       res[5] = s * _df2 * pnd1 * _rootT; //vega
       return res;
     }
 
-    private double getBSMVega(final double s) {
-      final double d1 = getd1(s);
-      final double pnd1 = NORMAL.getPDF(d1);
-      return s * _df2 * pnd1 * _rootT;
-    }
-
     /**
-     * Sensitivity of sStar to k, r, b, t & sigma 
-     * @param s sStar 
-     * @param a2Ajoint - get this by calling getA2Adjoint 
-     * @return array of sensitivities to  k, r, b, t & sigma 
+     * Sensitivity of sStar to k, r, b, t & sigma
+     * @param s sStar
+     * @param a2Ajoint - get this by calling getA2Adjoint
+     * @return array of sensitivities to  k, r, b, t & sigma
      */
     public double[] getSStarAdjoint(final double s, final double[] a2Ajoint) {
 
@@ -320,11 +421,12 @@ public class BaroneAdesiWhaleyModel {
     }
 
     /**
-     * The internal parameter A2 and its sensitivities 
-     * @param s the critical value of s (sCrit or sStar) 
-     * @param q2Adjoint get by calling getQ2Adjoint 
-     * @return A2 and sensitivity to s, k, r, b, t, sigma 
+     * The internal parameter A2 and its sensitivities
+     * @param s the critical value of s (sCrit or sStar)
+     * @param q2Adjoint get by calling getQ2Adjoint
+     * @return A2 and sensitivity to s, k, r, b, t, sigma
      */
+    @SuppressWarnings("synthetic-access")
     protected double[] getA2Adjoint(final double s, final double[] q2Adjoint) {
 
       final double w2 = Math.log(s / _k);
@@ -350,7 +452,7 @@ public class BaroneAdesiWhaleyModel {
 
       final double[] res = new double[7];
       res[0] = w8; //A2
-      res[1] = 1 / q2Adjoint[0] * w6Bar + 1 / s * w2Bar; // 'delta' 
+      res[1] = 1 / q2Adjoint[0] * w6Bar + 1 / s * w2Bar; // 'delta'
       res[2] = -1 / _k * w2Bar; // 'dual-delta'
       res[3] = -_t * _df2 * df2Bar + q2Bar * q2Adjoint[1]; //rho
       res[4] = _t * w1Bar + _t * _df2 * df2Bar + q2Bar * q2Adjoint[2]; //b-rho
@@ -360,15 +462,15 @@ public class BaroneAdesiWhaleyModel {
     }
 
     /**
-     * The internal parameter q2 and its sensitivities 
-     * @return array of q2 and sensitivity to r,b,t,sigma 
+     * The internal parameter q2 and its sensitivities
+     * @return array of q2 and sensitivity to r,b,t,sigma
      */
     protected double[] getQ2Adjoint() {
       final double[] res = new double[5];
 
       final double w3 = 1 / _sigma / _sigma;
       final double w4 = 2 * _r * w3; // M
-      final double w5 = 2 * _b * w3 - 1; // N-1 
+      final double w5 = 2 * _b * w3 - 1; // N-1
       final double w6 = 1 - _df1; // K
       final double w7 = w5 * w5; //(N-1)^2
       final double w8 = 4 * w4 / w6; // 4M/K
@@ -397,23 +499,40 @@ public class BaroneAdesiWhaleyModel {
     }
   }
 
+  /**
+   * Calculates the price for a put
+   */
   private class PutSolver {
-
+    /** The tolerance */
     private static final double TOL = 1e-8;
+    /** The maximum number of iterations */
     private static final int MAX_INT = 50;
+    /** The spot */
     private final double _s0;
+    /** The strike */
     private final double _k;
+    /** The interest rate */
     private final double _r;
+    /** The cost of carry */
     private final double _b;
+    /** The volatility */
     private final double _sigma;
+    /** The time to expiry */
     private final double _t;
 
+    /** The square root of time */
     private final double _rootT;
+    /** volatility * sqrt(t) */
     private final double _sigmaRootT;
+    /** phi */
     private final double _phi;
+    /** q1 */
     private final double _q1;
+    /** discount factor */
     private final double _df1;
+    /** discount factor including the cost-of-carry */
     private final double _df2;
+    /** s star */
     private final double _sStar;
 
     public PutSolver(final double s0, final double k, final double r, final double b, final double t, final double sigma) {
@@ -446,10 +565,9 @@ public class BaroneAdesiWhaleyModel {
 
       if (_s0 <= _sStar) {
         return _k - _s0;
-      } else {
-        final double a1 = getA1(_sStar);
-        return getBSPrice(_s0) + a1 * Math.pow(_s0 / _sStar, _q1);
       }
+      final double a1 = getA1(_sStar);
+      return getBSPrice(_s0) + a1 * Math.pow(_s0 / _sStar, _q1);
     }
 
     private double getd1(final double s) {
@@ -457,9 +575,10 @@ public class BaroneAdesiWhaleyModel {
       return (Math.log(s / _k) + _phi) / _sigmaRootT;
     }
 
+    @SuppressWarnings("synthetic-access")
     private double getA1(final double s) {
       final double d1 = getd1(s);
-      double res = -s * (1 - _df2 * NORMAL.getCDF(-d1)) / _q1;
+      final double res = -s * (1 - _df2 * NORMAL.getCDF(-d1)) / _q1;
       return res;
     }
 
@@ -471,6 +590,7 @@ public class BaroneAdesiWhaleyModel {
       return _sStar;
     }
 
+    @SuppressWarnings("synthetic-access")
     private double getSStar(final double initalValue) {
 
       double s = initalValue;
@@ -501,7 +621,7 @@ public class BaroneAdesiWhaleyModel {
 
     /**
      * The sensitivity of price to the parameters  s0, k, r, b, t, sigma
-     * @return arrays in order s0 (delta), k (dual-delta), r (rho), b (b-rho), t (theta), sigma (vega) 
+     * @return arrays in order s0 (delta), k (dual-delta), r (rho), b (b-rho), t (theta), sigma (vega)
      */
     public double[] getPriceAdjoint() {
 
@@ -513,10 +633,10 @@ public class BaroneAdesiWhaleyModel {
         return res;
       }
 
-      double[] q1Adjoint = getQ1Adjoint();
-      double[] a1Adjoint = getA1Adjoint(_sStar, q1Adjoint);
-      double[] sStarAdjoint = getSStarAdjoint(_sStar, a1Adjoint);
-      double[] bsmAdjoint = getBSMPriceAdjoint(_s0);
+      final double[] q1Adjoint = getQ1Adjoint();
+      final double[] a1Adjoint = getA1Adjoint(_sStar, q1Adjoint);
+      final double[] sStarAdjoint = getSStarAdjoint(_sStar, a1Adjoint);
+      final double[] bsmAdjoint = getBSMPriceAdjoint(_s0);
       final double q1 = q1Adjoint[0];
       final double a1 = a1Adjoint[0];
       final double x = Math.pow(_s0 / _sStar, q1);
@@ -538,9 +658,10 @@ public class BaroneAdesiWhaleyModel {
 
     /**
      * The first order Greeks for BSM put
-     * @param s spot level 
+     * @param s spot level
      * @return Order is delta, dual-delta, rho, b-rho, theta and vega
      */
+    @SuppressWarnings("synthetic-access")
     private double[] getBSMPriceAdjoint(final double s) {
 
       final double[] res = new double[6];
@@ -552,18 +673,18 @@ public class BaroneAdesiWhaleyModel {
       final double pnd1 = NORMAL.getPDF(-d1);
       res[0] = -_df2 * cnd1; //delta
       res[1] = _df1 * cnd2; //dual delta
-      res[2] = _t * (_df2 * s * cnd1 - _df1 * _k * cnd2); //rho (r sensitivity) 
-      res[3] = -s * _t * _df2 * cnd1; //b sensitivity 
+      res[2] = _t * (_df2 * s * cnd1 - _df1 * _k * cnd2); //rho (r sensitivity)
+      res[3] = -s * _t * _df2 * cnd1; //b sensitivity
       res[4] = _df2 * s * (_sigma / 2 / _rootT * pnd1 - (_b - _r) * cnd1) - _r * _k * _df1 * cnd2; //theta
       res[5] = s * _df2 * pnd1 * _rootT; //vega
       return res;
     }
 
     /**
-     * Sensitivity of sStar to k, r, b, t & sigma 
-     * @param s sStar 
-     * @param a1Ajoint - get this by calling getA1Adjoint 
-     * @return array of sensitivities to  k, r, b, t & sigma 
+     * Sensitivity of sStar to k, r, b, t & sigma
+     * @param s sStar
+     * @param a1Ajoint - get this by calling getA1Adjoint
+     * @return array of sensitivities to  k, r, b, t & sigma
      */
     public double[] getSStarAdjoint(final double s, final double[] a1Ajoint) {
 
@@ -586,11 +707,12 @@ public class BaroneAdesiWhaleyModel {
     }
 
     /**
-     * The internal parameter A1 and its sensitivities 
-     * @param s the critical value of s (sCrit or sStar) 
-     * @param q1Adjoint get by calling getQ2Adjoint 
-     * @return A1 and sensitivity to s, k, r, b, t, sigma 
+     * The internal parameter A1 and its sensitivities
+     * @param s the critical value of s (sCrit or sStar)
+     * @param q1Adjoint get by calling getQ2Adjoint
+     * @return A1 and sensitivity to s, k, r, b, t, sigma
      */
+    @SuppressWarnings("synthetic-access")
     protected double[] getA1Adjoint(final double s, final double[] q1Adjoint) {
 
       final double w2 = Math.log(s / _k);
@@ -616,7 +738,7 @@ public class BaroneAdesiWhaleyModel {
 
       final double[] res = new double[7];
       res[0] = w8; //A1
-      res[1] = 1 / q1Adjoint[0] * w6Bar + 1 / s * w2Bar; // 'delta' 
+      res[1] = 1 / q1Adjoint[0] * w6Bar + 1 / s * w2Bar; // 'delta'
       res[2] = -1 / _k * w2Bar; // 'dual-delta'
       res[3] = -_t * _df2 * df2Bar + q1Bar * q1Adjoint[1]; //rho
       res[4] = _t * w1Bar + _t * _df2 * df2Bar + q1Bar * q1Adjoint[2]; //b-rho
@@ -626,15 +748,15 @@ public class BaroneAdesiWhaleyModel {
     }
 
     /**
-     * The internal parameter q1 and its sensitivities 
-     * @return array of q1 and sensitivity to r,b,t,sigma 
+     * The internal parameter q1 and its sensitivities
+     * @return array of q1 and sensitivity to r,b,t,sigma
      */
     protected double[] getQ1Adjoint() {
       final double[] res = new double[5];
 
       final double w3 = 1 / _sigma / _sigma;
       final double w4 = 2 * _r * w3; // M
-      final double w5 = 2 * _b * w3 - 1; // N-1 
+      final double w5 = 2 * _b * w3 - 1; // N-1
       final double w6 = 1 - _df1; // K
       final double w7 = w5 * w5; //(N-1)^2
       final double w8 = 4 * w4 / w6; // 4M/K
