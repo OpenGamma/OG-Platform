@@ -672,7 +672,7 @@ public abstract class BlackFormulaRepository {
 
   private static double solveByBisection(final double forwardPrice, final double forward, final double strike, final double expiry, final boolean isCall, final double lowerSigma,
       final double upperSigma) {
-    //    final BracketRoot bracketer = new BracketRoot();
+
     final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(VOL_TOL);
     final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
@@ -682,14 +682,7 @@ public abstract class BlackFormulaRepository {
         return trialPrice / forwardPrice - 1.0;
       }
     };
-    // final double[] range = bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change));
-    //  try {
     return rootFinder.getRoot(func, lowerSigma, upperSigma);
-    //    } catch (Exception e) {
-    //
-    //      final double[] temp = bracketRoot(forwardPrice, forward, strike, expiry, isCall, 0.3, 0.1);
-    //      return 0.0;
-    //    }
   }
 
   private static double solveByBisection(final SimpleOptionData[] data, final double price, final double sigma, final double change) {

@@ -7,11 +7,11 @@ package com.opengamma.analytics.financial.model.option.pricing.analytic;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Arrays;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.analytics.financial.model.volatility.GenericImpliedVolatiltySolver;
-import com.opengamma.analytics.math.function.Function1D;
 
 /**
  * 
@@ -59,17 +59,17 @@ public class BaroneAdesiWhaleyModelTest {
   }
 
   @Test
-      (enabled = false)
-      public void test() {
+  //(enabled = false)
+  public void test() {
 
     final BaroneAdesiWhaleyModel baw = new BaroneAdesiWhaleyModel();
 
     final double s0 = 110;
-    final double k = 100;
+    final double k = 80;
     final double t = 0.5;
     final double r = 0.1;
-    final double b = -0.0;
-    final double sigma = 0.35;
+    final double b = -0.04;
+    final double sigma = 0.3;
     final boolean isCall = true;
 
     final double bawPrice = baw.price(s0, k, r, b, t, sigma, isCall);
@@ -132,47 +132,47 @@ public class BaroneAdesiWhaleyModelTest {
   }
 
   @Test
-  public void sensitivityTest() {
+  public void adjointTest() {
 
-    final BaroneAdesiWhaleyModel baw = new BaroneAdesiWhaleyModel();
+    final BaroneAdesiWhaleyModel model = new BaroneAdesiWhaleyModel();
 
-    final double s0 = 110;
+    final double[] s0Set = new double[] {60, 90, 100, 110, 160 };
     final double k = 100;
-    final double t = 0.5;
     final double r = 0.1;
-    final double b = 0.07;
+    final double[] bSet = new double[] {-0.04, 0.0, 0.04, 0.11 };
     final double sigma = 0.35;
+    final double t = 0.5;
+    final boolean[] tfSet = new boolean[] {true, false };
 
     final double eps = 1e-5;
 
-    for (int i = 0; i < 2; i++) {
-      boolean isCall = i == 0;
-      double[] greeks = baw.getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
+    for (double s0 : s0Set) {
+      for (double b : bSet) {
 
-      final double sUp = baw.price(s0 + eps, k, r, b, t, sigma, isCall);
-      final double sDown = baw.price(s0 - eps, k, r, b, t, sigma, isCall);
-      final double fdDelta = (sUp - sDown) / 2 / eps;
-      assertEquals("delta", greeks[0], fdDelta, 1e-9);
-      final double kUp = baw.price(s0, k + eps, r, b, t, sigma, isCall);
-      final double kDown = baw.price(s0, k - eps, r, b, t, sigma, isCall);
-      final double fdDD = (kUp - kDown) / 2 / eps;
-      assertEquals("dual-delta", greeks[1], fdDD, 1e-9);
-      final double rUp = baw.price(s0, k, r + eps, b, t, sigma, isCall);
-      final double rDown = baw.price(s0, k, r - eps, b, t, sigma, isCall);
-      final double fdRho = (rUp - rDown) / 2 / eps;
-      assertEquals("rho", greeks[2], fdRho, 1e-7);
-      final double bUp = baw.price(s0, k, r, b + eps, t, sigma, isCall);
-      final double bDown = baw.price(s0, k, r, b - eps, t, sigma, isCall);
-      final double fdBRho = (bUp - bDown) / 2 / eps;
-      assertEquals("b-rho", greeks[3], fdBRho, 1e-7);
-      final double tUp = baw.price(s0, k, r, b, t + eps, sigma, isCall);
-      final double tDown = baw.price(s0, k, r, b, t - eps, sigma, isCall);
-      final double fdTheta = (tUp - tDown) / 2 / eps;
-      assertEquals("theta", greeks[4], fdTheta, 1e-9);
-      final double volUp = baw.price(s0, k, r, b, t, sigma + eps, isCall);
-      final double volDown = baw.price(s0, k, r, b, t, sigma - eps, isCall);
-      final double fdVega = (volUp - volDown) / 2 / eps;
-      assertEquals("vega", greeks[5], fdVega, 1e-8);
+        final double[] parms = new double[] {s0, k, r, b, t, sigma };
+        final int n = parms.length;
+        for (boolean isCall : tfSet) {
+
+          final double call = model.price(s0, k, r, b, t, sigma, isCall);
+          final double[] sense = model.getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
+
+          assertEquals("price " + s0 + " " + b + " " + isCall, call, sense[0], 1e-13);
+
+          for (int i = 0; i < n; i++) {
+            double[] temp = Arrays.copyOf(parms, n);
+            final double delta = (1 + Math.abs(parms[i])) * eps;
+            temp[i] += delta;
+            double up = model.price(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], isCall);
+            temp[i] -= 2 * delta;
+            double down = model.price(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], isCall);
+
+            double fd = (up - down) / 2 / delta;
+            assertEquals(i + " " + k + " " + b + " " + isCall, fd, sense[i + 1], Math.abs(fd) * 1e-5);
+
+            //System.out.println(i + " " + s0 + " " + b + " " + isCall + " " + fd + "\t" + sense[i + 1]);
+          }
+        }
+      }
     }
   }
 
@@ -185,19 +185,19 @@ public class BaroneAdesiWhaleyModelTest {
     final double s0 = 110;
     final double t = 0.5;
     final double r = 0.1;
-    final double b = 0.06;
     final double sigma = 0.35;
+    final double[] kSet = new double[] {60, 80, 100, 110, 120, 160 };
+    final double[] bSet = new double[] {-0.04, 0.0, 0.04, 0.11 };
 
     final BaroneAdesiWhaleyModel baw = new BaroneAdesiWhaleyModel();
 
-    for (int i = 0; i < 11; i++) {
-      double k = 90 + i * 4;
-      double cprice = baw.price(s0, k, r, b, t, sigma, true);
-      double ccprice = baw.price(k, s0, r - b, -b, t, sigma, false); //price the call as a put
-      assertEquals("strike " + k, cprice, ccprice, 1e-3);
-
+    for (double k : kSet) {
+      for (double b : bSet) {
+        double cprice = baw.price(s0, k, r, b, t, sigma, true);
+        double ccprice = baw.price(k, s0, r - b, -b, t, sigma, false); //price the call as a put
+        assertEquals("strike " + k, cprice, ccprice, 2e-3 * cprice);
+      }
     }
-
   }
 
   @Test
@@ -206,21 +206,24 @@ public class BaroneAdesiWhaleyModelTest {
     final double s0 = 110;
     final double t = 0.5;
     final double r = 0.1;
-    final double b = 0.07;
     final double sigma = 0.35;
+    final double[] kSet = new double[] {60, 80, 100, 110, 120, 160 };
+    final double[] bSet = new double[] {-0.04, 0.0, 0.04, 0.11 };
+    final boolean[] tfSet = new boolean[] {true, false };
+
     final BaroneAdesiWhaleyModel baw = new BaroneAdesiWhaleyModel();
 
-    for (int j = 0; j < 2; j++) {
-      boolean isCall = j == 0;
-      for (int i = 0; i < 10; i++) {
-        double k = 80 + 50 * i / 9.;
-        double p = baw.price(s0, k, r, b, t, sigma, isCall);
-        Function1D<Double, double[]> func = baw.getPriceAndVegaFunction(s0, k, r, b, t, isCall);
-        double vol = GenericImpliedVolatiltySolver.impliedVolatility(p, func);
-        assertEquals("k = " + k, sigma, vol, 1e-9);
+    for (boolean isCall : tfSet) {
+      for (double k : kSet) {
+        for (double b : bSet) {
+          double p = baw.price(s0, k, r, b, t, sigma, isCall);
+          double vol = baw.impliedVolatility(p, s0, k, r, b, t, isCall);
+          if (vol != 0.0) {
+            assertEquals("k = " + k, sigma, vol, 1e-9);
+          }
+        }
       }
     }
-
   }
 
   @Test(enabled = false)
@@ -270,4 +273,21 @@ public class BaroneAdesiWhaleyModelTest {
 
   }
 
+  @Test(enabled = false)
+  public void PriceSigmaTest() {
+
+    final double s0 = 110;
+    final double t = 0.5;
+    final double r = 0.1;
+    final double b = -0.04;
+    final double k = 80;
+
+    final BaroneAdesiWhaleyModel baw = new BaroneAdesiWhaleyModel();
+
+    for (int i = 0; i < 101; i++) {
+      double sigma = 0.05 + 0.7 * i / 100.;
+      double p = baw.price(s0, k, r, b, t, sigma, true);
+      System.out.println(sigma + "\t" + p);
+    }
+  }
 }

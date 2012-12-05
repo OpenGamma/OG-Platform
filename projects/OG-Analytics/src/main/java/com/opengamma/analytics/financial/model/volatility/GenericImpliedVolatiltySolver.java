@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.model.volatility;
 
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 
 /**
@@ -35,9 +36,10 @@ public class GenericImpliedVolatiltySolver {
     final double maxChange = 0.5;
 
     double[] pnv = pavFunc.evaluate(sigma);
-    //TODO check if this is ever called
+
+    //This can happen for American options, where low volatilities puts you in the early excise region which obviously has zero vega 
     if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
-      throw new MathException("zero price or NaN vega");
+      return solveByBisection(optionPrice, pavFunc, lowerSigma, upperSigma);
     }
     double diff = pnv[0] / optionPrice - 1.0;
     boolean above = diff > 0;
@@ -61,7 +63,7 @@ public class GenericImpliedVolatiltySolver {
       pnv = pavFunc.evaluate(sigma);
 
       if (pnv[1] == 0 || Double.isNaN(pnv[1])) {
-        throw new MathException("zero price or NaN vega");
+        return solveByBisection(optionPrice, pavFunc, lowerSigma, upperSigma);
       }
 
       diff = pnv[0] / optionPrice - 1.0;
@@ -80,7 +82,7 @@ public class GenericImpliedVolatiltySolver {
       }
 
       if (count++ > MAX_ITERATIONS) {
-        throw new MathException("failed to converge");
+        return solveByBisection(optionPrice, pavFunc, lowerSigma, upperSigma);
       }
     }
     return sigma;
@@ -96,6 +98,20 @@ public class GenericImpliedVolatiltySolver {
       }
     };
     return bracketer.getBracketedPoints(func, sigma - Math.abs(change), sigma + Math.abs(change), 0, Double.POSITIVE_INFINITY);
+  }
+
+  private static double solveByBisection(final double optionPrice, final Function1D<Double, double[]> pavFunc, final double lowerSigma,
+      final double upperSigma) {
+    final BisectionSingleRootFinder rootFinder = new BisectionSingleRootFinder(VOL_TOL);
+    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double volatility) {
+        double trialPrice = pavFunc.evaluate(volatility)[0];
+        return trialPrice / optionPrice - 1.0;
+      }
+    };
+    return rootFinder.getRoot(func, lowerSigma, upperSigma);
   }
 
 }
