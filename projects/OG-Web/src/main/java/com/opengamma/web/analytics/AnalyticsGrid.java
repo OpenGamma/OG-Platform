@@ -88,6 +88,7 @@ import com.opengamma.util.ArgumentChecker;
       throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
     }
     V viewport = createViewport(viewportDefinition, callbackId);
+    _viewportListener.viewportCreated(viewportDefinition, getGridStructure());
     boolean hasData = (viewport.getState() != Viewport.State.EMPTY);
     _viewports.put(viewportId, viewport);
     return hasData;
@@ -112,6 +113,7 @@ import com.opengamma.util.ArgumentChecker;
     if (viewport == null) {
       throw new DataNotFoundException("No viewport found with ID " + viewportId);
     }
+    _viewportListener.viewportDeleted(viewport.getDefinition(), getGridStructure());
   }
 
   /**

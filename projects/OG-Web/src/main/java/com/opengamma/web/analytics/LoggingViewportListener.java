@@ -23,9 +23,6 @@ import com.opengamma.util.tuple.Pair;
 /* package */ class LoggingViewportListener implements ViewportListener {
 
   private final ViewClient _viewClient;
-  /**
-   *
-   */
   private final Map<Pair<String, ValueSpecification>, Integer> _refCounts = Maps.newHashMap();
 
   /* package */ LoggingViewportListener(ViewClient viewClient) {
@@ -44,6 +41,9 @@ import com.opengamma.util.tuple.Pair;
     Set<Pair<String, ValueSpecification>> newVals = Sets.newHashSet();
     for (GridCell cell : viewportDef) {
       Pair<String, ValueSpecification> valueSpec = gridStructure.getTargetForCell(cell.getRow(), cell.getColumn());
+      if (valueSpec == null) {
+        continue;
+      }
       Integer refCount = _refCounts.get(valueSpec);
       Integer newRefCount;
       if (refCount == null) {
