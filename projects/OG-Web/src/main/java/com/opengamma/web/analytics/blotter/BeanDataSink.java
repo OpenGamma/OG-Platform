@@ -13,8 +13,11 @@ import org.joda.beans.MetaBean;
 
 /**
  * Interface for classes that receive data from a bean and create another object from it.
+ * TODO is this interface worth the complication or would it be better to imlement BeanVisitor directly?
  */
 /* package */ interface BeanDataSink<T> {
+
+  void setBeanData(MetaBean metaBean, Bean bean);
 
   void setValue(String propertyName, Object value);
 
@@ -22,9 +25,7 @@ import org.joda.beans.MetaBean;
 
   void setMapValues(String propertyName, Map<?, ?> values);
 
-  void setBeanData(String propertyName, Bean bean, BeanTraverser traverser);
-
-  void setBeanData(MetaBean metaBean, Bean bean);
+  void setBeanValue(String propertyName, Bean bean, BeanTraverser traverser);
 
   T finish();
 }

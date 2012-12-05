@@ -26,9 +26,8 @@ import com.opengamma.util.ArgumentChecker;
   private final BeanDataSource _data;
   private final MetaBeanFactory _metaBeanFactory;
 
-  /* package */
   @SuppressWarnings("unchecked")
-  BeanBuildingVisitor(BeanDataSource data, MetaBeanFactory metaBeanFactory) {
+    /* package */ BeanBuildingVisitor(BeanDataSource data, MetaBeanFactory metaBeanFactory) {
     ArgumentChecker.notNull(data, "data");
     ArgumentChecker.notNull(metaBeanFactory, "metaBeanFactory");
     _metaBeanFactory = metaBeanFactory;
@@ -55,6 +54,7 @@ import com.opengamma.util.ArgumentChecker;
     } else {
       result = null;
     }
+    // TODO check property is writable. or use decorating visitor that filters out read-only properties?
     _builder.set(property, result);
   }
 
@@ -78,11 +78,13 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void visitMapProperty(MetaProperty<?> property) {
+    // TODO check property is writable. or use decorating visitor that filters out read-only properties?
     _builder.set(property, buildMap(property, _data.getMapValues(property.name())));
   }
 
   @Override
   public void visitProperty(MetaProperty<?> property) {
+    // TODO check property is writable. or use decorating visitor that filters out read-only properties?
     _builder.setString(property, _data.getValue(property.name()));
   }
 

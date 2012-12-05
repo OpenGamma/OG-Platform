@@ -18,7 +18,7 @@ import org.joda.beans.MetaProperty;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * TODO static traversal method(s)?
  */
 /* package */ class BeanTraverser {
 
@@ -29,6 +29,7 @@ import com.opengamma.util.ArgumentChecker;
     this(Collections.<MetaProperty<?>>emptySet(), Collections.<String>emptySet());
   }
 
+  // TODO ignoring properties could be implemented as a decorating visitor
   /* package */ BeanTraverser(Set<MetaProperty<?>> ignoreProperties, Set<String> ignorePropertyNames) {
     ArgumentChecker.notNull(ignoreProperties, "ignoreProperties");
     ArgumentChecker.notNull(ignorePropertyNames, "ignorePropertyNames");

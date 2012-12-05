@@ -16,6 +16,8 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * {@link BeanVisitor} that builds an object by pushing data from a bean into a {@link BeanDataSink sink}.
+ * TODO a MUCH better name is required, this and BeanBuildingVisitor are too similar
+ * TODO is this class worth the complication or would it be better for sinks to imlement BeanVisitor directly?
  */
 @SuppressWarnings("unchecked")
 /* package */ class BuildingBeanVisitor<T> implements BeanVisitor<T> {
@@ -41,7 +43,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
-    _sink.setBeanData(property.name(), (Bean) property.get(_bean), traverser);
+    _sink.setBeanValue(property.name(), (Bean) property.get(_bean), traverser);
   }
 
   @Override
