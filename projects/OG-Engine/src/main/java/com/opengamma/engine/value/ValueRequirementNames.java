@@ -580,6 +580,10 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE_DRIFTLESS_DELTA = "ValueDriftlessTheta";
   /**
+   * The amount by which the value of a portfolio would change due to dual delta.
+   */
+  public static final String VALUE_DUAL_DELTA = "ValueDualDelta";
+  /**
    * The amount by which the value of a portfolio would change due to dVannadVol.
    */
   public static final String VALUE_DVANNA_DVOL = "ValuedVanna_dVol";
