@@ -663,11 +663,14 @@ $.register_module({
                             put: function (config) {
                                 config = config || {};
                                 var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
-                                    fields = ['rows', 'cols', 'format', 'log'],
-                                    api_fields = ['rows', 'columns', 'format', 'enableLogging'];
+                                    fields = ['cells', 'rows', 'cols', 'format', 'log'],
+                                    api_fields = ['cells', 'rows', 'columns', 'format', 'enableLogging'];
                                 meta = check({
                                     bundle: {method: root + '#put', config: config},
-                                    required: [{all_of: ['view_id', 'graph_id', 'rows', 'cols', 'format']}]
+                                    required: [
+                                        {all_of: ['view_id', 'graph_id', 'format']},
+                                        {either: ['rows', 'cols'], or: ['cells']}
+                                    ]
                                 });
                                 meta.type = 'POST';
                                 fields.forEach(function (key, idx) {data[api_fields[idx]] = config[key];});
@@ -732,11 +735,14 @@ $.register_module({
                         put: function (config) {
                             config = config || {};
                             var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
-                                fields = ['rows', 'cols', 'format', 'log'],
-                                api_fields = ['rows', 'columns', 'format', 'enableLogging'];
+                                fields = ['cells', 'rows', 'cols', 'format', 'log'],
+                                api_fields = ['cells', 'rows', 'columns', 'format', 'enableLogging'];
                             meta = check({
                                 bundle: {method: root + '#put', config: config},
-                                required: [{all_of: ['view_id', 'rows', 'cols', 'format']}]
+                                required: [
+                                    {all_of: ['view_id', 'format']},
+                                    {either: ['rows', 'cols'], or: ['cells']}
+                                ]
                             });
                             meta.type = 'POST';
                             fields.forEach(function (key, idx) {data[api_fields[idx]] = config[key];});

@@ -40,7 +40,8 @@ $.register_module({
                 }) : (promise = viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id,
                         loading: function () {loading_viewport_id = true;},
-                        rows: viewport.rows, cols: viewport.cols, format: viewport.format, log: viewport.log
+                        rows: viewport.rows, cols: viewport.cols, cells: viewport.cells,
+                        format: viewport.format, log: viewport.log
                     })).pipe(function (result) {
                         loading_viewport_id = false;
                         if (result.error) return (data.prefix = module.name + ' (' + label + view_id + '-dead):\n'),
@@ -73,6 +74,10 @@ $.register_module({
                 if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);
                 try {api.put(put_options).pipe(view_handler);} // initial request params come from outside so try/catch
                 catch (error) {fire('fatal', data.prefix + error.message);}
+            };
+            var nonsensical_viewport = function (viewport) {
+                return !(viewport.cells && viewport.cells.length) &&
+                    (!viewport.rows || !viewport.rows.length || !viewport.cols || !viewport.cols.length);
             };
             var reconnect_handler = function () {initialize();};
             var structure_handler = function (result) {
@@ -159,7 +164,7 @@ $.register_module({
                     if (meta.viewport) (meta.viewport.cols = []), (meta.viewport.rows = []);
                     return data;
                 }
-                if (!new_viewport.rows.length || !new_viewport.cols.length)
+                if (nonsensical_viewport(new_viewport))
                     return og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport), data;
                 if (same_viewport(viewport_cache, new_viewport)) return data; // duplicate viewport, do nothing
                 viewport_cache = JSON.parse(JSON.stringify(data.meta.viewport = viewport = new_viewport));
@@ -167,7 +172,8 @@ $.register_module({
                 try { // viewport definitions come from outside, so try/catch
                     (promise = viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
-                        rows: viewport.rows, cols: viewport.cols, format: viewport.format, log: viewport.log
+                        rows: viewport.rows, cols: viewport.cols, cells: viewport.cells,
+                        format: viewport.format, log: viewport.log
                     })).pipe(function (result) {if (result.error) return;});
                     viewport_version = promise.id;
                 } catch (error) {fire('fatal', data.prefix + error.message);}
