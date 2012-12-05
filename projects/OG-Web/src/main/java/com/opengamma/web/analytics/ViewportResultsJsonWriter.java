@@ -157,6 +157,7 @@ public class ViewportResultsJsonWriter {
         }
         logMap.put(EVENTS, events);
       }
+      output.add(logMap);
     }
     return output;
   }
