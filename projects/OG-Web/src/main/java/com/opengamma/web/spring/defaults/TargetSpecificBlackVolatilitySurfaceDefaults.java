@@ -24,10 +24,11 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 public class TargetSpecificBlackVolatilitySurfaceDefaults {
   private static final Map<UnorderedCurrencyPair, List<String>> FX_BLACK_SURFACE_DEFAULTS;
   private static final Map<ExternalId, List<String>> EQUITY_BLACK_SURFACE_DEFAULTS;
+  private static final Map<Currency, List<String>> COMMODITY_BLACK_SURFACE_DEFAULTS;
   
   static {
-    FX_BLACK_SURFACE_DEFAULTS = new HashMap<UnorderedCurrencyPair, List<String>>(); 
     List<String> eurusd = Arrays.asList("EURUSD", "DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "TULLETT");
+    FX_BLACK_SURFACE_DEFAULTS = new HashMap<UnorderedCurrencyPair, List<String>>(); 
     FX_BLACK_SURFACE_DEFAULTS.put(UnorderedCurrencyPair.of(Currency.EUR, Currency.USD), eurusd);
 
     List<String> djxIndex = Arrays.asList("DJX Index", "Discounting", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "USD", "DefaultTwoCurveUSDConfig", "BBG");
@@ -37,6 +38,10 @@ public class TargetSpecificBlackVolatilitySurfaceDefaults {
     EQUITY_BLACK_SURFACE_DEFAULTS.put(ExternalSchemes.bloombergTickerSecurityId("DJX Index").getExternalId(), djxIndex);
     EQUITY_BLACK_SURFACE_DEFAULTS.put(ExternalSchemes.bloombergTickerSecurityId("SPX Index").getExternalId(), spxIndex);
     EQUITY_BLACK_SURFACE_DEFAULTS.put(ExternalSchemes.bloombergTickerSecurityId("NKY Index").getExternalId(), nkyIndex);
+    
+    List<String> usdCommodity = Arrays.asList("USD", "BBG_S ", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD, "BBG_S ");
+    COMMODITY_BLACK_SURFACE_DEFAULTS = new HashMap<Currency, List<String>>();
+    COMMODITY_BLACK_SURFACE_DEFAULTS.put(Currency.USD, usdCommodity);
   }
   
   /**
@@ -44,8 +49,8 @@ public class TargetSpecificBlackVolatilitySurfaceDefaults {
    * @return A collection of lists containing the default values
    */
   public static List<String> getAllFXDefaults() {
-    List<String> result = new ArrayList<String>();
-    for (List<String> defaults : FX_BLACK_SURFACE_DEFAULTS.values()) {
+    final List<String> result = new ArrayList<String>();
+    for (final List<String> defaults : FX_BLACK_SURFACE_DEFAULTS.values()) {
       result.addAll(defaults);
     }
     return result;
@@ -56,8 +61,20 @@ public class TargetSpecificBlackVolatilitySurfaceDefaults {
    * @return A collection of lists containing the default values
    */
   public static List<String> getAllEquityDefaults() {
-    List<String> result = new ArrayList<String>();
-    for (List<String> defaults : EQUITY_BLACK_SURFACE_DEFAULTS.values()) {
+    final List<String> result = new ArrayList<String>();
+    for (final List<String> defaults : EQUITY_BLACK_SURFACE_DEFAULTS.values()) {
+      result.addAll(defaults);
+    }
+    return result;
+  }
+  
+  /**
+   * Gets all lists of default values for commodity Black volatility surfaces
+   * @return A collection of lists containing the default values
+   */
+  public static List<String> getAllCommodityDefaults() {
+    final List<String> result = new ArrayList<String>();
+    for (final List<String> defaults : COMMODITY_BLACK_SURFACE_DEFAULTS.values()) {
       result.addAll(defaults);
     }
     return result;
@@ -70,7 +87,7 @@ public class TargetSpecificBlackVolatilitySurfaceDefaults {
    * @throws IllegalArgumentException if default values for the currency pair are not found 
    */
   public static List<String> getFXDefaults(final UnorderedCurrencyPair currencyPair) {
-    List<String> defaults = FX_BLACK_SURFACE_DEFAULTS.get(currencyPair);
+    final List<String> defaults = FX_BLACK_SURFACE_DEFAULTS.get(currencyPair);
     if (defaults != null) {
       return defaults;
     }
@@ -84,10 +101,24 @@ public class TargetSpecificBlackVolatilitySurfaceDefaults {
    * @throws IllegalArgumentException if default values for the id are not found
    */
   public static List<String> getEquityDefaults(final ExternalId id) {
-    List<String> defaults = EQUITY_BLACK_SURFACE_DEFAULTS.get(id);
+    final List<String> defaults = EQUITY_BLACK_SURFACE_DEFAULTS.get(id);
     if (defaults != null) {
       return defaults;
     }
     throw new IllegalArgumentException("Could not get Black volatility surface defaults for " + id);    
+  }
+  
+  /**
+   * Gets the default values for a commodity Black volatility surface for a particular currency 
+   * @param currency The currency
+   * @return A list containing the default values
+   * @throws IllegalArgumentException if default values for the currency are not found
+   */
+  public static List<String> getCommodityDefaults(final Currency currency) {
+    final List<String> defaults = COMMODITY_BLACK_SURFACE_DEFAULTS.get(currency);
+    if (defaults != null) {
+      return defaults;
+    }
+    throw new IllegalArgumentException("Could not get Black volatility surface defaults for " + currency);
   }
 }

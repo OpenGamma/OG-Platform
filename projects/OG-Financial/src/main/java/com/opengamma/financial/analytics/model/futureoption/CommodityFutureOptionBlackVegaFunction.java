@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionPresentValueCalculator;
+import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionVegaCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.engine.ComputationTarget;
@@ -21,19 +21,19 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-public class CommodityFutureOptionBlackPVFunction extends CommodityFutureOptionBlackFunction {
+public class CommodityFutureOptionBlackVegaFunction extends CommodityFutureOptionBlackFunction {
 
-  public CommodityFutureOptionBlackPVFunction() {
-    super(ValueRequirementNames.PRESENT_VALUE);
+  public CommodityFutureOptionBlackVegaFunction() {
+    super(ValueRequirementNames.VALUE_VEGA);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final Set<ValueRequirement> desiredValues,
       final ComputationTarget target) {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
-    final double pv = derivative.accept(CommodityFutureOptionPresentValueCalculator.getInstance(), market);
+    final double vega = derivative.accept(CommodityFutureOptionVegaCalculator.getInstance(), market);
     final ValueSpecification spec = new ValueSpecification(getValueRequirementName()[0], target.toSpecification(), createResultProperties(desiredValue.getConstraints()));
-    return Collections.singleton(new ComputedValue(spec, pv));
+    return Collections.singleton(new ComputedValue(spec, vega));
   }
 
 }

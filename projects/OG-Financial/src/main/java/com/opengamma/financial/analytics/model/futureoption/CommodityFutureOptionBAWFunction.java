@@ -5,8 +5,17 @@
  */
 package com.opengamma.financial.analytics.model.futureoption;
 
+import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -25,7 +34,17 @@ public abstract class CommodityFutureOptionBAWFunction extends FutureOptionFunct
   @Override
   protected ValueRequirement getVolatilitySurfaceRequirement(final FinancialSecurity security, final String surfaceName, final String smileInterpolator, final String discountingCurveName,
       final String discountingCurveConfig) {
-    return null;
+    final Currency currency = FinancialSecurityUtils.getCurrency(security);
+    final ValueProperties properties = ValueProperties.builder()
+      .with(ValuePropertyNames.SURFACE, surfaceName)
+      .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolator)
+      .with(ValuePropertyNames.CURVE, discountingCurveName)
+      .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, discountingCurveConfig)
+      .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
+      .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION)
+      .get();
+    final UniqueId surfaceId = currency.getUniqueId();
+    return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, surfaceId, properties);
   }
 
 }

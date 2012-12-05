@@ -370,6 +370,9 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.defaultp
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSplinePrimitiveDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSplineSecurityDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSplineTradeDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.CommodityBlackVolatilitySurfacePrimitiveDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.CommodityBlackVolatilitySurfaceSecurityDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.CommodityBlackVolatilitySurfaceTradeDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfacePrimitiveDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfaceSecurityDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfaceTradeDefaults;
@@ -1125,6 +1128,16 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "EUR", "DefaultTwoCurveEURConfig", "Discounting",
         "JPY", "DefaultTwoCurveJPYConfig", "Discounting",
         "GBP", "DefaultTwoCurveGBPConfig", "Discounting"));
+//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackDeltaFunction.class.getName()));
+//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackForwardDeltaFunction.class.getName()));
+//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackForwardGammaFunction.class.getName()));
+//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackGammaFunction.class.getName()));
+//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackPVFunction.class.getName()));
+//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackThetaFunction.class.getName()));
+//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackVegaFunction.class.getName()));
+//    
+//    functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityFutureOptionBlackDefaults.class.getName(),
+//        Arrays.asList("USD", "Discounting", "DefaultTwoCurveUSDConfig", "BBG_S ")));
   }
 
   private static void addLocalVolatilityPDEFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -1279,7 +1292,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.MixedLogNormal.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.SABR.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.Spline.class.getName()));
-    //TODO
+
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXBlackVolatilitySurfacePrimitiveDefaults.class.getName(), 
         TargetSpecificBlackVolatilitySurfaceDefaults.getAllFXDefaults()));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXBlackVolatilitySurfaceSecurityDefaults.class.getName(), 
@@ -1297,6 +1310,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   private static void addEquityIndexOptionBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.SABR.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.Spline.class.getName())); 
+
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfacePrimitiveDefaults.class.getName(), 
         TargetSpecificBlackVolatilitySurfaceDefaults.getAllEquityDefaults()));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceSecurityDefaults.class.getName(), 
@@ -1308,6 +1322,13 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   private static void addCommodityBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new StaticFunctionConfiguration(CommodityBlackVolatilitySurfaceFunction.SABR.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(CommodityBlackVolatilitySurfaceFunction.Spline.class.getName()));
+ 
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityBlackVolatilitySurfacePrimitiveDefaults.class.getName(), 
+        TargetSpecificBlackVolatilitySurfaceDefaults.getAllCommodityDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityBlackVolatilitySurfaceSecurityDefaults.class.getName(), 
+        TargetSpecificBlackVolatilitySurfaceDefaults.getAllCommodityDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityBlackVolatilitySurfaceTradeDefaults.class.getName(), 
+        TargetSpecificBlackVolatilitySurfaceDefaults.getAllCommodityDefaults()));    
   }
 
   private static void addLocalVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
@@ -1518,16 +1539,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addExternallyProvidedSensitivitiesFunctions(final List<FunctionConfiguration> functionConfigs) {
-    final String defaultSamplingPeriodName = "P2Y";
-    final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
-    final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesNonYieldCurveFunction.class));
 
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesCreditFactorsFunction.class));
-    //functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
-    //functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName,
-    //    defaultSamplingCalculatorName));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSecurityMarkFunction.class));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurvePV01Function.class));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurveCS01Function.class));
