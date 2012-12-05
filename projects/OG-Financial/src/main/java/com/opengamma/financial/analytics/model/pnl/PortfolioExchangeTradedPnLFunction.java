@@ -13,41 +13,37 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.position.impl.PositionAccumulator;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
- * 
+ *
  */
 public class PortfolioExchangeTradedPnLFunction extends AbstractPortfolioPnLFunction {
-  
+
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.PORTFOLIO_NODE) {
-      final PortfolioNode node = target.getPortfolioNode();
-      final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
-      for (Position position : allPositions) {
-        Security positionSecurity = position.getSecurity();
-        if (FinancialSecurityUtils.isExchangeTraded(positionSecurity)) {
-          for (Trade trade : position.getTrades()) {
-            Security tradeSecurity = trade.getSecurity();
-            if (!FinancialSecurityUtils.isExchangeTraded(tradeSecurity)) {
-              return false;
-            }
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    final PortfolioNode node = target.getPortfolioNode();
+    final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
+    for (final Position position : allPositions) {
+      final Security positionSecurity = position.getSecurity();
+      if (FinancialSecurityUtils.isExchangeTraded(positionSecurity)) {
+        for (final Trade trade : position.getTrades()) {
+          final Security tradeSecurity = trade.getSecurity();
+          if (!FinancialSecurityUtils.isExchangeTraded(tradeSecurity)) {
+            return false;
           }
-        } else {
-          return false;
         }
+      } else {
+        return false;
       }
-      return true;
     }
-    return false;
+    return true;
   }
-  
+
   @Override
   public String getShortName() {
     return "PortfolioEquityPnL";
   }
-  
+
 }
