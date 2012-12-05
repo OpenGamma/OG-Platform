@@ -35,11 +35,6 @@ import com.opengamma.financial.security.swap.SwapSecurity;
       FloatingGearingIRLeg.meta()
   );
 
-  @Path("types")
-  public Response getTypes() {
-
-  }
-
   // TODO endpoint with all known type names
 
   // TODO HTML page with definition of each type
