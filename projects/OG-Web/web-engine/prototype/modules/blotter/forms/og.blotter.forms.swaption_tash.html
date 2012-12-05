@@ -10,11 +10,11 @@
         <td>
           <span>Settlement</span>
         </td>
-        <td>
-          <label>Long <input type="radio" name="name1" value="long"></label>
-          <label>Short <input type="radio" name="name1" value="short"></label>            
-          <label>Cash <input type="radio" name="name2" value="cash"></label>
-          <label>Swap <input type="radio" name="name2" value="swap"></label>
+        <td class="og-double-cell">
+          <div><span><label>Long <input type="radio" name="name1" value="long">
+          </label><label>Short <input type="radio" name="name1" value="short">
+          </label></span><span><label>Cash <input type="radio" name="name2" value="cash">
+          </label><label>Swap <input type="radio" name="name2" value="swap"></label></span></div>
         </td>
       </tr>
       <tr>
@@ -44,11 +44,9 @@
           </label>
         </td>
         <td class="og-triple-cell">
-          <input name="" type="text" placeholder="Amount"/>
-          <select>
-            <option value="" selected disabled="disabled">Currency</option>
-          </select>
-          <input name="" type="text" placeholder="Date"/>
+          <div><span><input name="" type="text" placeholder="Amount"/>
+          </span><span><select><option value="" selected disabled="disabled">Currency</option></select>
+          </span><span><input name="" type="text" placeholder="Date"/></span></div>
         </td>
       </tr>
     </tbody>

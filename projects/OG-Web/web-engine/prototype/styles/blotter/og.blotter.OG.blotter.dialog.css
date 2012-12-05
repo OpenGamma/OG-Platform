@@ -14,17 +14,61 @@
 .OG-blotter-dialog select{
     width: 50%;
 } 
+
+
+
+
+.OG-blotter-form-block .og-triple-cell div{
+    width:96%;
+}
+.OG-blotter-form-block .og-triple-cell span{
+    width: 33%;
+    padding-right:1%;
+    display: inline-block;
+}
+.OG-blotter-form-block .og-triple-cell span:last-child{
+    width: 32%;
+    padding-right: 0;
+}
 .OG-blotter-form-block .og-triple-cell input[type="text"],
 .OG-blotter-form-block .og-triple-cell select {
-    width: 31%;
+    width: 100%;
 }
-.OG-blotter-form-block .og-attribute-cell input[type="text"]{
-    width: 43%;
+
+
+
+
+
+
+.OG-blotter-form-block .og-double-cell div{
+    width:96%;
+}
+.OG-blotter-form-block .og-double-cell span{
+    width: 49%;
+    padding-right:1%;
+    display: inline-block;
+}
+.OG-blotter-form-block .og-double-cell label{
+    margin-left:10%;
+}
+.OG-blotter-form-block .og-double-cell span:last-child{
+    width: 50%;
+    padding-right: 0;
 }
 .OG-blotter-form-block .og-double-cell input[type="text"],
 .OG-blotter-form-block .og-double-cell select {
-    width: 47%;
+    width: 100%;
 }
+
+
+
+
+.OG-blotter-form-block .og-attribute-cell input[type="text"]{
+    width: 43%;
+}
+
+
+
 .OG-blotter-form-block .OG-table{
     margin-top: 2px;
 }

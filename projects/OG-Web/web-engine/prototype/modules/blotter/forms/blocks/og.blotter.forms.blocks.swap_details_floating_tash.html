@@ -1,7 +1,7 @@
 <table class="OG-table">
   <colgroup>
     <col style="width: 30%">              
-    <col style="width: 70%">              
+    <col style="width: 70%">
   </colgroup>
   <tbody>
     <tr>
@@ -9,16 +9,11 @@
         <span>Floating</span>
       </td>
       <td class="og-triple-cell">
-        <select>
-          <option value="" selected disabled="disabled">Day Count</option>
-        </select>
-        <select>
-          <option value="" selected disabled="disabled">Frequency</option>
-        </select>
-        <select>
-          <option value="" selected disabled="disabled">Reference Rate</option>
-        </select>                     
-      </td>
+        <div><span><select><option value="" selected disabled="disabled">Day Count</option>
+          </select></span><span><select><option value="" selected disabled="disabled">Frequency</option>
+          </select></span><span><select><option value="" selected disabled="disabled">Reference Rate</option></select>
+        </span>
+      </div>
     </tr>
     {{#if swaption}}
     <tr>
@@ -27,7 +22,7 @@
       <td>
         <select>
           <option value="" selected disabled="disabled">Monitoring Frequency</option>
-        </select>   
+        </select>
       </td>
     </tr>
     <tr>
@@ -36,7 +31,7 @@
       <td>
         <select>
           <option value="" selected disabled="disabled">Annualization Factor</option>
-        </select>   
+        </select>
       </td>
     </tr>
     {{/if}}
