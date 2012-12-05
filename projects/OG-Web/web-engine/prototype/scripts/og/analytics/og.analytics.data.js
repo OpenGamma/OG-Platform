@@ -93,6 +93,9 @@ $.register_module({
             };
             var same_viewport = function (one, two) {
                 if ((!one || !two) && one !== two) return false; // if either viewport is null
+                if ((one.cells && two.rows) || (one.rows && two.cells)) return false;
+                if (one.cells && two.cells)
+                    return one.cells.join('|') === two.cells.join('|') && one.format === two.format;
                 return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|') &&
                     one.format === two.format;
             };
