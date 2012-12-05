@@ -6,10 +6,16 @@
           <!-- OPTIONS AND DROPDOWNS -->
           <div class="OG-g-h-set-name s{{index}}">
             <div class="OG-grid-options">
-              <!-- -->
-              <div class="og-sparklines">
-                <div class="OG-icon og-icon-sparkline"></div><span>OFF</span>
-              </div>
+              <!-- SPARKLINES -->
+              {{#if sparklines}}
+                <div class="og-sparklines og-active">
+                  <div class="OG-icon og-icon-sparkline"></div><span>ON</span>
+                </div>
+              {{else}}
+                <div class="og-sparklines">
+                  <div class="OG-icon og-icon-sparkline"></div><span>OFF</span>
+                </div>
+              {{/if}}
               <!-- -->
               <div class="og-divider"></div>
               <!-- DROPDOWN MENU -->

@@ -253,7 +253,7 @@ $.register_module({
                         });
                         return {
                             // only send views in for fixed columns (and if there is a viewchange handler)
-                            views: !col_offset && !depgraph ? grid.views : null,
+                            views: !col_offset && !depgraph ? grid.views : null, sparklines: grid.config.sparklines,
                             name: set.name, index: idx + (set_offset || 0), columns: columns, not_depgraph: !depgraph,
                             width: columns.reduce(function (acc, col) {return acc + col.width;}, 0)
                         };
