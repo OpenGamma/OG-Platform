@@ -18,9 +18,14 @@ $.register_module({
                     .on('data', function (cell) {
                         if (!cell.error && cell.v) {
                             if (cell.v.label) cell.v.labels = [cell.v.label]; // if there is only one label
-                            if (!instantiated)
-                                $data_grid = (instantiated = true) && $(config.selector).ogdata(cell.v);
-                            else gadget.update(cell.v);
+                            try {
+                                if (!instantiated)
+                                    $data_grid = (instantiated = true) && $(config.selector).ogdata(cell.v);
+                                else gadget.update(cell.v);
+                            } catch (error) {
+                                gadget.die();
+                                $(config.selector).html('Error: Cannot render this cell as a data gadget');
+                            }
                         } else {
                             og.dev.warn(module.name + ': bad data, ', cell.v);
                             if (!cell.error) return;

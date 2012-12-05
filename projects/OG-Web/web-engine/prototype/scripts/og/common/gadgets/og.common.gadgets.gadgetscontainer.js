@@ -154,15 +154,17 @@ $.register_module({
                         menu_template = typemenu_template(tmpl_data);
                         menu_config = {$cntr: $('.og-tab-' + val.id + ' .OG-multiselect'), tmpl: menu_template};
                         menu = new og.common.util.ui.DropMenu(menu_config);
-                        menu.$dom.toggle.on('mousedown', menu.toggle_handler.bind(menu));
-                        window.menu = menu;
+                        menu.$dom.toggle.on('mousedown', function () {
+                            menu.toggle_handler();
+                            return false;
+                        });
                         $icon = $('<div class="OG-icon og-icon-' + val.gadget_type + '"></div>')
                             .css({width: '13px', height: '14px'});
                         menu.$dom.menu.on('mousedown', '.og-js-icon', function () {
                             var gadget_type = $(this).attr('data-gadget_type'), $icon,
                                 gadget_name = $(this).attr('data-gadget_name'), swap_config;
                             menu.close();
-                            if (gadget_type === val.gadget_type) return;
+                            if (gadget_type === val.gadget_type) return false;
                             $icon = $('<div class="OG-icon og-icon-' + (val.gadget_type = gadget_type) + '"></div>')
                                 .css({width: '13px', height: '14px'});
                             menu.$dom.toggle.html($icon);
@@ -174,6 +176,7 @@ $.register_module({
                             };
                             if (false !== container.fire('swap', swap_config, val.gadget_index))
                                 container.add([swap_config], val.gadget_index, true);
+                            return false;
                         });
                         menu.$dom.toggle.html($icon);
                     });
