@@ -17,9 +17,14 @@ import com.google.common.collect.Maps;
 /**
  * Receives data from a Joda bean and writes it into a JSON object.
  */
-/* package */ class JsonBeanDataSink implements BeanDataSink<JSONObject> {
+/* package */ class JsonDataSink implements BeanDataSink<JSONObject> {
 
   private final Map<String, Object> _json = Maps.newHashMap();
+
+  @Override
+  public void setBeanData(MetaBean metaBean, Bean bean) {
+    _json.put("type", metaBean.beanType().getSimpleName());
+  }
 
   @Override
   public void setValue(String propertyName, Object value) {
@@ -37,20 +42,15 @@ import com.google.common.collect.Maps;
   }
 
   @Override
-  public void setBeanData(String propertyName, Bean bean, BeanTraverser traverser) {
+  public void setBeanValue(String propertyName, Bean bean, BeanTraverser traverser) {
     Object value;
     if (bean == null) {
       value = null;
     } else {
-      BuildingBeanVisitor<JSONObject> visitor = new BuildingBeanVisitor<JSONObject>(bean, new JsonBeanDataSink());
+      BuildingBeanVisitor<JSONObject> visitor = new BuildingBeanVisitor<JSONObject>(bean, new JsonDataSink());
       value = traverser.traverse(bean.metaBean(), visitor);
     }
     _json.put(propertyName, value);
-  }
-
-  @Override
-  public void setBeanData(MetaBean metaBean, Bean bean) {
-    _json.put("type", metaBean.beanType().getSimpleName());
   }
 
   @Override
@@ -58,3 +58,4 @@ import com.google.common.collect.Maps;
     return new JSONObject(_json);
   }
 }
+

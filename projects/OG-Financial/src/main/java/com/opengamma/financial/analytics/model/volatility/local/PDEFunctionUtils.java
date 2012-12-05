@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyUtils;
 
@@ -70,6 +71,10 @@ public class PDEFunctionUtils {
     if (discountingCurveNames == null || discountingCurveNames.size() != 1) {
       return null;
     }
+    final Set<String> discountingCurveCalculationConfigs = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (discountingCurveCalculationConfigs == null || discountingCurveCalculationConfigs.size() != 1) {
+      return null;
+    }
     return Collections.emptySet();
   }
 
@@ -77,6 +82,7 @@ public class PDEFunctionUtils {
     return properties.copy()
         .withAny(PROPERTY_CENTRE_MONEYNESS)
         .withAny(PROPERTY_DISCOUNTING_CURVE_NAME)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(PROPERTY_MAX_PROXY_DELTA)
         .withAny(PROPERTY_NUMBER_SPACE_STEPS)
         .withAny(PROPERTY_NUMBER_TIME_STEPS)
@@ -91,6 +97,7 @@ public class PDEFunctionUtils {
     return properties.copy()
         .with(PROPERTY_CENTRE_MONEYNESS, desiredValue.getConstraint(PROPERTY_CENTRE_MONEYNESS))
         .with(PROPERTY_DISCOUNTING_CURVE_NAME, desiredValue.getConstraint(PROPERTY_DISCOUNTING_CURVE_NAME))
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG))
         .with(PROPERTY_MAX_PROXY_DELTA, desiredValue.getConstraint(PROPERTY_MAX_PROXY_DELTA))
         .with(PROPERTY_NUMBER_SPACE_STEPS, desiredValue.getConstraint(PROPERTY_NUMBER_SPACE_STEPS))
         .with(PROPERTY_NUMBER_TIME_STEPS, desiredValue.getConstraint(PROPERTY_NUMBER_TIME_STEPS))
@@ -146,12 +153,17 @@ public class PDEFunctionUtils {
     if (discountingCurveNames == null || discountingCurveNames.size() != 1) {
       return null;
     }
+    final Set<String> discountingCurveCalculationConfigs = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (discountingCurveCalculationConfigs == null || discountingCurveCalculationConfigs.size() != 1) {
+      return null;
+    }
     return Collections.emptySet();
   }
 
   public static ValueProperties.Builder addBackwardPDEProperties(final ValueProperties properties) {
     return properties.copy()
         .withAny(PROPERTY_DISCOUNTING_CURVE_NAME)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(PROPERTY_MAX_MONEYNESS)
         .withAny(PROPERTY_NUMBER_SPACE_STEPS)
         .withAny(PROPERTY_NUMBER_TIME_STEPS)
@@ -165,6 +177,7 @@ public class PDEFunctionUtils {
   public static ValueProperties.Builder addBackwardPDEProperties(final ValueProperties properties, final ValueRequirement desiredValue) {
     return properties.copy()
         .with(PROPERTY_DISCOUNTING_CURVE_NAME, desiredValue.getConstraint(PROPERTY_DISCOUNTING_CURVE_NAME))
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG))
         .with(PROPERTY_MAX_MONEYNESS, desiredValue.getConstraint(PROPERTY_MAX_MONEYNESS))
         .with(PROPERTY_NUMBER_SPACE_STEPS, desiredValue.getConstraint(PROPERTY_NUMBER_SPACE_STEPS))
         .with(PROPERTY_NUMBER_TIME_STEPS, desiredValue.getConstraint(PROPERTY_NUMBER_TIME_STEPS))

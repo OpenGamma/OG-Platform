@@ -68,7 +68,10 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
   }
 
   @Override
-  /** Pass all conventions required to function to convert security to definition */
+  /**
+   * {@inheritDoc}
+   * Pass all conventions required to function to convert security to definition
+   */
   public void init(final FunctionCompilationContext context) {
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     _converter = new CommodityFutureOptionConverter(securitySource);
@@ -171,12 +174,12 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
   }
 
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, ValueRequirement desiredValue, FunctionExecutionContext executionContext) {
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue, final FunctionExecutionContext executionContext) {
     final String fundingCurveName = getFundingCurveName(desiredValue);
     final String curveConfigName = getCurveConfigName(desiredValue);
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String smileInterpolatorName = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
-    ValueProperties.Builder builder = createValueProperties()
+    final ValueProperties.Builder builder = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
         .with(ValuePropertyNames.CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName)
@@ -186,7 +189,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
     return builder;
   }
 
-  protected String getFundingCurveName(ValueRequirement desiredValue) {
+  protected String getFundingCurveName(final ValueRequirement desiredValue) {
     final Set<String> fundingCurves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
     if (fundingCurves == null || fundingCurves.size() != 1) {
       s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.CURVE);
@@ -196,7 +199,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
     return fundingCurveName;
   }
 
-  protected String getCurveConfigName(ValueRequirement desiredValue) {
+  protected String getCurveConfigName(final ValueRequirement desiredValue) {
     final Set<String> curveConfigNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     if (curveConfigNames == null || curveConfigNames.size() != 1) {
       s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.CURVE_CALCULATION_CONFIG);
@@ -206,8 +209,8 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
     return curveConfigName;
   }
 
-  protected ValueRequirement getDiscountCurveRequirement(String fundingCurveName, String curveCalculationConfigName, Security security) {
-    ValueProperties properties = ValueProperties.builder()
+  protected ValueRequirement getDiscountCurveRequirement(final String fundingCurveName, final String curveCalculationConfigName, final Security security) {
+    final ValueProperties properties = ValueProperties.builder()
       .with(ValuePropertyNames.CURVE, fundingCurveName)
       .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
       .get();
@@ -266,7 +269,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
   // TODO: REQUIRES A REWORK
   protected ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final Security security,
       final String surfaceName, final String smileInterpolator, final String curveConfig, final String fundingCurveName, final ExternalId underlyingBuid) {
-    String bbgTicker = getBloombergTicker(tsSource, underlyingBuid);
+    final String bbgTicker = getBloombergTicker(tsSource, underlyingBuid);
     final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);
 
     // Set Forward Curve Currency Property
@@ -296,7 +299,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
         throw new OpenGammaRuntimeException("We require a time series for " + underlyingBuid);
       }
       final ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
-      String bbgTicker = (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER)).getValue();
+      final String bbgTicker = (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER)).getValue();
       return bbgTicker;
     }
   }

@@ -27,6 +27,10 @@ public class LocalVolatilitySurfaceUtils {
     if (epsNames == null || epsNames.size() != 1) {
       return null;
     }
+    final Set<ValueRequirement> blackSurfaceProperties = BlackVolatilitySurfacePropertyUtils.ensureAllBlackSurfaceProperties(constraints);
+    if (blackSurfaceProperties == null) {
+      return null;
+    }
     return Collections.emptySet();
   }
 

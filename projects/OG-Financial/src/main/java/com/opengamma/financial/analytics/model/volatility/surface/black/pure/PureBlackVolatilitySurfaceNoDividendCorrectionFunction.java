@@ -24,7 +24,7 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVol
  *
  */
 public abstract class PureBlackVolatilitySurfaceNoDividendCorrectionFunction extends PureBlackVolatilitySurfaceFunction {
-  /** No divideds */
+  /** No dividends */
   public static final String NO_DIVIDENDS = "None";
 
   /**

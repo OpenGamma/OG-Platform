@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.curve.forward;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,24 +22,46 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
  *
  */
-public class FXForwardCurveFromYieldCurvesDefaults extends DefaultPropertyFunction {
+public abstract class FXForwardCurveFromYieldCurvesDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardCurveFromYieldCurvesDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.FORWARD_CURVE
+    ValueRequirementNames.FORWARD_CURVE,
+    ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
+    ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
+    ValueRequirementNames.PURE_VOLATILITY_SURFACE,
+    ValueRequirementNames.FORWARD_DELTA,
+    ValueRequirementNames.DUAL_DELTA,
+    ValueRequirementNames.DUAL_GAMMA,
+    ValueRequirementNames.FORWARD_GAMMA,
+    ValueRequirementNames.FOREX_DOMESTIC_PRICE,
+    ValueRequirementNames.FOREX_PV_QUOTES,
+    ValueRequirementNames.FORWARD_VEGA,
+    ValueRequirementNames.FORWARD_VOMMA,
+    ValueRequirementNames.FORWARD_VANNA,
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.FX_PRESENT_VALUE,
+    ValueRequirementNames.IMPLIED_VOLATILITY,
+    ValueRequirementNames.GRID_DUAL_DELTA,
+    ValueRequirementNames.GRID_DUAL_GAMMA,
+    ValueRequirementNames.GRID_FORWARD_DELTA,
+    ValueRequirementNames.GRID_FORWARD_GAMMA,
+    ValueRequirementNames.GRID_FORWARD_VEGA,
+    ValueRequirementNames.GRID_FORWARD_VANNA,
+    ValueRequirementNames.GRID_FORWARD_VOMMA,
+    ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
+    ValueRequirementNames.GRID_PRESENT_VALUE
   };
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
   //TODO there are ordering issues in this class (the currency pair) - it makes an assumption about which is pay and which is receive
-  public FXForwardCurveFromYieldCurvesDefaults(final String... currencyCurveConfigAndDiscountingCurveNames) {
-    super(ComputationTargetType.PRIMITIVE, true);
+  public FXForwardCurveFromYieldCurvesDefaults(final ComputationTargetType target, final String... currencyCurveConfigAndDiscountingCurveNames) {
+    super(target, true);
     ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "currency and curve config names");
     final int nPairs = currencyCurveConfigAndDiscountingCurveNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and discounting curve name per currency");
@@ -50,19 +73,7 @@ public class FXForwardCurveFromYieldCurvesDefaults extends DefaultPropertyFuncti
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    final UniqueId uniqueId = target.getUniqueId();
-    if (!UnorderedCurrencyPair.OBJECT_SCHEME.equals(uniqueId.getScheme())) {
-      return false;
-    }
-    final String currencyPair = uniqueId.getValue();
-    final String firstCurrency = currencyPair.substring(0, 3);
-    final String secondCurrency = currencyPair.substring(3, 6);
-    return _currencyCurveConfigAndDiscountingCurveNames.containsKey(firstCurrency) && _currencyCurveConfigAndDiscountingCurveNames.containsKey(secondCurrency);
-  }
+  public abstract boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target);
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
@@ -76,11 +87,8 @@ public class FXForwardCurveFromYieldCurvesDefaults extends DefaultPropertyFuncti
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final UniqueId uniqueId = target.getUniqueId();
-    final String currencyPair = uniqueId.getValue();
-    final String firstCurrency = currencyPair.substring(0, 3);
-    final String secondCurrency = currencyPair.substring(3, 6);
-
+    final String firstCurrency = getFirstCurrency(target);
+    final String secondCurrency = getSecondCurrency(target);
     if (!_currencyCurveConfigAndDiscountingCurveNames.containsKey(firstCurrency)) {
       s_logger.error("Could not get config for currency " + firstCurrency + "; should never happen");
       return null;
@@ -107,4 +115,16 @@ public class FXForwardCurveFromYieldCurvesDefaults extends DefaultPropertyFuncti
     return null;
   }
 
+  protected Collection<String> getTargets() {
+    return _currencyCurveConfigAndDiscountingCurveNames.keySet();
+  }
+
+  protected abstract String getFirstCurrency(ComputationTarget target);
+
+  protected abstract String getSecondCurrency(ComputationTarget target);
+
+//  @Override
+//  public String getMutualExclusionGroup() {
+//    return OpenGammaFunctionExclusions.IMPLIED_FX_FORWARD_CURVE_DEFAULTS;
+//  }
 }

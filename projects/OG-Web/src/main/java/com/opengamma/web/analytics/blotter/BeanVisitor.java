@@ -9,7 +9,7 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 
 /**
- *
+ * TODO delegating implementation that filters out read-only properties
  */
 /* package */ interface BeanVisitor<T> {
 

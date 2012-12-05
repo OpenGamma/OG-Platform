@@ -31,7 +31,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
-public class JsonBeanDataSinkTest {
+public class JsonJodaRoundTripTest {
 
   static {
     JodaBeanConverters.getInstance();
@@ -44,7 +44,7 @@ public class JsonBeanDataSinkTest {
     FXForwardSecurity fxForward = new FXForwardSecurity(Currency.USD, 150, Currency.GBP, 100, forwardDate, regionId);
     fxForward.setName("GBP/USD forward");
 
-    JsonBeanDataSink sink = new JsonBeanDataSink();
+    JsonDataSink sink = new JsonDataSink();
     BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<JSONObject>(fxForward, sink);
     BeanTraverser traverser = new BeanTraverser();
     JSONObject json = traverser.traverse(FXForwardSecurity.meta(), writingVisitor);
@@ -83,7 +83,7 @@ public class JsonBeanDataSinkTest {
     SwapSecurity security = new SwapSecurity(tradeDate, effectiveDate, maturityDate, "cpty", payLeg, receiveLeg);
     security.setName("Test swap");
 
-    JsonBeanDataSink sink = new JsonBeanDataSink();
+    JsonDataSink sink = new JsonDataSink();
     BeanTraverser traverser = new BeanTraverser();
     BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<JSONObject>(security, sink);
     JSONObject json = traverser.traverse(SwapSecurity.meta(), writingVisitor);

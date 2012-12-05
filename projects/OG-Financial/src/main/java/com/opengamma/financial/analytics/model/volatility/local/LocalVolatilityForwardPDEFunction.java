@@ -93,8 +93,12 @@ public abstract class LocalVolatilityForwardPDEFunction extends LocalVolatilityP
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<ValueRequirement> requirements = PDEFunctionUtils.ensureForwardPDEFunctionProperties(constraints);
-    if (requirements == null) {
+    final Set<ValueRequirement> pdeRequirements = PDEFunctionUtils.ensureForwardPDEFunctionProperties(constraints);
+    if (pdeRequirements == null) {
+      return null;
+    }
+    final Set<ValueRequirement> localVolSurfaceRequirements = LocalVolatilitySurfaceUtils.ensureDupireLocalVolatilitySurfaceProperties(constraints);
+    if (localVolSurfaceRequirements == null) {
       return null;
     }
     final ValueRequirement volatilitySurfaceRequirement = getVolatilitySurfaceRequirement(target, desiredValue);

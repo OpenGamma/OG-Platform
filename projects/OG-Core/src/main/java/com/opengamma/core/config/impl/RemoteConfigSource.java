@@ -110,7 +110,6 @@ public class RemoteConfigSource extends AbstractRemoteSource<ConfigItem<?>> impl
   public <R> ConfigItem<R> get(final Class<R> clazz, final String configName, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(configName, "configName");
-    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     final URI uri = DataConfigSourceResource.uriSearchSingle(getBaseUri(), configName, versionCorrection, clazz);
     return accessRemote(uri).get(ConfigItem.class);
   }

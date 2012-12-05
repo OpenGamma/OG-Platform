@@ -43,6 +43,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * @param <T> The type of the data returned from the calculator
@@ -59,8 +60,8 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
    * @param calculator The calculator
    */
   public FuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator)  {
- //   ArgumentChecker.notNull(valueRequirementName, "value requirement name");
- //   ArgumentChecker.notNull(calculator, "calculator");
+    ArgumentChecker.notNull(valueRequirementName, "value requirement name");
+    ArgumentChecker.notNull(calculator, "calculator");
     _valueRequirementName = valueRequirementName;
     _calculator = calculator;
   }
