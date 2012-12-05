@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.BaroneAde
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Calculates the greeks of a commodity future option using the Barone-Adesi Whaley model {@see BaroneAdesiWhaleyModel}.
+ * Calculates the greeks of a commodity future option using the Barone-Adesi Whaley model {@link BaroneAdesiWhaleyModel}.
  * <p>
  * The greeks returned are delta, dual-delta, rho, carry rho, theta and vega.
  */
