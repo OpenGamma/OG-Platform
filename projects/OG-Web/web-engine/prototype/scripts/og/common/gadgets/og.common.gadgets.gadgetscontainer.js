@@ -148,7 +148,7 @@ $.register_module({
                     }, []);
                     $header.html(tabs_template({'tabs': tabs}));
                     $.each(tabs, function (key, val) {
-                        var menu_config, menu_template, radios, menu, swap_config, $icon,
+                        var menu_config, menu_template, menu, $icon,
                             depgraph = val.gadget.config.options.source.depgraph,
                             tmpl_data = og.common.gadgets.mapping.available_types(val.data_type, depgraph);
                         menu_template = typemenu_template(tmpl_data);
