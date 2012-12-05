@@ -57,11 +57,9 @@ public class ForwardPDEDefaults extends DefaultPropertyFunction {
   private final String _maxProxyDelta;
   private final String _centreMoneyness;
   private final String _spaceDirectionInterpolator;
-  private final String _discountingCurveName;
 
-  //TODO need a discounting name per uid
   public ForwardPDEDefaults(final String theta, final String nTimeSteps, final String nSpaceSteps, final String timeStepBunching, final String spaceStepBunching,
-      final String maxProxyDelta, final String centreMoneyness, final String spaceDirectionInterpolator, final String discountingCurveName) {
+      final String maxProxyDelta, final String centreMoneyness, final String spaceDirectionInterpolator) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(theta, "theta");
     ArgumentChecker.notNull(nTimeSteps, "number of time steps");
@@ -71,7 +69,6 @@ public class ForwardPDEDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(maxProxyDelta, "max proxy delta");
     ArgumentChecker.notNull(centreMoneyness, "centre moneyness");
     ArgumentChecker.notNull(spaceDirectionInterpolator, "space direction interpolator");
-    ArgumentChecker.notNull(discountingCurveName, "discounting curve name");
     _theta = theta;
     _nTimeSteps = nTimeSteps;
     _nSpaceSteps = nSpaceSteps;
@@ -80,14 +77,12 @@ public class ForwardPDEDefaults extends DefaultPropertyFunction {
     _maxProxyDelta = maxProxyDelta;
     _centreMoneyness = centreMoneyness;
     _spaceDirectionInterpolator = spaceDirectionInterpolator;
-    _discountingCurveName = discountingCurveName;
   }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENT_NAMES) {
       defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_CENTRE_MONEYNESS);
-      defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_DISCOUNTING_CURVE_NAME);
       defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_MAX_PROXY_DELTA);
       defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_NUMBER_SPACE_STEPS);
       defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_NUMBER_TIME_STEPS);
@@ -100,9 +95,6 @@ public class ForwardPDEDefaults extends DefaultPropertyFunction {
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (PDEPropertyNamesAndValues.PROPERTY_DISCOUNTING_CURVE_NAME.equals(propertyName)) {
-      return Collections.singleton(_discountingCurveName);
-    }
     if (PDEPropertyNamesAndValues.PROPERTY_MAX_PROXY_DELTA.equals(propertyName)) {
       return Collections.singleton(_maxProxyDelta);
     }

@@ -45,10 +45,9 @@ public class BackwardPDEDefaults extends DefaultPropertyFunction {
   private final String _spaceStepBunching;
   private final String _maxMoneynessScale;
   private final String _spaceDirectionInterpolator;
-  private final String _discountingCurveName;
 
   public BackwardPDEDefaults(final String theta, final String nTimeSteps, final String nSpaceSteps, final String timeStepBunching, final String spaceStepBunching,
-      final String maxMoneynessScale, final String spaceDirectionInterpolator, final String discountingCurveName) {
+      final String maxMoneynessScale, final String spaceDirectionInterpolator) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(theta, "theta");
     ArgumentChecker.notNull(nTimeSteps, "number of time steps");
@@ -57,7 +56,6 @@ public class BackwardPDEDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(spaceStepBunching, "space step bunching");
     ArgumentChecker.notNull(maxMoneynessScale, "max moneyness scale");
     ArgumentChecker.notNull(spaceDirectionInterpolator, "space direction interpolator");
-    ArgumentChecker.notNull(discountingCurveName, "discounting curve name");
     _theta = theta;
     _nTimeSteps = nTimeSteps;
     _nSpaceSteps = nSpaceSteps;
@@ -65,13 +63,11 @@ public class BackwardPDEDefaults extends DefaultPropertyFunction {
     _spaceStepBunching = spaceStepBunching;
     _maxMoneynessScale = maxMoneynessScale;
     _spaceDirectionInterpolator = spaceDirectionInterpolator;
-    _discountingCurveName = discountingCurveName;
   }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENT_NAMES) {
-      defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_DISCOUNTING_CURVE_NAME);
       defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_MAX_MONEYNESS);
       defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_NUMBER_SPACE_STEPS);
       defaults.addValuePropertyName(valueRequirement, PDEPropertyNamesAndValues.PROPERTY_NUMBER_TIME_STEPS);
@@ -84,9 +80,6 @@ public class BackwardPDEDefaults extends DefaultPropertyFunction {
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (PDEPropertyNamesAndValues.PROPERTY_DISCOUNTING_CURVE_NAME.equals(propertyName)) {
-      return Collections.singleton(_discountingCurveName);
-    }
     if (PDEPropertyNamesAndValues.PROPERTY_MAX_MONEYNESS.equals(propertyName)) {
       return Collections.singleton(_maxMoneynessScale);
     }

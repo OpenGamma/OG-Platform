@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties;
+package com.opengamma.financial.analytics.model.curve.forward;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -27,11 +27,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public abstract class FXBlackVolatilitySurfaceDefaults extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(FXBlackVolatilitySurfaceDefaults.class);
+public abstract class FXForwardCurveDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(FXForwardCurveDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
+    ValueRequirementNames.FORWARD_CURVE,
     ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
     ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
+    ValueRequirementNames.PURE_VOLATILITY_SURFACE,
     ValueRequirementNames.FORWARD_DELTA,
     ValueRequirementNames.DUAL_DELTA,
     ValueRequirementNames.DUAL_GAMMA,
@@ -54,24 +56,22 @@ public abstract class FXBlackVolatilitySurfaceDefaults extends DefaultPropertyFu
     ValueRequirementNames.GRID_IMPLIED_VOLATILITY,
     ValueRequirementNames.GRID_PRESENT_VALUE
   };
-  private final Map<String, String> _currencyPairToCurveName; //TODO duplicated in FXForwardCurveDefaults
-  private final Map<String, String> _currencyPairToCurveCalculationMethodName; //TODO duplicated in FXForwardCurveDefaults
-  private final Map<String, String> _currencyPairToSurfaceName;
+  private final Map<String, String> _currencyPairToCurveName;
+  private final Map<String, String> _currencyPairToCurveCalculationMethodName;
 
-  public FXBlackVolatilitySurfaceDefaults(final ComputationTargetType target, final String... defaultsPerCurrencyPair) {
+  public FXForwardCurveDefaults(final ComputationTargetType target, final String... defaultsPerCurrencyPair) {
     super(target, true);
     ArgumentChecker.notNull(defaultsPerCurrencyPair, "defaults per currency");
     final int n = defaultsPerCurrencyPair.length;
-    ArgumentChecker.isTrue(n % 4 == 0, "Need one forward curve name, forward curve calculation method and surface name per currency pair");
+    ArgumentChecker.isTrue(n % 3 == 0, "Need one forward curve name, forward curve calculation method and surface name per currency pair");
     _currencyPairToCurveName = Maps.newLinkedHashMap();
     _currencyPairToCurveCalculationMethodName = Maps.newLinkedHashMap();
-    _currencyPairToSurfaceName = Maps.newLinkedHashMap();
-    for (int i = 0; i < n; i += 4) {
+    for (int i = 0; i < n; i += 3) {
       final String currencyPair = defaultsPerCurrencyPair[i];
       _currencyPairToCurveName.put(currencyPair, defaultsPerCurrencyPair[i + 1]);
       _currencyPairToCurveCalculationMethodName.put(currencyPair, defaultsPerCurrencyPair[i + 2]);
-      _currencyPairToSurfaceName.put(currencyPair, defaultsPerCurrencyPair[i + 3]);
     }
+
   }
 
   @Override
@@ -82,7 +82,6 @@ public abstract class FXBlackVolatilitySurfaceDefaults extends DefaultPropertyFu
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
     }
   }
 
@@ -100,9 +99,6 @@ public abstract class FXBlackVolatilitySurfaceDefaults extends DefaultPropertyFu
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_currencyPairToCurveCalculationMethodName.get(currencyPair));
     }
-    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_currencyPairToSurfaceName.get(currencyPair));
-    }
     s_logger.error("Could not find default value for {} in this function", propertyName);
     return null;
   }
@@ -115,7 +111,7 @@ public abstract class FXBlackVolatilitySurfaceDefaults extends DefaultPropertyFu
 
   @Override
   public String getMutualExclusionGroup() {
-    return OpenGammaFunctionExclusions.FX_BLACK_VOLATILITY_SURFACE_DEFAULTS;
+    return OpenGammaFunctionExclusions.IMPLIED_FX_FORWARD_CURVE_DEFAULTS;
   }
 
 }

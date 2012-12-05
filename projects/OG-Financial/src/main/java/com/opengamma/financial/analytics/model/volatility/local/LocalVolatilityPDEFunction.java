@@ -9,7 +9,6 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues.PROPERTY_DISCOUNTING_CURVE_NAME;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
@@ -56,24 +55,6 @@ public abstract class LocalVolatilityPDEFunction extends AbstractFunction.NonCom
     return Collections.singleton(new ValueSpecification(getRequirementName(), target.toSpecification(), properties));
   }
 
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    ValueProperties.Builder properties = createValueProperties();
-    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
-      final String valueName = entry.getKey().getValueName();
-      if (valueName.equals(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE)) {
-        final ValueProperties inputProperties = entry.getValue().getConstraints();
-        final Set<String> propertyNames = inputProperties.getProperties();
-        for (final String propertyName : propertyNames) {
-          properties = properties.with(propertyName, inputProperties.getValues(propertyName));
-        }
-      } else if (valueName.equals(ValueRequirementNames.YIELD_CURVE)) {
-        properties = properties.with(PROPERTY_DISCOUNTING_CURVE_NAME, entry.getValue().getConstraint(ValuePropertyNames.CURVE));
-      }
-    }
-    return Collections.singleton(new ValueSpecification(getRequirementName(), target.toSpecification(), properties.get()));
-  }
-
   protected abstract String getRequirementName();
 
   protected abstract UniqueId getTargetUid(final ComputationTarget target);
@@ -90,7 +71,7 @@ public abstract class LocalVolatilityPDEFunction extends AbstractFunction.NonCom
 
   protected ValueRequirement getVolatilitySurfaceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties properties = LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(ValueProperties.builder().get(), getInstrumentType(), _blackSmileInterpolatorName,
-        LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS).get();
+        LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS, desiredValue).get();
     return new ValueRequirement(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, getTargetUid(target), properties);
   }
 
@@ -105,7 +86,8 @@ public abstract class LocalVolatilityPDEFunction extends AbstractFunction.NonCom
 
   protected ValueRequirement getDiscountingCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, desiredValue.getConstraint(PROPERTY_DISCOUNTING_CURVE_NAME)).get();
+        .with(ValuePropertyNames.CURVE, desiredValue.getConstraint(PROPERTY_DISCOUNTING_CURVE_NAME))
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG)).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, getDiscountingCurveUid(target), properties);
   }
 

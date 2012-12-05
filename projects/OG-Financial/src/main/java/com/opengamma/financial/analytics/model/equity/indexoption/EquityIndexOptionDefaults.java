@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,10 +65,10 @@ public class EquityIndexOptionDefaults extends DefaultPropertyFunction {
       final String... currencyCurveConfigAndDiscountingCurveNames) {
 
     super(ComputationTargetType.SECURITY, true);
-    Validate.notNull(priority, "No priority was provided.");
-    Validate.notNull(volSurface, "No volSurface name was provided to use as default value.");
-    Validate.notNull(smileInterpolator, "No smileInterpolator name was provided to use as default value.");
-    Validate.notNull(currencyCurveConfigAndDiscountingCurveNames, "No curveCalculationConfigName was provided to use as default value.");
+    ArgumentChecker.notNull(priority, "No priority was provided.");
+    ArgumentChecker.notNull(volSurface, "No volSurface name was provided to use as default value.");
+    ArgumentChecker.notNull(smileInterpolator, "No smileInterpolator name was provided to use as default value.");
+    ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "No curveCalculationConfigName was provided to use as default value.");
     _priority = PriorityClass.valueOf(priority);
     _volSurfaceName = volSurface;
     _smileInterpolator = smileInterpolator;

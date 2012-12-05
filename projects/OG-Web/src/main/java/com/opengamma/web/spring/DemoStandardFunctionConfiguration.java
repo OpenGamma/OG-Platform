@@ -101,6 +101,10 @@ import com.opengamma.financial.analytics.model.credit.ISDALegacyVanillaCDSDefaul
 import com.opengamma.financial.analytics.model.credit.ISDALegacyVanillaCDSDirtyPriceFunction;
 import com.opengamma.financial.analytics.model.credit.ISDAYieldCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.ISDAYieldCurveFunction;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurvePrimitiveDefaults;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveSecurityDefaults;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveTradeDefaults;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.AffineDividendFunction;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveFunction;
@@ -342,6 +346,7 @@ import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeas
 import com.opengamma.financial.analytics.model.volatility.local.EquityDupireLocalVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.local.ForexDupireLocalVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.BackwardPDEDefaults;
+import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.FXPDECurveDefaults;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.ForwardPDEDefaults;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfacePrimitiveDefaults;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceSecurityDefaults;
@@ -615,8 +620,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addCommodityFutureOptionCalculators(functionConfigs);
     addEquityDerivativesCalculators(functionConfigs);
     addBlackCalculators(functionConfigs);
-    addLocalVolatilityCalculators(functionConfigs);
-    addLocalVolatilityGridFunctions(functionConfigs);
+    addLocalVolatilityPDEFunctions(functionConfigs);
+    addLocalVolatilityPDEGridFunctions(functionConfigs);
     addEquityPureVolatilitySurfaceCalculators(functionConfigs);
     addCDSCalculators(functionConfigs);
     
@@ -1122,7 +1127,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "GBP", "DefaultTwoCurveGBPConfig", "Discounting"));
   }
 
-  private static void addLocalVolatilityCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addLocalVolatilityPDEFunctions(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXOptionLocalVolatilityForwardPDEPipsPresentValueFunction.class.getName(), Arrays
         .asList(BlackVolatilitySurfacePropertyNamesAndValues.SPLINE)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXOptionLocalVolatilityForwardPDEPipsPresentValueFunction.class.getName(), Arrays
@@ -1179,12 +1184,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         .asList(BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL)));
     
     functionConfigs.add(functionConfiguration(ForwardPDEDefaults.class, 
-        "0.5", "100", "100", "5.0", "0.05", "1.5", "1.0", Interpolator1DFactory.DOUBLE_QUADRATIC, "Discounting"));
+        "0.5", "100", "100", "5.0", "0.05", "1.5", "1.0", Interpolator1DFactory.DOUBLE_QUADRATIC));
     functionConfigs.add(functionConfiguration(BackwardPDEDefaults.class,
-        "0.5", "100", "100", "5.0", "0.05", "3.5", Interpolator1DFactory.DOUBLE_QUADRATIC, "Discounting"));    
+        "0.5", "100", "100", "5.0", "0.05", "3.5", Interpolator1DFactory.DOUBLE_QUADRATIC));
+    functionConfigs.add(functionConfiguration(FXPDECurveDefaults.class, 
+        "USD", "Discounting", "DefaultTwoCurveUSDConfig",
+        "EUR", "Discounting", "DefaultTwoCurveEURConfig"));
   }
 
-  private static void addLocalVolatilityGridFunctions(final List<FunctionConfiguration> functionConfigs) {
+  private static void addLocalVolatilityPDEGridFunctions(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXOptionLocalVolatilityForwardPDEGridDualDeltaFunction.class.getName(), Arrays
         .asList(BlackVolatilitySurfacePropertyNamesAndValues.SPLINE)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXOptionLocalVolatilityForwardPDEGridDualDeltaFunction.class.getName(), Arrays
@@ -1271,12 +1279,19 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.MixedLogNormal.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.SABR.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(ForexBlackVolatilitySurfaceFunction.Spline.class.getName()));
+    //TODO
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXBlackVolatilitySurfacePrimitiveDefaults.class.getName(), 
         TargetSpecificBlackVolatilitySurfaceDefaults.getAllFXDefaults()));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXBlackVolatilitySurfaceSecurityDefaults.class.getName(), 
         TargetSpecificBlackVolatilitySurfaceDefaults.getAllFXDefaults()));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXBlackVolatilitySurfaceTradeDefaults.class.getName(), 
         TargetSpecificBlackVolatilitySurfaceDefaults.getAllFXDefaults()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FXForwardCurvePrimitiveDefaults.class.getName(), 
+        Arrays.asList("EURUSD", "DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FXForwardCurveSecurityDefaults.class.getName(), 
+        Arrays.asList("EURUSD", "DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FXForwardCurveTradeDefaults.class.getName(), 
+        Arrays.asList("EURUSD", "DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)));
   }
   
   private static void addEquityIndexOptionBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {

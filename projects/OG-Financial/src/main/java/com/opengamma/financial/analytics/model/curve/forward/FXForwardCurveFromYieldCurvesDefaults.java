@@ -89,7 +89,6 @@ public abstract class FXForwardCurveFromYieldCurvesDefaults extends DefaultPrope
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     final String firstCurrency = getFirstCurrency(target);
     final String secondCurrency = getSecondCurrency(target);
-
     if (!_currencyCurveConfigAndDiscountingCurveNames.containsKey(firstCurrency)) {
       s_logger.error("Could not get config for currency " + firstCurrency + "; should never happen");
       return null;
@@ -124,4 +123,8 @@ public abstract class FXForwardCurveFromYieldCurvesDefaults extends DefaultPrope
 
   protected abstract String getSecondCurrency(ComputationTarget target);
 
+//  @Override
+//  public String getMutualExclusionGroup() {
+//    return OpenGammaFunctionExclusions.IMPLIED_FX_FORWARD_CURVE_DEFAULTS;
+//  }
 }
