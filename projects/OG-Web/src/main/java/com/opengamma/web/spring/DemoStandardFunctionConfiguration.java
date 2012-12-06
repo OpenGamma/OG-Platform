@@ -10,6 +10,7 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.F
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
+import static com.opengamma.web.spring.DemoStandardFunctionConfiguration.functionConfiguration;
 
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Modifier;
@@ -90,6 +91,7 @@ import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOption
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackPresentValueFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackVegaFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackYCNSFunction;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionDefaults;
 import com.opengamma.financial.analytics.model.cds.ISDAApproxCDSPriceFlatSpreadFunction;
 import com.opengamma.financial.analytics.model.cds.ISDAApproxCDSPriceHazardCurveFunction;
 import com.opengamma.financial.analytics.model.cds.ISDAApproxDiscountCurveFunction;
@@ -533,10 +535,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOptionBlackPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
-    functionConfigs
-        .add(functionConfiguration(FixedIncomeInstrumentPnLSeriesCurrencyConversionFunctionDeprecated.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
-    functionConfigs
-        .add(functionConfiguration(FixedIncomeInstrumentPnLSeriesCurrencyConversionFunctionDeprecated.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
   }
 
   protected static void addLateAggregationFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -586,8 +584,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(YieldCurveHistoricalTimeSeriesFunction.class));
     functionConfigs.add(functionConfiguration(FXVolatilitySurfaceHistoricalTimeSeriesFunction.class));
     functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunction.class));
-    functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(YieldCurveInstrumentConversionHistoricalTimeSeriesShiftFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(DefaultHistoricalTimeSeriesShiftFunction.class));
     functionConfigs.add(functionConfiguration(CurrencyPairsFunction.class));
     functionConfigs.add(functionConfiguration(CurrencyPairsDefaults.class, CurrencyPairs.DEFAULT_CURRENCY_PAIRS));
@@ -627,7 +623,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addInterestRateFutureCalculators(functionConfigs);
     addGeneralFutureCalculators(functionConfigs);
     addInterestRateFutureOptionCalculators(functionConfigs);
-    addBondFutureOptionCalculators(functionConfigs);
+    addBondFutureOptionBlackCalculators(functionConfigs);
     addCommodityFutureOptionCalculators(functionConfigs);
     addEquityDerivativesCalculators(functionConfigs);
     addBlackCalculators(functionConfigs);
@@ -911,7 +907,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "HKD", "DefaultCashCurveHKDConfig", "Cash"));
     functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class));
     functionConfigs.add(functionConfiguration(EquityForwardCalculationDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
-        "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig"));
+        "SPX Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD",
+        "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD",
+        "NKY Index", "Discounting", "DefaultTwoCurveJPYConfig", "JPY",
+        "RUT Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD"));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationYCNSFunction.class));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationVegaFunction.class));
@@ -921,7 +920,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityForwardCurveDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
         "SPX Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD",
         "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD",
-        "NKY Index", "Discounting", "DefaultTwoCurveJPYConfig", "JPY"));
+        "NKY Index", "Discounting", "DefaultTwoCurveJPYConfig", "JPY",
+        "RUT Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD"));
 
     functionConfigs.add(functionConfiguration(EquityIndexOptionPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionImpliedVolFunction.class));
@@ -988,9 +988,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction.class));
     functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction.class));
     functionConfigs.add(functionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class));
-    functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, PriorityClass.ABOVE_NORMAL.name(), "USD", "Discounting", "DefaultTwoCurveUSDConfig",
-        "Discounting", "DefaultTwoCurveUSDConfig", "EUR", "Discounting", "DefaultTwoCurveEURConfig", "Discounting", "DefaultTwoCurveEURConfig", "GBP", "Discounting",
-        "DefaultTwoCurveGBPConfig", "Discounting", "DefaultTwoCurveGBPConfig"));
+    functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, PriorityClass.ABOVE_NORMAL.name(), 
+        "USD", "Discounting", "DefaultTwoCurveUSDConfig", "Discounting", "DefaultTwoCurveUSDConfig", 
+        "EUR", "Discounting", "DefaultTwoCurveEURConfig", "Discounting", "DefaultTwoCurveEURConfig", 
+        "GBP", "Discounting", "DefaultTwoCurveGBPConfig", "Discounting", "DefaultTwoCurveGBPConfig"));
   }
 
   private static void addForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -1119,7 +1120,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     //functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
   }
 
-  private static void addBondFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addBondFutureOptionBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackDeltaFunction.class));
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackGammaFunction.class));
@@ -1127,6 +1128,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackYCNSFunction.class));
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackVegaFunction.class));
     functionConfigs.add(functionConfiguration(BondFutureOptionBlackFromFuturePresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(BondFutureOptionDefaults.class, PriorityClass.NORMAL.name(),
+        "USD", "DefaultTwoCurveUSDConfig", "BBG"));
   }
 
   private static void addCommodityFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -1440,8 +1443,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackGammaFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionConstantSpreadThetaFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, PriorityClass.ABOVE_NORMAL.name(), "USD", "DefaultTwoCurveUSDConfig",
-        "DEFAULT"));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, PriorityClass.NORMAL.name(), 
+        "USD", "DefaultTwoCurveUSDConfig", "BBG"));
     functionConfigs.add(functionConfiguration(MarginPriceFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackVolatilitySensitivityFunction.class));
