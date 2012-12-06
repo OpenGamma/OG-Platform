@@ -61,13 +61,16 @@ public class ForexOptionVanillaBlackSmileMethodTest {
 
   public static final String NOT_USED = "Not used";
   public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
+
+  private static final FXMatrix FX_MATRIX = MULTICURVES.getFxRates();
+  private static final Currency EUR = Currency.EUR;
+  private static final Currency USD = Currency.USD;
+  private static final double SPOT = FX_MATRIX.getFxRate(EUR, USD);
   // General
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final int SETTLEMENT_DAYS = 2;
   // Smile data
-  private static final Currency EUR = Currency.EUR;
-  private static final Currency USD = Currency.USD;
   private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
@@ -83,8 +86,6 @@ public class ForexOptionVanillaBlackSmileMethodTest {
       TIME_TO_EXPIRY[loopexp + 1] = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRY_DATE[loopexp]);
     }
   }
-  private static final FXMatrix FX_MATRIX = MULTICURVES.getFxRates();
-  private static final double SPOT = FX_MATRIX.getFxRate(EUR, USD);
   private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16, 0.16};
   private static final double[] DELTA = new double[] {0.10, 0.25};
   private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}, {-0.014, -0.0090}};

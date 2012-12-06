@@ -11,7 +11,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Interface for G2++ parameters provider for one currency.
+ * Interface for Forex Black with smile parameters provider for a currency pair.
  */
 public class ForexBlackSmileProvider implements ForexBlackSmileProviderInterface {
 
@@ -41,36 +41,14 @@ public class ForexBlackSmileProvider implements ForexBlackSmileProviderInterface
   }
 
   @Override
-  public ForexBlackSmileProviderInterface copy() {
+  public ForexBlackSmileProvider copy() {
     MulticurveProviderInterface multicurveProvider = _multicurveProvider.copy();
     return new ForexBlackSmileProvider(multicurveProvider, _smile, _currencyPair);
   }
 
   @Override
-  public SmileDeltaTermStructureParametersStrikeInterpolation getSmile() {
+  public SmileDeltaTermStructureParametersStrikeInterpolation getVolatility() {
     return _smile;
-  }
-
-  @Override
-  public double getVolatility(Currency ccy1, Currency ccy2, double time, double strike, double forward) {
-    if ((ccy1 == _currencyPair.getFirst()) && (ccy2 == _currencyPair.getSecond())) {
-      return _smile.getVolatility(time, strike, forward);
-    }
-    if ((ccy2 == _currencyPair.getFirst()) && (ccy1 == _currencyPair.getSecond())) {
-      return _smile.getVolatility(time, 1.0 / strike, 1.0 / forward);
-    }
-    throw new IllegalArgumentException("Currencies not compatible with smile data; asked for " + ccy1 + " and " + ccy2);
-  }
-
-  @Override
-  public VolatilityAndBucketedSensitivities getVolatilityAndSensitivities(Currency ccy1, Currency ccy2, double time, double strike, double forward) {
-    if ((ccy1 == _currencyPair.getFirst()) && (ccy2 == _currencyPair.getSecond())) {
-      return _smile.getVolatilityAndSensitivities(time, strike, forward);
-    }
-    if ((ccy2 == _currencyPair.getFirst()) && (ccy1 == _currencyPair.getSecond())) {
-      return _smile.getVolatilityAndSensitivities(time, 1.0 / strike, 1.0 / forward);
-    }
-    throw new IllegalArgumentException("Currencies not compatible with smile data; asked for " + ccy1 + " and " + ccy2);
   }
 
   @Override
@@ -92,6 +70,37 @@ public class ForexBlackSmileProvider implements ForexBlackSmileProviderInterface
   @Override
   public MulticurveProviderInterface getMulticurveProvider() {
     return _multicurveProvider;
+  }
+
+  /**
+   * Returns volatility for a expiration, strike and forward. The volatility take into account the curerncy order.
+   * @param ccy1 The first currency.
+   * @param ccy2 The second currency.
+   * @param time The expiration time.
+   * @param strike The strike.
+   * @param forward The forward rate.
+   * @return The volatility.
+   */
+  @Override
+  public double getVolatility(Currency ccy1, Currency ccy2, double time, double strike, double forward) {
+    if ((ccy1 == getCurrencyPair().getFirst()) && (ccy2 == getCurrencyPair().getSecond())) {
+      return getVolatility().getVolatility(time, strike, forward);
+    }
+    if ((ccy2 == getCurrencyPair().getFirst()) && (ccy1 == getCurrencyPair().getSecond())) {
+      return getVolatility().getVolatility(time, 1.0 / strike, 1.0 / forward);
+    }
+    throw new IllegalArgumentException("Currencies not compatible with smile data; asked for " + ccy1 + " and " + ccy2);
+  }
+
+  @Override
+  public VolatilityAndBucketedSensitivities getVolatilityAndSensitivities(Currency ccy1, Currency ccy2, double time, double strike, double forward) {
+    if ((ccy1 == getCurrencyPair().getFirst()) && (ccy2 == getCurrencyPair().getSecond())) {
+      return getVolatility().getVolatilityAndSensitivities(time, strike, forward);
+    }
+    if ((ccy2 == getCurrencyPair().getFirst()) && (ccy1 == getCurrencyPair().getSecond())) {
+      return getVolatility().getVolatilityAndSensitivities(time, 1.0 / strike, 1.0 / forward);
+    }
+    throw new IllegalArgumentException("Currencies not compatible with smile data; asked for " + ccy1 + " and " + ccy2);
   }
 
 }

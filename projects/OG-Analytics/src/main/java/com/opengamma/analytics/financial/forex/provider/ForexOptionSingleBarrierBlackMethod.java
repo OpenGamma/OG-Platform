@@ -224,7 +224,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = presentValueBlackVolatilitySensitivity(optionForex, smileMulticurves);
-    final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smileMulticurves.getSmile();
+    final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smileMulticurves.getVolatility();
     final double df = multicurves.getDiscountFactor(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency2(), optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime());
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot

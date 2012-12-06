@@ -283,7 +283,7 @@ public final class ForexOptionDigitalBlackSmileMethod {
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = presentValueBlackVolatilitySensitivity(optionForex, smileMulticurves); // In dom ccy
-    final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smileMulticurves.getSmile();
+    final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smileMulticurves.getVolatility();
     final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
     final double expiry = optionForex.getExpirationTime();
     // Forward sweep

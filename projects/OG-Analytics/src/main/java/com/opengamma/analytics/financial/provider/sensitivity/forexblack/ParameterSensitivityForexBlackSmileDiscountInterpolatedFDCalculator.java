@@ -83,14 +83,14 @@ public class ParameterSensitivityForexBlackSmileDiscountInterpolatedFDCalculator
         final double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedPlus[loopnode] += _shift;
         final YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
-        final ForexBlackSmileProviderDiscount marketDscBumpedPlus = new ForexBlackSmileProviderDiscount(data.getMulticurveProvider().withDiscountFactor(ccy, dscBumpedPlus), data.getSmile(),
+        final ForexBlackSmileProviderDiscount marketDscBumpedPlus = new ForexBlackSmileProviderDiscount(data.getMulticurveProvider().withDiscountFactor(ccy, dscBumpedPlus), data.getVolatility(),
             data.getCurrencyPair());
         final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketDscBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
         final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
-        final ForexBlackSmileProviderDiscount marketDscBumpedMinus = new ForexBlackSmileProviderDiscount(data.getMulticurveProvider().withDiscountFactor(ccy, dscBumpedMinus), data.getSmile(),
+        final ForexBlackSmileProviderDiscount marketDscBumpedMinus = new ForexBlackSmileProviderDiscount(data.getMulticurveProvider().withDiscountFactor(ccy, dscBumpedMinus), data.getVolatility(),
             data.getCurrencyPair());
         final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketDscBumpedMinus);
         final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
@@ -117,14 +117,14 @@ public class ParameterSensitivityForexBlackSmileDiscountInterpolatedFDCalculator
         final double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedPlus[loopnode] += _shift;
         final YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
-        final ForexBlackSmileProviderDiscount marketFwdBumpedPlus = new ForexBlackSmileProviderDiscount(data.getMulticurveProvider().withForward(index, dscBumpedPlus), data.getSmile(),
+        final ForexBlackSmileProviderDiscount marketFwdBumpedPlus = new ForexBlackSmileProviderDiscount(data.getMulticurveProvider().withForward(index, dscBumpedPlus), data.getVolatility(),
             data.getCurrencyPair());
         final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
         final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
-        final ForexBlackSmileProviderDiscount marketFwdBumpedMinus = new ForexBlackSmileProviderDiscount(data.getMulticurveProvider().withForward(index, dscBumpedMinus), data.getSmile(),
+        final ForexBlackSmileProviderDiscount marketFwdBumpedMinus = new ForexBlackSmileProviderDiscount(data.getMulticurveProvider().withForward(index, dscBumpedMinus), data.getVolatility(),
             data.getCurrencyPair());
         final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
         final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));
@@ -151,14 +151,14 @@ public class ParameterSensitivityForexBlackSmileDiscountInterpolatedFDCalculator
         final double[] yieldBumpedPlus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedPlus[loopnode] += _shift;
         final YieldAndDiscountCurve dscBumpedPlus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedPlus, curveInt.getInterpolator(), true));
-        final ForexBlackSmileProviderDiscount marketFwdBumpedPlus = new ForexBlackSmileProviderDiscount(data.getMulticurveProvider().withForward(index, dscBumpedPlus), data.getSmile(),
+        final ForexBlackSmileProviderDiscount marketFwdBumpedPlus = new ForexBlackSmileProviderDiscount(data.getMulticurveProvider().withForward(index, dscBumpedPlus), data.getVolatility(),
             data.getCurrencyPair());
         final MultipleCurrencyAmount pvBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
         final YieldAndDiscountCurve dscBumpedMinus = new YieldCurve(curveInt.getName(),
             new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
-        final ForexBlackSmileProviderDiscount marketFwdBumpedMinus = new ForexBlackSmileProviderDiscount(data.getMulticurveProvider().withForward(index, dscBumpedMinus), data.getSmile(),
+        final ForexBlackSmileProviderDiscount marketFwdBumpedMinus = new ForexBlackSmileProviderDiscount(data.getMulticurveProvider().withForward(index, dscBumpedMinus), data.getVolatility(),
             data.getCurrencyPair());
         final MultipleCurrencyAmount pvBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
         final MultipleCurrencyAmount pvDiff = pvBumpedPlus.plus(pvBumpedMinus.multipliedBy(-1.0));

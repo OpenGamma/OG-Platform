@@ -30,9 +30,9 @@ public class ForexBlackSmileProviderDiscount extends ForexBlackSmileProvider {
   }
 
   @Override
-  public ForexBlackSmileProviderInterface copy() {
+  public ForexBlackSmileProviderDiscount copy() {
     MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
-    return new ForexBlackSmileProviderDiscount(multicurveProvider, getSmile(), getCurrencyPair());
+    return new ForexBlackSmileProviderDiscount(multicurveProvider, getVolatility(), getCurrencyPair());
   }
 
 }

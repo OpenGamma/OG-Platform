@@ -226,7 +226,7 @@ public final class ForexNonDeliverableOptionBlackSmileMethod {
     final double expiryTime = optionForex.getExpiryTime();
     final double strike = 1.0 / optionForex.getStrike(); // The strike is 1 ccy2=X ccy1; we want the price in ccy2 => we need 1 ccy1 = 1/X ccy2.
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = presentValueBlackVolatilitySensitivity(optionForex, smileMulticurves); // In ccy2
-    final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smileMulticurves.getSmile();
+    final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smileMulticurves.getVolatility();
     final double dfDelivery = multicurves.getDiscountFactor(optionForex.getCurrency2(), paymentTime);
     final double dfNonDelivery = multicurves.getDiscountFactor(optionForex.getCurrency1(), paymentTime);
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());

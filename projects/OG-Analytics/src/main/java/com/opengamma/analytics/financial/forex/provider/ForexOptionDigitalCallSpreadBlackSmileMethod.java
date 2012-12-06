@@ -168,7 +168,7 @@ public class ForexOptionDigitalCallSpreadBlackSmileMethod {
     final double df = multicurves.getDiscountFactor(optionDigital.getCurrency2(), optionDigital.getUnderlyingForex().getPaymentTime());
     final double spot = multicurves.getFxRate(optionDigital.getCurrency1(), optionDigital.getCurrency2());
     final double forward = spot * multicurves.getDiscountFactor(optionDigital.getCurrency1(), optionDigital.getUnderlyingForex().getPaymentTime()) / df;
-    final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smileMulticurves.getSmile();
+    final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smileMulticurves.getVolatility();
     final double[][] vega = new double[volatilityModel.getNumberExpiration()][volatilityModel.getNumberStrike()];
     for (final DoublesPair point : pointSensitivity.getVega().getMap().keySet()) {
       final VolatilityAndBucketedSensitivities volAndSensitivities = smileMulticurves.getVolatilityAndSensitivities(optionDigital.getCurrency1(), optionDigital.getCurrency2(),
