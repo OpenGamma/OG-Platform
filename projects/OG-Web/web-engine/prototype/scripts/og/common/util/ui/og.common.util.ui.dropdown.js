@@ -38,7 +38,6 @@ $.register_module({
                 rest_options.cache_for = rest_options.cache_for || 30 * 1000;
                 if (!data_generator) return og.api.rest[resource].get(rest_options).pipe(rest_handler);
                 data_generator(function (data) {
-                    console.log(data);
                     data.forEach(function (datum) {
                         var option = typeof datum === 'string' ? {value: datum, text: datum} : datum,
                             $option = $('<option/>').attr('value', option.value).html(option.text);
