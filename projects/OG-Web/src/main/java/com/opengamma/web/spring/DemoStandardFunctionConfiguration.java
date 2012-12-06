@@ -245,6 +245,8 @@ import com.opengamma.financial.analytics.model.future.MarkToMarketPresentValueFu
 import com.opengamma.financial.analytics.model.future.MarkToMarketSpotFuturesFunction;
 import com.opengamma.financial.analytics.model.future.MarkToMarketValueDeltaFuturesFunction;
 import com.opengamma.financial.analytics.model.future.MarkToMarketValueRhoFuturesFunction;
+import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBAWGreeksFunction;
+import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBAWPVFunction;
 import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackDefaults;
 import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackDeltaFunction;
 import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackForwardDeltaFunction;
@@ -253,8 +255,6 @@ import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptio
 import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackPVFunction;
 import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackThetaFunction;
 import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackVegaFunction;
-import com.opengamma.financial.analytics.model.futureoption.FutureOptionBlackDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.futureoption.FutureOptionBlackPresentValueFunction;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackForwardSlideThetaFunction;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackVolatilitySurfaceConstantSpreadThetaFunction;
@@ -1143,6 +1143,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackPVFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackThetaFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackVegaFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBAWPVFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBAWGreeksFunction.class.getName()));
     
     functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityFutureOptionBlackDefaults.class.getName(),
         Arrays.asList("USD", "Discounting", "DefaultTwoCurveUSDConfig", "BBG_S ", "Spline")));

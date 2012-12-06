@@ -21,7 +21,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-public class CommodityFutureOptionBAWPVFunction extends CommodityFutureOptionBlackFunction {
+public class CommodityFutureOptionBAWPVFunction extends CommodityFutureOptionBAWFunction {
 
   public CommodityFutureOptionBAWPVFunction() {
     super(ValueRequirementNames.PRESENT_VALUE);

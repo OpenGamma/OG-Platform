@@ -24,7 +24,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-public class CommodityFutureOptionBAWGreeksFunction extends CommodityFutureOptionBlackFunction {
+public class CommodityFutureOptionBAWGreeksFunction extends CommodityFutureOptionBAWFunction {
   private static final String[] GREEK_NAMES = new String[] {
       ValueRequirementNames.VALUE_DELTA,
       ValueRequirementNames.VALUE_DUAL_DELTA,
