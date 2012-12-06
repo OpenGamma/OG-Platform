@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.futureoption;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionBAWGreeksCalculator;
+import com.opengamma.analytics.financial.commodity.calculator.ComFutOptBaroneAdesiGreekCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
@@ -26,20 +26,20 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class CommodityFutureOptionBAWGreeksFunction extends CommodityFutureOptionBlackFunction {
   private static final String[] GREEK_NAMES = new String[] {
-    ValueRequirementNames.VALUE_DELTA,
-    ValueRequirementNames.VALUE_DUAL_DELTA,
-    ValueRequirementNames.VALUE_RHO,
-    ValueRequirementNames.VALUE_CARRY_RHO,
-    ValueRequirementNames.VALUE_VEGA,
-    ValueRequirementNames.VALUE_THETA
+      ValueRequirementNames.VALUE_DELTA,
+      ValueRequirementNames.VALUE_DUAL_DELTA,
+      ValueRequirementNames.VALUE_RHO,
+      ValueRequirementNames.VALUE_CARRY_RHO,
+      ValueRequirementNames.VALUE_VEGA,
+      ValueRequirementNames.VALUE_THETA
   };
   private static final Greek[] GREEKS = new Greek[] {
-    Greek.DELTA,
-    Greek.DUAL_DELTA,
-    Greek.RHO,
-    Greek.CARRY_RHO,
-    Greek.VEGA,
-    Greek.THETA
+      Greek.DELTA,
+      Greek.DUAL_DELTA,
+      Greek.RHO,
+      Greek.CARRY_RHO,
+      Greek.VEGA,
+      Greek.THETA
   };
 
   public CommodityFutureOptionBAWGreeksFunction() {
@@ -50,7 +50,7 @@ public class CommodityFutureOptionBAWGreeksFunction extends CommodityFutureOptio
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final Set<ValueRequirement> desiredValues,
       final ComputationTarget target) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final GreekResultCollection greeks = derivative.accept(CommodityFutureOptionBAWGreeksCalculator.getInstance(), market);
+    final GreekResultCollection greeks = derivative.accept(ComFutOptBaroneAdesiGreekCalculator.getInstance(), market);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueProperties properties = createResultProperties(desiredValue.getConstraints());
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
