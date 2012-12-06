@@ -33,7 +33,13 @@ import com.opengamma.util.ArgumentChecker;
 public class CommodityFutureOptionBlackDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(CommodityFutureOptionBlackDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.PRESENT_VALUE
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.VALUE_DELTA,
+    ValueRequirementNames.VALUE_GAMMA,
+    ValueRequirementNames.VALUE_THETA,
+    ValueRequirementNames.VALUE_VEGA,
+    ValueRequirementNames.FORWARD_DELTA,
+    ValueRequirementNames.FORWARD_GAMMA
   };
   private final Map<String, String> _currencyToCurveName;
   private final Map<String, String> _currencyToCurveCalculationConfigName;
