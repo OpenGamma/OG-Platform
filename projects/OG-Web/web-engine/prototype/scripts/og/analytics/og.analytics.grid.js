@@ -194,46 +194,27 @@ $.register_module({
                     };
                 })(null));
             })();
-            grid.selector = new og.analytics.Selector(grid).on('select', function (selection) {
-                var cell, meta = grid.meta, events;
-                if (1 === selection.rows.length && 1 === selection.cols.length && (cell = grid.cell(selection)))
-                    grid.fire('cellselect', cell);
-                else
-                    grid.fire('rangeselect', selection);
-                grid.fire('select', selection); // fire for single and multiple selections
-            }).on('deselect', function () {grid.fire('deselect');});
+            grid.selector = new og.analytics.Selector(grid)
+                .on('select', function (selection) {grid.fire('select', selection);})
+                .on('deselect', function () {grid.fire('deselect');});
             if (config.cellmenu) try {new og.analytics.CellMenu(grid);}
                 catch (error) {og.dev.warn(module.name + ': cellmenu failed', error);}
             if (!config.child) // if this is a child gadget, rely on its parent to register with manager
                 og.common.gadgets.manager.register({alive: grid.alive, resize: grid.resize, context: grid});
             elements.empty = false;
         };
-        var init_grid = function (meta, raw) {
-            var grid = this, config = grid.config, columns = meta.columns;
+        var init_grid = function (meta) {
+            var grid = this, columns = meta.columns, col_fields = ['description', 'header', 'type', 'width'];
+            var populate = function (col) {col_fields.forEach(function (key) {columns[key + 's'].push(col[key]);});};
             grid.meta = meta;
             meta.viewport = {format: 'CELL'};
             meta.row_height = row_height;
-            meta.header_height =  (config.source.depgraph ? 0 : set_height) + title_height;
+            meta.header_height =  (grid.config.source.depgraph ? 0 : set_height) + title_height;
             meta.scrollbar = scrollbar;
             grid.col_widths();
-            columns.headers = [];
-            columns.descriptions = [];
-            columns.types = [];
-            columns.widths = [];
-            columns.fixed[0].columns.forEach(function (col) {
-                columns.headers.push(col.header);
-                columns.types.push(col.type);
-                columns.descriptions.push(col.description);
-                columns.widths.push(col.width);
-            });
-            columns.scroll.forEach(function (set) {
-                set.columns.forEach(function (col) {
-                    columns.headers.push(col.header);
-                    columns.types.push(col.type);
-                    columns.descriptions.push(col.description);
-                    columns.widths.push(col.width);
-                });
-            });
+            col_fields.forEach(function (key) {columns[key + 's'] = [];}); // plural version
+            columns.fixed[0].columns.forEach(populate);
+            columns.scroll.forEach(function (set) {set.columns.forEach(populate);});
             unravel_structure.call(grid);
             if (grid.elements.empty) init_elements.call(grid);
             grid.resize();
