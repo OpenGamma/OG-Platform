@@ -245,6 +245,14 @@ import com.opengamma.financial.analytics.model.future.MarkToMarketPresentValueFu
 import com.opengamma.financial.analytics.model.future.MarkToMarketSpotFuturesFunction;
 import com.opengamma.financial.analytics.model.future.MarkToMarketValueDeltaFuturesFunction;
 import com.opengamma.financial.analytics.model.future.MarkToMarketValueRhoFuturesFunction;
+import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackDefaults;
+import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackDeltaFunction;
+import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackForwardDeltaFunction;
+import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackForwardGammaFunction;
+import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackGammaFunction;
+import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackPVFunction;
+import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackThetaFunction;
+import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackVegaFunction;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionBlackDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionBlackPresentValueFunction;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackConstantSpreadThetaFunction;
@@ -1122,22 +1130,22 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addCommodityFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(FutureOptionBlackPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(FutureOptionBlackDefaultPropertiesFunction.class, PriorityClass.NORMAL.name(), "BBG", "Spline",
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting",
-        "EUR", "DefaultTwoCurveEURConfig", "Discounting",
-        "JPY", "DefaultTwoCurveJPYConfig", "Discounting",
-        "GBP", "DefaultTwoCurveGBPConfig", "Discounting"));
-//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackDeltaFunction.class.getName()));
-//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackForwardDeltaFunction.class.getName()));
-//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackForwardGammaFunction.class.getName()));
-//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackGammaFunction.class.getName()));
-//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackPVFunction.class.getName()));
-//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackThetaFunction.class.getName()));
-//    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackVegaFunction.class.getName()));
-//    
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityFutureOptionBlackDefaults.class.getName(),
-//        Arrays.asList("USD", "Discounting", "DefaultTwoCurveUSDConfig", "BBG_S ")));
+//    functionConfigs.add(functionConfiguration(FutureOptionBlackPresentValueFunction.class));
+//    functionConfigs.add(functionConfiguration(FutureOptionBlackDefaultPropertiesFunction.class, PriorityClass.NORMAL.name(), "BBG", "Spline",
+//        "USD", "DefaultTwoCurveUSDConfig", "Discounting",
+//        "EUR", "DefaultTwoCurveEURConfig", "Discounting",
+//        "JPY", "DefaultTwoCurveJPYConfig", "Discounting",
+//        "GBP", "DefaultTwoCurveGBPConfig", "Discounting"));
+    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackDeltaFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackForwardDeltaFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackForwardGammaFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackGammaFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackPVFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackThetaFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackVegaFunction.class.getName()));
+    
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityFutureOptionBlackDefaults.class.getName(),
+        Arrays.asList("USD", "Discounting", "DefaultTwoCurveUSDConfig", "BBG_S ", "Spline")));
   }
 
   private static void addLocalVolatilityPDEFunctions(final List<FunctionConfiguration> functionConfigs) {

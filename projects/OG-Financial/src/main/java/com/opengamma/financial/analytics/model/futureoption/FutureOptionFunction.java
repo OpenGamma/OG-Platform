@@ -161,7 +161,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     final ValueProperties constraints = desiredValue.getConstraints();
     final CommodityFutureOptionSecurity security = (CommodityFutureOptionSecurity) target.getSecurity();
     final ExternalId underlyingId = security.getUnderlyingId();
-    final ValueRequirement spotReq = getSpotRequirement(underlyingId);
+    final ValueRequirement underlyingFutureReq = getUnderlyingFutureRequirement(underlyingId);
     final String fundingCurveName = getFundingCurveName(desiredValue);
     if (fundingCurveName == null) {
       return null;
@@ -181,8 +181,8 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
       return null;
     }
     final String smileInterpolator = interpolators.iterator().next();
-    final ValueRequirement volReq = getVolatilitySurfaceRequirement(security, volSurfaceName, smileInterpolator, curveConfigName, fundingCurveName);
-    return Sets.newHashSet(spotReq, fundingReq, volReq);
+    final ValueRequirement volReq = getVolatilitySurfaceRequirement(security, volSurfaceName, smileInterpolator);
+    return Sets.newHashSet(underlyingFutureReq, fundingReq, volReq);
   }
 
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
@@ -237,11 +237,9 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, FinancialSecurityUtils.getCurrency(security).getUniqueId(), properties);
   }
 
+  protected abstract ValueRequirement getVolatilitySurfaceRequirement(FinancialSecurity security, final String surfaceName, final String smileInterpolator);
 
-  protected abstract ValueRequirement getVolatilitySurfaceRequirement(FinancialSecurity security, final String surfaceName, final String smileInterpolator,
-      final String discountingCurveName, final String discountingCurveConfig);
-
-  protected ValueRequirement getSpotRequirement(final ExternalId underlyingId) {
+  protected ValueRequirement getUnderlyingFutureRequirement(final ExternalId underlyingId) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingId);
   }
 
