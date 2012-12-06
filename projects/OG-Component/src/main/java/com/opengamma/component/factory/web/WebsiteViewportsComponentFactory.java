@@ -48,6 +48,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.analytics.AnalyticsColumnsJsonWriter;
 import com.opengamma.web.analytics.AnalyticsViewManager;
 import com.opengamma.web.analytics.ViewportResultsJsonWriter;
+import com.opengamma.web.analytics.blotter.BlotterResource;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
 import com.opengamma.web.analytics.json.AnalyticsColumnGroupsMessageBodyWriter;
 import com.opengamma.web.analytics.json.Compressor;
@@ -195,6 +196,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager, connectionMgr));
     repo.getRestComponents().publishResource(new Compressor());
     repo.getRestComponents().publishResource(new LogResource());
+    repo.getRestComponents().publishResource(new BlotterResource());
     repo.getRestComponents().publishResource(new TimeSeriesResolverKeysResource(getConfigMaster()));
     repo.getRestComponents().publishHelper(new PrimitivesGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new PortfolioGridStructureMessageBodyWriter(columnWriter));
