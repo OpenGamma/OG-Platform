@@ -15,20 +15,20 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Calculates the forward gamma of commodity future options using the Black method.
  */
-public final class CommodityFutureOptionForwardGammaCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
+public final class CommodityFutureOptionBlackForwardGammaCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
   /** A static instance of this calculator */
-  private static final CommodityFutureOptionForwardGammaCalculator s_instance = new CommodityFutureOptionForwardGammaCalculator();
+  private static final CommodityFutureOptionBlackForwardGammaCalculator s_instance = new CommodityFutureOptionBlackForwardGammaCalculator();
   /** The Black pricer */
   private static final CommodityFutureOptionBlackMethod PRICER = CommodityFutureOptionBlackMethod.getInstance();
 
   /**
    * @return The static instance of this calculator
    */
-  public static CommodityFutureOptionForwardGammaCalculator getInstance() {
+  public static CommodityFutureOptionBlackForwardGammaCalculator getInstance() {
     return s_instance;
   }
 
-  private CommodityFutureOptionForwardGammaCalculator() {
+  private CommodityFutureOptionBlackForwardGammaCalculator() {
   }
 
   @Override

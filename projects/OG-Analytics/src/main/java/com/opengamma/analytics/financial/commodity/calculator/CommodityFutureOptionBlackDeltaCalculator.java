@@ -15,20 +15,20 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Calculates the delta of commodity future options using the Black formula.
  */
-public final class CommodityFutureOptionDeltaCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
+public final class CommodityFutureOptionBlackDeltaCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
   /** Static instance of this calculator */
-  private static final CommodityFutureOptionDeltaCalculator s_instance = new CommodityFutureOptionDeltaCalculator();
+  private static final CommodityFutureOptionBlackDeltaCalculator s_instance = new CommodityFutureOptionBlackDeltaCalculator();
   /** The Black pricer */
   private static final CommodityFutureOptionBlackMethod PRICER = CommodityFutureOptionBlackMethod.getInstance();
 
   /**
    * @return The static instance of this class
    */
-  public static CommodityFutureOptionDeltaCalculator getInstance() {
+  public static CommodityFutureOptionBlackDeltaCalculator getInstance() {
     return s_instance;
   }
 
-  private CommodityFutureOptionDeltaCalculator() {
+  private CommodityFutureOptionBlackDeltaCalculator() {
   }
 
   @Override

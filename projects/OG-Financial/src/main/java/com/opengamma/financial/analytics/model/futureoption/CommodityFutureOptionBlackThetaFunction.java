@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionThetaCalculator;
+import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionBlackThetaCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.engine.ComputationTarget;
@@ -31,7 +31,7 @@ public class CommodityFutureOptionBlackThetaFunction extends CommodityFutureOpti
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final Set<ValueRequirement> desiredValues,
       final ComputationTarget target) {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
-    final double theta = derivative.accept(CommodityFutureOptionThetaCalculator.getInstance(), market);
+    final double theta = derivative.accept(CommodityFutureOptionBlackThetaCalculator.getInstance(), market);
     final ValueSpecification spec = new ValueSpecification(getValueRequirementName()[0], target.toSpecification(), createResultProperties(desiredValue.getConstraints()));
     return Collections.singleton(new ComputedValue(spec, theta));
   }
