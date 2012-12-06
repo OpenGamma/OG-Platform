@@ -79,6 +79,10 @@ public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioW
     this(filename, getParsers(securityTypes));
   }
   
+  @Override
+  public void addAttribute(String key, String value) {
+    // Not supported
+  }
 
   private void writeSecurities(ManageableSecurity[] securities) {
         
