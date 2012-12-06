@@ -45,8 +45,8 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
         if (externalIds == null) {
           throw new OpenGammaRuntimeException("Can't get security id");
         }
-        return new AgricultureFutureDefinition(expiry, externalIds.iterator().next(), security.getUnitAmount(), null, null,
-            security.getUnitNumber(), security.getUnitName(), SettlementType.CASH, referencePrice, security.getCurrency(), expiry);
+        return new AgricultureFutureDefinition(expiry, externalIds.iterator().next(), security.getUnitNumber(), null, null,
+            1.0, security.getUnitName(), SettlementType.CASH, referencePrice, security.getCurrency(), expiry);
       }
 
       @Override
@@ -57,8 +57,8 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
         if (externalIds == null) {
           throw new OpenGammaRuntimeException("Can't get security id");
         }
-        return new EnergyFutureDefinition(expiry, externalIds.iterator().next(), security.getUnitAmount(), null, null,
-            security.getUnitNumber(), security.getUnitName(), SettlementType.CASH, referencePrice, security.getCurrency(), expiry);
+        return new EnergyFutureDefinition(expiry, externalIds.iterator().next(), security.getUnitNumber(), null, null,
+            1.0, security.getUnitName(), SettlementType.CASH, referencePrice, security.getCurrency(), expiry);
       }
 
       @Override
@@ -69,8 +69,8 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
         if (externalIds == null) {
           throw new OpenGammaRuntimeException("Can't get security id");
         }
-        return new MetalFutureDefinition(expiry, externalIds.iterator().next(), security.getUnitAmount(), null, null,
-            security.getUnitNumber(), security.getUnitName(), SettlementType.CASH, referencePrice, security.getCurrency(), expiry);
+        return new MetalFutureDefinition(expiry, externalIds.iterator().next(), security.getUnitNumber(), null, null,
+            1.0, security.getUnitName(), SettlementType.CASH, referencePrice, security.getCurrency(), expiry);
       }
 
       @Override

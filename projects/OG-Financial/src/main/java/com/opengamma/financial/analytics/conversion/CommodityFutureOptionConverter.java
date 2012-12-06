@@ -64,21 +64,21 @@ public class CommodityFutureOptionConverter extends FinancialSecurityVisitorAdap
       AgricultureFutureDefinition underlyingDefinition = (AgricultureFutureDefinition) underlyingSecurity.accept(_futureSecurityConverter);
       return new AgricultureFutureOptionDefinition(expiry,
           underlyingDefinition,
-          commodityOption.getStrike(),
+          commodityOption.getStrike() * 100.0, // TODO: Remove when security stops scaling price
           exerciseType,
           isCall);
     } else if (underlyingSecurity instanceof EnergyFutureSecurity) {
       EnergyFutureDefinition underlyingDefinition = (EnergyFutureDefinition) underlyingSecurity.accept(_futureSecurityConverter);
       return new EnergyFutureOptionDefinition(expiry,
           underlyingDefinition,
-          commodityOption.getStrike(),
+          commodityOption.getStrike() * 100.0, // TODO: Remove when security stops scaling price
           exerciseType,
           isCall);
     } else if (underlyingSecurity instanceof MetalFutureSecurity) {
       MetalFutureDefinition underlyingDefinition = (MetalFutureDefinition) underlyingSecurity.accept(_futureSecurityConverter);
       return new MetalFutureOptionDefinition(expiry,
           underlyingDefinition,
-          commodityOption.getStrike(),
+          commodityOption.getStrike() * 100.0, // TODO: Remove when security stops scaling price
           exerciseType,
           isCall);
     } else {
