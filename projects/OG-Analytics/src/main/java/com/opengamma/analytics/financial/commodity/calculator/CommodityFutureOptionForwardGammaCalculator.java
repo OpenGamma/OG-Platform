@@ -13,21 +13,22 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Calculates the forward gamma of commodity future options using the Black method.
  */
-public class CommodityFutureOptionForwardGammaCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
-
+public final class CommodityFutureOptionForwardGammaCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
+  /** A static instance of this calculator */
   private static final CommodityFutureOptionForwardGammaCalculator s_instance = new CommodityFutureOptionForwardGammaCalculator();
+  /** The Black pricer */
   private static final CommodityFutureOptionBlackMethod PRICER = CommodityFutureOptionBlackMethod.getInstance();
 
+  /**
+   * @return The static instance of this calculator
+   */
   public static CommodityFutureOptionForwardGammaCalculator getInstance() {
     return s_instance;
   }
 
-  /**
-   *
-   */
-  public CommodityFutureOptionForwardGammaCalculator() {
+  private CommodityFutureOptionForwardGammaCalculator() {
   }
 
   @Override
@@ -49,21 +50,6 @@ public class CommodityFutureOptionForwardGammaCalculator extends InstrumentDeriv
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(data, "data");
     return PRICER.forwardGamma(derivative, data);
-  }
-
-  @Override
-  public Double visitAgricultureFutureOption(final AgricultureFutureOption derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support an visitAgricultureFutureOption without a StaticReplicationDataBundle");
-  }
-
-  @Override
-  public Double visitEnergyFutureOption(final EnergyFutureOption derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support an visitEnergyFutureOption without a StaticReplicationDataBundle");
-  }
-
-  @Override
-  public Double visitMetalFutureOption(final MetalFutureOption derivative) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support an visitMetalFutureOption without a StaticReplicationDataBundle");
   }
 
 }

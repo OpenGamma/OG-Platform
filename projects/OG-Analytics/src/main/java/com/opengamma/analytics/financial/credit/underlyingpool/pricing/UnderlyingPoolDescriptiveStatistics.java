@@ -27,6 +27,7 @@ public class UnderlyingPoolDescriptiveStatistics {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Add ability to identify the obligor with the max/min spread etc?
+  // TODO : Add method to return the n tightest/widest spreads (and the associated obligors)
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

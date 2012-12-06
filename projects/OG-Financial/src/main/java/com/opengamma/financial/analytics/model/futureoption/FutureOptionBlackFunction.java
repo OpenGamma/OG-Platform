@@ -293,15 +293,14 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
   protected String getBloombergTicker(final HistoricalTimeSeriesSource tsSource, final ExternalId underlyingBuid) {
     if (tsSource == null || underlyingBuid == null) {
       throw new OpenGammaRuntimeException("Unable to find option underlyer's ticker from the ExternalIdBundle");
-    } else {
-      final HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries("PX_LAST", ExternalIdBundle.of(underlyingBuid), null, null, true, null, true, 1);
-      if (historicalTimeSeries == null) {
-        throw new OpenGammaRuntimeException("We require a time series for " + underlyingBuid);
-      }
-      final ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
-      final String bbgTicker = (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER)).getValue();
-      return bbgTicker;
     }
+    final HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries("PX_LAST", ExternalIdBundle.of(underlyingBuid), null, null, true, null, true, 1);
+    if (historicalTimeSeries == null) {
+      throw new OpenGammaRuntimeException("We require a time series for " + underlyingBuid);
+    }
+    final ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
+    final String bbgTicker = (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER)).getValue();
+    return bbgTicker;
   }
 
   protected ValueRequirement getSpotRequirement(final ExternalId underlyingId) {

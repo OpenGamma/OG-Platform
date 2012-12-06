@@ -62,9 +62,6 @@ public abstract class CommodityBlackVolatilitySurfaceFunction extends BlackVolat
       ValueProperties properties = createValueProperties().get();
       properties = BlackVolatilitySurfacePropertyUtils.addBlackSurfaceProperties(properties, getInstrumentType()).get();
       properties = BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(properties).get();
-      properties = properties.copy()
-          //.withAny(CURVE_CALCULATION_CONFIG)
-          /*.withAny(CURVE_CURRENCY)*/.get();
       return properties;
     }
 
@@ -73,11 +70,6 @@ public abstract class CommodityBlackVolatilitySurfaceFunction extends BlackVolat
       ValueProperties properties = createValueProperties().get();
       properties = BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(properties, desiredValue).get();
       properties = BlackVolatilitySurfacePropertyUtils.addBlackSurfaceProperties(properties, getInstrumentType(), desiredValue).get();
-      //final String curveCurrency = desiredValue.getConstraint(CURVE_CURRENCY);
-      //final String curveCalculationConfig = desiredValue.getConstraint(CURVE_CALCULATION_CONFIG);
-      properties = properties.copy()
-          //.with(CURVE_CURRENCY, curveCurrency)
-          /*.with(CURVE_CALCULATION_CONFIG, curveCalculationConfig)*/.get();
       return properties;
     }
 
@@ -107,9 +99,6 @@ public abstract class CommodityBlackVolatilitySurfaceFunction extends BlackVolat
       ValueProperties properties = createValueProperties().get();
       properties = BlackVolatilitySurfacePropertyUtils.addBlackSurfaceProperties(properties, getInstrumentType()).get();
       properties = BlackVolatilitySurfacePropertyUtils.addSABRVolatilityInterpolatorProperties(properties).get();
-      properties = properties.copy()
-          //.withAny(CURVE_CURRENCY)
-          /*.withAny(CURVE_CALCULATION_CONFIG)*/.get();
       return properties;
     }
 
@@ -118,11 +107,6 @@ public abstract class CommodityBlackVolatilitySurfaceFunction extends BlackVolat
       ValueProperties properties = createValueProperties().get();
       properties = BlackVolatilitySurfacePropertyUtils.addSABRVolatilityInterpolatorProperties(properties, desiredValue).get();
       properties = BlackVolatilitySurfacePropertyUtils.addBlackSurfaceProperties(properties, getInstrumentType(), desiredValue).get();
-      //final String curveCurrency = desiredValue.getConstraint(CURVE_CURRENCY);
-      //final String curveCalculationConfig = desiredValue.getConstraint(CURVE_CALCULATION_CONFIG);
-      properties = properties.copy()
-          //.with(CURVE_CURRENCY, curveCurrency)
-          /*.with(CURVE_CALCULATION_CONFIG, curveCalculationConfig)*/.get();
       return properties;
     }
   }
@@ -151,35 +135,21 @@ public abstract class CommodityBlackVolatilitySurfaceFunction extends BlackVolat
     final ForwardCurve forwardCurve = (ForwardCurve) forwardCurveObject;
 
     @SuppressWarnings("unchecked")
+    final
     VolatilitySurfaceData<Object, Object> volatilitySurface = (VolatilitySurfaceData<Object, Object>) volatilitySurfaceObject;
     return BlackVolatilitySurfaceUtils.getDataFromStandardQuotes(forwardCurve, volatilitySurface);
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    //final ValueProperties constraints = desiredValue.getConstraints();
-    //final Set<String> curveCurrencyNames = constraints.getValues(CURVE_CURRENCY);
-    //    if (curveCurrencyNames == null || curveCurrencyNames.size() != 1) {
-    //      return null;
-    //    }
-    //    final Set<String> curveCalculationConfigs = constraints.getValues(CURVE_CALCULATION_CONFIG);
-    //    if (curveCalculationConfigs == null || curveCalculationConfigs.size() != 1) {
-    //      return null;
-    //    }
     return super.getRequirements(context, target, desiredValue);
   }
 
   @Override
   protected ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    //final String forwardCurveCcyName = desiredValue.getConstraint(CURVE_CURRENCY);
-    final String discountingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    //final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    //final String curveCalculationConfig = desiredValue.getConstraint(CURVE_CALCULATION_CONFIG);
+    final String forwardurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final ValueProperties properties = ValueProperties.builder()
-        //.with(CURVE_CURRENCY, forwardCurveCcyName)
-        .with(ValuePropertyNames.CURVE, discountingCurveName)
-        //.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
-        /*.with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)*/.get();
+        .with(ValuePropertyNames.CURVE, forwardurveName).get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
   }
 
