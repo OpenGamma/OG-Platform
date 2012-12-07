@@ -12,12 +12,15 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.time.calendar.ZonedDateTime;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.joda.beans.Bean;
 import org.joda.beans.MetaBean;
@@ -197,6 +200,12 @@ public class BlotterResource {
   @Path("securities/{securityId}")
   public String getText(@PathParam("securityId") String securityIdStr) {
     return getJSON(securityIdStr);
+  }
+
+  @POST
+  @Consumes(MediaType.APPLICATION_JSON)
+  public Response postJSON() {
+    throw new UnsupportedOperationException();
   }
 
   private static Map<Object, Object> map(Object... values) {
