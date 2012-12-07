@@ -1,7 +1,7 @@
 <#escape x as x?html>
     <@page title="${type} Structure">
         <@section title="${type}">
-            <@table items=properties empty="" headers=["Property", "Type", "Optional", "Endpoint"]; prop>
+            <@table items=properties empty="" headers=["Property", "Type", "Optional", "Read-only", "Endpoint"]; prop>
             <td>${prop.name}</td>
             <td>
                 <#if prop.type == "map">
@@ -19,6 +19,7 @@
                 </#if>
             </td>
             <td><#if prop.isOptional>true</#if></td>
+            <td><#if prop.isReadOnly>true</#if></td>
             <td></td>
             </@table>
         </@section>

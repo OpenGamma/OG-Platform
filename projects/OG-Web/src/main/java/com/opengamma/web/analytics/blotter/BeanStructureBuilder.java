@@ -17,6 +17,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.PropertyReadWrite;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -184,6 +185,7 @@ import com.opengamma.util.OpenGammaClock;
     final Map<Object, Object> result = Maps.newHashMap();
     result.put("name", property.name());
     result.put("isOptional", isNullable(property));
+    result.put("isReadOnly", property.readWrite() == PropertyReadWrite.READ_ONLY);
     for (int i = 0; i < values.length / 2; i++) {
       result.put(values[i * 2], values[(i * 2) + 1]);
     }
