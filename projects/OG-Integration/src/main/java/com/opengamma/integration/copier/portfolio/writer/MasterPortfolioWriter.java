@@ -15,6 +15,7 @@ import java.util.Stack;
 import javax.time.Instant;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.master.position.ManageableTrade;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,11 +152,16 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     // and if so, just update the existing position
     if (_mergePositions && _securityIdToPosition.containsKey(writtenSecurities.get(0).getUniqueId().getObjectId())) {
 
-      // Just add new quantity to existing position
+      // Add new quantity to existing position's quantity
       ManageablePosition existingPosition = _securityIdToPosition.get(writtenSecurities.get(0).getUniqueId().getObjectId());
       existingPosition.setQuantity(existingPosition.getQuantity().add(position.getQuantity()));
 
-      // Save the updated position to the position master
+      // Add new trades to existing position's trades
+      for (ManageableTrade trade : position.getTrades()) {
+        existingPosition.addTrade(trade);
+      }
+
+      // Save the updated existing position to the position master
       PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
 
       // update position map (huh?)
