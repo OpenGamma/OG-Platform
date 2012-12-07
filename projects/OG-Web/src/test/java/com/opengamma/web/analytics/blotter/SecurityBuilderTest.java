@@ -11,15 +11,22 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.joda.beans.MetaBean;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.conversion.JodaBeanConverters;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.swap.FixedInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -32,11 +39,21 @@ import com.opengamma.util.money.Currency;
 public class SecurityBuilderTest {
 
   private static final double DELTA = 0.0001;
+  private static final Set<MetaBean> _metaBeans = ImmutableSet.<MetaBean>of(
+      FXForwardSecurity.meta(),
+      SwapSecurity.meta(),
+      FixedInterestRateLeg.meta(),
+      FloatingInterestRateLeg.meta(),
+      InterestRateNotional.meta());
+
+  static {
+    JodaBeanConverters.getInstance(); // load converters
+  }
 
   /**
    * test building a nice simple security
    */
-  @Test(enabled = false)
+  @Test
   public void buildFXForwardSecurity() {
     ImmutableMap<String, String> attributes = ImmutableMap.of("attr1", "attrVal1", "attr2", "attrVal2");
     BeanDataSource dataSource = data(
@@ -50,7 +67,7 @@ public class SecurityBuilderTest {
         "forwardDate", "2012-12-21T10:30+00:00[Europe/London]", // maybe need an explicit converter for this
         "regionId", "Reg~123",
         "attributes", attributes);
-    ManageableSecurity security = SecurityBuilder.buildBean(dataSource);
+    ManageableSecurity security = new SecurityBuilder(_metaBeans).buildSecurity(dataSource);
     assertNotNull(security);
     assertTrue(security instanceof FXForwardSecurity);
     FXForwardSecurity fxSecurity = (FXForwardSecurity) security;
@@ -67,7 +84,7 @@ public class SecurityBuilderTest {
     assertEquals(FXForwardSecurity.SECURITY_TYPE, fxSecurity.getSecurityType());
   }
 
-  @Test(enabled = false)
+  @Test
   public void buildSwapSecurity() {
     Map<String, String> attributes = ImmutableMap.of("attr1", "attrVal1", "attr2", "attrVal2");
     BeanDataSource dataSource = data(
@@ -108,7 +125,7 @@ public class SecurityBuilderTest {
             "currency", "GBP",
             "currency", "GBP",
             "amount", "123.45")));
-    ManageableSecurity security = SecurityBuilder.buildBean(dataSource);
+    ManageableSecurity security = new SecurityBuilder(_metaBeans).buildSecurity(dataSource);
     assertNotNull(security);
     assertTrue(security instanceof SwapSecurity);
     SwapSecurity swapSecurity = (SwapSecurity) security;

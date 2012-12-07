@@ -8,7 +8,7 @@ package com.opengamma.web.analytics.blotter;
 /**
  *
  */
-/* package */ interface BeanVisitorDecorator {
+/* package */ interface BeanVisitorDecorator<T> {
 
-  <T> BeanVisitor<T> decorate(BeanVisitor<T> visitor);
+  BeanVisitor<T> decorate(BeanVisitor<T> visitor);
 }

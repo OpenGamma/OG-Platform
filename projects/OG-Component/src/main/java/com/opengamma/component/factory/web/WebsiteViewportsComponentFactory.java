@@ -196,7 +196,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager, connectionMgr));
     repo.getRestComponents().publishResource(new Compressor());
     repo.getRestComponents().publishResource(new LogResource());
-    repo.getRestComponents().publishResource(new BlotterResource());
+    repo.getRestComponents().publishResource(new BlotterResource(getSecurityMaster()));
     repo.getRestComponents().publishResource(new TimeSeriesResolverKeysResource(getConfigMaster()));
     repo.getRestComponents().publishHelper(new PrimitivesGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new PortfolioGridStructureMessageBodyWriter(columnWriter));
