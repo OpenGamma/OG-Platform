@@ -54,14 +54,29 @@
     white-space: nowrap;
 }
 
-.OG-g-cell.og-error {color: gray;}
+.OG-g-cell.og-error {
+    color: #808080;
+}
+
 .OG-g-cell.og-log:after {
     content: '';
     position: absolute;
     top: 0;
     right: 0;
-    border-top: 5px solid #960000;
+    border-top: 5px solid transparent;
     border-left: 5px solid transparent;
+}
+
+.OG-g-cell.og-log-ERROR:after {
+    border-top-color: #960000;
+}
+
+.OG-g-cell.og-log-WARN:after {
+    border-top-color: #e58600;
+}
+
+.OG-g-cell.og-log-INFO:after {
+    border-top-color: #487287;
 }
 
 .OG-g-h-fixed, .OG-g-b-fixed,
