@@ -17,28 +17,29 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * The Barone-Adesi and Whaley approximation for the price of an American Option. <b>Note:</b> The  Bjerksund and Stensland (2002) approximation (BjerksundStenslandModel) is
-   * more accurate and should be used in place of this.  
+ * The Barone-Adesi and Whaley approximation for the price of an American Option. <b>Note:</b> The  Bjerksund and Stensland (2002) approximation ({@link BjerksundStenslandModel}) is
+ * more accurate and should be used in place of this.
  */
 public class BaroneAdesiWhaleyModel {
+  /** A logger */
   private static final Logger s_logger = LoggerFactory.getLogger(BaroneAdesiWhaleyModel.class);
   /** Normal probability distribution */
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   /**
-     * Get the price of an American option by the Barone-Adesi & Whaley approximation. <b>Note:</b> The  Bjerksund and Stensland (2002) approximation (BjerksundStenslandModel) is
-     * more accurate and should be used in place of this.  
-    * @param s0 The spot
-     * @param k The strike
-     * @param r The risk-free rate
-     * @param b The cost-of-carry
-     * @param t The time-to-expiry 
-     * @param sigma The volatility 
-     * @param isCall true for calls 
-     * @return The American option price  
-     */
+   * Get the price of an American option by the Barone-Adesi & Whaley approximation. <b>Note:</b> The  Bjerksund and Stensland (2002) approximation ({@link BjerksundStenslandModel}) is
+   * more accurate and should be used in place of this.
+   * @param s0 The spot
+   * @param k The strike
+   * @param r The risk-free rate
+   * @param b The cost-of-carry
+   * @param t The time-to-expiry
+   * @param sigma The volatility
+   * @param isCall true for calls
+   * @return The American option price
+   */
   public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
-    //TODO handle k = 0, t = 0 and sigma = 0 
+    //TODO handle k = 0, t = 0 and sigma = 0
     ArgumentChecker.isTrue(s0 > 0.0, "spot must be greater than zero");
     ArgumentChecker.isTrue(k > 0.0, "strike must be greater than zero");
     ArgumentChecker.isTrue(t > 0.0, "t must be greater than zero");
@@ -68,9 +69,9 @@ public class BaroneAdesiWhaleyModel {
    * @param k The strike
    * @param r The risk-free rate
    * @param b The cost-of-carry
-   * @param t The time-to-expiry 
-   * @param sigma The volatility 
-   * @param isCall true for calls 
+   * @param t The time-to-expiry
+   * @param sigma The volatility
+   * @param isCall true for calls
    * @return length 7 arrays containing the price, then the sensitivities (Greeks): delta (spot), dual-delta (strike), rho (risk-free rate),
    *  b-rho (cost-of-carry), theta (expiry), vega (sigma)
    */
@@ -90,14 +91,14 @@ public class BaroneAdesiWhaleyModel {
   }
 
   /**
-   * Get the price, delta and gamma of an American option by the Barone-Adesi & Whaley approximation 
+   * Get the price, delta and gamma of an American option by the Barone-Adesi & Whaley approximation
    * @param s0 The spot
    * @param k The strike
    * @param r The risk-free rate
    * @param b The cost-of-carry
-   * @param t The time-to-expiry 
-   * @param sigma The volatility 
-   * @param isCall true for calls 
+   * @param t The time-to-expiry
+   * @param sigma The volatility
+   * @param isCall true for calls
    * @return length 3 array of price, delta and gamma
    */
   public double[] getPriceDeltaGamma(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
@@ -107,10 +108,10 @@ public class BaroneAdesiWhaleyModel {
     ArgumentChecker.isTrue(sigma > 0.0, "sigma must be greater than zero");
 
     if (isCall) {
-      CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
+      final CallSolver solver = new CallSolver(s0, k, r, b, t, sigma);
       return solver.getPriceDeltaGamma();
     }
-    PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
+    final PutSolver solver = new PutSolver(s0, k, r, b, t, sigma);
     return solver.getPriceDeltaGamma();
   }
 
@@ -141,14 +142,14 @@ public class BaroneAdesiWhaleyModel {
 
   /**
    * Get a function for the price and vega of an American option by the Barone-Adesi & Whaley approximation in terms of the volatility (sigma).
-   * This is primarily used by the GenericImpliedVolatiltySolver to find a (Barone-Adesi & Whaley) implied volatility for a given market price of an American option 
+   * This is primarily used by the GenericImpliedVolatiltySolver to find a (Barone-Adesi & Whaley) implied volatility for a given market price of an American option
    * @param s0 The spot
    * @param k The strike
    * @param r The risk-free rate
    * @param b The cost-of-carry
-   * @param t The time-to-expiry 
-   * @param isCall true for calls 
-   * @return A function from volatility (sigma) to price and vega 
+   * @param t The time-to-expiry
+   * @param isCall true for calls
+   * @return A function from volatility (sigma) to price and vega
    */
   public Function1D<Double, double[]> getPriceAndVegaFunction(final double s0, final double k, final double r, final double b, final double t, final boolean isCall) {
     ArgumentChecker.isTrue(s0 > 0.0, "spot must be greater than zero");
@@ -163,19 +164,19 @@ public class BaroneAdesiWhaleyModel {
   }
 
   /**
-   * Get the implied volatility according to the Barone-Adesi & Whaley approximation for the price of an American option quoted in the market.  It is the number that put into the 
+   * Get the implied volatility according to the Barone-Adesi & Whaley approximation for the price of an American option quoted in the market.  It is the number that put into the
    * Barone-Adesi & Whaley approximation gives the market price. <b>This is not the same as the Black implied volatility</b> (which is only applicable to European options),
    * although it may be numerically close. <p>
    * If the price indicates that the option should be excised immediately (price = s0-k for calls and k-s0 for puts), then implied volatility does not exist, and zero is returned
    * (with a warning)
    * @param price The market price of an American option
-   * @param s0 The spot   
+   * @param s0 The spot
    * @param k The strike
    * @param r The risk-free rate
    * @param b The cost-of-carry
-   * @param t The time-to-expiry 
-   * @param isCall true for calls 
-   * @return The (Barone-Adesi & Whaley) implied volatility. 
+   * @param t The time-to-expiry
+   * @param isCall true for calls
+   * @return The (Barone-Adesi & Whaley) implied volatility.
    */
   public double impliedVolatility(final double price, final double s0, final double k, final double r, final double b, final double t, final boolean isCall) {
 
@@ -193,14 +194,14 @@ public class BaroneAdesiWhaleyModel {
   }
 
   /**
-   * critical spot price - when the spot is above (below) this for a call (put), it is optimal to excise early 
+   * critical spot price - when the spot is above (below) this for a call (put), it is optimal to excise early
    * @param s0 The spot
    * @param k The strike
    * @param r The risk-free rate
    * @param b The cost-of-carry
-   * @param t The time-to-expiry 
-   * @param sigma The volatility 
-   * @param isCall true for calls 
+   * @param t The time-to-expiry
+   * @param sigma The volatility
+   * @param isCall true for calls
    * @return The critical spot price
    */
   protected double sCrit(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
@@ -214,15 +215,15 @@ public class BaroneAdesiWhaleyModel {
 
   /**
    * The critical spot price (when the spot is above (below) this for a call (put), it is optimal to excise early) and its sensitivity to spot (r), strike (k),
-   * risk-free rate (r), cost-of-carry (b), expiry (t) and volatility (sigma) 
+   * risk-free rate (r), cost-of-carry (b), expiry (t) and volatility (sigma)
    * @param s0 The spot
    * @param k The strike
    * @param r The risk-free rate
    * @param b The cost-of-carry
-   * @param t The time-to-expiry 
-   * @param sigma The volatility 
-   * @param isCall true for calls 
-   * @return The critical spot price and its sensitivities 
+   * @param t The time-to-expiry
+   * @param sigma The volatility
+   * @param isCall true for calls
+   * @return The critical spot price and its sensitivities
    */
   protected double[] getsCritAdjoint(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
     if (isCall) {
@@ -256,7 +257,7 @@ public class BaroneAdesiWhaleyModel {
     /** The time to expiry */
     private final double _t;
 
-    /** Can the option be treated as European (i.e. is b >= r) */
+    /** Can the option be treated as European (i.e. is early exercise never optimal) */
     private final boolean _isEuropean;
     /** The square root of time */
     private final double _rootT;
@@ -458,6 +459,7 @@ public class BaroneAdesiWhaleyModel {
       return res;
     }
 
+    @SuppressWarnings("synthetic-access")
     private double[] getBSMPriceDeltaGamma(final double s) {
       final double[] res = new double[3];
 
@@ -471,12 +473,6 @@ public class BaroneAdesiWhaleyModel {
       res[2] = _df2 * pnd1 / s / _sigmaRootT;
       return res;
     }
-
-    //    private double getBSMVega(final double s) {
-    //      final double d1 = getd1(s);
-    //      final double pnd1 = NORMAL.getPDF(d1);
-    //      return s * _df2 * pnd1 * _rootT;
-    //    }
 
     /**
      * Sensitivity of sStar to k, r, b, t & sigma
@@ -806,6 +802,7 @@ public class BaroneAdesiWhaleyModel {
       return res;
     }
 
+    @SuppressWarnings("synthetic-access")
     private double[] getBSMPriceDeltaGamma(final double s) {
       final double[] res = new double[3];
 
