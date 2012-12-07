@@ -910,7 +910,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "SPX Index", "Discounting", "DefaultTwoCurveUSDConfig",
         "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig",
         "NKY Index", "Discounting", "DefaultTwoCurveJPYConfig",
-        "RUT Index", "Discounting", "DefaultTwoCurveUSDConfig"));
+        "RUY Index", "Discounting", "DefaultTwoCurveUSDConfig"));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationYCNSFunction.class));
     functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationVegaFunction.class));
@@ -921,7 +921,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "SPX Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD",
         "DJX Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD",
         "NKY Index", "Discounting", "DefaultTwoCurveJPYConfig", "JPY",
-        "RUT Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD"));
+        "RUY Index", "Discounting", "DefaultTwoCurveUSDConfig", "USD"));
 
     functionConfigs.add(functionConfiguration(EquityIndexOptionPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionImpliedVolFunction.class));

@@ -279,7 +279,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     final ValueRequirement volReq = getVolatilitySurfaceRequirement(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), security,
         volSurfaceName, smileInterpolator, curveConfigName, fundingCurveName, underlyingId);
     // Return the set
-    return Sets.newHashSet(spotReq, fundingReq, volReq);
+    return Sets.newHashSet(fundingReq, spotReq, volReq);//spotReq, fundingReq, volReq);
   }
 
   // TODO: One should not be required to pass the FundingCurve and CurveConfig names, so that the VolatilitySurface can build an EquityForwardCurve
