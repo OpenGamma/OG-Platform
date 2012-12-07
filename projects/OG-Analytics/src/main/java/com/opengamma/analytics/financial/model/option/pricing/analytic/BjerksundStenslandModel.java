@@ -263,14 +263,13 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
   public double[] getPriceAdjoint(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
     if (isCall) {
       return getCallPriceAdjoint(s0, k, r, b, t, sigma);
-    } else {
-      return getPutPriceAdjoint(s0, k, r, b, t, sigma);
-    }
+    } 
+    return getPutPriceAdjoint(s0, k, r, b, t, sigma);
   }
 
   /**
    * Get the option price, plus its delta and gamma. <b>Note</b> if a put is required, the gamma is found by divided differecne on the delta. For a call both delta and gamma
-   * are found by Algorithmic Differention.
+   * are found by Algorithmic Differentiation.
    * @param s0 The spot
    * @param k The strike
    * @param r The risk-free rate
@@ -301,7 +300,7 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
   public double[] getPriceAndVega(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall)
   {
     final double[] temp = getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
-    return new double[] {temp[0], temp[6] }; //faily wastful to compute all the other Greeks
+    return new double[] {temp[0], temp[6] }; //fairly wasteful to compute all the other Greeks
   }
 
   /**
@@ -353,7 +352,7 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
     }
 
     final double[] x2Adj = getI2Adjoint(k, r, b, sigma, t);
-    //early exicise
+    //early exercise
     if (s0 >= x2Adj[0]) {
       res[0] = s0 - k;
       res[1] = 1.0;
@@ -495,7 +494,7 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
     final double h2 = getH(b, t, sigma, k, b0, bInfinity);
     final double x2 = getX(b0, bInfinity, h2);
 
-    //early exicise
+    //early exercise
     if (s0 >= x2) {
       res[0] = s0 - k;
       res[1] = 1.0;
