@@ -33,6 +33,7 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.PropertyReadWrite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -625,7 +626,10 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         for (int j = 0; j < mps.size(); j++) {
           Object value = parameterValues[j].get(parameterIndex[j]);
           parameterIndex[j] = (parameterIndex[j] + 1) % parameterValues[j].size();
-          builder.set(mps.get(j).name(), value);
+          MetaProperty<?> metaProperty = mps.get(j);
+          if (metaProperty.readWrite() != PropertyReadWrite.READ_ONLY) {
+            builder.set(metaProperty.name(), value);
+          }
         }
         objects.add((T) builder.build());
       } catch (final Throwable t) {
@@ -687,10 +691,6 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
       assertNotNull(securityType);
     }
     for (final T security : securities) {
-      // Force the security type to be a valid string; they're random nonsense otherwise
-      if (securityClass != RawSecurity.class) {
-        security.setSecurityType(securityType);
-      }
       assertSecurity(securityClass, security);
     }
   }

@@ -81,7 +81,7 @@ public class FXDigitalOptionSecurity extends FinancialSecurity {
   private LongShort _longShort = LongShort.LONG;
 
   FXDigitalOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public FXDigitalOptionSecurity(Currency putCurrency, Currency callCurrency, double putAmount, double callAmount, Currency paymentCurrency, Expiry expiry,

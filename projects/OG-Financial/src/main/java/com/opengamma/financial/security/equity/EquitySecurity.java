@@ -67,7 +67,7 @@ public class EquitySecurity extends FinancialSecurity {
   private GICSCode _gicsCode;
 
   EquitySecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public EquitySecurity(String exchange, String exchangeCode, String companyName, Currency currency) {

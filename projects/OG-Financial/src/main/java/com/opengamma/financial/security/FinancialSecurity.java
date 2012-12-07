@@ -34,14 +34,6 @@ public abstract class FinancialSecurity extends ManageableSecurity {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Creates an empty instance.
-   * <p>
-   * The security details should be set before use.
-   */
-  protected FinancialSecurity() {
-  }
-
-  /**
    * Creates an instance with a security type.
    * 
    * @param securityType  the security type, not null

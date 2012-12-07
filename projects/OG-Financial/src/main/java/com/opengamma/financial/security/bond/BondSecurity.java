@@ -162,6 +162,7 @@ public abstract class BondSecurity extends FinancialSecurity {
    * The security details should be set before use.
    */
   protected BondSecurity() {
+    super(SECURITY_TYPE);
   }
 
   protected BondSecurity(String issuerName, String issuerType, String issuerDomicile, String market, Currency currency,

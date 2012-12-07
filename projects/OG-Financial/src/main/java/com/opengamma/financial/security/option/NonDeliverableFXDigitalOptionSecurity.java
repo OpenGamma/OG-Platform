@@ -86,7 +86,7 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
   private boolean _deliverInCallCurrency;
 
   NonDeliverableFXDigitalOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public NonDeliverableFXDigitalOptionSecurity(Currency putCurrency, Currency callCurrency, double putAmount, double callAmount, Currency paymentCurrency, Expiry expiry,

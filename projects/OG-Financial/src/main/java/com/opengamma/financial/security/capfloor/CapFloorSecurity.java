@@ -97,7 +97,7 @@ public class CapFloorSecurity extends FinancialSecurity {
   private boolean _ibor;
 
   CapFloorSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public CapFloorSecurity(ZonedDateTime startDate, ZonedDateTime maturityDate, double notional, ExternalId underlyingIdentifier, double strike,
