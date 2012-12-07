@@ -74,6 +74,21 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   private boolean _keepCurrentPositions;
 
 
+  /**
+   * Create a master portfolio writer
+   * @param portfolioName         The name of the portfolio to create/write to
+   * @param portfolioMaster       The portfolio master to which to write the portfolio
+   * @param positionMaster        The position master to which to write positions
+   * @param securityMaster        The security master to which to write securities
+   * @param overwrite             If true, delete any matching securities/positions before writing new ones;
+   *                              if false, update any matching securities/positions with a new version
+   * @param mergePositions        If true, attempt to roll multiple positions in the same security into one position,
+   *                              for all positions in the same portfolio node;
+   *                              if false, each position is loaded separately
+   * @param keepCurrentPositions  If true, keep the existing portfolio node tree and add new entries;
+   *                              if false, delete the entire existing portfolio node tree before loading the new
+   *                              portfolio
+   */
   public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
       PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite,
       boolean mergePositions, boolean keepCurrentPositions)  {
