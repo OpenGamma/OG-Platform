@@ -77,7 +77,7 @@ public class EquityIndexFutureOptionSecurityFudgeBuilder extends AbstractFudgeBu
     object.setUnderlyingId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(UNDERLYING_IDENTIFIER_FIELD_NAME)));
     object.setExerciseType(ExerciseTypeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXERCISE_TYPE_FIELD_NAME)));
     object.setPointValue(msg.getDouble(POINT_VALUE_FIELD_NAME));
-    object.setIsMargined(msg.getBoolean(IS_MARGINED_FIELD_NAME));
+    object.setMargined(msg.getBoolean(IS_MARGINED_FIELD_NAME));
     object.setCurrency(msg.getValue(Currency.class, CURRENCY_FIELD_NAME));
     object.setStrike(msg.getDouble(STRIKE_FIELD_NAME));
     object.setOptionType(msg.getFieldValue(OptionType.class, msg.getByName(OPTION_TYPE_FIELD_NAME)));
