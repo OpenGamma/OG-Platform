@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.servlet.ServletContext;
 import javax.time.calendar.ZonedDateTime;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -203,9 +204,27 @@ public class BlotterResource {
   }
 
   @POST
-  @Consumes(MediaType.APPLICATION_JSON)
-  public Response postJSON() {
-    throw new UnsupportedOperationException();
+  @Path("securities")
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
+  public Response postJSON(@FormParam("security") String securityJsonStr) {
+    JSONObject securityJson;
+    try {
+      JSONObject json = new JSONObject(securityJsonStr);
+      securityJson = json.getJSONObject("security");
+      // TODO this needs to happen for swaptions and possibly some others
+      //underlyingJson = json.getJSONObject("underlying");
+    } catch (JSONException e) {
+      throw new IllegalArgumentException("Failed to parse security JSON", e);
+    }
+    // TODO this doesn't cover swaptions (where the underlying is an OTC security)
+    ManageableSecurity security = _securityBuilder.buildSecurity(new JsonBeanDataSource(securityJson));
+    if (security.getUniqueId() == null) {
+      SecurityDocument addedDocument = _securityMaster.add(new SecurityDocument(security));
+    } else {
+      SecurityDocument updatedDocument = _securityMaster.update(new SecurityDocument(security));
+    }
+    return Response.status(Response.Status.OK).build();
   }
 
   private static Map<Object, Object> map(Object... values) {
