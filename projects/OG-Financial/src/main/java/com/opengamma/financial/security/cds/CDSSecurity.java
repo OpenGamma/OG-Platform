@@ -119,7 +119,7 @@ public class CDSSecurity extends FinancialSecurity {
   
   
   CDSSecurity() {
-    // For Fudge builder
+    super(SECURITY_TYPE);
   }
 
   public CDSSecurity(double notional, double recoveryRate, double spread, Currency currency,

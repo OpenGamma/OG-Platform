@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionThetaCalculator;
+import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionBlackThetaCalculator;
 import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.EnergyFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
@@ -27,7 +27,7 @@ import com.opengamma.util.money.Currency;
  */
 public class CommodityFutureOptionThetaCalculatorTest extends CommodityFutureOptionTestDefaults {
 
-  private static final CommodityFutureOptionThetaCalculator PRICER = CommodityFutureOptionThetaCalculator.getInstance();
+  private static final CommodityFutureOptionBlackThetaCalculator PRICER = CommodityFutureOptionBlackThetaCalculator.getInstance();
 
   @Test
   public void testAgricultureFutureOption() {

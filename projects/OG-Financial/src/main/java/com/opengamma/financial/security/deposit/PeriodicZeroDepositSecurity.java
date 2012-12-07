@@ -60,7 +60,7 @@ public class PeriodicZeroDepositSecurity extends FinancialSecurity {
   private ExternalId _region;
 
   PeriodicZeroDepositSecurity() {
-    super();
+    super(SECURITY_TYPE);
   }
 
   public PeriodicZeroDepositSecurity(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime maturityDate, final double rate,

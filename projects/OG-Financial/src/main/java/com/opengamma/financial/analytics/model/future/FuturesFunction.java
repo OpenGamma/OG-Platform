@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -38,7 +39,9 @@ import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
@@ -78,6 +81,9 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     final FutureSecurity security = (FutureSecurity) trade.getSecurity();
     // Get reference price
     final HistoricalTimeSeriesBundle timeSeriesBundle = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
+    if (timeSeriesBundle == null) {
+      throw new OpenGammaRuntimeException("Could not get time series bundle for " + trade);
+    }
     Double lastMarginPrice = null;
     try {
       lastMarginPrice = timeSeriesBundle.get(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle()).getTimeSeries().getLatestValue();
@@ -107,7 +113,14 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     if (target.getType() != ComputationTargetType.TRADE) {
       return false;
     }
-    return target.getTrade().getSecurity() instanceof FutureSecurity;
+    final Security security = target.getTrade().getSecurity();
+    if (!(security instanceof FutureSecurity)) {
+      return false;
+    }
+    if (security instanceof InterestRateFutureSecurity || security instanceof BondFutureSecurity) {
+      return false;
+    }
+    return true;
   }
 
   protected abstract ValueProperties.Builder createValueProperties(final ComputationTarget target);

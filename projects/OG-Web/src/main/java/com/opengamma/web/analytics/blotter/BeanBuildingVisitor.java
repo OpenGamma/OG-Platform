@@ -48,6 +48,9 @@ import com.opengamma.util.ArgumentChecker;
     BeanDataSource beanData = _data.getBeanData(propertyName);
     Bean result;
     if (beanData != null) {
+      // TODO if I use decorating visitors for filtering properties then how will this work?
+      // TODO is there a way to use those visitors to invoke this new instance?
+      // TODO do I need a method in the traverser?
       BeanBuildingVisitor<?> visitor = new BeanBuildingVisitor<Bean>(beanData, _metaBeanFactory);
       MetaBean metaBean = _metaBeanFactory.beanFor(beanData);
       result = traverser.traverse(metaBean, visitor);

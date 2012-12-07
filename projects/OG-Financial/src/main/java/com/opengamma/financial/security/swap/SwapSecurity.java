@@ -68,7 +68,7 @@ public class SwapSecurity extends FinancialSecurity {
   private SwapLeg _receiveLeg;
 
   SwapSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public SwapSecurity(ZonedDateTime tradeDate, ZonedDateTime effectiveDate, ZonedDateTime maturityDate, String counterparty, SwapLeg payLeg, SwapLeg receiveLeg) {

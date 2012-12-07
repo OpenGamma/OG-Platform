@@ -71,6 +71,11 @@ public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter
   public SingleSheetSimplePortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, String securityType) {
     this(sheetFormat, outputStream, JodaBeanRowParser.newJodaBeanRowParser(securityType));
   }
+  
+  @Override
+  public void addAttribute(String key, String value) {
+    // Not supported
+  }
 
   @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {

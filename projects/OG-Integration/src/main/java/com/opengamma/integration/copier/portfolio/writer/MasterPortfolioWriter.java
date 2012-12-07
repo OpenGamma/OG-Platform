@@ -100,6 +100,11 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     createPortfolio(portfolioName);
   }
 
+  @Override
+  public void addAttribute(String key, String value) {
+    _portfolioDocument.getPortfolio().addAttribute(key, value);
+  }
+  
   /**
    * WritePosition checks if the position exists in the previous version of the portfolio.
    * If so, the existing position is reused.
@@ -363,7 +368,6 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   
   protected void createPortfolio(String portfolioName) {
 
-
     // Check to see whether the portfolio already exists
     PortfolioSearchRequest portSearchRequest = new PortfolioSearchRequest();
     portSearchRequest.setName(portfolioName);
@@ -433,4 +437,5 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   public SecurityMaster getSecurityMaster() {
     return _securityMaster;
   }
+
 }

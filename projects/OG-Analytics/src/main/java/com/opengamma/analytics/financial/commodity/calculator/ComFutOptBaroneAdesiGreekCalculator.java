@@ -18,20 +18,20 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * The greeks returned are delta, dual-delta, rho, carry rho, theta and vega.
  */
-public final class CommodityFutureOptionBAWGreeksCalculator extends CommodityFutureOptionSameMethodVisitorAdapter<StaticReplicationDataBundle, GreekResultCollection> {
+public final class ComFutOptBaroneAdesiGreekCalculator extends CommodityFutureOptionSameMethodVisitorAdapter<StaticReplicationDataBundle, GreekResultCollection> {
   /** A static instance of this calculator */
-  private static final CommodityFutureOptionBAWGreeksCalculator INSTANCE = new CommodityFutureOptionBAWGreeksCalculator();
+  private static final ComFutOptBaroneAdesiGreekCalculator INSTANCE = new ComFutOptBaroneAdesiGreekCalculator();
   /** The pricing model */
   private static final BaroneAdesiWhaleyModel MODEL = new BaroneAdesiWhaleyModel();
 
   /**
    * @return A static instance of this class
    */
-  public static CommodityFutureOptionBAWGreeksCalculator getInstance() {
+  public static ComFutOptBaroneAdesiGreekCalculator getInstance() {
     return INSTANCE;
   }
 
-  private CommodityFutureOptionBAWGreeksCalculator() {
+  private ComFutOptBaroneAdesiGreekCalculator() {
   }
 
   @Override
@@ -45,14 +45,17 @@ public final class CommodityFutureOptionBAWGreeksCalculator extends CommodityFut
     final double b = 0; //TODO
     final double volatility = data.getVolatilitySurface().getVolatility(t, k);
     final boolean isCall = option.isCall();
-    final double[] greeks =  MODEL.getPriceAdjoint(s, k, r, b, t, volatility, isCall);
+    final double[] greeks = MODEL.getPriceAdjoint(s, k, r, b, t, volatility, isCall);
     final GreekResultCollection result = new GreekResultCollection();
-    result.put(Greek.DELTA, greeks[0]);
-    result.put(Greek.DUAL_DELTA, greeks[1]);
-    result.put(Greek.RHO, greeks[2]);
-    result.put(Greek.CARRY_RHO, greeks[3]);
-    result.put(Greek.THETA, greeks[4]);
-    result.put(Greek.VEGA, greeks[5]);
+    result.put(Greek.DELTA, greeks[1]);
+    result.put(Greek.DUAL_DELTA, greeks[2]);
+    result.put(Greek.RHO, greeks[3]);
+    result.put(Greek.CARRY_RHO, greeks[4]);
+    result.put(Greek.THETA, greeks[5]);
+    result.put(Greek.VEGA, greeks[6]);
+
+    final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, volatility, s, isCall);
+    result.put(Greek.GAMMA, pdg[2]);
     return result;
   }
 

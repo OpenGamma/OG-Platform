@@ -46,22 +46,25 @@
   <!-- standard build setup -->
   <build>
     <resources>
-      <resource>
-        <targetPath>.</targetPath>
-        <directory>${project.build.sourceDirectory}</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.csv</include>
-          <include>**/*.dat</include>
-          <include>**/*.elsql</include>
-          <include>**/*.ftl</include>
-          <include>**/*.proto</include>
-          <include>**/*.txt</include>
-          <include>**/*.version</include>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
+		<resource>
+		<targetPath>.</targetPath>
+		<directory>${project.build.sourceDirectory}</directory>
+		<includes>
+		  <include>**/*.properties</include>
+		  <include>**/*.csv</include>
+		  <include>**/*.dat</include>
+		  <include>**/*.elsql</include>
+		  <include>**/*.ftl</include>
+		  <include>**/*.proto</include>
+		  <include>**/*.txt</include>
+		  <include>**/*.version</include>
+		  <include>**/*.xml</include>
+		</includes>
+	  </resource>
+  <resource>
+    <directory>src/main/resources</directory>
+  </resource>
+</resources>  
     <testResources>
       <testResource>
         <targetPath>.</targetPath>

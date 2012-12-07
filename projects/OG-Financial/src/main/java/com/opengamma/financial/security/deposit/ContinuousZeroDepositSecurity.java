@@ -56,7 +56,7 @@ public class ContinuousZeroDepositSecurity extends FinancialSecurity {
   private ExternalId _region;
 
   ContinuousZeroDepositSecurity() {
-    super();
+    super(SECURITY_TYPE);
   }
 
   ContinuousZeroDepositSecurity(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime maturityDate, final double rate, final ExternalId region) {

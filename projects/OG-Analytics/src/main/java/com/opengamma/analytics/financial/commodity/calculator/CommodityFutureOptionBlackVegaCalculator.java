@@ -13,43 +13,43 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Calculates the present value of commodity future options using the Black method.
+ * Calculates the vega of commodity future options using the Black method.
  */
-public final class CommodityFutureOptionPresentValueCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
+public final class CommodityFutureOptionBlackVegaCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
   /** A static instance of this calculator */
-  private static final CommodityFutureOptionPresentValueCalculator s_instance = new CommodityFutureOptionPresentValueCalculator();
+  private static final CommodityFutureOptionBlackVegaCalculator s_instance = new CommodityFutureOptionBlackVegaCalculator();
   /** The Black pricer */
   private static final CommodityFutureOptionBlackMethod PRICER = CommodityFutureOptionBlackMethod.getInstance();
 
   /**
    * @return The static instance of this calculator
    */
-  public static CommodityFutureOptionPresentValueCalculator getInstance() {
+  public static CommodityFutureOptionBlackVegaCalculator getInstance() {
     return s_instance;
   }
 
-  private CommodityFutureOptionPresentValueCalculator() {
+  private CommodityFutureOptionBlackVegaCalculator() {
   }
 
   @Override
   public Double visitAgricultureFutureOption(final AgricultureFutureOption derivative, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(data, "data");
-    return PRICER.presentValue(derivative, data);
+    return PRICER.vega(derivative, data);
   }
 
   @Override
   public Double visitEnergyFutureOption(final EnergyFutureOption derivative, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(data, "data");
-    return PRICER.presentValue(derivative, data);
+    return PRICER.vega(derivative, data);
   }
 
   @Override
   public Double visitMetalFutureOption(final MetalFutureOption derivative, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(data, "data");
-    return PRICER.presentValue(derivative, data);
+    return PRICER.vega(derivative, data);
   }
 
 }

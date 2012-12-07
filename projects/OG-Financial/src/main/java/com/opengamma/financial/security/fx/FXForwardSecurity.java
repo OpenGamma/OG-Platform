@@ -74,7 +74,7 @@ public class FXForwardSecurity extends FinancialSecurity {
   private ExternalId _regionId;
 
   FXForwardSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public FXForwardSecurity(Currency payCurrency, double payAmount, Currency receiveCurrency, double receiveAmount, ZonedDateTime forwardDate, ExternalId region) {

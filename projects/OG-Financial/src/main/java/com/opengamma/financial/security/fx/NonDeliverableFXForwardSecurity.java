@@ -79,7 +79,7 @@ public class NonDeliverableFXForwardSecurity extends FinancialSecurity {
   private boolean _deliverInReceiveCurrency;
 
   NonDeliverableFXForwardSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public NonDeliverableFXForwardSecurity(Currency payCurrency, double payAmount, Currency receiveCurrency, double receiveAmount, 

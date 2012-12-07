@@ -78,6 +78,11 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
       throw new OpenGammaRuntimeException("Could not create zip archive " + filename + " for writing: " + ex.getMessage());
     }
   }
+  
+  @Override
+  public void addAttribute(String key, String value) {
+    // Not supported
+  }
 
   @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {

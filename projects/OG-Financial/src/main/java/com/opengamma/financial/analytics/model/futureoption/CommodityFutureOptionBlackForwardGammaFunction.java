@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionForwardGammaCalculator;
+import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionBlackForwardGammaCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.engine.ComputationTarget;
@@ -31,7 +31,7 @@ public class CommodityFutureOptionBlackForwardGammaFunction extends CommodityFut
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final Set<ValueRequirement> desiredValues,
       final ComputationTarget target) {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
-    final double forwardGamma = derivative.accept(CommodityFutureOptionForwardGammaCalculator.getInstance(), market);
+    final double forwardGamma = derivative.accept(CommodityFutureOptionBlackForwardGammaCalculator.getInstance(), market);
     final ValueSpecification spec = new ValueSpecification(getValueRequirementName()[0], target.toSpecification(), createResultProperties(desiredValue.getConstraints()));
     return Collections.singleton(new ComputedValue(spec, forwardGamma));
   }

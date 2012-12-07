@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.analytics.blotter;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -15,53 +16,48 @@ import org.joda.beans.Bean;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 
-import com.opengamma.util.ArgumentChecker;
-
 /**
- * TODO static traversal method(s)?
+ *
  */
 /* package */ class BeanTraverser {
 
-  private final Set<String> _ignorePropertyNames;
-  private final Set<MetaProperty<?>> _ignoreProperties;
+  private final List<BeanVisitorDecorator> _decorators;
 
   /* package */ BeanTraverser() {
-    this(Collections.<MetaProperty<?>>emptySet(), Collections.<String>emptySet());
+    _decorators = Collections.emptyList();
   }
 
-  // TODO ignoring properties could be implemented as a decorating visitor
-  /* package */ BeanTraverser(Set<MetaProperty<?>> ignoreProperties, Set<String> ignorePropertyNames) {
-    ArgumentChecker.notNull(ignoreProperties, "ignoreProperties");
-    ArgumentChecker.notNull(ignorePropertyNames, "ignorePropertyNames");
-    _ignoreProperties = ignoreProperties;
-    _ignorePropertyNames = ignorePropertyNames;
+  /* package */ BeanTraverser(BeanVisitorDecorator... decorators) {
+    _decorators = Arrays.asList(decorators);
   }
 
   /* package */ <T> T traverse(MetaBean bean, BeanVisitor<T> visitor) {
-    visitor.visitBean(bean);
+    BeanVisitor<T> decoratedVisitor = decorate(visitor);
+    decoratedVisitor.visitBean(bean);
     for (MetaProperty<?> property : bean.metaPropertyIterable()) {
-      if (_ignoreProperties.contains(property)) {
-        continue;
-      }
-      String propertyName = property.name();
-      if (_ignorePropertyNames.contains(propertyName)) {
-        continue;
-      }
       Class<?> propertyType = property.propertyType();
       if (Bean.class.isAssignableFrom(propertyType)) {
-        visitor.visitBeanProperty(property, this);
+        decoratedVisitor.visitBeanProperty(property, this);
       } else if (Set.class.isAssignableFrom(propertyType)) {
-        visitor.visitSetProperty(property);
+        decoratedVisitor.visitSetProperty(property);
       } else if (List.class.isAssignableFrom(propertyType)) {
-        visitor.visitListProperty(property);
+        decoratedVisitor.visitListProperty(property);
       } else if (Collection.class.isAssignableFrom(propertyType)) {
-        visitor.visitCollectionProperty(property);
+        decoratedVisitor.visitCollectionProperty(property);
       } else if (Map.class.isAssignableFrom(propertyType)) {
-        visitor.visitMapProperty(property);
+        decoratedVisitor.visitMapProperty(property);
       } else {
-        visitor.visitProperty(property);
+        decoratedVisitor.visitProperty(property);
       }
     }
-    return visitor.finish();
+    return decoratedVisitor.finish();
+  }
+
+  private <T> BeanVisitor<T> decorate(BeanVisitor<T> visitor) {
+    BeanVisitor<T> decoratedVisitor = visitor;
+    for (BeanVisitorDecorator decorator : _decorators) {
+      decoratedVisitor = decorator.decorate(decoratedVisitor);
+    }
+    return decoratedVisitor;
   }
 }

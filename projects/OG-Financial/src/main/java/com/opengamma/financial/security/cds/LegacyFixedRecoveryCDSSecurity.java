@@ -49,7 +49,7 @@ public class LegacyFixedRecoveryCDSSecurity extends LegacyCDSSecurity {
   private double _parSpread;
 
   LegacyFixedRecoveryCDSSecurity() { // For Fudge builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public LegacyFixedRecoveryCDSSecurity(final boolean isBuy, final ExternalId protectionSeller, final ExternalId protectionBuyer, final ExternalId referenceEntity, //CSIGNORE

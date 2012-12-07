@@ -81,7 +81,7 @@ public class FRASecurity extends FinancialSecurity {
 
 
   FRASecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   /**

@@ -13,43 +13,43 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Calculates the forward delta of commodity future options using the Black method.
+ * Calculates the theta of commodity future options using the Black method.
  */
-public final class CommodityFutureOptionForwardDeltaCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
+public final class CommodityFutureOptionBlackThetaCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
   /** A static instance of this calculator */
-  private static final CommodityFutureOptionForwardDeltaCalculator s_instance = new CommodityFutureOptionForwardDeltaCalculator();
+  private static final CommodityFutureOptionBlackThetaCalculator s_instance = new CommodityFutureOptionBlackThetaCalculator();
   /** The Black pricer */
   private static final CommodityFutureOptionBlackMethod PRICER = CommodityFutureOptionBlackMethod.getInstance();
 
   /**
-   * @return The static instance of this class
+   * @return The static instance of this calculator
    */
-  public static CommodityFutureOptionForwardDeltaCalculator getInstance() {
+  public static CommodityFutureOptionBlackThetaCalculator getInstance() {
     return s_instance;
   }
 
-  private CommodityFutureOptionForwardDeltaCalculator() {
+  private CommodityFutureOptionBlackThetaCalculator() {
   }
 
   @Override
   public Double visitAgricultureFutureOption(final AgricultureFutureOption derivative, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(data, "data");
-    return PRICER.forwardDelta(derivative, data);
+    return PRICER.theta(derivative, data);
   }
 
   @Override
   public Double visitEnergyFutureOption(final EnergyFutureOption derivative, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(data, "data");
-    return PRICER.forwardDelta(derivative, data);
+    return PRICER.theta(derivative, data);
   }
 
   @Override
   public Double visitMetalFutureOption(final MetalFutureOption derivative, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(data, "data");
-    return PRICER.forwardDelta(derivative, data);
+    return PRICER.theta(derivative, data);
   }
 
 }

@@ -84,7 +84,7 @@ public class IRFutureOptionSecurity extends FinancialSecurity {
   private OptionType _optionType;
 
   IRFutureOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public IRFutureOptionSecurity(String exchange, Expiry expiry, ExerciseType exerciseType, ExternalId underlyingIdentifier,

@@ -40,7 +40,7 @@ public class StandardRecoveryLockCDSSecurity  extends StandardCDSSecurity {
    */
   public static final String SECURITY_TYPE = "STANDARD_RECOVERY_LOCK_CDS";
   StandardRecoveryLockCDSSecurity() { // for fudge
-    super();
+    super(SECURITY_TYPE);
   }
 
   public StandardRecoveryLockCDSSecurity(final boolean isBuy, final ExternalId protectionSeller, final ExternalId protectionBuyer, final ExternalId referenceEntity, //CSIGNORE
