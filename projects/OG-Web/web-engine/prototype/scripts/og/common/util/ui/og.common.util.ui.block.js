@@ -36,17 +36,19 @@ $.register_module({
         /**
          * generates the HTML for a Block instance and all of its children and calls a supplied handler with that string
          * @param {Function} handler the handler that receives the HTML string
+         * @param {Object} extras key/value pairs that will override the original config.extras that were passed in when
+         * instantiated
          * @type Block
          * @returns {Block} reference to current Block instance
          */
-        Block.prototype.html = function (handler) {
+        Block.prototype.html = function (handler, extras) {
             var block = this, template = block.template, total = block.children.length, done = 0, result = [],
                 generator = block.config.generator;
             /** @private */
             var internal_handler = function () {
                 handler(template ? template($.extend(
                     result.reduce(function (acc, val, idx) {return acc['item_' + idx] = val, acc;}, {}),
-                    block.config.extras
+                    block.config.extras, extras || {}
                 )) : wrap(result.join('')));
             };
             /** @private */
