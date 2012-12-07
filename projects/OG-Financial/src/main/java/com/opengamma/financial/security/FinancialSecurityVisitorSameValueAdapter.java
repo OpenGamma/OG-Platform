@@ -43,6 +43,7 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -115,6 +116,11 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
 
   @Override
   public T visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
+    return _value;
+  }
+
+  @Override
+  public T visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
     return _value;
   }
 

@@ -43,6 +43,7 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -114,6 +115,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
   @Override
   public T visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+  }
+
+  @Override
+  public T visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
   }
 
@@ -369,6 +375,16 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
         @Override
         public T visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
           return visitor.visitEquityIndexDividendFutureOptionSecurity(security);
+        }
+      };
+      return this;
+    }
+
+    public Builder<T> equityIndexFutureOptionVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
+          return visitor.visitEquityIndexFutureOptionSecurity(security);
         }
       };
       return this;
