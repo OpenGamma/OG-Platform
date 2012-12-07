@@ -6,9 +6,12 @@
       <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern>
     </layout>
   </appender>
+  
+  <appender name="BRIDGE" class="com.opengamma.util.log.LogbackBridgeAppender" />
 
   <root level="info">
     <appender-ref ref="STDOUT" />
+    <appender-ref ref="BRIDGE" />
   </root>
   
 </configuration>
