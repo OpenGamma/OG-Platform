@@ -31,7 +31,7 @@ public class CommodityFutureOptionVegaCalculatorTest extends CommodityFutureOpti
 
   @Test
   public void testAgricultureFutureOption() {
-    final double answer = 68.19874678562851;
+    final double answer = 34.09937339281426;
 
     final AgricultureFutureDefinition definition = new AgricultureFutureDefinition(EXPIRY_DATE, AN_UNDERLYING, UNIT_AMOUNT, null, null, AMOUNT, "tonnes", SettlementType.CASH, 0, Currency.GBP,
         SETTLEMENT_DATE);
@@ -43,7 +43,7 @@ public class CommodityFutureOptionVegaCalculatorTest extends CommodityFutureOpti
 
   @Test
   public void testEnergyFutureOption() {
-    final double answer = 68.19874678562851;
+    final double answer = 34.09937339281426;
 
     final EnergyFutureDefinition definition = new EnergyFutureDefinition(EXPIRY_DATE, AN_UNDERLYING, UNIT_AMOUNT, null, null, AMOUNT, "tonnes", SettlementType.CASH, 0, Currency.GBP,
         SETTLEMENT_DATE);
@@ -55,7 +55,7 @@ public class CommodityFutureOptionVegaCalculatorTest extends CommodityFutureOpti
 
   @Test
   public void testMetalFutureOption() {
-    final double answer = 68.19874678562851;
+    final double answer = 34.09937339281426;
 
     final MetalFutureDefinition definition = new MetalFutureDefinition(EXPIRY_DATE, AN_UNDERLYING, UNIT_AMOUNT, null, null, AMOUNT, "tonnes", SettlementType.CASH, 0, Currency.GBP,
         SETTLEMENT_DATE);
