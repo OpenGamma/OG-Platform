@@ -51,16 +51,18 @@ $.register_module({
                 });
                 grid.on('cellhoverin', function (cell) {
                     if (cellmenu.frozen || cellmenu.busy()) return;
+                    var type = cell.type, hide;
                     cellmenu.menu.removeClass(expand_class);
                     clearTimeout(timer);
-                    var type = cell.type, hide =
+                    cellmenu.current = cell;
+                    hide =
                         // Hide the cell menu if...
-                        !(cellmenu.current = cell).value                    // There is no cell Value
-                        || (cell.col === ((!primitives && !depgraph) && 1)) // Second column of portfolio
-                        || ((depgraph || primitives) && cell.col < 1)       // First column of depgraph or primitives
-                        || (cell.value.nodeId)                              // Is node
-                        || (cell.right > parent.width())                             // End of the cell not visible
-                        || (depgraph && ~mapping.depgraph_blacklist.indexOf(type));  // Unsupported type on a depgraph
+                        !cell.value.logLevel &&                                 // always show if log exists
+                        ((cell.col === ((!primitives && !depgraph) && 1))       // Second column of portfolio
+                        || ((depgraph || primitives) && cell.col < 1)           // 1st column of depgraph or primitives
+                        || (cell.value.nodeId)                                          // Is node
+                        || (cell.right > parent.width())                                // End of the cell not visible
+                        || (depgraph && ~mapping.depgraph_blacklist.indexOf(type)));    // Unsupported type on depgraph
                     if (hide) cellmenu.hide(); else cellmenu.show();
                 })
                 .on('cellhoverout', function () {
