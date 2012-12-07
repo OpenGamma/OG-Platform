@@ -15,7 +15,9 @@ import java.util.Stack;
 import javax.time.Instant;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.security.impl.MasterSecuritySource;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +59,8 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   private final PortfolioMaster _portfolioMaster;
   private final PositionMaster _positionMaster;
   private final SecurityMaster _securityMaster;
-  
+  private final SecuritySource _securitySource;
+
   private PortfolioDocument _portfolioDocument;
   private ManageablePortfolioNode _currentNode;
   private ManageablePortfolioNode _originalNode;
@@ -107,13 +110,16 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     _positionMaster = positionMaster;
     _securityMaster = securityMaster;
 
-    _currentPath = new String[0];
+    _securitySource = new MasterSecuritySource(_securityMaster);
 
     _beanCompare = new BeanCompare();
 
-    _securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
+    //_currentPath = new String[0];
+    //_securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
 
     createPortfolio(portfolioName);
+
+    setPath(new String[0]);
   }
 
   @Override
@@ -328,6 +334,19 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
       // Reset position map
       _securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
+
+      // If keeping original portfolio nodes and merging positions, populate position map with existing positions in node
+      if (_keepCurrentPositions && _mergePositions && _originalNode != null) {
+        for (ObjectId positionId : _originalNode.getPositionIds()) {
+          ManageablePosition position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
+          if (position != null) {
+            position.getSecurityLink().resolve(_securitySource);
+            if (position.getSecurity() != null) {
+              _securityIdToPosition.put(position.getSecurity().getUniqueId().getObjectId(), position);
+            }
+          }
+        }
+      }
 
       _currentPath = newPath;
     }
