@@ -88,7 +88,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_SHORT_RECEIVER_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, !IS_LONG);
   //to derivatives
   public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
 
   //  private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final SwapFixedCoupon<Coupon> SWAP_RECEIVER = SWAP_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
@@ -333,6 +333,31 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_HW_C.calculateSensitivity(SWAPTION_SHORT_RECEIVER, HW_MULTICURVES, HW_MULTICURVES.getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_HW_FDC.calculateSensitivity(SWAPTION_SHORT_RECEIVER, HW_MULTICURVES);
     AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
+  }
+
+  @Test(enabled = false)
+  /**
+   * Tests present value curve sensitivity when the valuation date is on trade date.
+   */
+  public void presentValueCurveSensitivityStability() {
+    final MultipleCurrencyParameterSensitivity pvpsExact = PS_HW_C.calculateSensitivity(SWAPTION_SHORT_RECEIVER, HW_MULTICURVES, HW_MULTICURVES.getMulticurveProvider().getAllNames());
+    double derivativeExact = pvpsExact.totalSensitivity(MULTICURVES.getFxRates(), CUR);
+    double startingShift = 1.0E-4;
+    double ratio = 1.5;
+    final int nbShift = 40;
+    final double[] eps = new double[nbShift + 1];
+    final double[] derivative_FD = new double[nbShift];
+    final double[] diff = new double[nbShift];
+    eps[0] = startingShift;
+    for (int loopshift = 0; loopshift < nbShift; loopshift++) {
+      ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator fdShift = new ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(PVHWC, eps[loopshift]);
+      MultipleCurrencyParameterSensitivity pvpsFD = fdShift.calculateSensitivity(SWAPTION_SHORT_RECEIVER, HW_MULTICURVES);
+      derivative_FD[loopshift] = pvpsFD.totalSensitivity(MULTICURVES.getFxRates(), CUR);
+      diff[loopshift] = derivative_FD[loopshift] - derivativeExact;
+      eps[loopshift + 1] = eps[loopshift] / ratio;
+    }
+    //    int t = 0;
+    //    t++;
   }
 
   @Test

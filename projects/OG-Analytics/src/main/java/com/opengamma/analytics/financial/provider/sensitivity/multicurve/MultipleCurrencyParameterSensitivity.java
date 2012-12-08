@@ -6,8 +6,10 @@
 package com.opengamma.analytics.financial.provider.sensitivity.multicurve;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -162,6 +164,39 @@ public class MultipleCurrencyParameterSensitivity {
     ArgumentChecker.notNull(name, "Name");
     ArgumentChecker.notNull(ccy, "Currency");
     return _sensitivity.get(Pair.of(name, ccy));
+  }
+
+  /**
+   * Returns a map<Pair<String, Currency>, Double> with the total sensitivity with respect to each curve/currency.
+   * @return The map.
+   */
+  public Map<Pair<String, Currency>, Double> totalSensitivityByCurveCurrency() {
+    final HashMap<Pair<String, Currency>, Double> s = new HashMap<Pair<String, Currency>, Double>();
+    for (final Entry<Pair<String, Currency>, DoubleMatrix1D> entry : _sensitivity.entrySet()) {
+      double total = 0.0;
+      for (int loopi = 0; loopi < entry.getValue().getNumberOfElements(); loopi++) {
+        total += entry.getValue().getEntry(loopi);
+      }
+      s.put(entry.getKey(), total);
+    }
+    return s;
+  }
+
+  /**
+   * Returns the total sensitivity to all curves, in a given currency.
+   * @param fxMatrix The FX matrix will the exchange rates.
+   * @param ccy The currency for the conversion.
+   * @return The sensitivity.
+   */
+  public double totalSensitivity(final FXMatrix fxMatrix, final Currency ccy) {
+    double total = 0.0;
+    for (final Entry<Pair<String, Currency>, DoubleMatrix1D> entry : _sensitivity.entrySet()) {
+      double fx = fxMatrix.getFxRate(entry.getKey().getSecond(), ccy);
+      for (int loopi = 0; loopi < entry.getValue().getNumberOfElements(); loopi++) {
+        total += entry.getValue().getEntry(loopi) * fx;
+      }
+    }
+    return total;
   }
 
   /**
