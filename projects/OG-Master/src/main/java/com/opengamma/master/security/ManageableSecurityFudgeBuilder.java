@@ -52,7 +52,7 @@ public class ManageableSecurityFudgeBuilder extends AbstractFudgeBuilder impleme
 
   @Override
   public ManageableSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    ManageableSecurity object = new ManageableSecurity();
+    ManageableSecurity object = new ManageableSecurity(msg.getString(SECURITY_TYPE_FIELD_NAME));
     ManageableSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

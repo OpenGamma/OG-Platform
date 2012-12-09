@@ -25,7 +25,7 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
  * c = c_{BSM} + \mu_3 Q_3 + (\mu_4 - 3) Q_4
  * \end{align*}
  * $$
- * where $c_{BSM}$ is the Black-Scholes-Merton call price (see {@link * BlackScholesMertonModel}),
+ * where $c_{BSM}$ is the Black-Scholes-Merton call price (see {@link BlackScholesMertonModel}),
  * $\mu_3$ is the skewness, $\mu_4$ is the Pearson kurtosis and
  * $$
  * \begin{align*}
@@ -38,12 +38,11 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
  * Put options are priced using put-call parity.
  */
 public class ModifiedCorradoSuSkewnessKurtosisModel extends AnalyticOptionModel<OptionDefinition, SkewKurtosisOptionDataBundle> {
+  /** The Black-Scholes Merton model */
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
+  /** The normal distribution */
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Function1D<SkewKurtosisOptionDataBundle, Double> getPricingFunction(final OptionDefinition definition) {
     Validate.notNull(definition);
@@ -80,20 +79,20 @@ public class ModifiedCorradoSuSkewnessKurtosisModel extends AnalyticOptionModel<
     return pricingFunction;
   }
 
-  double getW(final double sigma, final double t, final double skew, final double kurtosis) {
+  private double getW(final double sigma, final double t, final double skew, final double kurtosis) {
     final double sigma3 = sigma * sigma * sigma;
     return skew * sigma3 * Math.pow(t, 1.5) / 6. + kurtosis * sigma * sigma3 * t * t / 24.;
   }
 
-  double getD(final double s, final double k, final double sigma, final double t, final double b, final double w, final double sigmaT) {
+  private double getD(final double s, final double k, final double sigma, final double t, final double b, final double w, final double sigmaT) {
     return getD1(s, k, t, sigma, b) - Math.log(1 + w) / sigmaT;
   }
 
-  double getQ3(final double s, final double d, final double w, final double sigmaT) {
+  private double getQ3(final double s, final double d, final double w, final double sigmaT) {
     return s * sigmaT * (2 * sigmaT - d) * NORMAL.getPDF(d) / (6 * (1 + w));
   }
 
-  double getQ4(final double s, final double d, final double w, final double sigmaT) {
+  private double getQ4(final double s, final double d, final double w, final double sigmaT) {
     return s * sigmaT * (d * d - 3 * d * sigmaT + 3 * sigmaT * sigmaT - 1) * NORMAL.getPDF(d) / (24 * (1 + w));
   }
 }

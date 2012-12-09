@@ -142,6 +142,7 @@
 <listEntry value="com.opengamma.financial.convention.daycount"/>
 <listEntry value="com.opengamma.financial.convention.frequency"/>
 <listEntry value="com.opengamma.financial.convention.yield"/>
+<listEntry value="com.opengamma.analytics.financial.commodity.calculation"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <intAttribute key="org.testng.eclipse.TYPE" value="5"/>

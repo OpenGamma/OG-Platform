@@ -5,8 +5,8 @@
  */
 package com.opengamma.web.analytics.blotter;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.MetaBean;
 
@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 
   private final Map<String, MetaBean> _metaBeans = Maps.newHashMap();
 
-  /* package */ MapMetaBeanFactory(List<MetaBean> metaBeans) {
+  /* package */ MapMetaBeanFactory(Set<MetaBean> metaBeans) {
     ArgumentChecker.notNull(metaBeans, "metaBeans");
     for (MetaBean metaBean : metaBeans) {
       _metaBeans.put(metaBean.beanType().getSimpleName(), metaBean);

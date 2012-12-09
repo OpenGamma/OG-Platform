@@ -15,6 +15,9 @@ import java.util.Stack;
 import javax.time.Instant;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.security.impl.MasterSecuritySource;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +59,8 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   private final PortfolioMaster _portfolioMaster;
   private final PositionMaster _positionMaster;
   private final SecurityMaster _securityMaster;
-  
+  private final SecuritySource _securitySource;
+
   private PortfolioDocument _portfolioDocument;
   private ManageablePortfolioNode _currentNode;
   private ManageablePortfolioNode _originalNode;
@@ -74,6 +78,21 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   private boolean _keepCurrentPositions;
 
 
+  /**
+   * Create a master portfolio writer
+   * @param portfolioName         The name of the portfolio to create/write to
+   * @param portfolioMaster       The portfolio master to which to write the portfolio
+   * @param positionMaster        The position master to which to write positions
+   * @param securityMaster        The security master to which to write securities
+   * @param overwrite             If true, delete any matching securities/positions before writing new ones;
+   *                              if false, update any matching securities/positions with a new version
+   * @param mergePositions        If true, attempt to roll multiple positions in the same security into one position,
+   *                              for all positions in the same portfolio node;
+   *                              if false, each position is loaded separately
+   * @param keepCurrentPositions  If true, keep the existing portfolio node tree and add new entries;
+   *                              if false, delete the entire existing portfolio node tree before loading the new
+   *                              portfolio
+   */
   public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
       PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite,
       boolean mergePositions, boolean keepCurrentPositions)  {
@@ -91,13 +110,16 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     _positionMaster = positionMaster;
     _securityMaster = securityMaster;
 
-    _currentPath = new String[0];
+    _securitySource = new MasterSecuritySource(_securityMaster);
 
     _beanCompare = new BeanCompare();
 
-    _securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
+    //_currentPath = new String[0];
+    //_securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
 
     createPortfolio(portfolioName);
+
+    setPath(new String[0]);
   }
 
   @Override
@@ -136,11 +158,16 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     // and if so, just update the existing position
     if (_mergePositions && _securityIdToPosition.containsKey(writtenSecurities.get(0).getUniqueId().getObjectId())) {
 
-      // Just add new quantity to existing position
+      // Add new quantity to existing position's quantity
       ManageablePosition existingPosition = _securityIdToPosition.get(writtenSecurities.get(0).getUniqueId().getObjectId());
       existingPosition.setQuantity(existingPosition.getQuantity().add(position.getQuantity()));
 
-      // Save the updated position to the position master
+      // Add new trades to existing position's trades
+      for (ManageableTrade trade : position.getTrades()) {
+        existingPosition.addTrade(trade);
+      }
+
+      // Save the updated existing position to the position master
       PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
 
       // update position map (huh?)
@@ -307,6 +334,19 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
       // Reset position map
       _securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
+
+      // If keeping original portfolio nodes and merging positions, populate position map with existing positions in node
+      if (_keepCurrentPositions && _mergePositions && _originalNode != null) {
+        for (ObjectId positionId : _originalNode.getPositionIds()) {
+          ManageablePosition position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
+          if (position != null) {
+            position.getSecurityLink().resolve(_securitySource);
+            if (position.getSecurity() != null) {
+              _securityIdToPosition.put(position.getSecurity().getUniqueId().getObjectId(), position);
+            }
+          }
+        }
+      }
 
       _currentPath = newPath;
     }

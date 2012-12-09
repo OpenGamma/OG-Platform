@@ -55,6 +55,7 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -388,6 +389,11 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public Currency visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity equityIndexFutureOptionSecurity) {
+          return equityIndexFutureOptionSecurity.getCurrency();
+        }
+
+        @Override
         public Currency visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
           throw new UnsupportedOperationException("FX Barrier Options do not have a currency");
         }
@@ -684,6 +690,11 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
 
@@ -1048,6 +1059,11 @@ public class FinancialSecurityUtils {
 
         @Override
         public ExternalId visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
           return security.getUnderlyingId();
         }
 

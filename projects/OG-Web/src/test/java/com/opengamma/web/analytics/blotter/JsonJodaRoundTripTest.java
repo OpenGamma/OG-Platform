@@ -16,7 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -52,7 +52,7 @@ public class JsonJodaRoundTripTest {
     System.out.println(json);
 
     JsonBeanDataSource dataSource = new JsonBeanDataSource(new JSONObject(json.toString()));
-    MetaBeanFactory metaBeanFactory = new MapMetaBeanFactory(ImmutableList.<MetaBean>of(FXForwardSecurity.meta()));
+    MetaBeanFactory metaBeanFactory = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(FXForwardSecurity.meta()));
     BeanVisitor<FXForwardSecurity> readingVisitor = new BeanBuildingVisitor<FXForwardSecurity>(dataSource, metaBeanFactory);
     FXForwardSecurity fxForward2 = traverser.traverse(FXForwardSecurity.meta(), readingVisitor);
     assertEquals(fxForward, fxForward2);
@@ -91,7 +91,7 @@ public class JsonJodaRoundTripTest {
     System.out.println(json);
 
     JsonBeanDataSource dataSource = new JsonBeanDataSource(new JSONObject(json.toString()));
-    MetaBeanFactory metaBeanFactory = new MapMetaBeanFactory(ImmutableList.<MetaBean>of(
+    MetaBeanFactory metaBeanFactory = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(
         SwapSecurity.meta(),
         FixedInterestRateLeg.meta(),
         FloatingInterestRateLeg.meta(),

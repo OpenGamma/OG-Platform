@@ -12,21 +12,28 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.time.calendar.ZonedDateTime;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.joda.beans.Bean;
 import org.joda.beans.MetaBean;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.conversion.JodaBeanConverters;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -51,7 +58,11 @@ import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.web.FreemarkerOutputter;
 
@@ -85,10 +96,10 @@ public class BlotterResource {
       FXBarrierOptionSecurity.meta(),
       NonDeliverableFXOptionSecurity.meta()
   );
+  private final SecurityBuilder _securityBuilder = new SecurityBuilder(s_metaBeans);
 
-  // TODO this needs to go in a visitor decorator to filter out underlyingId. do we really care?
   private static final Map<Class<?>, Class<?>> s_underlyingSecurityTypes = ImmutableMap.<Class<?>, Class<?>>of(
-      IRFutureOptionSecurity.class, InterestRateFutureSecurity.class, // TODO is this OTC?
+      IRFutureOptionSecurity.class, InterestRateFutureSecurity.class,
       SwaptionSecurity.class, SwapSecurity.class);
 
   private static final List<String> s_otherTypeNames = Lists.newArrayList();
@@ -111,7 +122,14 @@ public class BlotterResource {
     Collections.sort(s_securityTypeNames);
   }
 
+  private final SecurityMaster _securityMaster;
+
   private FreemarkerOutputter _freemarker;
+
+  public BlotterResource(SecurityMaster securityMaster) {
+    ArgumentChecker.notNull(securityMaster, "securityMaster");
+    _securityMaster = securityMaster;
+  }
 
   /* package */ static boolean isSecurity(Class<?> type) {
     if (type == null) {
@@ -147,8 +165,66 @@ public class BlotterResource {
       throw new DataNotFoundException("Unknown type name " + typeName);
     }
     BeanStructureBuilder structureBuilder = new BeanStructureBuilder(s_metaBeans, s_underlyingSecurityTypes);
-    Map<String,Object> beanData = new BeanTraverser().traverse(metaBean, structureBuilder);
+    // filter out underlying ID property for security types whose underlying is another OTC security
+    PropertyFilter<Map<String, Object>> filter = new PropertyFilter<Map<String, Object>>(SwaptionSecurity.meta().underlyingId());
+    Map<String,Object> beanData = new BeanTraverser(filter).traverse(metaBean, structureBuilder);
     return _freemarker.build("blotter/bean-structure.ftl", beanData);
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("securities/{securityId}")
+  public String getJSON(@PathParam("securityId") String securityIdStr) {
+    UniqueId securityId = UniqueId.parse(securityIdStr);
+    SecurityDocument document = _securityMaster.get(securityId);
+    ManageableSecurity security = document.getSecurity();
+    MetaBean metaBean = s_metaBeansByTypeName.get(security.getClass().getSimpleName());
+    if (metaBean == null) {
+      throw new DataNotFoundException("No MetaBean is registered for security type " + security.getClass().getName());
+    }
+    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<JSONObject>(security, new JsonDataSink());
+    // TODO filter out underlyingId for securities with OTC underlying
+    JSONObject json = new BeanTraverser().traverse(metaBean, writingVisitor);
+    JSONObject root = new JSONObject();
+    try {
+      root.put("security", json);
+    } catch (JSONException e) {
+      throw new OpenGammaRuntimeException("", e);
+    }
+    // TODO underlying for securities with OTC underlying securities
+    return root.toString();
+  }
+
+  // TODO this is only here for my benefit during development - delete
+  @GET
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("securities/{securityId}")
+  public String getText(@PathParam("securityId") String securityIdStr) {
+    return getJSON(securityIdStr);
+  }
+
+  @POST
+  @Path("securities")
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
+  public Response postJSON(@FormParam("security") String securityJsonStr) {
+    JSONObject securityJson;
+    try {
+      JSONObject json = new JSONObject(securityJsonStr);
+      securityJson = json.getJSONObject("security");
+      // TODO this needs to happen for swaptions and possibly some others
+      //underlyingJson = json.getJSONObject("underlying");
+    } catch (JSONException e) {
+      throw new IllegalArgumentException("Failed to parse security JSON", e);
+    }
+    // TODO this doesn't cover swaptions (where the underlying is an OTC security)
+    ManageableSecurity security = _securityBuilder.buildSecurity(new JsonBeanDataSource(securityJson));
+    if (security.getUniqueId() == null) {
+      SecurityDocument addedDocument = _securityMaster.add(new SecurityDocument(security));
+    } else {
+      SecurityDocument updatedDocument = _securityMaster.update(new SecurityDocument(security));
+    }
+    return Response.status(Response.Status.OK).build();
   }
 
   private static Map<Object, Object> map(Object... values) {

@@ -77,4 +77,8 @@ public interface GreekVisitor<T> {
   T visitZomma();
 
   T visitZommaP();
+
+  T visitDualDelta();
+
+  T visitDualGamma();
 }
