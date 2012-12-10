@@ -7,7 +7,9 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function () {
-            var constructor = this;
+            var constructor = this, trade = {}, ids = {}, security = {}, util = og.blotter.util, 
+            dropdown = '.og-blotter-security-select';
+            ids.selector = '.og-blocks-security_ids';
             constructor.load = function () {
                 constructor.title = 'Trade';
                 var form = new og.common.util.ui.Form({
@@ -18,21 +20,30 @@ $.register_module({
                     extras:{}
                 });
                 form.children.push(
-                    new form.Block({
+                    security.block = new form.Block({
                         module: 'og.blotter.forms.blocks.security_tash',
                         extras: {}
                     }),
-                    new form.Block({
+                    trade.block = new form.Block({
                         module: 'og.blotter.forms.blocks.trade_tash',
                         extras: {}
                     }),
-                    new form.Block({
+                    ids.block = new form.Block({
                         module: 'og.blotter.forms.blocks.security_ids_tash',
                         extras: {}
                     }),
                     new og.common.util.ui.Attributes({form: form})
                 );
                 form.dom();
+                form.on('form:load', function () {
+                    var $select = $(dropdown);
+                    util.FAKE_DROPDOWN.forEach(function (datum) {
+                        $select.append(util.option({value: datum.value, name:datum.name}));
+                    });
+                });
+                security.block.on('change', dropdown, function (event) {
+                    util.update_block(ids, util.FAKE_IDS[event.target.value]);
+                });
             }; 
             constructor.load();
             constructor.kill = function () {
