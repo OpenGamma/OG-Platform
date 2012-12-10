@@ -21,7 +21,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.joda.beans.Bean;
 import org.joda.beans.MetaBean;
@@ -206,8 +205,9 @@ public class BlotterResource {
   @POST
   @Path("securities")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
   // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
-  public Response postJSON(@FormParam("security") String securityJsonStr) {
+  public String postJSON(@FormParam("security") String securityJsonStr) {
     JSONObject securityJson;
     try {
       JSONObject json = new JSONObject(securityJsonStr);
@@ -219,12 +219,15 @@ public class BlotterResource {
     }
     // TODO this doesn't cover swaptions (where the underlying is an OTC security)
     ManageableSecurity security = _securityBuilder.buildSecurity(new JsonBeanDataSource(securityJson));
+    UniqueId securityId;
     if (security.getUniqueId() == null) {
       SecurityDocument addedDocument = _securityMaster.add(new SecurityDocument(security));
+      securityId = addedDocument.getUniqueId();
     } else {
       SecurityDocument updatedDocument = _securityMaster.update(new SecurityDocument(security));
+      securityId = updatedDocument.getUniqueId();
     }
-    return Response.status(Response.Status.OK).build();
+    return new JSONObject(ImmutableMap.of("securityId", securityId)).toString();
   }
 
   private static Map<Object, Object> map(Object... values) {
