@@ -33,8 +33,8 @@ public class BlackSwaptionProvider implements BlackSwaptionProviderInterface {
   public BlackSwaptionProvider(final MulticurveProviderInterface multicurves, final BlackSwaptionParameters blackParameters) {
     ArgumentChecker.notNull(multicurves, "multi-curve provider");
     ArgumentChecker.notNull(blackParameters, "Black parameters");
-    _multiCurveProvider = multicurves.copy(); // TODO: REVIEW: Do we want a new copy?
-    _blackParameters = blackParameters; //TODO copy
+    _multiCurveProvider = multicurves;
+    _blackParameters = blackParameters;
   }
 
   @Override

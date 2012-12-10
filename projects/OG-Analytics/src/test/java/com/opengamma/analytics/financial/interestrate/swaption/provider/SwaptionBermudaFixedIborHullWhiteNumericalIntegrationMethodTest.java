@@ -115,7 +115,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
     assertEquals("Bermuda swaption pv: short/long parity", pvLong.getAmount(CUR), -pvShort.getAmount(CUR), TOLERANCE_PV);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Tests of performance. "enabled = false" for the standard testing.
    */
@@ -145,14 +145,6 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " pv Bermuda swaption Hull-White numerical integration method: " + (endTime - startTime) + " ms");
     // Performance note: HW price: 19-Jan-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 480 ms for 20 swaptions.
-
-    startTime = System.currentTimeMillis();
-    for (int looptest = 0; looptest < nbTest; looptest++) {
-      pv[looptest] = METHOD_BERMUDA.presentValue(swaptionBermuda[looptest], HW_MULTICURVES);
-    }
-    endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " pv Bermuda swaption Hull-White numerical integration method: " + (endTime - startTime) + " ms");
-    // Performance note: HW price: 19-Jan-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 440 ms for 20 swaptions.
 
     double total = 0.0;
     for (int looptest = 0; looptest < nbTest; looptest++) {

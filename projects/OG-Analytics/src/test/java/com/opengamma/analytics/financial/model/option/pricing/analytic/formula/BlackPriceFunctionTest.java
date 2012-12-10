@@ -114,9 +114,9 @@ public class BlackPriceFunctionTest {
     final double expiration = 7.0d / 365.0d; // 1 week
     final EuropeanVanillaOption atmCall = new EuropeanVanillaOption(forward, expiration, true);
     final double price = FUNCTION.getPriceFunction(atmCall).evaluate(dataBlack);
-    double startingShift = 1.0E-3;
-    double ratio = 2.0;
-    final int nbShift = 40;
+    double startingShift = 1.0E-4;
+    double ratio = Math.sqrt(2.0);
+    final int nbShift = 75;
     final double[] eps = new double[nbShift + 1];
     final double[] priceAdjoint = FUNCTION.getPriceAdjoint(atmCall, dataBlack);
     final double[] derivativeF_FD = new double[nbShift];
