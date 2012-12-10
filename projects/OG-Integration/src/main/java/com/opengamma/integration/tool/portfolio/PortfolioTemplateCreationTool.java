@@ -28,6 +28,8 @@ public class PortfolioTemplateCreationTool {
   private static final String HELP_OPTION = "h";
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
+  /** Logback flag (ignored) */
+  private static final String LOGBACK_OPTION = "l";
 
   /** The list of security types - needs to be updated whenever a new sec type is added to the system */
   private static final String[] s_securityTypes = {
@@ -114,6 +116,11 @@ public class PortfolioTemplateCreationTool {
         HELP_OPTION, "help", false,
         "prints this message");
     options.addOption(helpOption);
+
+    Option logbackOption = new Option(
+        LOGBACK_OPTION, "logback", true,
+        "Logback (ignored)");
+    options.addOption(logbackOption);
 
     return options;
   }
