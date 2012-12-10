@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
@@ -61,7 +62,7 @@ public abstract class AbstractDocumentation implements Runnable {
 
   }
 
-  private static int incrementAndGet(final String key, final Map<String, AtomicInteger> store) {
+  private static <K> int incrementAndGet(final K key, final Map<K, AtomicInteger> store) {
     final AtomicInteger c = store.get(key);
     if (c == null) {
       store.put(key, new AtomicInteger(1));
@@ -73,7 +74,7 @@ public abstract class AbstractDocumentation implements Runnable {
 
   private static class SecurityTypePortfolioFilter extends AbstractFilteringFunction {
 
-    private final Map<String, AtomicInteger> _visited = new HashMap<String, AtomicInteger>();
+    private final Map<Pair<String, Class<?>>, AtomicInteger> _visited = new HashMap<Pair<String, Class<?>>, AtomicInteger>();
 
     public SecurityTypePortfolioFilter() {
       super("UniqueSecurityType");
@@ -81,8 +82,8 @@ public abstract class AbstractDocumentation implements Runnable {
 
     @Override
     public boolean acceptPosition(final Position position) {
-      // TODO: need a better way of classifying some of the broader security types
-      return incrementAndGet(position.getSecurity().getSecurityType(), _visited) < MAX_SECURITIES_PER_TYPE;
+      final Security security = position.getSecurity();
+      return incrementAndGet(Pair.<String, Class<?>>of(security.getSecurityType(), security.getClass()), _visited) < MAX_SECURITIES_PER_TYPE;
     }
 
   }
