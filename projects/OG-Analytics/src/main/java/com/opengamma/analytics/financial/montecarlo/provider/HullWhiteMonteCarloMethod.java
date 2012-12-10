@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.montecarlo.MonteCarloDiscountFactorCalc
 import com.opengamma.analytics.financial.montecarlo.MonteCarloDiscountFactorDataBundle;
 import com.opengamma.analytics.financial.montecarlo.MonteCarloDiscountFactorDerivativeCalculator;
 import com.opengamma.analytics.financial.montecarlo.MonteCarloDiscountFactorDerivativeDataBundle;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProvider;
+import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
@@ -78,7 +78,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    * @param hwData The Hull-White data (curves and Hull-White parameters).
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final Currency ccy, final HullWhiteOneFactorProvider hwData) {
+  public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final Currency ccy, final HullWhiteOneFactorProviderInterface hwData) {
     // TODO: remove currency and dsc curve name (should be available from the instrument)
     MulticurveProviderInterface multicurves = hwData.getMulticurveProvider();
     HullWhiteOneFactorPiecewiseConstantParameters parameters = hwData.getHullWhiteParameters();
@@ -170,7 +170,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
    * @param hwData The Hull-White data (curves and Hull-White parameters).
    * @return The curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final Currency ccy, final HullWhiteOneFactorProvider hwData) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final Currency ccy, final HullWhiteOneFactorProviderInterface hwData) {
     MulticurveProviderInterface multicurves = hwData.getMulticurveProvider();
     HullWhiteOneFactorPiecewiseConstantParameters parameters = hwData.getHullWhiteParameters();
     // Forward sweep

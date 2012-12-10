@@ -30,6 +30,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganAlternativeVolatilityFunction;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueSABRHullWhiteMonteCarloCalculator;
 import com.opengamma.analytics.financial.provider.calculator.sabr.PresentValueCurveSensitivitySABRSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.sabr.PresentValueSABRSensitivitySABRSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.sabr.PresentValueSABRSwaptionCalculator;
@@ -246,16 +247,16 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     assertEquals("Swaption Physical SABR: Present value SABR sensitivity: method vs calculator", pvssMethod, pvssCalculator);
   }
 
-  //  @Test(enabled = true)
-  //  /**
-  //   * Tests the present value of the Hull-White Monte-Carlo calibrated to SABR swaption.
-  //   */
-  //  public void presentValueSABRHullWhiteMonteCarlo() {
-  //    MultipleCurrencyAmount pvSABR = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
-  //    PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
-  //    double pvMC = pvcSABRHWMC.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
-  //    assertEquals("Swaption Physical SABR: Present value using Hull-White by Monte Carlo", pvSABR.getAmount(), pvMC, 2.5E+4);
-  //  }
+  @Test(enabled = true)
+  /**
+   * Tests the present value of the Hull-White Monte-Carlo calibrated to SABR swaption.
+   */
+  public void presentValueSABRHullWhiteMonteCarlo() {
+    MultipleCurrencyAmount pvSABR = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+    PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
+    MultipleCurrencyAmount pvMC = SWAPTION_LONG_PAYER.accept(pvcSABRHWMC, SABR_MULTICURVES);
+    assertEquals("Swaption Physical SABR: Present value using Hull-White by Monte Carlo", pvSABR.getAmount(CUR), pvMC.getAmount(CUR), 2.5E+4);
+  }
 
   //  @Test(enabled = false)
   //  /**
@@ -337,16 +338,17 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     System.out.println(nbTest + " physical swaptions SABR (price+delta+vega): " + (endTime - startTime) + " ms");
     // Performance note: price+delta: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 380 ms for 5000 swaptions.
 
-    //    final int nbTest2 = 10;
-    //    PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
-    //    double[] pvMC = new double[nbTest2];
-    //    startTime = System.currentTimeMillis();
-    //    for (int looptest = 0; looptest < nbTest2; looptest++) {
-    //      pvMC[looptest] = pvcSABRHWMC.visit(SWAPTION_LONG_PAYER, SABR_BUNDLE);
-    //    }
-    //    endTime = System.currentTimeMillis();
-    //    System.out.println(nbTest2 + " physical swaptions SABR + Hull-White Monte Carlo: " + (endTime - startTime) + " ms");
-    // Performance note: price+delta+vega: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 375 ms for 100 swaptions.
+    final int nbTest2 = 10;
+    PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
+    MultipleCurrencyAmount[] pvMC = new MultipleCurrencyAmount[nbTest2];
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest2; looptest++) {
+      pvMC[looptest] = SWAPTION_LONG_PAYER.accept(pvcSABRHWMC, SABR_MULTICURVES);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest2 + " physical swaptions SABR + Hull-White Monte Carlo: " + (endTime - startTime) + " ms");
+    //     Performance note: price+delta+vega: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 310 ms for 10 swaptions.
 
     //    double sum = 0.0;
     //    for (int looptest = 0; looptest < nbTest; looptest++) {

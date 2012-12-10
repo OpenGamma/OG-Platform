@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.calculator.forexblack;
+package com.opengamma.analytics.financial.provider.calculator.blackforex;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.provider.ForexOptionVanillaBlackFlatMethod;
@@ -15,24 +15,24 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class CurrencyExposureForexBlackFlatCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<ForexBlackFlatProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueForexBlackFlatCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<ForexBlackFlatProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final CurrencyExposureForexBlackFlatCalculator INSTANCE = new CurrencyExposureForexBlackFlatCalculator();
+  private static final PresentValueForexBlackFlatCalculator INSTANCE = new PresentValueForexBlackFlatCalculator();
 
   /**
    * Constructor.
    */
-  private CurrencyExposureForexBlackFlatCalculator() {
+  private PresentValueForexBlackFlatCalculator() {
   }
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static CurrencyExposureForexBlackFlatCalculator getInstance() {
+  public static PresentValueForexBlackFlatCalculator getInstance() {
     return INSTANCE;
   }
 
@@ -50,7 +50,7 @@ public final class CurrencyExposureForexBlackFlatCalculator extends InstrumentDe
 
   @Override
   public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla option, final ForexBlackFlatProviderInterface blackSmile) {
-    return METHOD_FX_VAN.currencyExposure(option, blackSmile);
+    return METHOD_FX_VAN.presentValue(option, blackSmile);
   }
 
   @Override

@@ -130,13 +130,11 @@ public final class ForexOptionVanillaBlackSmileMethod {
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
     final double price = priceAdjoint[0] * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * sign;
     final double deltaSpot = priceAdjoint[1] * dfForeign / dfDomestic;
-    final CurrencyAmount[] currencyExposure = new CurrencyAmount[2];
-    // Implementation note: foreign currency (currency 1) exposure = Delta_spot * amount1.
-    currencyExposure[0] = CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency1(), deltaSpot * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * sign);
-    // Implementation note: domestic currency (currency 2) exposure = -Delta_spot * amount1 * spot+PV
-    currencyExposure[1] = CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), -deltaSpot * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * spot * sign
+    MultipleCurrencyAmount currencyExposure = MultipleCurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency1(),
+        deltaSpot * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * sign);
+    currencyExposure = currencyExposure.plus(optionForex.getUnderlyingForex().getCurrency2(), -deltaSpot * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * spot * sign
         + price);
-    return MultipleCurrencyAmount.of(currencyExposure);
+    return currencyExposure;
   }
 
   /**
@@ -416,11 +414,14 @@ public final class ForexOptionVanillaBlackSmileMethod {
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
     MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
-    final double df = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
-    final double forward = spot * multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime()) / df;
+    final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
+    // Forward sweep
+    final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), payTime);
+    final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), payTime);
+    final double forward = spot * dfForeign / dfDomestic;
     final double volatility = smileMulticurves.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
-    final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
+    final BlackFunctionData dataBlack = new BlackFunctionData(forward, dfDomestic, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(optionForex, dataBlack);
     final double volatilitySensitivityValue = priceAdjoint[2] * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
     final DoublesPair point = DoublesPair.of(optionForex.getTimeToExpiry(),

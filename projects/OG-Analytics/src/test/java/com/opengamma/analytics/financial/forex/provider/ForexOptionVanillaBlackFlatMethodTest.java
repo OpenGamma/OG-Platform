@@ -21,10 +21,10 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.volatility.curve.BlackForexTermStructureParameters;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
+import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueCurveSensitivityForexBlackFlatCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueForexBlackFlatCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CurrencyExposureDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.calculator.forexblack.PresentValueCurveSensitivityForexBlackFlatCalculator;
-import com.opengamma.analytics.financial.provider.calculator.forexblack.PresentValueForexBlackFlatCalculator;
 import com.opengamma.analytics.financial.provider.description.ForexBlackFlatProvider;
 import com.opengamma.analytics.financial.provider.description.ForexBlackSmileProvider;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;

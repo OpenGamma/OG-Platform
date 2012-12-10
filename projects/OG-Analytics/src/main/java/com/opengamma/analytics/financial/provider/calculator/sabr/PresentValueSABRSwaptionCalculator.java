@@ -61,11 +61,6 @@ public final class PresentValueSABRSwaptionCalculator extends InstrumentDerivati
   // -----     Payment/Coupon     ------
 
   @Override
-  public MultipleCurrencyAmount visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final SABRSwaptionProviderInterface sabr) {
-    return METHOD_SWT_PHYS.presentValue(swaption, sabr);
-  }
-
-  @Override
   public MultipleCurrencyAmount visitCouponCMS(final CouponCMS payment, final SABRSwaptionProviderInterface sabr) {
     return METHOD_CMS_CPN.presentValue(payment, sabr);
   }
@@ -96,6 +91,13 @@ public final class PresentValueSABRSwaptionCalculator extends InstrumentDerivati
       pv = pv.plus(visit(annuity.getNthPayment(loopp), sabr));
     }
     return pv;
+  }
+
+  // -----     Swaption     ------
+
+  @Override
+  public MultipleCurrencyAmount visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final SABRSwaptionProviderInterface sabr) {
+    return METHOD_SWT_PHYS.presentValue(swaption, sabr);
   }
 
   @Override

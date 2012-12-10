@@ -1,77 +1,148 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description;
 
-import org.apache.commons.lang.ObjectUtils;
-
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
- * Class containing curve and volatility data sufficient to price swaptions using the Black method.
- * The forward rates are computed using discount factors.
+ * Class describing a "market" with discounting, forward, price index and credit curves.
+ * The forward rate are computed as the ratio of discount factors stored in YieldAndDiscountCurve.
  */
-public class BlackSwaptionProviderDiscount implements BlackSwaptionProviderInterface {
-  private final MulticurveProviderDiscount _multiCurveProvider;
-  private final BlackSwaptionParameters _blackParameters;
+public class BlackSwaptionProviderDiscount extends BlackSwaptionProvider {
 
   /**
-   * @param multiCurveProvider The multi-curve provider, not null
-   * @param blackParameters The Black parameters, not null
+   * Constructor from exiting multicurveProvider and Black swaption parameters. The given provider and parameters are used for the new provider (the same maps are used, not copied).
+   * @param multicurves The multi-curves provider.
+   * @param parameters The Black swaption parameters.
    */
-  public BlackSwaptionProviderDiscount(final MulticurveProviderDiscount multiCurveProvider, final BlackSwaptionParameters blackParameters) {
-    ArgumentChecker.notNull(multiCurveProvider, "multi-curve provider");
-    ArgumentChecker.notNull(blackParameters, "Black parameters");
-    _multiCurveProvider = multiCurveProvider.copy();
-    _blackParameters = blackParameters; //TODO copy
+  public BlackSwaptionProviderDiscount(final MulticurveProviderDiscount multicurves, BlackSwaptionParameters parameters) {
+    super(multicurves, parameters);
   }
 
+  /**
+   * Returns the MulticurveProvider from which the BlackSwaptionProviderDiscount is composed.
+   * @return The multi-curves provider.
+   */
   @Override
-  public BlackSwaptionProviderInterface copy() {
-    final MulticurveProviderDiscount curves = _multiCurveProvider.copy();
-    final BlackSwaptionParameters black = _blackParameters; //TODO copy these parameters
-    return new BlackSwaptionProviderDiscount(curves, black);
+  public MulticurveProviderDiscount getMulticurveProvider() {
+    return (MulticurveProviderDiscount) super.getMulticurveProvider();
   }
 
+  /**
+   * Create a new copy of the provider.
+   * @return The bundle.
+   */
   @Override
-  public BlackSwaptionParameters getBlackParameters() {
-    return _blackParameters;
+  public BlackSwaptionProviderDiscount copy() {
+    MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
+    return new BlackSwaptionProviderDiscount(multicurveProvider, getBlackParameters());
   }
 
-  @Override
-  public MulticurveProviderInterface getMulticurveProvider() {
-    return _multiCurveProvider;
+  /**
+   * Gets the discounting curve associated in a given currency in the market.
+   * @param ccy The currency.
+   * @return The curve.
+   */
+  public YieldAndDiscountCurve getCurve(final Currency ccy) {
+    return getMulticurveProvider().getCurve(ccy);
   }
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + _blackParameters.hashCode();
-    result = prime * result + _multiCurveProvider.hashCode();
-    return result;
+  /**
+   * Gets the forward curve associated to a given Ibor index in the market.
+   * @param index The Ibor index.
+   * @return The curve.
+   */
+  public YieldAndDiscountCurve getCurve(final IborIndex index) {
+    return getMulticurveProvider().getCurve(index);
   }
 
-  @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!(obj instanceof BlackSwaptionProviderDiscount)) {
-      return false;
-    }
-    final BlackSwaptionProviderDiscount other = (BlackSwaptionProviderDiscount) obj;
-    if (!ObjectUtils.equals(_blackParameters, other._blackParameters)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_multiCurveProvider, other._multiCurveProvider)) {
-      return false;
-    }
-    return true;
+  /**
+   * Gets the forward curve associated to a given ON index in the market.
+   * @param index The ON index.
+   * @return The curve.
+   */
+  public YieldAndDiscountCurve getCurve(final IndexON index) {
+    return getMulticurveProvider().getCurve(index);
   }
 
+  /**
+   * Sets the discounting curve for a given currency.
+   * @param ccy The currency.
+   * @param curve The yield curve used for discounting.
+   */
+  public void setCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
+    getMulticurveProvider().setCurve(ccy, curve);
+  }
+
+  /**
+   * Sets the curve associated to an Ibor index.
+   * @param index The index.
+   * @param curve The curve.
+   */
+  public void setCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
+    getMulticurveProvider().setCurve(index, curve);
+  }
+
+  /**
+   * Sets the curve associated to an ON index.
+   * @param index The index.
+   * @param curve The curve.
+   */
+  public void setCurve(final IndexON index, final YieldAndDiscountCurve curve) {
+    getMulticurveProvider().setCurve(index, curve);
+  }
+
+  /**
+   * Set all the curves contains in another provider. If a currency or index is already present in the map, the associated curve is changed.
+   * @param other The other provider.
+   * TODO: REVIEW: Should we check that the curve are already present? Should we update the HW parameters.
+   */
+  public void setAll(final BlackSwaptionProviderDiscount other) {
+    ArgumentChecker.notNull(other, "Inflation provider");
+    getMulticurveProvider().setAll(other.getMulticurveProvider());
+  }
+
+  /**
+   * Replaces the discounting curve for a given currency.
+   * @param ccy The currency.
+   * @param curve The yield curve used for discounting.
+   *  @throws IllegalArgumentException if curve name NOT already present 
+   */
+  public void replaceCurve(final Currency ccy, final YieldAndDiscountCurve curve) {
+    getMulticurveProvider().replaceCurve(ccy, curve);
+  }
+
+  /**
+   * Replaces the forward curve for a given index.
+   * @param index The index.
+   * @param curve The yield curve used for forward.
+   *  @throws IllegalArgumentException if curve name NOT already present 
+   */
+  public void replaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
+    getMulticurveProvider().replaceCurve(index, curve);
+  }
+
+  public BlackSwaptionProviderDiscount withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement) {
+    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withDiscountFactor(ccy, replacement);
+    return new BlackSwaptionProviderDiscount(decoratedMulticurve, getBlackParameters());
+  }
+
+  public BlackSwaptionProviderDiscount withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
+    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
+    return new BlackSwaptionProviderDiscount(decoratedMulticurve, getBlackParameters());
+  }
+
+  public BlackSwaptionProviderDiscount withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
+    MulticurveProviderDiscount decoratedMulticurve = getMulticurveProvider().withForward(index, replacement);
+    return new BlackSwaptionProviderDiscount(decoratedMulticurve, getBlackParameters());
+  }
 
 }

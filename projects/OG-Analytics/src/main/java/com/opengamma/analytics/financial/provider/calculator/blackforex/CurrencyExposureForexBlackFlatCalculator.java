@@ -3,36 +3,36 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.calculator.forexblack;
+package com.opengamma.analytics.financial.provider.calculator.blackforex;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.provider.ForexOptionVanillaBlackFlatMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.provider.description.ForexBlackFlatProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueCurveSensitivityForexBlackFlatCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<ForexBlackFlatProviderInterface, MultipleCurrencyMulticurveSensitivity> {
+public final class CurrencyExposureForexBlackFlatCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<ForexBlackFlatProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final PresentValueCurveSensitivityForexBlackFlatCalculator INSTANCE = new PresentValueCurveSensitivityForexBlackFlatCalculator();
+  private static final CurrencyExposureForexBlackFlatCalculator INSTANCE = new CurrencyExposureForexBlackFlatCalculator();
 
   /**
    * Constructor.
    */
-  private PresentValueCurveSensitivityForexBlackFlatCalculator() {
+  private CurrencyExposureForexBlackFlatCalculator() {
   }
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static PresentValueCurveSensitivityForexBlackFlatCalculator getInstance() {
+  public static CurrencyExposureForexBlackFlatCalculator getInstance() {
     return INSTANCE;
   }
 
@@ -42,19 +42,19 @@ public final class PresentValueCurveSensitivityForexBlackFlatCalculator extends 
   private static final ForexOptionVanillaBlackFlatMethod METHOD_FX_VAN = ForexOptionVanillaBlackFlatMethod.getInstance();
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative derivative, final ForexBlackFlatProviderInterface blackSmile) {
+  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final ForexBlackFlatProviderInterface blackSmile) {
     return derivative.accept(this, blackSmile);
   }
 
   // -----     Forex     ------
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitForexOptionVanilla(final ForexOptionVanilla option, final ForexBlackFlatProviderInterface blackSmile) {
-    return METHOD_FX_VAN.presentValueCurveSensitivity(option, blackSmile);
+  public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla option, final ForexBlackFlatProviderInterface blackSmile) {
+    return METHOD_FX_VAN.currencyExposure(option, blackSmile);
   }
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative derivative) {
+  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative) {
     throw new UnsupportedOperationException();
   }
 

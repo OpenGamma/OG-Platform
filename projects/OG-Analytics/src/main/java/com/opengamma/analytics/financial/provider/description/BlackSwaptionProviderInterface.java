@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionPa
 /**
  * Interface for pricing swaptions using the Black method.
  */
-public interface BlackSwaptionProviderInterface {
+public interface BlackSwaptionProviderInterface extends ParameterProviderInterface {
 
   /**
    * Create a new copy of the provider
@@ -24,9 +24,4 @@ public interface BlackSwaptionProviderInterface {
    */
   BlackSwaptionParameters getBlackParameters();
 
-  /**
-   * Returns the multicurve provider.
-   * @return The multicurve provider
-   */
-  MulticurveProviderInterface getMulticurveProvider();
 }

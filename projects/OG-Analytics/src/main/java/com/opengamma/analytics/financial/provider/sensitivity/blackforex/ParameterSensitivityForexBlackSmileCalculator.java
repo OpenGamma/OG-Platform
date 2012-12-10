@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.sensitivity.forexblack;
+package com.opengamma.analytics.financial.provider.sensitivity.blackforex;
 
 import java.util.List;
 import java.util.Map;
