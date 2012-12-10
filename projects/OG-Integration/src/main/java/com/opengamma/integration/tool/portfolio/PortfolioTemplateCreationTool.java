@@ -31,18 +31,18 @@ public class PortfolioTemplateCreationTool {
 
   /** The list of security types - needs to be updated whenever a new sec type is added to the system */
   private static final String[] s_securityTypes = {
-      "Bond", "CorporateBond", "GovernmentBond", "MunicipalBond",
+      "CorporateBond", "GovernmentBond", "MunicipalBond",
       "CapFloorCMSSpread", "CapFloor",
       "Cash",
+      "CDS", "LegacyFixedRecoveryCDS", "LegacyRecoveryLockCDS", "LegacyVanillaCDS", "StandardFixedRecoveryCDS", "StandardRecoveryLockCDS", "StandardVanillaCDS",
       "ContinuousZeroDeposit", "PeriodicZeroDeposit", "SimpleZeroDeposit",
       "Equity", "EquityVarianceSwap",
       "AgricultureForward", "CommodityForward", "EnergyForward", "MetalForward",
       "FRA",
       "AgricultureFuture", "BondFuture", "CommodityFuture", "EnergyFuture", "EquityFuture", "EquityIndexDividendFuture", "Future", "FXFuture", "IndexFuture", "InterestRateFuture", "MetalFuture", "StockFuture",
       "FXForward", "NonDeliverableFXForward",
-      "BondFutureOption", "CommodityFutureOption", "EquityBarrierOption", "EquityIndexDividendFutureOption", "EquityIndexOption", "EquityOption", "FXBarrierOption", "FXDigitalOption", "FXOption", "IRFutureOption", "NonDeliverableFXDigitalOption", "NonDeliverableFXOption",
+      "BondFutureOption", "CommodityFutureOption", "EquityBarrierOption", "EquityIndexDividendFutureOption", "EquityIndexFutureOption", "EquityIndexOption", "EquityOption", "FXBarrierOption", "FXDigitalOption", "FXOption", "IRFutureOption", "NonDeliverableFXDigitalOption", "NonDeliverableFXOption",
       "ForwardSwap", "Swap"
-
   };
 
   /**
