@@ -16,6 +16,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -71,6 +72,7 @@ import com.opengamma.web.FreemarkerOutputter;
 @Path("blotter")
 public class BlotterResource {
 
+  // TODO this should be configurable, should be able to add from client projects
   private static final Set<MetaBean> s_metaBeans = Sets.<MetaBean>newHashSet(
       FXForwardSecurity.meta(),
       SwapSecurity.meta(),
@@ -202,12 +204,13 @@ public class BlotterResource {
     return getJSON(securityIdStr);
   }
 
+  // TODO PUT to update existing security? how should the URL be handled?
   @POST
   @Path("securities")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
-  public String postJSON(@FormParam("security") String securityJsonStr) {
+  public String createOtcSecurity(@FormParam("security") String securityJsonStr) {
     JSONObject securityJson;
     try {
       JSONObject json = new JSONObject(securityJsonStr);
@@ -219,14 +222,40 @@ public class BlotterResource {
     }
     // TODO this doesn't cover swaptions (where the underlying is an OTC security)
     ManageableSecurity security = _securityBuilder.buildSecurity(new JsonBeanDataSource(securityJson));
-    UniqueId securityId;
-    if (security.getUniqueId() == null) {
-      SecurityDocument addedDocument = _securityMaster.add(new SecurityDocument(security));
-      securityId = addedDocument.getUniqueId();
-    } else {
-      SecurityDocument updatedDocument = _securityMaster.update(new SecurityDocument(security));
-      securityId = updatedDocument.getUniqueId();
+    if (security.getUniqueId() != null) {
+      throw new IllegalArgumentException("Security unique ID must not be specified for a new security");
     }
+    SecurityDocument document = _securityMaster.add(new SecurityDocument(security));
+    UniqueId securityId = document.getUniqueId();
+    return new JSONObject(ImmutableMap.of("securityId", securityId)).toString();
+  }
+
+
+  @PUT
+  @Path("securities/{securityIdStr}")
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
+  public String updateOtcSecurity(@FormParam("security") String securityJsonStr,
+                                  @PathParam("securityIdStr") String securityIdStr) {
+    UniqueId pathSecurityId = UniqueId.parse(securityIdStr);
+    JSONObject securityJson;
+    try {
+      JSONObject json = new JSONObject(securityJsonStr);
+      securityJson = json.getJSONObject("security");
+      // TODO this needs to happen for swaptions and possibly some others
+      //underlyingJson = json.getJSONObject("underlying");
+    } catch (JSONException e) {
+      throw new IllegalArgumentException("Failed to parse security JSON", e);
+    }
+    // TODO this doesn't cover swaptions (where the underlying is an OTC security)
+    ManageableSecurity security = _securityBuilder.buildSecurity(new JsonBeanDataSource(securityJson));
+    if (!pathSecurityId.equalObjectId(security.getUniqueId())) {
+      throw new IllegalArgumentException("Security unique ID in the path didn't match the ID in the JSON: " +
+                                             pathSecurityId + ", " + security.getUniqueId());
+    }
+    SecurityDocument document = _securityMaster.update(new SecurityDocument(security));
+    UniqueId securityId = document.getUniqueId();
     return new JSONObject(ImmutableMap.of("securityId", securityId)).toString();
   }
 
