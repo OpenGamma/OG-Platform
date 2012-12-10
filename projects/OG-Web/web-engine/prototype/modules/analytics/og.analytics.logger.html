@@ -1,0 +1,44 @@
+<div class="OG-logger">
+  <table>
+    {{#each obj}}
+    <tbody>
+      <tr class="og-head">
+        <td>Function:</td>
+        <td>{{functionName}}</td>
+      </tr>
+      <tr class="og-head">
+        <td>Target:</td>
+        <td>{{target}}</td>
+      </tr>
+      {{#if exceptionClass}}
+      <tr>
+        <td>Exception Class:</td>
+        <td>{{exceptionClass}}</td>
+      </tr>
+      {{/if}}
+      {{#if exceptionMessage}}
+      <tr>
+        <td>Exception Message:</td>
+        <td>{{exceptionMessage}}</td>
+      </tr>
+      {{/if}}
+      {{#if events}}{{#each events}}
+      <tr class="og-{{level}}">
+        <td>{{level}}:</td>
+        <td>{{message}}</td>
+      </tr>
+      {{/each}}{{/if}}
+      {{#if exceptionStackTrace}}
+      <tr>
+        <td>Stack trace:</td>
+        <td>
+          <pre>
+{{exceptionStackTrace}}
+          </pre>
+        </td>
+      </tr>
+      {{/if}}
+    </tbody>
+    {{/each}}
+  </table>
+</div>

@@ -151,6 +151,11 @@ $.register_module({
                         var menu_config, menu_template, menu, $icon,
                             depgraph = val.gadget.config.options.source.depgraph,
                             tmpl_data = og.common.gadgets.mapping.available_types(val.data_type, depgraph);
+                        (function () { // temporary untill we have a positions type
+                            var g = tmpl_data.gadgets, id = g.pluck('name')
+                                .indexOf(val.gadget.config.options.col !== 0 ? 'ExpandedPositions' : 'Log');
+                            if (id > -1) g.splice(id, 1);
+                        })();
                         menu_template = typemenu_template(tmpl_data);
                         menu_config = {$cntr: $('.og-tab-' + val.id + ' .OG-multiselect'), tmpl: menu_template};
                         menu = new og.common.util.ui.DropMenu(menu_config);

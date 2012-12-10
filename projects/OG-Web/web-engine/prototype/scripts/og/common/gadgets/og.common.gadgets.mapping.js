@@ -9,6 +9,7 @@ $.register_module({
         var mapping, gadget_names = {
             'Curve': 'Curve',
             'Data': 'Data',
+            'Log': 'Log',
             'Depgraph': 'Dependency Graph',
             'Surface': 'Surface',
             'Timeseries': 'Time Series',
@@ -16,14 +17,14 @@ $.register_module({
             'ExpandedPositions': 'Position'
         };
         return mapping = {
-            gadgets: ['Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries', 'ExpandedPositions', 'Histogram'],
+            gadgets: ['Depgraph', 'Data', 'Surface', 'Curve', 'Timeseries', 'ExpandedPositions', 'Log', 'Histogram'],
             panel_preference: {
-                'south'      : [0, 2, 4, 3, 1, 5],
-                'dock-north' : [2, 4, 3, 1, 0, 5],
-                'dock-center': [2, 4, 3, 1, 0, 5],
-                'dock-south' : [2, 4, 3, 1, 0, 5],
-                'new-window' : [2, 4, 3, 1, 0, 5],
-                'inplace'    : [2, 4, 3, 1, 0, 5]
+                'south'      : [0, 2, 4, 3, 1, 5, 6],
+                'dock-north' : [2, 4, 3, 1, 0, 5, 6],
+                'dock-center': [2, 4, 3, 1, 0, 5, 6],
+                'dock-south' : [2, 4, 3, 1, 0, 5, 6],
+                'new-window' : [2, 4, 3, 1, 0, 5, 6],
+                'inplace'    : [2, 4, 3, 1, 0, 5, 6]
             },
             options: function (cell, grid, panel) {
                 var gadget_type = mapping.type(cell, panel), source = $.extend({}, grid.source), gadget_options;
@@ -42,13 +43,14 @@ $.register_module({
                 return gadget_options;
             },
             type: function (cell, panel) {
+                if (cell.value.logLevel === 'ERROR') return 'Log';
                 var order = mapping.panel_preference[panel || 'new-window'],
                     type_map = mapping.data_type_map[cell.type], i, k;
                 for (i = 0; i < order.length; i++)
                     for (k = 0; k < type_map.length; k++)
                         if (order[i] === type_map[k]) return mapping.gadgets[order[i]];
             },
-            available_types: function (data_type, depgraph){
+            available_types: function (data_type, depgraph) {
                 var types_array = mapping.data_type_map[data_type], i, types = {gadgets:[]}, current, gadget;
                 for (i = 0; i < types_array.length; i++){
                     current = mapping.gadgets[types_array[i]];
@@ -60,19 +62,19 @@ $.register_module({
             },
             depgraph_blacklist: ['DOUBLE', 'PRIMITIVE', 'TENOR', 'UNKNOWN'],
             data_type_map: {
-                CURVE                   : [1, 3],
-                DOUBLE                  : [0],
-                LABELLED_MATRIX_1D      : [0, 1],
-                LABELLED_MATRIX_2D      : [0, 1],
-                LABELLED_MATRIX_3D      : [0, 1],
-                PRIMITIVE               : [5],
-                SURFACE_DATA            : [2, 1, 0],
-                UNPLOTTABLE_SURFACE_DATA: [1],
-                TENOR                   : [0],
-                TIME_SERIES             : [4, 1],
-                UNKNOWN                 : [0],
-                VECTOR                  : [0, 1],
-                HISTOGRAM               : [5, 1]
+                CURVE                   : [1, 3, 6],
+                DOUBLE                  : [0, 6],
+                LABELLED_MATRIX_1D      : [0, 1, 6],
+                LABELLED_MATRIX_2D      : [0, 1, 6],
+                LABELLED_MATRIX_3D      : [0, 1, 6],
+                PRIMITIVE               : [5, 6],
+                SURFACE_DATA            : [2, 1, 0, 6],
+                UNPLOTTABLE_SURFACE_DATA: [1, 6],
+                TENOR                   : [0, 6],
+                TIME_SERIES             : [4, 1, 6],
+                UNKNOWN                 : [0, 6],
+                VECTOR                  : [0, 1, 6],
+                HISTOGRAM               : [5, 1, 6]
             }
         };
     }
