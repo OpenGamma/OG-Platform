@@ -349,6 +349,7 @@
   </bundle>
   <bundle id="blotter.js">
     <fragment>/scripts/og/blotter/og.blotter.dialog.js</fragment>
+    <fragment>/scripts/og/blotter/og.blotter.util.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.vanilla_swap.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.variance_swap.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.swaption.js</fragment>

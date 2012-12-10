@@ -22,6 +22,10 @@ $.register_module({
                         module: 'og.blotter.forms.blocks.security_tash',
                         extras: {}
                     }),
+                    new form.Block({
+                        module: 'og.blotter.forms.blocks.bond_future_tash',
+                        extras: {}
+                    }),
                      new form.Block({
                         module: 'og.blotter.forms.blocks.security_ids_tash',
                         extras: {}
