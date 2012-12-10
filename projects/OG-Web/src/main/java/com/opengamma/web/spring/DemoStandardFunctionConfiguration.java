@@ -389,6 +389,7 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.defaultp
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfacePrimitiveDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceSecurityDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceTradeDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.PureBlackVolatilitySurfacePrimitiveDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.pure.PureBlackVolatilitySurfaceDividendCorrectionFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.pure.PureBlackVolatilitySurfaceNoDividendCorrectionFunction;
 import com.opengamma.financial.analytics.timeseries.DefaultHistoricalTimeSeriesShiftFunction;
@@ -433,6 +434,7 @@ import com.opengamma.financial.value.PositionValueFunction;
 import com.opengamma.financial.value.SecurityValueFunction;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.web.spring.defaults.EquityBlackVolatilitySurfaceDefaultValues;
 import com.opengamma.web.spring.defaults.GeneralBlackVolatilityInterpolationDefaults;
 import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
 import com.opengamma.web.spring.defaults.TargetSpecificBlackVolatilitySurfaceDefaults;
@@ -1324,12 +1326,17 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.SABR.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.Spline.class.getName())); 
 
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfacePrimitiveDefaults.class.getName(), 
-        TargetSpecificBlackVolatilitySurfaceDefaults.getAllEquityDefaults()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceSecurityDefaults.class.getName(), 
-        TargetSpecificBlackVolatilitySurfaceDefaults.getAllEquityDefaults()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceTradeDefaults.class.getName(), 
-        TargetSpecificBlackVolatilitySurfaceDefaults.getAllEquityDefaults()));
+//    final List<String> defaults = EquityBlackVolatilitySurfaceDefaultValues.builder()
+//        .useTickers()
+//        .useForwardCurveNames()
+//        .useForwardCurveCalculationMethodNames()
+//        .useDiscountingCurveCurrency()
+//        .useForwardCurveCalculationConfigNames()
+//        .useVolatilitySurfaceNames()
+//        .createDefaults();
+//    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfacePrimitiveDefaults.class.getName(), defaults));
+//    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceSecurityDefaults.class.getName(), defaults));
+//    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceTradeDefaults.class.getName(), defaults));
   }
   
   private static void addCommodityBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
@@ -1365,6 +1372,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(PureBlackVolatilitySurfaceNoDividendCorrectionFunction.Spline.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(PureBlackVolatilitySurfaceDividendCorrectionFunction.Spline.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(AffineDividendFunction.class.getName()));
+    
+//    List<String> defaults = EquityBlackVolatilitySurfaceDefaultValues.builder()
+//        .useTickers()
+//        .useDiscountingCurveNames()
+//        .useDiscountingCurveCurrency()
+//        .useDiscountingCurveCalculationConfigNames()
+//        .useVolatilitySurfaceNames()
+//        .createDefaults();
+//    functionConfigs.add(new ParameterizedFunctionConfiguration(PureBlackVolatilitySurfacePrimitiveDefaults.class.getName(), defaults));
   }
 
   private static void addSABRCalculators(final List<FunctionConfiguration> functionConfigs) {
