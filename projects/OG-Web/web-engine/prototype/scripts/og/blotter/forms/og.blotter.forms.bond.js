@@ -7,29 +7,34 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function () {
-            var constructor = this, id_block, security_block, 
-            id_selector = '.og-blotter-security-id',
-            option = Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>');
-
+            var constructor = this, bond = {}, ids = {}, security = {}, 
+            option = Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
+            dropdown = '.og-blotter-security-select';
+            bond.selector = '.og-blocks-bond';
+            ids.selector = '.og-blocks-security_ids';
 
             var FAKE_DROPDOWN = [
-                {name:'Bond 1', value:'1'},
-                {name:'Bond 2', value:'2'},
-                {name:'Bond 3', value:'3'},
-                {name:'Bond 4', value:'4'}];
-
+                {name:'Bond 1', value:'0'},
+                {name:'Bond 2', value:'1'},
+                {name:'Bond 3', value:'2'},
+                {name:'Bond 4', value:'3'}];
             var FAKE_IDS = [
                 {bloomberg:'bloomberg 1', ric: 'ric 1', cusip: 'cusip 1', isin: 'isin 1', sedol: 'sedol 1'},
                 {bloomberg:'bloomberg 2', ric: 'ric 2', cusip: 'cusip 2', isin: 'isin 2', sedol: 'sedol 2'},
                 {bloomberg:'bloomberg 3', ric: 'ric 3', cusip: 'cusip 3', isin: 'isin 3', sedol: 'sedol 3'},
                 {bloomberg:'bloomberg 4', ric: 'ric 4', cusip: 'cusip 4', isin: 'isin 4', sedol: 'sedol 4'}];
 
-            var update_block = function (block, extras){
-                block.config.extras = extras;
-                block.html(function (html) {
-                    console.log(html );
-                        $(id_selector).html(html);
-                    });
+            var FAKE_BOND = [
+                {issuer:'issuer 1',currency: 'currency 1',coupon_type: 'type 1',coupon_rate: 'rate 1',date: 'date 1'},
+                {issuer:'issuer 2',currency: 'currency 2',coupon_type: 'type 2',coupon_rate: 'rate 2',date: 'date 2'},
+                {issuer:'issuer 3',currency: 'currency 3',coupon_type: 'type 3',coupon_rate: 'rate 3',date: 'date 3'},
+                {issuer:'issuer 4',currency: 'currency 4',coupon_type: 'type 4',coupon_rate: 'rate 4',date: 'date 4'}];
+
+            var update_block = function (section, extras){
+                section.block.html(function (html) {
+                    console.log(html);
+                        $(section.selector).html(html);
+                    }, extras);
             };
 
             constructor.load = function () {
@@ -42,28 +47,33 @@ $.register_module({
                     extras: {}
                 });
                 form.children.push(
-                    security_block = new form.Block({
+                    security.block = new form.Block({
                         module: 'og.blotter.forms.blocks.security_tash',
                         extras: {}
                     }),
-                    id_block = new form.Block({
+                    bond.block = new form.Block({
+                        module: 'og.blotter.forms.blocks.bond_tash',
+                        extras: {}
+                    }),                    
+                    ids.block = new form.Block({
                         module: 'og.blotter.forms.blocks.security_ids_tash',
-                        extras: {bloomberg:'dafdfsdfs'}
+                        extras: {}
                     }),
                     new og.common.util.ui.Attributes({form: form})
                 );
                 form.dom();
 
                 form.on('form:load', function () {
-                    var $select = $(id_selector);
+                    var $select = $(dropdown);
                     FAKE_DROPDOWN.forEach(function (datum) {
                         var $option = $('<option/>').val(datum.value).html(datum.name);
                         $select.append($option);
                     });
                 });
 
-                security_block.on('change', '.og-blotter-security-id', function (event) {
-                    update_block(id_block, FAKE_IDS[event.target.value]);
+                security.block.on('change', dropdown, function (event) {
+                    update_block(ids, FAKE_IDS[event.target.value]);
+                    update_block(bond, FAKE_BOND[event.target.value]);
                 });
             }; 
             constructor.load();
