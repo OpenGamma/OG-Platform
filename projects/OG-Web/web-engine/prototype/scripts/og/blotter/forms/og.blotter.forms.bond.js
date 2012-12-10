@@ -32,9 +32,8 @@ $.register_module({
 
             var update_block = function (section, extras){
                 section.block.html(function (html) {
-                    console.log(html);
-                        $(section.selector).html(html);
-                    }, extras);
+                    $(section.selector).html(html);
+                }, extras);
             };
 
             constructor.load = function () {
