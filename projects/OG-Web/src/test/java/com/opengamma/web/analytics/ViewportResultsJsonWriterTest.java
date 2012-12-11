@@ -81,7 +81,7 @@ public class ViewportResultsJsonWriterTest {
     List<ViewportResults.Cell> results = createResults(null, null);
     ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(null), DURATION);
     String json = _writer.getJson(viewportResults);
-    String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"\",\"t\":\"PRIMITIVE\"}]}";
+    String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"\",\"t\":\"STRING\"}]}";
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
   }
 
@@ -122,4 +122,6 @@ public class ViewportResultsJsonWriterTest {
     String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"3.0\",\"h\":[1,null,3]}]}";
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
   }
+
+  // TODO tests for log output
 }

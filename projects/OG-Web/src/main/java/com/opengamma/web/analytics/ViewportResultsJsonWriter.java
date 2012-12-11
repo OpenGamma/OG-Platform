@@ -37,18 +37,12 @@ import com.opengamma.web.server.conversion.DoubleValueOptionalDecimalPlaceFormat
  */
 public class ViewportResultsJsonWriter {
 
-  /**
-   * Version field
-   */
-  public static final String VERSION = "version";
-
+  private static final String VERSION = "version";
   private static final String VALUE = "v";
   private static final String HISTORY = "h";
   private static final String TYPE = "t";
   private static final String DATA = "data";
   private static final String ERROR = "error";
-  private static final String POSITION_ID = "positionId";
-  private static final String NODE_ID = "nodeId";
   private static final String CALCULATION_DURATION = "calculationDuration";
   private static final String LOG_LEVEL = "logLevel";
   private static final String LOG_OUTPUT = "logOutput";
@@ -68,7 +62,7 @@ public class ViewportResultsJsonWriter {
     _formatter = formatter;
   }
 
-  // TODO use a Freemarker template
+  // TODO use a Freemarker template - will that perform well enough?
   public String getJson(ViewportResults viewportResults) {
     List<ViewportResults.Cell> viewportCells = viewportResults.getResults();
     List<Object> results = Lists.newArrayListWithCapacity(viewportCells.size());

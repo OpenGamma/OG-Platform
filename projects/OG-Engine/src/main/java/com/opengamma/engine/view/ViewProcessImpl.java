@@ -235,8 +235,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       for (ViewResultListener listener : _listeners) {
         try {
           UserPrincipal listenerUser = listener.getUser();
-          boolean hasMarketDataPermissions =
-              permissionProvider.checkMarketDataPermissions(listenerUser, marketDataRequirements).isEmpty();
+          boolean hasMarketDataPermissions = listenerUser != null ? permissionProvider.checkMarketDataPermissions(listenerUser, marketDataRequirements).isEmpty() : true;
           listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
         } catch (Exception e) {
           logListenerError(listener, e);

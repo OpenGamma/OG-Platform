@@ -25,9 +25,9 @@ import com.opengamma.livedata.UserPrincipal;
  */
 public class BatchDbViewResultListener implements ViewResultListener {
 
+  private final BatchRunWriter _batchRunWriter;
+  
   private RiskRun _riskRun;
-
-  private BatchRunWriter _batchRunWriter;
 
   public BatchDbViewResultListener(BatchRunWriter batchRunWriter) {
     _batchRunWriter = batchRunWriter;
