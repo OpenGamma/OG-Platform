@@ -18,6 +18,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
+import com.opengamma.engine.view.calc.DefaultAggregatedExecutionLog;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 
 /**
@@ -53,7 +54,7 @@ public class ComputedValueResultFudgeBuilder implements FudgeBuilder<ComputedVal
   public ComputedValueResult buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     ValueSpecification valueSpec = ComputedValueFudgeBuilder.getValueSpecification(deserializer, msg);
     Object valueObject = ComputedValueFudgeBuilder.getValueObject(deserializer, msg);
-    AggregatedExecutionLog aggregatedExecutionLog = deserializer.fieldValueToObject(AggregatedExecutionLog.class, msg.getByName(AGGREGATED_EXECUTION_LOG_FIELD));
+    AggregatedExecutionLog aggregatedExecutionLog = deserializer.fieldValueToObject(DefaultAggregatedExecutionLog.class, msg.getByName(AGGREGATED_EXECUTION_LOG_FIELD));
     String computeNodeId = msg.getString(COMPUTE_NODE_ID_FIELD);
     FudgeField missingInputsField = msg.getByName(MISSING_INPUTS_FIELD_NAME);
     Set<ValueSpecification> missingInputs = missingInputsField != null ? deserializer.fieldValueToObject(Set.class, missingInputsField) : null;
