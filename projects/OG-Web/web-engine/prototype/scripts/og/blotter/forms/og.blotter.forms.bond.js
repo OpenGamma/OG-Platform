@@ -21,6 +21,7 @@ $.register_module({
                     extras: {}
                 });
                 form.children.push(
+                    new og.blotter.forms.blocks.Portfolio({form: form}),
                     security.block = new form.Block({
                         module: 'og.blotter.forms.blocks.security_tash',
                         extras: {}

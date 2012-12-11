@@ -18,6 +18,7 @@ $.register_module({
                     extras:{}
                 });
                 form.children.push(
+                    new og.blotter.forms.blocks.Portfolio({form: form}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_derivative_value_tash',
                         extras: {forward:true}
