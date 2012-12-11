@@ -28,7 +28,9 @@ $.register_module({
                     .map(function (row, idx) {return rows[idx] + tab + row.join(tab);}).join(line);
             },
             LABELLED_MATRIX_3D: function (value, single) {return '**3D MATRIX**';},
-            PRIMITIVE: function (value) {return value.v || '';},
+            NODE_ID: function (value) {return value.v || '';},
+            POSITION_ID: function (value) {return value.v || '';},
+            STRING: function (value) {return value.v || '';},
             SURFACE_DATA: function (value, single) {
                 if (!single) return value.v || '**SURFACE DATA**';
                 var rows, cols, data, index = 0, row_len, col_len, i, j, result, row;
