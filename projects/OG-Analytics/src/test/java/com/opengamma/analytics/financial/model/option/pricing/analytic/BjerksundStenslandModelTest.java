@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
@@ -26,6 +27,22 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
   public void test() {
     // Deprecated form used for this test 
     super.assertValid(new BjerksundStenslandModelDeprecated(), 1e-4);
+  }
+
+  @Test
+  public void priceTest() {
+    final double s0 = 120;
+    final double r = 0.08;
+    final double q = 0.12;
+    final double b = r - q;
+    final double k = 100.0;
+    final double t = 0.25;
+    final double sigma = 0.4;
+
+    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final double eurPrice = Math.exp(-r * t) * BlackFormulaRepository.price(s0 * Math.exp(b * t), k, t, sigma, true);
+    final double amPrice = bs.price(s0, k, r, b, t, sigma, true);
+    System.out.println(eurPrice + "\t" + amPrice);
   }
 
   @Test

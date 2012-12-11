@@ -264,7 +264,7 @@ public class BjerksundStenslandModel {
   public double[] getPriceAdjoint(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
     if (isCall) {
       return getCallPriceAdjoint(s0, k, r, b, t, sigma);
-    } 
+    }
     return getPutPriceAdjoint(s0, k, r, b, t, sigma);
   }
 
@@ -437,7 +437,6 @@ public class BjerksundStenslandModel {
         + phi6Adj[7] * phi6Bar + phi5Adj[7] * phi5Bar + phi4Adj[7] * phi4Bar + phi3Adj[7] * phi3Bar + phi2Adj[7] * phi2Bar + phi1Adj[7] * phi1Bar
         + x2Adj[3] * x2Bar + x1Adj[3] * x1Bar + betaAdj[2] * betaBar;
 
-    //TODO tBar is wrong - cannot find why
     final double tBar = psi5Adj[2] * psi5Bar + psi4Adj[2] * psi4Bar + psi3Adj[2] * psi3Bar + psi2Adj[2] * psi2Bar + psi1Adj[2] * psi1Bar
         + (phi6Adj[2] * phi6Bar + phi5Adj[2] * phi5Bar + phi4Adj[2] * phi4Bar + phi3Adj[2] * phi3Bar + phi2Adj[2] * phi2Bar + phi1Adj[2] * phi1Bar)
         + x2Adj[5] * x2Bar + x1Adj[5] * x1Bar;
@@ -576,11 +575,12 @@ public class BjerksundStenslandModel {
   }
 
   /**
+   * access given for tests - expert use only <p>
    * get alpha and its sensitivity to k, x (I) and beta
-   * @param k The strike 
-   * @param x x
+   * @param k strike
+   * @param x I
    * @param beta beta
-   * @return The adjoints of alpha
+   * @return length 4 array of alpha and its sensitivity to k, x (I) and beta
    */
   protected double[] getAlphaAdjoint(final double k, final double x, final double beta) {
 
@@ -601,11 +601,13 @@ public class BjerksundStenslandModel {
   }
 
   /**
+   * access given for tests - expert use only <p>
    * Get lambda and its sensitivity to gamma, r, b and sigma-squared
-   * @param gamma gamma
-   * @param r the interest rate
-   * @param b the cost-of-carry
-   * @param sigmaSq volatility squared
+   * @param gamma If this is set to 0 or 1, then the gamma sensitivity should be ignored  
+   * @param r risk-free rate 
+   * @param b cost-of-carry
+   * @param sigmaSq volatility squared 
+
    * @return length 5 array of lambda and its sensitivity to gamma, r, b and sigma-squared
    */
   protected double[] getLambdaAdjoint(final double gamma, final double r, final double b, final double sigmaSq) {
@@ -620,10 +622,11 @@ public class BjerksundStenslandModel {
   }
 
   /**
-   * Get kappa and its sensitivity to gamma, b and sigma-squared
-   * @param gamma gamma
+   * access given for tests - expert use only <p>
+   * Get kappa and its sensitivity to gamma, b and sigma-squared 
+   * @param gamma If this is set to 0 or 1, then the gamma sensitivity should be ignored  
    * @param b cost-of-carry
-   * @param sigmaSq volatility squared
+   * @param sigmaSq volatility squared 
    * @return length 4 array of kappa and its sensitivity to gamma, b and sigma-squared
    */
   protected double[] getKappaAdjoint(final double gamma, final double b, final double sigmaSq) {
@@ -637,16 +640,17 @@ public class BjerksundStenslandModel {
   }
 
   /**
-   * get phi and its sensitivity to s, t, gamma, h, x (I), r, b & sigma
-   * @param s the strike
-   * @param t the time to expiry
-   * @param gamma gamma If this is set to 0 or 1, then the gamma sensitivity should be ignored
-   * @param h h
-   * @param x x
-   * @param r the interest rate
-   * @param b the cost-of-carry
-   * @param sigma The volatility
-   * @return length 9 array of  phi and its sensitivity to s, t, gamma, h, x (I), r, b & sigma
+   * access given for tests - expert use only <p>
+   * get phi and its sensitivity to s, t, gamma, h, x (I), r, b & sigma  
+   * @param s spot
+   * @param t expiry
+   * @param gamma If this is set to 0 or 1, then the gamma sensitivity should be ignored  
+   * @param h H
+   * @param x I
+   * @param r risk-free rate
+   * @param b cost-of-carry
+   * @param sigma volatility 
+   * @return length 9 array of  phi and its sensitivity to s, t, gamma, h, x (I), r, b & sigma 
    */
   protected double[] getPhiAdjoint(final double s, final double t, final double gamma, final double h, final double x, final double r, final double b,
       final double sigma) {
@@ -778,16 +782,17 @@ public class BjerksundStenslandModel {
   }
 
   /**
+   * access given for tests - expert use only <p>
    * get Psi and its sensitivity to s, t, gamma, h, x2, x1, r, b and sigma
-   * @param s The spot
-   * @param t The time to expiry
-   * @param gamma gamma
-   * @param h h 
-   * @param x2 x2
-   * @param x1 x1
-   * @param r The interest rate
-   * @param b The cost-of-carry
-   * @param sigma The volatility 
+   * @param s spot
+   * @param t expiry
+   * @param gamma If this is set to 0 or 1, then the gamma sensitivity should be ignored  
+   * @param h H
+   * @param x2 I2
+   * @param x1 I1
+   * @param r risk-free rate
+   * @param b cost-of-carry
+   * @param sigma volatility 
    * @return array of length 10 of Psi and its sensitivity to s, t, gamma, h, x2, x1, r, b and sigma
    */
   protected double[] getPsiAdjoint(final double s, final double t, final double gamma, final double h, final double x2, final double x1,
@@ -992,11 +997,12 @@ public class BjerksundStenslandModel {
   }
 
   /**
-   * Get the first and second derivatives of the bi-variate normal with respect to a and b (rho is fixed)
-   * @param a first coordinate
-   * @param b second coordinate
-   * @param posRho true if RHO used, false is -RHO used
-   * @return array of length 5 in order dB/da, dB/db, d^2B/da^2, d^2B/db^2, d^2B/dadb
+   * access given for tests - expert use only <p>
+   * Get the first and second derivatives of the bi-variate normal with repect to a and b (rho is fixed)
+   * @param a first cooridinate 
+   * @param b second cooridinate 
+   * @param posRho true if RHO used, false is -RHO used 
+   * @return array of length 5 in order, dB/da, dB/db, d^2B/da^2, d^2B/db^2, d^2B/dadb 
    */
   protected double[] bivariateNormDiv(final double a, final double b, final boolean posRho) {
 
@@ -1020,10 +1026,11 @@ public class BjerksundStenslandModel {
   }
 
   /**
+   * access given for tests - expert use only <p>
    * Get beta and its sensitivity to r, b and sigma-squared
-   * @param r The interest rate
-   * @param b The cost-of-carry
-   * @param sigmaSq The volatility squared
+   * @param r risk-free rate
+   * @param b cost-of-carry
+   * @param sigmaSq volatility squared 
    * @return length 4 array of beta and its sensitivity to r, b and sigma-squared
    */
   protected double[] getBetaAdjoint(final double r, final double b, final double sigmaSq) {
@@ -1049,12 +1056,13 @@ public class BjerksundStenslandModel {
   }
 
   /**
+   * access given for tests - expert use only <p>
    * get I1 and its sensitivity to k, r, b, sigma & t
-   * @param k The strike
-   * @param r The interest rate
-   * @param b The cost-of-carry
-   * @param sigma The volatility
-   * @param t The time to expiry
+   * @param k strike
+   * @param r risk-free rate
+   * @param b cost-of-carry
+   * @param sigma volatility 
+   * @param t expiry
    * @return length 6 array of  I1 and its sensitivity to k, r, b, sigma & t
    */
   protected double[] getI1Adjoint(final double k, final double r, final double b, final double sigma, final double t) {
@@ -1062,12 +1070,14 @@ public class BjerksundStenslandModel {
   }
 
   /**
+   * access given for tests - expert use only <p>
    * get I2 and its sensitivity to k, r, b, sigma & t
-   * @param k The strike
-   * @param r The interest rate
-   * @param b The cost-of-carry
-   * @param sigma The volatility
-   * @param t The time to expiry
+   * @param k strike
+   * @param r risk-free rate
+   * @param b cost-of-carry
+   * @param sigma volatility 
+   * @param t expiry
+
    * @return length 6 array of  I2 and its sensitivity to k, r, b, sigma & t
    */
   protected double[] getI2Adjoint(final double k, final double r, final double b, final double sigma, final double t) {
