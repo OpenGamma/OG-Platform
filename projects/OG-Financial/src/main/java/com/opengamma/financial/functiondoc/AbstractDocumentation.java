@@ -652,6 +652,9 @@ public abstract class AbstractDocumentation implements Runnable {
    */
   protected void emitSecurityTypePage(final String securityType) {
     final StringBuilder sb = new StringBuilder();
+    sb.append("This page lists the value requirements that can be requested at the position level for this asset class. The properties listed may not " +
+        "be produced by all functions. Where multiple functions are available for a given value requirement (for example the alternative calculation " +
+        "methods available in the analytics library) each might only produce a subset of the properties given here.\n\n");
     final Map<String, Set<ValueProperties>> valueRequirements = new HashMap<String, Set<ValueProperties>>();
     for (final AvailableOutput output : _availableOutputsBySecurityType.get(securityType)) {
       storeMapSet(output.getValueName(), output.getPositionProperties(securityType), valueRequirements);
@@ -677,6 +680,10 @@ public abstract class AbstractDocumentation implements Runnable {
    */
   protected void emitAggregationPage() {
     final StringBuilder sb = new StringBuilder();
+    sb.append("This page lists the value requirements that can be requested at the aggregate level, if the component positions support them. " +
+        "The properties listed may not be produced by all functions. Where multiple functions are available for a given value requirement, for " +
+        "example the alternative calculation methods available in the analytics library, or a node contains positions in a range of asset classes, " +
+        "each might only produce a subset of the properties given here.\n\n");
     final Map<String, Set<ValueProperties>> valueRequirements = new HashMap<String, Set<ValueProperties>>();
     for (final AvailableOutput output : _availableOutputsBySecurityType.get("")) {
       storeMapSet(output.getValueName(), output.getPortfolioNodeProperties(), valueRequirements);
