@@ -16,7 +16,7 @@ import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePr
 /**
  * 
  */
-public abstract class EquityBlackVolatilitySurfaceDefaultValues {
+public abstract class EquityInstrumentDefaultValues {
   private static final Map<String, String> TICKERS = new HashMap<String, String>(); 
   private static final Map<String, String> DISCOUNTING_CURVE_NAMES = new HashMap<String, String>();
   private static final Map<String, String> FORWARD_CURVE_NAMES = new HashMap<String, String>();
@@ -72,7 +72,7 @@ public abstract class EquityBlackVolatilitySurfaceDefaultValues {
     List<String> createDefaults();
   }
   
-  private EquityBlackVolatilitySurfaceDefaultValues() {
+  private EquityInstrumentDefaultValues() {
   }
 
   public static Builder builder() {
