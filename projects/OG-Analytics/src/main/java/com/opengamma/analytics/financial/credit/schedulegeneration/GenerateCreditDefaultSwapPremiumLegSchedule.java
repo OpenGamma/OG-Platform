@@ -418,7 +418,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to take an input 'date' and adjust it to a business day (if necessary) according to the specified adjustment convention
-  private ZonedDateTime businessDayAdjustDate(final ZonedDateTime date, final Calendar calendar, final BusinessDayConvention businessdayAdjustmentConvention) {
+  public ZonedDateTime businessDayAdjustDate(final ZonedDateTime date, final Calendar calendar, final BusinessDayConvention businessdayAdjustmentConvention) {
 
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(calendar, "Calendar");
