@@ -12,20 +12,20 @@ import java.util.Arrays;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
-import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
 /**
+ * Bjerksund and Stensland model test.
  * 
  */
 public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest {
 
   private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   @Test
   public void test() {
-    super.assertValid(new BjerksundStenslandModel(), 1e-4);
+    // Deprecated form used for this test 
+    super.assertValid(new BjerksundStenslandModelDeprecated(), 1e-4);
   }
 
   @Test

@@ -65,6 +65,8 @@ public class ResultsFormatter {
                   new HistoricalTimeSeriesBundleFormatter(),
                   new VolatilitySurfaceSpecificationFormatter(),
                   new CurrencyPairsFormatter(),
+                  new NodeTargetFormatter(),
+                  new PositionTargetFormatter(),
                   new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter());
   }
 

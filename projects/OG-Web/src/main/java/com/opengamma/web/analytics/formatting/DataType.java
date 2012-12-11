@@ -9,7 +9,9 @@ package com.opengamma.web.analytics.formatting;
  *
  */
 public enum DataType {
-  PRIMITIVE,
+  POSITION_ID,
+  NODE_ID,
+  STRING,
   DOUBLE,
   CURVE,
   SURFACE_DATA,

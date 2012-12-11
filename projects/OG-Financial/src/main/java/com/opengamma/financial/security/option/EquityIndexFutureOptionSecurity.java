@@ -133,7 +133,7 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1989774883:  // exchange
         return getExchange();
@@ -158,7 +158,7 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1989774883:  // exchange
         setExchange((String) newValue);
@@ -203,12 +203,12 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final EquityIndexFutureOptionSecurity other = (EquityIndexFutureOptionSecurity) obj;
+      EquityIndexFutureOptionSecurity other = (EquityIndexFutureOptionSecurity) obj;
       return JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
           JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
           JodaBeanUtils.equal(getExerciseType(), other.getExerciseType()) &&
@@ -251,7 +251,7 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
    * Sets the exchange.
    * @param exchange  the new value of the property, not null
    */
-  public void setExchange(final String exchange) {
+  public void setExchange(String exchange) {
     JodaBeanUtils.notNull(exchange, "exchange");
     this._exchange = exchange;
   }
@@ -277,7 +277,7 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
    * Sets the expiry.
    * @param expiry  the new value of the property, not null
    */
-  public void setExpiry(final Expiry expiry) {
+  public void setExpiry(Expiry expiry) {
     JodaBeanUtils.notNull(expiry, "expiry");
     this._expiry = expiry;
   }
@@ -303,7 +303,7 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
    * Sets the exercise type.
    * @param exerciseType  the new value of the property, not null
    */
-  public void setExerciseType(final ExerciseType exerciseType) {
+  public void setExerciseType(ExerciseType exerciseType) {
     JodaBeanUtils.notNull(exerciseType, "exerciseType");
     this._exerciseType = exerciseType;
   }
@@ -329,7 +329,7 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
    * Sets the underlying identifier.
    * @param underlyingId  the new value of the property, not null
    */
-  public void setUnderlyingId(final ExternalId underlyingId) {
+  public void setUnderlyingId(ExternalId underlyingId) {
     JodaBeanUtils.notNull(underlyingId, "underlyingId");
     this._underlyingId = underlyingId;
   }
@@ -355,7 +355,7 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
    * Sets the point value.
    * @param pointValue  the new value of the property
    */
-  public void setPointValue(final double pointValue) {
+  public void setPointValue(double pointValue) {
     this._pointValue = pointValue;
   }
 
@@ -380,7 +380,7 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
    * Sets is the option margined or not.
    * @param margined  the new value of the property
    */
-  public void setMargined(final boolean margined) {
+  public void setMargined(boolean margined) {
     this._margined = margined;
   }
 
@@ -405,7 +405,7 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
    * Sets the currency.
    * @param currency  the new value of the property, not null
    */
-  public void setCurrency(final Currency currency) {
+  public void setCurrency(Currency currency) {
     JodaBeanUtils.notNull(currency, "currency");
     this._currency = currency;
   }
@@ -431,7 +431,7 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
    * Sets the strike.
    * @param strike  the new value of the property
    */
-  public void setStrike(final double strike) {
+  public void setStrike(double strike) {
     this._strike = strike;
   }
 
@@ -456,7 +456,7 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
    * Sets the option type.
    * @param optionType  the new value of the property, not null
    */
-  public void setOptionType(final OptionType optionType) {
+  public void setOptionType(OptionType optionType) {
     JodaBeanUtils.notNull(optionType, "optionType");
     this._optionType = optionType;
   }
@@ -546,7 +546,7 @@ public class EquityIndexFutureOptionSecurity extends FinancialSecurity {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 1989774883:  // exchange
           return _exchange;

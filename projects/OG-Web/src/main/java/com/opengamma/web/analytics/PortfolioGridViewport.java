@@ -53,9 +53,9 @@ import com.opengamma.id.UniqueId;
       // TODO end hack
       ComputationTargetType targetType = target.getType();
       if (targetType == ComputationTargetType.POSITION) {
-        return ViewportResults.positionCell(row.getName(), colIndex, targetId);
+        return ViewportResults.objectCell(new PositionTarget(row.getName(), targetId), colIndex);
       } else if (targetType == ComputationTargetType.PORTFOLIO_NODE) {
-        return ViewportResults.nodeCell(row.getName(), colIndex, targetId);
+        return ViewportResults.objectCell(new NodeTarget(row.getName(), targetId), colIndex);
       }
       throw new IllegalArgumentException("Unexpected target type for row: " + targetType);
     } else if (colIndex == QUANTITY_COLUMN) {

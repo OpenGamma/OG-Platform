@@ -129,17 +129,17 @@ public class DependencyGraphGridStructure implements GridStructure {
                                                           AggregatedExecutionLog executionLog) {
     switch (colIndex) {
       case TARGET_COL:
-        return ViewportResults.stringCell(getTargetName(valueSpec.getTargetSpecification()), colIndex);
+        return ViewportResults.objectCell(getTargetName(valueSpec.getTargetSpecification()), colIndex);
       case TARGET_TYPE_COL:
-        return ViewportResults.stringCell(getTargetTypeName(valueSpec.getTargetSpecification().getType()), colIndex);
+        return ViewportResults.objectCell(getTargetTypeName(valueSpec.getTargetSpecification().getType()), colIndex);
       case VALUE_NAME_COL:
-        return ViewportResults.stringCell(valueSpec.getValueName(), colIndex);
+        return ViewportResults.objectCell(valueSpec.getValueName(), colIndex);
       case VALUE_COL:
         return ViewportResults.valueCell(value, valueSpec, history, executionLog, colIndex);
       case FUNCTION_NAME_COL:
-        return ViewportResults.stringCell(fnName, colIndex);
+        return ViewportResults.objectCell(fnName, colIndex);
       case PROPERTIES_COL:
-        return ViewportResults.stringCell(getValuePropertiesForDisplay(valueSpec.getProperties()), colIndex);
+        return ViewportResults.objectCell(getValuePropertiesForDisplay(valueSpec.getProperties()), colIndex);
       default: // never happen
         throw new IllegalArgumentException("Column index " + colIndex + " is invalid");
     }

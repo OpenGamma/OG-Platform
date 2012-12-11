@@ -68,15 +68,14 @@ public class ViewportResultsJsonWriter {
     _formatter = formatter;
   }
 
-  // TODO use a Freemarker template? this is getting a bit complex, a template might make it easier to understand
+  // TODO use a Freemarker template
   public String getJson(ViewportResults viewportResults) {
     List<ViewportResults.Cell> viewportCells = viewportResults.getResults();
     List<Object> results = Lists.newArrayListWithCapacity(viewportCells.size());
     for (ViewportResults.Cell cell : viewportCells) {
-      Object formattedValue;
       Object cellValue = cell.getValue();
       ValueSpecification cellValueSpec = cell.getValueSpecification();
-      formattedValue = _formatter.format(cellValue, cellValueSpec, viewportResults.getFormat());
+      Object formattedValue = _formatter.format(cellValue, cellValueSpec, viewportResults.getFormat());
       Collection<Object> history = cell.getHistory();
       Class<?> columnType = viewportResults.getColumnType(cell.getColumn());
       DataType columnFormat = _formatter.getDataType(columnType);
@@ -94,12 +93,6 @@ public class ViewportResultsJsonWriter {
       }
       if (cell.isError() || isError(formattedValue)) {
         valueMap.put(ERROR, true);
-      }
-      if (cell.getPositionId() != null) {
-        valueMap.put(POSITION_ID, cell.getPositionId());
-      }
-      if (cell.getNodeId() != null) {
-        valueMap.put(NODE_ID, cell.getNodeId());
       }
       if (logLevel != null) {
         valueMap.put(LOG_LEVEL, logLevel);

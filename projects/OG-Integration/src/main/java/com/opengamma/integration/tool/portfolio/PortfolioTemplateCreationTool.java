@@ -28,21 +28,23 @@ public class PortfolioTemplateCreationTool {
   private static final String HELP_OPTION = "h";
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
+  /** Logback flag (ignored) */
+  private static final String LOGBACK_OPTION = "l";
 
   /** The list of security types - needs to be updated whenever a new sec type is added to the system */
   private static final String[] s_securityTypes = {
-      "Bond", "CorporateBond", "GovernmentBond", "MunicipalBond",
+      "CorporateBond", "GovernmentBond", "MunicipalBond",
       "CapFloorCMSSpread", "CapFloor",
       "Cash",
+      "CDS", "LegacyFixedRecoveryCDS", "LegacyRecoveryLockCDS", "LegacyVanillaCDS", "StandardFixedRecoveryCDS", "StandardRecoveryLockCDS", "StandardVanillaCDS",
       "ContinuousZeroDeposit", "PeriodicZeroDeposit", "SimpleZeroDeposit",
       "Equity", "EquityVarianceSwap",
       "AgricultureForward", "CommodityForward", "EnergyForward", "MetalForward",
       "FRA",
       "AgricultureFuture", "BondFuture", "CommodityFuture", "EnergyFuture", "EquityFuture", "EquityIndexDividendFuture", "Future", "FXFuture", "IndexFuture", "InterestRateFuture", "MetalFuture", "StockFuture",
       "FXForward", "NonDeliverableFXForward",
-      "BondFutureOption", "CommodityFutureOption", "EquityBarrierOption", "EquityIndexDividendFutureOption", "EquityIndexOption", "EquityOption", "FXBarrierOption", "FXDigitalOption", "FXOption", "IRFutureOption", "NonDeliverableFXDigitalOption", "NonDeliverableFXOption",
+      "BondFutureOption", "CommodityFutureOption", "EquityBarrierOption", "EquityIndexDividendFutureOption", "EquityIndexFutureOption", "EquityIndexOption", "EquityOption", "FXBarrierOption", "FXDigitalOption", "FXOption", "IRFutureOption", "NonDeliverableFXDigitalOption", "NonDeliverableFXOption",
       "ForwardSwap", "Swap"
-
   };
 
   /**
@@ -114,6 +116,11 @@ public class PortfolioTemplateCreationTool {
         HELP_OPTION, "help", false,
         "prints this message");
     options.addOption(helpOption);
+
+    Option logbackOption = new Option(
+        LOGBACK_OPTION, "logback", true,
+        "Logback (ignored)");
+    options.addOption(logbackOption);
 
     return options;
   }

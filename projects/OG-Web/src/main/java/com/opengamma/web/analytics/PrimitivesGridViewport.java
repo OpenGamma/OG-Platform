@@ -30,7 +30,7 @@ import com.opengamma.engine.view.calc.ViewCycle;
   @Override
   protected ViewportResults.Cell getFixedColumnResult(int rowIndex, int colIndex, MainGridStructure.Row row) {
     if (colIndex == LABEL_COLUMN) {
-      return ViewportResults.stringCell(row.getName(), colIndex);
+      return ViewportResults.objectCell(row.getName(), colIndex);
     }
     throw new IllegalArgumentException("Column " + colIndex + " is not fixed");
   }
