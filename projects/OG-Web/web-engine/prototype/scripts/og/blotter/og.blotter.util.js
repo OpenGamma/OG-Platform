@@ -14,6 +14,7 @@ $.register_module({
             },
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
             FAKE_DROPDOWN : [
+                    {name:'Select', value:''},
                     {name:'Value 1', value:'0'},
                     {name:'Value 2', value:'1'},
                     {name:'Value 3', value:'2'},

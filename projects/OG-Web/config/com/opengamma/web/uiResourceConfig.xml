@@ -370,6 +370,7 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_fx_option.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_ir_swap.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_swaption.js</fragment>
+    <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.portfolio.js</fragment>
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
