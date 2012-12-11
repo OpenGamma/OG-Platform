@@ -7,10 +7,13 @@ $.register_module({
     dependencies: ['og.common.util.ui.Block'],
     obj: function () {
         var module = this, Block = og.common.util.ui.Block;
+        var level = function (element, path) {};
         var Portfolio = function (config) {
-            var block = this, form = config.form, id = og.common.id('portfolio'), root = config.root;
+            var block = this, id = og.common.id('portfolio'),
+                form = config.form, root = config.root, node = config.node;
             form.Block.call(block, {extras: {id: id}});
             block.id = id;
+            console.log(block.id);
         };
         Portfolio.prototype = new Block(null, {module: 'og.views.forms.portfolio_tash'}); // inherit Block prototype
         Portfolio.prototype.off = function () {

@@ -33,7 +33,7 @@ $.register_module({
                     options: {
                         source: source, child: true, col: cell.col, row: cell.row,
                         menu: false, datapoints_link: false, /* ONLY RELEVANT FOR TIMESERIES (be wary) */
-                        id: cell.value.positionId, editable: false, external_links: true /* ONLY EXPANDED POSITIONS */
+                        id: cell.value.v.id, editable: false, external_links: true /* ONLY EXPANDED POSITIONS */
                     },
                     row_name: cell.row_name, col_name: cell.col_name,
                     gadget_name: gadget_names[gadget_type],
@@ -60,14 +60,15 @@ $.register_module({
                 }
                 return types;
             },
-            depgraph_blacklist: ['DOUBLE', 'PRIMITIVE', 'TENOR', 'UNKNOWN'],
+            depgraph_blacklist: ['DOUBLE', 'STRING', 'TENOR', 'UNKNOWN'],
             data_type_map: {
                 CURVE                   : [1, 3, 6],
                 DOUBLE                  : [0, 6],
                 LABELLED_MATRIX_1D      : [0, 1, 6],
                 LABELLED_MATRIX_2D      : [0, 1, 6],
                 LABELLED_MATRIX_3D      : [0, 1, 6],
-                PRIMITIVE               : [5, 6],
+                POSITION_ID             : [5],
+                STRING                  : [0, 6],
                 SURFACE_DATA            : [2, 1, 0, 6],
                 UNPLOTTABLE_SURFACE_DATA: [1, 6],
                 TENOR                   : [0, 6],
