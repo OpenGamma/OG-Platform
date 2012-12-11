@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.batch.BatchMaster;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.config.ConfigSource;
@@ -57,6 +58,11 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private String _classifier;
 
+  /**
+   * The batch master.
+   */
+  @PropertyDefinition
+  private BatchMaster _batchMaster;
   /**
    * The config master.
    */
