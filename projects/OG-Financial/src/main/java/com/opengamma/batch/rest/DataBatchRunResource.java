@@ -8,8 +8,10 @@ package com.opengamma.batch.rest;
 import java.net.URI;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -18,6 +20,7 @@ import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.id.ObjectId;
+import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
@@ -75,8 +78,9 @@ public class DataBatchRunResource extends AbstractDataResource {
     return responseOkFudge(result);
   }
 
-  @GET
+  @POST
   @Path("values")
+  @Consumes(FudgeRest.MEDIA)
   public Response getBatchValues(PagingRequest pagingRequest) {
     Pair<List<ViewResultEntry>, Paging> result = getMaster().getBatchValues(_batchRunId, pagingRequest);
     return responseOkFudge(result);

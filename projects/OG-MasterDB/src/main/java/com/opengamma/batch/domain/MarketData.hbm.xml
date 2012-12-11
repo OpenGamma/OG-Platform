@@ -6,7 +6,7 @@
 
   <typedef class="com.opengamma.util.db.hibernate.types.PersistentCompositeUniqueId" name="unique_id"/>
   
-  <class name="com.opengamma.batch.domain.MarketData" table="rsk_live_data_snapshot">
+  <class name="com.opengamma.batch.domain.MarketData" table="rsk_live_data_snapshot" lazy="false">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
       	<param name="optimizer">hilo</param>

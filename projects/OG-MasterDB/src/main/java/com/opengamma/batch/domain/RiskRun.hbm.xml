@@ -12,7 +12,7 @@
   </typedef>
 
 
-  <class name="com.opengamma.batch.domain.RiskRun" table="rsk_run">
+  <class name="com.opengamma.batch.domain.RiskRun" table="rsk_run" lazy="false">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
         <param name="optimizer">hilo</param>
@@ -39,12 +39,12 @@
 
     <!--<property name="snapshotMode" column="snapshot_mode" type="snapshotModeEnumType"/>-->
     
-    <set name="properties" inverse="true">
+    <set name="properties" inverse="true" lazy="false">
       <key column="run_id"/>
       <one-to-many class="com.opengamma.batch.domain.RiskRunProperty"/>
     </set>
 
-    <set name="calculationConfigurations" inverse="true">
+    <set name="calculationConfigurations" inverse="true" lazy="false">
       <key column="run_id"/>
       <one-to-many class="com.opengamma.batch.domain.CalculationConfiguration"/>
     </set>
