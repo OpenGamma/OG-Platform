@@ -1324,17 +1324,17 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.SABR.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.Spline.class.getName())); 
 
-//    final List<String> defaults = EquityBlackVolatilitySurfaceDefaultValues.builder()
-//        .useTickers()
-//        .useForwardCurveNames()
-//        .useForwardCurveCalculationMethodNames()
-//        .useDiscountingCurveCurrency()
-//        .useForwardCurveCalculationConfigNames()
-//        .useVolatilitySurfaceNames()
-//        .createDefaults();
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfacePrimitiveDefaults.class.getName(), defaults));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceSecurityDefaults.class.getName(), defaults));
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceTradeDefaults.class.getName(), defaults));
+    final List<String> defaults = EquityBlackVolatilitySurfaceDefaultValues.builder()
+        .useTickers()
+        .useForwardCurveNames()
+        .useForwardCurveCalculationMethodNames()
+        .useDiscountingCurveCurrency()
+        .useForwardCurveCalculationConfigNames()
+        .useVolatilitySurfaceNames()
+        .createDefaults();
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfacePrimitiveDefaults.class.getName(), defaults));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceSecurityDefaults.class.getName(), defaults));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceTradeDefaults.class.getName(), defaults));
   }
   
   private static void addCommodityBlackVolatilitySurface(final List<FunctionConfiguration> functionConfigs) {
@@ -1371,14 +1371,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(PureBlackVolatilitySurfaceDividendCorrectionFunction.Spline.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(AffineDividendFunction.class.getName()));
     
-//    List<String> defaults = EquityBlackVolatilitySurfaceDefaultValues.builder()
-//        .useTickers()
-//        .useDiscountingCurveNames()
-//        .useDiscountingCurveCurrency()
-//        .useDiscountingCurveCalculationConfigNames()
-//        .useVolatilitySurfaceNames()
-//        .createDefaults();
-//    functionConfigs.add(new ParameterizedFunctionConfiguration(PureBlackVolatilitySurfacePrimitiveDefaults.class.getName(), defaults));
+    final List<String> defaults = EquityBlackVolatilitySurfaceDefaultValues.builder()
+        .useTickers()
+        .useDiscountingCurveNames()
+        .useDiscountingCurveCurrency()
+        .useDiscountingCurveCalculationConfigNames()
+        .useVolatilitySurfaceNames()
+        .createDefaults();
+    functionConfigs.add(new ParameterizedFunctionConfiguration(PureBlackVolatilitySurfacePrimitiveDefaults.class.getName(), defaults));
   }
 
   private static void addSABRCalculators(final List<FunctionConfiguration> functionConfigs) {

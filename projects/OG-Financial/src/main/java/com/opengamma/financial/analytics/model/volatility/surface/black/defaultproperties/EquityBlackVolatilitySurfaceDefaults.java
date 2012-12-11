@@ -76,7 +76,8 @@ public abstract class EquityBlackVolatilitySurfaceDefaults extends DefaultProper
       _tickerToCurveCalculationConfig.put(ticker, defaultsPerTicker[i + 4]);
       _tickerToSurfaceName.put(ticker, defaultsPerTicker[i + 5]);
     }
-    final int temp = 0;
+    int temp = 0;
+    temp = temp + 1;
   }
 
   @Override
