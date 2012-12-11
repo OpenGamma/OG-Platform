@@ -21,6 +21,6 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 
   @Override
   public DataType getDataType() {
-    return DataType.PRIMITIVE;
+    return DataType.STRING;
   }
 }

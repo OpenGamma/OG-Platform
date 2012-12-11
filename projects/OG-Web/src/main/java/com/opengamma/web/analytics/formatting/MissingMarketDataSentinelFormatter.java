@@ -27,6 +27,6 @@ import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 
   @Override
   public DataType getDataType() {
-    return DataType.PRIMITIVE;
+    return DataType.STRING;
   }
 }

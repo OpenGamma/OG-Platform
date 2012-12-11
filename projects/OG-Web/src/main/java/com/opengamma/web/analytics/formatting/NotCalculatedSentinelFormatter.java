@@ -42,6 +42,6 @@ import com.opengamma.engine.view.cache.NotCalculatedSentinel;
 
   @Override
   public DataType getDataType() {
-    return DataType.PRIMITIVE;
+    return DataType.STRING;
   }
 }

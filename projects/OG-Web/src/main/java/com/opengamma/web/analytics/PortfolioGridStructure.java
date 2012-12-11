@@ -29,8 +29,9 @@ import com.opengamma.util.tuple.Pair;
  */
 public class PortfolioGridStructure extends MainGridStructure {
 
+  /* Label column can be NodeId or PositionId, setting the type as null means it will be set for every cell. */
   private static final AnalyticsColumnGroup s_fixedColumnGroup =
-      new AnalyticsColumnGroup("fixed", ImmutableList.of(new AnalyticsColumn("Label", "", String.class),
+      new AnalyticsColumnGroup("fixed", ImmutableList.of(new AnalyticsColumn("Label", "", null),
                                                          new AnalyticsColumn("Quantity", "", BigDecimal.class)));
   private final AnalyticsNode _root;
 

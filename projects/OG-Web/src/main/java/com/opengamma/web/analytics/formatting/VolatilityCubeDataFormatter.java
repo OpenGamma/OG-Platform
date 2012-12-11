@@ -25,6 +25,6 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public DataType getDataType() {
-    return DataType.PRIMITIVE;
+    return DataType.STRING;
   }
 }

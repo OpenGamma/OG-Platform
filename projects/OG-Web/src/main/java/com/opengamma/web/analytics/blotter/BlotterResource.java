@@ -67,7 +67,7 @@ import com.opengamma.util.OpenGammaClock;
 import com.opengamma.web.FreemarkerOutputter;
 
 /**
- *
+ * TODO move some of this into subresources?
  */
 @Path("blotter")
 public class BlotterResource {
