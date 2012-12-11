@@ -148,8 +148,11 @@ public class FXOptionFunctionUtils {
 
   public static String getResultCurrency(final ComputationTarget target, final CurrencyPair baseQuotePair) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    if (security instanceof FXDigitalOptionSecurity || security instanceof NonDeliverableFXDigitalOptionSecurity) {
+    if (security instanceof FXDigitalOptionSecurity) {
       return ((FXDigitalOptionSecurity) target.getSecurity()).getPaymentCurrency().getCode();
+    }
+    if (security instanceof NonDeliverableFXDigitalOptionSecurity) {
+      return ((NonDeliverableFXDigitalOptionSecurity) target.getSecurity()).getPaymentCurrency().getCode();
     }
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
