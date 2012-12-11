@@ -116,7 +116,8 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     final ValueRequirement desiredValue = desiredValues.iterator().next();
 
     // a. The Spot Index
-    final Object spotObject = inputs.getValue(getSpotRequirement(underlyingId));
+    final HistoricalTimeSeriesSource tsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final Object spotObject = inputs.getValue(getSpotRequirement(underlyingId, tsSource));
     if (spotObject == null) {
       throw new OpenGammaRuntimeException("Could not get Underlying's Spot value");
     }
@@ -137,7 +138,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     // c. The Vol Surface
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String smileInterpolator = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
-    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext), security, volSurfaceName,
+    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName,
         smileInterpolator, curveConfigName, fundingCurveName, underlyingId));
     if (volSurfaceObject == null || !(volSurfaceObject instanceof BlackVolatilitySurface)) {
       throw new OpenGammaRuntimeException("Could not get Volatility Surface");
@@ -245,8 +246,12 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
       throw new OpenGammaRuntimeException("EquityIndexOptionFunction does not handle this security type: " + security.getSecurityType());
     }
 
+    // TODO: REVIEW THIS - TimeSeriesSource, used to get Ticker, the Vol ComputationTarget, from ExternalIdBundle
+    // We are now also using the ticker for the Spot / Market_Value Requirement
+    final HistoricalTimeSeriesSource tsSource = OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
+    
     // 1. Spot Index Requirement
-    final ValueRequirement spotReq = getSpotRequirement(underlyingId);
+    final ValueRequirement spotReq = getSpotRequirement(underlyingId, tsSource);
 
     // 2. Funding Curve Requirement
     // Funding curve
@@ -275,11 +280,10 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
       return null;
     }
     final String smileInterpolator = interpolators.iterator().next();
-    // TODO: REVIEW THIS - TimeSeriesSource, used to get Ticker, the Vol ComputationTarget, from ExternalIdBundle
-    final ValueRequirement volReq = getVolatilitySurfaceRequirement(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), security,
-        volSurfaceName, smileInterpolator, curveConfigName, fundingCurveName, underlyingId);
+
+    final ValueRequirement volReq = getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName, smileInterpolator, curveConfigName, fundingCurveName, underlyingId);
     // Return the set
-    return Sets.newHashSet(fundingReq, spotReq, volReq);//spotReq, fundingReq, volReq);
+    return Sets.newHashSet(fundingReq, spotReq, volReq);
   }
 
   // TODO: One should not be required to pass the FundingCurve and CurveConfig names, so that the VolatilitySurface can build an EquityForwardCurve
@@ -287,7 +291,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
       final String surfaceName, final String smileInterpolator, final String curveConfig, final String fundingCurveName, final ExternalId underlyingBuid) {
     // Targets for equity vol surfaces are the underlying tickers
     final String bbgTicker = getBloombergTicker(tsSource, underlyingBuid);
-    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);
+    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker); // FIXME: WEAK Tickers mean stale data. Also, this should NOT be hardcoded
 
     // Set Forward Curve Currency Property
     final String curveCurrency = FinancialSecurityUtils.getCurrency(security).toString();
@@ -320,9 +324,13 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return bbgTicker;
   }
 
-  protected ValueRequirement getSpotRequirement(final ExternalId underlyingId) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of(underlyingId.getScheme().getName(), underlyingId.getValue()));
-    // Alternatively, as in EquityFuturesFunction: ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId());
+  protected ValueRequirement getSpotRequirement(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource) {
+    final String bbgTicker = getBloombergTicker(tsSource, underlyingId);
+//    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);  // FIXME: Using WEAK Ticker gives stale data,
+    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.getName(), bbgTicker); //FIXME: NOT using WEAK Ticker means the spot may be out of line with VolSurface
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, newId);
+    // return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of(underlyingId.getScheme().getName(), underlyingId.getValue()));
+    
   }
 
   protected final String getValueRequirementName() {
