@@ -3,10 +3,10 @@
  * Please see distribution for license.
  */
 .OG-cell-options {
-    background-color: #fff;
-    border-bottom: 1px solid #dadcdd;
-    border-top: 1px solid #dadcdd;
-    border-right: 1px solid #dadcdd;
+    background-color: transparent;
+    border-bottom: 1px solid transparent;
+    border-top: 1px solid transparent;
+    border-right: 1px solid transparent;
     height: 20px;
     position: absolute;
     width: 32px;
@@ -56,6 +56,7 @@
     margin-left: 1px;
     padding: 1px;
 }
+
 .OG-cell-options .OG-icon.og-icon-ellipsis {
     background: transparent;
     padding:1px;
@@ -68,7 +69,7 @@
 }
 
 .OG-cell-options .OG-icon.og-icon-down-chevron {
-    background: transparent;
+    background: #fff;
     border: 1px solid #dadcdd;
     cursor: pointer;
     height: 11px;
@@ -125,4 +126,8 @@
 
 .OG-cell-options .og-menu .OG-icon:hover {
     background-color: transparent;
+}
+
+.OG-icon.og-icon-down-chevron:hover {
+    border-color: #6fd66f!important;
 }

@@ -12,10 +12,11 @@ $.register_module({
                 logger, instantiated, template,
                 cell_options = {source: config.source, col: config.col, row: config.row, format: 'EXPANDED', log: true},
                 css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0};
-            gadget.alive = function () {return $selector.length ? true : (gadget.die(), false);};
+            gadget.alive = function () {return $(config.selector).length ? true : (gadget.die(), false);};
             gadget.load = function () {
                 $selector.addClass(alive).css(css_position).html(loading_template({text: 'loading...'}));
-                gadget.dataman = new og.analytics.Cell(cell_options, 'data').on('data', function (cell) {
+                gadget.dataman = new og.analytics.Cell(cell_options, 'log')
+                .on('data', function (cell) {
                     gadget.data = cell.logOutput;
                     if (gadget.data) {
                         if (!instantiated) $.when(og.api.text({module: 'og.analytics.logger'})).then(function (tmpl) {
@@ -25,7 +26,7 @@ $.register_module({
                         });
                         else gadget.update();
                     } else {
-                        instantiated = gadget.die() && null;
+                        instantiated = null;
                         $selector.html('No log information available');
                     }
                 });
