@@ -86,7 +86,7 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
  * $p(S, K, T, r, b, \sigma) = c(K, S, T, r - b, -b, \sigma)$.
  * 
  */
-public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
+public class BjerksundStenslandModel {
 
   private static final double RHO2 = 0.5 * (Math.sqrt(5) - 1);
   private static final double RHO = Math.sqrt(RHO2);
@@ -95,9 +95,10 @@ public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanilla
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   /**
-   * {@inheritDoc}
+   * Returns a pricing function.
+   * @param definition The option definition, not null
+   * @return The pricing function
    */
-  @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final AmericanVanillaOptionDefinition definition) {
     Validate.notNull(definition);
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
