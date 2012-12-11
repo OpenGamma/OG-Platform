@@ -10,6 +10,14 @@ $.register_module({
         $.fn.sparkline.defaults.common.disableHiddenCheck = true;
         return function (grid) {
             var formatter = this, curves = false, sparklines = false;
+            formatter.CURVE = function (value, width, height) {
+                try {
+                    curves = true;
+                    return '<span class="OG-g-fl" style="width: ' + width + 'px; height: ' + height +
+                        'px; position: absolute; top: 0; right: 0; left: 0; bottom: 0">[' +
+                        JSON.stringify(value.v) + ']</span>';
+                } catch (error) {return og.dev.warn(module.name + ': ', error), '';}
+            };
             formatter.DOUBLE = function (value) {
                 var curr, last, sparkline, indicator = !value || !value.h || !value.h.length ? null
                     : (curr = value.h[value.h.length - 1]) < (last = value.h[value.h.length - 2]) ? 'down'
@@ -22,19 +30,8 @@ $.register_module({
                             JSON.stringify(value.h.map(function (v, i) {return [i, v];})) + ']</span>' : '') +
                         (indicator ? '<span class="OG-icon og-icon-tick-'+ indicator +'"></span>' : '');
             };
-            formatter.UNKNOWN = function (value, width, height) {
-                var type = value && value.t;
-                if (!type) return '';
-                return value && formatter[type] ? formatter[type](value, width, height) : value && value.v || '';
-            };
-            formatter.CURVE = function (value, width, height) {
-                try {
-                    curves = true;
-                    return '<span class="OG-g-fl" style="width: ' + width + 'px; height: ' + height +
-                        'px; position: absolute; top: 0; right: 0; left: 0; bottom: 0">[' +
-                        JSON.stringify(value.v) + ']</span>';
-                } catch (error) {return og.dev.warn(module.name + ': ', error), '';}
-            };
+            formatter.NODE_ID = function (value) {return value.v.name;};
+            formatter.POSITION_ID = function (value) {return value.v.name;};
             formatter.transform = function (html) {
                 var node = $(html);
                 // only bother if the grid has some curve values in the last render
@@ -60,6 +57,11 @@ $.register_module({
                     } catch (error) {og.dev.warn(module.name + ': ', error);}
                 });
                 return node;
+            };
+            formatter.UNKNOWN = function (value, width, height) {
+                var type = value && value.t;
+                if (!type) return '';
+                return value && formatter[type] ? formatter[type](value, width, height) : value && value.v || '';
             };
         };
     }
