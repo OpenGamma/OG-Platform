@@ -90,7 +90,7 @@ public class DataBatchRunResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearch(URI baseUri) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("batchRun/search");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("run/search");
     return bld.build();
   }
 
@@ -102,7 +102,7 @@ public class DataBatchRunResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, ObjectId batchRunId) {
-    return UriBuilder.fromUri(baseUri).path("/batchRun/{uid}").build(batchRunId);
+    return UriBuilder.fromUri(baseUri).path("/run/{uid}").build(batchRunId);
   }
 
   /**
@@ -113,7 +113,7 @@ public class DataBatchRunResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriBatchValues(URI baseUri, ObjectId batchRunId) {
-    return UriBuilder.fromUri(baseUri).path("/batchRun/{uid}/values").build(batchRunId);
+    return UriBuilder.fromUri(baseUri).path("/run/{uid}/values").build(batchRunId);
   }
 
 }
