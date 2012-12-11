@@ -11,9 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
-import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
