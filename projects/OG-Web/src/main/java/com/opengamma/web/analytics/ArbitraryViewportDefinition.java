@@ -58,4 +58,12 @@ public class ArbitraryViewportDefinition extends ViewportDefinition {
   public boolean enableLogging() {
     return _enableLogging;
   }
+
+  @Override
+  public String toString() {
+    return "ArbitraryViewportDefinition [" +
+        "_enableLogging=" + _enableLogging +
+        ", _cells=" + _cells +
+        "]";
+  }
 }

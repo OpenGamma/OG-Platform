@@ -41,11 +41,6 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.option.AmericanExerciseType;
-import com.opengamma.financial.security.option.AsianExerciseType;
-import com.opengamma.financial.security.option.BermudanExerciseType;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
@@ -55,7 +50,6 @@ import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
-import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueId;
@@ -82,17 +76,11 @@ public class BlotterResource {
       FloatingSpreadIRLeg.meta(),
       FloatingGearingIRLeg.meta(),
       InterestRateNotional.meta(),
-      AmericanExerciseType.meta(),
-      AsianExerciseType.meta(),
-      EuropeanExerciseType.meta(),
-      BermudanExerciseType.meta(),
       CapFloorCMSSpreadSecurity.meta(),
       NonDeliverableFXOptionSecurity.meta(),
-      ForwardSwapSecurity.meta(),
       FXOptionSecurity.meta(),
       FRASecurity.meta(),
       CapFloorSecurity.meta(),
-      EquityBarrierOptionSecurity.meta(),
       EquityVarianceSwapSecurity.meta(),
       FXBarrierOptionSecurity.meta(),
       NonDeliverableFXOptionSecurity.meta()

@@ -28,6 +28,7 @@ import com.opengamma.util.OpenGammaClock;
 
 /**
  * TODO handle underlying differently depending on the class
+ * TODO clean this up, it's a bit rough and ready
  */
 /* package */ class BeanStructureBuilder implements BeanVisitor<Map<String, Object>> {
 
@@ -85,10 +86,18 @@ import com.opengamma.util.OpenGammaClock;
 
   @Override
   public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
-    _propertyData.add(propertyData(property,
-                                   "typeNames", beanSubtypeNames(property.propertyType()),
-                                   "isBean", true,
-                                   "type", "single"));
+    Class<?> type = property.propertyType();
+    if (isConvertible(type)) {
+      _propertyData.add(propertyData(property,
+                                     "typeNames", ImmutableList.of(STRING + " (" + type.getSimpleName() + ")"),
+                                     "isBean", false,
+                                     "type", "single"));
+    } else {
+      _propertyData.add(propertyData(property,
+                                     "typeNames", beanSubtypeNames(type),
+                                     "isBean", true,
+                                     "type", "single"));
+    }
   }
 
   private List<String> beanSubtypeNames(Class<?> type) {
@@ -134,7 +143,6 @@ import com.opengamma.util.OpenGammaClock;
     _propertyData.add(propertyData(property,
                                    "typeNames", ImmutableList.of(typeFor(property.propertyType())),
                                    "isBean", false,
-                                   "isOptional", isNullable(property),
                                    "type", "single"));
   }
 
@@ -162,14 +170,26 @@ import com.opengamma.util.OpenGammaClock;
     if (typeName != null) {
       return typeName;
     } else {
-      try {
-        JodaBeanUtils.stringConverter().findConverter(type);
+      boolean canConvert;
+      canConvert = isConvertible(type);
+      if (canConvert) {
         // TODO if the type has an endpoint for available values (e.g. day count, frequency) include that
         return STRING + " (" + type.getSimpleName() + ")";
-      } catch (Exception e) {
-        throw new OpenGammaRuntimeException("No type mapping found for class " + type.getName(), e);
+      } else {
+        throw new OpenGammaRuntimeException("No type mapping found for class " + type.getName());
       }
     }
+  }
+
+  private static boolean isConvertible(Class<?> type) {
+    boolean canConvert;
+    try {
+      JodaBeanUtils.stringConverter().findConverter(type);
+      canConvert = true;
+    } catch (Exception e) {
+      canConvert = false;
+    }
+    return canConvert;
   }
 
   private static boolean isNullable(MetaProperty<?> property) {
