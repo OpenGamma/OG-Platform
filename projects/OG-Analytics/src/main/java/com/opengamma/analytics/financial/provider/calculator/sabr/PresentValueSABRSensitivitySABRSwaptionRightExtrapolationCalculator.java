@@ -16,6 +16,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.payments.provider.CapFloorCMSSABRExtrapolationRightReplicationMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CapFloorCMSSpreadSABRBinormalMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponCMSSABRExtrapolationRightReplicationMethod;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionCashFixedIborSABRExtrapolationRightMethod;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.analytics.financial.provider.description.SABRSwaptionProviderInterface;
 import com.opengamma.util.ArgumentChecker;
@@ -40,6 +42,7 @@ public final class PresentValueSABRSensitivitySABRSwaptionRightExtrapolationCalc
    */
   private final CouponCMSSABRExtrapolationRightReplicationMethod _methodExtraCMSCpn;
   private final CapFloorCMSSABRExtrapolationRightReplicationMethod _methodExtraCMSCap;
+  private final SwaptionCashFixedIborSABRExtrapolationRightMethod _methodSwptCash;
 
   /**
    * Constructor.
@@ -51,6 +54,7 @@ public final class PresentValueSABRSensitivitySABRSwaptionRightExtrapolationCalc
     _cutOffStrike = cutOffStrike;
     _methodExtraCMSCpn = new CouponCMSSABRExtrapolationRightReplicationMethod(_cutOffStrike, _mu);
     _methodExtraCMSCap = new CapFloorCMSSABRExtrapolationRightReplicationMethod(_cutOffStrike, _mu);
+    _methodSwptCash = new SwaptionCashFixedIborSABRExtrapolationRightMethod(_cutOffStrike, _mu);
   }
 
   @Override
@@ -92,6 +96,13 @@ public final class PresentValueSABRSensitivitySABRSwaptionRightExtrapolationCalc
       pvss = pvss.plus(visit(annuity.getNthPayment(loopp), sabr));
     }
     return pvss;
+  }
+
+  // -----     Swaption     ------
+
+  @Override
+  public PresentValueSABRSensitivityDataBundle visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final SABRSwaptionProviderInterface sabr) {
+    return _methodSwptCash.presentValueSABRSensitivity(swaption, sabr);
   }
 
   @Override

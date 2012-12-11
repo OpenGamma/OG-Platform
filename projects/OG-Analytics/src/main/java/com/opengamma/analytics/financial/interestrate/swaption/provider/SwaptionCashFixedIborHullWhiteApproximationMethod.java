@@ -307,7 +307,6 @@ public final class SwaptionCashFixedIborHullWhiteApproximationMethod {
     final HullWhiteOneFactorPiecewiseConstantParameters parameters = hullWhite.getHullWhiteParameters();
     final MulticurveProviderInterface multicurves = hullWhite.getMulticurveProvider();
     // Forward sweep
-    final String fundingCurveName = swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName();
     final double expiryTime = swaption.getTimeToExpiry();
     final int nbFixed = swaption.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();
     final double[] alphaFixed = new double[nbFixed];
@@ -464,7 +463,8 @@ public final class SwaptionCashFixedIborHullWhiteApproximationMethod {
    * The values are [0] the first order derivative and [1] the second order derivative.
    * @return The swap rate.
    */
-  private double swapRate(final double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor, final double[] derivatives) {
+  private double swapRate(final double x, final double[] discountedCashFlowFixed, final double[] alphaFixed, final double[] discountedCashFlowIbor, final double[] alphaIbor, 
+      final double[] derivatives) {
     final double[] f = new double[3];
     double y1;
     for (int loopcf = 0; loopcf < discountedCashFlowIbor.length; loopcf++) {

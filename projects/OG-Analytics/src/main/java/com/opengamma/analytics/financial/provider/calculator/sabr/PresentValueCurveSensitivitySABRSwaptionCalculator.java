@@ -15,7 +15,9 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.interestrate.payments.provider.CapFloorCMSSABRReplicationMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CapFloorCMSSpreadSABRBinormalMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponCMSSABRReplicationMethod;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionCashFixedIborSABRMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborSABRMethod;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.analytics.financial.provider.description.SABRSwaptionProviderInterface;
@@ -49,9 +51,10 @@ public final class PresentValueCurveSensitivitySABRSwaptionCalculator extends In
   /**
    * Pricing methods.
    */
-  private static final SwaptionPhysicalFixedIborSABRMethod METHOD_SWT_SABR = SwaptionPhysicalFixedIborSABRMethod.getInstance();
-  private static final CapFloorCMSSABRReplicationMethod METHOD_CMS_CAP = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
   private static final CouponCMSSABRReplicationMethod METHOD_CMS_CPN = CouponCMSSABRReplicationMethod.getInstance();
+  private static final CapFloorCMSSABRReplicationMethod METHOD_CMS_CAP = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
+  private static final SwaptionPhysicalFixedIborSABRMethod METHOD_SWT_PHYS = SwaptionPhysicalFixedIborSABRMethod.getInstance();
+  private static final SwaptionCashFixedIborSABRMethod METHOD_SWT_CASH = SwaptionCashFixedIborSABRMethod.getInstance();
 
   @Override
   public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative derivative, final SABRSwaptionProviderInterface sabr) {
@@ -59,11 +62,6 @@ public final class PresentValueCurveSensitivitySABRSwaptionCalculator extends In
   }
 
   // -----     Payment/Coupon     ------
-
-  @Override
-  public MultipleCurrencyMulticurveSensitivity visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final SABRSwaptionProviderInterface sabr) {
-    return METHOD_SWT_SABR.presentValueCurveSensitivity(swaption, sabr);
-  }
 
   @Override
   public MultipleCurrencyMulticurveSensitivity visitCouponCMS(final CouponCMS payment, final SABRSwaptionProviderInterface sabr) {
@@ -96,6 +94,18 @@ public final class PresentValueCurveSensitivitySABRSwaptionCalculator extends In
       cs = cs.plus(visit(annuity.getNthPayment(loopp), sabr));
     }
     return cs;
+  }
+
+  // -----     Swaption     ------
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final SABRSwaptionProviderInterface sabr) {
+    return METHOD_SWT_PHYS.presentValueCurveSensitivity(swaption, sabr);
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final SABRSwaptionProviderInterface sabr) {
+    return METHOD_SWT_CASH.presentValueCurveSensitivity(swaption, sabr);
   }
 
   @Override

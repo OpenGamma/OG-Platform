@@ -54,23 +54,31 @@ import com.opengamma.util.tuple.Triple;
 
 public class SwaptionPhysicalFixedIborSABRMethodTest {
 
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
-  private static final IborIndex IBOR_INDEX = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
-  private static final Currency CUR = IBOR_INDEX.getCurrency();
-  private static final Calendar CALENDAR = IBOR_INDEX.getCalendar();
+  private static final IborIndex EURIBOR6M = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd()[1];
+  private static final Currency EUR = EURIBOR6M.getCurrency();
+  private static final Calendar CALENDAR = EURIBOR6M.getCalendar();
+
+  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
+  private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
+  private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_PARAMETER, EUR1YEURIBOR6M);
+
+  public static final String NOT_USED = "Not used";
+  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
+
+  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
+
   // Swaption description
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2014, 3, 18);
   private static final boolean IS_LONG = true;
   // Swap 5Y description
-  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, IBOR_INDEX.getSpotLag(), CALENDAR);
+  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, EURIBOR6M.getSpotLag(), CALENDAR);
   //  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   //  private static final boolean IS_EOM = true;
   private static final int ANNUITY_TENOR_YEAR = 5;
   private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE = 0.0325;
-  private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, EUR1YEURIBOR6M, NOTIONAL, RATE, true);
   private static final SwapFixedIborDefinition SWAP_RECEIVER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, EUR1YEURIBOR6M, NOTIONAL, RATE, false);
 
@@ -79,18 +87,12 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_SHORT_PAYER_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, !IS_LONG);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_SHORT_RECEIVER_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, !IS_LONG);
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-
   private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final SwapFixedCoupon<Coupon> SWAP_RECEIVER = SWAP_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_PAYER = SWAPTION_LONG_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final SwaptionPhysicalFixedIbor SWAPTION_LONG_RECEIVER = SWAPTION_LONG_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final SwaptionPhysicalFixedIbor SWAPTION_SHORT_PAYER = SWAPTION_SHORT_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final SwaptionPhysicalFixedIbor SWAPTION_SHORT_RECEIVER = SWAPTION_SHORT_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-
-  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
-  private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_PARAMETER, EUR1YEURIBOR6M);
 
   // Calculators
 
@@ -138,15 +140,15 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final BlackFunctionData data = new BlackFunctionData(forward, pvbp, volatility);
     final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(SWAPTION_LONG_PAYER);
     final double expectedPrice = func.evaluate(data);
-    assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", expectedPrice, priceLongPayer.getAmount(CUR), TOLERANCE_PV);
+    assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", expectedPrice, priceLongPayer.getAmount(EUR), TOLERANCE_PV);
     // Long/Short parity
-    assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", priceLongPayer.getAmount(CUR), -priceShortPayer.getAmount(CUR), TOLERANCE_PV);
-    assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", priceLongReceiver.getAmount(CUR), -priceShortReceiver.getAmount(CUR), TOLERANCE_PV);
+    assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", priceLongPayer.getAmount(EUR), -priceShortPayer.getAmount(EUR), TOLERANCE_PV);
+    assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", priceLongReceiver.getAmount(EUR), -priceShortReceiver.getAmount(EUR), TOLERANCE_PV);
     // Payer/Receiver parity
     final MultipleCurrencyAmount priceSwapPayer = SWAP_PAYER.accept(PVDC, MULTICURVES);
     final MultipleCurrencyAmount priceSwapReceiver = SWAP_RECEIVER.accept(PVDC, MULTICURVES);
-    assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", priceSwapPayer.getAmount(CUR), priceLongPayer.getAmount(CUR) + priceShortReceiver.getAmount(CUR), TOLERANCE_PV);
-    assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", priceSwapReceiver.getAmount(CUR), priceLongReceiver.getAmount(CUR) + priceShortPayer.getAmount(CUR), TOLERANCE_PV);
+    assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", priceSwapPayer.getAmount(EUR), priceLongPayer.getAmount(EUR) + priceShortReceiver.getAmount(EUR), TOLERANCE_PV);
+    assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", priceSwapReceiver.getAmount(EUR), priceLongReceiver.getAmount(EUR) + priceShortPayer.getAmount(EUR), TOLERANCE_PV);
   }
 
   /**
@@ -155,18 +157,18 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   @Test
   public void testPresentValueConventionArbitrage() {
     final double rate360 = 0.0360;
-    final IndexSwap index360 = new IndexSwap(EUR1YEURIBOR6M.getFixedLegPeriod(), DayCountFactory.INSTANCE.getDayCount("Actual/360"), IBOR_INDEX, ANNUITY_TENOR);
+    final IndexSwap index360 = new IndexSwap(EUR1YEURIBOR6M.getFixedLegPeriod(), DayCountFactory.INSTANCE.getDayCount("Actual/360"), EURIBOR6M, ANNUITY_TENOR);
     final SwapFixedIborDefinition swap360 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index360, NOTIONAL, rate360, true);
     final SwaptionPhysicalFixedIborDefinition swaption360Definition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swap360, IS_LONG);
     final SwaptionPhysicalFixedIbor swaption360 = swaption360Definition.toDerivative(REFERENCE_DATE, NOT_USED_A);
     final double rate365 = 0.0365;
-    final IndexSwap index365 = new IndexSwap(EUR1YEURIBOR6M.getFixedLegPeriod(), DayCountFactory.INSTANCE.getDayCount("Actual/365"), IBOR_INDEX, ANNUITY_TENOR);
+    final IndexSwap index365 = new IndexSwap(EUR1YEURIBOR6M.getFixedLegPeriod(), DayCountFactory.INSTANCE.getDayCount("Actual/365"), EURIBOR6M, ANNUITY_TENOR);
     final SwapFixedIborDefinition swap365 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, index365, NOTIONAL, rate365, true);
     final SwaptionPhysicalFixedIborDefinition swaption365Definition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swap365, IS_LONG);
     final SwaptionPhysicalFixedIbor swaption365 = swaption365Definition.toDerivative(REFERENCE_DATE, NOT_USED_A);
     final MultipleCurrencyAmount price360 = METHOD_SWPT_SABR.presentValue(swaption360, SABR_MULTICURVES);
     final MultipleCurrencyAmount price365 = METHOD_SWPT_SABR.presentValue(swaption365, SABR_MULTICURVES);
-    assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", price360.getAmount(CUR), price365.getAmount(CUR), TOLERANCE_PV);
+    assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValue", price360.getAmount(EUR), price365.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test
@@ -208,13 +210,13 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     pvsShortPayer = pvsShortPayer.multiplyBy(-1.0);
     assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueSABRSensitivity", pvsLongPayer.getAlpha(), pvsShortPayer.getAlpha());
     // SABR sensitivity vs finite difference
-    final double pvLongPayer = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES).getAmount(CUR);
+    final double pvLongPayer = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES).getAmount(EUR);
     final double shift = 1.0E-8;
     final DoublesPair expectedExpiryTenor = new DoublesPair(SWAPTION_LONG_PAYER.getTimeToExpiry(), ANNUITY_TENOR_YEAR);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shift);
     final SABRSwaptionProviderDiscount sabrBundleAlphaBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EUR1YEURIBOR6M);
-    final double pvLongPayerAlphaBumped = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, sabrBundleAlphaBumped).getAmount(CUR);
+    final double pvLongPayerAlphaBumped = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, sabrBundleAlphaBumped).getAmount(EUR);
     final double expectedAlphaSensi = (pvLongPayerAlphaBumped - pvLongPayer) / shift;
     assertEquals("Number of alpha sensitivity", pvsLongPayer.getAlpha().getMap().keySet().size(), 1);
     assertEquals("Alpha sensitivity expiry/tenor", pvsLongPayer.getAlpha().getMap().keySet().contains(expectedExpiryTenor), true);
@@ -222,7 +224,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     // Rho sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSetsSABR.createSABR1RhoBumped(shift);
     final SABRSwaptionProviderDiscount sabrBundleRhoBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterRhoBumped, EUR1YEURIBOR6M);
-    final double pvLongPayerRhoBumped = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, sabrBundleRhoBumped).getAmount(CUR);
+    final double pvLongPayerRhoBumped = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, sabrBundleRhoBumped).getAmount(EUR);
     final double expectedRhoSensi = (pvLongPayerRhoBumped - pvLongPayer) / shift;
     assertEquals("Number of rho sensitivity", pvsLongPayer.getRho().getMap().keySet().size(), 1);
     assertEquals("Rho sensitivity expiry/tenor", pvsLongPayer.getRho().getMap().keySet().contains(expectedExpiryTenor), true);
@@ -230,7 +232,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSetsSABR.createSABR1NuBumped(shift);
     final SABRSwaptionProviderDiscount sabrBundleNuBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterNuBumped, EUR1YEURIBOR6M);
-    final double pvLongPayerNuBumped = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, sabrBundleNuBumped).getAmount(CUR);
+    final double pvLongPayerNuBumped = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, sabrBundleNuBumped).getAmount(EUR);
     final double expectedNuSensi = (pvLongPayerNuBumped - pvLongPayer) / shift;
     assertEquals("Number of nu sensitivity", pvsLongPayer.getNu().getMap().keySet().size(), 1);
     assertEquals("Nu sensitivity expiry/tenor", pvsLongPayer.getNu().getMap().keySet().contains(expectedExpiryTenor), true);
@@ -255,7 +257,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     MultipleCurrencyAmount pvSABR = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
     PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
     MultipleCurrencyAmount pvMC = SWAPTION_LONG_PAYER.accept(pvcSABRHWMC, SABR_MULTICURVES);
-    assertEquals("Swaption Physical SABR: Present value using Hull-White by Monte Carlo", pvSABR.getAmount(CUR), pvMC.getAmount(CUR), 2.5E+4);
+    assertEquals("Swaption Physical SABR: Present value using Hull-White by Monte Carlo", pvSABR.getAmount(EUR), pvMC.getAmount(EUR), 2.5E+4);
   }
 
   //  @Test(enabled = false)
