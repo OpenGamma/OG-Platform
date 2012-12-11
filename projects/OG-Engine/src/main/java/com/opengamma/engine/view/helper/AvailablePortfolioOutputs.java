@@ -243,6 +243,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       try {
         requirements = function.getRequirements(_context, target, requiredOutputValue);
         if (requirements == null) {
+          s_logger.debug("Unsatisfiable requirement {} for {}", requiredOutputValue, function);
           return null;
         }
       } catch (final Throwable t) {
@@ -326,8 +327,10 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       }
     }
 
+    private final String _watch = null; // Don't check in with != null
+
     @Override
-    public void preOrderOperation(final PortfolioNode portfolioNode) {
+    public void postOrderOperation(final PortfolioNode portfolioNode) {
       if (portfolioNode.getUniqueId() == null) {
         // Anonymous node in the portfolio means it cannot be referenced so no results can be produced on it.
         // Being presented with a portfolio like this almost certainly implies a temporary portfolio for which
@@ -349,6 +352,13 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
               if (group != null) {
                 visitedFunctions.add(group);
               }
+              if (_watch != null) {
+                if (_watch.equals(result.getValueName())) {
+                  System.out.println(function.getFunctionDefinition().getUniqueId());
+                } else {
+                  continue;
+                }
+              }
               final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, visitedFunctions, function, target, new ValueRequirement(result.getValueName(), result
                   .getTargetSpecification()), result);
               if (resolved != null) {
@@ -358,6 +368,9 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
                 }
               } else {
                 s_logger.info("Did not resolve {} on {}", result.getValueName(), portfolioNode);
+              }
+              if ((_watch != null) && _watch.equals(result.getValueName())) {
+                System.out.println();
               }
             }
           }
@@ -388,6 +401,13 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
               if (group != null) {
                 visitedFunctions.add(group);
               }
+              if (_watch != null) {
+                if (_watch.equals(result.getValueName())) {
+                  System.out.println(function.getFunctionDefinition().getUniqueId() + " on " + position.getSecurity());
+                } else {
+                  continue;
+                }
+              }
               final Set<ValueSpecification> resolved = resultWithSatisfiedRequirements(visitedRequirements, visitedFunctions, function, target,
                   new ValueRequirement(result.getValueName(), result.getTargetSpecification()), result);
               if (resolved != null) {
@@ -397,6 +417,9 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
                 }
               } else {
                 s_logger.info("Did not resolve {} on {}", result.getValueName(), position);
+              }
+              if ((_watch != null) && _watch.equals(result.getValueName())) {
+                System.out.println();
               }
             }
           }
