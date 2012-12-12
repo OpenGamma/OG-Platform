@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.apache.commons.lang.text.StrBuilder;
+
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ExecutionLogWithContext;
@@ -90,6 +92,21 @@ public class DefaultAggregatedExecutionLog implements AggregatedExecutionLog {
   @Override
   public List<ExecutionLogWithContext> getLogs() {
     return _logs;
+  }
+  
+  //-------------------------------------------------------------------------  
+  @Override
+  public String toString() {
+    StrBuilder sb = new StrBuilder()
+      .append("AggLog[");
+    if (!getLogLevels().isEmpty()) {
+      sb.append("aggLevels=").append(getLogLevels());
+      if (getLogs() != null) {
+        sb.append(", logs=").append(getLogs());
+      }
+    }
+    sb.append(']');
+    return sb.toString();
   }
 
 }
