@@ -32,7 +32,7 @@ $.register_module({
                         extras: {}
                     }) ,
                     new form.Block({
-                        module: 'og.blotter.forms.blocks.swap_details_floating_tash',
+                        module: 'og.blotter.forms.blocks.swap_var_details_floating_tash',
                         extras: {}
                     }),
                     new og.common.util.ui.Attributes({form: form})
