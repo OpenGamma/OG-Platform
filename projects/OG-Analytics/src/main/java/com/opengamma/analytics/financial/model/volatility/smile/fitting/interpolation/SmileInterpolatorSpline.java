@@ -94,8 +94,8 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
 
     // Extrapolation of High and Low Strikes by ShiftedLogNormalTailExtrapolationFitter
     final Function1D<Double, Double> dSigmaDx = DIFFERENTIATOR.differentiate(interpFunc, domain); // 
-    final ArrayList<Double> highParamsShiftVolStrike = new ArrayList<Double>();;
-    final ArrayList<Double> lowParamsShiftVolStrike = new ArrayList<Double>();;
+    final ArrayList<Double> highParamsShiftVolStrike = new ArrayList<Double>();
+    final ArrayList<Double> lowParamsShiftVolStrike = new ArrayList<Double>();
     if (_extrapolatorFailureBehaviour.equalsIgnoreCase("Quiet")) {
       final ArrayList<Double> tempHighExtrapParams = TAIL_FITTER.fitVolatilityAndGradRecursively(forward, strikes, impliedVols, dSigmaDx, expiry, false);
       final ArrayList<Double> tempLowExtrapParams = TAIL_FITTER.fitVolatilityAndGradRecursively(forward, strikes, impliedVols, dSigmaDx, expiry, true);
@@ -105,11 +105,11 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
       final double[] shiftLnVolLow = TAIL_FITTER.fitVolatilityAndGrad(forward, kL, impliedVols[0], dSigmaDx.evaluate(kL), expiry);
       lowParamsShiftVolStrike.add(0, shiftLnVolLow[0]); // mu = ln(shiftedForward / originalForward)
       lowParamsShiftVolStrike.add(1, shiftLnVolLow[1]); // theta = new ln volatility to use
-      lowParamsShiftVolStrike.add(2, strikes[0]); // new extapolation boundary
+      lowParamsShiftVolStrike.add(2, strikes[0]); // new extrapolation boundary
       final double[] shiftLnVolHigh = TAIL_FITTER.fitVolatilityAndGrad(forward, kH, impliedVols[n - 1], dSigmaDx.evaluate(kH), expiry);
       highParamsShiftVolStrike.add(0, shiftLnVolHigh[0]); // mu = ln(shiftedForward / originalForward)
       highParamsShiftVolStrike.add(1, shiftLnVolHigh[1]); // theta = new ln volatility to use
-      highParamsShiftVolStrike.add(2, strikes[n - 1]); // new extapolation boundary
+      highParamsShiftVolStrike.add(2, strikes[n - 1]); // new extrapolation boundary
     }
 
     // Resulting Functional Vol Surface
