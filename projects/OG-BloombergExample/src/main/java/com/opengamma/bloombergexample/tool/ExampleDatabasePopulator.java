@@ -28,12 +28,15 @@ import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.analytics.volatility.surface.FXOptionVolatilitySurfaceConfigPopulator;
+import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
+import com.opengamma.financial.currency.CurrencyPairsConfigPopulator;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
@@ -79,7 +82,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
    *
    * @param args  the arguments, unused
    */
-  public static void main(String[] args) { // CSIGNORE
+  public static void main(final String[] args) { // CSIGNORE
     s_logger.info("Populating example database");
     try {
       new ExampleDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, IntegrationToolContext.class);
@@ -98,7 +101,8 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   @SuppressWarnings("unchecked")
   @Override
   protected void doRun() {
-    Set<ExternalId> eurUsdId = ImmutableSet.of(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EURUSD Curncy"));
+    final Set<ExternalId> eurUsdId = ImmutableSet.of(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EURUSD Curncy"));
+    loadCurrencyConfiguration();
     loadCurveNodeHistoricalData();
     loadFutures(_futuresExternalIds);
     loadTimeSeriesRating();
@@ -141,10 +145,22 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     return tool;
   }
 
+  private void loadCurrencyConfiguration() {
+    final Log log = new Log("Loading currency reference data");
+    try {
+      final ConfigMaster configMaster = getToolContext().getConfigMaster();
+      CurrencyPairsConfigPopulator.populateCurrencyPairsConfigMaster(configMaster);
+      CurrencyMatrixConfigPopulator.populateCurrencyMatrixConfigMaster(configMaster);
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
   private void loadEquityOptionPortfolio() {
     final Log log = new Log("Loading example Equity Option portfolio");
     try {
-      DemoEquityOptionCollarPortfolioLoader loader = new DemoEquityOptionCollarPortfolioLoader();
+      final DemoEquityOptionCollarPortfolioLoader loader = new DemoEquityOptionCollarPortfolioLoader();
       loader.setNumOptions(2);
       loader.setNumMembers(8);
       loader.setNumContracts(new BigDecimal(500));
@@ -158,7 +174,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   private void loadCurveNodeHistoricalData() {
     final Log log = new Log("Loading curve node historical data");
     try {
-      CurveNodeHistoricalDataLoader curveNodeHistoricalDataLoader = new CurveNodeHistoricalDataLoader();
+      final CurveNodeHistoricalDataLoader curveNodeHistoricalDataLoader = new CurveNodeHistoricalDataLoader();
       curveNodeHistoricalDataLoader.run(getToolContext());
       _curveNodesExternalIds = curveNodeHistoricalDataLoader.getCurveNodesExternalIds();
       _initialRateExternalIds = curveNodeHistoricalDataLoader.getInitialRateExternalIds();
@@ -182,7 +198,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   private void loadTimeSeriesRating() {
     final Log log = new Log("Creating time series configurations");
     try {
-      ExampleTimeSeriesRatingLoader timeSeriesRatingLoader = new ExampleTimeSeriesRatingLoader();
+      final ExampleTimeSeriesRatingLoader timeSeriesRatingLoader = new ExampleTimeSeriesRatingLoader();
       timeSeriesRatingLoader.run(getToolContext());
       log.done();
     } catch (final RuntimeException t) {
@@ -190,12 +206,12 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     }
   }
 
-  private void loadFutures(Set<ExternalIdBundle> identifiers) {
+  private void loadFutures(final Set<ExternalIdBundle> identifiers) {
     final Log log = new Log("Loading Futures reference data");
     try {
-      SecurityMaster securityMaster = getToolContext().getSecurityMaster();
-      SecurityProvider securityProvider = getToolContext().getSecurityProvider();
-      BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(securityProvider, securityMaster);
+      final SecurityMaster securityMaster = getToolContext().getSecurityMaster();
+      final SecurityProvider securityProvider = getToolContext().getSecurityProvider();
+      final BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(securityProvider, securityMaster);
       securityLoader.loadSecurity(identifiers);
       log.done();
     } catch (final RuntimeException t) {
@@ -203,19 +219,19 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     }
   }
 
-  private void loadHistoricalData(Set<ExternalId>... externalIdSets) {
+  private void loadHistoricalData(final Set<ExternalId>... externalIdSets) {
     final Log log = new Log("Loading historical reference data");
     try {
-      BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
+      final BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
           getToolContext().getHistoricalTimeSeriesMaster(),
           getToolContext().getHistoricalTimeSeriesProvider(),
           new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
-      
-      for (SecurityDocument doc : readEquitySecurities()) {
-        Security security = doc.getSecurity();
+
+      for (final SecurityDocument doc : readEquitySecurities()) {
+        final Security security = doc.getSecurity();
         loader.addTimeSeries(ImmutableSet.of(security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_TICKER)), "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
       }
-      for (Set<ExternalId> externalIds : externalIdSets) {
+      for (final Set<ExternalId> externalIds : externalIdSets) {
         if (externalIds.size() > 0) {
           loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
         }
@@ -227,8 +243,8 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   }
 
   private Iterable<SecurityDocument> readEquitySecurities() {
-    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
-    SecuritySearchRequest request = new SecuritySearchRequest();
+    final SecurityMaster securityMaster = getToolContext().getSecurityMaster();
+    final SecuritySearchRequest request = new SecuritySearchRequest();
     request.setSecurityType(EquitySecurity.SECURITY_TYPE);
     return SecuritySearchIterator.iterable(securityMaster, request);
   }
@@ -236,7 +252,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   private void loadEquityPortfolio() {
     final Log log = new Log("Loading example Equity portfolio");
     try {
-      ExampleEquityPortfolioLoader equityLoader = new ExampleEquityPortfolioLoader();
+      final ExampleEquityPortfolioLoader equityLoader = new ExampleEquityPortfolioLoader();
       equityLoader.run(getToolContext());
       log.done();
     } catch (final RuntimeException t) {
@@ -247,7 +263,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   private void loadMultiCurrencySwapPortfolio() {
     final Log log = new Log("Creating example multi-currency swap portfolio");
     try {
-      ExampleMultiCurrencySwapPortfolioLoader multiCurrSwapLoader = new ExampleMultiCurrencySwapPortfolioLoader();
+      final ExampleMultiCurrencySwapPortfolioLoader multiCurrSwapLoader = new ExampleMultiCurrencySwapPortfolioLoader();
       multiCurrSwapLoader.run(getToolContext());
       log.done();
     } catch (final RuntimeException t) {
@@ -268,7 +284,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   private void loadViews() {
     final Log log = new Log("Creating example view definitions");
     try {
-      ExampleViewsPopulator populator = new ExampleViewsPopulator();
+      final ExampleViewsPopulator populator = new ExampleViewsPopulator();
       populator.run(getToolContext());
       log.done();
     } catch (final RuntimeException t) {
