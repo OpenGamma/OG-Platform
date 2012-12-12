@@ -42,6 +42,7 @@
     <fragment>/styles/common/util/ui/og.common.util.ui.OG-message.css</fragment>
     <fragment>/styles/common/util/ui/og.common.util.ui.OG-warning-message.css</fragment>
     <fragment>/styles/common/util/ui/og.common.util.ui.OG-breadcrumb.css</fragment>
+    <fragment>/styles/common/util/ui/og.common.util.ui.OG-portfolio.css</fragment>
   </bundle>
   <bundle id="common.classes.css">
     <fragment>/styles/common/classes/og.common.classes.OG-table_style_01.css</fragment>

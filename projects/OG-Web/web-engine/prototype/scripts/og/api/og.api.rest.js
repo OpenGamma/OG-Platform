@@ -354,7 +354,7 @@ $.register_module({
                     config = config || {};
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), node = str(config.node), version = str(config.version),
-                        name = str(config.name), name_search =  'name' in config, version_search = version === '*',
+                        name = str(config.name), name_search =  config.name, version_search = version === '*',
                         ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
                         nodes = config.nodes, node_search = nodes && $.isArray(nodes) && nodes.length,
                         search = !id || id_search || node_search || name_search || version_search;
