@@ -23,15 +23,11 @@ $.register_module({
                 return og.dev.warn('og.analytics.AggregatorsMenu: Missing param key [config.data] to constructor.');
 
             // Private
-            var menu = new og.analytics.DropMenu({
-                    $cntr: config.cntr,
-                    data: config.data,
-                    tmpl: config.tmpl
-                }),
-                Block = og.common.util.ui.Block, Form = og.common.util.ui.Form;
-                $dom, data, query = [], sel_val, sel_pos, $parent, $query, $select, $checkbox,
-                default_sel_txt = 'select aggregation...', default_query_text = 'Default', del_s = '.og-icon-delete',
-                options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox';
+            var menu = new og.analytics.DropMenu({ $cntr: config.cntr, data: config.data, tmpl: config.tmpl}),
+                form, $dom, data, query = [], sel_val, sel_pos, $parent, $query, $select,
+                $checkbox, default_sel_txt = 'select aggregation...', default_query_text = 'Default',
+                del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', select_s = 'select',
+                checkbox_s = '.og-option :checkbox';
 
             var add_handler = function () {
                 if (menu.data.length === menu.opts.length) return;
@@ -72,6 +68,14 @@ $.register_module({
             };
 
             var init = function (conf) {
+                form = new og.common.util.ui.Form({
+                    module: conf.tmpl,
+                    data: {},
+                    type_map: {},
+                    selector: '.OG-blotter-form-block',
+                    extras: conf.data
+                });
+
                 $dom = menu.$dom;
                 if ($dom) {
                     $query = $('.aggregation-selection', $dom.toggle);
