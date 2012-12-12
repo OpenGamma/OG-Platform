@@ -138,4 +138,12 @@ public class DefaultAggregatedExecutionLog implements AggregatedExecutionLog {
     return sb.toString();
   }
 
+  @Override
+  public String toString() {
+    return "DefaultAggregatedExecutionLog [" +
+        "_emptyRoot=" + _emptyRoot +
+        ", _logLevels=" + _logLevels +
+        ", _logs=" + _logs +
+        "]";
+  }
 }
