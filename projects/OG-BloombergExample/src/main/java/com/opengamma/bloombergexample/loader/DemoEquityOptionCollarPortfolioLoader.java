@@ -492,7 +492,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
       }
       for (final String key : map.keySet()) {
         final String buid = referenceDataProvider.getReferenceDataValue(key, BloombergConstants.FIELD_ID_BBG_UNIQUE);
-        idBundle = idBundle.withExternalId(ExternalSchemes.bloombergTickerSecurityId(buid));
+        idBundle = idBundle.withExternalId(ExternalSchemes.bloombergBuidSecurityId(buid));
       }
     }
     final ExternalIdBundle searchBundle = idBundle.withoutScheme(ExternalSchemes.ISIN); // For things which move country, e.g. ISIN(VALE5 BZ Equity) == ISIN(RIODF US Equity)
