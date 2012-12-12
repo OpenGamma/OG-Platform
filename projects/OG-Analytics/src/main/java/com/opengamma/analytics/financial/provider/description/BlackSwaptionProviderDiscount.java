@@ -28,15 +28,6 @@ public class BlackSwaptionProviderDiscount extends BlackSwaptionProvider {
   }
 
   /**
-   * Returns the MulticurveProvider from which the BlackSwaptionProviderDiscount is composed.
-   * @return The multi-curves provider.
-   */
-  @Override
-  public MulticurveProviderDiscount getMulticurveProvider() {
-    return (MulticurveProviderDiscount) super.getMulticurveProvider();
-  }
-
-  /**
    * Create a new copy of the provider.
    * @return The bundle.
    */
@@ -44,6 +35,15 @@ public class BlackSwaptionProviderDiscount extends BlackSwaptionProvider {
   public BlackSwaptionProviderDiscount copy() {
     MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
     return new BlackSwaptionProviderDiscount(multicurveProvider, getBlackParameters());
+  }
+
+  /**
+   * Returns the MulticurveProvider from which the BlackSwaptionProviderDiscount is composed.
+   * @return The multi-curves provider.
+   */
+  @Override
+  public MulticurveProviderDiscount getMulticurveProvider() {
+    return (MulticurveProviderDiscount) super.getMulticurveProvider();
   }
 
   /**

@@ -11,7 +11,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Interface for swaption SABR parameters provider for one underlying.
  */
-public interface LiborMarketModelDisplacedDiffusionProviderInterface {
+public interface LiborMarketModelDisplacedDiffusionProviderInterface extends ParameterProviderInterface {
 
   /**
    * Create a new copy of the provider.
@@ -30,11 +30,5 @@ public interface LiborMarketModelDisplacedDiffusionProviderInterface {
    * @return The currency.
    */
   Currency getLMMCurrency();
-
-  /**
-   * Returns the MulticurveProvider from which the HullWhiteProvider is composed.
-   * @return The multi-curves provider.
-   */
-  MulticurveProviderInterface getMulticurveProvider();
 
 }

@@ -54,6 +54,11 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
   }
 
   @Override
+  public MulticurveProviderInterface getMulticurveProvider() {
+    return this;
+  }
+
+  @Override
   public MulticurveProviderInterface copy() {
     return new MulticurveProviderDiscountingDecoratedIssuer(_issuerProvider.copy(), _decoratedCurrency, _decoratingIssuer);
   }

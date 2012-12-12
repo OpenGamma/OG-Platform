@@ -75,7 +75,7 @@ public class CapFloorHullWhiteCalibrationObjectiveTest {
     for (int loopexp = 0; loopexp < CAP.getNumberOfPayments(); loopexp++) {
       calibrationEngine.addInstrument(CAP.getNthPayment(loopexp), PVSCC);
     }
-    calibrationEngine.calibrate(SABR_MULTICURVES, MULTICURVES);
+    calibrationEngine.calibrate(SABR_MULTICURVES);
     MultipleCurrencyAmount[] pvSabr = new MultipleCurrencyAmount[CAP.getNumberOfPayments()];
     MultipleCurrencyAmount[] pvHw = new MultipleCurrencyAmount[CAP.getNumberOfPayments()];
     for (int loopexp = 0; loopexp < CAP.getNumberOfPayments(); loopexp++) {

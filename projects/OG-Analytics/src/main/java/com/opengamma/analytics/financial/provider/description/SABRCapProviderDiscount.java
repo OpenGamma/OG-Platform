@@ -11,20 +11,7 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
 /**
  * Implementation for swaption SABR parameters provider for one underlying when multi-curves are described by a MulticurveProviderDiscount.
  */
-public class SABRCapProviderDiscount implements SABRCapProviderInterface {
-
-  /**
-   * The multicurve provider.
-   */
-  private final MulticurveProviderDiscount _multicurveProvider;
-  /**
-   * The SABR parameters.
-   */
-  private final SABRInterestRateParameters _parameters;
-  /**
-   * The underlying swaps generators.
-   */
-  private final IborIndex _index;
+public class SABRCapProviderDiscount extends SABRCapProvider {
 
   /**
    * @param multicurveProvider The multicurve provider.
@@ -32,30 +19,18 @@ public class SABRCapProviderDiscount implements SABRCapProviderInterface {
    * @param index The cap/floor index.
    */
   public SABRCapProviderDiscount(MulticurveProviderDiscount multicurveProvider, SABRInterestRateParameters parameters, final IborIndex index) {
-    _multicurveProvider = multicurveProvider;
-    _parameters = parameters;
-    _index = index;
+    super(multicurveProvider, parameters, index);
   }
 
   @Override
   public SABRCapProviderInterface copy() {
-    MulticurveProviderDiscount multicurveProvider = _multicurveProvider.copy();
-    return new SABRCapProviderDiscount(multicurveProvider, _parameters, _index);
-  }
-
-  @Override
-  public SABRInterestRateParameters getSABRParameter() {
-    return _parameters;
-  }
-
-  @Override
-  public IborIndex getSABRIndex() {
-    return _index;
+    MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
+    return new SABRCapProviderDiscount(multicurveProvider, getSABRParameter(), getSABRIndex());
   }
 
   @Override
   public MulticurveProviderDiscount getMulticurveProvider() {
-    return _multicurveProvider;
+    return (MulticurveProviderDiscount) super.getMulticurveProvider();
   }
 
 }

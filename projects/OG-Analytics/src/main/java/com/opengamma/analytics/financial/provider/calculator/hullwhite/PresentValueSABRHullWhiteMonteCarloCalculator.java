@@ -73,7 +73,7 @@ public final class PresentValueSABRHullWhiteMonteCarloCalculator extends Instrum
     // Calibration instruments
     calibrationEngine.addInstrument(swaption, PVSSC);
     // Calibration
-    calibrationEngine.calibrate(sabrData, sabrData.getMulticurveProvider());
+    calibrationEngine.calibrate(sabrData);
     HullWhiteOneFactorProvider hwMulticurves = new HullWhiteOneFactorProvider(sabrData.getMulticurveProvider(), hwParameters, ccy);
     // Pricing
     HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), DEFAULT_NB_PATH);

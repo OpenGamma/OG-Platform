@@ -18,7 +18,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Interface of a multi-curves framework providing discounting factors, forward rate (linked to Ibor index), issuer/currency specific curves and currency exchange rates.
  */
-public interface MulticurveProviderInterface {
+public interface MulticurveProviderInterface extends ParameterProviderInterface {
 
   /**
    * Create a new copy of the provider.

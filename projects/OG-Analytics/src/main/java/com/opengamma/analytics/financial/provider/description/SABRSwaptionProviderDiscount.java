@@ -11,20 +11,7 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
 /**
  * Implementation for swaption SABR parameters provider for one underlying when multi-curves are described by a MulticurveProviderDiscount.
  */
-public class SABRSwaptionProviderDiscount implements SABRSwaptionProviderInterface {
-
-  /**
-   * The multicurve provider.
-   */
-  private final MulticurveProviderDiscount _multicurveProvider;
-  /**
-   * The SABR parameters.
-   */
-  private final SABRInterestRateParameters _parameters;
-  /**
-   * The underlying swaps generators.
-   */
-  private final GeneratorSwapFixedIbor _generator;
+public class SABRSwaptionProviderDiscount extends SABRSwaptionProvider {
 
   /**
    * @param multicurveProvider The multicurve provider.
@@ -32,30 +19,18 @@ public class SABRSwaptionProviderDiscount implements SABRSwaptionProviderInterfa
    * @param generator The underlying swaps generators.
    */
   public SABRSwaptionProviderDiscount(MulticurveProviderDiscount multicurveProvider, SABRInterestRateParameters parameters, GeneratorSwapFixedIbor generator) {
-    _multicurveProvider = multicurveProvider;
-    _parameters = parameters;
-    _generator = generator;
+    super(multicurveProvider, parameters, generator);
   }
 
   @Override
-  public SABRSwaptionProviderInterface copy() {
-    MulticurveProviderDiscount multicurveProvider = _multicurveProvider.copy();
-    return new SABRSwaptionProviderDiscount(multicurveProvider, _parameters, _generator);
-  }
-
-  @Override
-  public SABRInterestRateParameters getSABRParameter() {
-    return _parameters;
-  }
-
-  @Override
-  public GeneratorSwapFixedIbor getSABRGenerator() {
-    return _generator;
+  public SABRSwaptionProviderDiscount copy() {
+    MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
+    return new SABRSwaptionProviderDiscount(multicurveProvider, getSABRParameter(), getSABRGenerator());
   }
 
   @Override
   public MulticurveProviderDiscount getMulticurveProvider() {
-    return _multicurveProvider;
+    return (MulticurveProviderDiscount) super.getMulticurveProvider();
   }
 
 }

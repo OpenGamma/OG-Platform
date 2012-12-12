@@ -231,11 +231,11 @@ public class SwaptionCashFixedIborSABRMethodTest {
     assertEquals("Swaption Cash SABR: Present value SABR sensitivity: method vs calculator", pvssMethod, pvssCalculator);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Test of performance. In normal testing, "enabled = false".
    */
-  public void testPerformance() {
+  public void performance() {
     long startTime, endTime;
     final int nbTest = 1000;
 

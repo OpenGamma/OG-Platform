@@ -291,7 +291,7 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
     System.out.println("G2++ numerical integration - present value: " + pvPayerLongNI);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Tests of performance. "enabled = false" for the standard testing.
    */
@@ -309,7 +309,7 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
       pvMC = methodMC.presentValue(SWAPTION_LONG_PAYER, CUR, G2PP_MULTICURVES);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " pv swaption G2++ Monte Carlo with " + nbPath + " paths: " + (endTime - startTime) + " ms");
+    System.out.println(nbTest + " pv swaption physical G2++ Monte Carlo with " + nbPath + " paths: " + (endTime - startTime) + " ms");
     // Performance note: G2++ price: 04-Dec-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 140 ms for 10 swaptions (12500 paths).
   }
 

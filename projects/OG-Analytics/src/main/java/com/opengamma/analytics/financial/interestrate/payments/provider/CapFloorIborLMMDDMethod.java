@@ -52,7 +52,7 @@ public final class CapFloorIborLMMDDMethod {
    * relevant period multiplied by the time dependent factor square mean.
    * The method is used mainly for calibration purposes.
    * @param cap The cap. Should have the same underlying index as the model (same payment frequency). 
-   * @param lmmData The Model parameters.
+   * @param lmmData The LMM and multi-curves provider.
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final CapFloorIbor cap, final LiborMarketModelDisplacedDiffusionProviderInterface lmmData) {

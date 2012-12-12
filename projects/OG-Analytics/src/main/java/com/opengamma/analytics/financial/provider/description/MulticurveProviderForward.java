@@ -90,6 +90,11 @@ public class MulticurveProviderForward implements MulticurveProviderInterface {
     setAllCurves();
   }
 
+  @Override
+  public MulticurveProviderInterface getMulticurveProvider() {
+    return this;
+  }
+
   /**
    * Constructor from an existing market. The given market maps are used for the new market (the same maps are used, not copied).
    * @param market The existing market.

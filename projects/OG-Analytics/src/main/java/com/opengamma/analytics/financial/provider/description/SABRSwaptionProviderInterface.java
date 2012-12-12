@@ -11,7 +11,7 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
 /**
  * Interface for swaption SABR parameters provider for one underlying.
  */
-public interface SABRSwaptionProviderInterface {
+public interface SABRSwaptionProviderInterface extends ParameterProviderInterface {
 
   /**
    * Create a new copy of the provider.
@@ -30,11 +30,5 @@ public interface SABRSwaptionProviderInterface {
    * @return The generator.
    */
   GeneratorSwapFixedIbor getSABRGenerator();
-
-  /**
-   * Returns the MulticurveProvider from which the SABRSwaptionProviderInterface is composed.
-   * @return The multi-curves provider.
-   */
-  MulticurveProviderInterface getMulticurveProvider();
 
 }

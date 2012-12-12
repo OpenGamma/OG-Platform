@@ -102,7 +102,7 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
     for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
       calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[loopexp], PVSSC);
     }
-    calibrationEngine.calibrate(SABR_MULTICURVES, MULTICURVES);
+    calibrationEngine.calibrate(SABR_MULTICURVES);
     MultipleCurrencyAmount[] pvSabr = new MultipleCurrencyAmount[EXPIRY_TENOR.length];
     MultipleCurrencyAmount[] pvHw = new MultipleCurrencyAmount[EXPIRY_TENOR.length];
     for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
@@ -129,7 +129,7 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
       for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
         calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[loopexp], PVSSC);
       }
-      calibrationEngine.calibrate(SABR_MULTICURVES, MULTICURVES);
+      calibrationEngine.calibrate(SABR_MULTICURVES);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " Hull-White calibration to swaption (5 swaptions): " + (endTime - startTime) + " ms");

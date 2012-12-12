@@ -99,6 +99,11 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
   }
 
   @Override
+  public MulticurveProviderInterface getMulticurveProvider() {
+    return this;
+  }
+
+  @Override
   public MulticurveProviderDiscount copy() {
     final LinkedHashMap<Currency, YieldAndDiscountCurve> discountingCurves = new LinkedHashMap<Currency, YieldAndDiscountCurve>(_discountingCurves);
     final LinkedHashMap<IborIndex, YieldAndDiscountCurve> forwardIborCurves = new LinkedHashMap<IborIndex, YieldAndDiscountCurve>(_forwardIborCurves);

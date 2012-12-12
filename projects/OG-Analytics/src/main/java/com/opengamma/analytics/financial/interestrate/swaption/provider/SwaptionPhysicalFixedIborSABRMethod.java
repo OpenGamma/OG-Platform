@@ -57,7 +57,7 @@ public final class SwaptionPhysicalFixedIborSABRMethod {
   /**
    * Computes the present value of a physical delivery European swaption in the SABR model.
    * @param swaption The swaption.
-   * @param sabrData The SABR data.
+   * @param sabrData The SABR and multi-curves provider.
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final SABRSwaptionProviderInterface sabrData) {

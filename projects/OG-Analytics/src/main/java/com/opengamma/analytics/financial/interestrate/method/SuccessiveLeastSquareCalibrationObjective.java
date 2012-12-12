@@ -20,49 +20,57 @@ public abstract class SuccessiveLeastSquareCalibrationObjective extends Function
   /**
    * The instruments to be calibrated.
    */
+
   private InstrumentDerivative[] _instruments;
+
   /**
-   * The instruments prices.
-   */
+    * The instruments prices.
+    */
+
   private double[] _prices;
 
   /**
-   * Sets the instruments to calibrate.
-   * @param instruments The instruments.
-   */
+    * Sets the instruments to calibrate.
+    * @param instruments The instruments.
+    */
+
   public void setInstruments(InstrumentDerivative[] instruments) {
     _instruments = instruments;
   }
 
   /**
-   * Sets the prices of the instruments to calibrate. The instruments should be set first.
-   * @param prices The prices.
-   */
+    * Sets the prices of the instruments to calibrate. The instruments should be set first.
+    * @param prices The prices.
+    */
+
   public void setPrice(double[] prices) {
     ArgumentChecker.isTrue(prices.length == _instruments.length, "Incorrect number of prices.");
     _prices = prices;
   }
 
   /**
-   * Gets the prices.
-   * @return The prices.
-   */
+    * Gets the prices.
+    * @return The prices.
+    */
+
   public double[] getPrices() {
     return _prices;
   }
 
   /**
-   * Gets the instruments.
-   * @return The instruments.
-   */
+    * Gets the instruments.
+    * @return The instruments.
+    */
+
   public InstrumentDerivative[] getInstruments() {
     return _instruments;
   }
 
   /**
-   * Sets the curve bundle used in the calibration.
-   * @param curves The curves.
-   */
+    * Sets the curve bundle used in the calibration.
+    * @param curves The curves.
+    */
+
   public abstract void setCurves(YieldCurveBundle curves);
 
 }
