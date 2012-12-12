@@ -16,7 +16,9 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.CapFloor
 import com.opengamma.analytics.financial.interestrate.payments.provider.CapFloorCMSSpreadSABRBinormalMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponCMSSABRExtrapolationRightReplicationMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionCashFixedIborSABRExtrapolationRightMethod;
+import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborSABRExtrapolationRightMethod;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.analytics.financial.provider.description.SABRSwaptionProviderInterface;
 import com.opengamma.util.ArgumentChecker;
@@ -41,6 +43,7 @@ public final class PresentValueSABRSwaptionRightExtrapolationCalculator extends 
    */
   private final CouponCMSSABRExtrapolationRightReplicationMethod _methodExtraCMSCpn;
   private final CapFloorCMSSABRExtrapolationRightReplicationMethod _methodExtraCMSCap;
+  private final SwaptionPhysicalFixedIborSABRExtrapolationRightMethod _methodSwptPhys;
   private final SwaptionCashFixedIborSABRExtrapolationRightMethod _methodSwptCash;
 
   /**
@@ -53,6 +56,7 @@ public final class PresentValueSABRSwaptionRightExtrapolationCalculator extends 
     _cutOffStrike = cutOffStrike;
     _methodExtraCMSCpn = new CouponCMSSABRExtrapolationRightReplicationMethod(_cutOffStrike, _mu);
     _methodExtraCMSCap = new CapFloorCMSSABRExtrapolationRightReplicationMethod(_cutOffStrike, _mu);
+    _methodSwptPhys = new SwaptionPhysicalFixedIborSABRExtrapolationRightMethod(_cutOffStrike, _mu);
     _methodSwptCash = new SwaptionCashFixedIborSABRExtrapolationRightMethod(_cutOffStrike, _mu);
   }
 
@@ -97,6 +101,11 @@ public final class PresentValueSABRSwaptionRightExtrapolationCalculator extends 
   }
 
   // -----     Swaption     ------
+
+  @Override
+  public MultipleCurrencyAmount visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final SABRSwaptionProviderInterface sabr) {
+    return _methodSwptPhys.presentValue(swaption, sabr);
+  }
 
   @Override
   public MultipleCurrencyAmount visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final SABRSwaptionProviderInterface sabr) {

@@ -34,7 +34,7 @@ import com.opengamma.util.tuple.Triple;
  * The LMM displacements and volatility weights are hard coded.
  * <p> Reference: M. Henrard, Algorithmic differentiation and calibration: optimization, September 2012.
  */
-public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod {
+public class SwaptionPhysicalFixedIborSABRLMMLeastSquareMethod {
 
   /**
    * The SABR method used for European swaptions with physical delivery.
@@ -68,7 +68,7 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod {
    * @param strikeMoneyness The noneyness of strikes used in the calibration basket. Difference between the swaption rate and the basket rates.
    * @param parametersInit The initial value of the LMM parameters for calibration. The initial parameters are not modified by the calibration but a new copy is created for each calibration.
    */
-  public SwaptionPhysicalFixedIborSABRLMMAtBestMethod(double[] strikeMoneyness, final LiborMarketModelDisplacedDiffusionParameters parametersInit) {
+  public SwaptionPhysicalFixedIborSABRLMMLeastSquareMethod(double[] strikeMoneyness, final LiborMarketModelDisplacedDiffusionParameters parametersInit) {
     _strikeMoneyness = strikeMoneyness;
     _parametersInit = parametersInit;
   }

@@ -37,7 +37,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the calibration engine for Hull-White one factor calibration to European swaptions.
  */
-public class SwaptionG2ppCalibrationObjectiveTest {
+public class SwaptionPhysicalG2ppCalibrationObjectiveTest {
   // Swaption description
   private static final boolean IS_LONG = true;
   private static final int SETTLEMENT_DAYS = 2;
@@ -123,6 +123,7 @@ public class SwaptionG2ppCalibrationObjectiveTest {
     long startTime, endTime;
     final int nbTest = 100;
     CurrencyAmount[] pv = new CurrencyAmount[nbTest];
+
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       G2ppPiecewiseConstantParameters g2Parameters = new G2ppPiecewiseConstantParameters(meanReversion, new double[][] { {0.01}, {0.01 / ratio}}, new double[0], correlation);
@@ -136,7 +137,7 @@ public class SwaptionG2ppCalibrationObjectiveTest {
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " Hull-White calibration to swaption (5 swaptions) + price: " + (endTime - startTime) + " ms");
-    // Performance note: calibration: 13-Sep-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 90 ms for 100 calibration with 5 swaptions.
+    // Performance note: calibration: 12-Dec-2012: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 135 ms for 100 calibration with 5 swaptions.
   }
 
 }

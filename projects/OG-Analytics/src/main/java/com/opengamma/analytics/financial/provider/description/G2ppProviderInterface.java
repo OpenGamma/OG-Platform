@@ -11,7 +11,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Interface for G2++ parameters provider for one currency.
  */
-public interface G2ppProviderInterface {
+public interface G2ppProviderInterface extends ParameterProviderInterface {
 
   /**
    * Create a new copy of the provider.
@@ -30,11 +30,5 @@ public interface G2ppProviderInterface {
    * @return The currency.
    */
   Currency getG2ppCurrency();
-
-  /**
-   * Returns the MulticurveProvider from which the InflationProvider is composed.
-   * @return The multi-curves provider.
-   */
-  MulticurveProviderInterface getMulticurveProvider();
 
 }

@@ -3,29 +3,28 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.swaption.method;
+package com.opengamma.analytics.financial.interestrate.swaption.provider;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
-import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedIborSpreadDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedIborSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.provider.description.BlackSwaptionProviderInterface;
+import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  *  Class used to compute the price and sensitivity of a physical delivery swaption on a swap with spread in the Black model. 
  *  The implied Black volatilities are expiry and underlying maturity dependent.
  *  The swap underlying the swaption should be a Fixed for Ibor with spread swap.
  */
-public final class SwaptionPhysicalFixedIborSpreadBlackMethod implements PricingMethod {
+public final class SwaptionPhysicalFixedIborSpreadBlackMethod {
 
   /**
    * The method unique instance.
@@ -54,33 +53,27 @@ public final class SwaptionPhysicalFixedIborSpreadBlackMethod implements Pricing
   /**
    * Computes the present value of a physical delivery European swaption in the Black model.
    * @param swaption The swaption.
-   * @param curveBlack The curves with Black volatility data.
+   * @param blackMulticurves Black volatility for swaption and multi-curves provider.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
-    Validate.notNull(swaption, "Swaption");
-    Validate.notNull(curveBlack, "Curves with Black volatility");
-    Validate.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
-    final DayCount dayCountModification = curveBlack.getBlackParameters().getGeneratorSwap().getFixedLegDayCount();
-    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, curveBlack);
-    final double forwardModified = METHOD_SWAP.forwardSwapSpreadModified(swaption.getUnderlyingSwap(), pvbpModified, curveBlack);
-    final double strikeModified = METHOD_SWAP.couponEquivalentSpreadModified(swaption.getUnderlyingSwap(), pvbpModified, curveBlack);
+  public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final BlackSwaptionProviderInterface blackMulticurves) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(blackMulticurves, "Black volatility for swaption and multicurve");
+    Validate.isTrue(blackMulticurves.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
+    MulticurveProviderInterface multicurves = blackMulticurves.getMulticurveProvider();
+    final DayCount dayCountModification = blackMulticurves.getBlackParameters().getGeneratorSwap().getFixedLegDayCount();
+    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, multicurves);
+    final double forwardModified = METHOD_SWAP.forwardSwapSpreadModified(swaption.getUnderlyingSwap(), pvbpModified, multicurves);
+    final double strikeModified = METHOD_SWAP.couponEquivalentSpreadModified(swaption.getUnderlyingSwap(), pvbpModified, multicurves);
     final double maturity = swaption.getMaturityTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
-    final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), maturity);
+    final double volatility = blackMulticurves.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), maturity);
     final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, pvbpModified, volatility);
     final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
     final double pv = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
-    return CurrencyAmount.of(swaption.getCurrency(), pv);
-  }
-
-  @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
-    Validate.isTrue(curves instanceof YieldCurveWithBlackSwaptionBundle, "Bundle should contain Black Swaption data");
-    return presentValue((SwaptionPhysicalFixedIbor) instrument, (YieldCurveWithBlackSwaptionBundle) curves);
+    return MultipleCurrencyAmount.of(swaption.getCurrency(), pv);
   }
 
 }

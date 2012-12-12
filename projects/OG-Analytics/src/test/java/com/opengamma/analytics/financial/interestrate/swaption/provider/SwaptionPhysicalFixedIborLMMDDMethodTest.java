@@ -137,7 +137,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   private static final LiborMarketModelMonteCarloMethod METHOD_LMM_MC = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0), NB_PATH);
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
   private static final double[] MONEYNESS = new double[] {-0.0100, 0, 0.0100};
-  private static final SwaptionPhysicalFixedIborSABRLMMAtBestMethod METHOD_SABR_LMM_ATBEST = new SwaptionPhysicalFixedIborSABRLMMAtBestMethod(MONEYNESS, PARAMETERS_LMM);
+  private static final SwaptionPhysicalFixedIborSABRLMMLeastSquareMethod METHOD_SABR_LMM_ATBEST = new SwaptionPhysicalFixedIborSABRLMMLeastSquareMethod(MONEYNESS, PARAMETERS_LMM);
   private static final SwaptionPhysicalFixedIborBasketMethod METHOD_BASKET = SwaptionPhysicalFixedIborBasketMethod.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2;

@@ -89,7 +89,7 @@ public final class PresentValueCurveSensitivitySABRExtrapolationCalculator exten
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabr = (SABRInterestRateDataBundle) curves;
       final SwaptionPhysicalFixedIborSABRExtrapolationRightMethod method = new SwaptionPhysicalFixedIborSABRExtrapolationRightMethod(_cutOffStrike, _mu);
-      return method.presentValueSensitivity(swaption, sabr).getSensitivities();
+      return method.presentValueCurveSensitivity(swaption, sabr).getSensitivities();
     }
     throw new UnsupportedOperationException("The PresentValueCurveSensitivitySABRExtrapolationCalculator visitor visitSwaptionPhysicalFixedIbor requires a SABRInterestRateDataBundle as data.");
 
