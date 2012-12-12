@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.views.blotter',
-    dependencies: ['og.analytics.Form', 'og.common.routes', 'og.common.masthead'],
+    dependencies: ['og.common.routes', 'og.common.masthead'],
     obj: function () {
         var module = this, masthead = og.common.masthead, page_name = module.name.split('.').pop(),
             routes = og.common.routes, main_selector = '.OG-layout-analytics-center', view, form;
@@ -13,7 +13,7 @@ $.register_module({
             check_state: og.views.common.state.check.partial('/'),
             load: function (args) {
 //                masthead.menu.set_tab(page_name);
-                if (!form) form = new og.analytics.Form({selector:'.OG-layout-blotter-masthead .og-form'});
+                if (!form) form = new og.analytics.form2();
                 $('.new_trade').css({display: 'inline-block'}).click(function (){new og.blotter.Dialog();});
             },
             load_item: function (args) {},

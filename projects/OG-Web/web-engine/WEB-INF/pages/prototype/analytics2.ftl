@@ -6,7 +6,6 @@ ${ogStyle.print('og_all.css', 'all',false)}
 <div class="OG-layout-analytics-container">
   <div class="ui-layout-north">
       <#include "modules/common/og.common.masthead.ftl">
-      <div class="og-form"></div>
   </div>
   <div class="ui-layout-center">
     <div class="OG-layout-analytics-center"></div>

@@ -28,6 +28,7 @@ $.register_module({
                     data: config.data,
                     tmpl: config.tmpl
                 }),
+                Block = og.common.util.ui.Block, Form = og.common.util.ui.Form;
                 $dom, data, query = [], sel_val, sel_pos, $parent, $query, $select, $checkbox,
                 default_sel_txt = 'select aggregation...', default_query_text = 'Default', del_s = '.og-icon-delete',
                 options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox';
@@ -36,11 +37,13 @@ $.register_module({
                 if (menu.data.length === menu.opts.length) return;
                 menu.add_handler();
             };
+
             var checkbox_handler = function (entry) {
                 if ($checkbox[0].checked && ~entry) query[entry].required_field = true;
                 else if (!$checkbox[0].checked && ~entry) query[entry].required_field = false;
                 $checkbox.focus();
             };
+
             var delete_handler = function (entry) {
                 if (menu.opts.length === 1) {
                     if ($checkbox) $checkbox[0].disabled = true;
@@ -55,6 +58,7 @@ $.register_module({
                     display_query();
                 }
             };
+
             var display_query = function () {
                 if(query.length) {
                     var i = 0, arr = [], query_val;
@@ -66,6 +70,7 @@ $.register_module({
                     $query.html(query_val);
                 } else $query.text(default_query_text);
             };
+
             var init = function (conf) {
                 $dom = menu.$dom;
                 if ($dom) {
@@ -79,11 +84,13 @@ $.register_module({
                     }
                 }
             };
+
             var init_menu_elems = function (index) {
                 $parent = menu.opts[index];
                 $select = $parent.find(select_s);
                 $checkbox = $parent.find(checkbox_s);
             };
+
             var menu_handler = function (event) {
                 var $elem = $(event.srcElement || event.target), entry;
                     $parent = $elem.parents(options_s);
@@ -98,10 +105,12 @@ $.register_module({
                 if ($elem.is($select)) return select_handler(entry);
                 if ($elem.is('button')) return menu.button_handler($elem.text());
             };
+
             var remove_entry = function (entry) {
                 if (query.length === 1) return query.length = 0;
                 query.splice(entry, 1);
             };
+
             var remove_orphans = function () {
                 for (var i = menu.opts.length-1; i >= 0; i-=1) {
                     if (menu.opts.length === 1) break;
@@ -109,9 +118,11 @@ $.register_module({
                     if ($(select_s, option).val() === default_sel_txt) menu.delete_handler(option);
                 }
             };
+
             var reset_query = function () {
                 return $query.text(default_query_text), $select.val(default_sel_txt).focus(), remove_entry();
             };
+
             var select_handler = function (entry) {
                     if (sel_val === default_sel_txt) {
                         remove_entry(entry);

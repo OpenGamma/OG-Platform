@@ -5,7 +5,7 @@
 $.register_module({
     name: 'og.blotter.Dialog',
     dependencies: [],
-    obj: function () {   
+    obj: function () {
         return function () {
             var dialog = this, form_block = '.OG-blotter-form-block', form;
             dialog.load = function () {
@@ -22,14 +22,14 @@ $.register_module({
                             form = new inner();
                             $('.ui-dialog-title').html(form.title);
                         }
-                    }); 
+                    });
                     og.common.util.ui.dialog({
                         type: 'input', title: 'Add New Trade', width: 530, height: 700, custom: $selector,
                         buttons: {
                             'Create': function () {$(this).dialog('close');},
                             'Cancel': function () {$(this).dialog('close');}
                         }
-                    });  
+                    });
                 });
             };
             dialog.clear = function () {

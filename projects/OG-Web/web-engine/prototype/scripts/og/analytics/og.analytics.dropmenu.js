@@ -11,10 +11,6 @@ $.register_module({
                 querycancelled: 'dropmenu:querycancelled'
             },
             DropMenu = function (config) {
-                /**
-                * TODO AG: Must provide Getters/Setters for static instance properties as these should
-                * really be private and not accessible directly via the instance.
-                */
                 var menu = new og.common.util.ui.DropMenu(config), dummy_s = '<wrapper>';
                 menu.$dom.toggle_prefix = $(dummy_s);
                 menu.$dom.toggle_infix = $(dummy_s).append('<span>then</span>');
