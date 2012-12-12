@@ -72,7 +72,7 @@ $.register_module({
                     module: conf.tmpl,
                     data: {},
                     type_map: {},
-                    selector: '.OG-blotter-form-block',
+                    selector: '.og-aggregation',
                     extras: conf.data
                 });
 
