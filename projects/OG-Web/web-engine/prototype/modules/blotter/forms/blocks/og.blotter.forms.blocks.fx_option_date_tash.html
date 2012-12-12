@@ -34,15 +34,28 @@
         <input name="" type="text" />
       </td>
     </tr>
-    <tr>
-      <td>
-        <label>
-          <span>Premium</span>
-        </label>
-      </td>
-      <td class="og-double-cell">
-        <div><span><select></select></span><span><input name="" type="text" /></span></div>
-      </td>
-    </tr>
+    {{#if nondev}}
+      <tr>
+        <td>
+          <label>
+            <span>Delivery Currency</span>
+          </label>
+        </td>
+        <td>
+          <div><select></select></div>
+        </td>
+      </tr>
+    {{else}}
+      <tr>
+        <td>
+          <label>
+            <span>Premium</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span><select></select></span><span><input name="" type="text" /></span></div>
+        </td>
+      </tr>
+    {{/if}}
   </tbody>
 </table>
