@@ -1,3 +1,4 @@
+<section>
 <table class="OG-table">
   <colgroup>
     <col style="width: 30%">              
@@ -11,8 +12,8 @@
       <td class="og-double-cell">
         <div><span><label>Cap <input type="radio" name="name1" value="cap">
         </label><label>Floor <input type="radio" name="name1" value="floor"></label>
-        </span><span><label>Pay <input type="radio" name="name2" value="pay">
-        </label><label>Recieve <input type="radio" name="name2" value="recieve"></label></span></div>
+        </span><span><label>Buy<input type="radio" name="name2" value="recieve">
+        </label><label>Sell<input type="radio" name="name2" value="pay"></label></span></div>
       </td>
     </tr>
     <tr>
@@ -69,22 +70,17 @@
           <span>Index</span>
         </label>
       </td>
-      <td>
-        <input name="" type="text" />
-      </td>
-    </tr>
-    {{#if cms}}
-    <tr>
-      <td>
-        <label>
-          <span>Index 2</span>
-        </label>
-      </td>
-      <td>
-        <input name="" type="text" />
-      </td>
-    </tr>
+      {{#if cms}}
+        <td class="og-double-cell">
+          <div><span><input name="" type="text" />
+          </span><span><input name="" type="text" /></span></div>
+        </td>
+      {{else}}
+        <td>
+          <input name="" type="text" />
+        </td>
     {{/if}}
+    </tr>
     <tr>
       <td>
         <label>
@@ -117,3 +113,4 @@
     </tr>
   </tbody>
 </table>
+</section>

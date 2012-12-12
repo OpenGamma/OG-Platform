@@ -9,7 +9,7 @@ $.register_module({
         return function () {
             var constructor = this;
             constructor.load = function () {
-                constructor.title = 'Bond';
+                constructor.title = 'Forward Rate Agreement';
                 var form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.forward_rate_agreement_tash',
                     data: {},
