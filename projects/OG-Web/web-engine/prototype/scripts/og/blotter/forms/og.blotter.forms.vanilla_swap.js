@@ -9,7 +9,7 @@ $.register_module({
         return function () {
             var constructor = this;
             constructor.load = function () {
-                constructor.title = 'Vanilla Swap';
+                constructor.title = 'Swap';
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.vanilla_swap_tash',
                     data: {},
