@@ -171,6 +171,9 @@ import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRat
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityForwardCalculationDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityForwardFromSpotAndYieldCurveFunction;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapDefaults;
+import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapPureImpliedVolPVFunction;
+import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapPureLocalVolPVFunction;
+import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationPresentValueFunction;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationVegaFunction;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationYCNSFunction;
@@ -390,6 +393,7 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.defaultp
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceSecurityDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceTradeDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.PureBlackVolatilitySurfacePrimitiveDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.PureBlackVolatilitySurfaceSecurityDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.pure.PureBlackVolatilitySurfaceDividendCorrectionFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.pure.PureBlackVolatilitySurfaceNoDividendCorrectionFunction;
 import com.opengamma.financial.analytics.timeseries.DefaultHistoricalTimeSeriesShiftFunction;
@@ -625,6 +629,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addBondFutureOptionBlackCalculators(functionConfigs);
     addCommodityFutureOptionCalculators(functionConfigs);
     addEquityDerivativesCalculators(functionConfigs);
+    addEquityVarianceSwapCalculators(functionConfigs);
     addBlackCalculators(functionConfigs);
     addLocalVolatilityPDEFunctions(functionConfigs);
     addLocalVolatilityPDEGridFunctions(functionConfigs);
@@ -910,21 +915,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     equityForwardDefaultsWithPriority.add(PriorityClass.NORMAL.name());
     equityForwardDefaultsWithPriority.addAll(equityForwardDefaults);
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCalculationDefaults.class.getName(), equityForwardDefaultsWithPriority));
-    
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationYCNSFunction.class));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationVegaFunction.class));
-    final List<String> equityVarianceSwapStaticReplicationDefaults = EquityInstrumentDefaultValues.builder()
-        .useTickers()
-        .useDiscountingCurveNames()
-        .useDiscountingCurveCalculationConfigNames()
-        .useVolatilitySurfaceNames()
-        .createDefaults();
-    final List<String> equityVarianceSwapStaticReplicationDefaultsWithPriority = new ArrayList<String>();
-    equityVarianceSwapStaticReplicationDefaultsWithPriority.add(PriorityClass.NORMAL.name());
-    equityVarianceSwapStaticReplicationDefaultsWithPriority.addAll(equityVarianceSwapStaticReplicationDefaults);
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityVarianceSwapDefaults.class.getName(), equityVarianceSwapStaticReplicationDefaultsWithPriority));
-    
+        
     final List<String> equityForwardCurveDefaults = EquityInstrumentDefaultValues.builder()
         .useTickers()
         .useDiscountingCurveNames()
@@ -977,6 +968,38 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionDefaults.class, "0.0", "0.001"));
   }
 
+  private static void addEquityVarianceSwapCalculators(final List<FunctionConfiguration> functionConfigs) {
+    final List<String> equityVarianceSwapStaticReplicationDefaults = EquityInstrumentDefaultValues.builder()
+        .useTickers()
+        .useDiscountingCurveNames()
+        .useDiscountingCurveCalculationConfigNames()
+        .useVolatilitySurfaceNames()
+        .createDefaults();
+    final List<String> equityVarianceSwapStaticReplicationDefaultsWithPriority = new ArrayList<String>();
+    equityVarianceSwapStaticReplicationDefaultsWithPriority.add(PriorityClass.NORMAL.name());
+    equityVarianceSwapStaticReplicationDefaultsWithPriority.addAll(equityVarianceSwapStaticReplicationDefaults);
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationYCNSFunction.class));
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationVegaFunction.class));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityVarianceSwapStaticReplicationDefaults.class.getName(), equityVarianceSwapStaticReplicationDefaultsWithPriority));
+
+    final List<String> equityVarianceSwapDefaults = EquityInstrumentDefaultValues.builder()
+        .useTickers()
+        .useDiscountingCurveNames()
+        .useForwardCurveNames()
+        .useForwardCurveCalculationConfigNames()
+        .useForwardCurveCalculationMethodNames()
+        .useDiscountingCurveCurrency()
+        .useVolatilitySurfaceNames()
+        .createDefaults();
+    final List<String> equityVarianceSwapDefaultsWithPriority = new ArrayList<String>();
+    equityVarianceSwapDefaultsWithPriority.add(PriorityClass.NORMAL.name());
+    equityVarianceSwapDefaultsWithPriority.addAll(equityVarianceSwapDefaults);
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapPureImpliedVolPVFunction.class));
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapPureLocalVolPVFunction.class));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityVarianceSwapDefaults.class.getName(), equityVarianceSwapDefaultsWithPriority));
+  }
+  
   private static void addBondFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class));
     functionConfigs.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class));
@@ -1394,6 +1417,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         .useVolatilitySurfaceNames()
         .createDefaults();
     functionConfigs.add(new ParameterizedFunctionConfiguration(PureBlackVolatilitySurfacePrimitiveDefaults.class.getName(), defaults));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(PureBlackVolatilitySurfaceSecurityDefaults.class.getName(), defaults));
   }
 
   private static void addSABRCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -1520,7 +1544,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     final String defaultStdDevCalculatorName = StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION;
     final String defaultCovarianceCalculatorName = StatisticsCalculatorFactory.SAMPLE_COVARIANCE;
     final String defaultVarianceCalculatorName = StatisticsCalculatorFactory.SAMPLE_VARIANCE;
-    final String defaultExcessReturnCalculatorName = StatisticsCalculatorFactory.MEAN; //TODO static variables?
+    final String defaultExcessReturnCalculatorName = StatisticsCalculatorFactory.MEAN; 
 
     functionConfigs.add(functionConfiguration(CAPMBetaDefaultPropertiesPortfolioNodeFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingFunctionName, defaultReturnCalculatorName, defaultCovarianceCalculatorName, defaultVarianceCalculatorName));
