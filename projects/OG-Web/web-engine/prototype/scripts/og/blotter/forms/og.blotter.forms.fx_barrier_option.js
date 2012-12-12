@@ -11,7 +11,7 @@ $.register_module({
             constructor.load = function () {
                 constructor.title = 'FX Barrier Option';
                 var form = new og.common.util.ui.Form({
-                    module: 'og.blotter.forms.fx_derivative_tash',
+                    module: 'og.blotter.forms.fx_option_tash',
                     data: {},
                     type_map: {},
                     selector: '.OG-blotter-form-block',
@@ -20,7 +20,11 @@ $.register_module({
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
                     new form.Block({
-                        module: 'og.blotter.forms.blocks.fx_derivative_value_tash',
+                        module: 'og.blotter.forms.blocks.long_short_tash',
+                        extras: {}
+                    }), 
+                    new form.Block({
+                        module: 'og.blotter.forms.blocks.fx_option_value_tash',
                         extras: {}
                     }),                    
                     new form.Block({

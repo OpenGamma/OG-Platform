@@ -3,15 +3,15 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.blotter.forms.Vanilla_swap',
+    name: 'og.blotter.forms.Swap',
     dependencies: [],
     obj: function () {   
         return function () {
             var constructor = this;
             constructor.load = function () {
-                constructor.title = 'Vanilla Swap';
+                constructor.title = 'Swap';
                 form = new og.common.util.ui.Form({
-                    module: 'og.blotter.forms.vanilla_swap_tash',
+                    module: 'og.blotter.forms.swap_tash',
                     data: {},
                     type_map: {},
                     selector: '.OG-blotter-form-block',
