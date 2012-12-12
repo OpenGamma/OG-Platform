@@ -7,6 +7,8 @@ package com.opengamma.engine.view.client;
 
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
@@ -87,7 +89,8 @@ public class ViewDeltaResultCalculator {
             // values after truncation to the required decimal place, rather than testing whether the difference of the
             // full values is greater than some threshold; this way, there will always be a point beyond which a change
             // is detected, even in the event of gradual creep.
-            if (deltaDefinition.isDelta(previousValue, resultValue)) {
+            if (!ObjectUtils.equals(previousValue.getAggregatedExecutionLog(), resultValue.getAggregatedExecutionLog())
+                || deltaDefinition.isDelta(previousValue, resultValue)) {
               deltaModel.addValue(calcConfigName, resultEntry.getValue());
             }
           }

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
 import com.opengamma.engine.view.AggregatedExecutionLog;
@@ -92,6 +93,34 @@ public class DefaultAggregatedExecutionLog implements AggregatedExecutionLog {
   @Override
   public List<ExecutionLogWithContext> getLogs() {
     return _logs;
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _logLevels.hashCode();
+    result = prime * result + (_emptyRoot ? 1231 : 1237);
+    result = prime * result + ((_logs == null) ? 0 : _logs.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof DefaultAggregatedExecutionLog)) {
+      return false;
+    }
+    // Optimise for the majority of cases where no logs have been collected.
+    // If logs are present then don't perform detailed equality checking, just check instance equality.
+    DefaultAggregatedExecutionLog other = (DefaultAggregatedExecutionLog) obj;
+    return ObjectUtils.equals(_logLevels, other._logLevels) && _logs == other._logs && _emptyRoot == other._emptyRoot;
   }
   
   //-------------------------------------------------------------------------  
