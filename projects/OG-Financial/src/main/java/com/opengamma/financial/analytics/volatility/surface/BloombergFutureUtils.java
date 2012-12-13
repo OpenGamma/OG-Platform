@@ -97,7 +97,7 @@ public class BloombergFutureUtils {
     if (futurePrefix.equals("ED")) {
       twoDigitYearSwitch = today.minus(Period.ofDays(2));
     } else {
-      twoDigitYearSwitch = today.minus(Period.ofMonths(11));
+      twoDigitYearSwitch = today.minus(Period.ofMonths(11)).minus(Period.ofDays(2));
     }
     return getQuarterlyExpiryMonthYearCode(nthFuture, curveDate, twoDigitYearSwitch);
   }
