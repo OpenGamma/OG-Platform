@@ -272,6 +272,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     try {
       final ExampleEquityPortfolioLoader equityLoader = new ExampleEquityPortfolioLoader();
       equityLoader.run(getToolContext());
+      _historicalDataToLoad.add(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "SPX Index"));
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
