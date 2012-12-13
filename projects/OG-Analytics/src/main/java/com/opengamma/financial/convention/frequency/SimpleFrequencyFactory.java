@@ -105,7 +105,7 @@ public final class SimpleFrequencyFactory {
       if (_periodsMap.containsKey(periodsPerYear)) {
         SimpleFrequency existingFrequency = _periodsMap.get(periodsPerYear);
         throw new OpenGammaRuntimeException("Cannot overwrite " + existingFrequency.getConventionName() +
-                                                " with " + frequency);
+                                                " with " + frequency.getConventionName());
       }
       _periodsMap.put(periodsPerYear, frequency);
     }

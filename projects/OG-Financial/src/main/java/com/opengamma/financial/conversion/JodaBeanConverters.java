@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
@@ -26,9 +27,12 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
+import com.opengamma.financial.security.option.BarrierDirection;
+import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
+import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
@@ -68,6 +72,9 @@ public final class JodaBeanConverters {
     stringConvert.register(BusinessDayConvention.class, new BusinessDayConventionConverter());
     stringConvert.register(YieldConvention.class, new YieldConventionConverter());
     stringConvert.register(BondFutureDeliverable.class, new BondFutureDeliverableConverter());
+    stringConvert.register(BarrierType.class, new BarrierTypeConverter());
+    stringConvert.register(BarrierDirection.class, new BarrierDirectionConverter());
+    stringConvert.register(SamplingFrequency.class, new SamplingFrequencyConverter());
   }
   
   /**
@@ -309,4 +316,42 @@ public final class JodaBeanConverters {
     
   }
 
+  private static class BarrierTypeConverter implements StringConverter<BarrierType> {
+
+    @Override
+    public BarrierType convertFromString(Class<? extends BarrierType> cls, String str) {
+      return BarrierType.valueOf(str.toUpperCase());
+    }
+
+    @Override
+    public String convertToString(BarrierType barrierType) {
+      return StringUtils.capitalize(barrierType.name().toLowerCase());
+    }
+  }
+
+  private static class BarrierDirectionConverter implements StringConverter<BarrierDirection> {
+
+    @Override
+    public BarrierDirection convertFromString(Class<? extends BarrierDirection> cls, String str) {
+      return BarrierDirection.valueOf(str.toUpperCase().replace(' ', '_'));
+    }
+
+    @Override
+    public String convertToString(BarrierDirection direction) {
+      return WordUtils.capitalize(direction.name().toLowerCase().replace('_', ' '));
+    }
+  }
+
+  private static class SamplingFrequencyConverter implements StringConverter<SamplingFrequency> {
+
+    @Override
+    public SamplingFrequency convertFromString(Class<? extends SamplingFrequency> cls, String str) {
+      return SamplingFrequency.valueOf(str.toUpperCase().replace(' ', '_'));
+    }
+
+    @Override
+    public String convertToString(SamplingFrequency frequency) {
+      return WordUtils.capitalize(frequency.name().toLowerCase().replace('_', ' '));
+    }
+  }
 }
