@@ -18,6 +18,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.examples.generator.SyntheticPortfolioGeneratorTool;
+import com.opengamma.examples.loader.ExampleCurrencyConfigurationLoader;
 import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
@@ -102,6 +103,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   protected void doRun() {
     loadExchanges();
     loadHolidays();
+    loadCurrencyConfiguration();
     loadCurveAndSurfaceDefinitions();
     loadCurveCalculationConfigurations();
     loadDefaultVolatilityCubeDefinition();
@@ -142,6 +144,17 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       throw e;
     }
 
+  }
+
+  private void loadCurrencyConfiguration() {
+    final Log log = new Log("Creating FX definitions");
+    try {
+      final ExampleCurrencyConfigurationLoader currencyLoader = new ExampleCurrencyConfigurationLoader();
+      currencyLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
   }
 
   private void loadCurveAndSurfaceDefinitions() {

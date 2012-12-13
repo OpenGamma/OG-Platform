@@ -6,6 +6,7 @@
 package com.opengamma.bloombergexample.tool;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
@@ -20,6 +21,8 @@ import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bloombergexample.generator.BloombergExamplePortfolioGeneratorTool;
 import com.opengamma.bloombergexample.loader.CurveNodeHistoricalDataLoader;
 import com.opengamma.bloombergexample.loader.DemoEquityOptionCollarPortfolioLoader;
+import com.opengamma.bloombergexample.loader.ExampleCurveAndSurfaceDefinitionLoader;
+import com.opengamma.bloombergexample.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.bloombergexample.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleMultiCurrencySwapPortfolioLoader;
 import com.opengamma.bloombergexample.loader.ExampleTimeSeriesRatingLoader;
@@ -91,23 +94,19 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     }
   }
 
-  private Set<ExternalId> _curveNodesExternalIds;
+  private final Set<ExternalIdBundle> _futuresToLoad = new HashSet<ExternalIdBundle>();
+  private final Set<ExternalId> _historicalDataToLoad = new HashSet<ExternalId>();
 
-  private Set<ExternalId> _initialRateExternalIds;
-
-  private Set<ExternalIdBundle> _futuresExternalIds;
-
-  //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
   @Override
   protected void doRun() {
-    final Set<ExternalId> eurUsdId = ImmutableSet.of(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EURUSD Curncy"));
     loadCurrencyConfiguration();
+    loadCurveAndSurfaceDefinitions();
+    loadCurveCalculationConfigurations();
     loadCurveNodeHistoricalData();
-    loadFutures(_futuresExternalIds);
+    loadFutures();
     loadTimeSeriesRating();
     loadEquityPortfolio();
-    loadHistoricalData(_curveNodesExternalIds, _initialRateExternalIds, eurUsdId);
+    loadHistoricalData();
     loadVolSurfaceData();
     loadFXPortfolio();
     loadMultiCurrencySwapPortfolio();
@@ -157,6 +156,28 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     }
   }
 
+  private void loadCurveAndSurfaceDefinitions() {
+    final Log log = new Log("Creating curve and surface definitions");
+    try {
+      final ExampleCurveAndSurfaceDefinitionLoader curveLoader = new ExampleCurveAndSurfaceDefinitionLoader();
+      curveLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadCurveCalculationConfigurations() {
+    final Log log = new Log("Creating curve calculation configurations");
+    try {
+      final ExampleCurveConfigurationLoader curveConfigLoader = new ExampleCurveConfigurationLoader();
+      curveConfigLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
   private void loadEquityOptionPortfolio() {
     final Log log = new Log("Loading example Equity Option portfolio");
     try {
@@ -176,9 +197,9 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     try {
       final CurveNodeHistoricalDataLoader curveNodeHistoricalDataLoader = new CurveNodeHistoricalDataLoader();
       curveNodeHistoricalDataLoader.run(getToolContext());
-      _curveNodesExternalIds = curveNodeHistoricalDataLoader.getCurveNodesExternalIds();
-      _initialRateExternalIds = curveNodeHistoricalDataLoader.getInitialRateExternalIds();
-      _futuresExternalIds = curveNodeHistoricalDataLoader.getFuturesExternalIds();
+      _historicalDataToLoad.addAll(curveNodeHistoricalDataLoader.getCurveNodesExternalIds());
+      _historicalDataToLoad.addAll(curveNodeHistoricalDataLoader.getInitialRateExternalIds());
+      _futuresToLoad.addAll(curveNodeHistoricalDataLoader.getFuturesExternalIds());
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
@@ -206,36 +227,33 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     }
   }
 
-  private void loadFutures(final Set<ExternalIdBundle> identifiers) {
+  private void loadFutures() {
     final Log log = new Log("Loading Futures reference data");
     try {
       final SecurityMaster securityMaster = getToolContext().getSecurityMaster();
       final SecurityProvider securityProvider = getToolContext().getSecurityProvider();
       final BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(securityProvider, securityMaster);
-      securityLoader.loadSecurity(identifiers);
+      securityLoader.loadSecurity(_futuresToLoad);
+      _futuresToLoad.clear();
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
     }
   }
 
-  private void loadHistoricalData(final Set<ExternalId>... externalIdSets) {
+  private void loadHistoricalData() {
     final Log log = new Log("Loading historical reference data");
     try {
       final BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
           getToolContext().getHistoricalTimeSeriesMaster(),
           getToolContext().getHistoricalTimeSeriesProvider(),
           new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
-
       for (final SecurityDocument doc : readEquitySecurities()) {
         final Security security = doc.getSecurity();
         loader.addTimeSeries(ImmutableSet.of(security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_TICKER)), "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
       }
-      for (final Set<ExternalId> externalIds : externalIdSets) {
-        if (externalIds.size() > 0) {
-          loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
-        }
-      }
+      loader.addTimeSeries(_historicalDataToLoad, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
+      _historicalDataToLoad.clear();
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
@@ -275,6 +293,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     final Log log = new Log("Creating example FX portfolio");
     try {
       portfolioGeneratorTool().run(getToolContext(), FX_PORTFOLIO_NAME, "EuroDollarFX", true, s_currencies);
+      _historicalDataToLoad.add(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EURUSD Curncy"));
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);

@@ -5,7 +5,6 @@
  */
 package com.opengamma.bloombergexample.loader;
 
-
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.util.functional.Functional.map;
 
@@ -22,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
@@ -30,35 +28,27 @@ import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
-import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.impl.ConfigSearchIterator;
 import com.opengamma.util.functional.Function1;
-import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
-
 /**
- * Example code to load a very simple swap portfolio.
- * <p>
- * This code is kept deliberately as simple as possible.
- * There are no checks for the securities or portfolios already existing, so if you run it
- * more than once you will get multiple copies portfolios and securities with the same names.
- * It is designed to run against the HSQLDB example database.
+ * Finds the historical time series that need to be loaded so that they can be used as instruments in the defined curves.
  */
-@Scriptable
-public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolContext> {
+public class CurveNodeHistoricalDataLoader {
+
   /**
    * Logger.
    */
@@ -82,25 +72,9 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
     return _futuresExternalIds;
   }
 
-  //-------------------------------------------------------------------------
-
-  /**
-   * Main method to run the tool.
-   * No arguments are needed.
-   *
-   * @param args  the arguments, unused
-   */
-  public static void main(final String[] args) {  // CSIGNORE
-    new CurveNodeHistoricalDataLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  protected void doRun() {
-    final ConfigSource configSource = getToolContext().getConfigSource();
-    final ConfigMaster configMaster = getToolContext().getConfigMaster();
-    YieldCurveConfigPopulator.populateCurveConfigMaster(configMaster);
+  public void run(final ToolContext tools) {
+    final ConfigSource configSource = tools.getConfigSource();
+    final ConfigMaster configMaster = tools.getConfigMaster();
     final List<YieldCurveDefinition> curves = getForwardAndFundingCurves(configMaster);
 
     final Set<Currency> currencies = newHashSet();
@@ -166,8 +140,8 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
    * @return list of yield curve definition config object names
    */
   private List<YieldCurveDefinition> getForwardAndFundingCurves(final ConfigMaster configMaster) {
-    final List<YieldCurveDefinition> forwardCurves = getCurveDefinitionNames(configMaster, "FORWARD*");
-    final List<YieldCurveDefinition> fundingCurves = getCurveDefinitionNames(configMaster, "FUNDING*");
+    final List<YieldCurveDefinition> forwardCurves = getCurveDefinitionNames(configMaster, "FORWARD_*");
+    final List<YieldCurveDefinition> fundingCurves = getCurveDefinitionNames(configMaster, "FUNDING_*");
     final List<YieldCurveDefinition> allCurves = Lists.newArrayList();
     allCurves.addAll(forwardCurves);
     allCurves.addAll(fundingCurves);
