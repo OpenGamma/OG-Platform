@@ -12,7 +12,19 @@ public enum Sector {
   /**
    * 
    */
-  GOVERNMENT,
+  BASICMATERIALS,
+  /**
+   * 
+   */
+  CONSUMERGOODS,
+  /**
+   * 
+   */
+  CONSUMERSERVICES,
+  /**
+   * 
+   */
+  ENERGY,
   /**
    * 
    */
@@ -20,11 +32,31 @@ public enum Sector {
   /**
    * 
    */
-  BASICMATERIALS,
+  GOVERNMENT,
   /**
    * 
    */
-  INDUSTRIALS;
+  HEALTHCARE,
+  /**
+   * 
+   */
+  INDUSTRIALS,
+  /**
+   * 
+   */
+  TECHNOLOGY,
+  /**
+   * 
+   */
+  TELECOMMUNICATIONSERVICES,
+  /**
+   * 
+   */
+  UTILITIES,
+  /**
+   * 
+   */
+  NONE;
 
   // TODO: Extend this list to include a comprehensive list of sector classifications (ICB classification)
 }

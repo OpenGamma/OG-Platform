@@ -154,6 +154,9 @@ public class IndexCreditDefaultSwapDefinition {
   // The current market observed index spread (can differ from the fixed coupon)
   private final double _indexSpread;
 
+  // The number of obligors in the underlying pool that are non-defaulted as of trade date (expressed as a percentage) - MarkIt field
+  private final double _indexFactor;
+
   // Vector of single name CDS objects (one for each obligor in the underlying pool)
   private final LegacyCreditDefaultSwapDefinition[] _underlyingCDS;
 
@@ -271,6 +274,8 @@ public class IndexCreditDefaultSwapDefinition {
     _upfrontPayment = upfrontPayment;
     _indexCoupon = indexCoupon;
     _indexSpread = indexSpread;
+
+    _indexFactor = ((double) _underlyingPool.getNumberOfDefaultedObligors()) / ((double) _underlyingPool.getNumberOfObligors());
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -432,6 +437,10 @@ public class IndexCreditDefaultSwapDefinition {
 
   public double getIndexSpread() {
     return _indexSpread;
+  }
+
+  public double getIndexFactor() {
+    return _indexFactor;
   }
 
   public LegacyCreditDefaultSwapDefinition[] getUnderlyingCDS() {

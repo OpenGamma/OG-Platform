@@ -41,6 +41,12 @@ public class UnderlyingPool {
   // The number of obligors in the underlying pool (usually 125 for CDX and iTraxx - although defaults can reduce this)
   private final int _numberOfObligors;
 
+  // The number of obligors in the underlying pool marked as having not previously defaulted
+  private final int _numberOfNonDefaultedObligors;
+
+  // The number of obligors in the underlying pool marked as having previously defaulted
+  private final int _numberOfDefaultedObligors;
+
   // The currencies of the underlying obligors
   private final Currency[] _currency;
 
@@ -149,6 +155,17 @@ public class UnderlyingPool {
 
     _numberOfObligors = obligors.length;
 
+    int numberOfDefaultedObligors = 0;
+
+    for (int i = 0; i < _numberOfObligors; i++) {
+      if (obligors[i].getHasDefaulted() == true) {
+        numberOfDefaultedObligors++;
+      }
+    }
+
+    _numberOfDefaultedObligors = numberOfDefaultedObligors;
+    _numberOfNonDefaultedObligors = _numberOfObligors - _numberOfDefaultedObligors;
+
     _currency = currency;
     _debtSeniority = debtSeniority;
     _restructuringClause = restructuringClause;
@@ -177,6 +194,14 @@ public class UnderlyingPool {
 
   public int getNumberOfObligors() {
     return _numberOfObligors;
+  }
+
+  public int getNumberOfNonDefaultedObligors() {
+    return _numberOfNonDefaultedObligors;
+  }
+
+  public int getNumberOfDefaultedObligors() {
+    return _numberOfDefaultedObligors;
   }
 
   public Currency[] getCurrency() {

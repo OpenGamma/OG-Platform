@@ -25,12 +25,25 @@ public enum RestructuringClause {
    * No-Restructuring
    */
   NORE,
+
   /**
-   * Full-Restructuring (MarkIt notation)
+   * With Restructuring (MarkIt notation)
    */
   CR,
   /**
+   * Modified-Modified Restructuring (MarkIt notation)
+   */
+  MM,
+  /**
+   * Modified Restructuring (MarkIt notation)
+   */
+  MR,
+  /**
    * No-Restructuring (MarkIt notation)
    */
-  XR;
+  XR,
+  /**
+   * 
+   */
+  NONE;
 }

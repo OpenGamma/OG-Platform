@@ -38,13 +38,16 @@ public abstract class CreditDefaultSwapDefinition {
 
   // Coupon conventions - coupons are always assumed to be entered in bps (therefore there are internal conversions to absolute values by division by 10,000)
 
+  // NOTE : For a standard CDS contract the step-in date is the same as the effective date
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice)
+  // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice - although MarkIt enforces N > 0)
   // TODO : Make sure the 'equals' method has all the necessary fields and the hashCode method is correct
   // TODO : More detailed description of ref entity obligation will be necessary
   // TODO : Move _protectionStart and _protectionOffset variables into the PV calculator?
   // TODO : Replace rec rate range arg checkers with .isInRangeInclusive
+  // TODO : Add a CSA agreement?
 
   // NOTE : We are enforcing the condition that the three obligors have to be different entities
 

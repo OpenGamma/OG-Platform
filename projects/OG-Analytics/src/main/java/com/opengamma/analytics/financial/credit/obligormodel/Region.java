@@ -12,26 +12,6 @@ public enum Region {
   /**
    * 
    */
-  EUROPE,
-  /**
-   * 
-   */
-  LATINAMERICA,
-  /**
-   * 
-   */
-  EASTERNEUROPE,
-  /**
-   * 
-   */
-  OCEANIA,
-  /**
-   * 
-   */
-  NORTHAMERICA,
-  /**
-   * 
-   */
   AFRICA,
   /**
    * 
@@ -40,7 +20,49 @@ public enum Region {
   /**
    * 
    */
-  MIDDLEEAST;
-
-  // TODO: Extend this list to include all region classifications
+  CARIBBEAN,
+  /**
+   * 
+   */
+  EASTERNEUROPE,
+  /**
+   * 
+   */
+  EUROPE,
+  /**
+   * 
+   */
+  INDIA,
+  /**
+   * 
+   */
+  LATINAMERICA,
+  /**
+   * 
+   */
+  MIDDLEEAST,
+  /**
+   * 
+   */
+  NORTHAMERICA,
+  /**
+   * 
+   */
+  OCEANIA,
+  /**
+   * 
+   */
+  OFFSHORE,
+  /**
+   * 
+   */
+  PACIFIC,
+  /**
+   * 
+   */
+  SUPRA,
+  /**
+   * 
+   */
+  NONE;
 }
