@@ -6,7 +6,9 @@
 
   <class name="Authority" table="authority">
   	<id name="id">
-      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">auth_hibernate_sequence</param> 
+      </generator>
     </id>
     <property name="regex" unique="true" not-null="true"/>
   </class>

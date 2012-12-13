@@ -4,8 +4,10 @@
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate">
   <class name="DayCountBean" table="sec_daycount">
-    <id name="id">
-      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+    <id name="id">      
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">sec_hibernate_sequence</param> 
+      </generator>
     </id>
     <property name="name" unique="true" type="string" not-null="true"/>
   </class>

@@ -5,7 +5,9 @@
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.forward">
   <class name="CommodityForwardSecurityBean" table="sec_commodity_forward">
     <id name="id" column="id">
-      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">sec_hibernate_sequence</param>
+      </generator>
     </id>
     <discriminator column="forward_type" type="string"/>
     <property name="securityId" type="long" column="security_id"/>
