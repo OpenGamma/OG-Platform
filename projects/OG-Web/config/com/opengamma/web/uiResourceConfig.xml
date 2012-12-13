@@ -87,6 +87,7 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-ellipsis.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-sparkline.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-dependency-graph.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-position.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-data.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-curve.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-log.css</fragment>
