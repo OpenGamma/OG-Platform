@@ -5,12 +5,17 @@
  */
 package com.opengamma.financial.convention.frequency;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Factory to obtain instances of {@code SimpleFrequency}.
@@ -21,15 +26,19 @@ public final class SimpleFrequencyFactory {
    * Singleton instance.
    */
   public static final SimpleFrequencyFactory INSTANCE = new SimpleFrequencyFactory();
-
   /**
    * Map of convention name to convention.
    */
   private final Map<String, SimpleFrequency> _conventionMap = new HashMap<String, SimpleFrequency>();
   /**
-   * Map of periods per year to convention.
+   * Map of periods per year to convention, only contains frequencies with an integer number of periods per year
+   * (plus {@link SimpleFrequency#TWENTY_EIGHT_DAYS} with a key of 13 periods).
    */
   private final Map<Integer, SimpleFrequency> _periodsMap = new HashMap<Integer, SimpleFrequency>();
+  /**
+   * All the frequencies.
+   */
+  private final List<SimpleFrequency> _frequencies = Lists.newArrayList();
 
   /**
    * Creates the factory.
@@ -53,6 +62,15 @@ public final class SimpleFrequencyFactory {
     store(SimpleFrequency.NINE_MONTHS);
     store(SimpleFrequency.TEN_MONTHS);
     store(SimpleFrequency.ELEVEN_MONTHS);
+    storeByPeriodCount(SimpleFrequency.DAILY,
+                       SimpleFrequency.WEEKLY,
+                       SimpleFrequency.BIWEEKLY,
+                       SimpleFrequency.TWENTY_EIGHT_DAYS,
+                       SimpleFrequency.MONTHLY,
+                       SimpleFrequency.BIMONTHLY,
+                       SimpleFrequency.QUARTERLY,
+                       SimpleFrequency.SEMI_ANNUAL,
+                       SimpleFrequency.ANNUAL);
   }
 
   /**
@@ -64,7 +82,33 @@ public final class SimpleFrequencyFactory {
     for (final String alternativeName : alternativeNames) {
       _conventionMap.put(alternativeName.toLowerCase(Locale.ENGLISH), convention);
     }
-    _periodsMap.put((int) convention.getPeriodsPerYear(), convention);
+    _frequencies.add(convention);
+    Collections.sort(_frequencies, new Comparator<SimpleFrequency>() {
+      @Override
+      public int compare(SimpleFrequency o1, SimpleFrequency o2) {
+        return (int) Math.signum(o2.getPeriodsPerYear() - o1.getPeriodsPerYear());
+      }
+    });
+  }
+
+  /**
+   * Stores the frequencies keyed by the number of periods per year. This only really makes sense for periods
+   * with an integer number of periods per year. It will fail if it is called with multiple frequencies whose
+   * period counts round to the same integer.
+   * @param frequencies The frequencies to keyed on their (integer) period count.
+   */
+  private void storeByPeriodCount(SimpleFrequency... frequencies) {
+    for (SimpleFrequency frequency : frequencies) {
+      int periodsPerYear = (int) frequency.getPeriodsPerYear();
+      // this check is to prevent a repeat of a bug where frequencies were overwritten by another frequency whose
+      // non-integer period count rounded to the same integer
+      if (_periodsMap.containsKey(periodsPerYear)) {
+        SimpleFrequency existingFrequency = _periodsMap.get(periodsPerYear);
+        throw new OpenGammaRuntimeException("Cannot overwrite " + existingFrequency.getConventionName() +
+                                                " with " + frequency.getConventionName());
+      }
+      _periodsMap.put(periodsPerYear, frequency);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -97,8 +141,8 @@ public final class SimpleFrequencyFactory {
    * 
    * @return the available conventions, not null
    */
-  public Iterator<? extends Frequency> enumerateAvailableFrequencies() {
-    return Iterators.unmodifiableIterator(_periodsMap.values().iterator());
+  public Iterator<SimpleFrequency> enumerateAvailableFrequencies() {
+    return Iterators.unmodifiableIterator(_frequencies.iterator());
   }
 
 }

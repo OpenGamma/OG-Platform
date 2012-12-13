@@ -190,7 +190,7 @@ public final class EquityVarianceSwapPricer {
    * @param marketVols the market implied volatilities, not null
    * @return The <b>annualised</b> variance
    */
-  public double priceFromImpliedVols2(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
+  public double priceFromImpliedVolsBackwardPDE(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
       final SmileSurfaceDataBundle marketVols) {
     ArgumentChecker.notNull(swap, "swap");
     ArgumentChecker.notNull(discountCurve, "discount curve");
@@ -587,11 +587,10 @@ public final class EquityVarianceSwapPricer {
     return res;
   }
 
-  public double priceFromLocalVol(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
+  public double priceFromImpliedVolsForwardPDE(final EquityVarianceSwap swap, final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
       final SmileSurfaceDataBundle marketVols) {
 
     final PureLocalVolatilitySurface pureSurf = getPureLocalVolFromMarket(spot, discountCurve, dividends, marketVols);
-    //PDEUtilityTools.printSurface("pure local vol", pureSurf.getSurface(), 0, 2, 0.3, 3);
 
     final double[] ev = VAR_SWAP_FWD_PDE_CALCULATOR.expectedVariance(spot, discountCurve, dividends, swap.getTimeToSettlement(), pureSurf);
     final double res = swap.correctForDividends() ? ev[0] : ev[1];
@@ -785,7 +784,7 @@ public final class EquityVarianceSwapPricer {
   }
 
   /**
-   * Compute the "bucked vega" of a equity variance swap - the sensitivity of the square-root of the expected variance (since this has the same scale as the implied volatilities)
+   * Compute the "bucketed vega" of a equity variance swap - the sensitivity of the square-root of the expected variance (since this has the same scale as the implied volatilities)
    *  to the market implied volatilities. This is done by bumping each market implied volatility in turn, and computing the sensitivity by finite difference
    * @param swap The details of the equality variance swap
    * @param spot current level of the underlying

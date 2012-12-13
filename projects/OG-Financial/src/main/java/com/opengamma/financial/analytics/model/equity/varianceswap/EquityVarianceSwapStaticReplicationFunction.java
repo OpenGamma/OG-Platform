@@ -60,7 +60,8 @@ public abstract class EquityVarianceSwapStaticReplicationFunction extends Abstra
 
   /** CalculationMethod constraint used in configuration to choose this model */
   public static final String CALCULATION_METHOD = "StaticReplication";
-  /** Method may be Strike or Moneyness TODO Confirm */
+  /** Method may be Strike or Moneyness */
+  //TODO confirm
   public static final String STRIKE_PARAMETERIZATION_METHOD = "StrikeParameterizationMethod";
 
   public EquityVarianceSwapStaticReplicationFunction(final String valueRequirementName) {

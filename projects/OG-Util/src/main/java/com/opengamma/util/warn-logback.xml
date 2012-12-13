@@ -13,5 +13,11 @@
     <appender-ref ref="STDOUT" />
     <appender-ref ref="BRIDGE" />
   </root>
-  
+
+  <logger name="com.opengamma.engine" level="off"/>
+  <logger name="com.opengamma.analytics" level="off"/>
+  <logger name="com.opengamma.livedata" level="off"/>
+  <logger name="com.opengamma.web.analytics" level="debug"/>
+  <!--<logger name="com.opengamma.web.analytics.TimingAnalyticsView" level="trace"/>-->
+
 </configuration>

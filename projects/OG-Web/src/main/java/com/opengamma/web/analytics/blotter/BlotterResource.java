@@ -256,69 +256,12 @@ public class BlotterResource {
     return result;
   }
 
-  // TODO return sub-resources or do it here? or do them all under a sub-path (lookup?) and have one sub-resource
-
-  @GET
-  @Path("frequencies")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String getFrequencies() {
-    throw new UnsupportedOperationException();
+  @Path("lookup")
+  public BlotterLookupResource getLookupResource() {
+    return new BlotterLookupResource();
   }
-
-  @GET
-  @Path("exercisetypes")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String getExerciseTypes() {
-    throw new UnsupportedOperationException();
-  }
-
-  @GET
-  @Path("daycountconventions")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String getDayCountConventions() {
-    throw new UnsupportedOperationException();
-  }
-
-  @GET
-  @Path("businessdayconventions")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String getBusinessDayConventions() {
-    throw new UnsupportedOperationException();
-  }
-
-  @GET
-  @Path("barriertypes")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String getBarrierTypes() {
-    throw new UnsupportedOperationException();
-  }
-
-  @GET
-  @Path("barrierdirections")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String getBarrierDirections() {
-    throw new UnsupportedOperationException();
-  }
-
-  @GET
-  @Path("samplingfrequencies")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String getSamplingFrequencies() {
-    throw new UnsupportedOperationException();
-  }
-
-  @GET
-  @Path("floatingratetypes")
-  @Produces(MediaType.APPLICATION_JSON)
-  public String getFloatingRateTypes() {
-    throw new UnsupportedOperationException();
-  }
-
-  // TODO create OTC trade - create new security, position of one, contains one trade
 
   // TODO create fungible trade - identifier and quantity
-
-  // TODO get OTC trade (security)
 
   // TODO what about bond futures? is the BondFutureDeliverable part of the definition from bbg?
 }
