@@ -21,6 +21,14 @@ $.register_module({
                 $(add_list).prepend(attribute({key: key, value: value}));
                 $group.find('[name^=attr]').val('');
             });
+
+            form.on('form:load', function (){
+                var index, data = og.blotter.util.FAKE_ATTRIBUTES;
+                for (index in data){
+                    if (data.hasOwnProperty(index))
+                        $(add_list).prepend(attribute({key: data[index].key, value: data[index].value}));
+                }
+            });
         };
         Attributes.prototype = new Block; // inherit Block prototype
         return Attributes;

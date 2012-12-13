@@ -31,6 +31,13 @@ $.register_module({
                 {issuer:'issuer 2',currency: 'currency 2',coupon_type: 'type 2',coupon_rate: 'rate 2',date: 'date 2'},
                 {issuer:'issuer 3',currency: 'currency 3',coupon_type: 'type 3',coupon_rate: 'rate 3',date: 'date 3'},
                 {issuer:'issuer 4',currency: 'currency 4',coupon_type: 'type 4',coupon_rate: 'rate 4',date: 'date 4'}
+            ],
+            FAKE_ATTRIBUTES : [
+                {key: 'what',value: 'that'},
+                {key: 'colour',value: 'white'},
+                {key: 'moral',value: 'bad'},
+                {key: 'direction',value: 'down'},
+                {key: 'speed',value: 'fast'}
             ]
         };
     }
