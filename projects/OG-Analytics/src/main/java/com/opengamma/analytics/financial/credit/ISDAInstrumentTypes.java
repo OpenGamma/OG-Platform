@@ -3,11 +3,14 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.yieldcurve;
+package com.opengamma.analytics.financial.credit;
 
 /**
  * 
  */
-public class ISDAYieldCurve {
+public enum ISDAInstrumentTypes {
+
+  MoneyMarket,
+  Swap;
 
 }
