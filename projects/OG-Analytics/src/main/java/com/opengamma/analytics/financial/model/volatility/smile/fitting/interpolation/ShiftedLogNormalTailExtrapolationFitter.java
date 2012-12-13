@@ -37,8 +37,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
   private static final Logger LOG = LoggerFactory.getLogger(ShiftedLogNormalTailExtrapolationFitter.class);
   private static final ScalarFirstOrderDifferentiator DIFFERENTIATOR = new ScalarFirstOrderDifferentiator();
   //Review R White - this was changed from   BroydenVectorRootFinder (with default parameters to get test roundTripTest to work for all values)
-//  private static final NewtonVectorRootFinder ROOTFINDER = new NewtonDefaultVectorRootFinder(1e-8, 1e-8, 500);
-  private static final NewtonVectorRootFinder ROOTFINDER = new NewtonDefaultVectorRootFinder(1e-1, 1e-1, 500);
+  private static final NewtonVectorRootFinder ROOTFINDER = new NewtonDefaultVectorRootFinder(1e-8, 1e-8, 500);
 
   private static final NonLinearParameterTransforms TRANSFORMS;
 
