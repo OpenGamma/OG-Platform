@@ -65,7 +65,7 @@ public class BlotterLookupResourceTest {
 
   @Test
   public void getBarrierDirections() throws JSONException {
-    JSONArray expected = new JSONArray(Lists.newArrayList("Knock in", "Knock out"));
+    JSONArray expected = new JSONArray(Lists.newArrayList("Knock In", "Knock Out"));
     assertTrue(JsonTestUtils.equal(expected, new JSONArray(_resource.getBarrierDirections())));
   }
 
