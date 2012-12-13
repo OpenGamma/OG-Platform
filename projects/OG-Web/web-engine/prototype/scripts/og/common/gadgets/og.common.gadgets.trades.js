@@ -10,7 +10,7 @@ $.register_module({
             template_data,
             dependencies = ['id', 'node', 'version'],
             html = {}, action = {}, $add_trades,
-            load, reload, attach_trades_link, format_trades,
+            load, attach_trades_link, format_trades,
             form_save, generate_form_function, form_handler;
         /*
          * Helper functions
