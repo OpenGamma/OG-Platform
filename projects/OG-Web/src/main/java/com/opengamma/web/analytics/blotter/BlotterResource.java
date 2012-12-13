@@ -34,21 +34,30 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.conversion.JodaBeanConverters;
+import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.BarrierDirection;
+import com.opengamma.financial.security.option.BarrierType;
+import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -62,6 +71,7 @@ import com.opengamma.web.FreemarkerOutputter;
 
 /**
  * TODO move some of this into subresources?
+ * TODO date and time zone handling
  */
 @Path("blotter")
 public class BlotterResource {
@@ -90,6 +100,21 @@ public class BlotterResource {
   private static final Map<Class<?>, Class<?>> s_underlyingSecurityTypes = ImmutableMap.<Class<?>, Class<?>>of(
       IRFutureOptionSecurity.class, InterestRateFutureSecurity.class,
       SwaptionSecurity.class, SwapSecurity.class);
+
+  private static final Map<Class<?>, String> s_endpoints = Maps.newHashMap();
+
+  // TODO this is an ugly but it's only temporay - fix or remove when the HTML bean info isn't needed
+  static {
+    s_endpoints.put(Frequency.class, "frequencies");
+    s_endpoints.put(ExerciseType.class, "exercisetypes");
+    s_endpoints.put(DayCount.class, "daycountconventions");
+    s_endpoints.put(BusinessDayConvention.class, "businessdayconventions");
+    s_endpoints.put(BarrierType.class, "barriertypes");
+    s_endpoints.put(BarrierDirection.class, "barrierdirections");
+    s_endpoints.put(SamplingFrequency.class, "samplingfrequencies");
+    s_endpoints.put(FloatingRateType.class, "floatingratetypes");
+    s_endpoints.put(LongShort.class, "longshort");
+  }
 
   private static final List<String> s_otherTypeNames = Lists.newArrayList();
   private static final List<String> s_securityTypeNames = Lists.newArrayList();
@@ -153,7 +178,7 @@ public class BlotterResource {
     if (metaBean == null) {
       throw new DataNotFoundException("Unknown type name " + typeName);
     }
-    BeanStructureBuilder structureBuilder = new BeanStructureBuilder(s_metaBeans, s_underlyingSecurityTypes);
+    BeanStructureBuilder structureBuilder = new BeanStructureBuilder(s_metaBeans, s_underlyingSecurityTypes, s_endpoints);
     // filter out underlying ID property for security types whose underlying is another OTC security
     PropertyFilter<Map<String, Object>> filter = new PropertyFilter<Map<String, Object>>(SwaptionSecurity.meta().underlyingId());
     Map<String,Object> beanData = new BeanTraverser(filter).traverse(metaBean, structureBuilder);
