@@ -45,6 +45,7 @@ public final class OpenGammaFunctionExclusions {
   public static final String ISDA_LEGACY_CDS_CURVE = "ISDA_LEGACY_CDS_CURVE";
   public static final String ISDA_LEGACY_CDS_PRICING = "ISDA_LEGACY_CDS";
   public static final String IMPLIED_FX_FORWARD_CURVE_DEFAULTS = "IMPLIED_FX_FORWARD_CURVE_DEFAULTS";
+  public static final String INTEREST_RATE_FUTURE_OPTION_HESTON = "INTEREST_RATE_FUTURE_OPTION_HESTON";
   //CSON
 
 
