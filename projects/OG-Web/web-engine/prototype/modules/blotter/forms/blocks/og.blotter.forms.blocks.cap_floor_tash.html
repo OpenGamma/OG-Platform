@@ -10,10 +10,10 @@
         Type
       </td>
       <td class="og-double-cell">
-        <div><span><label>Cap <input type="radio" name="name1" value="cap">
-        </label><label>Floor <input type="radio" name="name1" value="floor"></label>
-        </span><span><label>Buy<input type="radio" name="name2" value="recieve">
-        </label><label>Sell<input type="radio" name="name2" value="pay"></label></span></div>
+        <div><span><label>Cap <input type="radio" name="cap" value="true">
+        </label><label>Floor <input type="radio" name="cap" value="false"></label>
+        </span><span><label>Buy<input type="radio" name="payer" value="false">
+        </label><label>Sell<input type="radio" name="payer" value="true"></label></span></div>
       </td>
     </tr>
     <tr>
@@ -23,7 +23,7 @@
         </label>
       </td>
       <td>
-        <input name="" type="text" />
+        <input name="startDate" type="text" />
       </td>
     </tr>
     <tr>
@@ -33,7 +33,7 @@
         </label>
       </td>
       <td>
-        <input name="" type="text" />
+        <input name="maturityDate" type="text" />
       </td>
     </tr>
     <tr>
@@ -43,7 +43,7 @@
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span><select></select></span><span><input name="" type="text" /></span></div>
+        <div><span><select name="currency"></select></span><span><input name="notional" type="text" /></span></div>
       </td>
     </tr>
     <tr>
@@ -53,7 +53,7 @@
         </label>
       </td>
       <td>
-        <input name="" type="text" />
+        <input name="strike" type="text" />
       </td>
     </tr>
   </tbody>
@@ -72,12 +72,12 @@
       </td>
       {{#if cms}}
         <td class="og-double-cell">
-          <div><span><input name="" type="text" />
-          </span><span><input name="" type="text" /></span></div>
+          <div><span><input name="longId" type="text" />
+          </span><span><input name="shortId" type="text" /></span></div>
         </td>
       {{else}}
         <td>
-          <input name="" type="text" />
+          <input name="underlyingId" type="text" />
         </td>
     {{/if}}
     </tr>
@@ -88,7 +88,7 @@
         </label>
       </td>
       <td>
-        <select></select>
+        <select name="frequency"></select>
       </td>
     </tr>
     <tr>
@@ -98,7 +98,7 @@
         </label>
       </td>
       <td>
-        <select></select>
+        <select name="dayCount"></select>
       </td>
     </tr>
   </tbody>
