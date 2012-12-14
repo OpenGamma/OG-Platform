@@ -5,23 +5,32 @@
     position: absolute;
     overflow: auto;
 }
-.OG-portfolio .name:hover {background: #e0f2e7;}
-.OG-portfolio .node {position: absolute;}
-.OG-portfolio .node.collapse:before {
+.OG-portfolio .row:hover {background: #e0f2e7;}
+.OG-portfolio .folder {position: absolute;}
+.OG-portfolio .folder.collapse:before {
     background: url("/prototype/images/common/sprites/main-sprite-sheet.png") repeat scroll 0 -25px transparent;
     content: "";
     cursor: pointer;
     height: 9px;
     position: absolute;
-    top: 5px;
+    top: 4px;
     width: 9px;
 }
-.OG-portfolio .node.expand:before {
+.OG-portfolio .folder.expand:before {
     background: url("/prototype/images/common/sprites/main-sprite-sheet.png") repeat scroll -30px -25px transparent;
     content: "";
     cursor: pointer;
     height: 9px;
     position: absolute;
-    top: 5px;
+    top: 4px;
     width: 9px;
+}
+.OG-portfolio .file {position: absolute;}
+.OG-portfolio .file:before {
+    background: url("/prototype/images/common/sprites/main-sprite-sheet.png") repeat scroll -201px -79px transparent;
+    content: "";
+    height: 12px;
+    position: absolute;
+    top: 4px;
+    width: 15px;
 }
