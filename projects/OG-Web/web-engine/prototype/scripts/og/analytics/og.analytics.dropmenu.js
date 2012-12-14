@@ -10,16 +10,31 @@ $.register_module({
                 queryselected: 'dropmenu:queryselected',
                 querycancelled: 'dropmenu:querycancelled'
             },
+
             DropMenu = function (config) {
-                var menu = new og.common.util.ui.DropMenu(), dummy_s = '<wrapper>';
+                var menu = new og.common.util.ui.DropMenu(), dummy_s = '<wrapper>', form, blocks = {};
                 if (menu.$dom) {
+                    menu.$dom.cntr = config.$cntr;
+                    form = new og.common.util.ui.Form({
+                        module: config.tmpls.cntr,
+                        data: {},
+                        type_map: {},
+                        selector: '.og-aggregation',
+                        extras: {}
+                    });
+                    form.children.push(
+                        blocks.toggle = new form.Block({ module: config.tmpls.toggle, extras: {} }),
+                        blocks.menu = new form.Block({ module: config.tmpls.menu, extras: {aggregations: config.data} })
+                    );
+                    form.dom();
                     menu.$dom.toggle_prefix = $(dummy_s);
                     menu.$dom.toggle_infix = $(dummy_s).append('<span>then</span>');
-                    menu.$dom.cntr = config.$cntr.html($((Handlebars.compile(config.tmpl))(config.data)));
                     menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
                     menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
-                    menu.on(events.open, menu.open).on(events.close, menu.close).on(events.focus, menu.focus);
-                    if (menu.$dom.toggle) menu.$dom.toggle.on('mousedown', menu.toggle_menu, menu);
+                    menu.on(menu.events.open, menu.open)
+                        .on(menu.events.close, menu.close)
+                        .on(menu.events.focus, menu.focus);
+                    if (menu.$dom.toggle) menu.$dom.toggle.on('mousedown', menu.toggle_menu.bind(menu));
                     if (menu.$dom.menu) {
                         menu.$dom.menu_actions = $('.og-menu-actions', menu.$dom.menu);
                         menu.$dom.opt = $('.OG-dropmenu-options', menu.$dom.menu);

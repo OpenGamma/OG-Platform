@@ -23,11 +23,19 @@ $.register_module({
                 return og.dev.warn('og.analytics.AggregatorsMenu: Missing param key [config.data] to constructor.');
 
             // Private
-            var menu = new og.analytics.DropMenu({ $cntr: config.cntr, data: config.data, tmpl: config.tmpl}),
+            var menu = new og.analytics.DropMenu({
+                    $cntr: config.cntr,
+                    data: config.data,
+                    tmpls: {
+                        cntr: config.tmpl,
+                        menu: 'og.analytics.form_aggregation_menu_tash',
+                        toggle: 'og.analytics.form_aggregation_toggle_tash'
+                    }
+                }),
                 form, $dom, data, query = [], sel_val, sel_pos, $parent, $query, $select,
                 $checkbox, default_sel_txt = 'select aggregation...', default_query_text = 'Default',
                 del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', select_s = 'select',
-                checkbox_s = '.og-option :checkbox';
+                checkbox_s = '.og-option :checkbox', tmpl_menu = '', tmpl_toggle = '';
 
             var add_handler = function () {
                 if (menu.data.length === menu.opts.length) return;
@@ -68,14 +76,6 @@ $.register_module({
             };
 
             var init = function (conf) {
-                /*form = new og.common.util.ui.Form({
-                    module: conf.tmpl,
-                    data: {},
-                    type_map: {},
-                    selector: '.og-aggregation',
-                    extras: conf.data
-                });*/
-
                 $dom = menu.$dom;
                 if ($dom) {
                     $query = $('.aggregation-selection', $dom.toggle);
