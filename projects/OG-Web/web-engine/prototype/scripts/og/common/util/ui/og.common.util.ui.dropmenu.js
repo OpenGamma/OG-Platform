@@ -14,30 +14,21 @@ $.register_module({
             close: 'dropmenu:close',
             closed: 'dropmenu:closed'
         };
-        /**
-         * TODO AG: Must provide Getters/Setters for instance properties as these should really be private
-         * and not accessible directly via the instance.
-         */
-        var DropMenu = function (config) {
-            var menu = this, tmpl = config.tmpl, data = config.data || {};
+        var DropMenu = function () {
+            var menu = this;
             menu.state = 'closed';
             menu.opened = false;
             menu.init_blurkill = false;
-            menu.data = data;
             menu.events = events;
             menu.$dom = {};
-            menu.$dom.cntr = config.$cntr.html($((Handlebars.compile(tmpl))(data)));
-            menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
-            menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
-            menu.addListener(events.open, menu.open.bind(menu))
-                .addListener(events.close, menu.close.bind(menu))
-                .addListener(events.focus, menu.focus.bind(menu));
             return menu;
         };
-        $.extend(true, DropMenu.prototype, EventEmitter.prototype);
         DropMenu.prototype.constructor = DropMenu;
+        DropMenu.prototype.fire = og.common.events.fire;
+        DropMenu.prototype.on = og.common.events.on;
+        DropMenu.prototype.off = og.common.events.off;
         DropMenu.prototype.focus = function () {
-            return this.opened = true, this.state = 'focused', this.emitEvent(events.focused, [this]), this;
+            return this.opened = true, this.state = 'focused', this.fire(events.focused), this;
         };
         DropMenu.prototype.open = function () {
             var menu = this;
@@ -51,7 +42,7 @@ $.register_module({
                 menu.state = 'open';
                 menu.opened = true;
                 menu.$dom.toggle.addClass('og-active');
-                menu.emitEvent(events.opened, [menu]);
+                menu.fire(events.opened);
             }
             return menu;
         };
@@ -61,7 +52,7 @@ $.register_module({
             menu.$dom.toggle.removeClass('og-active');
             menu.state = 'closed';
             menu.opened = menu.init_blurkill = false;
-            menu.emitEvent(events.closed, [menu]);
+            menu.fire(events.closed);
             return menu;
         };
         DropMenu.prototype.menu_handler = function () {

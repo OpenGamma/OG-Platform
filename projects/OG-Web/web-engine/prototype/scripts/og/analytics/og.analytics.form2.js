@@ -20,9 +20,9 @@ $.register_module({
             dom = { masthead : $('.' + selectors.masthead) };
 
         var init = function () {
-            $.og.api.text({module: tashes.form_container}).pipe(function (form_container) {
+            og.api.text({module: tashes.form_container}).pipe(function (form_container) {
                 dom.masthead.append(form_container);
-                og.api.rest.aggregators.get().pipe(function (resp) {
+                $.when(og.api.rest.aggregators.get()).pipe(function (resp) {
                     aggregation_menu = new og.analytics.AggregatorsMenu({
                         cntr: dom.aggregation_cntr = $('.' + selectors.aggregation_cntr, dom.masthead),
                         tmpl: tashes.aggregation_menu,
