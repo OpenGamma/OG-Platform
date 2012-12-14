@@ -9,6 +9,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwapDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -33,7 +34,7 @@ public class EquityVarianceSwapConverter extends FinancialSecurityVisitorAdapter
 
   @Override
   public EquityVarianceSwapDefinition visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
-    final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, security.getCurrency()); // TODO CASE - Review. Holidays currently specified by currency alone
+    final Calendar calendar = new MondayToFridayCalendar("Test"); //.getCalendar(_holidaySource, security.getCurrency()); // TODO CASE - Review. Holidays currently specified by currency alone
     final Frequency frequency = security.getObservationFrequency();
     final PeriodFrequency periodFrequency;
     if (frequency instanceof PeriodFrequency) {

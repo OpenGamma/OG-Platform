@@ -117,7 +117,7 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
       realizedTS = ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES;
     } else {
       realizedTS = underlyingTimeSeries.subSeries(getObsStartDate().toLocalDate(), true, valueDate.toLocalDate(), false);
-    }
+    }    
     final double[] observations = realizedTS.toFastIntDoubleTimeSeries().valuesArrayFast();
     final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
     final int nGoodBusinessDays = countExpectedGoodDays(getObsStartDate().toLocalDate(), valueDate.toLocalDate(), getCalendar(), getObsFreq());

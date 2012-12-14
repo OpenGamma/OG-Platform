@@ -13,8 +13,11 @@ $.register_module({
                 for (var rule in view.rules) 
                     routes.add(view.rules[rule]);
             },
-            form: function (args) {
-                console.log(args.name);
+            block: function (args) {
+                var block = args.block.split('.').reduce(function (acc, val) {return acc[val];}, window), form;
+                form = new og.common.util.ui.Form({selector: content});
+                form.children.push(new block({form: form}));
+                form.dom();
             },
             gadgetscontainer: function (args) {
                 og.api.rest.compressor.get({content: args.data}).pipe(function (result) {
@@ -52,7 +55,7 @@ $.register_module({
             },
             rules: {
                 root: {route: '/', method: module.name + '.root'},
-                form: {route: '/form/:name', method: module.name + '.form'},
+                block: {route: '/block/:block', method: module.name + '.block'},
                 gadgetscontainer: {route: '/gadgetscontainer/:data', method: module.name + '.gadgetscontainer'},
                 grid: {route: '/grid/:data', method: module.name + '.grid'},
                 positions: {route: '/positions/:id/trades:?', method: module.name + '.positions'},

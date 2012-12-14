@@ -11,7 +11,7 @@
         </label>
       </td>
       <td>
-        <input name="" type="text" />
+        <input name="expiry" type="text" />
       </td>
     </tr>
     <tr>
@@ -21,7 +21,7 @@
         </label>
       </td>
       <td>
-        <select></select>
+        <select name="exerciseType"></select>
       </td>
     </tr>
     <tr>
@@ -31,7 +31,7 @@
         </label>
       </td>
       <td>
-        <input name="" type="text" />
+        <input name="settlementDate" type="text" />
       </td>
     </tr>
     {{#if nondev}}
@@ -42,7 +42,7 @@
           </label>
         </td>
         <td>
-          <div><select></select></div>
+          <div><select name="ITTODO"></select></div>
         </td>
       </tr>
     {{else}}
@@ -53,7 +53,7 @@
           </label>
         </td>
         <td class="og-double-cell">
-          <div><span><select></select></span><span><input name="" type="text" /></span></div>
+          <div><span><select name="ITTODO"></select></span><span><input name="ITTODO" type="text" /></span></div>
         </td>
       </tr>
     {{/if}}

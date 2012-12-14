@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.ISDAInterestRateTypes;
+import com.opengamma.analytics.financial.credit.ISDAInstrumentTypes;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -81,26 +81,26 @@ public class ISDAYieldCurveTest {
       0.02481
   };
 
-  ISDAInterestRateTypes[] rateTypes = {
-      ISDAInterestRateTypes.MoneyMarket,
-      ISDAInterestRateTypes.MoneyMarket,
-      ISDAInterestRateTypes.MoneyMarket,
-      ISDAInterestRateTypes.MoneyMarket,
-      ISDAInterestRateTypes.MoneyMarket,
-      ISDAInterestRateTypes.Swap,
-      ISDAInterestRateTypes.Swap,
-      ISDAInterestRateTypes.Swap,
-      ISDAInterestRateTypes.Swap,
-      ISDAInterestRateTypes.Swap,
-      ISDAInterestRateTypes.Swap,
-      ISDAInterestRateTypes.Swap,
-      ISDAInterestRateTypes.Swap,
-      ISDAInterestRateTypes.Swap,
-      ISDAInterestRateTypes.Swap,
-      ISDAInterestRateTypes.Swap,
-      ISDAInterestRateTypes.Swap,
-      ISDAInterestRateTypes.Swap,
-      ISDAInterestRateTypes.Swap
+  ISDAInstrumentTypes[] rateTypes = {
+      ISDAInstrumentTypes.MoneyMarket,
+      ISDAInstrumentTypes.MoneyMarket,
+      ISDAInstrumentTypes.MoneyMarket,
+      ISDAInstrumentTypes.MoneyMarket,
+      ISDAInstrumentTypes.MoneyMarket,
+      ISDAInstrumentTypes.Swap,
+      ISDAInstrumentTypes.Swap,
+      ISDAInstrumentTypes.Swap,
+      ISDAInstrumentTypes.Swap,
+      ISDAInstrumentTypes.Swap,
+      ISDAInstrumentTypes.Swap,
+      ISDAInstrumentTypes.Swap,
+      ISDAInstrumentTypes.Swap,
+      ISDAInstrumentTypes.Swap,
+      ISDAInstrumentTypes.Swap,
+      ISDAInstrumentTypes.Swap,
+      ISDAInstrumentTypes.Swap,
+      ISDAInstrumentTypes.Swap,
+      ISDAInstrumentTypes.Swap
   };
 
   // ----------------------------------------------------------------------------------------------
@@ -121,7 +121,7 @@ public class ISDAYieldCurveTest {
 
   // ----------------------------------------------------------------------------------------------
 
-  private static int getNumberOfInstruments(ISDAInterestRateTypes[] rateTypes, ISDAInterestRateTypes rateType) {
+  private static int getNumberOfInstruments(ISDAInstrumentTypes[] rateTypes, ISDAInstrumentTypes rateType) {
 
     int nInstruments = 0;
 
@@ -138,7 +138,7 @@ public class ISDAYieldCurveTest {
 
   // ----------------------------------------------------------------------------------------------
 
-  private static ZonedDateTime[] getInstrumentDates(ZonedDateTime[] instrumentMaturities, ISDAInterestRateTypes[] rateTypes, ISDAInterestRateTypes rateType, final int nInstruments) {
+  private static ZonedDateTime[] getInstrumentDates(ZonedDateTime[] instrumentMaturities, ISDAInstrumentTypes[] rateTypes, ISDAInstrumentTypes rateType, final int nInstruments) {
 
     int index = 0;
 
@@ -156,7 +156,7 @@ public class ISDAYieldCurveTest {
     return instrumentDates;
   }
 
-  private static double[] getInstrumentRates(double[] instrumentRates, ISDAInterestRateTypes[] rateTypes, ISDAInterestRateTypes rateType, final int nInstruments) {
+  private static double[] getInstrumentRates(double[] instrumentRates, ISDAInstrumentTypes[] rateTypes, ISDAInstrumentTypes rateType, final int nInstruments) {
 
     int index = 0;
 
@@ -514,14 +514,14 @@ public class ISDAYieldCurveTest {
 
     // ------------------------------------------------------------------------------------------------
 
-    int nSwap = getNumberOfInstruments(rateTypes, ISDAInterestRateTypes.Swap);
-    int nCash = getNumberOfInstruments(rateTypes, ISDAInterestRateTypes.MoneyMarket);
+    int nSwap = getNumberOfInstruments(rateTypes, ISDAInstrumentTypes.Swap);
+    int nCash = getNumberOfInstruments(rateTypes, ISDAInstrumentTypes.MoneyMarket);
 
-    ZonedDateTime[] swapDates = getInstrumentDates(dates, rateTypes, ISDAInterestRateTypes.Swap, nSwap);
-    ZonedDateTime[] cashDates = getInstrumentDates(dates, rateTypes, ISDAInterestRateTypes.MoneyMarket, nCash);
+    ZonedDateTime[] swapDates = getInstrumentDates(dates, rateTypes, ISDAInstrumentTypes.Swap, nSwap);
+    ZonedDateTime[] cashDates = getInstrumentDates(dates, rateTypes, ISDAInstrumentTypes.MoneyMarket, nCash);
 
-    double[] swapRates = getInstrumentRates(rates, rateTypes, ISDAInterestRateTypes.Swap, nSwap);
-    double[] cashRates = getInstrumentRates(rates, rateTypes, ISDAInterestRateTypes.MoneyMarket, nCash);
+    double[] swapRates = getInstrumentRates(rates, rateTypes, ISDAInstrumentTypes.Swap, nSwap);
+    double[] cashRates = getInstrumentRates(rates, rateTypes, ISDAInstrumentTypes.MoneyMarket, nCash);
 
     // ------------------------------------------------------------------------------------------------
 

@@ -142,7 +142,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     final DoubleMatrix1D start = TRANSFORMS.transform(new DoubleMatrix1D(temp));
 
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getVolDifferenceFunc(forward, strikes, vols, timeToExpiry);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = getVolDifferenceJac(forward, strikes, vols, timeToExpiry);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = getVolDifferenceJac(forward, strikes, timeToExpiry);
     final NonLinearTransformFunction nltf = new NonLinearTransformFunction(func, jac, TRANSFORMS);
     return TRANSFORMS.inverseTransform(ROOTFINDER.getRoot(nltf.getFittingFunction(), nltf.getFittingJacobian(), start)).getData();
   }
@@ -168,7 +168,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     final double maxGrad = (isCall ? -blackDD : 1 - blackDD) / blackVega;
 
     if (volGrad >= maxGrad || volGrad <= minGrad) {
-      throw new IllegalArgumentException("Volatility smile must be in range " + minGrad + " to " + maxGrad + ", but valur is " + volGrad);
+      throw new IllegalArgumentException("Volatility smile gradient must be in range " + minGrad + " to " + maxGrad + ", but value is " + volGrad);
     }
 
     final DoubleMatrix1D start = TRANSFORMS.transform(new DoubleMatrix1D(0.0, vol));
@@ -269,7 +269,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     final ArrayList<Double> listShiftVolStrike = new ArrayList<Double>();
     listShiftVolStrike.add(0, shiftAndVol[0]); // mu = ln(shiftedForward / originalForward)
     listShiftVolStrike.add(1, shiftAndVol[1]); // theta = new ln volatility to use
-    listShiftVolStrike.add(2, strikes[endIdx]); // new extapolation boundary
+    listShiftVolStrike.add(2, strikes[endIdx]); // new extrapolation boundary
     return listShiftVolStrike;
   }
 
@@ -277,16 +277,13 @@ public class ShiftedLogNormalTailExtrapolationFitter {
       final double timeToExpiry, final boolean isCall) {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
-      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D y) {
-        // DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
         final double mu = y.getEntry(0);
         final double theta = y.getEntry(1);
 
         final double p1 = ShiftedLogNormalTailExtrapolation.price(forward, strike[0], timeToExpiry, isCall, mu, theta);
         final double p2 = ShiftedLogNormalTailExtrapolation.price(forward, strike[1], timeToExpiry, isCall, mu, theta);
-        // return new DoubleMatrix1D((prices[0] - p1) / prices[0], (prices[1] - p2) / prices[1]);
         return new DoubleMatrix1D((p1 - prices[0]) / prices[0], (p2 - prices[1]) / prices[1]);
       }
     };
@@ -296,10 +293,8 @@ public class ShiftedLogNormalTailExtrapolationFitter {
       final boolean isCall) {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
-      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix2D evaluate(final DoubleMatrix1D y) {
-        // DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
         final double mu = y.getEntry(0);
         final double theta = y.getEntry(1);
         final double fStar = forward * Math.exp(mu);
@@ -310,9 +305,6 @@ public class ShiftedLogNormalTailExtrapolationFitter {
 
         final DoubleMatrix2D modelParmJac = new DoubleMatrix2D(new double[][] {{j11, j12}, {j21, j22}});
         return modelParmJac;
-        //        DoubleMatrix2D tranInvJac = TRANSFORMS.inverseJacobian(x);
-        //
-        //        return (DoubleMatrix2D) ma.multiply(modelParmJac, tranInvJac);
       }
     };
   }
@@ -320,10 +312,8 @@ public class ShiftedLogNormalTailExtrapolationFitter {
   private Function1D<DoubleMatrix1D, DoubleMatrix1D> getVolDifferenceFunc(final double forward, final double[] strike, final double[] vols, final double timeToExpiry) {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
-      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D y) {
-        //  DoubleMatrix1D y = TRANSFORMS.inverseTransform(x);
         final double mu = y.getEntry(0);
         final double theta = y.getEntry(1);
 
@@ -334,12 +324,11 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     };
   }
 
-  private Function1D<DoubleMatrix1D, DoubleMatrix2D> getVolDifferenceJac(final double forward, final double[] strike, final double[] vols, final double timeToExpiry) {
+  private Function1D<DoubleMatrix1D, DoubleMatrix2D> getVolDifferenceJac(final double forward, final double[] strike, final double timeToExpiry) {
 
     final boolean isCall = strike[0] > forward;
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
-      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix2D evaluate(final DoubleMatrix1D y) {
         final double mu = y.getEntry(0);
@@ -371,7 +360,6 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     final double scale2 = 1.0 / targetDPrice;
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
-      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D y) {
         final double mu = y.getEntry(0);
@@ -408,7 +396,6 @@ public class ShiftedLogNormalTailExtrapolationFitter {
   private Function1D<DoubleMatrix1D, DoubleMatrix1D> getVolGradDifferenceFunc(final double forward, final double strike, final double targetVol, final double targetDvol,
       final double expiry) {
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
-      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D y) {
         final double mu = y.getEntry(0);

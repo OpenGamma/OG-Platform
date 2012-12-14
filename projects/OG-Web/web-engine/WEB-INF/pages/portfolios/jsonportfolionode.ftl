@@ -15,18 +15,18 @@
         "path" : [
             <#list pathNodes as item>
                {"name": "${item.second}", "node": "${item.first.objectId}", "version_id": "${item.first.version}"}<#if item_has_next>,</#if>
-	    </#list>
+      </#list>
         ]
     },
     "portfolios": [
-    	<#list childNodes as item>
-			{"name": "${item.name}", "id": "${item.uniqueId.objectId}"}<#if item_has_next>,</#if>
-		</#list>
+      <#list childNodes as item>
+      {"name": "${item.name}", "id": "${item.uniqueId.objectId}", "nodeCount": ${item.childNodes?size}}<#if item_has_next>,</#if>
+    </#list>
     ],
     "positions": [
-    	<#list positions as item>
-			{"name": "${item.name}", "quantity": "${item.quantity}", "id": "${item.uniqueId.objectId}"}<#if item_has_next>,</#if>
-		</#list>
+      <#list positions as item>
+      {"name": "${item.name}", "quantity": "${item.quantity}", "id": "${item.uniqueId.objectId}"}<#if item_has_next>,</#if>
+    </#list>
     ]
 }
 </#escape>
