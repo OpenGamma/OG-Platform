@@ -35,7 +35,7 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix3D;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.SABRVegaCalculationUtils;
 import com.opengamma.financial.analytics.model.VegaMatrixHelper;
-import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.model.volatility.cube.fitted.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -83,7 +83,7 @@ public abstract class SABRVegaFunctionDeprecated extends SABRFunctionDeprecated 
       throw new OpenGammaRuntimeException("Could not get rho sensitivity");
     }
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final String fittingMethod = desiredValue.getConstraint(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
     final ValueRequirement cubeRequirement = getCubeRequirement(cubeName, currency, fittingMethod);
     final Object sabrSurfacesObject = inputs.getValue(cubeRequirement);
     if (sabrSurfacesObject == null) {
@@ -165,7 +165,7 @@ public abstract class SABRVegaFunctionDeprecated extends SABRFunctionDeprecated 
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final ValueProperties sensitivityProperties = getSensitivityProperties(target, currency.getCode(), desiredValue);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final String fittingMethod = desiredValue.getConstraint(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.toSpecification(), sensitivityProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.toSpecification(), sensitivityProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.toSpecification(), sensitivityProperties));
@@ -182,8 +182,8 @@ public abstract class SABRVegaFunctionDeprecated extends SABRFunctionDeprecated 
 
   protected ValueProperties getFittedPointsProperties(final String cubeName, final String currency, final String fittingMethod) {
     return ValueProperties.builder().with(ValuePropertyNames.CURRENCY, currency).with(ValuePropertyNames.CUBE, cubeName)
-        .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
-        .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, fittingMethod).get();
+        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod).get();
   }
 
   @Override

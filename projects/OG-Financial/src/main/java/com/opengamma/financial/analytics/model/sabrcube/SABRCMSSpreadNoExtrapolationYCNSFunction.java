@@ -20,7 +20,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -45,7 +45,7 @@ public class SABRCMSSpreadNoExtrapolationYCNSFunction extends SABRYCNSFunction {
   protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final Currency currency,
       final DayCount dayCount, final YieldCurveBundle yieldCurves, final ValueRequirement desiredValue) {
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-    final String fittingMethod = desiredValue.getConstraint(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
     final ValueRequirement surfacesRequirement = getCubeRequirement(cubeName, currency, fittingMethod);
     final Object surfacesObject = inputs.getValue(surfacesRequirement);
     if (surfacesObject == null) {
@@ -69,8 +69,8 @@ public class SABRCMSSpreadNoExtrapolationYCNSFunction extends SABRYCNSFunction {
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CUBE)
-        .withAny(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD)
-        .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
+        .withAny(SmileFittingProperties.PROPERTY_FITTING_METHOD)
+        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_NO_EXTRAPOLATION).get();
   }
 
@@ -78,7 +78,7 @@ public class SABRCMSSpreadNoExtrapolationYCNSFunction extends SABRYCNSFunction {
   protected ValueProperties getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final String fittingMethod = desiredValue.getConstraint(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
     return createValueProperties()
@@ -87,8 +87,8 @@ public class SABRCMSSpreadNoExtrapolationYCNSFunction extends SABRYCNSFunction {
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CUBE, cubeName)
-        .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, fittingMethod)
-        .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
+        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod)
+        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
         .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_NO_EXTRAPOLATION).get();
   }
 
