@@ -75,8 +75,9 @@ public class EquityIndexOptionLoader extends SecurityLoader {
   
   /**
    * The valid Bloomberg security types for Equity Index Option
+   * NOTE: THESE ARE ACTUALLY FUTURES_CATEGORY TYPES NOT SECURITY_TYP TYPES.
    */
-  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of("Equity Index Spot Options");
+  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of("Equity Index Spot Options", "Equity Volatility Index Option");
 
   /**
    * Creates an instance.
@@ -104,11 +105,11 @@ public class EquityIndexOptionLoader extends SecurityLoader {
     String marketSector = fieldData.getString(FIELD_MARKET_SECTOR_DES);
     
     if (!BloombergDataUtils.isValidField(bbgUniqueID)) {
-      s_logger.warn("bloomberg UniqueID is missing, cannot construct equityOption security");
+      s_logger.warn("bloomberg UniqueID is missing, cannot construct equityIndexOption security");
       return null;
     }
     if (!BloombergDataUtils.isValidField(rootTicker)) {
-      s_logger.warn("option root ticker is missing, cannot construct equityOption security");
+      s_logger.warn("option root ticker is missing, cannot construct equityIndexOption security");
       return null;
     }
     if (!BloombergDataUtils.isValidField(underlyingUniqueID)) {

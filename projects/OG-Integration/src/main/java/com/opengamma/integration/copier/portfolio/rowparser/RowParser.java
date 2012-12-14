@@ -151,7 +151,8 @@ public abstract class RowParser {
     String result = fieldValueMap.get(fieldName);
     if (result == null) {
       System.err.println(fieldValueMap);
-      throw new IllegalArgumentException("Could not find field '" + fieldName + "'");
+      return null;
+      //throw new IllegalArgumentException("Could not find field '" + fieldName + "'");
     }
     return result;
   }
