@@ -34,7 +34,11 @@ public class IRFutureOptionSABRDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(IRFutureOptionSABRDefaults.class);
   /** The value requirement names for which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.PRESENT_VALUE
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY,
+    ValueRequirementNames.PRESENT_VALUE_SABR_BETA_SENSITIVITY,
+    ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY,
+    ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY
   };
   /** The priority */
   private final PriorityClass _priority;

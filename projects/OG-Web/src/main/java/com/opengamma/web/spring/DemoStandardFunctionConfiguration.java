@@ -271,6 +271,7 @@ import com.opengamma.financial.analytics.model.horizon.SwaptionBlackThetaDefault
 import com.opengamma.financial.analytics.model.horizon.SwaptionConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRDefaults;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRPresentValueFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackDefaults;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackGammaFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackImpliedVolatilityFunction;
@@ -1140,6 +1141,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private static void addInterestRateFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(IRFutureOptionSABRPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(IRFutureOptionSABRSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(IRFutureOptionSABRDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
         "USD", "DefaultTwoCurveUSDConfig", "DEFAULT", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
         "EUR", "DefaultTwoCurveEURConfig", "DEFAULT", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES));    
