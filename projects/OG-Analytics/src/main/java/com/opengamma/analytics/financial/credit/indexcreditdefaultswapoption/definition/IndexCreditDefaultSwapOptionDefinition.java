@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.indexcreditdefaultswapoption;
+package com.opengamma.analytics.financial.credit.indexcreditdefaultswapoption.definition;
 
 /**
  * Definition of a generic Index Credit Default Swap option contract

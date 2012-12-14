@@ -3,12 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.obligormodel;
+package com.opengamma.analytics.financial.credit.obligor;
 
 /**
- * Enumerate the possible credit rating states for a reference entity (Fitch rating classifications)
+ * Enumerate the possible credit rating states for a reference entity (Moodys rating classifications)
  */
-public enum CreditRatingFitch {
+public enum CreditRatingMoodys {
   /**
    * 
    */

@@ -3,12 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.obligormodel;
+package com.opengamma.analytics.financial.credit.obligor;
 
 /**
- * Enumerate the possible credit rating states for a reference entity (generic rating classifications)
+ * Enumerate the possible credit rating states for a reference entity (Fitch rating classifications)
  */
-public enum CreditRating {
+public enum CreditRatingFitch {
   /**
    * 
    */
@@ -53,4 +53,7 @@ public enum CreditRating {
    * No rating
    */
   NR;
+
+  // TODO : Add the correct rating states
+
 }

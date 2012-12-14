@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.credit.CreditSpreadTenors;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -25,6 +25,7 @@ public class UnderlyingPool {
 
   // TODO : Add the hashcode and equals methods
   // TODO : Add an arg checker to ensure no two obligors are the same
+  // TODO : Remove all dependencies on market data from this class - yield curves and credit spread term structures
 
   // NOTE : We input the individual obligor notionals as part of the underlying pool (the total pool notional is then calculated from this).
   // NOTE : e.g. suppose we have 100 names in the pool all equally weighted. If each obligor notional is $1mm then the total pool notional is $100mm

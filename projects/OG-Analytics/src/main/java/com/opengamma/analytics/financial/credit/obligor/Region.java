@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.obligormodel;
+package com.opengamma.analytics.financial.credit.obligor;
 
 /**
  * Enumerate the geographical region of the reference entity

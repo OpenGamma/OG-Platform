@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -45,6 +45,7 @@ public class IndexCreditDefaultSwapDefinition {
   // TODO : Add the hashCode and equals methods
   // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice)
   // TODO : Need to sort out the quoting conventions for the different indices
+  // TODO : Extract out all the market data from the definition of the index contract
 
   // NOTE : The restructuring clause and debt seniority of the index constituents is contained within the UnderlyingPool class
 
@@ -56,10 +57,10 @@ public class IndexCreditDefaultSwapDefinition {
   // NOTE : all the underlying CDS's in the index
 
   // NOTE : In the index ctor we only construct the CDS objects for the obligors in the underlying pool. The calibration of these CDS's
-  // NOTE : to the user input CDS par spread term structures
+  // NOTE : to the user input CDS par spread term structures is done elsewhere
 
   // NOTE : In principle the user can create an index with an UnderlyingPool consisting of a single Obligor. In this case we are
-  // NOTE : essentially approximating the full pool with a one single name CDS. The pricing analytics should be ambivalent to the
+  // NOTE : essentially approximating the full pool with one single name CDS. The pricing analytics should be ambivalent to the
   // NOTE : number of obligors in the underlying pool i.e. the correct answer should fall out
 
   // NOTE : A standard CDS index is uniquely identified by the three-tuple of (_index, _series, _version). This combination is sufficient to 
@@ -295,10 +296,10 @@ public class IndexCreditDefaultSwapDefinition {
           _buySellProtection,                             // Specified in the CDS index contract - applies to all underlying CDS's
           _protectionBuyer,                               // Specified in the CDS index contract
           _protectionSeller,                              // Specified in the CDS index contract
-          _underlyingPool.getObligors()[i],               // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
-          _underlyingPool.getCurrency()[i],               // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
-          _underlyingPool.getDebtSeniority()[i],          // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
-          _underlyingPool.getRestructuringClause()[i],    // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
+          _underlyingPool.getObligors()[i],               // Part of the information carried in the UnderlyingPool object - in principle can vary from obligor to obligor
+          _underlyingPool.getCurrency()[i],               // Part of the information carried in the UnderlyingPool object - in principle can vary from obligor to obligor
+          _underlyingPool.getDebtSeniority()[i],          // Part of the information carried in the UnderlyingPool object - in principle can vary from obligor to obligor
+          _underlyingPool.getRestructuringClause()[i],    // Part of the information carried in the UnderlyingPool object - in principle can vary from obligor to obligor
           _calendar,                                      // Specified in the CDS index contract - applies to all underlying CDS's
           _startDate,                                     // Specified in the CDS index contract - applies to all underlying CDS's
           _effectiveDate,                                 // Specified in the CDS index contract - applies to all underlying CDS's
@@ -310,11 +311,11 @@ public class IndexCreditDefaultSwapDefinition {
           _immAdjustMaturityDate,                         // Specified in the CDS index contract - applies to all underlying CDS's
           _adjustEffectiveDate,                           // Specified in the CDS index contract - applies to all underlying CDS's
           _adjustMaturityDate,                            // Specified in the CDS index contract - applies to all underlying CDS's
-          _underlyingPool.getObligorNotionals()[i],       // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
-          _underlyingPool.getRecoveryRates()[i],          // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
+          _underlyingPool.getObligorNotionals()[i],       // Part of the information carried in the UnderlyingPool object - in principle can vary from obligor to obligor
+          _underlyingPool.getRecoveryRates()[i],          // Part of the information carried in the UnderlyingPool object - in principle can vary from obligor to obligor
           _includeAccruedPremium,                         // Specified in the CDS index contract - applies to all underlying CDS's
           _protectionStart,                               // Specified in the CDS index contract - applies to all underlying CDS's
-          _underlyingPool.getCoupons()[i]);               // Part of the information carried in the UnderlyingPool object - can vary from obligor to obligor
+          _underlyingPool.getCoupons()[i]);               // Part of the information carried in the UnderlyingPool object - in principle can vary from obligor to obligor
 
       // Assign the CDS just created to obligor i in the underlying pool
       _underlyingCDS[i] = cds;

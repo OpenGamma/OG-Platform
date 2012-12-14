@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.legacy;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratemodel.CalibrateHazardRateCurve;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
