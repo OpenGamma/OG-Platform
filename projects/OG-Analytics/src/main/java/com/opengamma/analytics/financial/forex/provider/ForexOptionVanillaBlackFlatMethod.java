@@ -17,8 +17,8 @@ import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVola
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.analytics.financial.provider.description.ForexBlackFlatProviderInterface;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexFlatProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
@@ -68,7 +68,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
    * @param black The curve and smile data.
    * @return The present value. The value is in the domestic currency (currency 2).
    */
-  public MultipleCurrencyAmount presentValue(final ForexOptionVanilla optionForex, final ForexBlackFlatProviderInterface black) {
+  public MultipleCurrencyAmount presentValue(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
     MulticurveProviderInterface multicurves = black.getMulticurveProvider();
@@ -90,7 +90,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
    * @param black The curve and smile data.
    * @return The implied volatility.
    */
-  public double impliedVolatility(final ForexOptionVanilla optionForex, final ForexBlackFlatProviderInterface black) {
+  public double impliedVolatility(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
     final double volatility = black.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry());
@@ -103,7 +103,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
    * @param black The curve and Black data.
    * @return The currency exposure
    */
-  public MultipleCurrencyAmount currencyExposure(final ForexOptionVanilla optionForex, final ForexBlackFlatProviderInterface black) {
+  public MultipleCurrencyAmount currencyExposure(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
     MulticurveProviderInterface multicurves = black.getMulticurveProvider();
@@ -133,7 +133,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The delta.
    */
-  public double deltaRelative(final ForexOptionVanilla optionForex, final ForexBlackFlatProviderInterface black, final boolean directQuote) {
+  public double deltaRelative(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
     MulticurveProviderInterface multicurves = black.getMulticurveProvider();
@@ -160,7 +160,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The delta.
    */
-  public double deltaRelativeSpot(final ForexOptionVanilla optionForex, final ForexBlackFlatProviderInterface black, final boolean directQuote) {
+  public double deltaRelativeSpot(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
     MulticurveProviderInterface multicurves = black.getMulticurveProvider();
@@ -187,7 +187,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The gamma.
    */
-  public double gammaRelative(final ForexOptionVanilla optionForex, final ForexBlackFlatProviderInterface black, final boolean directQuote) {
+  public double gammaRelative(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
     MulticurveProviderInterface multicurves = black.getMulticurveProvider();
@@ -215,7 +215,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The gamma.
    */
-  public double gammaRelativeSpot(final ForexOptionVanilla optionForex, final ForexBlackFlatProviderInterface black, final boolean directQuote) {
+  public double gammaRelativeSpot(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
     MulticurveProviderInterface multicurves = black.getMulticurveProvider();
@@ -241,7 +241,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The gamma.
    */
-  public CurrencyAmount gamma(final ForexOptionVanilla optionForex, final ForexBlackFlatProviderInterface black, final boolean directQuote) {
+  public CurrencyAmount gamma(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black, final boolean directQuote) {
     final double gammaRelative = gammaRelative(optionForex, black, directQuote);
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), gammaRelative * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
   }
@@ -254,7 +254,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The gamma.
    */
-  public CurrencyAmount gammaSpot(final ForexOptionVanilla optionForex, final ForexBlackFlatProviderInterface black, final boolean directQuote) {
+  public CurrencyAmount gammaSpot(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black, final boolean directQuote) {
     final double gammaRelativeSpot = gammaRelativeSpot(optionForex, black, directQuote);
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), gammaRelativeSpot * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
   }
@@ -266,7 +266,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
    * @param black The curve and Black data.
    * @return The theta. In the same currency as present value.
    */
-  public CurrencyAmount thetaTheoretical(final ForexOptionVanilla optionForex, final ForexBlackFlatProviderInterface black) {
+  public CurrencyAmount thetaTheoretical(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
     MulticurveProviderInterface multicurves = black.getMulticurveProvider();
@@ -298,7 +298,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
    * @param black The curve and Black data.
    * @return The curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexOptionVanilla optionForex, final ForexBlackFlatProviderInterface black) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
     MulticurveProviderInterface multicurves = black.getMulticurveProvider();
@@ -338,7 +338,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
    * @param black The curve and Black data.
    * @return The volatility sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
-  public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionVanilla optionForex, final ForexBlackFlatProviderInterface black) {
+  public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
     MulticurveProviderInterface multicurves = black.getMulticurveProvider();
@@ -364,7 +364,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
    * @param black The curve and Black data.
    * @return The volatility parameters sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
-  public double[] presentValueBlackVolatilityNodeSensitivity(final ForexOptionVanilla optionForex, final ForexBlackFlatProviderInterface black) {
+  public double[] presentValueBlackVolatilityNodeSensitivity(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
     MulticurveProviderInterface multicurves = black.getMulticurveProvider();

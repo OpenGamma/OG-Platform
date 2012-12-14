@@ -15,8 +15,8 @@ import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVola
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
-import com.opengamma.analytics.financial.provider.description.ForexBlackSmileProviderInterface;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -65,7 +65,7 @@ public final class ForexOptionDigitalBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The present value. The value is in the domestic currency (currency 2).
    */
-  public MultipleCurrencyAmount presentValue(final ForexOptionDigital optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public MultipleCurrencyAmount presentValue(final ForexOptionDigital optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -111,7 +111,7 @@ public final class ForexOptionDigitalBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The currency exposure
    */
-  public MultipleCurrencyAmount currencyExposure(final ForexOptionDigital optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public MultipleCurrencyAmount currencyExposure(final ForexOptionDigital optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -163,7 +163,7 @@ public final class ForexOptionDigitalBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexOptionDigital optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexOptionDigital optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -224,7 +224,7 @@ public final class ForexOptionDigitalBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The volatility sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
-  public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionDigital optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionDigital optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -277,7 +277,7 @@ public final class ForexOptionDigitalBlackSmileMethod {
    * @return The volatility node sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
   public PresentValueForexBlackVolatilityNodeSensitivityDataBundle presentValueBlackVolatilityNodeSensitivity(final ForexOptionDigital optionForex,
-      final ForexBlackSmileProviderInterface smileMulticurves) {
+      final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");

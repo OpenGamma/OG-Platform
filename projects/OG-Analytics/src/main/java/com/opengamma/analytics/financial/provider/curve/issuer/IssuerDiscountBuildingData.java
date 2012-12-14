@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.provider.curve.issuer;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.util.ArgumentChecker;
 
 /**

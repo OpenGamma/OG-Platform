@@ -10,13 +10,13 @@ import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVola
 import com.opengamma.analytics.financial.forex.provider.ForexOptionVanillaBlackFlatMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
-import com.opengamma.analytics.financial.provider.description.ForexBlackFlatProviderInterface;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexFlatProviderInterface;
 
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
 public final class PresentValueForexVolatilitySensitivityForexBlackFlatCalculator extends
-    InstrumentDerivativeVisitorSameMethodAdapter<ForexBlackFlatProviderInterface, PresentValueForexBlackVolatilitySensitivity> {
+    InstrumentDerivativeVisitorSameMethodAdapter<BlackForexFlatProviderInterface, PresentValueForexBlackVolatilitySensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -43,14 +43,14 @@ public final class PresentValueForexVolatilitySensitivityForexBlackFlatCalculato
   private static final ForexOptionVanillaBlackFlatMethod METHOD_FX_VAN = ForexOptionVanillaBlackFlatMethod.getInstance();
 
   @Override
-  public PresentValueForexBlackVolatilitySensitivity visit(final InstrumentDerivative derivative, final ForexBlackFlatProviderInterface blackSmile) {
+  public PresentValueForexBlackVolatilitySensitivity visit(final InstrumentDerivative derivative, final BlackForexFlatProviderInterface blackSmile) {
     return derivative.accept(this, blackSmile);
   }
 
   // -----     Forex     ------
 
   @Override
-  public PresentValueForexBlackVolatilitySensitivity visitForexOptionVanilla(final ForexOptionVanilla option, final ForexBlackFlatProviderInterface blackSmile) {
+  public PresentValueForexBlackVolatilitySensitivity visitForexOptionVanilla(final ForexOptionVanilla option, final BlackForexFlatProviderInterface blackSmile) {
     return METHOD_FX_VAN.presentValueBlackVolatilitySensitivity(option, blackSmile);
   }
 

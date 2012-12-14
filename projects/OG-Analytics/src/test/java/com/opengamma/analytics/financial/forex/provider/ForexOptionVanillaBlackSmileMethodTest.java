@@ -28,9 +28,9 @@ import com.opengamma.analytics.financial.provider.calculator.blackforex.Currency
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueCurveSensitivityForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueForexVolatilitySensitivityForexBlackSmileCalculator;
-import com.opengamma.analytics.financial.provider.description.ForexBlackSmileProvider;
-import com.opengamma.analytics.financial.provider.description.ForexBlackSmileProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProvider;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.blackforex.ParameterSensitivityForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.blackforex.ParameterSensitivityForexBlackSmileDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
@@ -93,8 +93,8 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   private static final int NB_STRIKE = 2 * DELTA.length + 1;
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT = ForexSmileProviderDataSets.smileFlat(REFERENCE_DATE);
-  private static final ForexBlackSmileProviderDiscount SMILE_MULTICURVES = new ForexBlackSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
-  private static final ForexBlackSmileProviderDiscount SMILE_FLAT_MULTICURVES = new ForexBlackSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_FLAT_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
 
   private static final double SHIFT = 1.0E-6;
   private static final FXMatrix FX_MATRIX_M = new FXMatrix(EUR, USD, SPOT - SHIFT);
@@ -105,8 +105,8 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     MULTICURVES_FX_M.setForexMatrix(FX_MATRIX_M);
     MULTICURVES_FX_P.setForexMatrix(FX_MATRIX_P);
   }
-  private static final ForexBlackSmileProvider SMILE_M_MULTICURVES = new ForexBlackSmileProvider(MULTICURVES_FX_M, SMILE_TERM_FLAT, Pair.of(EUR, USD));
-  private static final ForexBlackSmileProvider SMILE_P_MULTICURVES = new ForexBlackSmileProvider(MULTICURVES_FX_P, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+  private static final BlackForexSmileProvider SMILE_M_MULTICURVES = new BlackForexSmileProvider(MULTICURVES_FX_M, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+  private static final BlackForexSmileProvider SMILE_P_MULTICURVES = new BlackForexSmileProvider(MULTICURVES_FX_P, SMILE_TERM_FLAT, Pair.of(EUR, USD));
 
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 

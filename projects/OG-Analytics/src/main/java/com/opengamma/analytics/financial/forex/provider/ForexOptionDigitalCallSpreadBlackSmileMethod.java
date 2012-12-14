@@ -14,8 +14,8 @@ import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVola
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
-import com.opengamma.analytics.financial.provider.description.ForexBlackSmileProviderInterface;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -54,7 +54,7 @@ public class ForexOptionDigitalCallSpreadBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final ForexOptionDigital optionDigital, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public MultipleCurrencyAmount presentValue(final ForexOptionDigital optionDigital, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionDigital, "Forex option");
     ForexOptionVanilla[] callSpread = callSpread(optionDigital, _spread);
     // Spread value
@@ -69,7 +69,7 @@ public class ForexOptionDigitalCallSpreadBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The currency exposure.
    */
-  public MultipleCurrencyAmount currencyExposure(final ForexOptionDigital optionDigital, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public MultipleCurrencyAmount currencyExposure(final ForexOptionDigital optionDigital, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionDigital, "Forex option");
     ForexOptionVanilla[] callSpread = callSpread(optionDigital, _spread);
     // Spread value
@@ -84,7 +84,7 @@ public class ForexOptionDigitalCallSpreadBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexOptionDigital optionDigital, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexOptionDigital optionDigital, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionDigital, "Forex option");
     ForexOptionVanilla[] callSpread = callSpread(optionDigital, _spread);
     // Spread value
@@ -99,7 +99,7 @@ public class ForexOptionDigitalCallSpreadBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The gamma.
    */
-  public double gammaRelative(final ForexOptionDigital optionDigital, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public double gammaRelative(final ForexOptionDigital optionDigital, final BlackForexSmileProviderInterface smileMulticurves) {
     final CurrencyAmount gamma = gamma(optionDigital, smileMulticurves);
     return gamma.getAmount() / Math.abs(optionDigital.getUnderlyingForex().getPaymentCurrency2().getAmount());
   }
@@ -110,7 +110,7 @@ public class ForexOptionDigitalCallSpreadBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The gamma.
    */
-  public CurrencyAmount gamma(final ForexOptionDigital optionDigital, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public CurrencyAmount gamma(final ForexOptionDigital optionDigital, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionDigital, "Forex option");
     final ForexOptionVanilla[] callSpread = callSpread(optionDigital, getSpread());
     // Spread value
@@ -126,7 +126,7 @@ public class ForexOptionDigitalCallSpreadBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The gamma.
    */
-  public CurrencyAmount gammaSpot(final ForexOptionDigital optionDigital, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public CurrencyAmount gammaSpot(final ForexOptionDigital optionDigital, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionDigital, "Forex option");
     final ForexOptionVanilla[] callSpread = callSpread(optionDigital, getSpread());
     // Spread value
@@ -142,7 +142,7 @@ public class ForexOptionDigitalCallSpreadBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The volatility sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
-  public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionDigital optionDigital, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionDigital optionDigital, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionDigital, "Forex option");
     final ForexOptionVanilla[] callSpread = callSpread(optionDigital, getSpread());
     // Spread value
@@ -159,7 +159,7 @@ public class ForexOptionDigitalCallSpreadBlackSmileMethod {
    * @return The volatility node sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
   public PresentValueForexBlackVolatilityNodeSensitivityDataBundle presentValueBlackVolatilityNodeSensitivity(final ForexOptionDigital optionDigital,
-      final ForexBlackSmileProviderInterface smileMulticurves) {
+      final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionDigital, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionDigital.getCurrency1(), optionDigital.getCurrency2()), "Option currencies not compatible with smile data");

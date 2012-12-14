@@ -28,9 +28,9 @@ import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionPa
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.provider.description.BlackSwaptionProvider;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -49,7 +49,7 @@ public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
 
   private static final BlackSwaptionParameters BLACK = TestsDataSetsBlack.createBlackSwaptionEUR3();
-  private static final BlackSwaptionProvider BLACK_MULTICURVES = new BlackSwaptionProvider(MULTICURVES, BLACK);
+  private static final BlackSwaptionFlatProvider BLACK_MULTICURVES = new BlackSwaptionFlatProvider(MULTICURVES, BLACK);
   public static final String NOT_USED = "Not used";
   public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR3M", TARGET);

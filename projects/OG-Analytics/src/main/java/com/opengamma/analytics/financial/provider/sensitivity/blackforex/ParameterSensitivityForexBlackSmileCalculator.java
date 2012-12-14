@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.ForexBlackSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
@@ -30,12 +30,12 @@ public class ParameterSensitivityForexBlackSmileCalculator extends AbstractParam
    * Constructor
    * @param curveSensitivityCalculator The curve sensitivity calculator.
    */
-  public ParameterSensitivityForexBlackSmileCalculator(InstrumentDerivativeVisitor<ForexBlackSmileProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityForexBlackSmileCalculator(InstrumentDerivativeVisitor<BlackForexSmileProviderInterface, MultipleCurrencyMulticurveSensitivity> curveSensitivityCalculator) {
     super(curveSensitivityCalculator);
   }
 
   @Override
-  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyMulticurveSensitivity sensitivity, final ForexBlackSmileProviderInterface data,
+  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyMulticurveSensitivity sensitivity, final BlackForexSmileProviderInterface data,
       final Set<String> curvesSet) {
     MultipleCurrencyParameterSensitivity result = new MultipleCurrencyParameterSensitivity();
     // YieldAndDiscount

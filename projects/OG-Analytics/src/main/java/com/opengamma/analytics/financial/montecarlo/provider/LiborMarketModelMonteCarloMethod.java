@@ -12,8 +12,8 @@ import com.opengamma.analytics.financial.model.interestrate.definition.LiborMark
 import com.opengamma.analytics.financial.montecarlo.DecisionSchedule;
 import com.opengamma.analytics.financial.montecarlo.MonteCarloIborRateCalculator;
 import com.opengamma.analytics.financial.montecarlo.MonteCarloIborRateDataBundle;
-import com.opengamma.analytics.financial.provider.description.LiborMarketModelDisplacedDiffusionProvider;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.LiborMarketModelDisplacedDiffusionProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;

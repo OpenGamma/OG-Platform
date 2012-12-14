@@ -9,9 +9,9 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.g2pp.PresentValueG2ppCalculator;
-import com.opengamma.analytics.financial.provider.description.G2ppProvider;
-import com.opengamma.analytics.financial.provider.description.G2ppProviderInterface;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.G2ppProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.G2ppProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.money.Currency;
 
 /**

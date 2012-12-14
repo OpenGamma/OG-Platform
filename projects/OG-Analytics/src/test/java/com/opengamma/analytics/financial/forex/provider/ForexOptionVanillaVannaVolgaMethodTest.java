@@ -26,9 +26,9 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParameters;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
-import com.opengamma.analytics.financial.provider.description.ForexBlackSmileProvider;
-import com.opengamma.analytics.financial.provider.description.ForexBlackVannaVolgaProvider;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProvider;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexVannaVolgaProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
@@ -101,9 +101,9 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
   //  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_STRIKE_INT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_STRIKE_INT, Pair.of(EUR, USD));
   //  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_STRIKE_INT_FLAT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_STRIKE_INT_FLAT, Pair.of(EUR, USD));
 
-  private static final ForexBlackSmileProvider SMILE_MULTICURVES = new ForexBlackSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT, Pair.of(EUR, USD));
-  private static final ForexBlackSmileProvider SMILE_FLAT_MULTICURVES = new ForexBlackSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT_FLAT, Pair.of(EUR, USD));
-  private static final ForexBlackVannaVolgaProvider VANNAVOLGA_MULTICURVES = new ForexBlackVannaVolgaProvider(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
+  private static final BlackForexSmileProvider SMILE_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT, Pair.of(EUR, USD));
+  private static final BlackForexSmileProvider SMILE_FLAT_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_STRIKE_INT_FLAT, Pair.of(EUR, USD));
+  private static final BlackForexVannaVolgaProvider VANNAVOLGA_MULTICURVES = new BlackForexVannaVolgaProvider(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 

@@ -36,21 +36,42 @@ public class AssertSensivityObjects {
    * Compare two sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
    * The comparison is done on the discounting curve and forward curves sensitivities.
    * @param msg The message.
-   * @param sensi1 The first sensitivity.
-   * @param sensi2 The second sensitivity.
+   * @param sensitivity1 The first sensitivity.
+   * @param sensitivity2 The second sensitivity.
    * @param tolerance The tolerance.
+   * @param opposite The flag indicating if the opposite result should be used.
    * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
    */
-  public static boolean assertEquals(final String msg, final MulticurveSensitivity sensi1, final MulticurveSensitivity sensi2, final double tolerance) {
+  private static boolean compare(final String msg, final MulticurveSensitivity sensitivity1, final MulticurveSensitivity sensitivity2, final double tolerance, final boolean opposite) {
     boolean cmp = true;
-    if (!InterestRateCurveSensitivityUtils.compare(sensi1.getYieldDiscountingSensitivities(), sensi2.getYieldDiscountingSensitivities(), tolerance)) {
+    if (!InterestRateCurveSensitivityUtils.compare(sensitivity1.getYieldDiscountingSensitivities(), sensitivity2.getYieldDiscountingSensitivities(), tolerance)) {
       cmp = false;
     }
-    if (!compareFwd(sensi1.getForwardSensitivities(), sensi2.getForwardSensitivities(), tolerance)) {
+    if (!compareFwd(sensitivity1.getForwardSensitivities(), sensitivity2.getForwardSensitivities(), tolerance)) {
       cmp = false;
+    }
+    if (opposite) {
+      cmp = !cmp;
     }
     assertTrue(msg, cmp);
     return cmp;
+  }
+
+  /**
+   * Compare two sensitivities with a given tolerance. The tolerance is used for both the time and the value. The two sensitivities are suppose to be in the same time order.
+   * The comparison is done on the discounting curve and forward curves sensitivities.
+   * @param msg The message.
+   * @param sensitivity1 The first sensitivity.
+   * @param sensitivity2 The second sensitivity.
+   * @param tolerance The tolerance.
+   * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
+   */
+  public static boolean assertEquals(final String msg, final MulticurveSensitivity sensitivity1, final MulticurveSensitivity sensitivity2, final double tolerance) {
+    return compare(msg, sensitivity1, sensitivity2, tolerance, false);
+  }
+
+  public static boolean assertDoesNotEqual(final String msg, final MulticurveSensitivity sensitivity1, final MulticurveSensitivity sensitivity2, final double tolerance) {
+    return compare(msg, sensitivity1, sensitivity2, tolerance, true);
   }
 
   /**

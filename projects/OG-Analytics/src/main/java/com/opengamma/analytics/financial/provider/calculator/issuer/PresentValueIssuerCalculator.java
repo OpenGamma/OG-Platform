@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.interestrate.cash.provider.DepositCount
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.provider.BondFutureDiscountingMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.IssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**

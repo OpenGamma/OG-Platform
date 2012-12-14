@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.provider.method;
 
-import com.opengamma.analytics.financial.provider.description.ParameterProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 
 /**
  * Calibration engine calibrating successively the instruments in the basket trough a root-finding process.

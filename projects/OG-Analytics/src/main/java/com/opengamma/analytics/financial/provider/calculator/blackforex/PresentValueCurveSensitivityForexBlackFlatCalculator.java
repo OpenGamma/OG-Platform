@@ -9,13 +9,13 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.provider.ForexOptionVanillaBlackFlatMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
-import com.opengamma.analytics.financial.provider.description.ForexBlackFlatProviderInterface;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexFlatProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class PresentValueCurveSensitivityForexBlackFlatCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<ForexBlackFlatProviderInterface, MultipleCurrencyMulticurveSensitivity> {
+public final class PresentValueCurveSensitivityForexBlackFlatCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<BlackForexFlatProviderInterface, MultipleCurrencyMulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -42,14 +42,14 @@ public final class PresentValueCurveSensitivityForexBlackFlatCalculator extends 
   private static final ForexOptionVanillaBlackFlatMethod METHOD_FX_VAN = ForexOptionVanillaBlackFlatMethod.getInstance();
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative derivative, final ForexBlackFlatProviderInterface blackSmile) {
+  public MultipleCurrencyMulticurveSensitivity visit(final InstrumentDerivative derivative, final BlackForexFlatProviderInterface blackSmile) {
     return derivative.accept(this, blackSmile);
   }
 
   // -----     Forex     ------
 
   @Override
-  public MultipleCurrencyMulticurveSensitivity visitForexOptionVanilla(final ForexOptionVanilla option, final ForexBlackFlatProviderInterface blackSmile) {
+  public MultipleCurrencyMulticurveSensitivity visitForexOptionVanilla(final ForexOptionVanilla option, final BlackForexFlatProviderInterface blackSmile) {
     return METHOD_FX_VAN.presentValueCurveSensitivity(option, blackSmile);
   }
 

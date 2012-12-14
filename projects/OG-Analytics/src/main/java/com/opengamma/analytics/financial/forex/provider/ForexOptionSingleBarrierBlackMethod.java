@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVola
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackBarrierPriceFunction;
 import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
-import com.opengamma.analytics.financial.provider.description.ForexBlackSmileProviderInterface;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -68,7 +68,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The present value (in domestic currency).
    */
-  public MultipleCurrencyAmount presentValue(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public MultipleCurrencyAmount presentValue(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -98,7 +98,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The currency exposure.
    */
-  public MultipleCurrencyAmount currencyExposure(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public MultipleCurrencyAmount currencyExposure(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -136,7 +136,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -181,7 +181,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The curve sensitivity.
    */
-  public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -218,7 +218,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @return The volatility node sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
   public PresentValueForexBlackVolatilityNodeSensitivityDataBundle presentValueBlackVolatilityNodeSensitivity(final ForexOptionSingleBarrier optionForex,
-      final ForexBlackSmileProviderInterface smileMulticurves) {
+      final BlackForexSmileProviderInterface smileMulticurves) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -251,7 +251,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param relShift The shift to the black volatility expressed relative to the input vol level
    * @return Gamma 
    */
-  public CurrencyAmount gammaFd(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves, final double relShift) {
+  public CurrencyAmount gammaFd(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves, final double relShift) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -291,7 +291,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param smileMulticurves The curve and smile data.
    * @return Gamma
    */
-  public CurrencyAmount gammaFd(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public CurrencyAmount gammaFd(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     return gammaFd(optionForex, smileMulticurves, DEFAULT_GAMMA_SHIFT);
   }
 
@@ -302,7 +302,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param relShift The shift to the black volatility expressed relative to the input vol level
    * @return Vomma as a SurfaceValue (point, value)
    */
-  public CurrencyAmount vommaFd(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves, final double relShift) {
+  public CurrencyAmount vommaFd(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves, final double relShift) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -341,7 +341,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param smileMulticurves The curve and smile data.
    * @return Vomma as a SurfaceValue
    */
-  public CurrencyAmount vommaFd(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public CurrencyAmount vommaFd(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     return vommaFd(optionForex, smileMulticurves, DEFAULT_VOMMA_SHIFT);
   }
 
@@ -352,7 +352,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param relShift The shift to the black volatility expressed relative to the input vol level
    * @return Vomma as a SurfaceValue
    */
-  public CurrencyAmount vannaFd(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves, final double relShift) {
+  public CurrencyAmount vannaFd(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves, final double relShift) {
     return d2PriceDSpotDVolFD(optionForex, smileMulticurves, relShift);
   }
 
@@ -362,7 +362,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param smileMulticurves The curve and smile data.
    * @return Vomma as a SurfaceValue
    */
-  public CurrencyAmount vannaFd(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public CurrencyAmount vannaFd(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     return vannaFd(optionForex, smileMulticurves, DEFAULT_VANNA_SHIFT);
   }
 
@@ -373,7 +373,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param relShift The shift to the black volatility expressed relative to the input vol level
    * @return Vomma as a SurfaceValue
    */
-  public CurrencyAmount dVegaDSpotFD(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves, final double relShift) {
+  public CurrencyAmount dVegaDSpotFD(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves, final double relShift) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -413,7 +413,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param relShift The shift to the black volatility expressed relative to the input vol level
    * @return Vomma as a SurfaceValue
    */
-  public CurrencyAmount dDeltaDVolFD(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves, final double relShift) {
+  public CurrencyAmount dDeltaDVolFD(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves, final double relShift) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -453,7 +453,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param relShift The shift to the black volatility expressed relative to the input vol level
    * @return Vomma as a SurfaceValue
    */
-  public CurrencyAmount d2PriceDSpotDVolFD(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves, final double relShift) {
+  public CurrencyAmount d2PriceDSpotDVolFD(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves, final double relShift) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -494,7 +494,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param relShift The shift to the black volatility expressed relative to the input vol level
    * @return Vomma as a SurfaceValue
    */
-  public CurrencyAmount d2PriceDSpotDVolFdAlt(final ForexOptionSingleBarrier optionForex, final ForexBlackSmileProviderInterface smileMulticurves, final double relShift) {
+  public CurrencyAmount d2PriceDSpotDVolFdAlt(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves, final double relShift) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");

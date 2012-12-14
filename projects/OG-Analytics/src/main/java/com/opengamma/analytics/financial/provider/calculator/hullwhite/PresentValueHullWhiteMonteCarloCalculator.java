@@ -10,7 +10,7 @@ import cern.jet.random.engine.MersenneTwister;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
 import com.opengamma.analytics.financial.montecarlo.provider.HullWhiteMonteCarloMethod;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 

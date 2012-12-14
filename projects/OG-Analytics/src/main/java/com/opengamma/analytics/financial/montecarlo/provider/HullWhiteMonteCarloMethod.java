@@ -18,8 +18,8 @@ import com.opengamma.analytics.financial.montecarlo.MonteCarloDiscountFactorCalc
 import com.opengamma.analytics.financial.montecarlo.MonteCarloDiscountFactorDataBundle;
 import com.opengamma.analytics.financial.montecarlo.MonteCarloDiscountFactorDerivativeCalculator;
 import com.opengamma.analytics.financial.montecarlo.MonteCarloDiscountFactorDerivativeDataBundle;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderInterface;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.math.linearalgebra.CholeskyDecompositionCommons;

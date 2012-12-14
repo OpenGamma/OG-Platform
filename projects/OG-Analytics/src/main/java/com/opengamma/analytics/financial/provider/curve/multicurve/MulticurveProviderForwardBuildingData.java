@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.provider.curve.multicurve;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderForward;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderForward;
 import com.opengamma.util.ArgumentChecker;
 
 /**

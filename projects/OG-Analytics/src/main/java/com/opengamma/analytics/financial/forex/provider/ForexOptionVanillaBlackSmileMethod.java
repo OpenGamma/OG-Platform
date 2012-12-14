@@ -20,8 +20,8 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
-import com.opengamma.analytics.financial.provider.description.ForexBlackSmileProviderInterface;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
@@ -73,7 +73,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The present value. The value is in the domestic currency (currency 2).
    */
-  public MultipleCurrencyAmount presentValue(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public MultipleCurrencyAmount presentValue(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -96,7 +96,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The implied volatility.
    */
-  public double impliedVolatility(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public double impliedVolatility(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -115,7 +115,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The currency exposure
    */
-  public MultipleCurrencyAmount currencyExposure(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public MultipleCurrencyAmount currencyExposure(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -144,7 +144,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The delta.
    */
-  public double deltaRelative(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves, final boolean directQuote) {
+  public double deltaRelative(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -172,7 +172,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The delta.
    */
-  public double deltaRelativeSpot(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves, final boolean directQuote) {
+  public double deltaRelativeSpot(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -200,7 +200,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The gamma.
    */
-  public double gammaRelative(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves, final boolean directQuote) {
+  public double gammaRelative(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -229,7 +229,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The gamma.
    */
-  public double gammaRelativeSpot(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves, final boolean directQuote) {
+  public double gammaRelativeSpot(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -256,7 +256,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The gamma.
    */
-  public CurrencyAmount gamma(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves, final boolean directQuote) {
+  public CurrencyAmount gamma(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -272,7 +272,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
    * @return The gamma.
    */
-  public CurrencyAmount gammaSpot(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves, final boolean directQuote) {
+  public CurrencyAmount gammaSpot(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -287,7 +287,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The theta. In the same currency as present value.
    */
-  public CurrencyAmount thetaTheoretical(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public CurrencyAmount thetaTheoretical(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -312,7 +312,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @return The Vanna. In the same currency as present value.
    */
 
-  public CurrencyAmount vanna(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public CurrencyAmount vanna(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -335,7 +335,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The Volga. In the same currency as present value.
    */
-  public CurrencyAmount vomma(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public CurrencyAmount vomma(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -368,7 +368,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -409,7 +409,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @param smileMulticurves The curve and smile data.
    * @return The volatility sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
-  public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionVanilla optionForex, final ForexBlackSmileProviderInterface smileMulticurves) {
+  public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
@@ -441,7 +441,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
    * @return The volatility node sensitivity. The sensitivity figures are, like the present value, in the domestic currency (currency 2).
    */
   public PresentValueForexBlackVolatilityNodeSensitivityDataBundle presentValueBlackVolatilityNodeSensitivity(final ForexOptionVanilla optionForex,
-      final ForexBlackSmileProviderInterface smileMulticurves) {
+      final BlackForexSmileProviderInterface smileMulticurves) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");

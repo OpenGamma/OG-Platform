@@ -9,12 +9,12 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborBlackMethod;
-import com.opengamma.analytics.financial.provider.description.BlackSwaptionProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProviderInterface;
 
 /**
  * Calculator of the present value as a multiple currency amount.
  */
-public final class PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator extends InstrumentDerivativeVisitorAdapter<BlackSwaptionProviderInterface, PresentValueBlackSwaptionSensitivity> {
+public final class PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator extends InstrumentDerivativeVisitorAdapter<BlackSwaptionFlatProviderInterface, PresentValueBlackSwaptionSensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -43,7 +43,7 @@ public final class PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator e
   // -----     Swaption     ------
 
   @Override
-  public PresentValueBlackSwaptionSensitivity visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final BlackSwaptionProviderInterface black) {
+  public PresentValueBlackSwaptionSensitivity visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final BlackSwaptionFlatProviderInterface black) {
     return METHOD_SWT_PHYS.presentValueBlackSensitivity(swaption, black);
   }
 

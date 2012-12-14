@@ -11,8 +11,8 @@ import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiece
 import com.opengamma.analytics.financial.montecarlo.DecisionSchedule;
 import com.opengamma.analytics.financial.montecarlo.MonteCarloDiscountFactorCalculator;
 import com.opengamma.analytics.financial.montecarlo.MonteCarloDiscountFactorDataBundle;
-import com.opengamma.analytics.financial.provider.description.G2ppProviderInterface;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.G2ppProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.linearalgebra.CholeskyDecompositionCommons;
 import com.opengamma.analytics.math.linearalgebra.CholeskyDecompositionResult;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;

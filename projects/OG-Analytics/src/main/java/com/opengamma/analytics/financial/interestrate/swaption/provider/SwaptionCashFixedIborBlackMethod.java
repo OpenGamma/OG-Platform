@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.BlackSwaptionProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.math.function.Function1D;
@@ -69,7 +69,7 @@ public final class SwaptionCashFixedIborBlackMethod {
    * @param curveBlack The curves with Black volatility data.
    * @return The present value.
    */
-  public MultipleCurrencyAmount presentValue(final SwaptionCashFixedIbor swaption, final BlackSwaptionProviderInterface curveBlack) {
+  public MultipleCurrencyAmount presentValue(final SwaptionCashFixedIbor swaption, final BlackSwaptionFlatProviderInterface curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     ArgumentChecker.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency().equals(swaption.getCurrency()), "Black data currency should be equal to swaption currency");
@@ -92,7 +92,7 @@ public final class SwaptionCashFixedIborBlackMethod {
    * @param curveBlack The curves with Black volatility data.
    * @return The present value curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwaptionCashFixedIbor swaption, final BlackSwaptionProviderInterface curveBlack) {
+  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwaptionCashFixedIbor swaption, final BlackSwaptionFlatProviderInterface curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     ArgumentChecker.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency().equals(swaption.getCurrency()), "Black data currency should be equal to swaption currency");
@@ -128,7 +128,7 @@ public final class SwaptionCashFixedIborBlackMethod {
    * @param curveBlack The curves with Black volatility data.
    * @return The present value Black sensitivity.
    */
-  public PresentValueBlackSwaptionSensitivity presentValueBlackSensitivity(final SwaptionCashFixedIbor swaption, final BlackSwaptionProviderInterface curveBlack) {
+  public PresentValueBlackSwaptionSensitivity presentValueBlackSensitivity(final SwaptionCashFixedIbor swaption, final BlackSwaptionFlatProviderInterface curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     ArgumentChecker.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency().equals(swaption.getCurrency()), "Black data currency should be equal to swaption currency");

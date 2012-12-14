@@ -18,9 +18,9 @@ import com.opengamma.analytics.financial.interestrate.future.calculator.PresentV
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
-import com.opengamma.analytics.financial.provider.description.HullWhiteIssuerProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteIssuerProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;

@@ -25,9 +25,9 @@ import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentV
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueForexBlackFlatCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CurrencyExposureDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.ForexBlackFlatProvider;
-import com.opengamma.analytics.financial.provider.description.ForexBlackSmileProvider;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexFlatProvider;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
@@ -85,7 +85,7 @@ public class ForexOptionVanillaBlackFlatMethodTest {
   // Methods and curves
   private static final BlackForexTermStructureParameters BLACK_TS_VOL = new BlackForexTermStructureParameters(TERM_STRUCTURE_VOL);
 
-  private static final ForexBlackFlatProvider BLACK_MULTICURVES = new ForexBlackFlatProvider(MULTICURVES, BLACK_TS_VOL, CURRENCY_PAIR);
+  private static final BlackForexFlatProvider BLACK_MULTICURVES = new BlackForexFlatProvider(MULTICURVES, BLACK_TS_VOL, CURRENCY_PAIR);
 
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 
@@ -104,7 +104,7 @@ public class ForexOptionVanillaBlackFlatMethodTest {
   private static final double[][] STRANGLE_FLAT = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, VOL, RISK_REVERSAL_FLAT,
       STRANGLE_FLAT, LINEAR_FLAT, LINEAR_FLAT);
-  private static final ForexBlackSmileProvider SMILE_FLAT_MULTICURVES = new ForexBlackSmileProvider(MULTICURVES, SMILE_TERM_FLAT, CURRENCY_PAIR);
+  private static final BlackForexSmileProvider SMILE_FLAT_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_FLAT, CURRENCY_PAIR);
 
   // Some options
   private static final double STRIKE = 1.45;

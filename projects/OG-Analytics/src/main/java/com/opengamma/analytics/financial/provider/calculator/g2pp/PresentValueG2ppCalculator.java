@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.provider.calculator.g2pp;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborG2ppApproximationMethod;
-import com.opengamma.analytics.financial.provider.description.G2ppProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.G2ppProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**

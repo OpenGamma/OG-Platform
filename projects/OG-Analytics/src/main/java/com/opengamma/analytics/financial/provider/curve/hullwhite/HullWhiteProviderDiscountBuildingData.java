@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.provider.curve.hullwhite;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.provider.description.HullWhiteOneFactorProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.util.ArgumentChecker;
 
 /**

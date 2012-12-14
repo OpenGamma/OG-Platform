@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.provider.calculator.libormarket;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborLMMDDMethod;
-import com.opengamma.analytics.financial.provider.description.LiborMarketModelDisplacedDiffusionProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.LiborMarketModelDisplacedDiffusionProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**

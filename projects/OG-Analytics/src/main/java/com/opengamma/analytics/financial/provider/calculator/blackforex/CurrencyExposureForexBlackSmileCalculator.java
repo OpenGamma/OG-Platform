@@ -15,13 +15,13 @@ import com.opengamma.analytics.financial.forex.provider.ForexOptionSingleBarrier
 import com.opengamma.analytics.financial.forex.provider.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
-import com.opengamma.analytics.financial.provider.description.ForexBlackSmileProviderInterface;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public final class CurrencyExposureForexBlackSmileCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<ForexBlackSmileProviderInterface, MultipleCurrencyAmount> {
+public final class CurrencyExposureForexBlackSmileCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<BlackForexSmileProviderInterface, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -51,29 +51,29 @@ public final class CurrencyExposureForexBlackSmileCalculator extends InstrumentD
   private static final ForexOptionSingleBarrierBlackMethod METHOD_BARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
 
   @Override
-  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final ForexBlackSmileProviderInterface blackSmile) {
+  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final BlackForexSmileProviderInterface blackSmile) {
     return derivative.accept(this, blackSmile);
   }
 
   // -----     Forex     ------
 
   @Override
-  public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla option, final ForexBlackSmileProviderInterface blackSmile) {
+  public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla option, final BlackForexSmileProviderInterface blackSmile) {
     return METHOD_FX_VAN.currencyExposure(option, blackSmile);
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexNonDeliverableOption(final ForexNonDeliverableOption option, final ForexBlackSmileProviderInterface blackSmile) {
+  public MultipleCurrencyAmount visitForexNonDeliverableOption(final ForexNonDeliverableOption option, final BlackForexSmileProviderInterface blackSmile) {
     return METHOD_NDO.currencyExposure(option, blackSmile);
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexOptionDigital(final ForexOptionDigital option, final ForexBlackSmileProviderInterface blackSmile) {
+  public MultipleCurrencyAmount visitForexOptionDigital(final ForexOptionDigital option, final BlackForexSmileProviderInterface blackSmile) {
     return METHOD_DIG.currencyExposure(option, blackSmile);
   }
 
   @Override
-  public MultipleCurrencyAmount visitForexOptionSingleBarrier(final ForexOptionSingleBarrier option, final ForexBlackSmileProviderInterface blackSmile) {
+  public MultipleCurrencyAmount visitForexOptionSingleBarrier(final ForexOptionSingleBarrier option, final BlackForexSmileProviderInterface blackSmile) {
     return METHOD_BARRIER.currencyExposure(option, blackSmile);
   }
 

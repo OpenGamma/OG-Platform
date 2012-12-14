@@ -25,8 +25,8 @@ import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentV
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueForexVolatilitySensitivityForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.ForexBlackSmileProviderDiscount;
-import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.blackforex.ParameterSensitivityForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.blackforex.ParameterSensitivityForexBlackSmileDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
@@ -67,8 +67,8 @@ public class ForexOptionDigitalBlackSmileMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = ForexSmileProviderDataSets.smile5points(REFERENCE_DATE);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT = ForexSmileProviderDataSets.smileFlat(REFERENCE_DATE);
-  private static final ForexBlackSmileProviderDiscount SMILE_MULTICURVES = new ForexBlackSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
-  private static final ForexBlackSmileProviderDiscount SMILE_FLAT_MULTICURVES = new ForexBlackSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_FLAT_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
   // Methods and curves
   private static final double SPOT = MULTICURVES.getFxRate(EUR, USD);
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
@@ -174,7 +174,7 @@ public class ForexOptionDigitalBlackSmileMethodTest {
       spot[loopspot] = strike - range + 2.0d * range * loopspot / nbSpot;
       final FXMatrix fxMatrix = new FXMatrix(EUR, USD, spot[loopspot]);
       multicurveForex.setForexMatrix(fxMatrix);
-      final ForexBlackSmileProviderDiscount smile = new ForexBlackSmileProviderDiscount(multicurveForex, SMILE_TERM, Pair.of(EUR, USD));
+      final BlackForexSmileProviderDiscount smile = new BlackForexSmileProviderDiscount(multicurveForex, SMILE_TERM, Pair.of(EUR, USD));
       pv[loopspot] = METHOD_BLACK_DIGITAL.presentValue(forexOption, smile).getAmount(USD);
     }
   }
@@ -229,7 +229,7 @@ public class ForexOptionDigitalBlackSmileMethodTest {
       spot[loopspot] = strike - range + 2.0d * range * loopspot / nbSpot;
       final FXMatrix fxMatrix = new FXMatrix(EUR, USD, spot[loopspot]);
       multicurveForex.setForexMatrix(fxMatrix);
-      final ForexBlackSmileProviderDiscount smile = new ForexBlackSmileProviderDiscount(multicurveForex, SMILE_TERM, Pair.of(EUR, USD));
+      final BlackForexSmileProviderDiscount smile = new BlackForexSmileProviderDiscount(multicurveForex, SMILE_TERM, Pair.of(EUR, USD));
       pv[loopspot] = METHOD_BLACK_DIGITAL.presentValue(forexOption, smile).getAmount(EUR);
     }
   }
@@ -335,7 +335,7 @@ public class ForexOptionDigitalBlackSmileMethodTest {
     MulticurveProviderDiscount multicurveP = MULTICURVES.copy();
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT + shift);
     multicurveP.setForexMatrix(fxMatrixP);
-    ForexBlackSmileProviderDiscount smileP = new ForexBlackSmileProviderDiscount(multicurveP, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    BlackForexSmileProviderDiscount smileP = new BlackForexSmileProviderDiscount(multicurveP, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final MultipleCurrencyAmount ce = METHOD_BLACK_DIGITAL.currencyExposure(FOREX_DIGITAL_CALL_FOR, SMILE_FLAT_MULTICURVES);
     final MultipleCurrencyAmount pv = METHOD_BLACK_DIGITAL.presentValue(FOREX_DIGITAL_CALL_FOR, SMILE_FLAT_MULTICURVES);
     final MultipleCurrencyAmount pvP = METHOD_BLACK_DIGITAL.presentValue(FOREX_DIGITAL_CALL_FOR, smileP);

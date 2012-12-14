@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecuri
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueCurveSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.PresentValueIssuerCalculator;
 import com.opengamma.analytics.financial.provider.calculator.issuer.YieldFromCurvesCalculator;
-import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.issuer.ParameterSensitivityIssuerCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.issuer.ParameterSensitivityIssuerDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
