@@ -11,15 +11,11 @@ import static com.opengamma.financial.analytics.model.InterpolatedDataProperties
 import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.RIGHT_Y_EXTRAPOLATOR_NAME;
 import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.X_INTERPOLATOR_NAME;
 import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.Y_INTERPOLATOR_NAME;
+import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_ALPHA;
+import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_BETA;
 import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_ERROR;
-import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_FIXED_ALPHA;
-import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_FIXED_BETA;
-import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_FIXED_NU;
-import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_FIXED_RHO;
-import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_START_ALPHA;
-import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_START_BETA;
-import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_START_NU;
-import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_START_RHO;
+import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_NU;
+import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_RHO;
 import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_USE_FIXED_ALPHA;
 import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_USE_FIXED_BETA;
 import static com.opengamma.financial.analytics.model.volatility.surface.SABRFittingProperties.PROPERTY_USE_FIXED_NU;
@@ -27,8 +23,6 @@ import static com.opengamma.financial.analytics.model.volatility.surface.SABRFit
 
 import java.util.BitSet;
 import java.util.Set;
-
-import org.slf4j.Logger;
 
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
@@ -51,18 +45,14 @@ public class SABRFittingPropertyUtils {
       .withAny(LEFT_Y_EXTRAPOLATOR_NAME)
       .withAny(RIGHT_X_EXTRAPOLATOR_NAME)
       .withAny(RIGHT_Y_EXTRAPOLATOR_NAME)
-      .withAny(PROPERTY_FIXED_ALPHA)
-      .withAny(PROPERTY_FIXED_BETA)
-      .withAny(PROPERTY_FIXED_NU)
-      .withAny(PROPERTY_FIXED_RHO)
+      .withAny(PROPERTY_ALPHA)
+      .withAny(PROPERTY_BETA)
+      .withAny(PROPERTY_NU)
+      .withAny(PROPERTY_RHO)
       .withAny(PROPERTY_USE_FIXED_ALPHA)
       .withAny(PROPERTY_USE_FIXED_BETA)
       .withAny(PROPERTY_USE_FIXED_NU)
       .withAny(PROPERTY_USE_FIXED_RHO)
-      .withAny(PROPERTY_START_ALPHA)
-      .withAny(PROPERTY_START_BETA)
-      .withAny(PROPERTY_START_NU)
-      .withAny(PROPERTY_START_RHO)
       .withAny(PROPERTY_ERROR)
       .get();
     return result;
@@ -110,36 +100,20 @@ public class SABRFittingPropertyUtils {
     if (useFixedRho == null || useFixedRho.size() != 1) {
       return false;
     }
-    final Set<String> fixedAlpha = constraints.getValues(PROPERTY_FIXED_ALPHA);
-    if (fixedAlpha != null && fixedAlpha.size() != 1) {
+    final Set<String> alpha = constraints.getValues(PROPERTY_ALPHA);
+    if (alpha == null || alpha.size() != 1) {
       return false;
     }
-    final Set<String> fixedBeta = constraints.getValues(PROPERTY_FIXED_BETA);
-    if (fixedBeta != null && fixedBeta.size() != 1) {
+    final Set<String> beta = constraints.getValues(PROPERTY_BETA);
+    if (beta == null || beta.size() != 1) {
       return false;
     }
-    final Set<String> fixedNu = constraints.getValues(PROPERTY_FIXED_NU);
-    if (fixedNu != null && fixedNu.size() != 1) {
+    final Set<String> nu = constraints.getValues(PROPERTY_NU);
+    if (nu == null || nu.size() != 1) {
       return false;
     }
-    final Set<String> fixedRho = constraints.getValues(PROPERTY_FIXED_RHO);
-    if (fixedRho != null && fixedRho.size() != 1) {
-      return false;
-    }
-    final Set<String> startAlpha = constraints.getValues(PROPERTY_START_ALPHA);
-    if (startAlpha != null && startAlpha.size() != 1) {
-      return false;
-    }
-    final Set<String> startBeta = constraints.getValues(PROPERTY_START_BETA);
-    if (startBeta != null && startBeta.size() != 1) {
-      return false;
-    }
-    final Set<String> startNu = constraints.getValues(PROPERTY_START_NU);
-    if (startNu != null && startNu.size() != 1) {
-      return false;
-    }
-    final Set<String> startRho = constraints.getValues(PROPERTY_START_RHO);
-    if (startRho != null && startRho.size() != 1) {
+    final Set<String> rho = constraints.getValues(PROPERTY_RHO);
+    if (rho == null || rho.size() != 1) {
       return false;
     }
     final Set<String> errors = constraints.getValues(PROPERTY_ERROR);
@@ -149,73 +123,11 @@ public class SABRFittingPropertyUtils {
     return true;
   }
 
-  public static boolean ensureConsistentDefaults(final ValueRequirement desiredValue, final Logger logger) {
-    final ValueProperties constraints = desiredValue.getConstraints();
-    if (Boolean.parseBoolean(desiredValue.getConstraint(PROPERTY_USE_FIXED_ALPHA))) {
-      if (constraints.getValues(PROPERTY_START_ALPHA) != null) {
-        logger.error("Using fixed alpha but have provided a starting value");
-        return false;
-      }
-      if (constraints.getValues(PROPERTY_FIXED_ALPHA) == null) {
-        logger.error("Using fixed alpha but have not provided a fixed value");
-        return false;
-      }
-    }
-    if (Boolean.parseBoolean(desiredValue.getConstraint(PROPERTY_USE_FIXED_BETA))) {
-      if (constraints.getValues(PROPERTY_START_BETA) != null) {
-        logger.error("Using fixed beta but have provided a starting value");
-        return false;
-      }
-      if (constraints.getValues(PROPERTY_FIXED_BETA) == null) {
-        logger.error("Using fixed beta but have not provided a fixed value");
-        return false;
-      }
-    }
-    if (Boolean.parseBoolean(desiredValue.getConstraint(PROPERTY_USE_FIXED_RHO))) {
-      if (constraints.getValues(PROPERTY_START_RHO) != null) {
-        logger.error("Using fixed rho but have provided a starting value");
-        return false;
-      }
-      if (constraints.getValues(PROPERTY_FIXED_RHO) == null) {
-        logger.error("Using fixed rho but have not provided a fixed value");
-        return false;
-      }
-    }
-    if (Boolean.parseBoolean(desiredValue.getConstraint(PROPERTY_USE_FIXED_NU))) {
-      if (constraints.getValues(PROPERTY_START_NU) != null) {
-        logger.error("Using fixed nu but have provided a starting value");
-        return false;
-      }
-      if (constraints.getValues(PROPERTY_FIXED_NU) == null) {
-        logger.error("Using fixed nu but have not provided a fixed value");
-        return false;
-      }
-    }
-    return false;
-  }
-
   public static DoubleMatrix1D getStartingValues(final ValueRequirement desiredValue) {
-    final double alpha, beta, rho, nu;
-    if (Boolean.parseBoolean(desiredValue.getConstraint(PROPERTY_USE_FIXED_ALPHA))) {
-      alpha = Double.parseDouble(desiredValue.getConstraint(PROPERTY_FIXED_ALPHA));
-    } else {
-      alpha = Double.parseDouble(desiredValue.getConstraint(PROPERTY_START_ALPHA));
-    }
-    if (Boolean.parseBoolean(desiredValue.getConstraint(PROPERTY_USE_FIXED_BETA))) {
-      beta = Double.parseDouble(desiredValue.getConstraint(PROPERTY_FIXED_BETA));
-    } else {
-      beta = Double.parseDouble(desiredValue.getConstraint(PROPERTY_START_BETA));
-    }
-    if (Boolean.parseBoolean(desiredValue.getConstraint(PROPERTY_USE_FIXED_RHO))) {
-      rho = Double.parseDouble(desiredValue.getConstraint(PROPERTY_FIXED_RHO));
-    } else {
-      rho = Double.parseDouble(desiredValue.getConstraint(PROPERTY_START_RHO));
-    }
-    if (Boolean.parseBoolean(desiredValue.getConstraint(PROPERTY_USE_FIXED_NU))) {
-      nu = Double.parseDouble(desiredValue.getConstraint(PROPERTY_FIXED_NU));
-    } else {
-      nu = Double.parseDouble(desiredValue.getConstraint(PROPERTY_START_NU));
-    }
+    final double alpha = Double.parseDouble(desiredValue.getConstraint(PROPERTY_ALPHA));
+    final double beta = Double.parseDouble(desiredValue.getConstraint(PROPERTY_BETA));
+    final double rho = Double.parseDouble(desiredValue.getConstraint(PROPERTY_RHO));
+    final double nu = Double.parseDouble(desiredValue.getConstraint(PROPERTY_NU));
     return new DoubleMatrix1D(new double[] {alpha, beta, rho, nu});
   }
 

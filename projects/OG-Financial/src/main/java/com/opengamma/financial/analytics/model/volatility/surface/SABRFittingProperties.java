@@ -9,32 +9,22 @@ package com.opengamma.financial.analytics.model.volatility.surface;
  *
  */
 public class SABRFittingProperties {
-  /** Surface fitting property */
-  public static final String SABR = "SABR";
   /** Fix alpha during fitting */
   public static final String PROPERTY_USE_FIXED_ALPHA = "UseFixedAlpha";
   /** Fixed alpha value */
-  public static final String PROPERTY_FIXED_ALPHA = "FixedAlpha";
-  /** Starting value for alpha */
-  public static final String PROPERTY_START_ALPHA = "StartAlpha";
+  public static final String PROPERTY_ALPHA = "Alpha";
   /** Fix beta during fitting */
   public static final String PROPERTY_USE_FIXED_BETA = "UseFixedBeta";
   /** Fixed beta value */
-  public static final String PROPERTY_FIXED_BETA = "FixedBeta";
-  /** Starting value for beta */
-  public static final String PROPERTY_START_BETA = "StartBeta";
+  public static final String PROPERTY_BETA = "Beta";
   /** Fix nu during fitting */
   public static final String PROPERTY_USE_FIXED_NU = "UseFixedNu";
   /** Fixed nu value */
-  public static final String PROPERTY_FIXED_NU = "FixedNu";
-  /** Starting value for nu */
-  public static final String PROPERTY_START_NU = "StartNu";
+  public static final String PROPERTY_NU = "Nu";
   /** Fix rho during fitting */
   public static final String PROPERTY_USE_FIXED_RHO = "UseFixedRho";
   /** Fixed rho value */
-  public static final String PROPERTY_FIXED_RHO = "FixedRho";
-  /** Starting value for rho */
-  public static final String PROPERTY_START_RHO = "StartRho";
+  public static final String PROPERTY_RHO = "Rho";
   /** The error in volatility quotes */
   public static final String PROPERTY_ERROR = "Error";
 }
