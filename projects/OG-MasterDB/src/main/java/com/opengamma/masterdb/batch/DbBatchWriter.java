@@ -886,7 +886,7 @@ public class DbBatchWriter extends AbstractDbMaster {
               try {
                 _resultConverterCache.getConverter(value);
               } catch (IllegalArgumentException e) {
-                s_logger.error("Cannot insert value of type " + value.getClass() + " for " + result.getSpecification(), e);
+                s_logger.error("No converter for value of type " + value.getClass() + " for " + result.getSpecification());
                 // REVIEW jonathan 2012-11-06 -- this is not part of the calculation result and may be replacing
                 // details of a genuine exception that occurred during execution. There should be another mechanism to
                 // return this information if it is needed.
