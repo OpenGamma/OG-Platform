@@ -16,9 +16,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,13 +43,10 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.model.volatility.surface.fitted.SurfaceFittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
-import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
-import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -61,15 +55,13 @@ import com.opengamma.util.tuple.ObjectsPair;
  *
  */
 public class SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction extends AbstractFunction.NonCompiledInvoker {
+  /** A logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction.class);
+  /** Hagan SABR function */
   private static final SABRHaganVolatilityFunction SABR_FUNCTION = new SABRHaganVolatilityFunction();
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final Currency currency = Currency.of(target.getUniqueId().getValue());
-    final Calendar calendar = new HolidaySourceCalendarAdapter(OpenGammaExecutionContext.getHolidaySource(executionContext), currency);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Object objectSurfaceData = inputs.getValue(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA);
     if (objectSurfaceData == null) {

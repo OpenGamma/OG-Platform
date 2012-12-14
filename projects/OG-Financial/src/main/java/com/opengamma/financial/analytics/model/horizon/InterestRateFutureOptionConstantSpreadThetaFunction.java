@@ -55,7 +55,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalcula
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctionHelper;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -100,7 +100,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String surfaceNameWithPrefix = surfaceName + "_" + InterestRateFutureOptionBlackFunction.getFutureOptionPrefix(target);
+    final String surfaceNameWithPrefix = surfaceName + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
 
     final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceNameWithPrefix, currency));
     if (volatilitySurfaceObject == null) {
@@ -159,7 +159,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
       return null;
     }
-    final String surfaceName = surfaceNames.iterator().next() + "_" + InterestRateFutureOptionBlackFunction.getFutureOptionPrefix(target);
+    final String surfaceName = surfaceNames.iterator().next() + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);

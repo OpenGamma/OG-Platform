@@ -96,7 +96,7 @@ public abstract class InterestRateFutureOptionBlackCurveSpecificFunction extends
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     // To enable standard and midcurve options to share the same default name
-    final String surfaceNameWithPrefix = surfaceName + "_" + InterestRateFutureOptionBlackFunction.getFutureOptionPrefix(target);
+    final String surfaceNameWithPrefix = surfaceName + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
@@ -176,7 +176,7 @@ public abstract class InterestRateFutureOptionBlackCurveSpecificFunction extends
       s_logger.error("Curve named {} is not available in curve calculation configuration called {}", curve, curveCalculationConfigName);
       return null;
     }
-    final String surfaceName = surfaceNames.iterator().next() + "_" + InterestRateFutureOptionBlackFunction.getFutureOptionPrefix(target);
+    final String surfaceName = surfaceNames.iterator().next() + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getVolatilityRequirement(surfaceName, currency));
