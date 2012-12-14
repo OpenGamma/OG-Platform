@@ -23,11 +23,13 @@ $.register_module({
             og.api.text({module: tashes.form_container}).pipe(function (form_container) {
                 dom.masthead.append(form_container);
                 $.when(og.api.rest.aggregators.get()).pipe(function (resp) {
-                    aggregation_menu = new og.analytics.AggregatorsMenu({
-                        cntr: dom.aggregation_cntr = $('.' + selectors.aggregation_cntr, dom.masthead),
-                        tmpl: tashes.aggregation_menu,
-                        data: resp.data
-                    });
+                    og.api.text({module: tashes.aggregation_menu}).pipe(function (template) {
+                        aggregation_menu = new og.analytics.AggregatorsMenu({
+                            cntr: dom.aggregation_cntr = $('.' + selectors.aggregation_cntr, dom.masthead),
+                            tmpl: template,
+                            data: resp.data
+                        });
+                    })
                 });
             });
         };

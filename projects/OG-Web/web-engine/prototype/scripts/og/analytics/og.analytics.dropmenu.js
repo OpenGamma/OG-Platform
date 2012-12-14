@@ -12,9 +12,9 @@ $.register_module({
             },
             DropMenu = function (config) {
                 var menu = new og.common.util.ui.DropMenu(), dummy_s = '<wrapper>';
-                menu.$dom.toggle_prefix = $(dummy_s);
-                menu.$dom.toggle_infix = $(dummy_s).append('<span>then</span>');
                 if (menu.$dom) {
+                    menu.$dom.toggle_prefix = $(dummy_s);
+                    menu.$dom.toggle_infix = $(dummy_s).append('<span>then</span>');
                     menu.$dom.cntr = config.$cntr.html($((Handlebars.compile(config.tmpl))(config.data)));
                     menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
                     menu.$dom.menu = $('.og-menu', menu.$dom.cntr);

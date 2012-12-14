@@ -68,13 +68,13 @@ $.register_module({
             };
 
             var init = function (conf) {
-                form = new og.common.util.ui.Form({
+                /*form = new og.common.util.ui.Form({
                     module: conf.tmpl,
                     data: {},
                     type_map: {},
                     selector: '.og-aggregation',
                     extras: conf.data
-                });
+                });*/
 
                 $dom = menu.$dom;
                 if ($dom) {
