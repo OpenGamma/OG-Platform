@@ -46,7 +46,6 @@ import com.opengamma.bbg.util.BloombergDomainIdentifierResolver;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
 import com.opengamma.provider.historicaltimeseries.impl.AbstractHistoricalTimeSeriesProvider;
@@ -176,14 +175,14 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
      */
     Map<ExternalIdBundle, LocalDateDoubleTimeSeries> doBulkGet(
         Set<ExternalIdBundle> externalIdBundle, String dataProvider, String dataField, LocalDateRange dateRange, Integer maxPoints) {
-      
+
       ensureStarted();
       s_logger.debug("Getting historical data for {}", externalIdBundle);
       if (externalIdBundle.isEmpty()) {
         s_logger.info("Historical data request for empty identifier set");
         return Collections.emptyMap();
       }
-      
+
       Map<String, ExternalIdBundle> reverseBundleMap = Maps.newHashMap();
       Request request = createRequest(externalIdBundle, dataProvider, dataField, dateRange, maxPoints, reverseBundleMap);
       _statistics.recordStatistics(reverseBundleMap.keySet(), Collections.singleton(dataField));
@@ -198,11 +197,11 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
     private Request createRequest(
         Set<ExternalIdBundle> externalIdBundle, String dataProvider, String dataField, LocalDateRange dateRange,
         Integer maxPoints, Map<String, ExternalIdBundle> reverseBundleMap) {
-      
+
       // create request
       Request request = _refDataService.createRequest(BLOOMBERG_HISTORICAL_DATA_REQUEST);
       Element securitiesElem = request.getElement(BLOOMBERG_SECURITIES_REQUEST);
-      
+
       // identifiers
       for (ExternalIdBundle identifiers : externalIdBundle) {
         Set<ExternalId> preferredIds = identifiers.getExternalIds(ExternalSchemes.BLOOMBERG_TICKER);
@@ -223,17 +222,17 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
         if (preferredId == null) {
           throw new OpenGammaRuntimeException("Couldn't establish preferred identifier, this should not happen and indicates a code logic error");
         }
-        
+
         s_logger.debug("Resolved preferred identifier {} from identifier bundle {}", preferredId, identifiers);
         String bbgKey = BloombergDomainIdentifierResolver.toBloombergKeyWithDataProvider(preferredId, dataProvider);
         securitiesElem.appendValue(bbgKey);
         reverseBundleMap.put(bbgKey, identifiers);
       }
-      
+
       // field required
       Element fieldElem = request.getElement(BLOOMBERG_FIELDS_REQUEST);
       fieldElem.appendValue(dataField);
-      
+
       // general settings
       request.set("periodicityAdjustment", "ACTUAL");
       request.set("periodicitySelection", "DAILY");
@@ -264,13 +263,13 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
      */
     private static Map<ExternalIdBundle, LocalDateDoubleTimeSeries> extractTimeSeries(
         Set<ExternalIdBundle> externalIdBundle, String dataField, Map<String, ExternalIdBundle> reverseBundleMap, BlockingQueue<Element> resultElements) {
-      
+
       // handle empty case
       if (resultElements == null || resultElements.isEmpty()) {
         s_logger.warn("Unable to get historical data for {}", externalIdBundle);
         return null;
       }
-      
+
       // parse data
       Map<ExternalIdBundle, LocalDateDoubleTimeSeries> result = Maps.newHashMap();
       for (Element resultElem : resultElements) {
@@ -285,7 +284,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
         }
         if (securityElem.hasElement(FIELD_EXCEPTIONS)) {
           Element fieldExceptions = securityElem.getElement(FIELD_EXCEPTIONS);
-          
+
           for (int i = 0; i < fieldExceptions.numValues(); i++) {
             Element fieldException = fieldExceptions.getValueAsElement(i);
             String fieldId = fieldException.getElementAsString(FIELD_ID);
@@ -299,8 +298,8 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
         }
       }
       if (externalIdBundle.size() != result.size()) {
-        s_logger.warn("Failed to get time series results for ({}/{}) {}", 
-            new Object[]{externalIdBundle.size() - result.size(), externalIdBundle.size(), Sets.difference(externalIdBundle, result.keySet())});
+        s_logger.warn("Failed to get time series results for ({}/{}) {}",
+            new Object[] {externalIdBundle.size() - result.size(), externalIdBundle.size(), Sets.difference(externalIdBundle, result.keySet()) });
       }
       return result;
     }
@@ -310,7 +309,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
      */
     private static void extractFieldData(
         Element securityElem, String field, Map<String, ExternalIdBundle> reverseBundleMap, Map<ExternalIdBundle, LocalDateDoubleTimeSeries> result) {
-      
+
       String secDes = securityElem.getElementAsString(BloombergConstants.SECURITY);
       ExternalIdBundle identifiers = reverseBundleMap.get(secDes);
       if (identifiers == null) {
@@ -326,7 +325,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
         timeSeries = (MapLocalDateDoubleTimeSeries) hts;
       }
       Element fieldDataArray = securityElem.getElement(FIELD_DATA);
-      
+
       int numValues = fieldDataArray.numValues();
       for (int i = 0; i < numValues; i++) {
         Element fieldData = fieldDataArray.getValueAsElement(i);
@@ -347,7 +346,7 @@ public class BloombergHistoricalTimeSeriesProvider extends AbstractHistoricalTim
       String category = element.getElementAsString("category");
       String subcategory = element.getElementAsString("subcategory");
       String message = element.getElementAsString("message");
-      
+
       String errorMessage = MessageFormat.format(ERROR_MESSAGE_FORMAT, code, category, subcategory, message);
       s_logger.warn(errorMessage);
     }
