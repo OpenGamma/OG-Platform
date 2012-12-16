@@ -6,6 +6,9 @@
 package com.opengamma.analytics.math.statistics.distribution;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.fail;
+
+import java.util.Random;
 
 import org.testng.annotations.Test;
 
@@ -13,7 +16,7 @@ import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistr
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
+ *
  */
 public class BivariateNormalDistributionTest {
   private static final ProbabilityDistribution<double[]> DIST = new BivariateNormalDistribution();
@@ -85,5 +88,70 @@ public class BivariateNormalDistributionTest {
     assertEquals(DIST.getCDF(new double[] {0.5, 0.5, 0.0}), 0.4781203354, EPS);
     assertEquals(DIST.getCDF(new double[] {0.5, 0.5, -0.5}), 0.4192231090, EPS);
     assertEquals(DIST.getCDF(new double[] {0.0, -1.0, -1.0}), 0.00000000, EPS);
+  }
+
+  @Test
+  public void testZeroZeroAnalyticCases() {
+
+    final double MAX_ABS_ERROR_DW2 = 9.0E-6;
+    checkAtZeroZero(0.0, 1.0/4.0, MAX_ABS_ERROR_DW2);
+    checkAtZeroZero(1.0/2.0, 1.0/3.0, MAX_ABS_ERROR_DW2);
+    checkAtZeroZero(-1.0/2.0, 1.0/6.0, MAX_ABS_ERROR_DW2);
+    checkAtZeroZero(1.0/Math.sqrt(2.0), 3.0/8.0, MAX_ABS_ERROR_DW2);
+    checkAtZeroZero(-1.0/Math.sqrt(2.0), 1.0/8.0, MAX_ABS_ERROR_DW2);
+    checkAtZeroZero(Math.sqrt(3.0)/2.0, 5.0/12.0, MAX_ABS_ERROR_DW2);
+    checkAtZeroZero(-Math.sqrt(3.0)/2.0, 1.0/12.0, MAX_ABS_ERROR_DW2);
+    checkAtZeroZero(1.0, 1.0/2.0, MAX_ABS_ERROR_DW2);
+    checkAtZeroZero(-1.0, 0.0, MAX_ABS_ERROR_DW2);
+
+    Random rng = new Random(42);
+    for(int i = 0;i<50000; ++i) {
+      final double rho = 2.0 * rng.nextDouble() - 1.0;
+      if (rho==-1.0) continue;
+      if (rho==1.0) continue;//not possible?
+      final double expectedM = 0.25 + Math.asin(rho)/(2.0*Math.PI);
+      checkAtZeroZero(rho, expectedM, MAX_ABS_ERROR_DW2);
+    }
+  }
+
+  @Test
+  public void testAtSpecificNonZeroZeroAnalyticCases() {
+
+    final double MAX_ABS_ERROR_DW2 = 9.0E-7;
+
+    checkAt(0.5, 0.5, 0.95, 6.469071953667896E-01, MAX_ABS_ERROR_DW2);
+    checkAt(0.5, 0.5, -0.95, 3.829520842043984E-01, MAX_ABS_ERROR_DW2);
+    checkAt(0.5, 0.5, 0.7, 5.805266392700936E-01, MAX_ABS_ERROR_DW2);
+    checkAt(0.5, 0.5, -0.7, 3.98076964063486E-01, MAX_ABS_ERROR_DW2);
+    checkAt(0.5, 0.5, 0.2, 5.036399310969482E-01, MAX_ABS_ERROR_DW2);
+    checkAt(0.5, 0.5, -0.2, 4.538723806509604E-01, MAX_ABS_ERROR_DW2);
+    checkAt(0.5, 0.5, 0.0, 4.781203353511161E-01, MAX_ABS_ERROR_DW2);
+    checkAt(-0.5, 0.5, 0.95, 3.085103770696148E-01, MAX_ABS_ERROR_DW2);
+    checkAt(-0.5, 0.5, -0.95, 4.455526590722349E-02, MAX_ABS_ERROR_DW2);
+    checkAt(-0.5, 0.5, 0.7, 2.933854972105271E-01, MAX_ABS_ERROR_DW2);
+    checkAt(-0.5, 0.5, -0.7, 1.109358220039195E-01, MAX_ABS_ERROR_DW2);
+    checkAt(-0.5, 0.5, 0.2, 2.375900806230527E-01, MAX_ABS_ERROR_DW2);
+    checkAt(-0.5, 0.5, -0.2, 1.878225301770649E-01, MAX_ABS_ERROR_DW2);
+    checkAt(10.1, -10.0, 0.93, 7.619853024160583E-24, MAX_ABS_ERROR_DW2);
+    checkAt(2.0, -2.0, 1.0, 2.275013194817922E-02, MAX_ABS_ERROR_DW2);
+
+  }
+
+  private void checkAtZeroZero(final double rho, final double expectedM, final double maxAbsError) {
+
+    double actualM = DIST.getCDF(new double[] {0.0, 0.0, rho});
+    double absErr = Math.abs(actualM-expectedM);
+    if (absErr>maxAbsError) {
+      fail("Failed on ZeroZero at rho: " + rho + " expected " + expectedM + " actual " + actualM);
+    }
+  }
+
+  private void checkAt(final double a, final double b, final double rho, final double expectedM, final double maxAbsError) {
+
+    double actualM = DIST.getCDF(new double[] {a, b, rho});
+    double absErr = Math.abs(actualM-expectedM);
+    if (absErr>maxAbsError) {
+      fail("Failed on at a=" + a + " b=" + b + " rho: " + rho + " expected " + expectedM + " actual " + actualM);
+    }
   }
 }
