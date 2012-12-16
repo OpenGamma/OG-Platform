@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.statistics.distribution;
@@ -10,13 +10,13 @@ import org.apache.commons.lang.Validate;
 
 /**
  * The bivariate normal distribution is a continuous probability distribution
- * of two variables, $x$ and $y$, with cdf
+ * of two variables, $X$ and $Y$, with cdf
  * $$
  * \begin{align*}
- * M(x, y, \rho) = \frac{1}{2\pi\sqrt{1 - \rho^2}}\int_{-\infty}^x\int_{-\infty}^{y} e^{\frac{-(X^2 - 2\rho XY + Y^2)}{2(1 - \rho^2)}} dX dY
+ * M(a, b, \rho) = \frac{1}{2\pi\sqrt{1 - \rho^2}}\int_{-\infty}^a\int_{-\infty}^{b} e^{\frac{-(x^2 - 2\rho xy + y^2)}{2(1 - \rho^2)}} dx dy
  * \end{align*}
  * $$
- * where $\rho$ is the correlation between $x$ and $y$.
+ * where $\rho$ is the correlation between $X$ and $Y$.
  * <p>
  * The implementation of the cdf is taken from "Better Approximations to Cumulative Normal Functions", West
  * (<a href="http://www.codeplanet.eu/files/download/accuratecumnorm.pdf">link</a>).
@@ -28,7 +28,7 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
   private static final double[] Y = new double[] {0.018854042, 0.038088059, 0.0452707394, 0.038088059, 0.018854042};
 
   /**
-   * @param x The parameters for the function, $(x, y, \rho$, with $-1 \geq \rho \geq 1$, not null 
+   * @param x The parameters for the function, $(x, y, \rho$, with $-1 \geq \rho \geq 1$, not null
    * @return The cdf
    */
   @Override
@@ -103,7 +103,7 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
 
   /**
    * @param x The parameters for the function, $(x, y, \rho$, with $-1 \geq \rho \geq 1$, not null
-   * @return The pdf  
+   * @return The pdf
    */
   @Override
   public double getPDF(final double[] x) {
