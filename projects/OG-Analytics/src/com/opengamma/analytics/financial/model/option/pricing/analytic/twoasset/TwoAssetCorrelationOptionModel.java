@@ -11,10 +11,11 @@ import com.opengamma.analytics.financial.model.option.definition.twoasset.Standa
 import com.opengamma.analytics.financial.model.option.definition.twoasset.TwoAssetCorrelationOptionDefinition;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistributionWest2004;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
+ *
  * The value of a two-asset correlation call option is:
  * $$
  * \begin{eqnarray*}
@@ -53,7 +54,7 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 
  */
 public class TwoAssetCorrelationOptionModel extends TwoAssetAnalyticOptionModel<TwoAssetCorrelationOptionDefinition, StandardTwoAssetOptionDataBundle> {
-  private static final ProbabilityDistribution<double[]> BIVARIATE = new BivariateNormalDistribution();
+  private static final ProbabilityDistribution<double[]> BIVARIATE = new BivariateNormalDistributionWest2004();
 
   /**
    * Gets the pricing function for a European-style two-asset correlation option

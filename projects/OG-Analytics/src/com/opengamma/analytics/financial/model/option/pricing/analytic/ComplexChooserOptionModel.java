@@ -15,16 +15,17 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistributionWest2004;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
+ *
  */
 public class ComplexChooserOptionModel extends AnalyticOptionModel<ComplexChooserOptionDefinition, StandardOptionDataBundle> {
   private static final RealSingleRootFinder ROOT_FINDER = new BisectionSingleRootFinder();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
-  private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
+  private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistributionWest2004();
 
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final ComplexChooserOptionDefinition definition) {
