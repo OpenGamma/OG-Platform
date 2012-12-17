@@ -1,0 +1,85 @@
+<table class="OG-table">
+  <colgroup>
+    <col style="width: 30%">              
+    <col style="width: 70%">
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <label>
+          <span>Notional</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <div><span><select name="currency"></select>
+        </span><span><input name="notional" type="text" /></span></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Strike</span>
+        </label>
+      </td>
+      <td>
+        <input name="strike" type="text" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Region</span>
+        </label>
+      </td>
+      <td>
+        <input name="regionId" type="text" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Underlying</span>
+        </label>
+      </td>
+      <td>
+        <input name="spotUnderlyingId" type="text" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Settlement Date</span>
+        </label>
+      </td>
+      <td>
+        <input name="settlementDate" type="text" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span>Observation</span>
+      </td>
+      <td class="og-triple-cell">
+        <div><span><input name="observationFrequency" type="text" placeholder="Frequencye" />
+        </span><span><input name="firstObservationDate" type="text" placeholder="First Date" />
+        </span><span><input name="lastObservationDate" type="text" placeholder="Last Date" /></span></div>
+      </td> 
+    </tr>
+    <tr>
+      <td>
+        Annualization Factor
+      </td>
+      <td>
+        <select name="annualizationFactor">
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td>
+        <input name="parameterizedAsVariance" type="checkbox" /><span>Parameterized As Variance</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
