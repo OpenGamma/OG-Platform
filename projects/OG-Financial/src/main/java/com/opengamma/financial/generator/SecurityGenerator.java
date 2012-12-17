@@ -124,8 +124,6 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   private Currency[] _currencies;
 
-
-
   public Random getRandom() {
     return _random;
   }
@@ -260,6 +258,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     OpenGammaExecutionContext.setConventionBundleSource(context, getConventionSource());
     OpenGammaExecutionContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, getHistoricalSource());
+    OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
     return context;
   }
 
@@ -274,6 +273,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     OpenGammaCompilationContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(getConfigSource()),
         getHistoricalTimeSeriesMaster()));
+    OpenGammaCompilationContext.setConfigSource(context, getConfigSource());
     return context;
   }
 
@@ -390,7 +390,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
         new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), ValueProperties.with(ValuePropertyNames.CURVE, getCurrencyCurveName()).get()),
         payCurve,
         receiveCurve,
-        new ComputedValue(ValueSpecification.of(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE,
+        new ComputedValue(ValueSpecification.of(ValueRequirementNames.SPOT_RATE, ComputationTargetType.PRIMITIVE,
             UniqueId.of(spotRateIdentifier.getScheme().getName(), spotRateIdentifier.getValue()),
             ValueProperties.with(ValuePropertyNames.FUNCTION, "SPOT").get()), spotRate.getSecond())).getValue();
     double rate = fxForwardCurve.getForward(Period.between(spotRate.getFirst(), date).getDays() / YEAR_LENGTH);

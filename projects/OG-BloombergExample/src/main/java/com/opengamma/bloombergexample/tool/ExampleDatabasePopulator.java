@@ -46,7 +46,6 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.impl.SecuritySearchIterator;
 import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.generate.scripts.Scriptable;
-import com.opengamma.util.money.Currency;
 
 /**
  * Single class that populates the database with data for running the example server.
@@ -72,10 +71,6 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleDatabasePopulator.class);
-  /**
-   * The currencies.
-   */
-  private static final Currency[] s_currencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF, Currency.AUD, Currency.CAD };
 
   //-------------------------------------------------------------------------
 
@@ -295,7 +290,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
   private void loadFXPortfolio() {
     final Log log = new Log("Creating example FX portfolio");
     try {
-      portfolioGeneratorTool().run(getToolContext(), FX_PORTFOLIO_NAME, "EuroDollarFX", true, s_currencies);
+      portfolioGeneratorTool().run(getToolContext(), FX_PORTFOLIO_NAME, "EuroDollarFX", true, null);
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);

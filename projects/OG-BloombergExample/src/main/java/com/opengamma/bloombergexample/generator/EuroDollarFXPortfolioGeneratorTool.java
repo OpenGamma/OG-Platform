@@ -27,19 +27,19 @@ public class EuroDollarFXPortfolioGeneratorTool extends MixedFXPortfolioGenerato
     return new FXSecurityGenerator<T>();
   }
 
-  private class FXSecurityGenerator<T extends ManageableSecurity> extends MixedFXSecurityGenerator<T> {
+  @Override
+  public Currency[] getCurrencies() {
+    return s_currencies;
+  }
 
-    @Override
-    public Currency[] getCurrencies() {
-      return s_currencies;
-    }
+  private class FXSecurityGenerator<T extends ManageableSecurity> extends MixedFXSecurityGenerator<T> {
 
     /**
      * We don't want FX forwards in the generated portfolio so this always returns null.
      * @return null
      */
     @Override
-    protected ManageableTrade createFXForwardSecurityTrade(Bundle bundle, BigDecimal quantity, SecurityPersister persister, NameGenerator counterPartyGenerator) {
+    protected ManageableTrade createFXForwardSecurityTrade(final Bundle bundle, final BigDecimal quantity, final SecurityPersister persister, final NameGenerator counterPartyGenerator) {
       return null;
     }
   }

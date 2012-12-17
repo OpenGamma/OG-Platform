@@ -17,6 +17,7 @@ import com.opengamma.util.money.Currency;
  */
 public class BloombergExamplePortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
+  @Override
   protected void configureChain(final SecurityGenerator<?> securityGenerator) {
     super.configureChain(securityGenerator);
     securityGenerator.setCurrencyCurveName("Discounting");
@@ -28,5 +29,6 @@ public class BloombergExamplePortfolioGeneratorTool extends AbstractPortfolioGen
       }
     });
   }
+
 }
-  
+
