@@ -30,9 +30,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueId;
@@ -55,7 +55,7 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
   private static final String[] s_curveConfigNames = new String[] {"DefaultTwoCurveUSDConfig", "DefaultTwoCurveGBPConfig", "DefaultTwoCurveEURConfig",
     "DefaultTwoCurveJPYConfig", "DefaultTwoCurveCHFConfig"};
   private static final Currency[] s_swapCurrencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF};
-  
+
   private static final String FORWARD_3M = "Forward3M";
   private static final String FORWARD_6M = "Forward6M";
   private static final String FUNDING = "Discounting";
@@ -63,7 +63,7 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
   private static final String OLD_FORWARD_3M = "FORWARD_3M";
   private static final String OLD_FORWARD_6M = "FORWARD_6M";
   private static final String OLD_FUNDING = "FUNDING";
-  
+
   private static final String DEFAULT_CALC_CONFIG = "Default";
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulator.class);
@@ -220,7 +220,7 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
 //
 //    return viewDefinition;
 //  }
-  
+
   private ViewDefinition getMultiCurrencySwapViewDefinition(final String portfolioName) {
     final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("Multi-currency Swap View", portfolioId, UserPrincipal.getTestUser());
@@ -273,15 +273,20 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
 
     final ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     defaultCalc.addPortfolioRequirementName(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
-    defaultCalc.addPortfolioRequirementName(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
-    defaultCalc.addPortfolioRequirementName(FXForwardSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+    defaultCalc.addPortfolioRequirementName(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
+    defaultCalc.addPortfolioRequirementName(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
     defaultCalc.addPortfolioRequirementName(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+    defaultCalc.addPortfolioRequirementName(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+    defaultCalc.addPortfolioRequirementName(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
     defaultCalc.addPortfolioRequirementName(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX);
     defaultCalc.addPortfolioRequirementName(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX);
+    defaultCalc.addPortfolioRequirementName(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_MATRIX);
     defaultCalc.addPortfolioRequirementName(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX);
     defaultCalc.addPortfolioRequirementName(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX);
+    defaultCalc.addPortfolioRequirementName(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX);
     defaultCalc.addPortfolioRequirementName(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA);
     defaultCalc.addPortfolioRequirementName(FXBarrierOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA);
+    defaultCalc.addPortfolioRequirementName(FXDigitalOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VALUE_VEGA);
 
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
     return viewDefinition;
