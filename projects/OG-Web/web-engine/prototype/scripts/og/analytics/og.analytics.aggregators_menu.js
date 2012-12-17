@@ -25,20 +25,23 @@ $.register_module({
             // Private
             var menu = new og.analytics.DropMenu({
                     $cntr: config.cntr,
-                    data: config.data,
+                    data: {aggregators:[], required_fields:[]},
                     tmpls: {
                         cntr: config.tmpl,
                         menu: 'og.analytics.form_aggregation_menu_tash',
                         toggle: 'og.analytics.form_aggregation_toggle_tash'
+                    },
+                    extras: {
+                        menu : {aggregations: config.data}
                     }
                 }),
-                form, $dom, data, query = [], sel_val, sel_pos, $parent, $query, $select,
-                $checkbox, default_sel_txt = 'select aggregation...', default_query_text = 'Default',
+                form = menu.form, blocks = menu.blocks, $dom, data, query = [], sel_val, sel_pos, $parent, $query,
+                $select, $checkbox, default_sel_txt = 'select aggregation...', default_query_text = 'Default',
                 del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', select_s = 'select',
                 checkbox_s = '.og-option :checkbox', tmpl_menu = '', tmpl_toggle = '';
 
             var add_handler = function () {
-                if (menu.data.length === menu.opts.length) return;
+                if (config.data.length === menu.opts.length) return;
                 menu.add_handler();
             };
 
@@ -46,6 +49,10 @@ $.register_module({
                 if ($checkbox[0].checked && ~entry) query[entry].required_field = true;
                 else if (!$checkbox[0].checked && ~entry) query[entry].required_field = false;
                 $checkbox.focus();
+            };
+
+            var compile_menu = function () {
+                console.log(form.compile());
             };
 
             var delete_handler = function (entry) {
@@ -81,8 +88,8 @@ $.register_module({
                     $query = $('.aggregation-selection', $dom.toggle);
                     $dom.toggle_prefix.append('<span>Aggregated by</span>');
                     if ($dom.menu) {
-                        $dom.menu
-                            .on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
+                        blocks.menu
+                            .on('mousedown', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                             .on('change', 'select', menu_handler);
                         if (conf.opts) menu.replay_query(conf.opts);
                     }
@@ -103,6 +110,7 @@ $.register_module({
                     sel_val = $select.val();
                     sel_pos = $parent.data('pos');
                     entry = query.pluck('pos').indexOf(sel_pos);
+                    compile_menu();
                 if ($elem.is(menu.$dom.add)) return menu.stop(event), add_handler();
                 if ($elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                 if ($elem.is($checkbox)) return checkbox_handler(entry);
@@ -173,7 +181,10 @@ $.register_module({
                 }
                 return init_menu_elems(0), reset_query();
             };
-            return init(config), menu;
+
+            return menu.form.on('form:load', function() {
+                init(config);
+            }).on('form:submit', compile_menu), menu;
         };
     }
 });

@@ -15,33 +15,41 @@ $.register_module({
                 var menu = new og.common.util.ui.DropMenu(), dummy_s = '<wrapper>', form, blocks = {};
                 if (menu.$dom) {
                     menu.$dom.cntr = config.$cntr;
+                    menu.$dom.toggle_prefix = $(dummy_s);
+                    menu.$dom.toggle_infix = $(dummy_s).append('<span>then</span>');
+                    menu.on(menu.events.open, menu.open, menu)
+                        .on(menu.events.close, menu.close, menu)
+                        .on(menu.events.focus, menu.focus, menu);
                     form = new og.common.util.ui.Form({
                         module: config.tmpls.cntr,
-                        data: {},
-                        type_map: {},
+                        data: config.data || {},
                         selector: '.og-aggregation',
                         extras: {}
                     });
                     form.children.push(
-                        blocks.toggle = new form.Block({ module: config.tmpls.toggle, extras: {} }),
-                        blocks.menu = new form.Block({ module: config.tmpls.menu, extras: {aggregations: config.data} })
+                        blocks.toggle = new form.Block({
+                            module: config.tmpls.toggle, extras: config.extras.toggle || {}
+                        }),
+                        blocks.menu = new form.Block({
+                            module: config.tmpls.menu, extras: config.extras.menu || {}
+                        })
                     );
                     form.dom();
-                    menu.$dom.toggle_prefix = $(dummy_s);
-                    menu.$dom.toggle_infix = $(dummy_s).append('<span>then</span>');
-                    menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
-                    menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
-                    menu.on(menu.events.open, menu.open)
-                        .on(menu.events.close, menu.close)
-                        .on(menu.events.focus, menu.focus);
-                    if (menu.$dom.toggle) menu.$dom.toggle.on('mousedown', menu.toggle_menu.bind(menu));
-                    if (menu.$dom.menu) {
-                        menu.$dom.menu_actions = $('.og-menu-actions', menu.$dom.menu);
-                        menu.$dom.opt = $('.OG-dropmenu-options', menu.$dom.menu);
-                        menu.$dom.opt.data('pos', ((menu.opts = []).push(menu.$dom.opt), menu.opts.length-1));
-                        menu.$dom.add = $('.OG-link-add', menu.$dom.menu);
-                        menu.$dom.opt_cp = menu.$dom.opt.clone(true);
-                    }
+                    menu.form = form;
+                    menu.blocks = blocks;
+                    form.on('form:load', function () {
+                        menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
+                        menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
+                        if (menu.$dom.toggle)
+                            menu.blocks.toggle.on('mousedown', menu.$dom.toggle.selector, menu.toggle_menu.bind(menu));
+                        if (menu.$dom.menu) {
+                            menu.$dom.menu_actions = $('.og-menu-actions', menu.$dom.menu);
+                            menu.$dom.opt = $('.OG-dropmenu-options', menu.$dom.menu);
+                            menu.$dom.opt.data('pos', ((menu.opts = []).push(menu.$dom.opt), menu.opts.length-1));
+                            menu.$dom.add = $('.OG-link-add', menu.$dom.menu);
+                            menu.$dom.opt_cp = menu.$dom.opt.clone(true);
+                        }
+                    });
                 }
                 return menu;
             };
@@ -73,8 +81,13 @@ $.register_module({
             return a.pos === b.pos ? 0 : (a.pos < b.pos ? -1 : 1);
         };
         DropMenu.prototype.button_handler = function (val) {
-            if (val === 'OK') this.fire(this.events.close).fire(events.queryselected);
-            else if (val === 'Cancel') this.fire(this.events.close).fire(events.querycancelled);
+            if (val === 'OK') {
+                this.fire(this.events.close);
+                this.fire(events.queryselected);
+            } else if (val === 'Cancel') {
+                this.fire(this.events.close);
+                this.fire(events.querycancelled);
+            }
         };
         DropMenu.prototype.capitalize = function (string) {
             return string.charAt(0).toUpperCase() + string.slice(1);

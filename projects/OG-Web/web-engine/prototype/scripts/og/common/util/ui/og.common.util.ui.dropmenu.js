@@ -49,7 +49,7 @@ $.register_module({
         DropMenu.prototype.close = function () {
             var menu = this;
             if (menu.$dom.menu) menu.$dom.menu.hide();
-            menu.$dom.toggle.removeClass('og-active');
+            if (menu.$dom.toggle) menu.$dom.toggle.removeClass('og-active');
             menu.state = 'closed';
             menu.opened = menu.init_blurkill = false;
             menu.fire(events.closed);
