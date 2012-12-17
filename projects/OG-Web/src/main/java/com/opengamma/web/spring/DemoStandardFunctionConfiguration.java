@@ -1146,8 +1146,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(IRFutureOptionSABRPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(IRFutureOptionSABRSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(IRFutureOptionSABRDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
-        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
-        "EUR", "DefaultTwoCurveEURConfig", "DEFAULT", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES));    
+        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
+        "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES));    
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction.class));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
         LINEAR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "false", "true", "false", "false", 
@@ -1156,7 +1156,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonDefaults.class,
-        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT",
+        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_ED",
         "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_ER"));
   }
 
