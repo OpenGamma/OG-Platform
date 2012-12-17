@@ -1169,8 +1169,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonDefaults.class,
-        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT",
-        "EUR", "DefaultTwoCurveEURConfig", "DEFAULT"));
+        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE",
+        "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_PRICE"));
   }
 
   private static void addBondFutureOptionBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
