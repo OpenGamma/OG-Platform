@@ -6,9 +6,10 @@
 package com.opengamma.web.analytics.blotter;
 
 /**
- *
+ * TODO should this have a type param or not? it's useful in some cases
+ * TODO is there any guarantee the wrapping visitor will return the same type as the wrapped visitor?
  */
-/* package */ interface BeanVisitorDecorator<T> {
+/* package */ interface BeanVisitorDecorator {
 
-  BeanVisitor<T> decorate(BeanVisitor<T> visitor);
+  BeanVisitor<?> decorate(BeanVisitor<?> visitor);
 }

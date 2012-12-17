@@ -62,7 +62,7 @@ import com.opengamma.util.ArgumentChecker;
       if (beanData != null) {
         BeanBuildingVisitor<?> visitor = new BeanBuildingVisitor<Bean>(beanData, _metaBeanFactory, _converters);
         MetaBean metaBean = _metaBeanFactory.beanFor(beanData);
-        result = traverser.traverse(metaBean, visitor);
+        result = (Bean) traverser.traverse(metaBean, visitor);
       } else {
         result = null;
       }

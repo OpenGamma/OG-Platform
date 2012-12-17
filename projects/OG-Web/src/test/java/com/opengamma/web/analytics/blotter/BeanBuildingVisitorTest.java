@@ -69,7 +69,7 @@ public class BeanBuildingVisitorTest {
 
     BeanVisitor<ManageableSecurity> visitor = new BeanBuildingVisitor<ManageableSecurity>(dataSource, s_metaBeanFactory);
     MetaBean metaBean = s_metaBeanFactory.beanFor(dataSource);
-    ManageableSecurity security = new BeanTraverser().traverse(metaBean, visitor);
+    ManageableSecurity security = (ManageableSecurity) new BeanTraverser().traverse(metaBean, visitor);
     assertNotNull(security);
     assertTrue(security instanceof FXForwardSecurity);
     FXForwardSecurity fxSecurity = (FXForwardSecurity) security;
@@ -129,7 +129,7 @@ public class BeanBuildingVisitorTest {
             "amount", "123.45")));
     BeanVisitor<ManageableSecurity> visitor = new BeanBuildingVisitor<ManageableSecurity>(dataSource, s_metaBeanFactory);
     MetaBean metaBean = s_metaBeanFactory.beanFor(dataSource);
-    ManageableSecurity security = new BeanTraverser().traverse(metaBean, visitor);
+    ManageableSecurity security = (ManageableSecurity) new BeanTraverser().traverse(metaBean, visitor);
     assertNotNull(security);
     assertTrue(security instanceof SwapSecurity);
     SwapSecurity swapSecurity = (SwapSecurity) security;

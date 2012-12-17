@@ -31,8 +31,8 @@ import org.joda.beans.MetaProperty;
     _decorators = Arrays.asList(decorators);
   }
 
-  /* package */ <T> T traverse(MetaBean bean, BeanVisitor<T> visitor) {
-    BeanVisitor<T> decoratedVisitor = decorate(visitor);
+  /* package */ Object traverse(MetaBean bean, BeanVisitor<?> visitor) {
+    BeanVisitor<?> decoratedVisitor = decorate(visitor);
     decoratedVisitor.visitBean(bean);
     for (MetaProperty<?> property : bean.metaPropertyIterable()) {
       Class<?> propertyType = property.propertyType();
@@ -53,8 +53,8 @@ import org.joda.beans.MetaProperty;
     return decoratedVisitor.finish();
   }
 
-  private <T> BeanVisitor<T> decorate(BeanVisitor<T> visitor) {
-    BeanVisitor<T> decoratedVisitor = visitor;
+  private BeanVisitor<?> decorate(BeanVisitor<?> visitor) {
+    BeanVisitor<?> decoratedVisitor = visitor;
     for (BeanVisitorDecorator decorator : _decorators) {
       decoratedVisitor = decorator.decorate(decoratedVisitor);
     }

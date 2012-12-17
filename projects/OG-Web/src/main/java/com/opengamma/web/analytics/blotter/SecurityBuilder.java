@@ -83,7 +83,7 @@ import com.opengamma.util.ArgumentChecker;
     // default timezone based on OpenGammaClock
     // default times for effectiveDate and maturityDate properties on SwapSecurity, probably others
     BeanVisitor<ManageableSecurity> visitor = new BeanBuildingVisitor<ManageableSecurity>(data, _metaBeanFactory);
-    return new BeanTraverser().traverse(_metaBeanFactory.beanFor(data), visitor);
+    return (ManageableSecurity) new BeanTraverser().traverse(_metaBeanFactory.beanFor(data), visitor);
   }
 
   /* package */  SecurityMaster getSecurityMaster() {

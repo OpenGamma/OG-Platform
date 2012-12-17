@@ -178,8 +178,8 @@ public class BlotterResource {
     }
     BeanStructureBuilder structureBuilder = new BeanStructureBuilder(s_metaBeans, s_underlyingSecurityTypes, s_endpoints);
     // filter out underlying ID property for security types whose underlying is another OTC security
-    PropertyFilter<Map<String, Object>> filter = new PropertyFilter<Map<String, Object>>(SwaptionSecurity.meta().underlyingId());
-    Map<String,Object> beanData = new BeanTraverser(filter).traverse(metaBean, structureBuilder);
+    PropertyFilter filter = new PropertyFilter(SwaptionSecurity.meta().underlyingId());
+    Map<?, ?> beanData = (Map<?, ?>) new BeanTraverser(filter).traverse(metaBean, structureBuilder);
     return _freemarker.build("blotter/bean-structure.ftl", beanData);
   }
 
@@ -196,7 +196,7 @@ public class BlotterResource {
     }
     BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<JSONObject>(security, new JsonDataSink());
     // TODO filter out underlyingId for securities with OTC underlying
-    JSONObject json = new BeanTraverser().traverse(metaBean, writingVisitor);
+    JSONObject json = (JSONObject) new BeanTraverser().traverse(metaBean, writingVisitor);
     JSONObject root = new JSONObject();
     try {
       root.put("security", json);
