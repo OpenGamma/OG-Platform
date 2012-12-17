@@ -250,9 +250,9 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
           new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
       for (final SecurityDocument doc : readEquitySecurities()) {
         final Security security = doc.getSecurity();
-        loader.addTimeSeries(ImmutableSet.of(security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_TICKER)), "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
+        loader.addTimeSeries(ImmutableSet.of(security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_TICKER)), "UNKNOWN", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
       }
-      loader.addTimeSeries(_historicalDataToLoad, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
+      loader.addTimeSeries(_historicalDataToLoad, "UNKNOWN", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
       _historicalDataToLoad.clear();
       log.done();
     } catch (final RuntimeException t) {

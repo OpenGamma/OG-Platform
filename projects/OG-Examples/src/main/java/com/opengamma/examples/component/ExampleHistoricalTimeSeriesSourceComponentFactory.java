@@ -64,17 +64,17 @@ public class ExampleHistoricalTimeSeriesSourceComponentFactory extends Historica
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
@@ -86,7 +86,7 @@ public class ExampleHistoricalTimeSeriesSourceComponentFactory extends Historica
 
   @Override
   public int hashCode() {
-    final int hash = 7;
+    int hash = 7;
     return hash ^ super.hashCode();
   }
 

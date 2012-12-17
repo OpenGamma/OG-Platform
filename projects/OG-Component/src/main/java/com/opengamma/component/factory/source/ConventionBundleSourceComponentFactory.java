@@ -82,7 +82,7 @@ public class ConventionBundleSourceComponentFactory extends AbstractComponentFac
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
@@ -93,7 +93,7 @@ public class ConventionBundleSourceComponentFactory extends AbstractComponentFac
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
@@ -112,12 +112,12 @@ public class ConventionBundleSourceComponentFactory extends AbstractComponentFac
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final ConventionBundleSourceComponentFactory other = (ConventionBundleSourceComponentFactory) obj;
+      ConventionBundleSourceComponentFactory other = (ConventionBundleSourceComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           super.equals(obj);
@@ -146,7 +146,7 @@ public class ConventionBundleSourceComponentFactory extends AbstractComponentFac
    * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(final String classifier) {
+  public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -172,7 +172,7 @@ public class ConventionBundleSourceComponentFactory extends AbstractComponentFac
    * Sets whether to make the resource available via REST, defaults to true
    * @param publishRest  the new value of the property
    */
-  public void setPublishRest(final boolean publishRest) {
+  public void setPublishRest(boolean publishRest) {
     this._publishRest = publishRest;
   }
 
@@ -219,7 +219,7 @@ public class ConventionBundleSourceComponentFactory extends AbstractComponentFac
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;

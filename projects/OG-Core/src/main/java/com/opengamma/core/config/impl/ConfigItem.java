@@ -173,7 +173,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 111972721:  // value
         return getValue();
@@ -189,7 +189,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
 
   @SuppressWarnings("unchecked")
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 111972721:  // value
         setValue((T) newValue);
@@ -215,12 +215,12 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final ConfigItem<?> other = (ConfigItem<?>) obj;
+      ConfigItem<?> other = (ConfigItem<?>) obj;
       return JodaBeanUtils.equal(getValue(), other.getValue()) &&
           JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
@@ -252,7 +252,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
    * Sets the underlying value.
    * @param value  the new value of the property, not null
    */
-  public void setValue(final T value) {
+  public void setValue(T value) {
     JodaBeanUtils.notNull(value, "value");
     this._value = value;
   }
@@ -270,7 +270,6 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
    * Gets the unique identifier.
    * @return the value of the property
    */
-  @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
   }
@@ -279,7 +278,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
    * Sets the unique identifier.
    * @param uniqueId  the new value of the property
    */
-  public void setUniqueId(final UniqueId uniqueId) {
+  public void setUniqueId(UniqueId uniqueId) {
     this._uniqueId = uniqueId;
   }
 
@@ -304,7 +303,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
    * Sets the name of the item.
    * @param name  the new value of the property, not null
    */
-  public void setName(final String name) {
+  public void setName(String name) {
     JodaBeanUtils.notNull(name, "name");
     this._name = name;
   }
@@ -322,7 +321,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
    * Sets the type of the configuration item.
    * @param type  the new value of the property
    */
-  public void setType(final Class<?> type) {
+  public void setType(Class<?> type) {
     this._type = type;
   }
 
@@ -384,7 +383,7 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 111972721:  // value
           return _value;

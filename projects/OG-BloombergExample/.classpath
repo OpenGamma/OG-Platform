@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/java"/>
-	<classpathentry kind="lib" path="config"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG-Security"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG-Financial"/>

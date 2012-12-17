@@ -19,7 +19,7 @@ public class BloombergExamplePortfolioGeneratorTool extends AbstractPortfolioGen
 
   protected void configureChain(final SecurityGenerator<?> securityGenerator) {
     super.configureChain(securityGenerator);
-    securityGenerator.setCurrencyCurveName("FUNDING");
+    securityGenerator.setCurrencyCurveName("Discounting");
     securityGenerator.setPreferredScheme(ExternalSchemes.BLOOMBERG_TICKER);
     securityGenerator.setSpotRateIdentifier(new Function2<Currency, Currency, ExternalId>() {
       @Override

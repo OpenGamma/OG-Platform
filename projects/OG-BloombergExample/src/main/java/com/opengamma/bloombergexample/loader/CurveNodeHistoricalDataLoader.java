@@ -140,11 +140,15 @@ public class CurveNodeHistoricalDataLoader {
    * @return list of yield curve definition config object names
    */
   private List<YieldCurveDefinition> getForwardAndFundingCurves(final ConfigMaster configMaster) {
-    final List<YieldCurveDefinition> forwardCurves = getCurveDefinitionNames(configMaster, "FORWARD_*");
-    final List<YieldCurveDefinition> fundingCurves = getCurveDefinitionNames(configMaster, "FUNDING_*");
+    final List<YieldCurveDefinition> forwardCurves = getCurveDefinitionNames(configMaster, "Forward*");
+    final List<YieldCurveDefinition> oldForwardCurves = getCurveDefinitionNames(configMaster, "FORWARD*");
+    final List<YieldCurveDefinition> fundingCurves = getCurveDefinitionNames(configMaster, "Funding*");
+    final List<YieldCurveDefinition> oldFundingCurves = getCurveDefinitionNames(configMaster, "FUNDING*");
     final List<YieldCurveDefinition> allCurves = Lists.newArrayList();
     allCurves.addAll(forwardCurves);
     allCurves.addAll(fundingCurves);
+    allCurves.addAll(oldForwardCurves);
+    allCurves.addAll(oldFundingCurves);
     return allCurves;
   }
 
