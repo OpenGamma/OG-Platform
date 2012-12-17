@@ -9,7 +9,7 @@ $.register_module({
     obj: function () {
         var module = this, STALL = 500 /* 500ms */, api_text = og.api.text;
         /** @private */
-        var set_template = function (name, html) {return !name || !html ? false : Handlebars.compile(html);};
+        var default_template = Handlebars.compile('{{{children}}}');
         /**
          * creates a Block instance
          * @name Block
@@ -21,17 +21,25 @@ $.register_module({
          * @param {Function} config.generator function that will receive a handler into which it can send Block contents
          * whenever it is ready, useful for populating a block with async content (optional)
          * @param {Object} config.extras values plugged into the Handlerbars template (optional)
-         * @param {String} config.wrap simple Handlebars template with a blob named "html" used to wrap children
+         * @param {String} config.template simple Handlebars template, an HTML blob called "children" can be used to
+         * wrap children
          * @property {Array} children collection of children within a Block instance, each child is itself a Block
          */
         var Block = function (form, config) {
             var block = this, config = block.config = config || {};
             block.children = config.children || [];
             block.form = form;
-            if (block.template) return; // good to go if template is supplied by prototype
-            block.template = 'loading';
-            $.when(config.module ? api_text({module: config.module}) : void 0)
-                .then(function (result) {block.template = set_template(config.module, result);});
+            if (config.template) {
+                block.template = Handlebars.compile(config.template);
+                return;
+            }
+            if (config.module) {
+                api_text({module: config.module, loading: function () {block.template = 'loading';}})
+                    .pipe(function (html) {block.template = Handlebars.compile(html);});
+                return;
+            }
+            if (block.template) return; // if block inherited its template
+            block.template = default_template;
         };
         /**
          * generates the HTML for a Block instance and all of its children and calls a supplied handler with that string
@@ -46,24 +54,18 @@ $.register_module({
                 generator = block.config.generator;
             /** @private */
             var internal_handler = function () {
-                handler(template ? template($.extend(
-                    result.reduce(function (acc, val, idx) {return acc['item_' + idx] = val, acc;}, {}),
-                    block.config.extras, extras || {}
-                )) : wrap(result.join('')));
-            };
-            /** @private */
-            var wrap = function (html) {
-                return block.config.wrap ? Handlebars.compile(block.config.wrap)({html: html}) : html;
+                var template_data = $.extend(
+                    result.reduce(function (acc, val, idx) {return acc['item_' + idx] = val, acc;}, {
+                        children: result.join('') // all children can be populated into a special field called children
+                    }), block.config.extras, extras || {}
+                );
+                return generator ? generator(handler, template, template_data) : handler(template(template_data));
             };
             if (block.config.content) return handler(block.config.content), block;
             if (template === 'loading') return setTimeout(function () {block.html(handler);}, STALL), block;
-            if (generator) return generator(handler, template), block;
             if (!total) return internal_handler(), block;
             block.children.forEach(function (val, idx) {
-                if (val.html)
-                    return val.html(function (html) {(result[idx] = html), (total === ++done) && internal_handler();});
-                result[idx] = val;
-                if (total === ++done) internal_handler();
+                val.html(function (html) {(result[idx] = html), (total === ++done) && internal_handler();});
             });
             return block;
         };
