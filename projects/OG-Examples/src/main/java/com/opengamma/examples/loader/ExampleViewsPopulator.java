@@ -77,7 +77,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
   /**
    * Main method to run the tool.
    * No arguments are needed.
-   * 
+   *
    * @param args  the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
@@ -109,9 +109,9 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.setMaxDeltaCalculationPeriod(30000L);
 
     final ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-    addValueRequirements(defaultCalc, EquitySecurity.SECURITY_TYPE, 
+    addValueRequirements(defaultCalc, EquitySecurity.SECURITY_TYPE,
         new String[] {ValueRequirementNames.FAIR_VALUE, ValueRequirementNames.CAPM_BETA, ValueRequirementNames.HISTORICAL_VAR,
-          ValueRequirementNames.SHARPE_RATIO, ValueRequirementNames.TREYNOR_RATIO, ValueRequirementNames.JENSENS_ALPHA, 
+          ValueRequirementNames.SHARPE_RATIO, ValueRequirementNames.TREYNOR_RATIO, ValueRequirementNames.JENSENS_ALPHA,
           ValueRequirementNames.TOTAL_RISK_ALPHA });
     defaultCalc.addPortfolioRequirement(EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.with(ValuePropertyNames.CURRENCY, Currency.USD.getCode()).get());
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
@@ -120,7 +120,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
 
   private ViewDefinition getMultiCurrencySwapViewDeprecatedDefinition(final String swapPortfolioName) {
     final UniqueId portfolioId = getPortfolioId(swapPortfolioName).toLatest();
-    final ViewDefinition viewDefinition = new ViewDefinition("Multi-currency Swap View (Deprecated)", portfolioId, UserPrincipal.getTestUser());
+    final ViewDefinition viewDefinition = new ViewDefinition(swapPortfolioName + " View (Deprecated)", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
@@ -145,7 +145,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
 
   private ViewDefinition getMultiCurrencySwapViewDefinition(final String portfolioName) {
     final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
-    final ViewDefinition viewDefinition = new ViewDefinition("Multi-currency Swap View", portfolioId, UserPrincipal.getTestUser());
+    final ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);

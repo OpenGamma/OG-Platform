@@ -54,7 +54,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   /**
    * The name of the multi-currency swap portfolio.
    */
-  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "Multi-currency Swap Portfolio";
+  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
   /**
    * The name of Cap/Floor portfolio
    */
