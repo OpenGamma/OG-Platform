@@ -61,8 +61,12 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
   public static final String PUT_CURVE_CALC_CONFIG = "PutCurveCalculationConfig";
   /** Property name for the receive curve calculation configuration */
   public static final String CALL_CURVE_CALC_CONFIG = "CallCurveCalculationConfig";
+  /** The value requirement produced by the function */
   private final String _valueRequirementName;
 
+  /**
+   * @param valueRequirementName The value requirement name, not null
+   */
   public FXOptionBlackFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;

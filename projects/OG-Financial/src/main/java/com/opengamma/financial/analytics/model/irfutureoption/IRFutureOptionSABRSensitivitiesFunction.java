@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
 import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -40,8 +41,8 @@ public class IRFutureOptionSABRSensitivitiesFunction extends IRFutureOptionSABRF
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ComputationTarget target, final InstrumentDerivative irFutureOption,
-      final SABRInterestRateDataBundle data) {
+  protected Set<ComputedValue> getResult(final FunctionExecutionContext context, final Set<ValueRequirement> desiredValues, final FunctionInputs inputs,
+      final ComputationTarget target, final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data) {
     final PresentValueSABRSensitivityDataBundle sensitivities = irFutureOption.accept(CALCULATOR, data);
     final SurfaceValue alphaSurface = sensitivities.getAlpha();
     final SurfaceValue betaSurface = sensitivities.getBeta();

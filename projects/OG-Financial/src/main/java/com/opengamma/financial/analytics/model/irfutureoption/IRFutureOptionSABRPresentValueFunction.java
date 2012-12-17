@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -36,8 +37,8 @@ public class IRFutureOptionSABRPresentValueFunction extends IRFutureOptionSABRFu
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ComputationTarget target, final InstrumentDerivative irFutureOption,
-      final SABRInterestRateDataBundle data) {
+  protected Set<ComputedValue> getResult(final FunctionExecutionContext context, final Set<ValueRequirement> desiredValues, final FunctionInputs inputs,
+      final ComputationTarget target, final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data) {
     final double pv = irFutureOption.accept(CALCULATOR, data);
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints().copy()

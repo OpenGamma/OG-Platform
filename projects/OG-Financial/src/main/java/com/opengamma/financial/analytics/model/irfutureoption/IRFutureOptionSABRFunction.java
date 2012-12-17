@@ -130,7 +130,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs, dayCount), curves);
     final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(trade);
     final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, curveNames, timeSeries);
-    return getResult(desiredValues, inputs, target, irFutureOption, data);
+    return getResult(executionContext, desiredValues, inputs, target, irFutureOption, data);
   }
 
   @Override
@@ -152,7 +152,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(SmileFittingProperties.PROPERTY_FITTING_METHOD)
-        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(ValuePropertyNames.CALCULATION_METHOD, SmileFittingProperties.SABR)
         .get();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     for (final String valueRequirement : _valueRequirementNames) {
@@ -192,6 +192,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
   }
 
   /**
+   * @param context The function execution context
    * @param desiredValues The desired values
    * @param inputs The function inputs
    * @param target The computation target
@@ -199,8 +200,8 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
    * @param data The SABR parameter surfaces and yield curve data
    * @return The results
    */
-  protected abstract Set<ComputedValue> getResult(Set<ValueRequirement> desiredValues, FunctionInputs inputs, ComputationTarget target, InstrumentDerivative irFutureOption,
-      SABRInterestRateDataBundle data);
+  protected abstract Set<ComputedValue> getResult(FunctionExecutionContext context, Set<ValueRequirement> desiredValues, FunctionInputs inputs,
+      ComputationTarget target, InstrumentDerivative irFutureOption, SABRInterestRateDataBundle data);
 
   /**
    * @return The value requirement names

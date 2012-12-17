@@ -272,6 +272,7 @@ import com.opengamma.financial.analytics.model.horizon.SwaptionConstantSpreadThe
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRDefaults;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRYCNSFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackDefaults;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackGammaFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackImpliedVolatilityFunction;
@@ -591,6 +592,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(DefaultHistoricalTimeSeriesShiftFunction.class));
     functionConfigs.add(functionConfiguration(CurrencyPairsFunction.class));
     functionConfigs.add(functionConfiguration(CurrencyPairsDefaults.class, CurrencyPairs.DEFAULT_CURRENCY_PAIRS));
+    functionConfigs.add(functionConfiguration(MarginPriceFunction.class));
   }
 
   public static RepositoryConfiguration constructRepositoryConfiguration() {
@@ -1143,8 +1145,19 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
 
   private static void addInterestRateFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackVolatilitySensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackImpliedVolatilityFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPV01Function.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackGammaFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionConstantSpreadThetaFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, PriorityClass.NORMAL.name(), 
+        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE"));
     functionConfigs.add(functionConfiguration(IRFutureOptionSABRPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(IRFutureOptionSABRSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(IRFutureOptionSABRYCNSFunction.class));
     functionConfigs.add(functionConfiguration(IRFutureOptionSABRDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
         "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
         "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES));    
@@ -1156,8 +1169,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonDefaults.class,
-        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_ED",
-        "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_ER"));
+        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT",
+        "EUR", "DefaultTwoCurveEURConfig", "DEFAULT"));
   }
 
   private static void addBondFutureOptionBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -1485,17 +1498,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackVolatilitySensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackImpliedVolatilityFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPV01Function.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackGammaFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionConstantSpreadThetaFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, PriorityClass.NORMAL.name(), 
-        "USD", "DefaultTwoCurveUSDConfig", "BBG"));
-    functionConfigs.add(functionConfiguration(MarginPriceFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackVolatilitySensitivityFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackPV01Function.class));

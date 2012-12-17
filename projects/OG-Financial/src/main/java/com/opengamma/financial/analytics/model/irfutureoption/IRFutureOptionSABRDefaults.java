@@ -38,7 +38,8 @@ public class IRFutureOptionSABRDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY,
     ValueRequirementNames.PRESENT_VALUE_SABR_BETA_SENSITIVITY,
     ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY,
-    ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY
+    ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY,
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES
   };
   /** The priority */
   private final PriorityClass _priority;
