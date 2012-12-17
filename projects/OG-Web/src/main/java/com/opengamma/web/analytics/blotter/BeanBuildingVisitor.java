@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.analytics.blotter;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.joda.beans.Bean;
@@ -23,12 +24,22 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ class BeanBuildingVisitor<T extends Bean> implements BeanVisitor<T> {
 
-  private BeanBuilder<T> _builder;
   private final BeanDataSource _data;
   private final MetaBeanFactory _metaBeanFactory;
+  private final Map<MetaProperty<?>, StringConvert> _converters;
+
+  private BeanBuilder<T> _builder;
 
   @SuppressWarnings("unchecked")
-    /* package */ BeanBuildingVisitor(BeanDataSource data, MetaBeanFactory metaBeanFactory) {
+  /* package */ BeanBuildingVisitor(BeanDataSource data, MetaBeanFactory metaBeanFactory) {
+    this(data, metaBeanFactory, Collections.<MetaProperty<?>, StringConvert>emptyMap());
+  }
+
+  @SuppressWarnings("unchecked")
+  /* package */ BeanBuildingVisitor(BeanDataSource data,
+                                    MetaBeanFactory metaBeanFactory,
+                                    Map<MetaProperty<?>, StringConvert> converters) {
+    _converters = converters;
     ArgumentChecker.notNull(data, "data");
     ArgumentChecker.notNull(metaBeanFactory, "metaBeanFactory");
     _metaBeanFactory = metaBeanFactory;
@@ -49,7 +60,7 @@ import com.opengamma.util.ArgumentChecker;
       BeanDataSource beanData = _data.getBeanData(propertyName);
       Bean result;
       if (beanData != null) {
-        BeanBuildingVisitor<?> visitor = new BeanBuildingVisitor<Bean>(beanData, _metaBeanFactory);
+        BeanBuildingVisitor<?> visitor = new BeanBuildingVisitor<Bean>(beanData, _metaBeanFactory, _converters);
         MetaBean metaBean = _metaBeanFactory.beanFor(beanData);
         result = traverser.traverse(metaBean, visitor);
       } else {
@@ -87,7 +98,13 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public void visitProperty(MetaProperty<?> property) {
     if (isWriteable(property)) {
-      _builder.setString(property, _data.getValue(property.name()));
+      StringConvert converter = _converters.get(property);
+      String value = _data.getValue(property.name());
+      if (converter != null) {
+        _builder.set(property, converter.convertFromString(property.propertyType(), value));
+      } else {
+        _builder.setString(property, value);
+      }
     }
   }
 

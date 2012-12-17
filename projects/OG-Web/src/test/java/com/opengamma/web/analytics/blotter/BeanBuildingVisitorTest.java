@@ -11,7 +11,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
@@ -36,15 +35,15 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public class SecurityBuilderTest {
+public class BeanBuildingVisitorTest {
 
   private static final double DELTA = 0.0001;
-  private static final Set<MetaBean> _metaBeans = ImmutableSet.<MetaBean>of(
+  private static final MetaBeanFactory s_metaBeanFactory = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(
       FXForwardSecurity.meta(),
       SwapSecurity.meta(),
       FixedInterestRateLeg.meta(),
       FloatingInterestRateLeg.meta(),
-      InterestRateNotional.meta());
+      InterestRateNotional.meta()));
 
   static {
     JodaBeanConverters.getInstance(); // load converters
@@ -67,7 +66,10 @@ public class SecurityBuilderTest {
         "forwardDate", "2012-12-21T10:30+00:00[Europe/London]", // maybe need an explicit converter for this
         "regionId", "Reg~123",
         "attributes", attributes);
-    ManageableSecurity security = new SecurityBuilder(_metaBeans).buildSecurity(dataSource);
+
+    BeanVisitor<ManageableSecurity> visitor = new BeanBuildingVisitor<ManageableSecurity>(dataSource, s_metaBeanFactory);
+    MetaBean metaBean = s_metaBeanFactory.beanFor(dataSource);
+    ManageableSecurity security = new BeanTraverser().traverse(metaBean, visitor);
     assertNotNull(security);
     assertTrue(security instanceof FXForwardSecurity);
     FXForwardSecurity fxSecurity = (FXForwardSecurity) security;
@@ -125,7 +127,9 @@ public class SecurityBuilderTest {
             "currency", "GBP",
             "currency", "GBP",
             "amount", "123.45")));
-    ManageableSecurity security = new SecurityBuilder(_metaBeans).buildSecurity(dataSource);
+    BeanVisitor<ManageableSecurity> visitor = new BeanBuildingVisitor<ManageableSecurity>(dataSource, s_metaBeanFactory);
+    MetaBean metaBean = s_metaBeanFactory.beanFor(dataSource);
+    ManageableSecurity security = new BeanTraverser().traverse(metaBean, visitor);
     assertNotNull(security);
     assertTrue(security instanceof SwapSecurity);
     SwapSecurity swapSecurity = (SwapSecurity) security;

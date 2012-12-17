@@ -11,7 +11,6 @@ import java.util.Map;
 /**
  *
  */
-// TODO does this need to build data too? set* methods? or separate BeanDataSink?
 /* package */ interface BeanDataSource {
 
   String getValue(String propertyName);
