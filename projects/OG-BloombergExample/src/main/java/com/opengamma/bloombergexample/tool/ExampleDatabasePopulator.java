@@ -106,6 +106,8 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     loadFutures();
     loadTimeSeriesRating();
     loadEquityPortfolio();
+    // Note: FX rates have to be loaded before the FX portfolio can be generated
+    _historicalDataToLoad.add(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EURUSD Curncy"));
     loadHistoricalData();
     loadVolSurfaceData();
     loadFXPortfolio();
@@ -294,7 +296,6 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     final Log log = new Log("Creating example FX portfolio");
     try {
       portfolioGeneratorTool().run(getToolContext(), FX_PORTFOLIO_NAME, "EuroDollarFX", true, s_currencies);
-      _historicalDataToLoad.add(ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EURUSD Curncy"));
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
