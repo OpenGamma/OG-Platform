@@ -13,7 +13,6 @@ ${ogStyle.print('og_all.css', 'all', false)}
     </table>
   </form>
 </div>
-<#include "modules/common/og.common.footer.ftl">
 ${ogScript.print('og_common.js', false)}
 <!--[if lt IE 9]>${ogScript.print('ie.js', false)}<![endif]-->
 ${ogScript.print('og_admin.js', false)}
