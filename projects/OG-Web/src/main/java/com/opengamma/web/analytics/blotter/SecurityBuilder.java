@@ -23,20 +23,12 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ abstract class SecurityBuilder {
 
-  private final BeanDataSource _securityData;
-  private final BeanDataSource _underlyingData;
   private final SecurityMaster _securityMaster;
   private final MetaBeanFactory _metaBeanFactory;
 
-  /* package */ SecurityBuilder(BeanDataSource securityData,
-                                BeanDataSource underlyingData,
-                                SecurityMaster securityMaster,
-                                Set<MetaBean> metaBeans) {
-    ArgumentChecker.notNull(securityData, "securityData");
+  /* package */ SecurityBuilder(SecurityMaster securityMaster, Set<MetaBean> metaBeans) {
     ArgumentChecker.notNull(securityMaster, "securityManager");
     ArgumentChecker.notEmpty(metaBeans, "metaBeans");
-    _securityData = securityData;
-    _underlyingData = underlyingData;
     _securityMaster = securityMaster;
     _metaBeanFactory = new MapMetaBeanFactory(metaBeans);
   }
@@ -48,11 +40,11 @@ import com.opengamma.util.ArgumentChecker;
    */
   /* package */ abstract SecurityDocument save(SecurityDocument document);
 
-  private ExternalId buildUnderlying() {
-    if (_underlyingData == null) {
+  private ExternalId buildUnderlying(BeanDataSource underlyingData) {
+    if (underlyingData == null) {
       return null;
     }
-    ManageableSecurity underlyingSecurity = build(_underlyingData);
+    ManageableSecurity underlyingSecurity = build(underlyingData);
     if (!(underlyingSecurity instanceof FinancialSecurity)) {
       throw new IllegalArgumentException("Can only create underlying securities that extend FinancialSecurity");
     }
@@ -65,13 +57,13 @@ import com.opengamma.util.ArgumentChecker;
     return underlyingId;
   }
 
-  /* package */ UniqueId buildSecurity() {
-    ExternalId underlyingId = buildUnderlying();
+  /* package */ UniqueId buildSecurity(BeanDataSource securityData, BeanDataSource underlyingData) {
+    ExternalId underlyingId = buildUnderlying(underlyingData);
     BeanDataSource dataSource;
     if (underlyingId != null) {
-      dataSource = new PropertyReplacingDataSource(_securityData, "underlyingId", underlyingId.toString());
+      dataSource = new PropertyReplacingDataSource(securityData, "underlyingId", underlyingId.toString());
     } else {
-      dataSource = _securityData;
+      dataSource = securityData;
     }
     ManageableSecurity security = build(dataSource);
     SecurityDocument document = save(new SecurityDocument(security));
@@ -107,11 +99,8 @@ import com.opengamma.util.ArgumentChecker;
     return getSecurityMaster().update(document);
   }
 
-  /* package */ ExistingSecurityBuilder(BeanDataSource securityData,
-                                        BeanDataSource underlyingData,
-                                        SecurityMaster securityMaster,
-                                        Set<MetaBean> metaBeans) {
-    super(securityData, underlyingData, securityMaster, metaBeans);
+  /* package */ ExistingSecurityBuilder(SecurityMaster securityMaster, Set<MetaBean> metaBeans) {
+    super(securityMaster, metaBeans);
   }
 }
 
@@ -131,10 +120,7 @@ import com.opengamma.util.ArgumentChecker;
     return getSecurityMaster().add(document);
   }
 
-  /* package */ NewSecurityBuilder(BeanDataSource securityData,
-                                   BeanDataSource underlyingData,
-                                   SecurityMaster securityMaster,
-                                   Set<MetaBean> metaBeans) {
-    super(securityData, underlyingData, securityMaster, metaBeans);
+  /* package */ NewSecurityBuilder(SecurityMaster securityMaster, Set<MetaBean> metaBeans) {
+    super(securityMaster, metaBeans);
   }
 }

@@ -93,7 +93,6 @@ import com.opengamma.util.OpenGammaClock;
   public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
     Class<?> type = property.propertyType();
     if (isConvertible(type)) {
-      // TODO endpoint if available (e.g. ExerciseType)
       _propertyData.add(propertyData(property,
                                      "typeInfo", typesFor(type),
                                      "type", "single"));
@@ -199,14 +198,18 @@ import com.opengamma.util.OpenGammaClock;
     final Map<Object, Object> result = Maps.newHashMap();
     result.put("name", property.name());
     result.put("isOptional", isNullable(property));
-    result.put("isReadOnly", property.readWrite() == PropertyReadWrite.READ_ONLY);
+    // TODO this is *really* dirty and not supposed to be anything else. fix or remove
+    boolean readOnly = property.readWrite() == PropertyReadWrite.READ_ONLY ||
+                       property.name().equals("uniqueId") ||
+                       property.name().equals("name");
+    result.put("isReadOnly", readOnly);
     for (int i = 0; i < values.length / 2; i++) {
       result.put(values[i * 2], values[(i * 2) + 1]);
     }
     return result;
   }
 
-  @SuppressWarnings("UnusedDeclaration")
+  @SuppressWarnings("UnusedDeclaration") // this is only public so Freemarker can use it
   public static final class TypeInfo {
 
     private final String _expectedType;

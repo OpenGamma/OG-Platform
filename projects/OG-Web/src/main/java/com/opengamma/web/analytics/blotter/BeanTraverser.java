@@ -36,9 +36,6 @@ import com.opengamma.util.ArgumentChecker;
     Collections.reverse(_decorators);
   }
 
-  // TODO should this have a type param? if the visitor is decorated the return type doesn't have to be T
-  // the return type is decided by the outermost decorator
-  // is there a way to solve this without severely limiting what the decorators can do or being too complicated?
   /* package */ Object traverse(MetaBean bean, BeanVisitor<?> visitor) {
     BeanVisitor<?> decoratedVisitor = decorate(visitor);
     decoratedVisitor.visitBean(bean);

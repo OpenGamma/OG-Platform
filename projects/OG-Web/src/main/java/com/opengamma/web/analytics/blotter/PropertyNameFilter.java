@@ -15,15 +15,15 @@ import com.google.common.collect.Sets;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * TODO I don't know if I'll need this after all
  */
-/* package */ class PropertyFilter implements BeanVisitorDecorator {
+/* package */ class PropertyNameFilter implements BeanVisitorDecorator {
 
-  private final Set<MetaProperty<?>> _properties;
+  private final Set<String> _propertyNames;
 
-  /* package */ PropertyFilter(MetaProperty<?>... properties) {
-    ArgumentChecker.notNull(properties, "properties");
-    _properties = Sets.newHashSet(Arrays.asList(properties));
+  /* package */ PropertyNameFilter(String... propertyNames) {
+    ArgumentChecker.notNull(propertyNames, "propertyNames");
+    _propertyNames = Sets.newHashSet(Arrays.asList(propertyNames));
   }
 
   @Override
@@ -34,37 +34,37 @@ import com.opengamma.util.ArgumentChecker;
       }
 
       public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
-        if (!_properties.contains(property)) {
+        if (!_propertyNames.contains(property.name())) {
           visitor.visitBeanProperty(property, traverser);
         }
       }
 
       public void visitCollectionProperty(MetaProperty<?> property) {
-        if (!_properties.contains(property)) {
+        if (!_propertyNames.contains(property.name())) {
           visitor.visitCollectionProperty(property);
         }
       }
 
       public void visitSetProperty(MetaProperty<?> property) {
-        if (!_properties.contains(property)) {
+        if (!_propertyNames.contains(property.name())) {
           visitor.visitSetProperty(property);
         }
       }
 
       public void visitListProperty(MetaProperty<?> property) {
-        if (!_properties.contains(property)) {
+        if (!_propertyNames.contains(property.name())) {
           visitor.visitListProperty(property);
         }
       }
 
       public void visitMapProperty(MetaProperty<?> property) {
-        if (!_properties.contains(property)) {
+        if (!_propertyNames.contains(property.name())) {
           visitor.visitMapProperty(property);
         }
       }
 
       public void visitProperty(MetaProperty<?> property) {
-        if (!_properties.contains(property)) {
+        if (!_propertyNames.contains(property.name())) {
           visitor.visitProperty(property);
         }
       }

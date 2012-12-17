@@ -178,8 +178,10 @@ public class BlotterResource {
     }
     BeanStructureBuilder structureBuilder = new BeanStructureBuilder(s_metaBeans, s_underlyingSecurityTypes, s_endpoints);
     // filter out underlying ID property for security types whose underlying is another OTC security
-    PropertyFilter filter = new PropertyFilter(SwaptionSecurity.meta().underlyingId());
-    Map<?, ?> beanData = (Map<?, ?>) new BeanTraverser(filter).traverse(metaBean, structureBuilder);
+    BeanVisitorDecorator propertyFilter = new PropertyFilter(SwaptionSecurity.meta().underlyingId());
+    BeanVisitorDecorator propertyNameFilter = new PropertyNameFilter("externalIdBundle");
+    BeanTraverser traverser = new BeanTraverser(propertyFilter, propertyNameFilter);
+    Map<?, ?> beanData = (Map<?, ?>) traverser.traverse(metaBean, structureBuilder);
     return _freemarker.build("blotter/bean-structure.ftl", beanData);
   }
 
@@ -221,6 +223,23 @@ public class BlotterResource {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   public String createOtcSecurity(@FormParam("security") String securityJsonStr) {
+    return createSecurity(securityJsonStr, new NewSecurityBuilder(_securityMaster, s_metaBeans));
+  }
+
+  // TODO should this be trade instead of security?
+  @PUT
+  @Path("securities/{securityIdStr}")
+  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+  @Produces(MediaType.APPLICATION_JSON)
+  // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
+  public String updateOtcSecurity(@FormParam("security") String securityJsonStr,
+                                  @PathParam("securityIdStr") String securityIdStr) {
+    // TODO check the security ID in the path and JSON match?
+    // TODO or don't include in the JSON and wrap the data source
+    return createSecurity(securityJsonStr, new ExistingSecurityBuilder(_securityMaster, s_metaBeans));
+  }
+
+  private String createSecurity(String securityJsonStr, SecurityBuilder securityBuilder) {
     try {
       // TODO what validation do I need to do when updating? check the security type hasn't changed?
       JSONObject json = new JSONObject(securityJsonStr);
@@ -233,44 +252,11 @@ public class BlotterResource {
       } else {
         underlyingDataSource = null;
       }
-      NewSecurityBuilder builder = new NewSecurityBuilder(securityDataSource, underlyingDataSource, _securityMaster, s_metaBeans);
-      UniqueId securityId = builder.buildSecurity();
+      UniqueId securityId = securityBuilder.buildSecurity(securityDataSource, underlyingDataSource);
       return new JSONObject(ImmutableMap.of("securityId", securityId)).toString();
     } catch (JSONException e) {
       throw new IllegalArgumentException("Failed to parse security JSON", e);
     }
-  }
-
-  // TODO should this be trade instead of security?
-  @PUT
-  @Path("securities/{securityIdStr}")
-  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  @Produces(MediaType.APPLICATION_JSON)
-  // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
-  public String updateOtcSecurity(@FormParam("security") String securityJsonStr,
-                                  @PathParam("securityIdStr") String securityIdStr) {
-    UniqueId pathSecurityId = UniqueId.parse(securityIdStr);
-    JSONObject securityJson;
-    try {
-      JSONObject json = new JSONObject(securityJsonStr);
-      securityJson = json.getJSONObject("security");
-      // TODO this needs to happen for swaptions and possibly some others
-      //underlyingJson = json.getJSONObject("underlying");
-    } catch (JSONException e) {
-      throw new IllegalArgumentException("Failed to parse security JSON", e);
-    }
-    // TODO this doesn't cover swaptions (where the underlying is an OTC security)
-    //SecurityBuilder securityBuilder = new ExistingSecurityBuilder(new JsonBeanDataSource(securityJson),
-    //                                                              new JsonBeanDataSource());
-    //ManageableSecurity security = securityBuilder.buildSecurity(new JsonBeanDataSource(securityJson));
-    ManageableSecurity security = null;// TODO temporary to make it compile
-    if (!pathSecurityId.equalObjectId(security.getUniqueId())) {
-      throw new IllegalArgumentException("Security unique ID in the path didn't match the ID in the JSON: " +
-                                             pathSecurityId + ", " + security.getUniqueId());
-    }
-    SecurityDocument document = _securityMaster.update(new SecurityDocument(security));
-    UniqueId securityId = document.getUniqueId();
-    return new JSONObject(ImmutableMap.of("securityId", securityId)).toString();
   }
 
   private static Map<Object, Object> map(Object... values) {
