@@ -29,13 +29,13 @@ $.register_module({
             }
         })({}, '&nbsp;&nbsp;&nbsp;&nbsp;');
         var Portfolio = function (config) {
-            var block = this, id = og.common.id('portfolio'),
-                form = config.form, root = config.root, node = config.node, portfolio = config.portfolio;
+            var block = this, id = og.common.id('portfolio'), value = config.value || {}, index = config.index,
+                form = config.form, root = value.root;
             form.Block.call(block, {generator: function (handler) {
                 og.api.rest.portfolios.get({
-                    id: root, node: root ? node : void 0, name: root ? void 0 : '*', page: root ? void 0 : '*'
+                    id: root, node: value.node, name: root ? void 0 : '*', page: root ? void 0 : '*'
                 }).pipe(function (result) {
-                    var folders = result.data.data ? result.data.data.map(function (val) {
+                    var main = folders = result.data.data ? result.data.data.map(function (val) {
                         var split = val.split('|');
                         return {
                             portfolio: split[0], node: split[1], name: split[2],
@@ -43,9 +43,10 @@ $.register_module({
                         };
                     }) : get_folders(result.data.portfolios, portfolio, 0),
                     files = result.data.data ? [] : get_files(result.data.positions, portfolio, 0);
-                    new form.Block({
-                        module: 'og.views.forms.portfolio_tash', extras: {folders: folders, files: files
-                    }}).html(function (html) {handler(root_template({id: id, html: html}));});
+                    main = new form.Block({
+                        module: 'og.views.forms.portfolio_tash', extras: {folders: folders, files: files}
+                    });
+                    main.html(function (html) {handler(root_template({id: id, html: html}));});
                 });
             }});
             block.id = id;
