@@ -13,20 +13,7 @@ import com.opengamma.util.tuple.Pair;
  * Class describing a provider with discounting, forward, credit curves and Hull-White parameters on one issuer curve.
  * The forward rate are computed as the ratio of discount factors stored in YieldAndDiscountCurve.
  */
-public class HullWhiteIssuerProviderDiscount implements HullWhiteIssuerProviderInterface {
-
-  /**
-   * The issuer provider.
-   */
-  private final IssuerProviderDiscount _issuerProvider;
-  /**
-   * The Hull-White one factor model parameters.
-   */
-  private final HullWhiteOneFactorPiecewiseConstantParameters _parameters;
-  /**
-   * The issuer/currency for which the Hull-White parameters are valid (Hull-White on the issuer discounting curve).
-   */
-  private final Pair<String, Currency> _issuerCcyHW;
+public class HullWhiteIssuerProviderDiscount extends HullWhiteIssuerProvider {
 
   /**
    * Constructor from exiting multicurveProvider and Hull-White parameters. The given provider and parameters are used for the new provider (the same maps are used, not copied).
@@ -35,24 +22,21 @@ public class HullWhiteIssuerProviderDiscount implements HullWhiteIssuerProviderI
    * @param issuerCcyHW The issuer/currency for which the Hull-White parameters are valid (Hull-White on the issuer discounting curve).
    */
   public HullWhiteIssuerProviderDiscount(final IssuerProviderDiscount issuer, HullWhiteOneFactorPiecewiseConstantParameters parameters, final Pair<String, Currency> issuerCcyHW) {
-    _issuerProvider = issuer;
-    _parameters = parameters;
-    _issuerCcyHW = issuerCcyHW;
+    super(issuer, parameters, issuerCcyHW);
   }
 
+  /**
+   * Returns the MulticurveProvider from which the HullWhiteOneFactorProvider is composed.
+   * @return The multi-curves provider.
+   */
   @Override
-  public HullWhiteOneFactorPiecewiseConstantParameters getHullWhiteParameters() {
-    return _parameters;
-  }
-
-  @Override
-  public Pair<String, Currency> getHullWhiteIssuerCurrency() {
-    return _issuerCcyHW;
+  public MulticurveProviderDiscount getMulticurveProvider() {
+    return (MulticurveProviderDiscount) super.getMulticurveProvider();
   }
 
   @Override
   public IssuerProviderDiscount getIssuerProvider() {
-    return _issuerProvider;
+    return (IssuerProviderDiscount) super.getIssuerProvider();
   }
 
 }

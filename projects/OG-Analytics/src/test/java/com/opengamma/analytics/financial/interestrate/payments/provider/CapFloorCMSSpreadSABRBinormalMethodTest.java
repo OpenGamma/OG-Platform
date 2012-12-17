@@ -45,9 +45,10 @@ import com.opengamma.analytics.financial.provider.calculator.sabrswaption.Presen
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.sabrswaption.ParameterSensitivitySABRSwaptionCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.sabrswaption.ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
@@ -146,9 +147,9 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final PresentValueSABRSensitivitySABRSwaptionRightExtrapolationCalculator PVSSSSXC = new PresentValueSABRSensitivitySABRSwaptionRightExtrapolationCalculator(CUT_OFF_STRIKE, MU);
 
   private static final double SHIFT = 1.0E-7;
-  private static final ParameterSensitivitySABRSwaptionCalculator PS_SS_C = new ParameterSensitivitySABRSwaptionCalculator(PVCSSSC);
+  private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PS_SS_C = new ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface>(PVCSSSC);
   private static final ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator PS_SS_FDC = new ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator(PVSSC, SHIFT);
-  private static final ParameterSensitivitySABRSwaptionCalculator PS_SSX_C = new ParameterSensitivitySABRSwaptionCalculator(PVCSSSXC);
+  private static final ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface> PS_SSX_C = new ParameterSensitivityParameterCalculator<SABRSwaptionProviderInterface>(PVCSSSXC);
   private static final ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator PS_SSX_FDC = new ParameterSensitivitySABRSwaptionDiscountInterpolatedFDCalculator(PVSSXC, SHIFT);
 
   private static final CapFloorCMSSABRExtrapolationRightReplicationMethod METHOD_CMS_CAP_EXTRAPOLATION = new CapFloorCMSSABRExtrapolationRightReplicationMethod(CUT_OFF_STRIKE, MU);

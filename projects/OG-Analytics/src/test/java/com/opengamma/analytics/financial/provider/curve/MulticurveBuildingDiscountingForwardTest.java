@@ -115,10 +115,10 @@ public class MulticurveBuildingDiscountingForwardTest {
   public static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400};
   /** Generators for the dsc USD curve */
   public static final GeneratorInstrument[] DSC_USD_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
-    GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD};
+      GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD};
   /** Tenors for the dsc USD curve */
   public static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1),
-    Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
+      Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
 
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0420, 0.0420, 0.0430, 0.0470, 0.0540, 0.0570, 0.0600};
@@ -198,8 +198,6 @@ public class MulticurveBuildingDiscountingForwardTest {
     for (int loopblock = 0; loopblock < NB_BLOCKS; loopblock++) {
       curveConstructionTest(DEFINITIONS_UNITS[loopblock], CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(loopblock).getFirst(), false, loopblock);
     }
-    int t = 0;
-    t++;
   }
 
   public void curveConstructionTest(final InstrumentDefinition<?>[][][] definitions, final MulticurveProviderForward curves, final boolean withToday, final int block) {
@@ -276,10 +274,6 @@ public class MulticurveBuildingDiscountingForwardTest {
 
   @SuppressWarnings("unchecked")
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final int unit, final boolean withToday) {
-    int nbDef = 0;
-    for (final InstrumentDefinition<?>[] definition : definitions) {
-      nbDef += definition.length;
-    }
     final InstrumentDerivative[][] instruments = new InstrumentDerivative[definitions.length][];
     for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
       instruments[loopcurve] = new InstrumentDerivative[definitions[loopcurve].length];

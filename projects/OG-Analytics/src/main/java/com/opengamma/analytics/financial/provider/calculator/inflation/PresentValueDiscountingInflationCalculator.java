@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInf
 import com.opengamma.analytics.financial.interestrate.inflation.method.CouponInflationZeroCouponMonthlyGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**

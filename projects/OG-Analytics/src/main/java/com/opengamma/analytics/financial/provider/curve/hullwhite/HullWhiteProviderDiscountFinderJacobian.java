@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
-import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.AbstractParameterSensitivityHullWhiteMatrixCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.ParameterSensitivityHullWhiteMatrixAbstractCalculator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -22,7 +22,7 @@ public class HullWhiteProviderDiscountFinderJacobian extends Function1D<DoubleMa
   /**
    * The instrument parameter sensitivity calculator.
    */
-  private final AbstractParameterSensitivityHullWhiteMatrixCalculator _parameterSensitivityCalculator;
+  private final ParameterSensitivityHullWhiteMatrixAbstractCalculator _parameterSensitivityCalculator;
   /**
    * The data required for curve building.
    */
@@ -33,7 +33,7 @@ public class HullWhiteProviderDiscountFinderJacobian extends Function1D<DoubleMa
    * @param parameterSensitivityCalculator The instrument parameter sensitivity calculator.
    * @param data The data required for curve building.
    */
-  public HullWhiteProviderDiscountFinderJacobian(final AbstractParameterSensitivityHullWhiteMatrixCalculator parameterSensitivityCalculator, final HullWhiteProviderDiscountBuildingData data) {
+  public HullWhiteProviderDiscountFinderJacobian(final ParameterSensitivityHullWhiteMatrixAbstractCalculator parameterSensitivityCalculator, final HullWhiteProviderDiscountBuildingData data) {
     _parameterSensitivityCalculator = parameterSensitivityCalculator;
     _data = data;
   }

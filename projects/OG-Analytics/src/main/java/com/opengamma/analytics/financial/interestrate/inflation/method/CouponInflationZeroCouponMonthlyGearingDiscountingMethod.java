@@ -13,7 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
-import com.opengamma.analytics.financial.provider.description.interestrate.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;

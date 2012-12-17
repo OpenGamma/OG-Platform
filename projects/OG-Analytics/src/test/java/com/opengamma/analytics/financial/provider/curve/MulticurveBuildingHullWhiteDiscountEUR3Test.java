@@ -395,10 +395,6 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
 
   @SuppressWarnings("unchecked")
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final boolean withToday) {
-    int nbDef = 0;
-    for (final InstrumentDefinition<?>[] definition : definitions) {
-      nbDef += definition.length;
-    }
     final InstrumentDerivative[][] instruments = new InstrumentDerivative[definitions.length][];
     for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
       instruments[loopcurve] = new InstrumentDerivative[definitions[loopcurve].length];

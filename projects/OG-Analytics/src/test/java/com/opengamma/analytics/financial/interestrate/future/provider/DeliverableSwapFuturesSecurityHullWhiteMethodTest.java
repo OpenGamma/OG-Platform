@@ -28,10 +28,11 @@ import com.opengamma.analytics.financial.provider.calculator.hullwhite.MarketQuo
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.MarketQuoteHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.SimpleParameterSensitivityHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -75,7 +76,8 @@ public class DeliverableSwapFuturesSecurityHullWhiteMethodTest {
 
   private static final double SHIFT_FD = 1.0E-6;
 
-  private static final SimpleParameterSensitivityHullWhiteCalculator PS_MQ_C = new SimpleParameterSensitivityHullWhiteCalculator(MQCSHWC);
+  private static final SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> PS_MQ_C = new SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface>(
+      MQCSHWC);
   private static final SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator PS_MQ_FDC = new SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(MQHWC, SHIFT_FD);
 
   private static final double TOLERANCE_PRICE = 1.0E-10;

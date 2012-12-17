@@ -22,8 +22,9 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
 
   /**
    * Create a new copy of the provider.
-   * @return The bundle.
+   * @return The new provider.
    */
+  @Override
   MulticurveProviderInterface copy();
 
   /**

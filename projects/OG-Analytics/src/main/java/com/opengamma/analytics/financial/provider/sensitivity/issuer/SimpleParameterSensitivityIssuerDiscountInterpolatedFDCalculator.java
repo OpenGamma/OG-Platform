@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.IssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
@@ -123,8 +124,8 @@ public class SimpleParameterSensitivityIssuerDiscountInterpolatedFDCalculator {
         final Double valueBumpedPlus = instrument.accept(_valueCalculator, marketFwdBumpedPlus);
         final double[] yieldBumpedMinus = curveInt.getYDataAsPrimitive().clone();
         yieldBumpedMinus[loopnode] -= _shift;
-        final YieldAndDiscountCurve fwdBumpedMinus = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus,
-            curveInt.getInterpolator(), true));
+        final YieldAndDiscountCurve fwdBumpedMinus = new YieldCurve(curveInt.getName(),
+            new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumpedMinus, curveInt.getInterpolator(), true));
         final IssuerProviderDiscount marketFwdBumpedMinus = new IssuerProviderDiscount(issuercurves.getMulticurveProvider().withForward(index, fwdBumpedMinus), issuercurves.getIssuerCurves());
         final Double valueBumpedMinus = instrument.accept(_valueCalculator, marketFwdBumpedMinus);
         final Double valueDiff = valueBumpedPlus - valueBumpedMinus;
@@ -147,7 +148,7 @@ public class SimpleParameterSensitivityIssuerDiscountInterpolatedFDCalculator {
         final double[] yieldBumped = curveInt.getYDataAsPrimitive().clone();
         yieldBumped[loopnode] += _shift;
         final YieldAndDiscountCurve icBumped = new YieldCurve(curveInt.getName(), new InterpolatedDoublesCurve(curveInt.getXDataAsPrimitive(), yieldBumped, curveInt.getInterpolator(), true));
-        final IssuerProviderDiscount providerIcBumped = issuercurves.withIssuerCurrency(ic, icBumped);
+        final IssuerProvider providerIcBumped = issuercurves.withIssuerCurrency(ic, icBumped);
         final Double valueBumped = instrument.accept(_valueCalculator, providerIcBumped);
         final Double valueDiff = valueBumped + valueInitMinus;
         sensitivity[loopnode] = valueDiff / _shift;

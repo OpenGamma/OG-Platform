@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.interestrate.inflation.derivative;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.interestrate.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 

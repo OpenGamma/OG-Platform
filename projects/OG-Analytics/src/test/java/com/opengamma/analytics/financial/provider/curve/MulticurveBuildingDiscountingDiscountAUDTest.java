@@ -164,25 +164,25 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
   public static final double[] DSC_AUD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400};
   /** Generators for the dsc USD curve */
   public static final GeneratorInstrument[] DSC_USD_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD,
-    GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD};
+      GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD, GENERATOR_OIS_AUD};
   /** Tenors for the dsc USD curve */
   public static final Period[] DSC_AUD_TENOR = new Period[] {Period.ofDays(0), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1),
-    Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
+      Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
 
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD3_AUD_MARKET_QUOTES = new double[] {0.0420, 0.0420, 0.0420, 0.0420, 0.0430, 0.0470, 0.0020, 0.0020, 0.0020};
   /** Generators for the Fwd 3M USD curve */
   public static final GeneratorInstrument[] FWD3_AUD_GENERATORS = new GeneratorInstrument[] {GENERATOR_AUDBB3M, GENERATOR_FRA_3M, GENERATOR_FRA_3M, AUD3MBBSW3M, AUD3MBBSW3M, AUD3MBBSW3M,
-    AUDBBSW3MBBSW6M, AUDBBSW3MBBSW6M, AUDBBSW3MBBSW6M};
+      AUDBBSW3MBBSW6M, AUDBBSW3MBBSW6M, AUDBBSW3MBBSW6M};
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD3_AUD_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(5),
-    Period.ofYears(7), Period.ofYears(10)};
+      Period.ofYears(7), Period.ofYears(10)};
 
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD6_AUD_MARKET_QUOTES = new double[] {0.0440, 0.0020, 0.0020, 0.0020, 0.0560, 0.0610, 0.0620};
   /** Generators for the Fwd 3M USD curve */
   public static final GeneratorInstrument[] FWD6_AUD_GENERATORS = new GeneratorInstrument[] {GENERATOR_AUDBB6M, AUDBBSW3MBBSW6M, AUDBBSW3MBBSW6M, AUDBBSW3MBBSW6M, AUD6MBBSW6M, AUD6MBBSW6M,
-    AUD6MBBSW6M};
+      AUD6MBBSW6M};
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD6_AUD_TENOR = new Period[] {Period.ofMonths(0), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7), Period.ofYears(10)};
 
@@ -397,10 +397,10 @@ public class MulticurveBuildingDiscountingDiscountAUDTest {
 
   @SuppressWarnings("unchecked")
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final boolean withToday) {
-    int nbDef = 0;
-    for (final InstrumentDefinition<?>[] definition : definitions) {
-      nbDef += definition.length;
-    }
+    //    int nbDef = 0;
+    //    for (final InstrumentDefinition<?>[] definition : definitions) {
+    //      nbDef += definition.length;
+    //    }
     final InstrumentDerivative[][] instruments = new InstrumentDerivative[definitions.length][];
     for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
       instruments[loopcurve] = new InstrumentDerivative[definitions[loopcurve].length];

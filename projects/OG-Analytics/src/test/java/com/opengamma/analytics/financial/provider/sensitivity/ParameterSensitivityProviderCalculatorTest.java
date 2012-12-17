@@ -34,10 +34,11 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderForward;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveForwardInterpolatedFDCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -99,7 +100,7 @@ public class ParameterSensitivityProviderCalculatorTest {
 
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
-  private static final ParameterSensitivityMulticurveCalculator PSC = new ParameterSensitivityMulticurveCalculator(PVCSC);
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PVCSC);
   // private static final ParameterSensitivityMatrixMarketCalculator PSC_MAT = new ParameterSensitivityMatrixMarketCalculator(PVCSC);
   private static final double SHIFT = 5.0E-7;
   private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVC, SHIFT);

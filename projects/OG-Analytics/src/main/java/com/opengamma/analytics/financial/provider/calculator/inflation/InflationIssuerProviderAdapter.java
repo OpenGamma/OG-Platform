@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.provider.calculator.inflation;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
-import com.opengamma.analytics.financial.provider.description.interestrate.InflationIssuerProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 
 /**
  * 

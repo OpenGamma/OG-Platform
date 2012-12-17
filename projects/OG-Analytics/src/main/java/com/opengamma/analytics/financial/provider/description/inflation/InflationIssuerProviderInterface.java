@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.description.interestrate;
+package com.opengamma.analytics.financial.provider.description.inflation;
 
 import java.util.Set;
 
@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 

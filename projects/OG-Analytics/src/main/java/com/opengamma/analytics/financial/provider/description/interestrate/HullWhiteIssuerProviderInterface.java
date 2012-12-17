@@ -12,7 +12,13 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Interface for Hull-White parameters provider for one issuer/currency.
  */
-public interface HullWhiteIssuerProviderInterface {
+public interface HullWhiteIssuerProviderInterface extends ParameterIssuerProviderInterface {
+
+  /**
+   * Create a new copy of the provider.
+   * @return The bundle.
+   */
+  HullWhiteIssuerProviderInterface copy();
 
   /**
    * Returns the Hull-White one factor model parameters.
@@ -25,11 +31,5 @@ public interface HullWhiteIssuerProviderInterface {
    * @return The issuer/currency.
    */
   Pair<String, Currency> getHullWhiteIssuerCurrency();
-
-  /**
-   * Returns the IssuerProvider from which the HullWhiteIssuerProvider is composed.
-   * @return The Hull-White provider.
-   */
-  IssuerProviderDiscount getIssuerProvider();
 
 }

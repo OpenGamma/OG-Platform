@@ -32,10 +32,11 @@ import com.opengamma.analytics.financial.provider.calculator.sabrcap.PresentValu
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRCapProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.SABRCapProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.sabrcap.ParameterSensitivitySABRCapDiscountInterpolatedFDCalculator;
-import com.opengamma.analytics.financial.provider.sensitivity.sabrswaption.ParameterSensitivitySABRCapCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.money.Currency;
@@ -56,7 +57,7 @@ public class CapFloorIborSABRMethodTest {
   private static final SABRCapProviderDiscount SABR_MULTICURVES = new SABRCapProviderDiscount(MULTICURVES, SABR_PARAMETER, EURIBOR3M);
 
   public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
+  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   // Details
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final double NOTIONAL = 1000000; //1m
@@ -78,7 +79,7 @@ public class CapFloorIborSABRMethodTest {
   private static final PresentValueCurveSensitivitySABRCapCalculator PVCSSCC = PresentValueCurveSensitivitySABRCapCalculator.getInstance();
 
   private static final double SHIFT = 1.0E-7;
-  private static final ParameterSensitivitySABRCapCalculator PS_SS_C = new ParameterSensitivitySABRCapCalculator(PVCSSCC);
+  private static final ParameterSensitivityParameterCalculator<SABRCapProviderInterface> PS_SS_C = new ParameterSensitivityParameterCalculator<SABRCapProviderInterface>(PVCSSCC);
   private static final ParameterSensitivitySABRCapDiscountInterpolatedFDCalculator PS_SS_FDC = new ParameterSensitivitySABRCapDiscountInterpolatedFDCalculator(PVSCC, SHIFT);
   // To derivative
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);

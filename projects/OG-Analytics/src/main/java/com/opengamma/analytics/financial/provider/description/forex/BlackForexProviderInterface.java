@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.provider.description.forex;
 
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -13,12 +14,13 @@ import com.opengamma.util.tuple.Pair;
  * Interface for G2++ parameters provider for one currency.
  * @param <VOLATILITY_TYPE> The volatilty type.
  */
-public interface BlackForexProviderInterface<VOLATILITY_TYPE> {
+public interface BlackForexProviderInterface<VOLATILITY_TYPE> extends ParameterProviderInterface {
 
   /**
    * Create a new copy of the provider.
    * @return The bundle.
    */
+  @Override
   BlackForexProviderInterface<VOLATILITY_TYPE> copy();
 
   /**
@@ -45,6 +47,7 @@ public interface BlackForexProviderInterface<VOLATILITY_TYPE> {
    * Returns the MulticurveProvider from which the InflationProvider is composed.
    * @return The multi-curves provider.
    */
+  @Override
   MulticurveProviderInterface getMulticurveProvider();
 
 }

@@ -45,6 +45,16 @@ public class IssuerProviderIssuerDecoratedSpread implements IssuerProviderInterf
   }
 
   @Override
+  public MulticurveProviderInterface getMulticurveProvider() {
+    return _issuerProvider.getMulticurveProvider();
+  }
+
+  @Override
+  public IssuerProviderIssuerDecoratedSpread getIssuerProvider() {
+    return this;
+  }
+
+  @Override
   public IssuerProviderInterface copy() {
     throw new UnsupportedOperationException("Copy not supported for decorated providers");
   }
@@ -66,11 +76,6 @@ public class IssuerProviderIssuerDecoratedSpread implements IssuerProviderInterf
   @Override
   public Set<String> getAllNames() {
     return _issuerProvider.getAllNames();
-  }
-
-  @Override
-  public MulticurveProviderInterface getMulticurveProvider() {
-    return _issuerProvider.getMulticurveProvider();
   }
 
   @Override

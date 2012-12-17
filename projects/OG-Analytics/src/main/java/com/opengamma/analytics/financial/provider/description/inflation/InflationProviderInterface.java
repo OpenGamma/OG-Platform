@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.description.interestrate;
+package com.opengamma.analytics.financial.provider.description.inflation;
 
 import java.util.Set;
 
@@ -12,18 +12,21 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.money.Currency;
 
 /**
  * Interface specific to inflation curves.
  * Compose the MulticurveProviderInterface.
  */
-public interface InflationProviderInterface {
+public interface InflationProviderInterface extends ParameterProviderInterface {
 
   /**
    * Create a new copy of the provider.
    * @return The bundle.
    */
+  @Override
   InflationProviderInterface copy();
 
   /**
@@ -59,6 +62,7 @@ public interface InflationProviderInterface {
    * Returns the MulticurveProvider from which the InflationProvider is composed.
    * @return The multi-curves provider.
    */
+  @Override
   MulticurveProviderInterface getMulticurveProvider();
 
   //     =====     Methods related to MulticurveProvider     =====

@@ -26,11 +26,12 @@ import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentV
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueForexVolatilitySensitivityForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.sensitivity.blackforex.ParameterSensitivityForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.blackforex.ParameterSensitivityForexBlackSmileDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
@@ -82,7 +83,7 @@ public class ForexOptionDigitalBlackSmileMethodTest {
   private static final PresentValueForexVolatilitySensitivityForexBlackSmileCalculator PVVSFBSC = PresentValueForexVolatilitySensitivityForexBlackSmileCalculator.getInstance();
 
   private static final double SHIFT_FD = 1.0E-6;
-  private static final ParameterSensitivityForexBlackSmileCalculator PS_FBS_C = new ParameterSensitivityForexBlackSmileCalculator(PVCSFBC);
+  private static final ParameterSensitivityParameterCalculator<BlackForexSmileProviderInterface> PS_FBS_C = new ParameterSensitivityParameterCalculator<BlackForexSmileProviderInterface>(PVCSFBC);
   private static final ParameterSensitivityForexBlackSmileDiscountInterpolatedFDCalculator PS_FBS_FDC = new ParameterSensitivityForexBlackSmileDiscountInterpolatedFDCalculator(PVFBC, SHIFT_FD);
 
   // option

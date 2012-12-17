@@ -21,10 +21,11 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -52,13 +53,13 @@ public class CouponOISDiscountingMarketMethodTest {
       GENERATOR_SWAP_EONIA.isEndOfMonth());
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
+  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2"};
   private static final CouponOIS CPN_OIS = CPN_OIS_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
 
   private static final CouponOISDiscountingProviderMethod METHOD_CPN_OIS = CouponOISDiscountingProviderMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
-  private static final ParameterSensitivityMulticurveCalculator PSC = new ParameterSensitivityMulticurveCalculator(PVCSDC);
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PVCSDC);
   private static final double SHIFT = 1.0E-6;
   private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVDC, SHIFT);
 
@@ -78,8 +79,8 @@ public class CouponOISDiscountingMarketMethodTest {
   @Test
   public void presentValueStarted() {
     final double fixing = 0.0015;
-    final ArrayZonedDateTimeDoubleTimeSeries TS_ON = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 5, 20), DateUtils.getUTCDate(2011, 5, 23) }, new double[] {
-        0.0010, fixing });
+    final ArrayZonedDateTimeDoubleTimeSeries TS_ON = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 5, 20), DateUtils.getUTCDate(2011, 5, 23)}, new double[] {
+        0.0010, fixing});
     final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(EFFECTIVE_DATE, 1, TARGET);
     final CouponOIS cpnOISStarted = (CouponOIS) CPN_OIS_DEFINITION.toDerivative(referenceDate, TS_ON, NOT_USED);
     final double notionalAccrued = NOTIONAL * (1 + fixing * EONIA.getDayCount().getDayCountFraction(EFFECTIVE_DATE, referenceDate));

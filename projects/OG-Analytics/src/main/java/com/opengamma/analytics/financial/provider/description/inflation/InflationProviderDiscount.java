@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.provider.description.interestrate;
+package com.opengamma.analytics.financial.provider.description.inflation;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.math.curve.DoublesCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -24,12 +24,12 @@ import com.opengamma.util.money.Currency;
  * Class describing a "market" with discounting, forward, price index and credit curves.
  * The forward rate are computed as the ratio of discount factors stored in YieldAndDiscountCurve.
  */
-public class InflationProviderForward implements InflationProviderInterface {
+public class InflationProviderDiscount implements InflationProviderInterface {
 
   /**
    * The multicurve provider.
    */
-  private final MulticurveProviderForward _multicurveProvider;
+  private final MulticurveProviderDiscount _multicurveProvider;
   /**
    * A map with one price curve by price index.
    */
@@ -38,8 +38,8 @@ public class InflationProviderForward implements InflationProviderInterface {
   /**
    * Constructor with empty maps for discounting, forward and price index.
    */
-  public InflationProviderForward() {
-    _multicurveProvider = new MulticurveProviderForward();
+  public InflationProviderDiscount() {
+    _multicurveProvider = new MulticurveProviderDiscount();
     _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
   }
 
@@ -47,8 +47,8 @@ public class InflationProviderForward implements InflationProviderInterface {
    * Constructor with empty maps for discounting, forward and price index.
    * @param fxMatrix The FXMatrix.
    */
-  public InflationProviderForward(final FXMatrix fxMatrix) {
-    _multicurveProvider = new MulticurveProviderForward(fxMatrix);
+  public InflationProviderDiscount(final FXMatrix fxMatrix) {
+    _multicurveProvider = new MulticurveProviderDiscount(fxMatrix);
     _priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>();
   }
 
@@ -60,9 +60,9 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param priceIndexCurves A map with one price curve by price index.
    * @param fxMatrix The FXMatrix.
    */
-  public InflationProviderForward(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, DoublesCurve> forwardIborCurves,
+  public InflationProviderDiscount(final Map<Currency, YieldAndDiscountCurve> discountingCurves, final Map<IborIndex, YieldAndDiscountCurve> forwardIborCurves,
       final Map<IndexON, YieldAndDiscountCurve> forwardONCurves, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves, final FXMatrix fxMatrix) {
-    _multicurveProvider = new MulticurveProviderForward(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
+    _multicurveProvider = new MulticurveProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
     _priceIndexCurves = priceIndexCurves;
   }
 
@@ -71,16 +71,16 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param multicurve The multi-curves provider.
    * @param priceIndexCurves The map with price index curves.
    */
-  public InflationProviderForward(final MulticurveProviderForward multicurve, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves) {
+  public InflationProviderDiscount(final MulticurveProviderDiscount multicurve, final Map<IndexPrice, PriceIndexCurve> priceIndexCurves) {
     _multicurveProvider = multicurve;
     _priceIndexCurves = priceIndexCurves;
   }
 
   @Override
-  public InflationProviderForward copy() {
-    MulticurveProviderForward multicurveProvider = _multicurveProvider.copy();
+  public InflationProviderDiscount copy() {
+    MulticurveProviderDiscount multicurveProvider = _multicurveProvider.copy();
     final LinkedHashMap<IndexPrice, PriceIndexCurve> priceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>(_priceIndexCurves);
-    return new InflationProviderForward(multicurveProvider, priceIndexCurves);
+    return new InflationProviderDiscount(multicurveProvider, priceIndexCurves);
   }
 
   @Override
@@ -131,7 +131,7 @@ public class InflationProviderForward implements InflationProviderInterface {
   }
 
   @Override
-  public MulticurveProviderForward getMulticurveProvider() {
+  public MulticurveProviderDiscount getMulticurveProvider() {
     return _multicurveProvider;
   }
 
@@ -196,7 +196,7 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param index The Ibor index.
    * @return The curve.
    */
-  public DoublesCurve getCurve(final IborIndex index) {
+  public YieldAndDiscountCurve getCurve(final IborIndex index) {
     return _multicurveProvider.getCurve(index);
   }
 
@@ -237,7 +237,7 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param index The index.
    * @param curve The curve.
    */
-  public void setCurve(final IborIndex index, final DoublesCurve curve) {
+  public void setCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
     _multicurveProvider.setCurve(index, curve);
   }
 
@@ -255,7 +255,7 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param other The other bundle.
    * TODO: REVIEW: Should we check that the curve are already present?
    */
-  public void setAll(final InflationProviderForward other) {
+  public void setAll(final InflationProviderDiscount other) {
     ArgumentChecker.notNull(other, "Inflation provider");
     _multicurveProvider.setAll(other.getMulticurveProvider());
     _priceIndexCurves.putAll(other._priceIndexCurves);
@@ -277,7 +277,7 @@ public class InflationProviderForward implements InflationProviderInterface {
    * @param curve The yield curve used for forward.
    *  @throws IllegalArgumentException if curve name NOT already present 
    */
-  public void replaceCurve(final IborIndex index, final DoublesCurve curve) {
+  public void replaceCurve(final IborIndex index, final YieldAndDiscountCurve curve) {
     _multicurveProvider.replaceCurve(index, curve);
   }
 
@@ -311,9 +311,9 @@ public class InflationProviderForward implements InflationProviderInterface {
   }
 
   @Override
-  public InflationProviderForward withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement) {
-    MulticurveProviderForward decoratedMulticurve = _multicurveProvider.withDiscountFactor(ccy, replacement);
-    return new InflationProviderForward(decoratedMulticurve, _priceIndexCurves);
+  public InflationProviderDiscount withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement) {
+    MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withDiscountFactor(ccy, replacement);
+    return new InflationProviderDiscount(decoratedMulticurve, _priceIndexCurves);
   }
 
 }

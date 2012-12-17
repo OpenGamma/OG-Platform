@@ -16,9 +16,10 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Interface for issuer specific 
  */
-public interface IssuerProviderInterface {
+public interface IssuerProviderInterface extends ParameterIssuerProviderInterface, ParameterProviderInterface {
   // TODO: Can probably be merged with MulticurveProvider if the Currency is replaced by a UniqueIdentifiable.
 
+  @Override
   IssuerProviderInterface copy();
 
   /**
@@ -46,6 +47,7 @@ public interface IssuerProviderInterface {
    * Returns the MulticurveProvider from which the IssuerProvider is composed.
    * @return The multi-curves provider.
    */
+  @Override
   MulticurveProviderInterface getMulticurveProvider();
 
   double[] parameterSensitivity(String name, List<DoublesPair> pointSensitivity);

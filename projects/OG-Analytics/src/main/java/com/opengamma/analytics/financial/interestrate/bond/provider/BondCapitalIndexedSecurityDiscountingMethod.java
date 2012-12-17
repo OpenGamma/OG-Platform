@@ -11,8 +11,8 @@ import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGea
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.InflationIssuerProviderInterface;
-import com.opengamma.analytics.financial.provider.description.interestrate.InflationProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
+import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;

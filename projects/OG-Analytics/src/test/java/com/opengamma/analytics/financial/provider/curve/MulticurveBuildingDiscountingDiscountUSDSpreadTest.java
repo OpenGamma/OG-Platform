@@ -146,46 +146,46 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
   public static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0010, 0.0011, 0.0013, 0.0009, 0.0010, 0.0015, 0.0014, 0.0020, 0.0020, 0.0030, 0.0040, 0.0050, 0.0130};
   /** Generators for the dsc USD curve */
   public static final GeneratorInstrument[] DSC_USD_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
-    GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD};
+      GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD};
   /** Tenors for the dsc USD curve */
   public static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-    Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
+      Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
 
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0045, 0.0045, 0.0045, 0.0045, 0.0060, 0.0070, 0.0080, 0.0160};
   /** Generators for the Fwd 3M USD curve */
   public static final GeneratorInstrument[] FWD3_USD_GENERATORS = new GeneratorInstrument[] {USD6MLIBOR3M, GENERATOR_USDLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M,
-    USD6MLIBOR3M};
+      USD6MLIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD3_USD_TENOR = new Period[] {Period.ofYears(1), Period.ofMonths(0), Period.ofMonths(6), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-    Period.ofYears(10)};
+      Period.ofYears(10)};
 
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD3_USD_MARKET_QUOTES_2 = new double[] {0.0045, 0.0045, 0.0045, 0.0050, 0.0060, 0.0080, 0.0075, 0.0090, 0.0160};
   /** Generators for the Fwd 3M USD curve */
   public static final GeneratorInstrument[] FWD3_USD_GENERATORS_2 = new GeneratorInstrument[] {GENERATOR_USDLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M,
-    USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
+      USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD3_USD_TENOR_2 = new Period[] {Period.ofMonths(0), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-    Period.ofYears(7), Period.ofYears(10)};
+      Period.ofYears(7), Period.ofYears(10)};
 
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD3_USD_MARKET_QUOTES_3 = new double[] {0.0045, 0.0045, 0.0045, 0.0050, 0.0060, 0.0080, 0.0075, 0.0090, 0.0160, 0.0200, 0.0180};
   /** Generators for the Fwd 3M USD curve */
   public static final GeneratorInstrument[] FWD3_USD_GENERATORS_3 = new GeneratorInstrument[] {GENERATOR_USDLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M,
-    USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
+      USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD3_USD_TENOR_3 = new Period[] {Period.ofMonths(0), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-    Period.ofYears(7), Period.ofYears(10), Period.ofYears(15), Period.ofYears(20)};
+      Period.ofYears(7), Period.ofYears(10), Period.ofYears(15), Period.ofYears(20)};
 
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD3_USD_MARKET_QUOTES_4 = new double[] {0.0100, 0.0125, 0.0150, 0.0140, 0.0113, 0.0131, 0.0136, 0.0142, 0.0146, 0.0135};
   /** Generators for the Fwd 3M USD curve */
   public static final GeneratorInstrument[] FWD3_USD_GENERATORS_4 = new GeneratorInstrument[] {GENERATOR_USDLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M,
-    USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
+      USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
   public static final Period[] FWD3_USD_TENOR_4 = new Period[] {Period.ofMonths(0), Period.ofYears(1), Period.ofYears(5), Period.ofYears(10), Period.ofMonths(6), Period.ofYears(2), Period.ofYears(3),
-    Period.ofYears(4), Period.ofYears(7), Period.ofYears(15)};
+      Period.ofYears(4), Period.ofYears(7), Period.ofYears(15)};
 
   /** Market values for the Fwd 6M USD curve */
   public static final double[] FWD6_USD_MARKET_QUOTES = new double[] {0.0065, 0.0055, 0.0080, 0.0170};
@@ -494,10 +494,6 @@ public class MulticurveBuildingDiscountingDiscountUSDSpreadTest {
 
   @SuppressWarnings("unchecked")
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final int unit, final boolean withToday) {
-    int nbDef = 0;
-    for (final InstrumentDefinition<?>[] definition : definitions) {
-      nbDef += definition.length;
-    }
     final InstrumentDerivative[][] instruments = new InstrumentDerivative[definitions.length][];
     for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
       instruments[loopcurve] = new InstrumentDerivative[definitions[loopcurve].length];
