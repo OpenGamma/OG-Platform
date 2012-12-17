@@ -146,12 +146,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     final BlackVolatilitySurface<?> blackVolSurf = (BlackVolatilitySurface<?>) volSurfaceObject;
 
     // d. Forward Curve
-    final ForwardCurve forwardCurve;
-    if (blackVolSurf instanceof BlackVolatilitySurfaceMoneyness) { // Use forwards tied to vols if available
-      forwardCurve = ((BlackVolatilitySurfaceMoneyness) blackVolSurf).getForwardCurve();
-    } else {
-      forwardCurve = new ForwardCurve(spot, discountingCurve.getCurve()); // else build from spot and funding curve
-    }
+    final ForwardCurve forwardCurve = new ForwardCurve(spot, discountingCurve.getCurve()); // TODO: REFACTOR - Better estimates may be taken from Futures. There are numerous cases to consider.
 
     final StaticReplicationDataBundle market = new StaticReplicationDataBundle(blackVolSurf, discountingCurve, forwardCurve);
     return market;
