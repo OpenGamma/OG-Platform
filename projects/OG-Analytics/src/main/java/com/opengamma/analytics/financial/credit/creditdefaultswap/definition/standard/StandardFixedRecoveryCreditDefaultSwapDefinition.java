@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -236,7 +236,7 @@ public class StandardFixedRecoveryCreditDefaultSwapDefinition extends CreditDefa
       return false;
     }
 
-    if (!(obj instanceof StandardCreditDefaultSwapDefinition)) {
+    if (!(obj instanceof StandardVanillaCreditDefaultSwapDefinition)) {
       return false;
     }
 

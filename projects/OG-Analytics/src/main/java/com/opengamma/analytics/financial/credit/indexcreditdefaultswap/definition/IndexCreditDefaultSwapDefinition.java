@@ -9,7 +9,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -159,7 +159,7 @@ public class IndexCreditDefaultSwapDefinition {
   private final double _indexFactor;
 
   // Vector of single name CDS objects (one for each obligor in the underlying pool)
-  private final LegacyCreditDefaultSwapDefinition[] _underlyingCDS;
+  private final LegacyVanillaCreditDefaultSwapDefinition[] _underlyingCDS;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -286,13 +286,13 @@ public class IndexCreditDefaultSwapDefinition {
     final int numberOfObligors = _underlyingPool.getNumberOfObligors();
 
     // Construct a vector of CDS objects
-    _underlyingCDS = new LegacyCreditDefaultSwapDefinition[numberOfObligors];
+    _underlyingCDS = new LegacyVanillaCreditDefaultSwapDefinition[numberOfObligors];
 
     // For each obligor in the underlying pool ...
     for (int i = 0; i < numberOfObligors; i++) {
 
       // ... build a CDS object for obligor i
-      final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
+      final LegacyVanillaCreditDefaultSwapDefinition cds = new LegacyVanillaCreditDefaultSwapDefinition(
           _buySellProtection,                             // Specified in the CDS index contract - applies to all underlying CDS's
           _protectionBuyer,                               // Specified in the CDS index contract
           _protectionSeller,                              // Specified in the CDS index contract
@@ -444,7 +444,7 @@ public class IndexCreditDefaultSwapDefinition {
     return _indexFactor;
   }
 
-  public LegacyCreditDefaultSwapDefinition[] getUnderlyingCDS() {
+  public LegacyVanillaCreditDefaultSwapDefinition[] getUnderlyingCDS() {
     return _underlyingCDS;
   }
 

@@ -15,12 +15,12 @@ import com.opengamma.util.time.DateUtils;
  */
 public class IMMDates {
 
-  // ------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Remove the previous December date (not needed because we always adjust to the following IMM date)
   // TODO : Eventually will replace this with methods based on the DateAdjuster class
 
-  // ------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Private (final) member variables
 
@@ -31,7 +31,7 @@ public class IMMDates {
   private final ZonedDateTime _immDateDecember;
   private final ZonedDateTime _immDateNextMarch;
 
-  // ------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Public IMM Date object constructor
 
@@ -43,10 +43,9 @@ public class IMMDates {
     _immDateSeptember = DateUtils.getUTCDate(year, 9, 20);
     _immDateDecember = DateUtils.getUTCDate(year, 12, 20);
     _immDateNextMarch = DateUtils.getUTCDate(year + 1, 3, 20);
-
   }
 
-  // ------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Member variable accessor functions (all public)
 
@@ -74,5 +73,5 @@ public class IMMDates {
     return _immDateNextMarch;
   }
 
-  // ------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

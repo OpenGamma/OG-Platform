@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.credit.creditdefaultswapoption.pricing
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CDSOptionKnockoutType;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.definition.CDSOptionType;
@@ -29,8 +28,9 @@ public class PresentValueCreditDefaultSwapOption {
   // TODO : Need to sort out the calculation of the risky dV01
   // TODO : Need to sort out the calculation of the forward starting spread
   // TODO : Need to check through this model in detail
-  // TODO : Sort out if we need the 'PriceType' field
   // TODO : Need to add error checking for d1 and d2 calculations
+
+  // NOTE : Have not included the PriceType field for the CDS - assume this is entered as part of the underlying CDS contract definition
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -41,8 +41,7 @@ public class PresentValueCreditDefaultSwapOption {
       final CreditDefaultSwapOptionDefinition cdsSwaption,
       final double sigma,
       final ISDACurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final PriceType priceType) {
+      final HazardRateCurve hazardRateCurve) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -52,7 +51,6 @@ public class PresentValueCreditDefaultSwapOption {
     ArgumentChecker.notNull(cdsSwaption, "LegacyCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
     ArgumentChecker.notNull(hazardRateCurve, "HazardRateCurve");
-    ArgumentChecker.notNull(priceType, "price type");
 
     ArgumentChecker.notNegative(sigma, "sigma");
 
@@ -67,36 +65,43 @@ public class PresentValueCreditDefaultSwapOption {
 
     double optionStrike = cdsSwaption.getOptionStrike();
 
-    // Calculate the option expiry time
+    // Calculate the remaining time to option expiry (cannot be negative since this would be detected at the time of swaption construction)
     final double optionExpiryTime = TimeCalculator.getTimeBetween(valuationDate, cdsSwaption.getOptionExerciseDate());
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Calculate the risky dV01 
-    final double dV01 = calculateRiskydV01(valuationDate, cdsSwaption, yieldCurve, hazardRateCurve);
+    // If we are not exactly at the option expiry time ...
 
-    // Calculate the forward spread
-    final double forwardSpread = calculateForwardSpread(valuationDate, cdsSwaption, yieldCurve, hazardRateCurve);
+    if (Double.doubleToLongBits(optionExpiryTime) != 0) {
 
-    // ----------------------------------------------------------------------------------------------------------------------------------------
+      // ... the option still has some value (and the calculation shouldn't fall over)
 
-    final double d1 = (Math.log(forwardSpread / optionStrike) + 0.5 * sigma * sigma * optionExpiryTime) / (sigma * Math.sqrt(optionExpiryTime));
-    final double d2 = (Math.log(forwardSpread / optionStrike) - 0.5 * sigma * sigma * optionExpiryTime) / (sigma * Math.sqrt(optionExpiryTime));
+      // Calculate the risky dV01 
+      final double riskydV01 = calculateRiskydV01(valuationDate, cdsSwaption, yieldCurve, hazardRateCurve);
 
-    // ----------------------------------------------------------------------------------------------------------------------------------------
+      // Calculate the forward spread
+      final double forwardSpread = calculateForwardSpread(valuationDate, cdsSwaption, yieldCurve, hazardRateCurve);
 
-    // Calculate the value of the CDS swaption
+      // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    if (cdsSwaption.getOptionType() == CDSOptionType.PAYER) {
-      presentValue = dV01 * (forwardSpread * normal.getCDF(d1) - optionStrike * normal.getCDF(d2));
-    }
+      final double d1 = (Math.log(forwardSpread / optionStrike) + 0.5 * sigma * sigma * optionExpiryTime) / (sigma * Math.sqrt(optionExpiryTime));
+      final double d2 = (Math.log(forwardSpread / optionStrike) - 0.5 * sigma * sigma * optionExpiryTime) / (sigma * Math.sqrt(optionExpiryTime));
 
-    if (cdsSwaption.getOptionType() == CDSOptionType.RECEIVER) {
-      presentValue = dV01 * (optionStrike * normal.getCDF(-d2) - forwardSpread * normal.getCDF(-d1));
-    }
+      // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    if (cdsSwaption.getOptionKnockoutType() == CDSOptionKnockoutType.NONKNOCKOUT) {
-      frontendProtection = calculateFrontendProtection(valuationDate, cdsSwaption, yieldCurve, hazardRateCurve);
+      // Calculate the value of the CDS swaption
+
+      if (cdsSwaption.getOptionType() == CDSOptionType.PAYER) {
+        presentValue = riskydV01 * (forwardSpread * normal.getCDF(d1) - optionStrike * normal.getCDF(d2));
+      }
+
+      if (cdsSwaption.getOptionType() == CDSOptionType.RECEIVER) {
+        presentValue = riskydV01 * (optionStrike * normal.getCDF(-d2) - forwardSpread * normal.getCDF(-d1));
+      }
+
+      if (cdsSwaption.getOptionKnockoutType() == CDSOptionKnockoutType.NONKNOCKOUT) {
+        frontendProtection = calculateFrontendProtection(valuationDate, cdsSwaption, yieldCurve, hazardRateCurve);
+      }
     }
 
     return cdsSwaption.getNotional() * (presentValue + frontendProtection);

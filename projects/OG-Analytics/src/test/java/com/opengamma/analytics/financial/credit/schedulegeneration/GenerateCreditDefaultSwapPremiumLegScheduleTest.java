@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
@@ -181,7 +181,7 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   // Construct a CDS contract
-  private static final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
+  private static final LegacyVanillaCreditDefaultSwapDefinition cds = new LegacyVanillaCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
       protectionSeller,

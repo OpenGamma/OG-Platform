@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswapoption.greeks;
 
 /**
- * 
+ * Class containing methods for the computation of Gamma for a CDS option (parallel and bucketed bumps) 
  */
 public class GammaCreditDefaultSwapOption {
 
