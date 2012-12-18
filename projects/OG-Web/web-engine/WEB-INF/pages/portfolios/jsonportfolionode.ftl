@@ -20,7 +20,7 @@
     },
     "portfolios": [
       <#list childNodes as item>
-      {"name": "${item.name}", "id": "${item.uniqueId.objectId}", "nodeCount": ${item.childNodes?size}}<#if item_has_next>,</#if>
+      {"name": "${item.name}", "id": "${item.uniqueId.objectId}", "nodeCount": ${item.childNodes?size}, "positionCount": ${item.positionIds?size}}<#if item_has_next>,</#if>
     </#list>
     ],
     "positions": [

@@ -11,7 +11,7 @@ $.register_module({
             return list.map(function (val) {
                 return {
                     portfolio: portfolio, node: val.id, name: val.name,
-                    state: val.nodeCount ? ' expand' : '', indent: indent, prefix: rep(indent)
+                    state: val.nodeCount + val.positionCount ? ' expand' : '', indent: indent, prefix: rep(indent)
                 };
             });
         };
@@ -39,7 +39,7 @@ $.register_module({
                         var split = val.split('|');
                         return {
                             portfolio: split[0], node: split[1], name: split[2],
-                            state: +split.pop() ? ' expand' : '', indent: 0
+                            state: +split.pop() + +split.pop() ? ' expand' : '', indent: 0
                         };
                     }) : get_folders(result.data.portfolios, portfolio, 0),
                     files = result.data.data ? [] : get_files(result.data.positions, portfolio, 0);

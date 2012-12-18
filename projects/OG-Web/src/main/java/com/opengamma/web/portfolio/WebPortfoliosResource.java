@@ -109,7 +109,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     searchRequest.setSortOrder(sort);
     searchRequest.setName(StringUtils.trimToNull(name));
     searchRequest.setDepth(1);  // see PLAT-1733, also, depth is set to 1 for knowing # of childNodes for UI tree
-    searchRequest.setIncludePositions(false);  // see PLAT-2012
+    searchRequest.setIncludePositions(true);  // initially false because of PLAT-2012, now true for portfolio tree
     if (BooleanUtils.isTrue(includeHidden)) {
       searchRequest.setVisibility(DocumentVisibility.HIDDEN);
     }
