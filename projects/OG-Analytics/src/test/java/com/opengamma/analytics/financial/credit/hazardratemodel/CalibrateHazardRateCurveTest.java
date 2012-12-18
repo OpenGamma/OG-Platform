@@ -16,14 +16,14 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandardAndPoors;
-import com.opengamma.analytics.financial.credit.obligormodel.Region;
-import com.opengamma.analytics.financial.credit.obligormodel.Sector;
-import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.obligor.CreditRating;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingStandardAndPoors;
+import com.opengamma.analytics.financial.credit.obligor.Region;
+import com.opengamma.analytics.financial.credit.obligor.Sector;
+import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -326,7 +326,7 @@ public class CalibrateHazardRateCurveTest {
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
   // Construct a CDS contract
-  private static final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
+  private static final LegacyVanillaCreditDefaultSwapDefinition cds = new LegacyVanillaCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
       protectionSeller,
@@ -377,7 +377,7 @@ public class CalibrateHazardRateCurveTest {
     tenors[0] = DateUtils.getUTCDate(2013, 6, 20);
     marketSpreads[0] = flatSpread;
 
-    LegacyCreditDefaultSwapDefinition calibrationCDS = cds;
+    LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
     calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
 
     final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
@@ -474,7 +474,7 @@ public class CalibrateHazardRateCurveTest {
     // -------------------------------------------------------------------------------------
 
     // Create a calibration CDS (will be a modified version of the baseline CDS)
-    LegacyCreditDefaultSwapDefinition calibrationCDS = cds;
+    LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
 
     // Set the recovery rate of the calibration CDS used for the curve calibration (this appears in the calculation of the contingent leg)
     calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);

@@ -7,7 +7,13 @@ package com.opengamma.analytics.financial.credit.obligormodel;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.obligor.CreditRating;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingStandardAndPoors;
+import com.opengamma.analytics.financial.credit.obligor.Region;
+import com.opengamma.analytics.financial.credit.obligor.Sector;
+import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 
 /**
  * Class to test the implementation of the obligor class 

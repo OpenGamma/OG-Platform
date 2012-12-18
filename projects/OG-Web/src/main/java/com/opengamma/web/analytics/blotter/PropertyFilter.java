@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class PropertyFilter<T> implements BeanVisitorDecorator<T> {
+/* package */ class PropertyFilter implements BeanVisitorDecorator {
 
   private final Set<MetaProperty<?>> _properties;
 
@@ -27,8 +27,8 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public BeanVisitor<T> decorate(final BeanVisitor<T> visitor) {
-    return new BeanVisitor<T>() {
+  public BeanVisitor<?> decorate(final BeanVisitor<?> visitor) {
+    return new BeanVisitor<Object>() {
       public void visitBean(MetaBean metaBean) {
         visitor.visitBean(metaBean);
       }
@@ -69,7 +69,7 @@ import com.opengamma.util.ArgumentChecker;
         }
       }
 
-      public T finish() {
+      public Object finish() {
         return visitor.finish();
       }
     };

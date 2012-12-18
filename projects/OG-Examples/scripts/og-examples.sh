@@ -24,7 +24,12 @@ BASEDIR="$(dirname "$(dirname "$(canonicalize "$0")")")"
 SCRIPTDIR=${BASEDIR}/scripts
 cd "${BASEDIR}" || exit 1
 
-. ${SCRIPTDIR}/project-utils.sh
+# . ${SCRIPTDIR}/project-utils.sh
+# hardcode the project name for now :(
+# the installer combines multiple projects in the same dir
+# so project-utils.sh gets overwritten
+PROJECT=og-examples
+PROJECTJAR=${PROJECT}.jar
 . ${SCRIPTDIR}/java-utils.sh
 . ${SCRIPTDIR}/componentserver-init-utils.sh
 

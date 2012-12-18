@@ -25,7 +25,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.hazardratemodel.CalibrateHazardRateCurve;
 import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.core.holiday.HolidaySource;
@@ -97,7 +97,7 @@ public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
         final ISDACurve yieldCurve = (ISDACurve) yieldCurveObject;
         final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
         final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
-        final LegacyCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
+        final LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
         final String nIterationsName = desiredValue.getConstraint(PROPERTY_HAZARD_RATE_CURVE_N_ITERATIONS);

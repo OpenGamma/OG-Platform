@@ -27,22 +27,22 @@ Running the server
 ------------------
 To do the initial database setup, you should run:
 
-  scripts/init-example-db.sh 
+  scripts/init-og-bloombergexample-db.sh
 
 on Linux and MacOS X, and 
 
-  scripts\init-example-db.bat 
+  scripts\init-og-bloombergexample-db.bat
 
 on Windows.  You only need to do this the first time you run the server, or if you want to reset the databases
 to the original configurations.
 
 To start the server itself, you should run:
 
-  scripts/start-jetty.sh
+  scripts/og-bloombergexample.sh
 
 on Linux and MacOS X or
 
-  scripts\start-jetty.bat
+  scripts\og-bloombergexample.bat
 
 on Windows.  This particular script sends debugging output to the console.  It is normal to see some Exceptions
 thrown when starting a view in this mode.

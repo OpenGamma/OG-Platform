@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
@@ -24,7 +24,6 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
@@ -55,7 +54,6 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -64,11 +62,18 @@ import com.opengamma.util.money.Currency;
  * Base class for a range of functions computing values on an IRFuturesOption using the Black Model
  */
 public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackFunction.class);
+  /** The name of the value that will be calculated */
   private final String _valueRequirementName;
+  /** Converts a {@link Trade} to an {@link InstrumentDefinition} */
   private InterestRateFutureOptionTradeConverter _converter;
+  /** Converts an {@link InstrumentDefinition} to an {@link InstrumentDerivative} */
   private FixedIncomeConverterDataProvider _dataConverter;
 
+  /**
+   * @param valueRequirementName The value requirement name, not null
+   */
   public InterestRateFutureOptionBlackFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
@@ -95,7 +100,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String surfaceNameWithPrefix = surfaceName + "_" + getFutureOptionPrefix(target); // Done to enable standard and midcurve options to share the same default name
+    final String surfaceNameWithPrefix = surfaceName + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target); // Done to enable standard and midcurve options to share the same default name
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
@@ -152,7 +157,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
       return null;
     }
-    final String surfaceName = surfaceNames.iterator().next() + "_" + getFutureOptionPrefix(target);
+    final String surfaceName = surfaceNames.iterator().next() + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
@@ -177,6 +182,13 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     return requirements;
   }
 
+  /**
+   * Calculates the result
+   * @param irFutureOption The IR future option
+   * @param data The data used in pricing
+   * @param spec The value specification of the result
+   * @return The result
+   */
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec);
 
   private ValueProperties getResultProperties(final String currency) {
@@ -200,19 +212,6 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
         .with(ValuePropertyNames.SURFACE, surface)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
-  }
-
-  /* The volatility surface name is constructed from the given name and the futureOption prefix
-      TODO REFACTOR LOGIC to permit other schemes and future options */
-  public static String getFutureOptionPrefix(final ComputationTarget target) {
-
-    final ExternalIdBundle secId = target.getTrade().getSecurity().getExternalIdBundle();
-    final String ticker = secId.getValue(ExternalSchemes.BLOOMBERG_TICKER);
-    if (ticker != null) {
-      final String prefix = ticker.substring(0, 2);
-      return prefix;
-    }
-    throw new OpenGammaRuntimeException("Could not determine whether option was Standard (OPT) or MidCurve (MIDCURVE).");
   }
 
 }

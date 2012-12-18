@@ -36,5 +36,9 @@ public enum DebtSeniority {
   /**
    * Subordinated or Lower Tier 2 Debt (Banks) - MarkIt notation
    */
-  SUBLT2;
+  SUBLT2,
+  /**
+   * 
+   */
+  NONE;
 }

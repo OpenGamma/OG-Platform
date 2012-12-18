@@ -65,6 +65,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
    */
   public static final String YCNS_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
   private static final CharSequence SWAP_TEXT = "SWAP";
+  private static final CharSequence BOND_TEXT = "BOND";
   private HistoricalTimeSeriesResolver _htsResolver;
 
   @Override
@@ -209,16 +210,34 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     final double[] entries = new double[curveSpec.getStrips().size()];
     int i = 0;
     for (final FixedIncomeStripWithSecurity strip : curveSpec.getStrips()) {
-      final FactorExposureData externalSensitivitiesData = searchForTenorMatch(decodedSensitivities, strip);
-      if (externalSensitivitiesData != null) {
-        final ComputedValue computedValue = inputs.getComputedValue(getSensitivityRequirement(externalSensitivitiesData.getExposureExternalId()));
+      final FactorExposureData swapExternalSensitivitiesData = searchForSwapTenorMatch(decodedSensitivities, strip);
+      if (swapExternalSensitivitiesData != null) {
+        final ComputedValue computedValue = inputs.getComputedValue(getSensitivityRequirement(swapExternalSensitivitiesData.getExposureExternalId()));
         if (computedValue != null) {
           final ManageableHistoricalTimeSeries mhts = (ManageableHistoricalTimeSeries) computedValue.getValue(); 
           final Double value = (Double) mhts.getTimeSeries().getLatestValue();
           entries[i] = -value; //* (qty.doubleValue() ); // we invert here because OpenGamma uses -1bp shift rather than +1.  DV01 function will invert back.
         } else {
-          s_logger.warn("Value was null when getting required input data " + externalSensitivitiesData.getExposureExternalId());
+          s_logger.warn("Value was null when getting required input data " + swapExternalSensitivitiesData.getExposureExternalId());
           entries[i] = 0d;
+        }
+      } else {
+        entries[i] = 0d;
+      }
+      i++;
+    }
+    // Quick hack to map in bond data.
+    i = 0;
+    for (final FixedIncomeStripWithSecurity strip : curveSpec.getStrips()) {
+      final FactorExposureData bondExternalSensitivitiesData = searchForBondTenorMatch(decodedSensitivities, strip);
+      if (bondExternalSensitivitiesData != null) {
+        final ComputedValue computedValue = inputs.getComputedValue(getSensitivityRequirement(bondExternalSensitivitiesData.getExposureExternalId()));
+        if (computedValue != null) {
+          final ManageableHistoricalTimeSeries mhts = (ManageableHistoricalTimeSeries) computedValue.getValue(); 
+          final Double value = (Double) mhts.getTimeSeries().getLatestValue();
+          entries[i] -= value; //* (qty.doubleValue() ); // we invert here because OpenGamma uses -1bp shift rather than +1.  DV01 function will invert back.
+        } else {
+          s_logger.warn("Value was null when getting required input data " + bondExternalSensitivitiesData.getExposureExternalId());
         }
       } else {
         entries[i] = 0d;
@@ -228,9 +247,23 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     return new DoubleMatrix1D(entries);
   }
 
-  private FactorExposureData searchForTenorMatch(final Collection<FactorExposureData> exposures, final FixedIncomeStripWithSecurity strip) {
+  private FactorExposureData searchForSwapTenorMatch(final Collection<FactorExposureData> exposures, final FixedIncomeStripWithSecurity strip) {
     for (final FactorExposureData exposure : exposures) {
       if (exposure.getFactorType().equals(FactorType.YIELD) && exposure.getFactorName().contains(SWAP_TEXT)) {
+        if (exposure.getNode() != null && exposure.getNode().length() > 0) {
+          final Period nodePeriod = Period.parse("P" + exposure.getNode());
+          if (strip.getTenor().getPeriod().totalMonths() == nodePeriod.totalMonths()) {
+            return exposure;
+          }
+        }
+      }
+    }
+    return null;
+  }
+  
+  private FactorExposureData searchForBondTenorMatch(final Collection<FactorExposureData> exposures, final FixedIncomeStripWithSecurity strip) {
+    for (final FactorExposureData exposure : exposures) {
+      if (exposure.getFactorType().equals(FactorType.YIELD) && exposure.getFactorName().contains(BOND_TEXT)) {
         if (exposure.getNode() != null && exposure.getNode().length() > 0) {
           final Period nodePeriod = Period.parse("P" + exposure.getNode());
           if (strip.getTenor().getPeriod().totalMonths() == nodePeriod.totalMonths()) {

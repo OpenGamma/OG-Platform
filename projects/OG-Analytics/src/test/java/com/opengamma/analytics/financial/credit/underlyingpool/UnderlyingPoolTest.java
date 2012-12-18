@@ -11,7 +11,7 @@ import com.opengamma.analytics.financial.credit.CreditSpreadTenors;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
 import com.opengamma.util.money.Currency;
 

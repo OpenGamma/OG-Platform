@@ -10,9 +10,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 
@@ -21,35 +20,50 @@ import com.opengamma.util.tuple.FirstThenSecondPairComparator;
  */
 public class GridInterpolator2D extends Interpolator2D {
   //TODO this is really inefficient - needs to be changed in a similar way to 1D interpolation
+  /** The x interpolator */
   private final Interpolator1D _xInterpolator;
+  /** The y interpolator */
   private final Interpolator1D _yInterpolator;
+  /** The comparator */
   private final FirstThenSecondPairComparator<Double, Double> _comparator;
 
+  /**
+   * @param xInterpolator The x interpolator, not null
+   * @param yInterpolator The y interpolator, not null
+   */
   public GridInterpolator2D(final Interpolator1D xInterpolator, final Interpolator1D yInterpolator) {
-    Validate.notNull(xInterpolator);
-    Validate.notNull(yInterpolator);
+    ArgumentChecker.notNull(xInterpolator, "x interpolator");
+    ArgumentChecker.notNull(yInterpolator, "y interpolator");
     _xInterpolator = xInterpolator;
     _yInterpolator = yInterpolator;
     _comparator = FirstThenSecondPairComparator.INSTANCE_DOUBLES;
   }
 
+  /**
+   * @param xInterpolator The x interpolator, not null
+   * @param yInterpolator The y interpolator, not null
+   * @param xExtrapolator The x extrapolator, not null
+   * @param yExtrapolator The y extrapolator, not null
+   */
   public GridInterpolator2D(final Interpolator1D xInterpolator, final Interpolator1D yInterpolator, final Interpolator1D xExtrapolator, final Interpolator1D yExtrapolator) {
-    Validate.notNull(xInterpolator);
-    Validate.notNull(yInterpolator);
+    ArgumentChecker.notNull(xInterpolator, "x interpolator");
+    ArgumentChecker.notNull(yInterpolator, "y interpolator");
+    ArgumentChecker.notNull(xExtrapolator, "x extrapolator");
+    ArgumentChecker.notNull(yExtrapolator, "y extrapolator");    
     _xInterpolator = new CombinedInterpolatorExtrapolator(xInterpolator, xExtrapolator);
     _yInterpolator = new CombinedInterpolatorExtrapolator(yInterpolator, yExtrapolator);
     _comparator = FirstThenSecondPairComparator.INSTANCE_DOUBLES;
   }
 
   public Map<Double, Interpolator1DDataBundle> getDataBundle(final Map<DoublesPair, Double> data) {
-    Validate.notNull(data, "data");
+    ArgumentChecker.notNull(data, "data");
     return testData(data);
   }
 
   @Override
   public Double interpolate(final Map<Double, Interpolator1DDataBundle> dataBundle, final DoublesPair value) {
-    Validate.notNull(value);
-    Validate.notNull(dataBundle, "data bundle");
+    ArgumentChecker.notNull(value, "value");
+    ArgumentChecker.notNull(dataBundle, "data bundle");
     final Map<Double, Double> xData = new HashMap<Double, Double>();
     for (final Map.Entry<Double, Interpolator1DDataBundle> entry : dataBundle.entrySet()) {
       xData.put(entry.getKey(), _yInterpolator.interpolate(entry.getValue(), value.getSecond()));
@@ -59,8 +73,8 @@ public class GridInterpolator2D extends Interpolator2D {
 
   @Override
   public Map<DoublesPair, Double> getNodeSensitivitiesForValue(final Map<Double, Interpolator1DDataBundle> dataBundle, final DoublesPair value) {
-    Validate.notNull(value);
-    Validate.notNull(dataBundle, "data bundle");
+    ArgumentChecker.notNull(value, "value");
+    ArgumentChecker.notNull(dataBundle, "data bundle");
     final Map<Double, Double> xData = new HashMap<Double, Double>();
     double[][] temp = new double[dataBundle.size()][];
     int i = 0;
@@ -71,7 +85,7 @@ public class GridInterpolator2D extends Interpolator2D {
     }
     //this is the sensitivity of the point to the points projected onto y columns 
     double[] xSense = _xInterpolator.getNodeSensitivitiesForValue(_xInterpolator.getDataBundle(xData), value.getKey());
-    Validate.isTrue(xSense.length == dataBundle.size());
+    ArgumentChecker.isTrue(xSense.length == dataBundle.size(), "Number of x sensitivities {} must be equal to the data bundle size {}", xSense.length, dataBundle.size());
     Map<DoublesPair, Double> res = new HashMap<DoublesPair, Double>();
 
     double sense;

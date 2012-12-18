@@ -21,7 +21,7 @@ import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationFunctionDeprecated;
-import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -110,7 +110,7 @@ public class SABRRightExtrapolationVegaDefaultsDeprecated extends DefaultPropert
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, ValuePropertyNames.CUBE);
-    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
+    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, SmileFittingProperties.PROPERTY_FITTING_METHOD);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, SABRRightExtrapolationFunctionDeprecated.PROPERTY_CUTOFF_STRIKE);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, SABRRightExtrapolationFunctionDeprecated.PROPERTY_TAIL_THICKNESS_PARAMETER);
@@ -133,7 +133,7 @@ public class SABRRightExtrapolationVegaDefaultsDeprecated extends DefaultPropert
     if (ValuePropertyNames.CUBE.equals(propertyName)) {
       return Collections.singleton(_cubeName);
     }
-    if (VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD.equals(propertyName)) {
+    if (SmileFittingProperties.PROPERTY_FITTING_METHOD.equals(propertyName)) {
       return Collections.singleton(_fittingMethod);
     }
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {

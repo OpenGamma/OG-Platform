@@ -269,6 +269,10 @@ import com.opengamma.financial.analytics.model.horizon.FXOptionBlackYieldCurvesF
 import com.opengamma.financial.analytics.model.horizon.InterestRateFutureOptionConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.horizon.SwaptionBlackThetaDefaults;
 import com.opengamma.financial.analytics.model.horizon.SwaptionConstantSpreadThetaFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRDefaults;
+import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRPresentValueFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRYCNSFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackDefaults;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackGammaFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackImpliedVolatilityFunction;
@@ -277,12 +281,9 @@ import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFuture
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackPriceFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackVolatilitySensitivityFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionDefaultValuesFunctionDeprecated;
+import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionHestonDefaults;
+import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionHestonPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionMarketUnderlyingPriceFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionSABRPresentValueFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionSABRSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionSABRVegaFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionSABRYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.MarginPriceFunction;
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
 import com.opengamma.financial.analytics.model.option.BlackScholesMertonModelFunction;
@@ -353,7 +354,7 @@ import com.opengamma.financial.analytics.model.var.NormalPortfolioHistoricalVaRD
 import com.opengamma.financial.analytics.model.var.NormalPortfolioHistoricalVaRFunction;
 import com.opengamma.financial.analytics.model.var.NormalPositionHistoricalVaRDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.var.NormalPositionHistoricalVaRFunction;
-import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults;
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
 import com.opengamma.financial.analytics.model.volatility.local.EquityDupireLocalVolatilitySurfaceFunction;
@@ -365,6 +366,7 @@ import com.opengamma.financial.analytics.model.volatility.local.defaultpropertie
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceSecurityDefaults;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceTradeDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.model.volatility.surface.HestonFourierIRFutureSurfaceFittingFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceMixedLogNormalInterpolatorFunction;
@@ -590,6 +592,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(DefaultHistoricalTimeSeriesShiftFunction.class));
     functionConfigs.add(functionConfiguration(CurrencyPairsFunction.class));
     functionConfigs.add(functionConfiguration(CurrencyPairsDefaults.class, CurrencyPairs.DEFAULT_CURRENCY_PAIRS));
+    functionConfigs.add(functionConfiguration(MarginPriceFunction.class));
   }
 
   public static RepositoryConfiguration constructRepositoryConfiguration() {
@@ -1142,19 +1145,32 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
 
   private static void addInterestRateFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRVegaFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionDefaultValuesFunctionDeprecated.class, "FUTURES", "FUNDING", "DEFAULT", "PresentValue", "USD",
-        "EUR"));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackVolatilitySensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackImpliedVolatilityFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPV01Function.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackGammaFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionConstantSpreadThetaFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, PriorityClass.NORMAL.name(), 
+        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE"));
+    functionConfigs.add(functionConfiguration(IRFutureOptionSABRPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(IRFutureOptionSABRSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(IRFutureOptionSABRYCNSFunction.class));
+    functionConfigs.add(functionConfiguration(IRFutureOptionSABRDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
+        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
+        "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES));    
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction.class));
-    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction.class, "DEFAULT"));
+    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
+        LINEAR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "false", "true", "false", "false", 
+        "0.05", "1.0", "0.07", "0.0", "0.001"));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionMarketUnderlyingPriceFunction.class));
-    //functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class, "USD", "DEFAULT"));
-    //functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
+    functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonDefaults.class,
+        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE",
+        "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_PRICE"));
   }
 
   private static void addBondFutureOptionBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -1170,12 +1186,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addCommodityFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
-//    functionConfigs.add(functionConfiguration(FutureOptionBlackPresentValueFunction.class));
-//    functionConfigs.add(functionConfiguration(FutureOptionBlackDefaultPropertiesFunction.class, PriorityClass.NORMAL.name(), "BBG", "Spline",
-//        "USD", "DefaultTwoCurveUSDConfig", "Discounting",
-//        "EUR", "DefaultTwoCurveEURConfig", "Discounting",
-//        "JPY", "DefaultTwoCurveJPYConfig", "Discounting",
-//        "GBP", "DefaultTwoCurveGBPConfig", "Discounting"));
     functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackDeltaFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackForwardDeltaFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackForwardGammaFunction.class.getName()));
@@ -1461,25 +1471,25 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaFunction.class));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationYCNSFunction.class));
     functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, PriorityClass.BELOW_NORMAL.name(),
-        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES,
+        SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
         "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG",
         "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG",
         "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG",
         "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, PriorityClass.BELOW_NORMAL.name(),
-        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, "0.07", "10.0",
+        SmileFittingProperties.NON_LINEAR_LEAST_SQUARES, "0.07", "10.0",
         "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG",
         "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG",
         "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG",
         "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, PriorityClass.BELOW_NORMAL.name(),
-        VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR,
+        SmileFittingProperties.NON_LINEAR_LEAST_SQUARES, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR,
         "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG",
         "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG",
         "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG",
         "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
     functionConfigs
-        .add(functionConfiguration(SABRRightExtrapolationVegaDefaults.class, PriorityClass.BELOW_NORMAL.name(), VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES,
+        .add(functionConfiguration(SABRRightExtrapolationVegaDefaults.class, PriorityClass.BELOW_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
             "0.07", "10.0", LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR,
             "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG",
             "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG",
@@ -1488,17 +1498,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackVolatilitySensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackImpliedVolatilityFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPV01Function.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackGammaFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionConstantSpreadThetaFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, PriorityClass.NORMAL.name(), 
-        "USD", "DefaultTwoCurveUSDConfig", "BBG"));
-    functionConfigs.add(functionConfiguration(MarginPriceFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackVolatilitySensitivityFunction.class));
     functionConfigs.add(functionConfiguration(SwaptionBlackPV01Function.class));

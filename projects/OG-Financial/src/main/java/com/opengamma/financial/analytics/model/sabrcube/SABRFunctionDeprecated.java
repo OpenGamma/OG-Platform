@@ -41,7 +41,7 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -147,7 +147,7 @@ public abstract class SABRFunctionDeprecated extends AbstractFunction.NonCompile
     if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
       return null;
     }
-    final Set<String> fittingMethods = constraints.getValues(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
+    final Set<String> fittingMethods = constraints.getValues(SmileFittingProperties.PROPERTY_FITTING_METHOD);
     if (fittingMethods == null || fittingMethods.size() != 1) {
       return null;
     }
@@ -184,8 +184,8 @@ public abstract class SABRFunctionDeprecated extends AbstractFunction.NonCompile
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CUBE, cubeName)
         .with(ValuePropertyNames.CURRENCY, Currency.USD.getCode()) // TODO should be 'currency.getCode()' when non-USD currencies supported
-        .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
-        .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, fittingMethod).get();
+        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, Currency.USD, properties); // TODO should be 'currency' when non-USD currencies supported
   }
 

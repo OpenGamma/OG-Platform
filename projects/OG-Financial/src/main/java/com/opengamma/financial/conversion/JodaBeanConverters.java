@@ -56,6 +56,10 @@ public final class JodaBeanConverters {
    */
   private static final JodaBeanConverters INSTANCE = new JodaBeanConverters();
 
+  // TODO map of MetaProperties to converters for fields that cant rely on the default conversion e.g.
+  // dates that are stored with time info and need the times setting to default values
+  // ZonedDateTime needs a default zone, based on OpenGammaClock.getTimeZone(), only for certain properties
+
   private JodaBeanConverters() {
     StringConvert stringConvert = JodaBeanUtils.stringConverter();
     stringConvert.register(Frequency.class, new FrequencyConverter());

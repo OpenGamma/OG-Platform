@@ -37,9 +37,13 @@ import com.opengamma.util.ArgumentChecker;
  * </ul>
  */
 public final class EquityVarianceSwapPricer {
+  /** Prices using static replication */
   private static final EquityVarianceSwapStaticReplication VAR_SWAP_CALCULATOR = new EquityVarianceSwapStaticReplication();
+  /** Prices using a forward PDE */
   private static final EquityVarianceSwapForwardPurePDE VAR_SWAP_FWD_PDE_CALCULATOR = new EquityVarianceSwapForwardPurePDE();
+  /** Prices using a backwards PDE */
   private static final EquityVarianceSwapBackwardsPurePDE VAR_SWAP_BKW_PDE_CALCULATOR = new EquityVarianceSwapBackwardsPurePDE();
+  /** The smile interpolator to use */
   private final VolatilitySurfaceInterpolator _surfaceInterpolator;
 
   /**
@@ -54,66 +58,96 @@ public final class EquityVarianceSwapPricer {
    * <li> Use log value = true
    * </ul>
    */
-  public static class Builder {
+  public static final class Builder {
+    /** The smile interpolator to use */
     private GeneralSmileInterpolator _smileInterpolator;
+    /** The time interpolator to use */
     private Interpolator1D _timeInterpolator;
+    /** Use log time */
     private boolean _useLogTime;
+    /** Use integrated variance */
     private boolean _useIntegratedVariance;
+    /** Use log value */
     private boolean _useLogValue;
 
-    public Builder() {
-      _smileInterpolator = new SmileInterpolatorSpline();
-      _timeInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-      _useLogTime = true;
-      _useIntegratedVariance = true;
-      _useLogValue = true;
+    /* package */ Builder() {
+      this(new SmileInterpolatorSpline(), CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR),
+          true, true, true);
     }
-
-    public Builder smileInterpolator(final GeneralSmileInterpolator smileInterpolator) {
+    
+    /* package */ Builder(GeneralSmileInterpolator smileInterpolator, Interpolator1D timeInterpolator, boolean useLogTime, boolean useIntegratedVariance, boolean useLogValue) {
+      ArgumentChecker.notNull(smileInterpolator, "smile interpolator");
+      ArgumentChecker.notNull(timeInterpolator, "time interpolator");
       _smileInterpolator = smileInterpolator;
-      return this;
-    }
-
-    public Builder timeInterpolator(final Interpolator1D timeInterpolator) {
       _timeInterpolator = timeInterpolator;
-      return this;
-    }
-
-    public Builder useLogTime(final boolean useLogTime) {
       _useLogTime = useLogTime;
-      return this;
-    }
-
-    public Builder useIntegratedVariance(final boolean useIntegratedVariance) {
       _useIntegratedVariance = useIntegratedVariance;
-      return this;
-    }
-
-    public Builder useLogValue(final boolean useLogValue) {
       _useLogValue = useLogValue;
-      return this;
     }
 
-    GeneralSmileInterpolator getSmileInterpolator() {
+    /**
+     * @param smileInterpolator The smile interpolator, not null
+     * @return a new Builder with this smile interpolator
+     */
+    public Builder withSmileInterpolator(final GeneralSmileInterpolator smileInterpolator) {
+      return new Builder(smileInterpolator, _timeInterpolator, _useLogTime, _useIntegratedVariance, _useLogValue);
+    }
+
+    /**
+     * @param timeInterpolator The time interpolator, not null
+     * @return a new Builder with this time interpolator
+     */
+    public Builder timeInterpolator(final Interpolator1D timeInterpolator) {
+      return new Builder(_smileInterpolator, timeInterpolator, _useLogTime, _useIntegratedVariance, _useLogValue);
+    }
+
+    /**
+     * @param useLogTime true if log time is to be used
+     * @return a new Builder with the log time parameter set to true
+     */
+    public Builder useLogTime(final boolean useLogTime) {
+      return new Builder(_smileInterpolator, _timeInterpolator, useLogTime, _useIntegratedVariance, _useLogValue);
+    }
+
+    /**
+     * @param useIntegratedVariance true if integrated variance is to be used
+     * @return a new Builder with the integrated variance parameter set to true
+     */
+    public Builder useIntegratedVariance(final boolean useIntegratedVariance) {
+      return new Builder(_smileInterpolator, _timeInterpolator, _useLogTime, useIntegratedVariance, _useLogValue);
+    }
+
+    /**
+     * @param useLogValue true if log values are to be used
+     * @return a new Builder with the log value parameter set to true
+     */
+    public Builder useLogValue(final boolean useLogValue) {
+      return new Builder(_smileInterpolator, _timeInterpolator, _useLogTime, _useIntegratedVariance, useLogValue);
+    }
+
+    /* package */ GeneralSmileInterpolator getSmileInterpolator() {
       return _smileInterpolator;
     }
 
-    Interpolator1D getTimeInterpolator() {
+    /* package */ Interpolator1D getTimeInterpolator() {
       return _timeInterpolator;
     }
 
-    boolean useLogTime() {
+    /* package */ boolean useLogTime() {
       return _useLogTime;
     }
 
-    boolean useIntegratedVariance() {
+    /* package */ boolean useIntegratedVariance() {
       return _useIntegratedVariance;
     }
 
-    boolean useLogValue() {
+    /* package */ boolean useLogValue() {
       return _useLogValue;
     }
 
+    /**
+     * @return The pricer instance
+     */
     @SuppressWarnings("synthetic-access")
     public EquityVarianceSwapPricer create() {
       return new EquityVarianceSwapPricer(this);
