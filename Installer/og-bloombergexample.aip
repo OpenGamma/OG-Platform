@@ -140,6 +140,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
     <ROW Shortcut="ExampleEngineService" Directory_="M_START__Dir" Name="Bloomb~1|Bloomberg Example Engine Service" Component_="og_bloombergexample.jar" Target="[APPDIR]\bin\ServiceControl.exe" Arguments="BloombergExample" Description="Starts and stops the engine service" Hotkey="0" IconIndex="0" ShowCmd="1"/>
+    <ROW Shortcut="Populateexampledatabase" Directory_="bin_Dir" Name="Popula~2|Populate example Bloomberg database" Component_="og_bloombergexample.jar" Target="[bin_Dir]MainRunner.exe" Arguments="&quot;[bin_Dir]og-bloombergexample-populator.ini&quot;" Description="Populates the example database with Bloomberg data" Hotkey="0" IconIndex="0" ShowCmd="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleDependencyComponent">
     <ROW RequiredID="Common.92192C01_228E_4B0B_9D23_68086A1B7449" RequiredLanguage="1033"/>
