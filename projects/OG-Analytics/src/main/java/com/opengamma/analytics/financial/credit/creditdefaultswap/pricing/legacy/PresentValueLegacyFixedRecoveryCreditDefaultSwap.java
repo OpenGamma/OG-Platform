@@ -10,13 +10,13 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyMuniCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyFixedRecoveryCreditDefaultSwapDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class containing methods for the valuation of a Legacy Muni CDS
+ * Class containing methods for the valuation of a Legacy fixed recovery CDS
  */
-public class PresentValueLegacyMuniCreditDefaultSwap {
+public class PresentValueLegacyFixedRecoveryCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -33,11 +33,11 @@ public class PresentValueLegacyMuniCreditDefaultSwap {
 
   // Public method for computing the PV of a CDS based on an input CDS contract (with a hazard rate curve calibrated to market observed data)
 
-  public double getPresentValueLegacyMuniCreditDefaultSwap(
+  public double getPresentValueLegacyFixedRecoveryCreditDefaultSwap(
       final ZonedDateTime valuationDate,
-      final LegacyMuniCreditDefaultSwapDefinition muniCDS,
+      final LegacyFixedRecoveryCreditDefaultSwapDefinition fixedRecoveryCDS,
       final ISDACurve yieldCurve,
-      final HazardRateCurve muniHazardRateCurve,
+      final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -45,30 +45,30 @@ public class PresentValueLegacyMuniCreditDefaultSwap {
     // Check input objects are not null
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
-    ArgumentChecker.notNull(muniCDS, "LegacyMuniCreditDefaultSwapDefinition");
+    ArgumentChecker.notNull(fixedRecoveryCDS, "LegacyFixedRecoveryCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
-    ArgumentChecker.notNull(muniHazardRateCurve, "HazardRateCurve");
+    ArgumentChecker.notNull(hazardRateCurve, "HazardRateCurve");
     ArgumentChecker.notNull(priceType, "price type");
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the CDS PV
-    final double muniCDSPresentValue = presentValueLegacyCreditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, muniCDS, yieldCurve, muniHazardRateCurve, priceType);
+    final double fixedRecoveryCDSPresentValue = presentValueLegacyCreditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, fixedRecoveryCDS, yieldCurve, hazardRateCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    return muniCDSPresentValue;
+    return fixedRecoveryCDSPresentValue;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Public method to calculate the par spread of a CDS at contract inception (with a hazard rate curve calibrated to market observed data)
 
-  public double getParSpreadLegacyMuniCreditDefaultSwap(
+  public double getParSpreadLegacyFixedRecoveryCreditDefaultSwap(
       final ZonedDateTime valuationDate,
-      final LegacyMuniCreditDefaultSwapDefinition muniCDS,
+      final LegacyFixedRecoveryCreditDefaultSwapDefinition fixedRecoveryCDS,
       final ISDACurve yieldCurve,
-      final HazardRateCurve muniHazardRateCurve,
+      final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -76,19 +76,19 @@ public class PresentValueLegacyMuniCreditDefaultSwap {
     // Check input objects are not null
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
-    ArgumentChecker.notNull(muniCDS, "LegacyMuniCreditDefaultSwapDefinition");
+    ArgumentChecker.notNull(fixedRecoveryCDS, "LegacyFixedRecoveryCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
-    ArgumentChecker.notNull(muniHazardRateCurve, "HazardRateCurve");
+    ArgumentChecker.notNull(hazardRateCurve, "HazardRateCurve");
     ArgumentChecker.notNull(priceType, "price type");
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the CDS par spread
-    final double muniCDSParSpread = presentValueLegacyCreditDefaultSwap.getParSpreadLegacyCreditDefaultSwap(valuationDate, muniCDS, yieldCurve, muniHazardRateCurve, priceType);
+    final double fixedRecoveryCDSParSpread = presentValueLegacyCreditDefaultSwap.getParSpreadLegacyCreditDefaultSwap(valuationDate, fixedRecoveryCDS, yieldCurve, hazardRateCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    return muniCDSParSpread;
+    return fixedRecoveryCDSParSpread;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

@@ -40,6 +40,8 @@ public abstract class CreditDefaultSwapDefinition {
 
   // NOTE : For a standard CDS contract the step-in date is the same as the effective date
 
+  // NOTE : We are enforcing the condition that the three obligors have to be different entities
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice - although MarkIt enforces N > 0)
@@ -48,8 +50,10 @@ public abstract class CreditDefaultSwapDefinition {
   // TODO : Move _protectionStart and _protectionOffset variables into the PV calculator?
   // TODO : Replace rec rate range arg checkers with .isInRangeInclusive
   // TODO : Add a CSA agreement?
+  // TODO : Should we also include a CentralCounterParty object in order to track exchange traded contracts?
 
-  // NOTE : We are enforcing the condition that the three obligors have to be different entities
+  // TODO : Need to make this an abstract class !!!!!!
+  // TODO : Remove builder methods
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -332,6 +336,114 @@ public abstract class CreditDefaultSwapDefinition {
   public double getProtectionOffset() {
     return _protectionOffset;
   }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  /*
+  // Builder method to allow the maturity of a CDS object to be modified (used during calibration of the hazard rate curve)
+
+  public CreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
+
+    ArgumentChecker.notNull(maturityDate, "maturity date");
+    ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
+
+    final CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(
+        getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        maturityDate,
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart());
+
+    return modifiedCDS;
+  }
+  */
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  /*
+  // Builder method to allow the premium leg coupon of a CDS object to be modified (used during calibration of the hazard rate curve)
+
+  public CreditDefaultSwapDefinition withSpread(final double parSpread) {
+
+    final CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(
+        getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        getRecoveryRate(),
+        getIncludeAccruedPremium(),
+        getProtectionStart());
+
+    return modifiedCDS;
+  }
+  */
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  /*
+  // Builder method to allow the recovery rate of a CDS object to be modified (used during calibration of the hazard rate curve)
+
+  public CreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
+
+    final CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(
+        getBuySellProtection(),
+        getProtectionBuyer(),
+        getProtectionSeller(),
+        getReferenceEntity(),
+        getCurrency(),
+        getDebtSeniority(),
+        getRestructuringClause(),
+        getCalendar(),
+        getStartDate(),
+        getEffectiveDate(),
+        getMaturityDate(),
+        getStubType(),
+        getCouponFrequency(),
+        getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(),
+        getIMMAdjustMaturityDate(),
+        getAdjustEffectiveDate(),
+        getAdjustMaturityDate(),
+        getNotional(),
+        recoveryRate,
+        getIncludeAccruedPremium(),
+        getProtectionStart());
+
+    return modifiedCDS;
+  }
+  */
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

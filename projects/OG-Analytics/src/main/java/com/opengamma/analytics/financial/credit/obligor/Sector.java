@@ -54,6 +54,14 @@ public enum Sector {
    */
   UTILITIES,
   /**
+   * The entity may be a municipal e.g. the state of California
+   */
+  MUNICIPAL,
+  /**
+   * The entity may be a sovereign e.g. the protection buyer has purchased protection on bonds issued by a sovereign
+   */
+  SOVEREIGN,
+  /**
    * 
    */
   NONE;

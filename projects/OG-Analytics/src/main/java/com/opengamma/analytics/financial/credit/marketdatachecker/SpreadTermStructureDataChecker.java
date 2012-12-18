@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.credit.marketdatachecker;
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,7 +24,11 @@ public class SpreadTermStructureDataChecker {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public void checkSpreadData(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ZonedDateTime[] marketTenors, final double[] marketSpreads) {
+  public void checkSpreadData(
+      final ZonedDateTime valuationDate,
+      /*final LegacyVanillaCreditDefaultSwapDefinition cds,*/
+      final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads) {
 
     // Check that the number of input tenors matches the number of input spreads
     ArgumentChecker.isTrue(marketTenors.length == marketSpreads.length, "Number of tenors and number of spreads should be equal");

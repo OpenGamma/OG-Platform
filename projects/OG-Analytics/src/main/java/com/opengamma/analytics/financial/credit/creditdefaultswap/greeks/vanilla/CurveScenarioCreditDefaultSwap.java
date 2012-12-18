@@ -51,7 +51,7 @@ public class CurveScenarioCreditDefaultSwap {
     final SpreadTermStructureDataChecker checkMarketData = new SpreadTermStructureDataChecker();
 
     // Check the efficacy of the input market data
-    checkMarketData.checkSpreadData(valuationDate, cds, marketTenors, marketSpreads);
+    checkMarketData.checkSpreadData(valuationDate, /*cds, */marketTenors, marketSpreads);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ public class CurveScenarioCreditDefaultSwap {
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
-    final double presentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
+    final double presentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ public class CurveScenarioCreditDefaultSwap {
     }
 
     // Calculate the bumped CDS PV
-    final double bumpedPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
+    final double bumpedPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
 
     double curveScenarioPresentValue = (bumpedPresentValue - presentValue);
 

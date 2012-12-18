@@ -16,21 +16,21 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * Definition of a Legacy Muni CDS i.e. with the features of CDS contracts prior to the Big Bang in 2009
  */
-public class LegacyMuniCreditDefaultSwapDefinition extends LegacyVanillaCreditDefaultSwapDefinition {
+public class LegacyMuniCreditDefaultSwapDefinition extends LegacyCreditDefaultSwapDefinition {
 
   //----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Check hashCode and equals methods
+  // TODO : Check hashCode and equals methods (fix these)
+  // TODO : Remove the builder methods
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Member variables specific to the legacy CDS contract
+  // Member variables specific to the legacy Muni CDS contract
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ public class LegacyMuniCreditDefaultSwapDefinition extends LegacyVanillaCreditDe
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Call the ctor for the superclass (corresponding to the CDS characteristics common to all types of CDS)
+    // Call the ctor for the LegacyCreditDefaultSwapDefinition superclass (corresponding to the CDS characteristics common to all types of CDS)
 
     super(buySellProtection,
         protectionBuyer,
@@ -94,6 +94,7 @@ public class LegacyMuniCreditDefaultSwapDefinition extends LegacyVanillaCreditDe
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  /*
   // Builder method to allow the maturity of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
 
   @Override
@@ -109,9 +110,11 @@ public class LegacyMuniCreditDefaultSwapDefinition extends LegacyVanillaCreditDe
 
     return modifiedCDS;
   }
+  */
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  /*
   // Builder method to allow the premium leg coupon of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
 
   @Override
@@ -124,9 +127,11 @@ public class LegacyMuniCreditDefaultSwapDefinition extends LegacyVanillaCreditDe
 
     return modifiedCDS;
   }
+  */
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  /*
   // Builder method to allow the recovery rate of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
 
   @Override
@@ -139,6 +144,7 @@ public class LegacyMuniCreditDefaultSwapDefinition extends LegacyVanillaCreditDe
 
     return modifiedCDS;
   }
+  */
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

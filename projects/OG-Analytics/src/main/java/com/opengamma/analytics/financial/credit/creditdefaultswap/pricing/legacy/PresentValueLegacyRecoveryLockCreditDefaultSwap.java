@@ -10,15 +10,17 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyMuniCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyRecoveryLockCreditDefaultSwapDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class containing methods for the valuation of a Legacy Muni CDS
+ * Class containing methods for the valuation of a Legacy recovery lock CDS
  */
-public class PresentValueLegacyMuniCreditDefaultSwap {
+public class PresentValueLegacyRecoveryLockCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // TODO : Need to modify the pricer to take into account the recovery lock nature of the contract
 
   // NOTE : For most types of legacy CDS, the same underlying pricing model will be used
   // NOTE : However, if required we can override these methods to provide bespoke pricing models
@@ -33,11 +35,11 @@ public class PresentValueLegacyMuniCreditDefaultSwap {
 
   // Public method for computing the PV of a CDS based on an input CDS contract (with a hazard rate curve calibrated to market observed data)
 
-  public double getPresentValueLegacyMuniCreditDefaultSwap(
+  public double getPresentValueLegacyRecoveryLockCreditDefaultSwap(
       final ZonedDateTime valuationDate,
-      final LegacyMuniCreditDefaultSwapDefinition muniCDS,
+      final LegacyRecoveryLockCreditDefaultSwapDefinition recoveryLockCDS,
       final ISDACurve yieldCurve,
-      final HazardRateCurve muniHazardRateCurve,
+      final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -45,30 +47,30 @@ public class PresentValueLegacyMuniCreditDefaultSwap {
     // Check input objects are not null
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
-    ArgumentChecker.notNull(muniCDS, "LegacyMuniCreditDefaultSwapDefinition");
+    ArgumentChecker.notNull(recoveryLockCDS, "LegacyRecoveryLockCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
-    ArgumentChecker.notNull(muniHazardRateCurve, "HazardRateCurve");
+    ArgumentChecker.notNull(hazardRateCurve, "HazardRateCurve");
     ArgumentChecker.notNull(priceType, "price type");
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the CDS PV
-    final double muniCDSPresentValue = presentValueLegacyCreditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, muniCDS, yieldCurve, muniHazardRateCurve, priceType);
+    final double recoveryLockCDSPresentValue = presentValueLegacyCreditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, recoveryLockCDS, yieldCurve, hazardRateCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    return muniCDSPresentValue;
+    return recoveryLockCDSPresentValue;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Public method to calculate the par spread of a CDS at contract inception (with a hazard rate curve calibrated to market observed data)
 
-  public double getParSpreadLegacyMuniCreditDefaultSwap(
+  public double getParSpreadLegacyRecoveryLockCreditDefaultSwap(
       final ZonedDateTime valuationDate,
-      final LegacyMuniCreditDefaultSwapDefinition muniCDS,
+      final LegacyRecoveryLockCreditDefaultSwapDefinition recoveryLockCDS,
       final ISDACurve yieldCurve,
-      final HazardRateCurve muniHazardRateCurve,
+      final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -76,19 +78,19 @@ public class PresentValueLegacyMuniCreditDefaultSwap {
     // Check input objects are not null
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
-    ArgumentChecker.notNull(muniCDS, "LegacyMuniCreditDefaultSwapDefinition");
+    ArgumentChecker.notNull(recoveryLockCDS, "LegacyRecoveryLockCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
-    ArgumentChecker.notNull(muniHazardRateCurve, "HazardRateCurve");
+    ArgumentChecker.notNull(hazardRateCurve, "HazardRateCurve");
     ArgumentChecker.notNull(priceType, "price type");
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the CDS par spread
-    final double muniCDSParSpread = presentValueLegacyCreditDefaultSwap.getParSpreadLegacyCreditDefaultSwap(valuationDate, muniCDS, yieldCurve, muniHazardRateCurve, priceType);
+    final double recoveryLockCDSParSpread = presentValueLegacyCreditDefaultSwap.getParSpreadLegacyCreditDefaultSwap(valuationDate, recoveryLockCDS, yieldCurve, hazardRateCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    return muniCDSParSpread;
+    return recoveryLockCDSParSpread;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

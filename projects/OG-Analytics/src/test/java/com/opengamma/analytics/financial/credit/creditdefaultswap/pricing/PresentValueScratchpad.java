@@ -17,9 +17,6 @@ import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.hazardratemodel.CalibrateHazardRateCurve;
-import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
@@ -377,6 +374,8 @@ public class PresentValueScratchpad {
 
     // -------------------------------------------------------------------------------------
 
+    /*
+    
     // Create a calibration CDS (will be a modified version of the baseline CDS)
     LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
 
@@ -386,7 +385,7 @@ public class PresentValueScratchpad {
     // -------------------------------------------------------------------------------------
 
     // Create a calibrate survival curve object
-    final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
+    final CalibrateHazardRateCurveLegacyCreditDefaultSwap hazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
 
     // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
     final double[] calibratedHazardRateCurve = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, tenors, marketSpreads, yieldCurve, priceType);
@@ -427,6 +426,8 @@ public class PresentValueScratchpad {
 
       System.out.println("PV = " + presentValue);
     }
+    
+    */
 
     // -------------------------------------------------------------------------------------
 
