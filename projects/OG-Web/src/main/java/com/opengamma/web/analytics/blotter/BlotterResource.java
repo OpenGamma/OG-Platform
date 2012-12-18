@@ -185,6 +185,7 @@ public class BlotterResource {
     return _freemarker.build("blotter/bean-structure.ftl", beanData);
   }
 
+  // TODO change this to include the trade details, also change the name and path
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @Path("securities/{securityId}")
@@ -209,53 +210,42 @@ public class BlotterResource {
     return root.toString();
   }
 
-  // TODO this is only here for my benefit during development - delete
-  @GET
-  @Produces(MediaType.TEXT_PLAIN)
-  @Path("securities/{securityId}")
-  public String getText(@PathParam("securityId") String securityIdStr) {
-    return getJSON(securityIdStr);
-  }
-
-  // TODO should this be trade instead of security?
   @POST
-  @Path("securities")
+  @Path("trades")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
-  public String createOtcSecurity(@FormParam("security") String securityJsonStr) {
-    return createSecurity(securityJsonStr, new NewSecurityBuilder(_securityMaster, s_metaBeans));
+  public String createOtcTrade(@FormParam("security") String tradeJsonStr) {
+    return createTrade(tradeJsonStr, new NewOtcTradeBuilder(_securityMaster, null, s_metaBeans));
   }
 
-  // TODO should this be trade instead of security?
   @PUT
-  @Path("securities/{securityIdStr}")
+  @Path("trades/{tradeIdStr}")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
-  public String updateOtcSecurity(@FormParam("security") String securityJsonStr,
-                                  @PathParam("securityIdStr") String securityIdStr) {
-    // TODO check the security ID in the path and JSON match?
-    // TODO or don't include in the JSON and wrap the data source
-    return createSecurity(securityJsonStr, new ExistingSecurityBuilder(_securityMaster, s_metaBeans));
+  public String updateOtcTrade(@FormParam("trade") String tradeJsonStr,
+                               @PathParam("tradeIdStr") String tradeIdStr) {
+    return createTrade(tradeJsonStr, new ExistingOtcTradeBuilder(UniqueId.parse(tradeIdStr), _securityMaster, null, s_metaBeans));
   }
 
-  private String createSecurity(String securityJsonStr, SecurityBuilder securityBuilder) {
+  private String createTrade(String jsonStr, OtcTradeBuilder tradeBuilder) {
     try {
-      // TODO what validation do I need to do when updating? check the security type hasn't changed?
-      JSONObject json = new JSONObject(securityJsonStr);
-      JSONObject underlyingJson = json.optJSONObject("underlying");
+      JSONObject json = new JSONObject(jsonStr);
+      JSONObject tradeJson = json.getJSONObject("trade");
       JSONObject securityJson = json.getJSONObject("security");
-      BeanDataSource underlyingDataSource;
-      BeanDataSource securityDataSource = new JsonBeanDataSource(securityJson);
+      JSONObject underlyingJson = json.optJSONObject("underlying");
+      BeanDataSource underlyingData;
+      BeanDataSource tradeData = new JsonBeanDataSource(tradeJson);
+      BeanDataSource securityData = new JsonBeanDataSource(securityJson);
       if (underlyingJson != null) {
-        underlyingDataSource = new JsonBeanDataSource(underlyingJson);
+        underlyingData = new JsonBeanDataSource(underlyingJson);
       } else {
-        underlyingDataSource = null;
+        underlyingData = null;
       }
-      UniqueId securityId = securityBuilder.buildSecurity(securityDataSource, underlyingDataSource);
-      return new JSONObject(ImmutableMap.of("securityId", securityId)).toString();
+      UniqueId tradeId = tradeBuilder.buildTrade(tradeData, securityData, underlyingData);
+      return new JSONObject(ImmutableMap.of("tradeId", tradeId)).toString();
     } catch (JSONException e) {
-      throw new IllegalArgumentException("Failed to parse security JSON", e);
+      throw new IllegalArgumentException("Failed to parse JSON", e);
     }
   }
 
@@ -274,6 +264,4 @@ public class BlotterResource {
   }
 
   // TODO create fungible trade - identifier and quantity
-
-  // TODO what about bond futures? is the BondFutureDeliverable part of the definition from bbg?
 }

@@ -9,7 +9,7 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 
 /**
- * TODO delegating implementation that filters out read-only properties
+ * TODO it it worth having the type parameter any more?
  */
 /* package */ interface BeanVisitor<T> {
 
