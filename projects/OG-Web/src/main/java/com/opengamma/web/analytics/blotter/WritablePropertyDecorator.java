@@ -15,18 +15,18 @@ import com.opengamma.util.ArgumentChecker;
  * Decorator that filters out read-only properties.
  * TODO is this ever going to be used?
  */
-/* package */ class WritablePropertyDecorator<T> implements BeanVisitorDecorator<T> {
+/* package */ class WritablePropertyDecorator implements BeanVisitorDecorator {
 
-  private final BeanVisitor<T> _delegate;
+  private final BeanVisitor<?> _delegate;
 
-  /* package */ WritablePropertyDecorator(BeanVisitor<T> delegate) {
+  /* package */ WritablePropertyDecorator(BeanVisitor<?> delegate) {
     ArgumentChecker.notNull(delegate, "delegate");
     _delegate = delegate;
   }
 
   @Override
-  public BeanVisitor<T> decorate(BeanVisitor<T> visitor) {
-    return new BeanVisitor<T>() {
+  public BeanVisitor<?> decorate(BeanVisitor<?> visitor) {
+    return new BeanVisitor<Object>() {
       @Override
       public void visitBean(MetaBean metaBean) {
         _delegate.visitBean(metaBean);
@@ -75,7 +75,7 @@ import com.opengamma.util.ArgumentChecker;
       }
 
       @Override
-      public T finish() {
+      public Object finish() {
         return _delegate.finish();
       }
     };

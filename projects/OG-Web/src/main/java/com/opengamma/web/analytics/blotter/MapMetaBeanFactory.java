@@ -15,7 +15,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * {@link MetaBeanFactory} where the {@link MetaBean} instances are keyed on the
+ * {@link BeanDataSource#getBeanTypeName() type name} of the bean.
  */
 /* package */ class MapMetaBeanFactory implements MetaBeanFactory {
 
@@ -28,6 +29,11 @@ import com.opengamma.util.ArgumentChecker;
     }
   }
 
+  /**
+   * @param beanData The bean data
+   * @return The {@link MetaBean} keyed on the bean data's {@link BeanDataSource#getBeanTypeName() type name}, not null
+   * @throws OpenGammaRuntimeException If there's no {@link MetaBean} keyed on the type name of the data source
+   */
   @Override
   public MetaBean beanFor(BeanDataSource beanData) {
     MetaBean metaBean = _metaBeans.get(beanData.getBeanTypeName());

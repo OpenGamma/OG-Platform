@@ -5,7 +5,9 @@
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate">
   <class name="IdentifierAssociationBean" table="sec_identifier_association">
     <id name="id">
-      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">sec_hibernate_sequence</param> 
+      </generator>
     </id>
     <property name="validStartDate" type="timestamp" not-null="false" />
     <property name="validEndDate" type="timestamp" not-null="false" />

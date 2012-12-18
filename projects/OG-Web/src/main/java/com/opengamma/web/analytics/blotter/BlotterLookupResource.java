@@ -27,6 +27,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.conversion.JodaBeanConverters;
+import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.BarrierDirection;
@@ -117,5 +118,12 @@ public class BlotterLookupResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getFloatingRateTypes() {
     return convertToJsonArray(FloatingRateType.class, Arrays.asList(FloatingRateType.values()).iterator());
+  }
+
+  @GET
+  @Path("longshort")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getLongShort() {
+    return convertToJsonArray(LongShort.class, Arrays.asList(LongShort.values()).iterator());
   }
 }

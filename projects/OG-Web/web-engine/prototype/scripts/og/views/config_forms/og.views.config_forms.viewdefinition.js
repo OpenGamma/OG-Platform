@@ -223,12 +223,12 @@ $.register_module({
                 });
                 var new_col_set = function (set, set_idx) {
                     var set_id = '#' + og.common.id(prefix),
-                        spec_vals = new form.Block({wrap: '<ul class="og-js-spec-holder">{{{html}}}</ul>'}),
-                        col_vals = new form.Block({wrap: '{{{html}}}'}),
-                        col_tabs = new form.Block({wrap: '{{{html}}}'}),
+                        spec_vals = new form.Block({template: '<ul class="og-js-spec-holder">{{{children}}}</ul>'}),
+                        col_vals = new form.Block({template: '{{{children}}}'}),
+                        col_tabs = new form.Block({template: '{{{children}}}'}),
                         column_set = new form.Block({
-                            wrap: '<div class="og-mod-content OG-clearFix og-js-colset-holder" id="' +
-                                set_id.substring(1) + '">{{{html}}}</div>'
+                            template: '<div class="og-mod-content OG-clearFix og-js-colset-holder" id="' +
+                                set_id.substring(1) + '">{{{children}}}</div>'
                         });
                     column_set.on('form:load', function () {
                         if (!$(set_id + ' .og-js-col-holder').length)
@@ -332,7 +332,7 @@ $.register_module({
                     var new_col_val = function (col, col_idx) {
                         var col_id = og.common.id(prefix),
                             dropdown_name = [SETS, set_idx, COLS, col_idx, SECU].join('.'),
-                            reqs_block = new form.Block({wrap: '<ul class="og-js-port-req">{{{html}}}</ul>'});
+                            reqs_block = new form.Block({template: '<ul class="og-js-port-req">{{{children}}}</ul>'});
                         var new_port_req = function (req, req_idx) {
                             var sel_name = [SETS, set_idx, COLS, col_idx, REQS, req_idx, REQO].join('.'),
                                 cons_name = [SETS, set_idx, COLS, col_idx, REQS, req_idx, CONS].join('.');

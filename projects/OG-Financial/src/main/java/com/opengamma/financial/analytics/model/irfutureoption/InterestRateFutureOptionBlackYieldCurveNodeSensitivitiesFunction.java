@@ -105,7 +105,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     // To enable standard and midcurve options to share the same default name
-    final String surfaceNameWithPrefix = surfaceName + "_" + InterestRateFutureOptionBlackFunction.getFutureOptionPrefix(target);
+    final String surfaceNameWithPrefix = surfaceName + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceNameWithPrefix, currency));
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface");
@@ -218,7 +218,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
       s_logger.info("Curve named {} is not available in curve calculation configuration called {}", curve, curveCalculationConfigName);
       return null;
     }
-    final String surfaceName = surfaceNames.iterator().next() + "_" + InterestRateFutureOptionBlackFunction.getFutureOptionPrefix(target);
+    final String surfaceName = surfaceNames.iterator().next() + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));

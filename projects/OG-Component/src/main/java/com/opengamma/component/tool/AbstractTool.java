@@ -169,7 +169,7 @@ public abstract class AbstractTool<T extends ToolContext> {
       run((T[]) toolContexts);
       s_logger.info("Finished " + getClass().getSimpleName());
       return true;
-    } catch (Exception ex) {
+    } catch (Throwable ex) {
       ex.printStackTrace();
       return false;
     } finally {

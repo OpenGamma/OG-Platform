@@ -34,21 +34,30 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.conversion.JodaBeanConverters;
+import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.BarrierDirection;
+import com.opengamma.financial.security.option.BarrierType;
+import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -62,6 +71,7 @@ import com.opengamma.web.FreemarkerOutputter;
 
 /**
  * TODO move some of this into subresources?
+ * TODO date and time zone handling
  */
 @Path("blotter")
 public class BlotterResource {
@@ -85,11 +95,24 @@ public class BlotterResource {
       FXBarrierOptionSecurity.meta(),
       NonDeliverableFXOptionSecurity.meta());
 
-  private final SecurityBuilder _securityBuilder = new SecurityBuilder(s_metaBeans);
-
   private static final Map<Class<?>, Class<?>> s_underlyingSecurityTypes = ImmutableMap.<Class<?>, Class<?>>of(
       IRFutureOptionSecurity.class, InterestRateFutureSecurity.class,
       SwaptionSecurity.class, SwapSecurity.class);
+
+  private static final Map<Class<?>, String> s_endpoints = Maps.newHashMap();
+
+  // TODO this is an ugly but it's only temporay - fix or remove when the HTML bean info isn't needed
+  static {
+    s_endpoints.put(Frequency.class, "frequencies");
+    s_endpoints.put(ExerciseType.class, "exercisetypes");
+    s_endpoints.put(DayCount.class, "daycountconventions");
+    s_endpoints.put(BusinessDayConvention.class, "businessdayconventions");
+    s_endpoints.put(BarrierType.class, "barriertypes");
+    s_endpoints.put(BarrierDirection.class, "barrierdirections");
+    s_endpoints.put(SamplingFrequency.class, "samplingfrequencies");
+    s_endpoints.put(FloatingRateType.class, "floatingratetypes");
+    s_endpoints.put(LongShort.class, "longshort");
+  }
 
   private static final List<String> s_otherTypeNames = Lists.newArrayList();
   private static final List<String> s_securityTypeNames = Lists.newArrayList();
@@ -153,10 +176,12 @@ public class BlotterResource {
     if (metaBean == null) {
       throw new DataNotFoundException("Unknown type name " + typeName);
     }
-    BeanStructureBuilder structureBuilder = new BeanStructureBuilder(s_metaBeans, s_underlyingSecurityTypes);
+    BeanStructureBuilder structureBuilder = new BeanStructureBuilder(s_metaBeans, s_underlyingSecurityTypes, s_endpoints);
     // filter out underlying ID property for security types whose underlying is another OTC security
-    PropertyFilter<Map<String, Object>> filter = new PropertyFilter<Map<String, Object>>(SwaptionSecurity.meta().underlyingId());
-    Map<String,Object> beanData = new BeanTraverser(filter).traverse(metaBean, structureBuilder);
+    BeanVisitorDecorator propertyFilter = new PropertyFilter(SwaptionSecurity.meta().underlyingId());
+    BeanVisitorDecorator propertyNameFilter = new PropertyNameFilter("externalIdBundle");
+    BeanTraverser traverser = new BeanTraverser(propertyFilter, propertyNameFilter);
+    Map<?, ?> beanData = (Map<?, ?>) traverser.traverse(metaBean, structureBuilder);
     return _freemarker.build("blotter/bean-structure.ftl", beanData);
   }
 
@@ -173,7 +198,7 @@ public class BlotterResource {
     }
     BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<JSONObject>(security, new JsonDataSink());
     // TODO filter out underlyingId for securities with OTC underlying
-    JSONObject json = new BeanTraverser().traverse(metaBean, writingVisitor);
+    JSONObject json = (JSONObject) new BeanTraverser().traverse(metaBean, writingVisitor);
     JSONObject root = new JSONObject();
     try {
       root.put("security", json);
@@ -192,33 +217,16 @@ public class BlotterResource {
     return getJSON(securityIdStr);
   }
 
-  // TODO PUT to update existing security? how should the URL be handled?
+  // TODO should this be trade instead of security?
   @POST
   @Path("securities")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
-  // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
   public String createOtcSecurity(@FormParam("security") String securityJsonStr) {
-    JSONObject securityJson;
-    try {
-      JSONObject json = new JSONObject(securityJsonStr);
-      securityJson = json.getJSONObject("security");
-      // TODO this needs to happen for swaptions and possibly some others
-      //underlyingJson = json.getJSONObject("underlying");
-    } catch (JSONException e) {
-      throw new IllegalArgumentException("Failed to parse security JSON", e);
-    }
-    // TODO this doesn't cover swaptions (where the underlying is an OTC security)
-    ManageableSecurity security = _securityBuilder.buildSecurity(new JsonBeanDataSource(securityJson));
-    if (security.getUniqueId() != null) {
-      throw new IllegalArgumentException("Security unique ID must not be specified for a new security");
-    }
-    SecurityDocument document = _securityMaster.add(new SecurityDocument(security));
-    UniqueId securityId = document.getUniqueId();
-    return new JSONObject(ImmutableMap.of("securityId", securityId)).toString();
+    return createSecurity(securityJsonStr, new NewSecurityBuilder(_securityMaster, s_metaBeans));
   }
 
-
+  // TODO should this be trade instead of security?
   @PUT
   @Path("securities/{securityIdStr}")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -226,25 +234,29 @@ public class BlotterResource {
   // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
   public String updateOtcSecurity(@FormParam("security") String securityJsonStr,
                                   @PathParam("securityIdStr") String securityIdStr) {
-    UniqueId pathSecurityId = UniqueId.parse(securityIdStr);
-    JSONObject securityJson;
+    // TODO check the security ID in the path and JSON match?
+    // TODO or don't include in the JSON and wrap the data source
+    return createSecurity(securityJsonStr, new ExistingSecurityBuilder(_securityMaster, s_metaBeans));
+  }
+
+  private String createSecurity(String securityJsonStr, SecurityBuilder securityBuilder) {
     try {
+      // TODO what validation do I need to do when updating? check the security type hasn't changed?
       JSONObject json = new JSONObject(securityJsonStr);
-      securityJson = json.getJSONObject("security");
-      // TODO this needs to happen for swaptions and possibly some others
-      //underlyingJson = json.getJSONObject("underlying");
+      JSONObject underlyingJson = json.optJSONObject("underlying");
+      JSONObject securityJson = json.getJSONObject("security");
+      BeanDataSource underlyingDataSource;
+      BeanDataSource securityDataSource = new JsonBeanDataSource(securityJson);
+      if (underlyingJson != null) {
+        underlyingDataSource = new JsonBeanDataSource(underlyingJson);
+      } else {
+        underlyingDataSource = null;
+      }
+      UniqueId securityId = securityBuilder.buildSecurity(securityDataSource, underlyingDataSource);
+      return new JSONObject(ImmutableMap.of("securityId", securityId)).toString();
     } catch (JSONException e) {
       throw new IllegalArgumentException("Failed to parse security JSON", e);
     }
-    // TODO this doesn't cover swaptions (where the underlying is an OTC security)
-    ManageableSecurity security = _securityBuilder.buildSecurity(new JsonBeanDataSource(securityJson));
-    if (!pathSecurityId.equalObjectId(security.getUniqueId())) {
-      throw new IllegalArgumentException("Security unique ID in the path didn't match the ID in the JSON: " +
-                                             pathSecurityId + ", " + security.getUniqueId());
-    }
-    SecurityDocument document = _securityMaster.update(new SecurityDocument(security));
-    UniqueId securityId = document.getUniqueId();
-    return new JSONObject(ImmutableMap.of("securityId", securityId)).toString();
   }
 
   private static Map<Object, Object> map(Object... values) {

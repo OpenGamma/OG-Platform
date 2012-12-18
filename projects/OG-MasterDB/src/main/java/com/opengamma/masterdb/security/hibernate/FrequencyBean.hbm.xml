@@ -5,7 +5,9 @@
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate">
   <class name="FrequencyBean" table="sec_frequency">
     <id name="id">
-      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator"/>
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">sec_hibernate_sequence</param> 
+      </generator>
     </id>
     <property name="name" unique="true" type="string" not-null="true"/>
   </class>

@@ -47,14 +47,14 @@ public class JsonJodaRoundTripTest {
     JsonDataSink sink = new JsonDataSink();
     BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<JSONObject>(fxForward, sink);
     BeanTraverser traverser = new BeanTraverser();
-    JSONObject json = traverser.traverse(FXForwardSecurity.meta(), writingVisitor);
+    JSONObject json = (JSONObject) traverser.traverse(FXForwardSecurity.meta(), writingVisitor);
     assertNotNull(json);
     System.out.println(json);
 
     JsonBeanDataSource dataSource = new JsonBeanDataSource(new JSONObject(json.toString()));
     MetaBeanFactory metaBeanFactory = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(FXForwardSecurity.meta()));
     BeanVisitor<FXForwardSecurity> readingVisitor = new BeanBuildingVisitor<FXForwardSecurity>(dataSource, metaBeanFactory);
-    FXForwardSecurity fxForward2 = traverser.traverse(FXForwardSecurity.meta(), readingVisitor);
+    FXForwardSecurity fxForward2 = (FXForwardSecurity) traverser.traverse(FXForwardSecurity.meta(), readingVisitor);
     assertEquals(fxForward, fxForward2);
   }
 
@@ -86,7 +86,7 @@ public class JsonJodaRoundTripTest {
     JsonDataSink sink = new JsonDataSink();
     BeanTraverser traverser = new BeanTraverser();
     BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<JSONObject>(security, sink);
-    JSONObject json = traverser.traverse(SwapSecurity.meta(), writingVisitor);
+    JSONObject json = (JSONObject) traverser.traverse(SwapSecurity.meta(), writingVisitor);
     assertNotNull(json);
     System.out.println(json);
 
@@ -97,7 +97,7 @@ public class JsonJodaRoundTripTest {
         FloatingInterestRateLeg.meta(),
         InterestRateNotional.meta()));
     BeanVisitor<SwapSecurity> readingVisitor = new BeanBuildingVisitor<SwapSecurity>(dataSource, metaBeanFactory);
-    SwapSecurity security2 = traverser.traverse(SwapSecurity.meta(), readingVisitor);
+    SwapSecurity security2 = (SwapSecurity) traverser.traverse(SwapSecurity.meta(), readingVisitor);
     assertEquals(security, security2);
   }
 }

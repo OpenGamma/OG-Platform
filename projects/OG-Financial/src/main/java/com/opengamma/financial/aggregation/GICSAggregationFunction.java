@@ -19,6 +19,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 
@@ -118,20 +119,33 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   private FinancialSecurityVisitor<String> _equityOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitEquityOptionSecurity(EquityOptionSecurity security) {
-      EquitySecurity underlying = (EquitySecurity) _secSource.get(ExternalIdBundle.of(security.getUnderlyingId()));
-      if (underlying.getGicsCode() != null) {
-        switch (_level) {
-          case SECTOR:
-            return underlying.getGicsCode().getSectorDescription();
-          case INDUSTRY_GROUP:
-            return underlying.getGicsCode().getIndustryGroupDescription();
-          case INDUSTRY:
-            return underlying.getGicsCode().getIndustryDescription();
-          case SUB_INDUSTRY:
-            return underlying.getGicsCode().getSubIndustryDescription();
+      EquitySecurity underlying = (EquitySecurity) _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
+      if (underlying != null) {
+        if (underlying.getGicsCode() != null) {
+          switch (_level) {
+            case SECTOR:
+              return underlying.getGicsCode().getSectorDescription();
+            case INDUSTRY_GROUP:
+              return underlying.getGicsCode().getIndustryGroupDescription();
+            case INDUSTRY:
+              return underlying.getGicsCode().getIndustryDescription();
+            case SUB_INDUSTRY:
+              return underlying.getGicsCode().getSubIndustryDescription();
+          }
         }
       }
       return UNKNOWN;
+    }
+  };
+  
+  private FinancialSecurityVisitor<String> _equityIndexOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
+      if (_level == Level.SECTOR) {
+        return security.getUnderlyingId().getValue();
+      } else {
+        return UNKNOWN;
+      }
     }
   };
 
@@ -148,10 +162,15 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
       FinancialSecurityVisitor<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
         .equitySecurityVisitor(_equitySecurityVisitor)
         .equityOptionVisitor(_equityOptionSecurityVisitor)
+        .equityIndexOptionVisitor(_equityIndexOptionSecurityVisitor)
         .create();
       FinancialSecurity security = (FinancialSecurity) position.getSecurityLink().resolve(_secSource);
-      String classification = security.accept(visitorAdapter);
-      return classification == null ? UNKNOWN : classification;
+      try {
+        String classification = security.accept(visitorAdapter);
+        return classification == null ? UNKNOWN : classification;
+      } catch (UnsupportedOperationException uoe) {
+        return UNKNOWN;
+      }
     }
   }
 

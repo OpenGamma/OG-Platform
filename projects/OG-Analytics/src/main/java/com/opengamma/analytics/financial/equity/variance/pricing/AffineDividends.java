@@ -14,17 +14,28 @@ import com.opengamma.util.ArgumentChecker;
  * dividend payment.
  */
 public class AffineDividends {
-
+  /** The times */
   private final double[] _tau;
+  /** The cash dividends */
   private final double[] _alpha;
+  /** The proportional dividends */
   private final double[] _beta;
+  /** The number of times */
   private final int _n;
 
+  /**
+   * @return An object representing no dividends
+   */
   public static AffineDividends noDividends() {
     final double[] z = new double[0];
     return new AffineDividends(z, z, z);
   }
 
+  /**
+   * @param tau The dividend payment times, not null. The values must be greater than zero and strictly increasing.
+   * @param alpha The cash dividends, not null. Must be the same length as the times with all values positive.
+   * @param beta The proportional dividends, not null. Must be the same length as the times with all values between 0 (inclusive) and 1 (exclusive).
+   */
   public AffineDividends(final double[] tau, final double[] alpha, final double[] beta) {
     ArgumentChecker.notNull(tau, "null tau");
     ArgumentChecker.notNull(alpha, "null alpha");
