@@ -77,7 +77,9 @@ import com.opengamma.web.FreemarkerOutputter;
 public class BlotterResource {
 
   // TODO this should be configurable, should be able to add from client projects
-  private static final Set<MetaBean> s_metaBeans = Sets.<MetaBean>newHashSet(
+  // TODO where should these live? is this the right place?
+  /** All the securities and related types supported by the blotter. */
+  /* package */ static final Set<MetaBean> s_metaBeans = Sets.<MetaBean>newHashSet(
       FXForwardSecurity.meta(),
       SwapSecurity.meta(),
       SwaptionSecurity.meta(),
@@ -214,7 +216,7 @@ public class BlotterResource {
   @Path("trades")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
-  public String createOtcTrade(@FormParam("security") String tradeJsonStr) {
+  public String createOtcTrade(@FormParam("trade") String tradeJsonStr) {
     return createTrade(tradeJsonStr, new NewOtcTradeBuilder(_securityMaster, null, s_metaBeans));
   }
 
@@ -225,7 +227,8 @@ public class BlotterResource {
   // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
   public String updateOtcTrade(@FormParam("trade") String tradeJsonStr,
                                @PathParam("tradeIdStr") String tradeIdStr) {
-    return createTrade(tradeJsonStr, new ExistingOtcTradeBuilder(UniqueId.parse(tradeIdStr), _securityMaster, null, s_metaBeans));
+    return createTrade(tradeJsonStr,
+                       new ExistingOtcTradeBuilder(UniqueId.parse(tradeIdStr), _securityMaster, null, s_metaBeans));
   }
 
   private String createTrade(String jsonStr, OtcTradeBuilder tradeBuilder) {

@@ -6,8 +6,6 @@
 package com.opengamma.web.analytics.blotter;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 import java.util.Map;
@@ -21,11 +19,16 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.conversion.JodaBeanConverters;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.InterestRateNotional;
+import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -33,11 +36,10 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * TODO extract data and expected objects into BeanTestUtils or something, share with trade builder test
  */
 public class BeanBuildingVisitorTest {
 
-  private static final double DELTA = 0.0001;
   private static final MetaBeanFactory s_metaBeanFactory = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(
       FXForwardSecurity.meta(),
       SwapSecurity.meta(),
@@ -70,20 +72,15 @@ public class BeanBuildingVisitorTest {
     BeanVisitor<ManageableSecurity> visitor = new BeanBuildingVisitor<ManageableSecurity>(dataSource, s_metaBeanFactory);
     MetaBean metaBean = s_metaBeanFactory.beanFor(dataSource);
     ManageableSecurity security = (ManageableSecurity) new BeanTraverser().traverse(metaBean, visitor);
-    assertNotNull(security);
-    assertTrue(security instanceof FXForwardSecurity);
-    FXForwardSecurity fxSecurity = (FXForwardSecurity) security;
-    assertEquals(Currency.USD, fxSecurity.getPayCurrency());
-    assertEquals(150d, fxSecurity.getPayAmount(), DELTA);
-    assertEquals(Currency.GBP, fxSecurity.getReceiveCurrency());
-    assertEquals(100d, fxSecurity.getReceiveAmount(), DELTA);
-    assertEquals(ZonedDateTime.parse("2012-12-21T10:30+00:00[Europe/London]"), fxSecurity.getForwardDate());
-    assertEquals(ExternalId.of("Reg", "123"), fxSecurity.getRegionId());
-    assertEquals("FX Forward GBP/USD", fxSecurity.getName());
-    assertEquals(attributes, fxSecurity.getAttributes());
-    assertEquals(fxSecurity.getExternalIdBundle(), ExternalIdBundle.of(ExternalId.of("Ext", "123"),
-                                                                       ExternalId.of("Ext", "234")));
-    assertEquals(FXForwardSecurity.SECURITY_TYPE, fxSecurity.getSecurityType());
+
+    ZonedDateTime forwardDate = ZonedDateTime.parse("2012-12-21T10:30+00:00[Europe/London]");
+    ExternalId regionId = ExternalId.of("Reg", "123");
+    ExternalIdBundle externalIds = ExternalIdBundle.of(ExternalId.of("Ext", "123"), ExternalId.of("Ext", "234"));
+    FXForwardSecurity expected = new FXForwardSecurity(Currency.USD, 150, Currency.GBP, 100, forwardDate, regionId);
+    expected.setExternalIdBundle(externalIds);
+    expected.setName("FX Forward GBP/USD");
+    expected.setAttributes(attributes);
+    assertEquals(expected, security);
   }
 
   @Test
@@ -125,23 +122,41 @@ public class BeanBuildingVisitorTest {
           "notional", data(
             "type", "InterestRateNotional",
             "currency", "GBP",
-            "currency", "GBP",
             "amount", "123.45")));
     BeanVisitor<ManageableSecurity> visitor = new BeanBuildingVisitor<ManageableSecurity>(dataSource, s_metaBeanFactory);
     MetaBean metaBean = s_metaBeanFactory.beanFor(dataSource);
     ManageableSecurity security = (ManageableSecurity) new BeanTraverser().traverse(metaBean, visitor);
-    assertNotNull(security);
-    assertTrue(security instanceof SwapSecurity);
-    SwapSecurity swapSecurity = (SwapSecurity) security;
-    assertEquals("Swap Security", swapSecurity.getName());
-    assertEquals(SwapSecurity.SECURITY_TYPE, swapSecurity.getSecurityType());
-    assertEquals(ExternalIdBundle.of(ExternalId.of("Ext", "123"), ExternalId.of("Ext", "234")),
-                 swapSecurity.getExternalIdBundle());
-    assertEquals(attributes, swapSecurity.getAttributes());
-    assertEquals("Cpty", swapSecurity.getCounterparty());
-    assertEquals(ZonedDateTime.parse("2012-12-21T10:30+00:00[Europe/London]"), swapSecurity.getTradeDate());
-    assertEquals(ZonedDateTime.parse("2012-12-23T10:30+00:00[Europe/London]"), swapSecurity.getEffectiveDate());
-    assertEquals(ZonedDateTime.parse("2013-12-21T10:30+00:00[Europe/London]"), swapSecurity.getMaturityDate());
+
+    ZonedDateTime tradeDate = ZonedDateTime.parse("2012-12-21T10:30+00:00[Europe/London]");
+    ZonedDateTime effectiveDate = ZonedDateTime.parse("2012-12-23T10:30+00:00[Europe/London]");
+    ZonedDateTime maturityDate = ZonedDateTime.parse("2013-12-21T10:30+00:00[Europe/London]");
+    ExternalIdBundle externalIds = ExternalIdBundle.of(ExternalId.of("Ext", "123"), ExternalId.of("Ext", "234"));
+
+    SwapLeg payLeg = new FixedInterestRateLeg(
+        DayCountFactory.INSTANCE.getDayCount("Act/360"),
+        SimpleFrequencyFactory.INSTANCE.getFrequency("3m"),
+        ExternalId.of("Reg", "123"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"),
+        new InterestRateNotional(Currency.USD, 222.33),
+        true,
+        1.234);
+    FloatingInterestRateLeg receiveLeg = new FloatingInterestRateLeg(
+        DayCountFactory.INSTANCE.getDayCount("Act/Act"),
+        SimpleFrequencyFactory.INSTANCE.getFrequency("6m"),
+        ExternalId.of("Reg", "234"),
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+        new InterestRateNotional(Currency.GBP, 123.45),
+        true,
+        ExternalId.of("Rate", "123"),
+        FloatingRateType.IBOR);
+    receiveLeg.setInitialFloatingRate(321.9);
+    receiveLeg.setSettlementDays(5);
+    receiveLeg.setOffsetFixing(SimpleFrequencyFactory.INSTANCE.getFrequency("1m"));
+    SwapSecurity expected = new SwapSecurity(tradeDate, effectiveDate, maturityDate, "Cpty", payLeg, receiveLeg);
+    expected.setExternalIdBundle(externalIds);
+    expected.setName("Swap Security");
+    expected.setAttributes(attributes);
+    assertEquals(expected, security);
   }
 
   private static BeanDataSource data(Object... pairs) {

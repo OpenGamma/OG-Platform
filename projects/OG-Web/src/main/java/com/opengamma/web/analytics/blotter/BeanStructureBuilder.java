@@ -70,10 +70,10 @@ import com.opengamma.util.OpenGammaClock;
   /* package */ BeanStructureBuilder(Set<MetaBean> metaBeans,
                                      Map<Class<?>, Class<?>> underlyingSecurityTypes,
                                      Map<Class<?>, String> endpoints) {
-    _endpoints = endpoints;
     ArgumentChecker.notNull(underlyingSecurityTypes, "underlyingSecurityTypes");
     ArgumentChecker.notNull(metaBeans, "metaBeans");
     ArgumentChecker.notNull(endpoints, "endpoints");
+    _endpoints = endpoints;
     _underlyingSecurityTypes = underlyingSecurityTypes;
     _beanHierarchy = new BeanHierarchy(metaBeans);
   }
