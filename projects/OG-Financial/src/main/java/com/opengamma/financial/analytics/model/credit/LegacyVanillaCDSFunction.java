@@ -100,7 +100,7 @@ public abstract class LegacyVanillaCDSFunction extends AbstractFunction.NonCompi
     final int nIntegrationPoints = Integer.parseInt(nPointsProperty);
     final PresentValueLegacyCreditDefaultSwap calculator = new PresentValueLegacyCreditDefaultSwap();
     final LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
-    final double price = calculator.getPresentValueLegacyVanillaCreditDefaultSwap(now, cds, yieldCurve, hazardRateCurve, _priceType);
+    final double price = calculator.getPresentValueLegacyCreditDefaultSwap(now, cds, yieldCurve, hazardRateCurve, _priceType);
     final ValueProperties properties = getProperties(desiredValue);
     final ValueSpecification spec = new ValueSpecification(_valueRequirement, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, price));
