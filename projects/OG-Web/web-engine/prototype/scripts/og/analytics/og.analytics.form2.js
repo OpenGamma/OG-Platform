@@ -8,34 +8,30 @@ $.register_module({
     obj: function () {
         var module = this, constructor, viewdef_form, aggregation_menu, datasources_menu,
             tashes = {
-                form_container:  'og.analytics.form_tash',
-                aggregation_menu: 'og.analytics.form_aggregation_tash',
-                datasources_menu: 'og.analytics.form_datasources_tash'
+                form_container:  'og.analytics.form_tash'
             },
             selectors = {
-                masthead: 'OG-masthead',
+                form_container: 'OG-analytics-form',
                 aggregation_cntr: 'og-aggregation',
                 datasources_cntr: 'og-datasources'
             },
-            dom = { masthead : $('.' + selectors.masthead) };
-
-        var init = function () {
-            og.api.text({module: tashes.form_container}).pipe(function (form_container) {
-                dom.masthead.append(form_container);
-                $.when(og.api.rest.aggregators.get()).pipe(function (resp) {
-                    aggregation_menu = new og.analytics.AggregatorsMenu({
-                        cntr: dom.aggregation_cntr = $('.' + selectors.aggregation_cntr, dom.masthead),
-                        tmpl: tashes.aggregation_menu,
-                        data: resp.data
-                    });
-                });
+            dom = { masthead : $('.' + selectors.masthead) },
+            form = new og.common.util.ui.Form({
+                module: tashes.form_container,
+                selector: '.' + selectors.form_container
             });
+
+        var init = function (aggregators) {
+            form.children.push(
+                (aggregation_menu = new og.analytics.AggregatorsMenu({form:form, data:aggregators.data})).block
+            );
+            form.dom();
         };
 
         constructor = function () {
             og.views.common.layout.main.allowOverflow('north');
-            init();
-            return this;
+            $.when(og.api.rest.aggregators.get()).pipe(init);
+            return module;
         };
 
         return constructor;

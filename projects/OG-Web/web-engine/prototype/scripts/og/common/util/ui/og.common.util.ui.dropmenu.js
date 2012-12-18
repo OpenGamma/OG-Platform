@@ -21,6 +21,9 @@ $.register_module({
             menu.init_blurkill = false;
             menu.events = events;
             menu.$dom = {};
+            menu.on(menu.events.open, menu.open, menu)
+                .on(menu.events.close, menu.close, menu)
+                .on(menu.events.focus, menu.focus, menu);
             return menu;
         };
         DropMenu.prototype.constructor = DropMenu;
