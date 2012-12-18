@@ -18,8 +18,6 @@ permit.
 Visit the developer website at http://developers.opengamma.com for more
 information, downloads, docs and more.
 
-[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://developers.opengamma.com)
-
 
 Building OpenGamma
 ------------------
@@ -28,7 +26,8 @@ Our build uses Apache Ivy and our favoured IDE is Eclipse.
 
 Maven files do exist, but they should not be relied on for building OpenGamma.
 
-### Initializing the build
+Initializing the build
+----------------------
 
 The OpenGamma Platform is open source software using the Apache License v2.
 The [company](http://www.opengamma.com/) behind OpenGamma also offers support
@@ -37,21 +36,21 @@ have dependencies with restrictive licensing incompatible with open source.)
 
 The source code can be cloned using git from GitHub or downloaded as a source
 tarball from http://developers.opengamma.com.
-```
+
   git clone https://github.com/OpenGamma/OG-Platform.git
-```
-**If you do not have access to the OpenGamma commercial components, then skip
-the rest of this section.**
+
+If you do not have access to the OpenGamma commercial components, then skip
+the rest of this section.
 
 To download the commercial components, initialize the OpenGamma system with
 your username and password:
-```
+
   ant init
-```
+
 Then, download the additional commercial components:
-```
+
   ant clone-or-pull
-```
+
 This will do the initial clone of each project into the `projects/` directory.
 When you run this subsequently, it does a git pull on each project, although
 you will probably need to edit the `build.xml` file to tell the git task which
@@ -59,17 +58,17 @@ branch you want of each project.
 
 Now, continue on to the next section.
 
-### Completing the build
-
+Completing the build
+--------------------
 The source code must be compiled before use. This will build multiple jar files
 and install them into your local Ivy repository, which is located in `~/.ivy2`:
-```
+
   ant build
-```
+
 To run the unit tests (once the build is complete), use:
-```
+
   ant tests
-```
+
 The output is generated into `build/test-reports/html`.
 
 
@@ -81,12 +80,12 @@ configurations are pre-supplied, one with Bloomberg support and one with
 simulated market data.
 
 To build and install the example engines run:
-```
+
   ant install
-```
+
 which will create a folder called `opengamma/` in the project root.  In there 
 you'll find a `scripts/` folder which contains
-```
+
   init-og-bloombergexample-db.sh      Create an example database using data from a local Bloomberg terminal
   init-og-examples-db.sh              Create an example database using fake data (if you don't have a terminal)
   og-bloombergexample.sh              Run the example engine with (start|stop|restart|status|reload|debug)
@@ -97,21 +96,20 @@ you'll find a `scripts/` folder which contains
   load-portfolio.sh                   Utility to load previously zipped group of CSV files into the database
   save-portfolio.sh                   Utility to save an existing portfolio into a zip file containing CSVs
   create-portfolio-template.sh        Creates template CSV files with headers for use with load-portfolio.sh
-```
+
 Note you should only run the appropriate init script paired with the
 appropriate example script.  Running, e.g. `init-og-examples-db.sh` before
 running `og-bloomberg-example.sh` will cause the system to not operate correctly.
 
 If you have a Bloomberg terminal, cd to the scripts directory and run:
-```
+
   init-og-bloombergexample-db.sh
   og-bloombergexample.sh start
-```
+
 Without a Bloomberg terminal, you can use simulated data:
-```
+
   init-og-examples-db.sh
   og-examples.sh start
-```
 
 Wait for the components to load and then point your browser at
 `http://localhost:8080` to see the web user interface.  
