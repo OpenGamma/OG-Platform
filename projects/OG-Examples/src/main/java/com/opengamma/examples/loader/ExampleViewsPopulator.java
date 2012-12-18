@@ -14,17 +14,13 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.PAR_RATE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY;
-import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_NU_NODE_SENSITIVITY;
-import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_RHO_NODE_SENSITIVITY;
-import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_JACOBIAN;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.AUD_SWAP_PORFOLIO_NAME;
-import static com.opengamma.examples.tool.ExampleDatabasePopulator.MIXED_CMS_PORTFOLIO_NAME;
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.MULTI_CURRENCY_SWAP_PORTFOLIO_NAME;
 import static com.opengamma.examples.tool.ExampleDatabasePopulator.SWAPTION_PORTFOLIO_NAME;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING;
@@ -43,8 +39,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.analytics.model.sabrcube.SABRFunction;
-import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
-import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -95,8 +89,8 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     storeViewDefinition(getAUDSwapView2Definition(AUD_SWAP_PORFOLIO_NAME));
     storeViewDefinition(getAUDSwapView3Definition(AUD_SWAP_PORFOLIO_NAME));
     storeViewDefinition(getSwaptionParityViewDefinition(SWAPTION_PORTFOLIO_NAME));
-    storeViewDefinition(getSABRExtrapolationViewDefinition(MIXED_CMS_PORTFOLIO_NAME));
-//    storeViewDefinition(getFXLocalVolatilityViewDefinition(VANILLA_FX_OPTION_PORTFOLIO_NAME));
+    //storeViewDefinition(getSABRExtrapolationViewDefinition(MIXED_CMS_PORTFOLIO_NAME));
+    //storeViewDefinition(getFXLocalVolatilityViewDefinition(VANILLA_FX_OPTION_PORTFOLIO_NAME));
   }
 
   private ViewDefinition getEquityViewDefinition(final String portfolioName) {
@@ -264,7 +258,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     return viewDefinition;
   }
 
-  private ViewDefinition getSABRExtrapolationViewDefinition(final String portfolioName) {
+  /*private ViewDefinition getSABRExtrapolationViewDefinition(final String portfolioName) {
     final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
     final ViewDefinition viewDefinition = new ViewDefinition("Mixed CM", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
@@ -305,7 +299,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.addViewCalculationConfiguration(noExtrapolationConfig);
     viewDefinition.addViewCalculationConfiguration(rightExtrapolationConfig);
     return viewDefinition;
-  }
+  }*/
 
   private ViewDefinition getSwaptionParityViewDefinition(final String portfolioName) {
     final UniqueId portfolioId = getPortfolioId(portfolioName).toLatest();
