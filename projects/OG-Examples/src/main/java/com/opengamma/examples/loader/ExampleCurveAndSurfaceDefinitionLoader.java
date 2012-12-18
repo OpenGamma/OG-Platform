@@ -27,7 +27,7 @@ public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool<ToolCon
   @Override
   protected void doRun() throws Exception {
     final ConfigMaster configMaster = getToolContext().getConfigMaster();
-    new YieldCurveConfigPopulator(configMaster, false);
+    new YieldCurveConfigPopulator(configMaster, true);
     new SwaptionVolatilitySurfaceConfigPopulator(configMaster);
     new IRFutureOptionSurfaceConfigPopulator(configMaster);
     new ExampleFXOptionVolatilitySurfaceConfigPopulator(configMaster);
