@@ -19,8 +19,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.PositionOrTrade;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -85,12 +87,17 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    Double tradeValue = null;
+    BigDecimal tradeValue = null;
     HistoricalTimeSeries htsMarkToMarket = null;
     HistoricalTimeSeries htsCostOfCarry = null;
+    final PositionOrTrade trade = target.getPositionOrTrade();
     for (final ComputedValue input : inputs.getAllValues()) {
       if (ValueRequirementNames.VALUE.equals(input.getSpecification().getValueName())) {
-        tradeValue = (Double) input.getValue();
+        tradeValue = BigDecimal.valueOf((Double) input.getValue());
+        if (trade instanceof Trade) {
+          // Need to scale the value by the trade quantity
+          tradeValue = ((Trade) trade).getQuantity().multiply(tradeValue);
+        }
       } else if (ValueRequirementNames.HISTORICAL_TIME_SERIES.equals(input.getSpecification().getValueName())) {
         final String field = input.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
         if (_costOfCarryField.equals(field)) {
@@ -100,7 +107,6 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
         }
       }
     }
-    final PositionOrTrade trade = target.getPositionOrTrade();
     final Security security = trade.getSecurity();
     LocalDate tradeDate = getPreferredTradeDate(executionContext.getValuationClock(), trade);
     tradeDate = checkAvailableData(tradeDate, htsMarkToMarket, security, _mark2MarketField, _resolutionKey);
@@ -111,7 +117,7 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
       final FutureSecurity futureSecurity = (FutureSecurity) security;
       markToMarket = markToMarket * futureSecurity.getUnitAmount();
     }
-    final BigDecimal dailyPnL = BigDecimal.valueOf(tradeValue).subtract(trade.getQuantity().multiply(BigDecimal.valueOf(markToMarket + costOfCarry)));
+    final BigDecimal dailyPnL = tradeValue.subtract(trade.getQuantity().multiply(BigDecimal.valueOf(markToMarket + costOfCarry)));
     s_logger.debug("{}  security: {} quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}",
           new Object[] {trade.getUniqueId(), trade.getSecurity().getExternalIdBundle(), trade.getQuantity(), tradeValue, markToMarket, costOfCarry, dailyPnL });
     final ComputedValue result = new ComputedValue(valueSpecification, MoneyCalculationUtils.rounded(dailyPnL).doubleValue());
@@ -133,7 +139,14 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final PositionOrTrade positionOrTrade = target.getPositionOrTrade();
     final Security security = positionOrTrade.getSecurity();
-    final ValueRequirement securityValue = new ValueRequirement(ValueRequirementNames.VALUE, target.toSpecification(), getCurrencyProperty(security));
+    final ValueRequirement securityOrTradeValue;
+    if (positionOrTrade instanceof Trade) {
+      // If a TRADE, request the SECURITY's value and scale up during the execute
+      securityOrTradeValue = new ValueRequirement(ValueRequirementNames.VALUE, ComputationTargetType.SECURITY, security.getUniqueId(), getCurrencyProperty(security));
+    } else {
+      // If a POSITION, request the POSITION's value and DON'T scale during the execute
+      securityOrTradeValue = new ValueRequirement(ValueRequirementNames.VALUE, target.toSpecification(), getCurrencyProperty(security));
+    }
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final ExternalIdBundle bundle = security.getExternalIdBundle();
     final DateConstraint startDate = getTimeSeriesStartDate(positionOrTrade);
@@ -145,7 +158,7 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
       return null;
     }
 
-    final Set<ValueRequirement> requirements = Sets.newHashSet(securityValue);
+    final Set<ValueRequirement> requirements = Sets.newHashSet(securityOrTradeValue);
     if (markToMarketValue != null) {
       requirements.add(markToMarketValue);
     }
