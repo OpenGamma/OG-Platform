@@ -58,7 +58,7 @@ public class SimulatedHistoricalDataGenerator {
 
   private static final int NUM_FIELDS = 4;
   private static final double SCALING_FACTOR = 0.005; // i.e. 0.5% * 1SD
-  private static final int TS_LENGTH = 2; // length of timeseries in years
+  private static final int TS_LENGTH = 30; // length of timeseries in months (2.5 years)
 
   public SimulatedHistoricalDataGenerator(final HistoricalTimeSeriesMaster htsMaster) {
     ArgumentChecker.notNull(htsMaster, "htsMaster");
@@ -133,7 +133,7 @@ public class SimulatedHistoricalDataGenerator {
   public static LocalDateDoubleTimeSeries getHistoricalDataPoints(final Random random, final Double finishValue, final int tsLength) {
     final MapLocalDateDoubleTimeSeries result = new MapLocalDateDoubleTimeSeries();
     LocalDate now = LocalDate.now();
-    final LocalDate stopDate = DateUtils.previousWeekDay(now.minusYears(tsLength));
+    final LocalDate stopDate = DateUtils.previousWeekDay(now.minusMonths(tsLength));
     double currentValue = finishValue;
     do {
       currentValue = wiggleValue(random, currentValue, finishValue);
