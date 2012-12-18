@@ -17,53 +17,7 @@
         <repository location='http://eclipse-cs.sf.net/update/'/>
       </repositories>
     </iu>
-    <iu id='net.sf.eclipsecs.migration.feature.group' name='Eclipse Checkstyle Plug-in 4.4.x -&gt; 5.0.0 Migration (Optional)' version='5.5.0.201111092104'>
-      <repositories size='1'>
-        <repository location='http://eclipse-cs.sf.net/update/'/>
-      </repositories>
-    </iu>
-    <iu id='org.eclipse.egit.feature.group' name='Eclipse EGit' version='1.1.0.201109151100-r'>
-      <repositories size='3'>
-        <repository location='http://download.eclipse.org/releases/indigo'/>
-        <repository location='http://download.eclipse.org/egit/updates'/>
-        <repository location='http://download.eclipse.org/releases/indigo/201202240900'/>
-      </repositories>
-    </iu>
-    <iu id='org.eclipse.egit.source.feature.group' name='Eclipse EGit - Source' version='1.1.0.201109151100-r'>
-      <repositories size='1'>
-        <repository location='http://download.eclipse.org/egit/updates'/>
-      </repositories>
-    </iu>
-    <iu id='org.eclipse.jgit.feature.group' name='Eclipse JGit' version='1.1.0.201109151100-r'>
-      <repositories size='3'>
-        <repository location='http://download.eclipse.org/releases/indigo'/>
-        <repository location='http://download.eclipse.org/egit/updates'/>
-        <repository location='http://download.eclipse.org/releases/indigo/201202240900'/>
-      </repositories>
-    </iu>
-    <iu id='org.eclipse.jgit.source.feature.group' name='Eclipse JGit - Source' version='1.1.0.201109151100-r'>
-      <repositories size='1'>
-        <repository location='http://download.eclipse.org/egit/updates'/>
-      </repositories>
-    </iu>
-    <iu id='org.mj.eclipse.reporting.classpath.feature.group' name='Eclipse Project Dependencies Viewer' version='1.1.0'>
-      <repositories size='1'>
-        <repository location='http://epdv.googlecode.com/svn/trunk/UpdateSite'/>
-      </repositories>
-    </iu>
-    <iu id='org.eclipse.sdk.ide' name='Eclipse SDK' version='3.7.1.M20110909-1335'>
-      <repositories size='3'>
-        <repository location='http://download.eclipse.org/eclipse/updates/3.7'/>
-        <repository location='http://download.eclipse.org/releases/indigo'/>
-        <repository location='http://download.eclipse.org/releases/indigo/201202240900'/>
-      </repositories>
-    </iu>
-    <iu id='com.github.sevntu.checkstyle.checks.feature.feature.group' name='EclipseCS SevNTU plugin feature' version='1.0.4'>
-      <repositories size='1'>
-        <repository location='http://eclipse-cs.sf.net/update/'/>
-      </repositories>
-    </iu>
-    <iu id='org.testng.eclipse.feature.group' name='TestNG' version='6.4.0.20120308_1617'>
+    <iu id='org.testng.eclipse.feature.group' name='TestNG' version='6.8.0.20121120_1820'>
       <repositories size='1'>
         <repository location='http://beust.com/eclipse'/>
       </repositories>
