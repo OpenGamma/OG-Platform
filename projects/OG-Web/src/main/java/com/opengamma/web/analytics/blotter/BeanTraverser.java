@@ -39,7 +39,7 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ Object traverse(MetaBean bean, BeanVisitor<?> visitor) {
     BeanVisitor<?> decoratedVisitor = decorate(visitor);
     decoratedVisitor.visitBean(bean);
-    List<Failure> failures = Lists.newArrayList();
+    List<TraversalFailure> failures = Lists.newArrayList();
     for (MetaProperty<?> property : bean.metaPropertyIterable()) {
       Class<?> propertyType = property.propertyType();
       try {
@@ -57,7 +57,7 @@ import com.opengamma.util.ArgumentChecker;
           decoratedVisitor.visitProperty(property);
         }
       } catch (Exception e) {
-        failures.add(new Failure(e, property));
+        failures.add(new TraversalFailure(e, property));
       }
     }
     if (failures.isEmpty()) {
@@ -75,12 +75,12 @@ import com.opengamma.util.ArgumentChecker;
     return decoratedVisitor;
   }
 
-  /* package */ static final class Failure {
+  /* package */ static final class TraversalFailure {
 
     private final Exception _exception;
     private final MetaProperty<?> _property;
 
-    private Failure(Exception exception, MetaProperty<?> property) {
+    private TraversalFailure(Exception exception, MetaProperty<?> property) {
       ArgumentChecker.notNull(exception, "exception");
       ArgumentChecker.notNull(property, "property");
       _exception = exception;
@@ -98,15 +98,15 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ static final class TraversalException extends RuntimeException {
 
-    private final List<Failure> _failures;
+    private final List<TraversalFailure> _failures;
 
-    /* package */ TraversalException(List<Failure> failures) {
+    /* package */ TraversalException(List<TraversalFailure> failures) {
       super("Bean traversal failed");
       ArgumentChecker.notEmpty(failures, "failures");
       _failures = failures;
     }
 
-    /* package */ List<Failure> getFailures() {
+    /* package */ List<TraversalFailure> getFailures() {
       return _failures;
     }
   }
