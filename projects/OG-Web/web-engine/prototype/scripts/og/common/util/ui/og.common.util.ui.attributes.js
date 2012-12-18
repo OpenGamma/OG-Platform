@@ -11,7 +11,6 @@ $.register_module({
         var Attributes = function (config) {
             var block = this, id = og.common.id('attributes'), form = config.form;
             var data = og.blotter.util.FAKE_ATTRIBUTES;
-            console.log(data);
             form.Block.call(block, {module: 'og.views.forms.attributes_tash', 
                 extras: {id: id, data: og.blotter.util.FAKE_ATTRIBUTES}});
             block.on('click', '#' + id + ' ' + add_list + ' .og-js-rem', function (event) {
