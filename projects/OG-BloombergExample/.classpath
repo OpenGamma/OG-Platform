@@ -9,7 +9,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/OG-MasterDB"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG-Web"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG-LiveData"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/OG-BloombergSimulator"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG-Bloomberg"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG-Util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG-Analytics"/>
