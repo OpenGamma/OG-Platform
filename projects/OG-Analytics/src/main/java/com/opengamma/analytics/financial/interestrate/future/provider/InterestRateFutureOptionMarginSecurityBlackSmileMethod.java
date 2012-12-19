@@ -87,7 +87,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
 
   /**
    * Computes the option security price curve sensitivity. The future price is computed without convexity adjustment.
-   * It is supposed that for a given strike the volatility does not change with the curves.
+   * It is supposed that for a given strike the volatility does not change with the curves (sticky strike).
    * @param security The future option security.
    * @param blackData The curve and Black volatility data.
    * @return The security price curve sensitivity.

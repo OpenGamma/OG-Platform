@@ -9,24 +9,24 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.math.surface.Surface;
 
 /**
- * Implementation of a provider of Black smile for options on STIR futures. The volatility is time to expiration/strike/delay dependent. 
+ * Implementation of a provider of normal volatility (Bachelier model) smile for options on STIR futures. The volatility is time to expiration/strike/delay dependent. 
  * The "delay" is the time between expiration of the option and last trading date of the underlying futures.
  */
-public class BlackSTIRFuturesSmileProviderDiscount extends BlackSTIRFuturesSmileProvider {
+public class NormalSTIRFuturesSmileProviderDiscount extends NormalSTIRFuturesSmileProvider {
 
   /**
-   * @param multicurveProvider The multicurve provider.
-   * @param parameters The SABR parameters.
+   * @param multicurveProvider The multi-curves provider.
+   * @param parameters The normal volatility parameters.
    * @param index The cap/floor index.
    */
-  public BlackSTIRFuturesSmileProviderDiscount(MulticurveProviderDiscount multicurveProvider, Surface<Double, Double, Double> parameters, final IborIndex index) {
+  public NormalSTIRFuturesSmileProviderDiscount(MulticurveProviderDiscount multicurveProvider, Surface<Double, Double, Double> parameters, final IborIndex index) {
     super(multicurveProvider, parameters, index);
   }
 
   @Override
-  public BlackSTIRFuturesSmileProviderDiscount copy() {
+  public NormalSTIRFuturesSmileProviderDiscount copy() {
     MulticurveProviderDiscount multicurveProvider = getMulticurveProvider().copy();
-    return new BlackSTIRFuturesSmileProviderDiscount(multicurveProvider, getBlackParameters(), getFuturesIndex());
+    return new NormalSTIRFuturesSmileProviderDiscount(multicurveProvider, getNormalParameters(), getFuturesIndex());
   }
 
   @Override

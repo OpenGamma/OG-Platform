@@ -8,20 +8,20 @@ package com.opengamma.analytics.financial.provider.description.interestrate;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 
 /**
- * Provider of Black smile for options on STIR futures. The volatility is time to expiration/strike/delay dependent. 
+ * Provider of normal volatility (Bachelier model) smile for options on STIR futures. The volatility is time to expiration/strike/delay dependent. 
  * The "delay" is the time between expiration of the option and last trading date of the underlying futures.
  */
-public interface BlackSTIRFuturesSmileProviderInterface extends ParameterProviderInterface {
+public interface NormalSTIRFuturesSmileProviderInterface extends ParameterProviderInterface {
 
   /**
    * Create a new copy of the provider
    * @return The bundle
    */
   @Override
-  BlackSTIRFuturesSmileProviderInterface copy();
+  NormalSTIRFuturesSmileProviderInterface copy();
 
   /**
-   * Gets the Black volatility at a given expiry-strike-delay point.
+   * Gets the normal volatility at a given expiry-strike-delay point.
    * @param expiry The time to expiration.
    * @param strike The strike.
    * @param delay The delay between expiration of the option and last trading date of the underlying futures.

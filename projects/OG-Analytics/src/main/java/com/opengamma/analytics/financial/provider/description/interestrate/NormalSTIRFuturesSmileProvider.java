@@ -9,10 +9,10 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.math.surface.Surface;
 
 /**
- * Implementation of a provider of Black smile for options on STIR futures. The volatility is time to expiration/strike/delay dependent. 
+ * Implementation of a provider of normal volatility (Bachelier model) smile for options on STIR futures. The volatility is time to expiration/strike/delay dependent. 
  * The "delay" is the time between expiration of the option and last trading date of the underlying futures.
  */
-public class BlackSTIRFuturesSmileProvider implements BlackSTIRFuturesSmileProviderInterface {
+public class NormalSTIRFuturesSmileProvider implements NormalSTIRFuturesSmileProviderInterface {
 
   /**
    * The multicurve provider.
@@ -30,19 +30,19 @@ public class BlackSTIRFuturesSmileProvider implements BlackSTIRFuturesSmileProvi
 
   /**
    * @param multicurveProvider The multicurve provider.
-   * @param parameters The SABR parameters.
+   * @param parameters The normal volatility parameters.
    * @param index The cap/floor index.
    */
-  public BlackSTIRFuturesSmileProvider(MulticurveProviderInterface multicurveProvider, Surface<Double, Double, Double> parameters, final IborIndex index) {
+  public NormalSTIRFuturesSmileProvider(MulticurveProviderInterface multicurveProvider, Surface<Double, Double, Double> parameters, final IborIndex index) {
     _multicurveProvider = multicurveProvider;
     _parameters = parameters;
     _index = index;
   }
 
   @Override
-  public BlackSTIRFuturesSmileProvider copy() {
+  public NormalSTIRFuturesSmileProvider copy() {
     MulticurveProviderInterface multicurveProvider = _multicurveProvider.copy();
-    return new BlackSTIRFuturesSmileProvider(multicurveProvider, _parameters, _index);
+    return new NormalSTIRFuturesSmileProvider(multicurveProvider, _parameters, _index);
   }
 
   @Override
@@ -65,7 +65,7 @@ public class BlackSTIRFuturesSmileProvider implements BlackSTIRFuturesSmileProvi
    * Returns the Black parameters.
    * @return The parameters.
    */
-  public Surface<Double, Double, Double> getBlackParameters() {
+  public Surface<Double, Double, Double> getNormalParameters() {
     return _parameters;
   }
 
