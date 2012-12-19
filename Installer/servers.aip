@@ -252,7 +252,7 @@
     <ROW Action="BloombergExample" Condition="( NOT Installed ) AND ( $og_bloombergexample_start=3 )" Sequence="5851"/>
     <ROW Action="OpenGammaExample" Condition="( NOT Installed ) AND ( $og_examples_start=3 )" Sequence="5852"/>
     <ROW Action="AI_AiRemoveFilesRollback" Sequence="3099"/>
-    <ROW Action="viewer.exe" Condition="( NOT Installed ) AND ( &amp;www=3 AND  (&amp;OG_BloombergExample=3 OR &amp;OG_Integration=3 OR &amp;OG_Examples=3) AND  UILevel&gt;=4 )" Sequence="5969"/>
+    <ROW Action="viewer.exe" Condition="( NOT Installed ) AND ( &amp;www=3 AND  (&amp;og_bloombergexample=3 OR &amp;og_examples=3) AND UILevel&gt;=4 )" Sequence="5969"/>
     <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
     <ROW Action="TOOL_UI_FLAG" Condition="( NOT Installed ) AND ( UILevel&lt;4 )" Sequence="201"/>
     <ROW Action="AI_AiRemoveFilesImmediate" Sequence="3499"/>
