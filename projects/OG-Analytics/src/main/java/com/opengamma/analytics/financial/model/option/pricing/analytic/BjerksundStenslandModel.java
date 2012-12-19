@@ -556,22 +556,20 @@ public class BjerksundStenslandModel {
     return res;
   }
 
-  //TODO Have an AD version
+  /**
+   * Get the put option price, plus its delta and gamma from dual-delta and dual-gamma of the call option by using the put-call transformation. 
+   * @param s0 The spot
+   * @param k The strike
+   * @param r The risk-free rate
+   * @param b The cost-of-carry
+   * @param t The time-to-expiry
+   * @param sigma The volatility
+   * @return price, delta and gamma
+   */
   protected double[] getPutDeltaGamma(final double s0, final double k, final double r, final double b, final double t, final double sigma) {
 
-    final double[] res = new double[3];
+    return BjerksundStenslandModelDualDeltaGammaSolver.getCallDualDeltaGamma(k, s0, r - b, -b, t, sigma);
 
-    final double[] cAdjoint = getCallPriceAdjoint(k, s0, r - b, -b, t, sigma);
-
-    res[0] = cAdjoint[0];
-    res[1] = cAdjoint[2];
-
-    final double eps = 1e-5 * s0;
-    final double up = getCallPriceAdjoint(k, s0 + eps, r - b, -b, t, sigma)[2];
-    final double down = getCallPriceAdjoint(k, s0 - eps, r - b, -b, t, sigma)[2];
-    res[2] = (up - down) / 2 / eps;
-
-    return res;
   }
 
   /**

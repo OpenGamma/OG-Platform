@@ -3,11 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy;
+package com.opengamma.analytics.financial.credit.calibratehazardratecurve.standard;
 
 /**
  * 
  */
-public class RiskydV01LegacyCreditDefaultswap {
+public class CalibrateHazardRateCurveStandardCreditDefaultSwap {
 
 }

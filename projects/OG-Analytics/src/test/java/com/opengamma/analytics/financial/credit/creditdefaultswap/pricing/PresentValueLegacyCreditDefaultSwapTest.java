@@ -15,10 +15,22 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyFixedRecoveryCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyForwardStartingCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyMuniCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyQuantoCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyRecoveryLockCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacySovereignCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyFixedRecoveryCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyForwardStartingCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyMuniCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyQuantoCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyRecoveryLockCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacySovereignCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyVanillaCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
@@ -41,7 +53,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  *  Test of the implementation of the valuation model for a CDS
  */
-public class PresentValueLegacyVanillaCreditDefaultSwapTest {
+public class PresentValueLegacyCreditDefaultSwapTest {
 
   // ----------------------------------------------------------------------------------
 
@@ -59,17 +71,21 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
 
   private static final BuySellProtection buySellProtection = BuySellProtection.BUY;
 
-  private static final String protectionBuyerTicker = "MSFT";
-  private static final String protectionBuyerShortName = "Microsoft";
+  private static final String protectionBuyerTicker = "BARC";
+  private static final String protectionBuyerShortName = "Barclays";
   private static final String protectionBuyerREDCode = "ABC123";
 
-  private static final String protectionSellerTicker = "IBM";
-  private static final String protectionSellerShortName = "International Business Machines";
+  private static final String protectionSellerTicker = "GS";
+  private static final String protectionSellerShortName = "Goldman Sachs";
   private static final String protectionSellerREDCode = "XYZ321";
 
   private static final String referenceEntityTicker = "BT";
   private static final String referenceEntityShortName = "British telecom";
   private static final String referenceEntityREDCode = "123ABC";
+
+  private static final String sovereignReferenceEntityTicker = "France";
+  private static final String sovereignReferenceEntityShortName = "France";
+  private static final String sovereignReferenceEntityREDCode = "123ABC";
 
   private static final CreditRating protectionBuyerCompositeRating = CreditRating.AA;
   private static final CreditRating protectionBuyerImpliedRating = CreditRating.A;
@@ -79,6 +95,9 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
 
   private static final CreditRating referenceEntityCompositeRating = CreditRating.AA;
   private static final CreditRating referenceEntityImpliedRating = CreditRating.A;
+
+  private static final CreditRating sovereignReferenceEntityCompositeRating = CreditRating.AA;
+  private static final CreditRating sovereignReferenceEntityImpliedRating = CreditRating.A;
 
   private static final CreditRatingMoodys protectionBuyerCreditRatingMoodys = CreditRatingMoodys.AA;
   private static final CreditRatingStandardAndPoors protectionBuyerCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
@@ -98,6 +117,12 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
 
   private static final boolean referenceEntityHasDefaulted = false;
 
+  private static final CreditRatingMoodys sovereignReferenceEntityCreditRatingMoodys = CreditRatingMoodys.AA;
+  private static final CreditRatingStandardAndPoors sovereignReferenceEntityCreditRatingStandardAndPoors = CreditRatingStandardAndPoors.A;
+  private static final CreditRatingFitch sovereignReferenceEntityCreditRatingFitch = CreditRatingFitch.AA;
+
+  private static final boolean sovereignReferenceEntityHasDefaulted = false;
+
   private static final Sector protectionBuyerSector = Sector.INDUSTRIALS;
   private static final Region protectionBuyerRegion = Region.NORTHAMERICA;
   private static final String protectionBuyerCountry = "United States";
@@ -110,6 +135,10 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
   private static final Region referenceEntityRegion = Region.EUROPE;
   private static final String referenceEntityCountry = "United Kingdom";
 
+  private static final Sector sovereignReferenceEntitySector = Sector.SOVEREIGN;
+  private static final Region sovereignReferenceEntityRegion = Region.EUROPE;
+  private static final String sovereignReferenceEntityCountry = "France";
+
   private static final Currency currency = Currency.USD;
 
   private static final DebtSeniority debtSeniority = DebtSeniority.SENIOR;
@@ -119,6 +148,7 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
 
   private static final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 3, 20);
   private static final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 3, 20);
+  private static final ZonedDateTime forwardStartDate = effectiveDate.plusMonths(3);
   private static final ZonedDateTime maturityDate = DateUtils.getUTCDate(2013, 3, 20);
   private static final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 9, 18);
 
@@ -133,8 +163,9 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
 
   private static final double notional = 10000000.0;
   private static final double recoveryRate = 0.40;
+  private static final double fixedRecoveryRate = 0.40;
   private static final boolean includeAccruedPremium = false;
-  private static final PriceType priceType = PriceType.CLEAN;
+  private static final PriceType priceType = PriceType.DIRTY;
   private static final boolean protectionStart = true;
 
   private static final double parSpread = 100.0;
@@ -316,6 +347,9 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
   // Build the hazard rate curve object (No offset - survival probability = 1 on valuationDate)
   private static final HazardRateCurve hazardRateCurve = new HazardRateCurve(hazardRateTimes, hazardRates, 0.0);
 
+  private static final HazardRateCurve sovereignHazardRateCurve = hazardRateCurve;
+  private static final HazardRateCurve muniHazardRateCurve = hazardRateCurve;
+
   // ----------------------------------------------------------------------------------
 
   // Construct the obligors party to the contract
@@ -362,10 +396,176 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
       referenceEntityRegion,
       referenceEntityCountry);
 
+  private static final Obligor sovereignReferenceEntity = new Obligor(
+      sovereignReferenceEntityTicker,
+      sovereignReferenceEntityShortName,
+      sovereignReferenceEntityREDCode,
+      sovereignReferenceEntityCompositeRating,
+      sovereignReferenceEntityImpliedRating,
+      sovereignReferenceEntityCreditRatingMoodys,
+      sovereignReferenceEntityCreditRatingStandardAndPoors,
+      sovereignReferenceEntityCreditRatingFitch,
+      sovereignReferenceEntityHasDefaulted,
+      sovereignReferenceEntitySector,
+      sovereignReferenceEntityRegion,
+      sovereignReferenceEntityCountry);
+
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Construct a CDS contract
-  private static final LegacyVanillaCreditDefaultSwapDefinition cds = new LegacyVanillaCreditDefaultSwapDefinition(
+  // Construct a set of CDS contracts for each type of CDS contract
+
+  private static final LegacyFixedRecoveryCreditDefaultSwapDefinition legacyFixedRecoveryCDS = new LegacyFixedRecoveryCreditDefaultSwapDefinition(
+      buySellProtection,
+      protectionBuyer,
+      protectionSeller,
+      referenceEntity,
+      currency,
+      debtSeniority,
+      restructuringClause,
+      calendar,
+      startDate,
+      effectiveDate,
+      maturityDate,
+      stubType,
+      couponFrequency,
+      daycountFractionConvention,
+      businessdayAdjustmentConvention,
+      immAdjustMaturityDate,
+      adjustEffectiveDate,
+      adjustMaturityDate,
+      notional,
+      fixedRecoveryRate,
+      includeAccruedPremium,
+      protectionStart,
+      parSpread);
+
+  private static final LegacyForwardStartingCreditDefaultSwapDefinition legacyForwardStartingCDS = new LegacyForwardStartingCreditDefaultSwapDefinition(
+      buySellProtection,
+      protectionBuyer,
+      protectionSeller,
+      referenceEntity,
+      currency,
+      debtSeniority,
+      restructuringClause,
+      calendar,
+      startDate,
+      effectiveDate,
+      maturityDate,
+      stubType,
+      couponFrequency,
+      daycountFractionConvention,
+      businessdayAdjustmentConvention,
+      immAdjustMaturityDate,
+      adjustEffectiveDate,
+      adjustMaturityDate,
+      notional,
+      recoveryRate,
+      includeAccruedPremium,
+      protectionStart,
+      parSpread,
+      forwardStartDate);
+
+  private static final LegacyMuniCreditDefaultSwapDefinition legacyMuniCDS = new LegacyMuniCreditDefaultSwapDefinition(
+      buySellProtection,
+      protectionBuyer,
+      protectionSeller,
+      referenceEntity,
+      currency,
+      debtSeniority,
+      restructuringClause,
+      calendar,
+      startDate,
+      effectiveDate,
+      maturityDate,
+      stubType,
+      couponFrequency,
+      daycountFractionConvention,
+      businessdayAdjustmentConvention,
+      immAdjustMaturityDate,
+      adjustEffectiveDate,
+      adjustMaturityDate,
+      notional,
+      recoveryRate,
+      includeAccruedPremium,
+      protectionStart,
+      parSpread);
+
+  private static final LegacyQuantoCreditDefaultSwapDefinition legacyQuantoCDS = new LegacyQuantoCreditDefaultSwapDefinition(
+      buySellProtection,
+      protectionBuyer,
+      protectionSeller,
+      referenceEntity,
+      currency,
+      debtSeniority,
+      restructuringClause,
+      calendar,
+      startDate,
+      effectiveDate,
+      maturityDate,
+      stubType,
+      couponFrequency,
+      daycountFractionConvention,
+      businessdayAdjustmentConvention,
+      immAdjustMaturityDate,
+      adjustEffectiveDate,
+      adjustMaturityDate,
+      notional,
+      recoveryRate,
+      includeAccruedPremium,
+      protectionStart,
+      parSpread);
+
+  private static final LegacyRecoveryLockCreditDefaultSwapDefinition legacyRecoveryLockCDS = new LegacyRecoveryLockCreditDefaultSwapDefinition(
+      buySellProtection,
+      protectionBuyer,
+      protectionSeller,
+      referenceEntity,
+      currency,
+      debtSeniority,
+      restructuringClause,
+      calendar,
+      startDate,
+      effectiveDate,
+      maturityDate,
+      stubType,
+      couponFrequency,
+      daycountFractionConvention,
+      businessdayAdjustmentConvention,
+      immAdjustMaturityDate,
+      adjustEffectiveDate,
+      adjustMaturityDate,
+      notional,
+      recoveryRate,
+      includeAccruedPremium,
+      protectionStart,
+      parSpread);
+
+  private static final LegacySovereignCreditDefaultSwapDefinition legacySovereignCDS = new LegacySovereignCreditDefaultSwapDefinition(
+      buySellProtection,
+      protectionBuyer,
+      protectionSeller,
+      sovereignReferenceEntity,
+      currency,
+      debtSeniority,
+      restructuringClause,
+      calendar,
+      startDate,
+      effectiveDate,
+      maturityDate,
+      stubType,
+      couponFrequency,
+      daycountFractionConvention,
+      businessdayAdjustmentConvention,
+      immAdjustMaturityDate,
+      adjustEffectiveDate,
+      adjustMaturityDate,
+      notional,
+      recoveryRate,
+      includeAccruedPremium,
+      protectionStart,
+      parSpread);
+
+  private static final LegacyVanillaCreditDefaultSwapDefinition legacyVanillaCDS = new LegacyVanillaCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
       protectionSeller,
@@ -403,15 +603,69 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
 
     // -----------------------------------------------------------------------------------------------
 
-    // Call the constructor to create a CDS present value object (for this type of CDS contract)
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
+    // Call the constructors to create a CDS present value object (for the particular type of CDS contract)
+    final PresentValueLegacyFixedRecoveryCreditDefaultSwap fixedRecoveryCreditDefaultSwap = new PresentValueLegacyFixedRecoveryCreditDefaultSwap();
+    final PresentValueLegacyForwardStartingCreditDefaultSwap forwardStartingCreditDefaultSwap = new PresentValueLegacyForwardStartingCreditDefaultSwap();
+    final PresentValueLegacyMuniCreditDefaultSwap muniCreditDefaultSwap = new PresentValueLegacyMuniCreditDefaultSwap();
+    final PresentValueLegacyQuantoCreditDefaultSwap quantoCreditDefaultSwap = new PresentValueLegacyQuantoCreditDefaultSwap();
+    final PresentValueLegacyRecoveryLockCreditDefaultSwap recoveryLockCreditDefaultSwap = new PresentValueLegacyRecoveryLockCreditDefaultSwap();
+    final PresentValueLegacySovereignCreditDefaultSwap sovereignCreditDefaultSwap = new PresentValueLegacySovereignCreditDefaultSwap();
+    final PresentValueLegacyVanillaCreditDefaultSwap vanillaCreditDefaultSwap = new PresentValueLegacyVanillaCreditDefaultSwap();
 
-    // Calculate the CDS MtM
-    final double presentValueLegacyVanillaCDS = creditDefaultSwap.getPresentValueLegacyVanillaCreditDefaultSwap(valuationDate, cds, yieldCurve, hazardRateCurve, priceType);
+    // Calculate the legacy fixed recovery CDS MtM and par spread 
+    final double presentValueLegacyFixedRecoveryCDS = fixedRecoveryCreditDefaultSwap.getPresentValueLegacyFixedRecoveryCreditDefaultSwap(valuationDate, legacyFixedRecoveryCDS, yieldCurve,
+        hazardRateCurve, priceType);
+    final double parSpreadLegacyFixedRecoveryCDS = fixedRecoveryCreditDefaultSwap.getParSpreadLegacyFixedRecoveryCreditDefaultSwap(valuationDate, legacyFixedRecoveryCDS, yieldCurve, hazardRateCurve,
+        priceType);
 
+    // Calculate the legacy forward starting CDS MtM  and par spread
+    final double presentValueLegacyForwardStartingCDS = forwardStartingCreditDefaultSwap.getPresentValueLegacyForwardStartingCreditDefaultSwap(valuationDate, legacyForwardStartingCDS, yieldCurve,
+        hazardRateCurve, priceType);
+    final double parSpreadLegacyForwardStartingCDS = forwardStartingCreditDefaultSwap.getParSpreadLegacyForwardStartingCreditDefaultSwap(valuationDate, legacyForwardStartingCDS, yieldCurve,
+        hazardRateCurve, priceType);
+
+    // Calculate the legacy muni CDS MtM and par spread
+    final double presentValueLegacyMuniCDS = muniCreditDefaultSwap.getPresentValueLegacyMuniCreditDefaultSwap(valuationDate, legacyMuniCDS, yieldCurve, muniHazardRateCurve, priceType);
+    final double parSpreadLegacyMuniCDS = muniCreditDefaultSwap.getParSpreadLegacyMuniCreditDefaultSwap(valuationDate, legacyMuniCDS, yieldCurve, muniHazardRateCurve, priceType);
+
+    // Calculate the legacy quanto CDS MtM and par spread
+    final double presentValueLegacyQuantoCDS = quantoCreditDefaultSwap.getPresentValueLegacyQuantoCreditDefaultSwap(valuationDate, legacyQuantoCDS, yieldCurve, hazardRateCurve, priceType);
+    final double parSpreadLegacyQuantoCDS = quantoCreditDefaultSwap.getParSpreadLegacyQuantoCreditDefaultSwap(valuationDate, legacyQuantoCDS, yieldCurve, hazardRateCurve, priceType);
+
+    // Calculate the legacy recovery lock CDS MtM and par spread
+    final double presentValueLegacyRecoveryLockCDS = recoveryLockCreditDefaultSwap.getPresentValueLegacyRecoveryLockCreditDefaultSwap(valuationDate, legacyRecoveryLockCDS, yieldCurve,
+        hazardRateCurve, priceType);
+    final double parSpreadLegacyRecoveryLockCDS = recoveryLockCreditDefaultSwap.getParSpreadLegacyRecoveryLockCreditDefaultSwap(valuationDate, legacyRecoveryLockCDS, yieldCurve, hazardRateCurve,
+        priceType);
+
+    // Calculate the legacy sovereign CDS MtM and par spread
+    final double presentValueSovereignCDS = sovereignCreditDefaultSwap.getPresentValueLegacySovereignCreditDefaultSwap(valuationDate, legacySovereignCDS, yieldCurve, sovereignHazardRateCurve,
+        priceType);
+    final double parSpreadSovereignCDS = sovereignCreditDefaultSwap.getParSpreadLegacySovereignCreditDefaultSwap(valuationDate, legacySovereignCDS, yieldCurve, sovereignHazardRateCurve, priceType);
+
+    // Calculate the legacy vanilla CDS MtM and par spread
+    final double presentValueLegacyVanillaCDS = vanillaCreditDefaultSwap.getPresentValueLegacyVanillaCreditDefaultSwap(valuationDate, legacyVanillaCDS, yieldCurve, hazardRateCurve, priceType);
+    final double parSpreadLegacyVanillaCDS = vanillaCreditDefaultSwap.getParSpreadLegacyVanillaCreditDefaultSwap(valuationDate, legacyVanillaCDS, yieldCurve, hazardRateCurve, priceType);
+
+    // Report the results
     if (outputResults) {
-      System.out.println("CDS PV = " + "\t" + presentValueLegacyVanillaCDS);
+      System.out.println("Legacy Fixed Recovery CDS PV = " + "\t" + presentValueLegacyFixedRecoveryCDS);
+      System.out.println("Legacy Forward Starting CDS PV = " + "\t" + presentValueLegacyForwardStartingCDS);
+      System.out.println("Legacy Muni CDS PV = " + "\t" + presentValueLegacyMuniCDS);
+      System.out.println("Legacy Quanto CDS PV = " + "\t" + presentValueLegacyQuantoCDS);
+      System.out.println("Legacy Recovery Lock CDS PV = " + "\t" + presentValueLegacyRecoveryLockCDS);
+      System.out.println("Legacy Sovereign CDS PV = " + "\t" + presentValueSovereignCDS);
+      System.out.println("Legacy Vanilla CDS PV = " + "\t" + presentValueLegacyVanillaCDS);
 
+      System.out.println();
+
+      System.out.println("Legacy Fixed Recovery CDS par spread = " + "\t" + parSpreadLegacyFixedRecoveryCDS);
+      System.out.println("Legacy Forward Starting CDS par spread = " + "\t" + parSpreadLegacyForwardStartingCDS);
+      System.out.println("Legacy Muni CDS par spread = " + "\t" + parSpreadLegacyMuniCDS);
+      System.out.println("Legacy Quanto CDS par spread = " + "\t" + parSpreadLegacyQuantoCDS);
+      System.out.println("Legacy recovery Lock CDS par spread = " + "\t" + parSpreadLegacyRecoveryLockCDS);
+      System.out.println("Legacy Sovereign CDS par spread = " + "\t" + parSpreadSovereignCDS);
+      System.out.println("Legacy Vanilla CDS par spread = " + "\t" + parSpreadLegacyVanillaCDS);
     }
 
     // -----------------------------------------------------------------------------------------------
@@ -419,6 +673,7 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
 
   // -----------------------------------------------------------------------------------------------
 
+  /*
   //@Test
   public void testPresentValueLegacyCreditDefaultSwapRecoveryRateSensitivity() {
 
@@ -434,7 +689,7 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Create a valuation CDS whose valuationDate will vary (will be a modified version of the baseline CDS)
-    LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;
+    LegacyVanillaCreditDefaultSwapDefinition valuationCDS = vanillaCDS;
 
     for (double testRecoveryRate = 0.0; testRecoveryRate <= 1.0; testRecoveryRate += 0.1) {
 
@@ -450,9 +705,11 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
 
     // -----------------------------------------------------------------------------------------------
   }
+  */
 
   // -----------------------------------------------------------------------------------------------
 
+  /*
   //@Test
   public void testPresentValueLegacyCreditDefaultSwapSpreadSensitivity() {
 
@@ -468,7 +725,7 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Create a valuation CDS whose valuationDate will vary (will be a modified version of the baseline CDS)
-    LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;
+    LegacyVanillaCreditDefaultSwapDefinition valuationCDS = vanillaCDS;
 
     double testSpread = 0.0;
 
@@ -494,9 +751,11 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
 
     // -----------------------------------------------------------------------------------------------
   }
+  */
 
   // -----------------------------------------------------------------------------------------------
 
+  /*
   //@Test
   public void testPresentValueLegacyCreditDefaultSwapTimeDecay() {
 
@@ -509,7 +768,7 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
     // -----------------------------------------------------------------------------------------------
 
     // Create a valuation CDS whose valuationDate will vary (will be a modified version of the baseline CDS)
-    final LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;
+    final LegacyVanillaCreditDefaultSwapDefinition valuationCDS = vanillaCDS;
 
     // Call the constructor to create a CDS whose PV we will compute
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
@@ -541,9 +800,11 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
 
     // -----------------------------------------------------------------------------------------------
   }
+  */
 
   // -----------------------------------------------------------------------------------------------
 
+  /*
   //@Test
   public void testPresentValueLegacyCreditDefaultSwapIncreasingMaturity() {
 
@@ -556,7 +817,7 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
     // -----------------------------------------------------------------------------------------------
 
     // Create a valuation CDS whose valuationDate will vary (will be a modified version of the baseline CDS)
-    LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;
+    LegacyVanillaCreditDefaultSwapDefinition valuationCDS = vanillaCDS;
 
     // Call the constructor to create a CDS whose PV we will compute
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
@@ -591,6 +852,7 @@ public class PresentValueLegacyVanillaCreditDefaultSwapTest {
 
     // -----------------------------------------------------------------------------------------------
   }
+  */
 
   // -----------------------------------------------------------------------------------------------
 }
