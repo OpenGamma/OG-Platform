@@ -21,7 +21,10 @@ $.register_module({
                     new og.blotter.forms.blocks.Portfolio({form: form}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.forward_rate_agreement_tash',
-                        extras: {}
+                        extras: {},
+                        children: [
+                            new form.Block({module:'og.views.forms.currency_tash'})
+                        ]
                     }),
                     new og.common.util.ui.Attributes({form: form})
                 );
