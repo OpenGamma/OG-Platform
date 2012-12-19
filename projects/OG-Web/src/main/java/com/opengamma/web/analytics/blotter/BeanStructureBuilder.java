@@ -28,7 +28,9 @@ import com.opengamma.util.OpenGammaClock;
 
 /**
  * Builds an HTML page containing a description of a type's attributes. It's intended to help with the development
- * of the blotter, it's not intended to be a long-term feature of the platform. Used by bean-structure.tfl.
+ * of the blotter, not to be a long-term feature of the platform (hence the hacky nature of it).
+ * Its output is used to populate bean-structure.tfl.
+ * TODO decide if this is worth keeping and clean it up or delete it when it's not useful any more
  */
 /* package */ class BeanStructureBuilder implements BeanVisitor<Map<String, Object>> {
 
@@ -61,17 +63,17 @@ import com.opengamma.util.OpenGammaClock;
 
   private final Map<String, Object> _beanData = Maps.newHashMap();
   private final BeanHierarchy _beanHierarchy;
-  private final List<Map<Object, Object>> _propertyData = Lists.newArrayList();
+  private final List<Map<String, Object>> _propertyData = Lists.newArrayList();
   private final Map<Class<?>, Class<?>> _underlyingSecurityTypes;
   private final Map<Class<?>, String> _endpoints;
 
   /* package */ BeanStructureBuilder(Set<MetaBean> metaBeans,
                                      Map<Class<?>, Class<?>> underlyingSecurityTypes,
                                      Map<Class<?>, String> endpoints) {
-    _endpoints = endpoints;
     ArgumentChecker.notNull(underlyingSecurityTypes, "underlyingSecurityTypes");
     ArgumentChecker.notNull(metaBeans, "metaBeans");
     ArgumentChecker.notNull(endpoints, "endpoints");
+    _endpoints = endpoints;
     _underlyingSecurityTypes = underlyingSecurityTypes;
     _beanHierarchy = new BeanHierarchy(metaBeans);
   }
@@ -82,25 +84,14 @@ import com.opengamma.util.OpenGammaClock;
     _beanData.put("type", metaBean.beanType().getSimpleName());
     Class<?> underlyingType = _underlyingSecurityTypes.get(metaBean.beanType());
     if (underlyingType != null) {
-      _beanData.put("hasUnderlying", true);
-      _beanData.put("underlyingTypeInfo", typesFor(underlyingType));
-    } else {
-      _beanData.put("hasUnderlying", false);
+      _beanData.put("underlyingTypes", typesFor(underlyingType));
     }
   }
 
   @Override
   public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
     Class<?> type = property.propertyType();
-    if (isConvertible(type)) {
-      _propertyData.add(propertyData(property,
-                                     "typeInfo", typesFor(type),
-                                     "type", "single"));
-    } else {
-      _propertyData.add(propertyData(property,
-                                     "typeInfo", typesFor(type),
-                                     "type", "single"));
-    }
+    _propertyData.add(property(property, typesFor(type), null, PropertyType.SINGLE));
   }
 
   @Override
@@ -123,17 +114,12 @@ import com.opengamma.util.OpenGammaClock;
     Class<? extends Bean> beanType = property.metaBean().beanType();
     Class<?> keyType = JodaBeanUtils.mapKeyType(property, beanType);
     Class<?> valueType = JodaBeanUtils.mapValueType(property, beanType);
-    _propertyData.add(propertyData(property,
-                                   "keyTypeInfo", typesFor(keyType),
-                                   "valueTypeInfo", typesFor(valueType),
-                                   "type", "map"));
+    _propertyData.add(property(property, typesFor(keyType), typesFor(valueType), PropertyType.MAP));
   }
 
   @Override
   public void visitProperty(MetaProperty<?> property) {
-    _propertyData.add(propertyData(property,
-                                   "typeInfo", typesFor(property.propertyType()),
-                                   "type", "single"));
+    _propertyData.add(property(property, typesFor(property.propertyType()), null, PropertyType.SINGLE));
   }
 
   @Override
@@ -143,34 +129,8 @@ import com.opengamma.util.OpenGammaClock;
     return _beanData;
   }
 
-  private Map<Object, Object> arrayType(MetaProperty<?> property) {
-    return propertyData(property,
-                        "typeInfo", typesFor(property.propertyType()),
-                        "type", "array");
-  }
-
-  private List<TypeInfo> typesFor(Class<?> type) {
-    String typeName = s_types.get(type);
-    if (typeName != null) {
-      return ImmutableList.of(new TypeInfo(typeName, null, null, false));
-    } else {
-      boolean canConvert;
-      canConvert = isConvertible(type);
-      if (canConvert) {
-        return ImmutableList.of(new TypeInfo(STRING, type.getSimpleName(), _endpoints.get(type), false));
-      } else {
-        // TODO deal with (potentially multiple) bean types
-        Set<Class<? extends Bean>> subtypes = _beanHierarchy.subtypes(type);
-        if (subtypes.isEmpty()) {
-          throw new OpenGammaRuntimeException("No type mapping found for class " + type.getName());
-        }
-        List<TypeInfo> types = Lists.newArrayListWithCapacity(subtypes.size());
-        for (Class<? extends Bean> subtype : subtypes) {
-          types.add(new TypeInfo(subtype.getSimpleName(), null, _endpoints.get(subtype), true));
-        }
-        return types;
-      }
-    }
+  private Map<String, Object> arrayType(MetaProperty<?> property) {
+    return property(property, typesFor(property.propertyType()), null, PropertyType.ARRAY);
   }
 
   private static boolean isConvertible(Class<?> type) {
@@ -193,62 +153,70 @@ import com.opengamma.util.OpenGammaClock;
     }
   }
 
-  // TODO proper params, not just map elements
-  private static Map<Object, Object> propertyData(MetaProperty<?> property, Object... values) {
-    final Map<Object, Object> result = Maps.newHashMap();
-    result.put("name", property.name());
-    result.put("isOptional", isNullable(property));
+  ///* package */ static List<Map<String, Object>> typesFor(Class<?> type, BeanHierarchy beanHierarchy, ) {
+  //
+  //}
+
+  /* package */ List<Map<String, Object>> typesFor(Class<?> type) {
+    String typeName = s_types.get(type);
+    if (typeName != null) {
+      return ImmutableList.of(typeInfo(typeName, null, null, false));
+    } else {
+      boolean canConvert;
+      canConvert = isConvertible(type);
+      if (canConvert) {
+        return ImmutableList.of(typeInfo(STRING, type.getSimpleName(), _endpoints.get(type), false));
+      } else {
+        // TODO deal with (potentially multiple) bean types
+        Set<Class<? extends Bean>> subtypes = _beanHierarchy.subtypes(type);
+        if (subtypes.isEmpty()) {
+          throw new OpenGammaRuntimeException("No type mapping found for class " + type.getName());
+        }
+        List<Map<String, Object>> types = Lists.newArrayListWithCapacity(subtypes.size());
+        for (Class<? extends Bean> subtype : subtypes) {
+          types.add(typeInfo(subtype.getSimpleName(), null, _endpoints.get(subtype), true));
+        }
+        return types;
+      }
+    }
+  }
+
+  /* package */ static Map<String, Object> property(MetaProperty<?> property,
+                                                    List<Map<String, Object>> types,
+                                                    List<Map<String, Object>> valueTypes,
+                                                    PropertyType propertyType) {
+    Map<String, Object> result = Maps.newHashMap();
     // TODO this is *really* dirty and not supposed to be anything else. fix or remove
     boolean readOnly = property.readWrite() == PropertyReadWrite.READ_ONLY ||
-                       property.name().equals("uniqueId") ||
-                       property.name().equals("name");
-    result.put("isReadOnly", readOnly);
-    for (int i = 0; i < values.length / 2; i++) {
-      result.put(values[i * 2], values[(i * 2) + 1]);
+        property.name().equals("uniqueId") ||
+        property.name().equals("name");
+
+    // TODO this is obviously a poor choice of names
+    result.put("type", propertyType.name().toLowerCase());
+    result.put("types", types);
+    result.put("name", property.name());
+    result.put("optional", isNullable(property));
+    result.put("readOnly", readOnly);
+    if (valueTypes != null) {
+      result.put("valueTypes", types);
     }
     return result;
   }
 
-  @SuppressWarnings("UnusedDeclaration") // this is only public so Freemarker can use it
-  public static final class TypeInfo {
+  // TODO replace with strings
+  public enum PropertyType {
+    SINGLE, ARRAY, MAP
+  }
 
-    private final String _expectedType;
-    private final String _actualType;
-    private final String _endpoint;
-    private final boolean _isBeanType;
-
-    private TypeInfo(String expectedType, String actualType, String endpoint, boolean isBeanType) {
-      ArgumentChecker.notNull(expectedType, "expectedType");
-      _isBeanType = isBeanType;
-      _expectedType = expectedType;
-      _actualType = actualType;
-      _endpoint = endpoint;
-    }
-
-    public String getExpectedType() {
-      return _expectedType;
-    }
-
-    public String getActualType() {
-      return _actualType;
-    }
-
-    public String getEndpoint() {
-      return _endpoint;
-    }
-
-    public boolean getBeanType() {
-      return _isBeanType;
-    }
-
-    @Override
-    public String toString() {
-      return "TypeInfo [" +
-          "_expectedType='" + _expectedType + '\'' +
-          ", _actualType='" + _actualType + '\'' +
-          ", _endpoint='" + _endpoint + '\'' +
-          ", _isBeanType=" + _isBeanType +
-          "]";
-    }
+  /* package */ static Map<String, Object> typeInfo(String expectedType,
+                                                    String actualType,
+                                                    String endpoint,
+                                                    boolean isBeanType) {
+    Map<String,Object> results = Maps.newHashMap();
+    results.put("expectedType", expectedType);
+    results.put("actualType", actualType);
+    results.put("endpoint", endpoint);
+    results.put("beanType", isBeanType);
+    return results;
   }
 }

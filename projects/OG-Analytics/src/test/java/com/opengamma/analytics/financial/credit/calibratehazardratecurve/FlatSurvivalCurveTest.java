@@ -3,11 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.hazardratemodel;
+package com.opengamma.analytics.financial.credit.calibratehazardratecurve;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.credit.calibratehazardratecurve.FlatSurvivalCurve;
+import com.opengamma.analytics.financial.credit.hazardratecurve.FlatSurvivalCurve;
 
 /**
  * Class to test the implementation of the flat survival curve object

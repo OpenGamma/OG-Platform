@@ -8,10 +8,11 @@ package com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -21,14 +22,20 @@ import com.opengamma.util.ArgumentChecker;
  * Class to calibrate a single-name CDS hazard rate term structure to the market observed term structure of par CDS spreads
  * The input is a vector of tenors and market observed par CDS spread quotes for those tenors
  * The output is a vector of calibrated hazard rates for those tenors
+ * 
+ * This calibration method is applicable to legacy CDS
  */
 public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   // Create an object for calculating the premium leg schedule
   private static final GenerateCreditDefaultSwapPremiumLegSchedule SCHEDULE_GENERATOR = new GenerateCreditDefaultSwapPremiumLegSchedule();
+
   // Create an object for getting the PV of a CDS
   private static final PresentValueLegacyCreditDefaultSwap PV_CALCULATOR = new PresentValueLegacyCreditDefaultSwap();
 
-  // ------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Set the maximum number of iterations, tolerance and range of the hazard rate bounds for the root finder
 
@@ -41,7 +48,7 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
   private static final double DEFAULT_HAZARD_RATE_RANGE_MULTIPLIER = 0.5;
   private final double _hazardRateRangeMultiplier;
 
-  // ------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Ctor to initialise a CalibrateSurvivalCurve object with the default values for the root finder
   public CalibrateHazardRateCurveLegacyCreditDefaultSwap() {
@@ -87,7 +94,7 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
     return new HazardRateCurve(tenorsAsDoubles, hazardRates, 0);
   }
 
-  // ------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Lots of ongoing work to do in this class - Work In Progress
 
@@ -97,7 +104,7 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
   // TODO : Not happy with the structure of this solution (would prefer to input and return a DoublesCurve object not a single vector) - need to revisit
   // TODO : There is a problem with the accrued payment when calibrating a term structure - need to fix
 
-  // ------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Member function to calibrate a CDS objects hazard rate term structure to a term structure of market observed par CDS spreads
   // The input CDS object has all the schedule etc settings for computing the CDS's PV's etc
@@ -105,11 +112,13 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
 
   public double[] getCalibratedHazardRateTermStructure(
       final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final LegacyCreditDefaultSwapDefinition cds, // Pass in a Legacy CDS object
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
       final ISDACurve yieldCurve,
       final PriceType priceType) {
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Check the input arguments
 
@@ -126,24 +135,24 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
     final SpreadTermStructureDataChecker checkMarketData = new SpreadTermStructureDataChecker();
 
     // Check the efficacy of the input market data
-    checkMarketData.checkSpreadData(valuationDate, /*cds, */marketTenors, marketSpreads);
+    checkMarketData.checkSpreadData(valuationDate, marketTenors, marketSpreads);
 
-    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Vector of (calibrated) piecewise constant hazard rates that we compute from the solver
     final double[] hazardRates = new double[marketTenors.length];
 
-    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Convert the ZonedDateTime tenors into doubles (measured from valuationDate)
     final double[] tenorsAsDoubles = SCHEDULE_GENERATOR.convertTenorsToDoubles(marketTenors, valuationDate, DayCountFactory.INSTANCE.getDayCount("ACT/365"));
 
-    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Create a calibration CDS object from the input CDS (maturity and contractual spread of this CDS will vary as we bootstrap up the hazard rate term structure)
-    LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
+    LegacyCreditDefaultSwapDefinition calibrationCDS = cds;
 
-    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Loop through each of the input tenors
     for (int m = 0; m < marketTenors.length; m++) {
@@ -160,38 +169,38 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
       }
 
       // Modify the calibration CDS to have a maturity of tenor[m]
-      //calibrationCDS = calibrationCDS.withMaturityDate(marketTenors[m]);
+      calibrationCDS = calibrationCDS.withMaturityDate(marketTenors[m]);
 
       // Modify the calibration CDS to have a contractual spread of marketSpread[m]
-      //calibrationCDS = calibrationCDS.withSpread(marketSpreads[m]);
+      calibrationCDS = calibrationCDS.withSpread(marketSpreads[m]);
 
       // Compute the calibrated hazard rate for tenor[m] (using the calibrated hazard rates for tenors 1, ..., m - 1)
       hazardRates[m] = calibrateHazardRate(valuationDate, calibrationCDS, yieldCurve, runningTenors, runningHazardRates, priceType);
     }
 
-    // ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     return hazardRates;
   }
 
-  // ------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Private method to do the root search to find the hazard rate for tenor m which gives the CDS a PV of zero
 
   private double calibrateHazardRate(
       final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition calibrationCDS,
+      final LegacyCreditDefaultSwapDefinition calibrationCDS,
       final ISDACurve yieldCurve,
       final double[] runningTenors,
       final double[] hazardRates,
       final PriceType priceType) {
 
-    // ------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     double deltaHazardRate = 0.0;
     double calibratedHazardRate = 0.0;
 
-    // ------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the initial guess for the calibrated hazard rate for this tenor
     final double hazardRateGuess = (calibrationCDS.getParSpread() / 10000.0) / (1 - calibrationCDS.getRecoveryRate());
@@ -200,7 +209,7 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
     double lowerHazardRate = (1.0 - _hazardRateRangeMultiplier) * hazardRateGuess;
     double upperHazardRate = (1.0 + _hazardRateRangeMultiplier) * hazardRateGuess;
 
-    // ------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Make sure the initial hazard rate bounds are in the range [0, 1] (otherwise would have arbitrage)
     if (lowerHazardRate < 0.0) {
@@ -211,12 +220,12 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
       upperHazardRate = 1.0;
     }
 
-    // ------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Construct a hazard rate term structure curve using the (calibrated) first m tenors in runningTenors
     final HazardRateCurve hazardRateCurve = new HazardRateCurve(runningTenors, hazardRates, 0.0);
 
-    // ------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Now do the root search (in hazard rate space) - simple bisection method for the moment (guaranteed to work and we are not concerned with speed at the moment)
 
@@ -261,18 +270,18 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
       }
     }
 
-    // ------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
 
     return 0.0;
   }
 
-  // ------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Private member function to compute the PV of a CDS given a particular guess for the hazard rate at tenor m (given calibrated hazard rates for tenors 0, ..., m - 1)
 
   private double calculateCDSPV(
       final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition calibrationCDS,
+      final LegacyCreditDefaultSwapDefinition calibrationCDS,
       final double[] tenors,
       final double[] hazardRates,
       final double hazardRateMidPoint,
@@ -290,10 +299,10 @@ public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
     hazardRateCurve = hazardRateCurve.bootstrapHelperHazardRateCurve(tenors, hazardRates);
 
     // Compute the PV of the CDS with this term structure of hazard rates
-    final double cdsPresentValueAtMidpoint = 0; //PV_CALCULATOR.getPresentValueLegacyVanillaCreditDefaultSwap(valuationDate, calibrationCDS, yieldCurve, hazardRateCurve, priceType);
+    final double cdsPresentValueAtMidpoint = PV_CALCULATOR.getPresentValueLegacyCreditDefaultSwap(valuationDate, calibrationCDS, yieldCurve, hazardRateCurve, priceType);
 
     return cdsPresentValueAtMidpoint;
   }
 
-  // ------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

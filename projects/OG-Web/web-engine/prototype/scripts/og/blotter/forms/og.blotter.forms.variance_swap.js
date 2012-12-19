@@ -20,19 +20,7 @@ $.register_module({
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
                     new form.Block({
-                        module: 'og.blotter.forms.blocks.swap_quick_entry_tash',
-                        extras: {}
-                    }),
-                    new form.Block({
-                        module: 'og.blotter.forms.blocks.swap_details_tash',
-                        extras: {}
-                    }),
-                    new form.Block({
-                        module: 'og.blotter.forms.blocks.swap_details_fixed_tash',
-                        extras: {}
-                    }) ,
-                    new form.Block({
-                        module: 'og.blotter.forms.blocks.swap_var_details_floating_tash',
+                        module: 'og.blotter.forms.blocks.variance_swap_tash',
                         extras: {}
                     }),
                     new og.common.util.ui.Attributes({form: form})

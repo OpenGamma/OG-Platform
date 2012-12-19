@@ -19,6 +19,9 @@
       <tr>
         <td>    
           <ul class="og-awesome-list og-attributes-add-list">
+            {{#each data}}
+              <li><div class="og-del og-js-rem"></div>{{{key}}} = {{{value}}}</li>
+            {{/each}}
           </ul>
         </td>
       </tr>

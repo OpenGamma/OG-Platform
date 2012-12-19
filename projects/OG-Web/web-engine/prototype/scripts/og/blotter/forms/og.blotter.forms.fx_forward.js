@@ -7,7 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function () {
-            var constructor = this;
+            var constructor = this, ui = og.common.util.ui;
             constructor.load = function () {
                 constructor.title = 'FX Forward';
                 var form = new og.common.util.ui.Form({
@@ -21,7 +21,11 @@ $.register_module({
                     new og.blotter.forms.blocks.Portfolio({form: form}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_forward_tash',
-                        extras: {}
+                        extras: {},
+                        children: [
+                            new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'payCurrency'}}),
+                            new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'recieveCurrency'}})
+                        ]
                     }),                    
                     new og.common.util.ui.Attributes({form: form})
                 );
