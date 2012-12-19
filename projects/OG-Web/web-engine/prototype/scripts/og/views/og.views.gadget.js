@@ -16,7 +16,7 @@ $.register_module({
             block: function (args) {
                 var block = args.block.split('.').reduce(function (acc, val) {return acc[val];}, window), form;
                 form = new og.common.util.ui.Form({selector: content});
-                form.children.push(new block({form: form, portfolio: 'DbPrt~105394', node: 'DbPrt~105401'}));
+                form.children.push(new block({form: form}));
                 form.dom();
             },
             gadgetscontainer: function (args) {
