@@ -85,6 +85,7 @@ public class ExampleDatabasePopulator extends AbstractTool<IntegrationToolContex
     try {
       new ExampleDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, IntegrationToolContext.class);
     } catch (final Exception ex) {
+      s_logger.error("Caught exception", ex);
       ex.printStackTrace();
     }
   }
