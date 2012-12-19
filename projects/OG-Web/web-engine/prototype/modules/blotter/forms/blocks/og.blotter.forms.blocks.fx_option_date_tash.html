@@ -21,7 +21,7 @@
         </label>
       </td>
       <td>
-        <select name="exerciseType"></select>
+        {{{item_0}}}
       </td>
     </tr>
     <tr>
@@ -42,6 +42,7 @@
           </label>
         </td>
         <td>
+          
           <div><select name="ITTODO"></select></div>
         </td>
       </tr>
@@ -49,11 +50,11 @@
       <tr>
         <td>
           <label>
-            <span>Premium</span>
+            <span>Premium - {{thing}}</span>
           </label>
         </td>
         <td class="og-double-cell">
-          <div><span><select name="ITTODO"></select></span><span><input name="ITTODO" type="text" /></span></div>
+          <div><span>{{{item_1}}}<!--<select name="ITTODO"></select>--></span><span><input name="ITTODO" type="text" /></span></div>
         </td>
       </tr>
     {{/if}}

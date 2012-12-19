@@ -7,7 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function () {
-            var constructor = this;
+            var constructor = this, ui = og.common.util.ui;
             constructor.load = function () {
                 constructor.title = 'FX Option';
                 var form = new og.common.util.ui.Form({
@@ -29,7 +29,28 @@ $.register_module({
                     }),                    
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_option_date_tash',
-                        extras: {}
+                        extras: {thing:"yay"},
+                        children: [
+                            new ui.Dropdown({
+                                form: form, resource: '', index: 'exerciseType',
+                                value: '', rest_options: {},
+                                placeholder: 'Please select...'
+                            }),
+                            new form.Block({module:'og.views.forms.currency_tash'})
+
+
+
+                        ]
+                        
+                        /*generator: function (handler, template, template_data) {
+                            og.api.rest.aggregators.get().pipe(function (result) {
+                                template_data.type = result.data;
+                                handler(template(template_data));
+                            });
+                        }*/
+
+
+
                     }),
                     new og.common.util.ui.Attributes({form: form})
                 );
@@ -37,6 +58,12 @@ $.register_module({
             }; 
             constructor.load();
             constructor.kill = function () {
+            };
+
+            var generator = function (handler) {
+                og.api.rest.aggregators.get().pipe(function (result) {
+                    console.log(result);
+                });
             };
         };
     }
