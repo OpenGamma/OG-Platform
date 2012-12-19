@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.component.tool;
@@ -27,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
  * The command line tools generally require access to key parts of the infrastructure.
  * These are provided via {@link ToolContext} which is setup and closed by this class
  * using {@link ComponentManager}. Normally the file is named {@code toolcontext.ini}.
- * 
+ *
  * @param <T> the tool context type
  */
 public abstract class AbstractTool<T extends ToolContext> {
@@ -61,7 +61,7 @@ public abstract class AbstractTool<T extends ToolContext> {
 
   /**
    * Initializes the tool statically.
-   * 
+   *
    * @param logbackResource the logback resource location, not null
    * @return true if successful
    */
@@ -83,12 +83,12 @@ public abstract class AbstractTool<T extends ToolContext> {
    * c/config - the config file, mandatory<br />
    * l/logback - the logback configuration, default tool-logback.xml<br />
    * h/help - prints the help tool<br />
-   * 
+   *
    * @param args the command-line arguments, not null
    * @param toolContextClass the type of tool context to create, should match the generic type argument
    * @return true if successful, false otherwise
    */
-  public boolean initAndRun(String[] args, Class<? extends T> toolContextClass) {
+  public boolean initAndRun(final String[] args, final Class<? extends T> toolContextClass) {
     return initAndRun(args, null, null, toolContextClass);
   }
 
@@ -99,23 +99,23 @@ public abstract class AbstractTool<T extends ToolContext> {
    * c/config - the config file, mandatory unless default specified<br />
    * l/logback - the logback configuration, default tool-logback.xml<br />
    * h/help - prints the help tool<br />
-   * 
+   *
    * @param args the command-line arguments, not null
    * @param defaultConfigResource the default configuration resource location, null if mandatory on command line
    * @param defaultLogbackResource the default logback resource, null to use tool-logback.xml as the default
    * @param toolContextClass the type of tool context to create, should match the generic type argument
    * @return true if successful, false otherwise
    */
-  public boolean initAndRun(String[] args, String defaultConfigResource, String defaultLogbackResource,
-                            Class<? extends T> toolContextClass) {
+  public boolean initAndRun(final String[] args, final String defaultConfigResource, final String defaultLogbackResource,
+                            final Class<? extends T> toolContextClass) {
     ArgumentChecker.notNull(args, "args");
 
-    Options options = createOptions(defaultConfigResource == null);
-    CommandLineParser parser = new PosixParser();
+    final Options options = createOptions(defaultConfigResource == null);
+    final CommandLineParser parser = new PosixParser();
     CommandLine line;
     try {
       line = parser.parse(options, args);
-    } catch (ParseException e) {
+    } catch (final ParseException e) {
       usage(options);
       return false;
     }
@@ -137,12 +137,12 @@ public abstract class AbstractTool<T extends ToolContext> {
    * Runs the tool.
    * <p>
    * This starts the tool context and calls {@link #run(ToolContext)}. This will catch exceptions and print a stack trace.
-   * 
+   *
    * @param configResource the config resource location, not null
    * @param toolContextClass the type of tool context to create, should match the generic type argument
    * @return true if successful
    */
-  public final boolean run(String configResource, Class<? extends T> toolContextClass) {
+  public final boolean run(final String configResource, final Class<? extends T> toolContextClass) {
     return run(new String[] {configResource}, toolContextClass);
   }
 
@@ -156,11 +156,12 @@ public abstract class AbstractTool<T extends ToolContext> {
    * @return true if successful
    */
   @SuppressWarnings("unchecked")
-  public final boolean run(String[] configResources, Class<? extends T> toolContextClass) {
+  public final boolean run(final String[] configResources, final Class<? extends T> toolContextClass) {
+    ToolContext[] toolContexts = null;
     try {
       ArgumentChecker.notEmpty(configResources, "configResources");
       s_logger.info("Starting " + getClass().getSimpleName());
-      ToolContext[] toolContexts = new ToolContext[configResources.length];
+      toolContexts = new ToolContext[configResources.length];
       for (int i = 0; i < configResources.length; i++) {
         s_logger.info("Populating tool context " + (i + 1) + " of " + configResources.length + "...");
         toolContexts[i] = ToolContextUtils.getToolContext(configResources[i], toolContextClass);
@@ -169,13 +170,20 @@ public abstract class AbstractTool<T extends ToolContext> {
       run((T[]) toolContexts);
       s_logger.info("Finished " + getClass().getSimpleName());
       return true;
-    } catch (Exception ex) {
+    } catch (final Exception ex) {
+      s_logger.error("Caught exception", ex);
       ex.printStackTrace();
       return false;
     } finally {
-      for (ToolContext toolContext : _toolContexts) {
-        if (toolContext != null) {
-          toolContext.close();
+      if (toolContexts != null) {
+        for (final ToolContext toolContext : toolContexts) {
+          if (toolContext != null) {
+            try {
+              toolContext.close();
+            } catch (final Exception e) {
+              s_logger.error("Caught exception", e);
+            }
+          }
         }
       }
     }
@@ -185,12 +193,12 @@ public abstract class AbstractTool<T extends ToolContext> {
    * Runs the tool, calling {@code doRun}.
    * <p>
    * This will catch not handle exceptions, but will convert checked exceptions to unchecked.
-   * 
+   *
    * @param toolContext the tool context, not null
    * @throws RuntimeException if an error occurs
    */
   @SuppressWarnings("unchecked")
-  public final void run(T toolContext) {
+  public final void run(final T toolContext) {
     run((T[]) new ToolContext[] {toolContext});
   }
 
@@ -202,21 +210,23 @@ public abstract class AbstractTool<T extends ToolContext> {
    * @param toolContexts the tool contexts, not null or empty
    * @throws RuntimeException if an error occurs
    */
-  public final void run(T[] toolContexts) {
+  public final void run(final T[] toolContexts) {
     _toolContexts = toolContexts;
     try {
       doRun();
-    } catch (RuntimeException ex) {
+    } catch (final RuntimeException ex) {
       throw ex;
-    } catch (Exception ex) {
+    } catch (final Exception ex) {
       throw new RuntimeException(ex);
+    } finally {
+      _toolContexts = null;
     }
   }
 
   //-------------------------------------------------------------------------
   /**
    * Override in subclasses to implement the tool.
-   * 
+   *
    * @throws Exception if an error occurs
    */
   protected abstract void doRun() throws Exception;
@@ -224,7 +234,7 @@ public abstract class AbstractTool<T extends ToolContext> {
   //-------------------------------------------------------------------------
   /**
    * Gets the (first) tool context.
-   * 
+   *
    * @return the context, not null during {@code doRun}
    */
   protected T getToolContext() {
@@ -238,7 +248,7 @@ public abstract class AbstractTool<T extends ToolContext> {
    * @param i the index of the tool context to retrieve
    * @return the i-th context, not null during {@code doRun}
    */
-  protected T getToolContext(int i) {
+  protected T getToolContext(final int i) {
     ArgumentChecker.notNegative(i, "ToolContext index");
     if (getToolContexts().length > i) {
       return getToolContexts()[i];
@@ -259,7 +269,7 @@ public abstract class AbstractTool<T extends ToolContext> {
 
   /**
    * Gets the parsed command line.
-   * 
+   *
    * @return the parsed command line, not null after parsing
    */
   protected CommandLine getCommandLine() {
@@ -271,12 +281,12 @@ public abstract class AbstractTool<T extends ToolContext> {
    * Creates the command line options.
    * <p>
    * Subclasses may override this and add their own parameters. The base class defined the options h/help, c/config, l/logback.
-   * 
+   *
    * @param mandatoryConfigResource whether the config resource is mandatory
    * @return the set of command line options, not null
    */
-  protected Options createOptions(boolean mandatoryConfigResource) {
-    Options options = new Options();
+  protected Options createOptions(final boolean mandatoryConfigResource) {
+    final Options options = new Options();
     options.addOption(createHelpOption());
     options.addOption(createConfigOption(mandatoryConfigResource));
     options.addOption(createLogbackOption());
@@ -287,15 +297,15 @@ public abstract class AbstractTool<T extends ToolContext> {
     return new Option(HELP_OPTION, "help", false, "prints this message");
   }
 
-  private static Option createConfigOption(boolean mandatoryConfigResource) {
-    Option option = new Option(CONFIG_RESOURCE_OPTION, "config", true, "the toolcontext configuration resource");
+  private static Option createConfigOption(final boolean mandatoryConfigResource) {
+    final Option option = new Option(CONFIG_RESOURCE_OPTION, "config", true, "the toolcontext configuration resource");
     option.setArgName("resource");
     option.setRequired(mandatoryConfigResource);
     return option;
   }
 
   private static Option createLogbackOption() {
-    Option option = new Option(LOGBACK_RESOURCE_OPTION, "logback", true, "the logback configuration resource");
+    final Option option = new Option(LOGBACK_RESOURCE_OPTION, "logback", true, "the logback configuration resource");
     option.setArgName("resource");
     option.setRequired(false);
     return option;
@@ -305,8 +315,8 @@ public abstract class AbstractTool<T extends ToolContext> {
     return getClass();
   }
 
-  protected void usage(Options options) {
-    HelpFormatter formatter = new HelpFormatter();
+  protected void usage(final Options options) {
+    final HelpFormatter formatter = new HelpFormatter();
     formatter.setWidth(120);
     formatter.printHelp("java " + getEntryPointClass().getName(), options, true);
   }
