@@ -10,7 +10,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class to check the efficacy of user input CDS spread data (e.g. that tenors are in ascending order)
+ * Class to check the efficacy of user input CDS spread data (e.g. that tenors of calibrating instruments are in ascending order)
  */
 public class SpreadTermStructureDataChecker {
 
@@ -26,7 +26,6 @@ public class SpreadTermStructureDataChecker {
 
   public void checkSpreadData(
       final ZonedDateTime valuationDate,
-      /*final LegacyVanillaCreditDefaultSwapDefinition cds,*/
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads) {
 
@@ -45,7 +44,6 @@ public class SpreadTermStructureDataChecker {
       ArgumentChecker.notNegative(marketSpreads[m], "Market spread at tenor " + marketTenors[m]);
       ArgumentChecker.notZero(marketSpreads[m], _tolerance, "Market spread at tenor " + marketTenors[m]);
     }
-
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
