@@ -193,11 +193,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     final int nbPath = 100000;
     HullWhiteMonteCarloMethod methodMC;
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
-    //    long startTime, endTime;
-    //    startTime = System.currentTimeMillis();
     final MultipleCurrencyAmount pvFloorMC = methodMC.presentValue(ratchetFixed, CUR, HW_MULTICURVES);
-    //    endTime = System.currentTimeMillis();
-    //    System.out.println("PV Ratchet ibor - Hull-White MC method (" + nbPath + " paths): " + (endTime - startTime) + " ms");
     final AnnuityCouponFixedDefinition fixedDefinition = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, EURIBOR3M.getTenor(), CALENDAR, EURIBOR3M.getDayCount(),
         EURIBOR3M.getBusinessDayConvention(), EURIBOR3M.isEndOfMonth(), NOTIONAL, strike, IS_PAYER);
     final AnnuityCouponFixed fixed = fixedDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);

@@ -297,7 +297,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     assertSensitivityEquals(pvcsFDFwdMC, pvcsADFwdMC, deltaTolerancePrice);
   }
 
-  @Test(enabled = false)
+  @Test(enabled = true)
   /**
    * Tests of performance for the price and curve sensitivity by Monte Carlo. "enabled = false" for the standard testing.
    */
