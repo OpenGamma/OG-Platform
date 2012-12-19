@@ -12,14 +12,14 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.analytics.financial.credit.InterestRateBumpType;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.IR01CreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpType;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;

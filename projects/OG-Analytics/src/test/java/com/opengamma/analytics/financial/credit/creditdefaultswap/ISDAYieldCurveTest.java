@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.ISDAInstrumentTypes;
+import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;

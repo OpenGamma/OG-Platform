@@ -8,9 +8,9 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legac
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyRecoveryLockCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.util.ArgumentChecker;
 
 /**

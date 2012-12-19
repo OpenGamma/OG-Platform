@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.hazardratemodel;
+package com.opengamma.analytics.financial.credit.calibratehazardratecurve;
 
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
@@ -44,7 +44,7 @@ public class CalibrateHazardRateCurveTest {
   // ---------------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
-  private static final boolean outputResults = false;
+  private static final boolean outputResults = true;
 
   // ----------------------------------------------------------------------------------
 
@@ -355,7 +355,7 @@ public class CalibrateHazardRateCurveTest {
 
   // Test to demonstrate calibration of a hazard rate curve to a single tenor
 
-  //@Test
+  @Test
   public void testCalibrateHazardRateCurveSingleTenor() {
 
     // -----------------------------------------------------------------------------------------------
@@ -378,8 +378,8 @@ public class CalibrateHazardRateCurveTest {
     marketSpreads[0] = flatSpread;
 
     /*
-    
     LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
+
     calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
 
     final CalibrateHazardRateCurveLegacyCreditDefaultSwap hazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
@@ -391,7 +391,6 @@ public class CalibrateHazardRateCurveTest {
         System.out.println(calibratedHazardRateTermStructure[i]);
       }
     }
-    
     */
 
     // -----------------------------------------------------------------------------------------------
@@ -401,7 +400,7 @@ public class CalibrateHazardRateCurveTest {
 
   // Test to demonstrate calibration of a hazard rate curve to a term structure of market data
 
-  @Test
+  //@Test
   public void testCalibrateHazardRateCurveFlatTermStructure() {
 
     // -------------------------------------------------------------------------------------
