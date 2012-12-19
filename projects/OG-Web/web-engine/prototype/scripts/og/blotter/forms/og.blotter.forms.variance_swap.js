@@ -7,7 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function () {
-            var constructor = this;
+            var constructor = this, ui = og.common.util.ui;
             constructor.load = function () {
                 constructor.title = 'Varience Swap';
                 var form = new og.common.util.ui.Form({
@@ -22,7 +22,13 @@ $.register_module({
                     new form.Block({
                         module: 'og.blotter.forms.blocks.variance_swap_tash',
                         extras: {},
-                        children: [new form.Block({module:'og.views.forms.currency_tash'})]
+                        children: [
+                            new form.Block({module:'og.views.forms.currency_tash'}),
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.frequencies', index: 'observationFrequency',
+                                value: '', rest_options: {}, placeholder: 'Frequency'
+                            })                               
+                        ]
                     }),
                     new og.common.util.ui.Attributes({form: form})
                 );
