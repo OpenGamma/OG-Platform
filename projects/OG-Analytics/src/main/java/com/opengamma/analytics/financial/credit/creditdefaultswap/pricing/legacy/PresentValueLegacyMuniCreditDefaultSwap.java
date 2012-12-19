@@ -7,15 +7,10 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legac
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.PriceType;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyMuniCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
-import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -23,11 +18,16 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class PresentValueLegacyMuniCreditDefaultSwap {
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // NOTE : For most types of legacy CDS, the same underlying pricing model will be used
+  // NOTE : However, if required we can override these methods to provide bespoke pricing models
+  // NOTE : for specific types of CDS if required
+
   //----------------------------------------------------------------------------------------------------------------------------------------
 
-  private static final PresentValueCreditDefaultSwap presentValueCreditDefaultSwap = new PresentValueCreditDefaultSwap();
-
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  // Create a PV calculator for a legacy CDS object
+  private static final PresentValueLegacyCreditDefaultSwap presentValueLegacyCreditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -52,30 +52,12 @@ public class PresentValueLegacyMuniCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Calculate the value of the premium leg (including accrued if required)
-    final double presentValuePremiumLeg = presentValueCreditDefaultSwap.calculatePremiumLeg(valuationDate, muniCDS, yieldCurve, muniHazardRateCurve);
-
-    // Calculate the value of the contingent leg
-    final double presentValueContingentLeg = presentValueCreditDefaultSwap.calculateContingentLeg(valuationDate, muniCDS, yieldCurve, muniHazardRateCurve);
-
-    // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
-    double presentValue = -(muniCDS.getParSpread() / 10000.0) * presentValuePremiumLeg + presentValueContingentLeg;
+    // Calculate the CDS PV
+    final double muniCDSPresentValue = presentValueLegacyCreditDefaultSwap.getPresentValueLegacyCreditDefaultSwap(valuationDate, muniCDS, yieldCurve, muniHazardRateCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // If we require the clean price, then calculate the accrued interest and add this to the PV
-    if (priceType == PriceType.CLEAN) {
-      presentValue += (muniCDS.getParSpread() / 10000.0) * presentValueCreditDefaultSwap.calculateAccruedInterest(valuationDate, muniCDS);
-    }
-
-    // If we are selling protection, then reverse the direction of the premium and contingent leg cashflows
-    if (muniCDS.getBuySellProtection() == BuySellProtection.SELL) {
-      presentValue = -1 * presentValue;
-    }
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    return presentValue;
+    return muniCDSPresentValue;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -101,44 +83,13 @@ public class PresentValueLegacyMuniCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    double parSpread = 0.0;
-    double accruedInterest = 0.0;
+    // Calculate the CDS par spread
+    final double muniCDSParSpread = presentValueLegacyCreditDefaultSwap.getParSpreadLegacyCreditDefaultSwap(valuationDate, muniCDS, yieldCurve, muniHazardRateCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Construct a cashflow schedule object
-    final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
-
-    // Check if the valuationDate equals the adjusted effective date (have to do this after the schedule is constructed)
-    ArgumentChecker.isTrue(valuationDate.equals(cashflowSchedule.getAdjustedEffectiveDate(muniCDS)), "Valuation Date should equal the adjusted effective date when computing par spreads");
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Calculate the value of the premium leg
-    final double presentValuePremiumLeg = 100; //presentValueCreditDefaultSwap.calculatePremiumLeg(valuationDate, muniCDS, yieldCurve, muniHazardRateCurve);
-
-    // Calculate the value of the contingent leg
-    final double presentValueContingentLeg = 100; //presentValueCreditDefaultSwap.calculateContingentLeg(valuationDate, muniCDS, yieldCurve, muniHazardRateCurve);
-
-    // If we require the clean price, then calculate the accrued interest and add this to the PV of the premium leg
-    if (priceType == PriceType.CLEAN) {
-      accruedInterest = presentValueCreditDefaultSwap.calculateAccruedInterest(valuationDate, muniCDS);
-    }
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Calculate the par spread (NOTE : Returned value is in bps)
-    if (Double.doubleToLongBits(presentValuePremiumLeg) == 0.0) {
-      throw new IllegalStateException("Warning : The premium leg has a PV of zero - par spread cannot be computed");
-    } else {
-      parSpread = 10000.0 * presentValueContingentLeg / (presentValuePremiumLeg + accruedInterest);
-    }
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    return parSpread;
+    return muniCDSParSpread;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
-
 }

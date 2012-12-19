@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.pricing;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition.IndexCreditDefaultSwapDefinition;
 import com.opengamma.util.ArgumentChecker;
 
@@ -71,7 +71,16 @@ public class PresentValueIndexCreditDefaultSwap {
       final ISDACurve[] yieldCurves,
       final HazardRateCurve[] hazardRateCurves) {
 
+    final int numberofObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
+
     double presentValueIndexPremiumLeg = 0.0;
+
+    for (int i = 0; i < numberofObligors; i++) {
+
+      double pv = 0.0;
+
+      presentValueIndexPremiumLeg += pv;
+    }
 
     return presentValueIndexPremiumLeg;
   }

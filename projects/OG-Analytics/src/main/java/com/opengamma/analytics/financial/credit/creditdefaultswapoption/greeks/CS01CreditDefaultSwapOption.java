@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.credit.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpers;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswapoption.pricing.PresentValueCreditDefaultSwapOption;
 import com.opengamma.analytics.financial.credit.marketdatachecker.SpreadTermStructureDataChecker;
 import com.opengamma.util.ArgumentChecker;
@@ -42,7 +43,7 @@ public class CS01CreditDefaultSwapOption {
 
   public double getCS01ParallelShiftCreditDefaultSwapOption(
       final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final/*LegacyVanilla*/CreditDefaultSwapDefinition cds,
       final ISDACurve yieldCurve,
       final ZonedDateTime[] marketTenors,
       final double[] marketSpreads,
@@ -66,7 +67,7 @@ public class CS01CreditDefaultSwapOption {
     final SpreadTermStructureDataChecker checkMarketData = new SpreadTermStructureDataChecker();
 
     // Check the efficacy of the input market data
-    checkMarketData.checkSpreadData(valuationDate, cds, marketTenors, marketSpreads);
+    checkMarketData.checkSpreadData(valuationDate, /*cds, */marketTenors, marketSpreads);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

@@ -22,14 +22,45 @@ public class Interpolator1DCubicSplineDataBundle implements Interpolator1DDataBu
   private final Interpolator1DDataBundle _underlyingData;
   private double[] _secondDerivatives;
   private double[][] _secondDerivativesSensitivities;
-  private final double _leftFirstDev = 0;
-  private final double _rightFirstDev = 0;
-  private final boolean _leftNatural = true;
-  private final boolean _rightNatural = true;
+  private final double _leftFirstDev;
+  private final double _rightFirstDev;
+  private final boolean _leftNatural;
+  private final boolean _rightNatural;
 
   public Interpolator1DCubicSplineDataBundle(final Interpolator1DDataBundle underlyingData) {
     ArgumentChecker.notNull(underlyingData, "underlying data");
     _underlyingData = underlyingData;
+    _leftFirstDev = 0;
+    _rightFirstDev = 0;
+    _leftNatural = true;
+    _rightNatural = true;
+  }
+
+  /**
+   * Data bundle for a cubic spline 
+   * @param underlyingData the data
+   * @param leftGrad The gradient of the function at the left most knot. <b>Note: </b>to leave this unspecified (i.e. natural with zero second derivative),
+   *  set the value to Double.POSITIVE_INFINITY
+   * @param rightGrad The gradient of the function at the right most knot. <b>Note: </b>to leave this unspecified (i.e. natural with zero second derivative),
+   *  set the value to Double.POSITIVE_INFINITY
+   */
+  public Interpolator1DCubicSplineDataBundle(final Interpolator1DDataBundle underlyingData, final double leftGrad, final double rightGrad) {
+    ArgumentChecker.notNull(underlyingData, "underlying data");
+    _underlyingData = underlyingData;
+    if (Double.isInfinite(leftGrad)) {
+      _leftFirstDev = 0;
+      _leftNatural = true;
+    } else {
+      _leftFirstDev = leftGrad;
+      _leftNatural = false;
+    }
+    if (Double.isInfinite(rightGrad)) {
+      _rightFirstDev = 0;
+      _rightNatural = true;
+    } else {
+      _rightFirstDev = leftGrad;
+      _rightNatural = false;
+    }
   }
 
   private double[] calculateSecondDerivative() {

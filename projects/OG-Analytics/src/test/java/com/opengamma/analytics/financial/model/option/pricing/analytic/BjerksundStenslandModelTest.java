@@ -37,7 +37,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double b = r - q;
     final double k = 100.0;
     final double t = 0.25;
-    final double sigma = 0.4;
+    final double sigma = 0.3;
 
     BjerksundStenslandModel bs = new BjerksundStenslandModel();
     final double eurPrice = Math.exp(-r * t) * BlackFormulaRepository.price(s0 * Math.exp(b * t), k, t, sigma, true);

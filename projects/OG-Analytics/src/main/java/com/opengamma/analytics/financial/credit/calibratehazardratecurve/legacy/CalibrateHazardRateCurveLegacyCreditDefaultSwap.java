@@ -3,11 +3,12 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.hazardratemodel;
+package com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy;
 
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
@@ -21,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
  * The input is a vector of tenors and market observed par CDS spread quotes for those tenors
  * The output is a vector of calibrated hazard rates for those tenors
  */
-public class CalibrateHazardRateCurve {
+public class CalibrateHazardRateCurveLegacyCreditDefaultSwap {
   // Create an object for calculating the premium leg schedule
   private static final GenerateCreditDefaultSwapPremiumLegSchedule SCHEDULE_GENERATOR = new GenerateCreditDefaultSwapPremiumLegSchedule();
   // Create an object for getting the PV of a CDS
@@ -43,18 +44,19 @@ public class CalibrateHazardRateCurve {
   // ------------------------------------------------------------------------
 
   // Ctor to initialise a CalibrateSurvivalCurve object with the default values for the root finder
-  public CalibrateHazardRateCurve() {
+  public CalibrateHazardRateCurveLegacyCreditDefaultSwap() {
     this(DEFAULT_MAX_NUMBER_OF_ITERATIONS, DEFAULT_TOLERANCE, DEFAULT_HAZARD_RATE_RANGE_MULTIPLIER);
   }
 
   // Ctor to initialise a CalibrateSurvivalCurve object with user specified values for the root finder
-  public CalibrateHazardRateCurve(final int maximumNumberOfIterations, final double tolerance, final double hazardRateRangeMultiplier) {
+  public CalibrateHazardRateCurveLegacyCreditDefaultSwap(final int maximumNumberOfIterations, final double tolerance, final double hazardRateRangeMultiplier) {
     _tolerance = tolerance;
     _maximumNumberOfIterations = maximumNumberOfIterations;
     _hazardRateRangeMultiplier = hazardRateRangeMultiplier;
   }
 
-  public HazardRateCurve getCalibratedHazardRateCurve(final ZonedDateTime calibrationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ZonedDateTime[] tenors, final double[] marketSpreads,
+  public HazardRateCurve getCalibratedHazardRateCurve(final ZonedDateTime calibrationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ZonedDateTime[] tenors,
+      final double[] marketSpreads,
       final ISDACurve yieldCurve, final PriceType priceType) {
     ArgumentChecker.notNull(calibrationDate, "calibration date");
     ArgumentChecker.notNull(cds, "CDS");
@@ -78,8 +80,8 @@ public class CalibrateHazardRateCurve {
         runningTenors[i] = tenorsAsDoubles[i];
         runningHazardRates[i] = hazardRates[i];
       }
-      calibrationCDS = calibrationCDS.withMaturityDate(tenors[m]);
-      calibrationCDS = calibrationCDS.withSpread(marketSpreads[m]);
+      //calibrationCDS = calibrationCDS.withMaturityDate(tenors[m]);
+      //calibrationCDS = calibrationCDS.withSpread(marketSpreads[m]);
       hazardRates[m] = calibrateHazardRate(calibrationDate, calibrationCDS, yieldCurve, runningTenors, runningHazardRates, priceType);
     }
     return new HazardRateCurve(tenorsAsDoubles, hazardRates, 0);
@@ -101,8 +103,13 @@ public class CalibrateHazardRateCurve {
   // The input CDS object has all the schedule etc settings for computing the CDS's PV's etc
   // The user inputs the schedule of (future) dates on which we have observed par CDS spread quotes
 
-  public double[] getCalibratedHazardRateTermStructure(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads, final ISDACurve yieldCurve, final PriceType priceType) {
+  public double[] getCalibratedHazardRateTermStructure(
+      final ZonedDateTime valuationDate,
+      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads,
+      final ISDACurve yieldCurve,
+      final PriceType priceType) {
 
     // Check the input arguments
 
@@ -119,7 +126,7 @@ public class CalibrateHazardRateCurve {
     final SpreadTermStructureDataChecker checkMarketData = new SpreadTermStructureDataChecker();
 
     // Check the efficacy of the input market data
-    checkMarketData.checkSpreadData(valuationDate, cds, marketTenors, marketSpreads);
+    checkMarketData.checkSpreadData(valuationDate, /*cds, */marketTenors, marketSpreads);
 
     // ----------------------------------------------------------------------------
 
@@ -153,10 +160,10 @@ public class CalibrateHazardRateCurve {
       }
 
       // Modify the calibration CDS to have a maturity of tenor[m]
-      calibrationCDS = calibrationCDS.withMaturityDate(marketTenors[m]);
+      //calibrationCDS = calibrationCDS.withMaturityDate(marketTenors[m]);
 
       // Modify the calibration CDS to have a contractual spread of marketSpread[m]
-      calibrationCDS = calibrationCDS.withSpread(marketSpreads[m]);
+      //calibrationCDS = calibrationCDS.withSpread(marketSpreads[m]);
 
       // Compute the calibrated hazard rate for tenor[m] (using the calibrated hazard rates for tenors 1, ..., m - 1)
       hazardRates[m] = calibrateHazardRate(valuationDate, calibrationCDS, yieldCurve, runningTenors, runningHazardRates, priceType);
@@ -283,7 +290,7 @@ public class CalibrateHazardRateCurve {
     hazardRateCurve = hazardRateCurve.bootstrapHelperHazardRateCurve(tenors, hazardRates);
 
     // Compute the PV of the CDS with this term structure of hazard rates
-    final double cdsPresentValueAtMidpoint = PV_CALCULATOR.getPresentValueLegacyVanillaCreditDefaultSwap(valuationDate, calibrationCDS, yieldCurve, hazardRateCurve, priceType);
+    final double cdsPresentValueAtMidpoint = 0; //PV_CALCULATOR.getPresentValueLegacyVanillaCreditDefaultSwap(valuationDate, calibrationCDS, yieldCurve, hazardRateCurve, priceType);
 
     return cdsPresentValueAtMidpoint;
   }

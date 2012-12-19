@@ -60,7 +60,7 @@ public class GammaCreditDefaultSwap {
     final SpreadTermStructureDataChecker checkMarketData = new SpreadTermStructureDataChecker();
 
     // Check the efficacy of the input market data
-    checkMarketData.checkSpreadData(valuationDate, cds, marketTenors, marketSpreads);
+    checkMarketData.checkSpreadData(valuationDate, /*cds, */marketTenors, marketSpreads);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -91,13 +91,13 @@ public class GammaCreditDefaultSwap {
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
-    final double presentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
+    final double presentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
     // Calculate the bumped up CDS PV
-    final double bumpedUpPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedUpMarketSpreads, yieldCurve, priceType);
+    final double bumpedUpPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedUpMarketSpreads, yieldCurve, priceType);
 
     // Calculate the bumped down CDS PV
-    final double bumpedDownPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedDownMarketSpreads, yieldCurve, priceType);
+    final double bumpedDownPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedDownMarketSpreads, yieldCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -137,7 +137,7 @@ public class GammaCreditDefaultSwap {
     final SpreadTermStructureDataChecker checkMarketData = new SpreadTermStructureDataChecker();
 
     // Check the efficacy of the input market data
-    checkMarketData.checkSpreadData(valuationDate, cds, marketTenors, marketSpreads);
+    checkMarketData.checkSpreadData(valuationDate, /*cds, */marketTenors, marketSpreads);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -154,7 +154,7 @@ public class GammaCreditDefaultSwap {
     final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
 
     // Calculate the unbumped CDS PV
-    final double presentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
+    final double presentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -179,10 +179,10 @@ public class GammaCreditDefaultSwap {
       }
 
       // Calculate the bumped up CDS PV
-      final double bumpedUpPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedUpMarketSpreads, yieldCurve, priceType);
+      final double bumpedUpPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedUpMarketSpreads, yieldCurve, priceType);
 
       // Calculate the bumped down CDS PV
-      final double bumpedDownPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedDownMarketSpreads, yieldCurve, priceType);
+      final double bumpedDownPresentValue = 0; //creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedDownMarketSpreads, yieldCurve, priceType);
 
       // Compute the bucketed gamma for this tenor
       bucketedGamma[m] = (bumpedUpPresentValue - 2 * presentValue + bumpedDownPresentValue) / (2 * spreadBump);

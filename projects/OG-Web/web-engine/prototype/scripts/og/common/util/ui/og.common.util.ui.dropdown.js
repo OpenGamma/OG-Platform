@@ -8,47 +8,39 @@ $.register_module({
     obj: function () {
         var module = this, Block = og.common.util.ui.Block;
         var Dropdown = function (config) {
-            var block = this, name = config.index, resource = config.resource, form = config.form, value = config.value,
-                placeholder = config.placeholder, fields = config.fields || [0], values = fields[0],
-                rest_options = config.rest_options || {}, data_generator = config.data_generator,
-                texts = typeof fields[1] !== 'undefined' ? fields[1] : values, processor = config.processor,
-                id = og.common.id('dropdown'), meta = rest_options && rest_options.meta, classes = config.classes;
-            var generator = function (handler) {
-                var $select = $('<select/>').attr('id', id);
+            var block = this, resource = config.resource, form = config.form, value = config.value,
+                fields = config.fields || [0], values = fields[0], id = og.common.id('dropdown'),
+                rest_options = $.extend({page: '*', cache_for: 30 * 1000}, config.rest_options),
+                data_generator = config.data_generator, texts = typeof fields[1] !== 'undefined' ? fields[1] : values,
+                processor = config.processor, meta = rest_options.meta;
+            var generator = function (handler, template, template_data) {
                 var rest_handler = function (result) {
-                    var empty = true;
                     if (result.error) return handler('an error occurred');
-                    if (meta) result.data.types.forEach(function (datum) {
-                        var $option = $('<option/>').val(datum).html(datum);
-                        if (value === datum) $option[0].setAttribute('selected', 'selected');
-                        $select.append($option);
-                        empty = false;
-                    }); else result.data.data.forEach(function (datum) {
-                        var fields = datum.split('|'), $option = $('<option/>').val(fields[values]).html(fields[texts]);
-                        if (value === fields[values]) $option[0].setAttribute('selected', 'selected');
-                        $select.append($option);
-                        empty = false;
+                    if (meta) template_data.options = result.data.types // meta results
+                        .map(function (datum) {return {value: datum, text: datum, selected: value === datum};});
+                    else if ($.isArray(result.data)) template_data.options = result.data // simple results
+                        .map(function (datum) {return {value: datum, text: datum, selected: value === datum};});
+                    else template_data.options = result.data.data.map(function (datum) { // search results
+                        var fields = datum.split('|');
+                        return {value: fields[values], text: fields[texts], selected: value === fields[values]};
                     });
-                    if (empty) $select.attr('disabled', 'disabled');
-                    handler($.outer($select[0]));
+                    handler(template(template_data));
                 };
-                if (name) $select.attr('name', name);
-                if (classes) $select.attr('class', classes);
-                if (placeholder) $select.append($('<option value="" />').html(placeholder));
-                rest_options.cache_for = rest_options.cache_for || 30 * 1000;
-                if (!data_generator) return og.api.rest[resource].get(rest_options).pipe(rest_handler);
+                if (meta) delete rest_options.page; // remove default paging option for meta requests
+                if (!data_generator) return resource.split('.')
+                    .reduce(function (api, key) {return api[key];}, og.api.rest).get(rest_options).pipe(rest_handler);
                 data_generator(function (data) {
-                    data.forEach(function (datum) {
-                        var option = typeof datum === 'string' ? {value: datum, text: datum} : datum,
-                            $option = $('<option/>').attr('value', option.value).html(option.text);
-                        if (value === option.value) $option[0].setAttribute('selected', 'selected');
-                        $select.append($option);
+                    template_data.options = data.map(function (datum) {
+                        return typeof datum === 'string' ? {value: datum, text: datum, selected: value === datum}
+                            : {value: datum.value, text: datum.text, selected: value === datum.value};
                     });
-                    if (!data.length) $select.attr('disabled', 'disabled');
-                    return handler($.outer($select[0]));
+                    return handler(template(template_data));
                 });
             };
-            form.Block.call(block, {generator: generator, processor: processor ? processor.partial('#' + id) : null});
+            form.Block.call(block, {
+                generator: generator, processor: processor ? processor.partial('#' + id) : null,
+                extras: {id: id, name: config.index, classes: config.classes, placeholder: config.placeholder}
+            });
             block.id = id;
         };
         Dropdown.prototype = new Block; // inherit Block prototype
@@ -60,6 +52,15 @@ $.register_module({
             var block = this, args = Array.prototype.slice.call(arguments, 1), type = arguments[0];
             return Block.prototype.on.apply(block, [type, '#' + block.id].concat(args));
         };
+        Dropdown.prototype.template = Handlebars.compile('\
+            <select id="{{id}}" {{#classes}}class="{{../classes}}"{{/classes}} {{#name}}name="{{../name}}"{{/name}}\
+                {{#if options}} {{else}}disabled="disabled"{{/if}}>\
+                {{#placeholder}}<option value="">{{{../placeholder}}}</option>{{/placeholder}}\
+                {{#each options}}\
+                    <option value="{{value}}"{{#selected}}selected="selected"{{/selected}}>{{{text}}}</option>\
+                {{/each}}\
+            </select>\
+        ');
         return Dropdown;
     }
 });

@@ -9,23 +9,23 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.PriceType;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.PresentValueCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.hazardratemodel.CalibrateHazardRateCurve;
-import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *  Class containing methods for the valuation of a vanilla Legacy CDS
+ *  Class containing methods for the valuation of a vanilla Legacy CDS (this valuation methodology is common to most legacy CDS's)
  */
 public class PresentValueLegacyCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // Create a PV calculator for a CDS object
   private static final PresentValueCreditDefaultSwap presentValueCreditDefaultSwap = new PresentValueCreditDefaultSwap();
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
@@ -34,9 +34,9 @@ public class PresentValueLegacyCreditDefaultSwap {
 
   // Public method for computing the PV of a CDS based on an input CDS contract (with a hazard rate curve calibrated to market observed data)
 
-  public double getPresentValueLegacyVanillaCreditDefaultSwap(
+  public double getPresentValueLegacyCreditDefaultSwap(
       final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final LegacyCreditDefaultSwapDefinition cds,
       final ISDACurve yieldCurve,
       final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
@@ -83,9 +83,9 @@ public class PresentValueLegacyCreditDefaultSwap {
 
   // Public method to calculate the par spread of a CDS at contract inception (with a hazard rate curve calibrated to market observed data)
 
-  public double getParSpreadLegacyVanillaCreditDefaultSwap(
+  public double getParSpreadLegacyCreditDefaultSwap(
       final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final LegacyCreditDefaultSwapDefinition cds,
       final ISDACurve yieldCurve,
       final HazardRateCurve hazardRateCurve,
       final PriceType priceType) {
@@ -111,7 +111,7 @@ public class PresentValueLegacyCreditDefaultSwap {
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Check if the valuationDate equals the adjusted effective date (have to do this after the schedule is constructed)
-    ArgumentChecker.isTrue(valuationDate.equals(cashflowSchedule.getAdjustedEffectiveDate(cds)), "Valuation Date should equal the adjusted effective date when computing par spreads");
+    //ArgumentChecker.isTrue(valuationDate.equals(cashflowSchedule.getAdjustedEffectiveDate(cds)), "Valuation Date should equal the adjusted effective date when computing par spreads");
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -142,67 +142,4 @@ public class PresentValueLegacyCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Public method to calibrate a CDS hazard rate term structure to a user input term structure of market spreads and calculate the CDS PV
-
-  public double calibrateAndGetPresentValue(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ZonedDateTime[] marketTenors,
-      final double[] spreads,
-      final ISDACurve yieldCurve,
-      final PriceType priceType) {
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Vector of time nodes for the hazard rate curve
-    final double[] times = new double[marketTenors.length + 1];
-
-    times[0] = 0.0;
-    for (int m = 1; m <= marketTenors.length; m++) {
-      times[m] = ACT_365.getDayCountFraction(valuationDate, marketTenors[m - 1]);
-    }
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Create a CDS for calibration
-    final LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
-
-    // Create a CDS for valuation
-    final LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Call the constructor to create a CDS present value object
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
-
-    // Call the constructor to create a calibrate hazard rate curve object
-    final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
-    final double[] calibratedHazardRates = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, marketTenors, spreads, yieldCurve, priceType);
-
-    double[] modifiedHazardRateCurve = new double[calibratedHazardRates.length + 1];
-
-    modifiedHazardRateCurve[0] = calibratedHazardRates[0];
-
-    for (int m = 1; m < modifiedHazardRateCurve.length; m++) {
-      modifiedHazardRateCurve[m] = calibratedHazardRates[m - 1];
-    }
-
-    // Build a hazard rate curve object based on the input market data
-    final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(times, modifiedHazardRateCurve/*calibratedHazardRates*/, 0.0);
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Calculate the CDS PV using the just calibrated hazard rate term structure
-    final double presentValue = creditDefaultSwap.getPresentValueLegacyVanillaCreditDefaultSwap(valuationDate, valuationCDS, yieldCurve, calibratedHazardRateCurve, priceType);
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    return presentValue;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
 }

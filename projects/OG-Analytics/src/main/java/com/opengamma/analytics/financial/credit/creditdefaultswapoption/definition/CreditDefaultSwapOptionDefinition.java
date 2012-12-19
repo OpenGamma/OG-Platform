@@ -37,6 +37,7 @@ public class CreditDefaultSwapOptionDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Add equals and hashcode
+  // TODO : Need to be able to create a CDS optionwith any type of CDS as its underlying e.g. a muni, quanto, vanilla etc
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

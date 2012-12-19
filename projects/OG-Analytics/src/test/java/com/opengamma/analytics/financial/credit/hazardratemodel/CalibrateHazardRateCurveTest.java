@@ -377,10 +377,12 @@ public class CalibrateHazardRateCurveTest {
     tenors[0] = DateUtils.getUTCDate(2013, 6, 20);
     marketSpreads[0] = flatSpread;
 
+    /*
+    
     LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
     calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
 
-    final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
+    final CalibrateHazardRateCurveLegacyCreditDefaultSwap hazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
 
     final double[] calibratedHazardRateTermStructure = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, tenors, marketSpreads, yieldCurve, priceType);
 
@@ -389,6 +391,8 @@ public class CalibrateHazardRateCurveTest {
         System.out.println(calibratedHazardRateTermStructure[i]);
       }
     }
+    
+    */
 
     // -----------------------------------------------------------------------------------------------
   }
@@ -476,13 +480,15 @@ public class CalibrateHazardRateCurveTest {
     // Create a calibration CDS (will be a modified version of the baseline CDS)
     LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
 
+    /*
+    
     // Set the recovery rate of the calibration CDS used for the curve calibration (this appears in the calculation of the contingent leg)
     calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
 
     // -------------------------------------------------------------------------------------
 
     // Create a calibrate survival curve object
-    final CalibrateHazardRateCurve hazardRateCurve = new CalibrateHazardRateCurve();
+    final CalibrateHazardRateCurveLegacyCreditDefaultSwap hazardRateCurve = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
 
     // Calibrate the hazard rate curve to the market observed par CDS spreads (returns calibrated hazard rates as a vector of doubles)
     final double[] calibratedHazardRateCurve = hazardRateCurve.getCalibratedHazardRateTermStructure(valuationDate, calibrationCDS, tenors, marketSpreads, yieldCurve, priceType);
@@ -492,6 +498,8 @@ public class CalibrateHazardRateCurveTest {
         System.out.println(calibratedHazardRateCurve[i]);
       }
     }
+    
+    */
 
     // -------------------------------------------------------------------------------------
 
