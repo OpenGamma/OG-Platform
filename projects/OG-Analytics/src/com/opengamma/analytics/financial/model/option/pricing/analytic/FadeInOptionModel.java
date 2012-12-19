@@ -13,13 +13,14 @@ import com.opengamma.analytics.financial.model.option.definition.FadeInOptionDef
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionWithSpotTimeSeriesDataBundle;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistributionWest2004;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
+ *
  */
 public class FadeInOptionModel extends AnalyticOptionModel<FadeInOptionDefinition, StandardOptionWithSpotTimeSeriesDataBundle> {
-  private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
+  private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistributionWest2004();
 
   @Override
   public Function1D<StandardOptionWithSpotTimeSeriesDataBundle, Double> getPricingFunction(final FadeInOptionDefinition definition) {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility;
@@ -18,7 +18,7 @@ import com.opengamma.util.CompareUtils;
 /**
  * Computes the implied volatility from the price in a normally distributed asset price world.
  */
-public class NormalImpliedVolatilityFormula {
+public class NormalImpliedVolatilityFormula implements NormalImpliedVolatility {
 
   /**
    * The function used to compute the price with normal hypothesis.

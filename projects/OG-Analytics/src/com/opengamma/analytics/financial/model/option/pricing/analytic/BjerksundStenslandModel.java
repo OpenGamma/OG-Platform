@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.analytic;
@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.model.option.definition.OptionDefinitio
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistributionWest2004;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
@@ -62,7 +63,7 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
  * and the function $\psi(S, T, \gamma, H, I_2, I_1, t_1)$ is defined as
  * $$
  * \begin{align*}
- * \psi(S, T, \gamma, H, I_2, I_1, t_1) = &e^{\lambda T} S^\gamma\left[M(d_1, e_1, \rho) 
+ * \psi(S, T, \gamma, H, I_2, I_1, t_1) = &e^{\lambda T} S^\gamma\left[M(d_1, e_1, \rho)
  *   -\left(\frac{I_2}{S}\right)^\kappa M(d_2, e_2, \rho) - \left(\frac{I_1}{S}\right)^\kappa M(d_3, e_3, -\rho)
  *   +\left(\frac{I_1}{I_2}\right)^\kappa M(d_4, e_4, \rho)\right]
  * \end{align*}
@@ -83,12 +84,12 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
  * and $\rho = \sqrt{\frac{t_1}{T}}$ and $M(\cdot, \cdot, \cdot)$ is the CDF of the bivariate
  * normal distribution (see {@link com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution}).
  *
- * The price of puts is calculated using the Bjerksund-Stensland put-call transformation 
+ * The price of puts is calculated using the Bjerksund-Stensland put-call transformation
  * $p(S, K, T, r, b, \sigma) = c(K, S, T, r - b, -b, \sigma)$.
- * 
+ *
  */
 public class BjerksundStenslandModel extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
-  private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
+  private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistributionWest2004();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
 

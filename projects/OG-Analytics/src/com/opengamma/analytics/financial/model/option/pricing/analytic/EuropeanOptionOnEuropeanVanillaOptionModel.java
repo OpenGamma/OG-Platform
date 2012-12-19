@@ -17,18 +17,19 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistributionWest2004;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ *
  */
 public class EuropeanOptionOnEuropeanVanillaOptionModel extends AnalyticOptionModel<EuropeanOptionOnEuropeanVanillaOptionDefinition, StandardOptionDataBundle> {
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
-  private static final ProbabilityDistribution<double[]> BIVARIATE = new BivariateNormalDistribution();
+  private static final ProbabilityDistribution<double[]> BIVARIATE = new BivariateNormalDistributionWest2004();
   private static final RealSingleRootFinder ROOT_FINDER = new BisectionSingleRootFinder();
 
   @Override
