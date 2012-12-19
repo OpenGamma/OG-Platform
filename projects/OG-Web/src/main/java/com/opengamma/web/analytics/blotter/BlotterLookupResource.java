@@ -35,6 +35,7 @@ import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
+import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.swap.FloatingRateType;
 
@@ -125,5 +126,12 @@ public class BlotterLookupResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getLongShort() {
     return convertToJsonArray(LongShort.class, Arrays.asList(LongShort.values()).iterator());
+  }
+
+  @GET
+  @Path("monitoringtype")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getMonitoringType() {
+    return convertToJsonArray(MonitoringType.class, Arrays.asList(MonitoringType.values()).iterator());
   }
 }
