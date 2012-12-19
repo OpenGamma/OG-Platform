@@ -16,6 +16,8 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.MarketQuoteCurveSensitivityHullWhiteCalculator;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.MarketQuoteHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueCurveSensitivityHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -23,8 +25,11 @@ import com.opengamma.analytics.financial.provider.description.interestrate.HullW
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
+import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -35,9 +40,9 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests for the methods related to interest rate securities pricing with Hull-White model convexity adjustment.
  */
-public class InterestRateFutureSecurityHullWhiteProviderMethodTest {
+public class InterestRateFutureSecurityHullWhiteMethodTest {
 
-  private static final MulticurveProviderDiscount PROVIDER = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
+  private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = INDEX_LIST[0];
   private static final Currency EUR = EURIBOR3M.getCurrency();
@@ -66,18 +71,25 @@ public class InterestRateFutureSecurityHullWhiteProviderMethodTest {
   private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
   private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
 
-  private static final HullWhiteOneFactorProviderDiscount HW_PROVIDER = new HullWhiteOneFactorProviderDiscount(PROVIDER, MODEL_PARAMETERS, EUR);
+  private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, MODEL_PARAMETERS, EUR);
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
 
   private static final InterestRateFutureSecurityHullWhiteMethod METHOD_IRFUT_HW = InterestRateFutureSecurityHullWhiteMethod.getInstance();
-  private static final PresentValueHullWhiteCalculator PVHWC = PresentValueHullWhiteCalculator.getInstance();
 
+  private static final PresentValueHullWhiteCalculator PVHWC = PresentValueHullWhiteCalculator.getInstance();
   private static final PresentValueCurveSensitivityHullWhiteCalculator PVCSHWC = PresentValueCurveSensitivityHullWhiteCalculator.getInstance();
+  private static final MarketQuoteHullWhiteCalculator MQHWC = MarketQuoteHullWhiteCalculator.getInstance();
+  private static final MarketQuoteCurveSensitivityHullWhiteCalculator MQCSHWC = MarketQuoteCurveSensitivityHullWhiteCalculator.getInstance();
+
+  private static final double SHIFT_FD = 1.0E-6;
   private static final ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> PSHWC = new ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface>(PVCSHWC);
-  private static final double SHIFT = 1.0E-6;
-  private static final ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator PSHWC_DSC_FD = new ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(PVHWC, SHIFT);
+  private static final ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator PSHWC_FD = new ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(PVHWC, SHIFT_FD);
+  private static final SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> SPSHWC = new SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface>(
+      MQCSHWC);
+  private static final SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator SPSHWC_FD = new SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(MQHWC, SHIFT_FD);
 
   private static final double TOLERANCE_PRICE = 1.0E-10;
+  private static final double TOLERANCE_PRICE_DELTA = 1.0E-8;
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
 
@@ -86,30 +98,38 @@ public class InterestRateFutureSecurityHullWhiteProviderMethodTest {
    * Test the price computed from the curves and HW parameters.
    */
   public void price() {
-    final double price = METHOD_IRFUT_HW.price(ERU2, HW_PROVIDER);
-    final double forward = PROVIDER.getForwardRate(EURIBOR3M, ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), ERU2.getFixingPeriodAccrualFactor());
+    final double price = METHOD_IRFUT_HW.price(ERU2, HW_MULTICURVES);
+    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), ERU2.getFixingPeriodAccrualFactor());
     final double factor = MODEL.futureConvexityFactor(MODEL_PARAMETERS, ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
     final double expectedPrice = 1.0 - factor * forward + (1 - factor) / ERU2.getFixingPeriodAccrualFactor();
     assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: price", expectedPrice, price, TOLERANCE_PRICE);
   }
 
-  // TODO: price curve sensitivity
+  @Test
+  /**
+   * Test the price curve sensitivity versus a finite difference computation.
+   */
+  public void priceCurveSensitivity() {
+    final SimpleParameterSensitivity pcsExact = SPSHWC.calculateSensitivity(ERU2, HW_MULTICURVES, MULTICURVES.getAllNames());
+    final SimpleParameterSensitivity pcsFD = SPSHWC_FD.calculateSensitivity(ERU2, HW_MULTICURVES);
+    AssertSensivityObjects.assertEquals("DeliverableSwapFuturesSecurityHullWhiteMethod: priceCurveSensitivity", pcsExact, pcsFD, TOLERANCE_PRICE_DELTA);
+  }
 
   @Test
   /**
    * Test the present value computed from the curves and HW parameters.
    */
   public void presentValue() {
-    final MultipleCurrencyAmount pvComputed = METHOD_IRFUT_HW.presentValue(ERU2, HW_PROVIDER);
-    final double price = METHOD_IRFUT_HW.price(ERU2, HW_PROVIDER);
+    final MultipleCurrencyAmount pvComputed = METHOD_IRFUT_HW.presentValue(ERU2, HW_MULTICURVES);
+    final double price = METHOD_IRFUT_HW.price(ERU2, HW_MULTICURVES);
     final double pvExpected = (price - REFERENCE_PRICE) * ERU2.getNotional() * ERU2.getPaymentAccrualFactor() * QUANTITY;
     assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueMethodVsCalculator() {
-    final MultipleCurrencyAmount pvMethod = METHOD_IRFUT_HW.presentValue(ERU2, HW_PROVIDER);
-    final MultipleCurrencyAmount pvCalculator = ERU2.accept(PVHWC, HW_PROVIDER);
+    final MultipleCurrencyAmount pvMethod = METHOD_IRFUT_HW.presentValue(ERU2, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvCalculator = ERU2.accept(PVHWC, HW_MULTICURVES);
     assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: present value - calculator vs method", pvCalculator.getAmount(EUR), pvMethod.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -118,8 +138,8 @@ public class InterestRateFutureSecurityHullWhiteProviderMethodTest {
    * Tests present value curve sensitivity.
    */
   public void presentValueCurveSensitivity() {
-    final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSHWC.calculateSensitivity(ERU2, HW_PROVIDER, HW_PROVIDER.getMulticurveProvider().getAllNames());
-    final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSHWC_DSC_FD.calculateSensitivity(ERU2, HW_PROVIDER);
+    final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSHWC.calculateSensitivity(ERU2, HW_MULTICURVES, HW_MULTICURVES.getMulticurveProvider().getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSHWC_FD.calculateSensitivity(ERU2, HW_MULTICURVES);
     AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 

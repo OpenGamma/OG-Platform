@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSTIRFuturesProviderInterface;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -18,7 +16,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * The SABR parameters are represented by (expiration-delay) surfaces. The "delay" is the time between option expiration and future last trading date, 
  * i.e. 0 for normal options and x for x-year mid-curve options.
  */
-public final class InterestRateFutureOptionMarginTransactionSABRMethod {
+public final class InterestRateFutureOptionMarginTransactionSABRMethod extends InterestRateFutureOptionMarginTransactionGenericMethod<SABRSTIRFuturesProviderInterface> {
 
   /**
    * Creates the method unique instance.
@@ -29,6 +27,7 @@ public final class InterestRateFutureOptionMarginTransactionSABRMethod {
    * Constructor.
    */
   private InterestRateFutureOptionMarginTransactionSABRMethod() {
+    super(InterestRateFutureOptionMarginSecuritySABRMethod.getInstance());
   }
 
   /**
@@ -40,21 +39,12 @@ public final class InterestRateFutureOptionMarginTransactionSABRMethod {
   }
 
   /**
-   * The option security pricing method..
+   * Returns the method to compute the underlying security price and price curve sensitivity.
+   * @return The method.
    */
-  private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD_SECURITY = InterestRateFutureOptionMarginSecuritySABRMethod.getInstance();
-
-  /**
-   * Compute the present value of a future transaction from a quoted price.
-   * @param option The future option.
-   * @param price The quoted price.
-   * @return The present value.
-   */
-  public MultipleCurrencyAmount presentValueFromPrice(final InterestRateFutureOptionMarginTransaction option, final double price) {
-    ArgumentChecker.notNull(option, "Option on STIR futures");
-    double pv = (price - option.getReferencePrice()) * option.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor() * option.getUnderlyingOption().getUnderlyingFuture().getNotional()
-        * option.getQuantity();
-    return MultipleCurrencyAmount.of(option.getUnderlyingOption().getCurrency(), pv);
+  @Override
+  public InterestRateFutureOptionMarginSecuritySABRMethod getSecurityMethod() {
+    return (InterestRateFutureOptionMarginSecuritySABRMethod) super.getSecurityMethod();
   }
 
   /**
@@ -67,39 +57,9 @@ public final class InterestRateFutureOptionMarginTransactionSABRMethod {
   public MultipleCurrencyAmount presentValueFromFuturePrice(final InterestRateFutureOptionMarginTransaction transaction, final SABRSTIRFuturesProviderInterface sabrData, final double priceFuture) {
     ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
     ArgumentChecker.notNull(sabrData, "SABR / multi-curves provider");
-    double priceSecurity = METHOD_SECURITY.priceFromFuturePrice(transaction.getUnderlyingOption(), sabrData, priceFuture);
+    double priceSecurity = getSecurityMethod().priceFromFuturePrice(transaction.getUnderlyingOption(), sabrData, priceFuture);
     MultipleCurrencyAmount priceTransaction = presentValueFromPrice(transaction, priceSecurity);
     return priceTransaction;
-  }
-
-  /**
-   * Computes the present value of a transaction from the curves and volatility data.
-   * @param transaction The future option transaction.
-   * @param sabrData The SABR and multi-curves provider.
-   * @return The present value.
-   */
-  public MultipleCurrencyAmount presentValue(final InterestRateFutureOptionMarginTransaction transaction, final SABRSTIRFuturesProviderInterface sabrData) {
-    ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
-    ArgumentChecker.notNull(sabrData, "SABR / multi-curves provider");
-    double priceSecurity = METHOD_SECURITY.price(transaction.getUnderlyingOption(), sabrData);
-    MultipleCurrencyAmount pvTransaction = presentValueFromPrice(transaction, priceSecurity);
-    return pvTransaction;
-  }
-
-  /**
-   * Computes the present value curve sensitivity of a transaction.
-   * @param transaction The future option transaction.
-   * @param sabrData The SABR and multi-curves provider.
-   * @return The present value curve sensitivity.
-   */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final SABRSTIRFuturesProviderInterface sabrData) {
-    ArgumentChecker.notNull(transaction, "Transaction on option on STIR futures");
-    ArgumentChecker.notNull(sabrData, "SABR / multi-curves provider");
-    MulticurveSensitivity securitySensitivity = METHOD_SECURITY.priceCurveSensitivity(transaction.getUnderlyingOption(), sabrData);
-    return MultipleCurrencyMulticurveSensitivity.of(
-        transaction.getCurrency(),
-        securitySensitivity.multipliedBy(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
-            * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor()));
   }
 
   /**
@@ -109,7 +69,7 @@ public final class InterestRateFutureOptionMarginTransactionSABRMethod {
    * @return The present value curve sensitivity.
    */
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final SABRSTIRFuturesProviderInterface sabrData) {
-    PresentValueSABRSensitivityDataBundle securitySensitivity = METHOD_SECURITY.priceSABRSensitivity(transaction.getUnderlyingOption(), sabrData);
+    PresentValueSABRSensitivityDataBundle securitySensitivity = getSecurityMethod().priceSABRSensitivity(transaction.getUnderlyingOption(), sabrData);
     securitySensitivity = securitySensitivity.multiplyBy(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
         * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor());
     return securitySensitivity;

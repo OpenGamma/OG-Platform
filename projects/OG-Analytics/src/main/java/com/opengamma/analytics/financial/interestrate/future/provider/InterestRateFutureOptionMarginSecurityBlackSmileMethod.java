@@ -20,7 +20,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * The Black parameters are represented by (expiration-strike-delay) surfaces. The "delay" is the time between option expiration and future last trading date,
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
  */
-public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod {
+public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extends InterestRateFutureOptionMarginSecurityGenericMethod<BlackSTIRFuturesSmileProviderInterface> {
 
   /**
    * Creates the method unique instance.
@@ -77,6 +77,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod {
    * @param blackData The curve and Black volatility data.
    * @return The security price.
    */
+  @Override
   public double price(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesSmileProviderInterface blackData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(blackData, "Black data");
@@ -91,6 +92,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod {
    * @param blackData The curve and Black volatility data.
    * @return The security price curve sensitivity.
    */
+  @Override
   public MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesSmileProviderInterface blackData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(blackData, "Black data");

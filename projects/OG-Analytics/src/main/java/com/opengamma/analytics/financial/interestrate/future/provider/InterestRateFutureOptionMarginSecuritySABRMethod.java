@@ -20,7 +20,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * The SABR parameters are represented by (expiration-delay) surfaces. The "delay" is the time between option expiration and future last trading date,
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
  */
-public final class InterestRateFutureOptionMarginSecuritySABRMethod {
+public final class InterestRateFutureOptionMarginSecuritySABRMethod extends InterestRateFutureOptionMarginSecurityGenericMethod<SABRSTIRFuturesProviderInterface> {
 
   /**
    * Creates the method unique instance.
@@ -77,6 +77,7 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod {
    * @param sabrData The SABR data bundle.
    * @return The security price.
    */
+  @Override
   public double price(final InterestRateFutureOptionMarginSecurity security, final SABRSTIRFuturesProviderInterface sabrData) {
     final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), sabrData.getMulticurveProvider());
     return priceFromFuturePrice(security, sabrData, priceFuture);
@@ -88,6 +89,7 @@ public final class InterestRateFutureOptionMarginSecuritySABRMethod {
    * @param sabrData The SABR data bundle.
    * @return The security price curve sensitivity.
    */
+  @Override
   public MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, final SABRSTIRFuturesProviderInterface sabrData) {
     // Forward sweep
     final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), sabrData.getMulticurveProvider());
