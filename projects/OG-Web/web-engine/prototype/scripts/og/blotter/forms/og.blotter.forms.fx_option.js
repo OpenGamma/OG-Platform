@@ -32,25 +32,18 @@ $.register_module({
                         extras: {thing:"yay"},
                         children: [
                             new ui.Dropdown({
-                                form: form, resource: '', index: 'exerciseType',
+                                form: form, resource: 'blotter.exercisetypes', index: 'exerciseType',
                                 value: '', rest_options: {},
                                 placeholder: 'Please select...'
                             }),
                             new form.Block({module:'og.views.forms.currency_tash'})
-
-
-
                         ]
-                        
                         /*generator: function (handler, template, template_data) {
                             og.api.rest.aggregators.get().pipe(function (result) {
                                 template_data.type = result.data;
                                 handler(template(template_data));
                             });
                         }*/
-
-
-
                     }),
                     new og.common.util.ui.Attributes({form: form})
                 );
@@ -58,12 +51,6 @@ $.register_module({
             }; 
             constructor.load();
             constructor.kill = function () {
-            };
-
-            var generator = function (handler) {
-                og.api.rest.aggregators.get().pipe(function (result) {
-                    console.log(result);
-                });
             };
         };
     }
