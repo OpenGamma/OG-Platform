@@ -36,7 +36,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * TODO extract data and expected objects into BeanTestUtils or something, share with trade builder test
+ * TODO extract data and expected objects into BlotterTestUtils or something, share with trade builder test
  */
 public class BeanBuildingVisitorTest {
 
@@ -57,6 +57,7 @@ public class BeanBuildingVisitorTest {
   @Test
   public void buildFXForwardSecurity() {
     ImmutableMap<String, String> attributes = ImmutableMap.of("attr1", "attrVal1", "attr2", "attrVal2");
+    String forwardDateStr = "2012-12-21T10:30+00:00[Europe/London]";
     BeanDataSource dataSource = data(
         "type", "FXForwardSecurity",
         "name", "FX Forward GBP/USD",
@@ -65,7 +66,7 @@ public class BeanBuildingVisitorTest {
         "payAmount", "150",
         "receiveCurrency", "GBP",
         "receiveAmount", "100",
-        "forwardDate", "2012-12-21T10:30+00:00[Europe/London]", // maybe need an explicit converter for this
+        "forwardDate", forwardDateStr, // maybe need an explicit converter for this
         "regionId", "Reg~123",
         "attributes", attributes);
 
@@ -73,7 +74,7 @@ public class BeanBuildingVisitorTest {
     MetaBean metaBean = s_metaBeanFactory.beanFor(dataSource);
     ManageableSecurity security = (ManageableSecurity) new BeanTraverser().traverse(metaBean, visitor);
 
-    ZonedDateTime forwardDate = ZonedDateTime.parse("2012-12-21T10:30+00:00[Europe/London]");
+    ZonedDateTime forwardDate = ZonedDateTime.parse(forwardDateStr);
     ExternalId regionId = ExternalId.of("Reg", "123");
     ExternalIdBundle externalIds = ExternalIdBundle.of(ExternalId.of("Ext", "123"), ExternalId.of("Ext", "234"));
     FXForwardSecurity expected = new FXForwardSecurity(Currency.USD, 150, Currency.GBP, 100, forwardDate, regionId);
@@ -83,18 +84,24 @@ public class BeanBuildingVisitorTest {
     assertEquals(expected, security);
   }
 
+  /**
+   * test building a security with fields that are also beans and have bean fields themsevles (legs, notionals)
+   */
   @Test
   public void buildSwapSecurity() {
     Map<String, String> attributes = ImmutableMap.of("attr1", "attrVal1", "attr2", "attrVal2");
+    String tradeDateStr = "2012-12-21T10:30+00:00[Europe/London]";
+    String effectiveDateStr = "2012-12-23T10:30+00:00[Europe/London]";
+    String maturityDateStr = "2013-12-21T10:30+00:00[Europe/London]";
     BeanDataSource dataSource = data(
         "type", "SwapSecurity",
         "name", "Swap Security",
         "externalIdBundle", "Ext~123, Ext~234",
         "attributes", attributes,
         "counterparty", "Cpty",
-        "tradeDate", "2012-12-21T10:30+00:00[Europe/London]",
-        "effectiveDate", "2012-12-23T10:30+00:00[Europe/London]",
-        "maturityDate", "2013-12-21T10:30+00:00[Europe/London]",
+        "tradeDate", tradeDateStr,
+        "effectiveDate", effectiveDateStr,
+        "maturityDate", maturityDateStr,
         "payLeg", data(
           "type", "FixedInterestRateLeg",
           "rate", "1.234",
@@ -127,9 +134,9 @@ public class BeanBuildingVisitorTest {
     MetaBean metaBean = s_metaBeanFactory.beanFor(dataSource);
     ManageableSecurity security = (ManageableSecurity) new BeanTraverser().traverse(metaBean, visitor);
 
-    ZonedDateTime tradeDate = ZonedDateTime.parse("2012-12-21T10:30+00:00[Europe/London]");
-    ZonedDateTime effectiveDate = ZonedDateTime.parse("2012-12-23T10:30+00:00[Europe/London]");
-    ZonedDateTime maturityDate = ZonedDateTime.parse("2013-12-21T10:30+00:00[Europe/London]");
+    ZonedDateTime tradeDate = ZonedDateTime.parse(tradeDateStr);
+    ZonedDateTime effectiveDate = ZonedDateTime.parse(effectiveDateStr);
+    ZonedDateTime maturityDate = ZonedDateTime.parse(maturityDateStr);
     ExternalIdBundle externalIds = ExternalIdBundle.of(ExternalId.of("Ext", "123"), ExternalId.of("Ext", "234"));
 
     SwapLeg payLeg = new FixedInterestRateLeg(

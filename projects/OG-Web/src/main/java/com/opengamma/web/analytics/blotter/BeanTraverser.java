@@ -58,6 +58,8 @@ import com.opengamma.util.ArgumentChecker;
         }
       } catch (Exception e) {
         failures.add(new TraversalFailure(e, property));
+        // TODO temporary. need to make the stack traces from traversal failures nice and obvious
+        throw new RuntimeException(e);
       }
     }
     if (failures.isEmpty()) {
