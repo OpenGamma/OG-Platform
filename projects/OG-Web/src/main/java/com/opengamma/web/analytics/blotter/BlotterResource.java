@@ -28,6 +28,7 @@ import org.joda.beans.MetaBean;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -62,6 +63,7 @@ import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
@@ -78,7 +80,9 @@ public class BlotterResource {
 
   // TODO this should be configurable, should be able to add from client projects
   // TODO where should these live? is this the right place?
-  /** All the securities and related types supported by the blotter. */
+  /**
+   * All the securities and related types supported by the blotter.
+   */
   /* package */ static final Set<MetaBean> s_metaBeans = Sets.<MetaBean>newHashSet(
       FXForwardSecurity.meta(),
       SwapSecurity.meta(),
@@ -95,7 +99,8 @@ public class BlotterResource {
       CapFloorSecurity.meta(),
       EquityVarianceSwapSecurity.meta(),
       FXBarrierOptionSecurity.meta(),
-      NonDeliverableFXOptionSecurity.meta());
+      NonDeliverableFXOptionSecurity.meta(),
+      ManageableTrade.meta());
 
   private static final Map<Class<?>, Class<?>> s_underlyingSecurityTypes = ImmutableMap.<Class<?>, Class<?>>of(
       IRFutureOptionSecurity.class, InterestRateFutureSecurity.class,
@@ -145,7 +150,8 @@ public class BlotterResource {
     _securityMaster = securityMaster;
   }
 
-  /* package */ static boolean isSecurity(Class<?> type) {
+  /* package */
+  static boolean isSecurity(Class<?> type) {
     if (type == null) {
       return false;
     } else if (ManageableSecurity.class.equals(type)) {
@@ -170,6 +176,7 @@ public class BlotterResource {
     return _freemarker.build("blotter/bean-types.ftl", data);
   }
 
+  @SuppressWarnings("unchecked")
   @GET
   @Produces(MediaType.TEXT_HTML)
   @Path("types/{typeName}")
@@ -178,21 +185,27 @@ public class BlotterResource {
     if (metaBean == null) {
       throw new DataNotFoundException("Unknown type name " + typeName);
     }
-    BeanStructureBuilder structureBuilder = new BeanStructureBuilder(s_metaBeans, s_underlyingSecurityTypes, s_endpoints);
-    // filter out underlying ID property for security types whose underlying is another OTC security
-    BeanVisitorDecorator propertyFilter = new PropertyFilter(SwaptionSecurity.meta().underlyingId());
-    BeanVisitorDecorator propertyNameFilter = new PropertyNameFilter("externalIdBundle");
-    BeanTraverser traverser = new BeanTraverser(propertyFilter, propertyNameFilter);
-    Map<?, ?> beanData = (Map<?, ?>) traverser.traverse(metaBean, structureBuilder);
+    Map<String, Object> beanData;
+    if (typeName.equals("ManageableTrade")) {
+      beanData = manageableTradeStructure();
+    } else {
+      BeanStructureBuilder structureBuilder = new BeanStructureBuilder(s_metaBeans,
+                                                                       s_underlyingSecurityTypes,
+                                                                       s_endpoints);
+      BeanVisitorDecorator propertyNameFilter = new PropertyNameFilter("externalIdBundle");
+      BeanTraverser traverser = new BeanTraverser(propertyNameFilter);
+      beanData = (Map<String, Object>) traverser.traverse(metaBean, structureBuilder);
+    }
     return _freemarker.build("blotter/bean-structure.ftl", beanData);
   }
 
   // TODO change this to include the trade details, also change the name and path
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  @Path("securities/{securityId}")
-  public String getJSON(@PathParam("securityId") String securityIdStr) {
-    UniqueId securityId = UniqueId.parse(securityIdStr);
+  @Path("trades/{tradeId}")
+  public String getJSON(@PathParam("tradeId") String tradeIdStr) {
+    UniqueId securityId = UniqueId.parse(tradeIdStr);
+    // TODO this is wrong, need to get the trade from a position source and get the security ID from that
     SecurityDocument document = _securityMaster.get(securityId);
     ManageableSecurity security = document.getSecurity();
     MetaBean metaBean = s_metaBeansByTypeName.get(security.getClass().getSimpleName());
@@ -201,6 +214,7 @@ public class BlotterResource {
     }
     BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<JSONObject>(security, new JsonDataSink());
     // TODO filter out underlyingId for securities with OTC underlying
+    // TODO trade data
     JSONObject json = (JSONObject) new BeanTraverser().traverse(metaBean, writingVisitor);
     JSONObject root = new JSONObject();
     try {
@@ -267,4 +281,52 @@ public class BlotterResource {
   }
 
   // TODO create fungible trade - identifier and quantity
+
+  // the horror... make this go away
+  private static Map<String, Object> manageableTradeStructure() {
+    Map<String, Object> structure = Maps.newHashMap();
+    List<Map<String, Object>> properties = Lists.newArrayList();
+    properties.add(property("uniqueId", true, true, typeInfo("string", "UniqueId")));
+    properties.add(property("quantity", true, false, typeInfo("number", "")));
+    properties.add(property("counterparty", true, false, typeInfo("string", "")));
+    properties.add(property("tradeDate", true, false, typeInfo("string", "LocalDate")));
+    properties.add(property("tradeTime", true, false, typeInfo("string", "OffsetTime")));
+    properties.add(property("premium", true, false, typeInfo("number", "")));
+    properties.add(property("premiumCurrency", true, false, typeInfo("string", "Currency")));
+    properties.add(property("premiumDate", true, false, typeInfo("string", "LocalDate")));
+    properties.add(property("premiumTime", true, false, typeInfo("string", "OffsetTime")));
+    properties.add(attributesProperty());
+    structure.put("type", "ManageableTrade");
+    structure.put("properties", properties);
+    structure.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
+    return structure;
+  }
+
+  private static Map<String, Object> property(String name,
+                                              boolean optional,
+                                              boolean readOnly,
+                                              Map<String, Object> typeInfo) {
+    return ImmutableMap.<String, Object>of("name", name,
+                                           "type", "single",
+                                           "optional", optional,
+                                           "readOnly", readOnly,
+                                           "types", ImmutableList.of(typeInfo));
+  }
+
+  private static Map<String, Object> attributesProperty() {
+    Map<String, Object> map = Maps.newHashMap();
+    map.put("name", "attributes");
+    map.put("type", "map");
+    map.put("optional", false);
+    map.put("readOnly", false);
+    map.put("types", ImmutableList.of(typeInfo("string", "")));
+    map.put("valueTypes", ImmutableList.of(typeInfo("string", "")));
+    return map;
+  }
+
+  private static Map<String, Object> typeInfo(String expectedType, String actualType) {
+    return ImmutableMap.<String, Object>of("beanType", false,
+                                           "expectedType", expectedType,
+                                           "actualType", actualType);
+  }
 }

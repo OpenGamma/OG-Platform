@@ -14,27 +14,27 @@
             <td>${prop.name}</td>
             <td>
                 <#if prop.type == "map">
-                    {<@typeNames prop.keyTypeInfo/>:<@typeNames prop.valueTypeInfo/>}
+                    {<@typeNames prop.types/>:<@typeNames prop.valueTypes/>}
                 <#else>
                     <#if prop.type == "array">[</#if>
-                    <@typeNames prop.typeInfo/>
+                    <@typeNames prop.types/>
                     <#if prop.type == "array">]</#if>
                 </#if>
             </td>
-            <td><#if prop.isOptional>true</#if></td>
-            <td><#if prop.isReadOnly>true</#if></td>
+            <td><#if prop.optional>true</#if></td>
+            <td><#if prop.readOnly>true</#if></td>
             <td>
-                <#if prop.typeInfo?has_content>
-                    <#list prop.typeInfo as info>
+                <#if prop.types?has_content>
+                    <#list prop.types as info>
                         <#if info.endpoint?has_content><a href="/jax/blotter/lookup/${info.endpoint}">/jax/blotter/lookup/${info.endpoint}</a></#if>
                     </#list>
                 </#if>
             </td>
             </@table>
         </@section>
-        <#if hasUnderlying>
+        <#if underlyingType?has_content>
             <@subsection title="Underlying Security">
-                <#list underlyingTypeInfo as info>
+                <#list underlyingTypes as info>
                     <a href="${info.expectedType}">${info.expectedType}</a><#if info_has_next>, </#if>
                 </#list>
             </@subsection>

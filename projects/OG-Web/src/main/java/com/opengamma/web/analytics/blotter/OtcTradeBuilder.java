@@ -16,6 +16,7 @@ import org.joda.beans.MetaProperty;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
@@ -30,6 +31,10 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 /* package */ abstract class OtcTradeBuilder {
+
+  // TODO where should these live?
+  private static final ExternalScheme CPTY_SCHEME = ExternalScheme.of("Cpty");
+  private static final String COUNTERPARTY = "counterparty";
 
   private final SecurityMaster _securityMaster;
   private final PositionMaster _positionMaster;
@@ -58,7 +63,11 @@ import com.opengamma.util.ArgumentChecker;
                      meta.attributes());
     tradeBuilder.set(meta.quantity(), BigDecimal.ONE);
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(securityId));
+    // TODO set counterparty on trade, scheme Cpty
+    String counterparty = tradeData.getValue(COUNTERPARTY);
+    tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
     ManageableTrade trade = tradeBuilder.build();
+    // TODO need the node ID so we can add the position to it
     ManageablePosition position = new ManageablePosition();
     position.setSecurityLink(new ManageableSecurityLink(securityId));
     position.addTrade(trade);
