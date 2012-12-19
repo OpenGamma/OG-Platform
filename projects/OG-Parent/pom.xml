@@ -8,7 +8,7 @@
   <artifactId>og-parent</artifactId>
   <packaging>pom</packaging>
   <name>OG-Parent</name>
-  <version>1.2.0</version>
+  <version>1.2.1-SNAPSHOT</version>
   <description>OpenGamma maven parent project</description>
   <url>http://developers.opengamma.com/</url>
 
@@ -375,7 +375,7 @@
       <dependency>
         <groupId>colt</groupId>
         <artifactId>colt</artifactId>
-        <version>1.2.0</version>
+        <version>1.2.1-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>net.sourceforge.jtransforms</groupId>
