@@ -25,18 +25,21 @@ $.register_module({
                     }), 
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_option_value_tash',
-                        extras: {}
+                        extras: {},
+                        children: [
+                            new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'putCurrency'}}),
+                            new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'callCurrency'}})
+                        ]
                     }),                    
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_option_date_tash',
-                        extras: {thing:"yay"},
+                        extras: {},
                         children: [
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.exercisetypes', index: 'exerciseType',
-                                value: '', rest_options: {},
-                                placeholder: 'Please select...'
+                                value: '', rest_options: {}, placeholder: 'Select Exercise Type'
                             }),
-                            new form.Block({module:'og.views.forms.currency_tash'})
+                            new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'ITTODO'}})
                         ]
                         /*generator: function (handler, template, template_data) {
                             og.api.rest.aggregators.get().pipe(function (result) {
