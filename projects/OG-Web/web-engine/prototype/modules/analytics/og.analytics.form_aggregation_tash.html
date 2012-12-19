@@ -10,12 +10,7 @@
   <table class="OG-aggregation-options">
     <tr class="OG-dropmenu-options">
       <td class="number"><span>1</span></td>
-      <td>
-        <select class="type" name="aggregators.0">
-          <option selected="selected">select aggregation...</option>
-          {{#each aggregations}}<option>{{this}}</option>{{/each}}
-        </select>
-      </td>
+      <td class="aggregation">{{{item_0}}}</td>
       <td>
         <label class="og-option"><input type="checkbox" disabled="true" name="required_fields.0" />
           <span>Include required fields</span>

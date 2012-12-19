@@ -12,14 +12,16 @@ $.register_module({
             },
 
             DropMenu = function (config) {
-                var menu = new og.common.util.ui.DropMenu(), form = config.form, dummy_s = '<wrapper>';
+                var menu = new og.common.util.ui.DropMenu(), form = config.form, dummy_s = '<wrapper>', conf = config;
                 if (menu.$dom) {
                     menu.$dom.toggle_prefix = $(dummy_s);
                     menu.$dom.toggle_infix = $(dummy_s).append('<span>then</span>');
                     menu.block = new form.Block({
                         data: config.data || {},
                         extras: config.extras || {},
-                        module: config.tmpl
+                        module: config.tmpl,
+                        children: config.children || [],
+                        generator: config.generator || null
                     });
                     form.on('form:load', function () {
                         menu.$dom.cntr = $(config.cntr);
@@ -43,10 +45,11 @@ $.register_module({
             this.toggle_handler();
             if (this.opened) this.opts[this.opts.length-1].find('select').first().focus(0);
         };
-        DropMenu.prototype.add_handler = function () {
+        DropMenu.prototype.add_handler = function (elem) {
             var len, opt;
-            return len = this.opts.length, opt = this.$dom.opt_cp.clone(true).data("pos", this.opts.length),
-                this.opts.push(opt), this.$dom.add.focus(0), this.opts[len].find('.number span').text(this.opts.length),
+            return len = this.opts.length, opt = elem ? elem.data("pos", this.opts.length) :
+                this.$dom.opt_cp.clone(true).data("pos", this.opts.length), this.opts.push(opt), this.$dom.add.focus(0),
+                this.opts[len].find('.number span').text(this.opts.length),
                 this.$dom.menu_actions.before(this.opts[len]);
         };
         DropMenu.prototype.delete_handler = function (elem) {

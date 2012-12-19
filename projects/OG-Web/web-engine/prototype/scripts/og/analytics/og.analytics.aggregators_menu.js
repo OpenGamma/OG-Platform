@@ -9,26 +9,37 @@ $.register_module({
         return function (config) {
             if (!config) return og.dev.warn('og.analytics.AggregatorsMenu: Missing param [config] to constructor.');
 
-            if (!('data' in config) || !config.data || !config.data.length)
-                return og.dev.warn('og.analytics.AggregatorsMenu: Missing param key [config.data] to constructor.');
+            if (!('form' in config) || !config.form || !(config.form instanceof og.common.util.ui.Form))
+                return og.dev.warn('og.analytics.AggregatorsMenu: Missing param key [config.form] to constructor.');
 
             // Private
             var menu = new og.analytics.DropMenu({
                     cntr: '.og-aggregation',
                     data: { aggregators:[], required_fields:[] },
-                    extras: { aggregations: config.data },
                     form: config.form,
                     selector: '.og-aggregation',
-                    tmpl: 'og.analytics.form_aggregation_tash'
+                    tmpl: 'og.analytics.form_aggregation_tash',
+                    children: [
+                        new og.common.util.ui.Dropdown({
+                            form: config.form, resource: 'aggregators', index: 'aggregators.0',
+                            value: '', rest_options: {}, placeholder: 'select aggregation...'
+                        })
+                    ]
                 }),
-                $dom, data, query = [], sel_val, sel_pos, $parent, $query,
+                $dom, data, query = [], sel_val, sel_pos, $parent, $query, form = config.form,
                 $select, $checkbox, default_sel_txt = 'select aggregation...', default_query_text = 'Default',
                 del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', select_s = 'select',
                 checkbox_s = '.og-option :checkbox', tmpl_menu = '', tmpl_toggle = '';
 
-            var add_handler = function () {
-                if (config.data.length === menu.opts.length) return;
-                menu.add_handler();
+            var add_handler = function (entry) {
+                menu.block.children.push(new og.common.util.ui.Dropdown({
+                    form: config.form, resource: 'aggregators', index: 'aggregators.'+menu.opts.length,
+                    value: '', rest_options: {}, placeholder: 'select aggregation...'
+                }).html(function (html) {
+                    var idx, $elem = menu.$dom.opt_cp.clone(true); $elem.find('td.aggregation').html(html);
+                    menu.add_handler($elem); idx = menu.opts.length-1;
+                    menu.opts[idx].find('.og-option input[type=checkbox]').attr('name', 'required_fields.'+idx);
+                }));
             };
 
             var checkbox_handler = function (entry) {
@@ -72,7 +83,7 @@ $.register_module({
                     if ($dom.menu) {
                         menu.block
                             .on('mousedown', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
-                            on('change', 'select', menu_handler);
+                            .on('change', 'select', menu_handler);
                         if (conf.opts) menu.replay_query(conf.opts);
                     }
                 }
@@ -117,15 +128,15 @@ $.register_module({
             };
 
             var select_handler = function (entry) {
-                    if (sel_val === default_sel_txt) {
-                        remove_entry(entry);
-                        if ($checkbox) $checkbox[0].disabled = true;
-                        if (query.length === 0) return $query.html(default_query_text);
-                    } else if (~entry) query[entry].val = sel_val;
-                    else {
-                        query.splice(sel_pos, 0, {pos:sel_pos, val:sel_val, required_field:false});
-                        $checkbox[0].disabled = false;
-                    }
+                if (sel_val === "") {
+                    remove_entry(entry);
+                    if ($checkbox) $checkbox[0].disabled = true;
+                    if (query.length === 0) return $query.html(default_query_text);
+                } else if (~entry) query[entry].val = sel_val;
+                else {
+                    query.splice(sel_pos, 0, {pos:sel_pos, val:sel_val, required_field:false});
+                    $checkbox[0].disabled = false;
+                }
                 display_query();
             };
 

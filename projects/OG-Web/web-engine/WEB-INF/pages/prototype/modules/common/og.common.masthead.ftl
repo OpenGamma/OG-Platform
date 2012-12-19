@@ -34,5 +34,5 @@
     </ul>
   </li>
 </ul>
-<div class="OG-analytics-form"></div>
 </section>
+<div class="OG-analytics-form"></div>
