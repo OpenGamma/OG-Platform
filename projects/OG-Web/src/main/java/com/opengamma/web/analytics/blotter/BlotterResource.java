@@ -52,6 +52,7 @@ import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -119,6 +120,7 @@ public class BlotterResource {
     s_endpoints.put(SamplingFrequency.class, "samplingfrequencies");
     s_endpoints.put(FloatingRateType.class, "floatingratetypes");
     s_endpoints.put(LongShort.class, "longshort");
+    s_endpoints.put(MonitoringType.class, "monitoringtype");
   }
 
   private static final List<String> s_otherTypeNames = Lists.newArrayList();
