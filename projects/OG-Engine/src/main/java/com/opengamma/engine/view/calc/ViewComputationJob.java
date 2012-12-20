@@ -358,7 +358,6 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   private void cycleFragmentCompleted(ViewComputationResultModel result) {
-
     try {
       getViewProcess().cycleFragmentCompleted(result, _viewDefinition);
     } catch (Exception e) {

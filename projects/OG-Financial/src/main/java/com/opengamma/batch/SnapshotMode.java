@@ -6,16 +6,16 @@
 package com.opengamma.batch;
 
 /**
- * Represents snapshot data mode
+ * Enumerates the snapshot data modes
  */
 public enum SnapshotMode {
 
   /**
-   * The snapshot data is expected to be populated upfront batch run.
+   * The snapshot data has been prepared before the batch run, and should not be rewritten to the database.
    */
   PREPARED,
   /**
-   * The snapshot data is no prepared upfront the batch run, and it should be written to DB on the fly
+   * The snapshot data has not been prepared before the batch run. It should be persisted to the database during the run.
    */
   WRITE_THROUGH
 

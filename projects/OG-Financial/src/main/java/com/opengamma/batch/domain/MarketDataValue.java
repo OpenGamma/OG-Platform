@@ -24,6 +24,9 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 
+/**
+ * 
+ */
 @BeanDefinition
 public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
   
@@ -33,8 +36,8 @@ public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
   @PropertyDefinition
   private long _marketDataId;
   
-  /*
-    This value is not stored in db, but it is rather paired with _computationTargetId
+  /**
+   * This value is not stored in db, but it is rather paired with _computationTargetId
    */
   @PropertyDefinition
   private ComputationTargetSpecification _computationTargetSpecification;
@@ -242,42 +245,7 @@ public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
-   * 
-   * Please see distribution for license.
-   * /
-   * package com.opengamma.batch.domain;
-   * 
-   * import java.util.Map;
-   * 
-   * import org.joda.beans.BeanBuilder;
-   * import org.joda.beans.BeanDefinition;
-   * import org.joda.beans.JodaBeanUtils;
-   * import org.joda.beans.MetaProperty;
-   * import org.joda.beans.Property;
-   * import org.joda.beans.PropertyDefinition;
-   * import org.joda.beans.impl.direct.DirectBean;
-   * import org.joda.beans.impl.direct.DirectBeanBuilder;
-   * import org.joda.beans.impl.direct.DirectMetaBean;
-   * import org.joda.beans.impl.direct.DirectMetaProperty;
-   * import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-   * 
-   * import com.opengamma.batch.BatchMaster;
-   * import com.opengamma.engine.ComputationTargetSpecification;
-   * import com.opengamma.id.ObjectId;
-   * import com.opengamma.id.ObjectIdentifiable;
-   * 
-   * @BeanDefinition
-   * public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
-   * 
-   * @PropertyDefinition
-   * private long _id;
-   * 
-   * @PropertyDefinition
-   * private long _marketDataId;
-   * 
-   * /*
-   * This value is not stored in db, but it is rather paired with _computationTargetId
+   * Gets this value is not stored in db, but it is rather paired with _computationTargetId
    * @return the value of the property
    */
   public ComputationTargetSpecification getComputationTargetSpecification() {
@@ -285,42 +253,7 @@ public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
   }
 
   /**
-   * Sets copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
-   * 
-   * Please see distribution for license.
-   * /
-   * package com.opengamma.batch.domain;
-   * 
-   * import java.util.Map;
-   * 
-   * import org.joda.beans.BeanBuilder;
-   * import org.joda.beans.BeanDefinition;
-   * import org.joda.beans.JodaBeanUtils;
-   * import org.joda.beans.MetaProperty;
-   * import org.joda.beans.Property;
-   * import org.joda.beans.PropertyDefinition;
-   * import org.joda.beans.impl.direct.DirectBean;
-   * import org.joda.beans.impl.direct.DirectBeanBuilder;
-   * import org.joda.beans.impl.direct.DirectMetaBean;
-   * import org.joda.beans.impl.direct.DirectMetaProperty;
-   * import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-   * 
-   * import com.opengamma.batch.BatchMaster;
-   * import com.opengamma.engine.ComputationTargetSpecification;
-   * import com.opengamma.id.ObjectId;
-   * import com.opengamma.id.ObjectIdentifiable;
-   * 
-   * @BeanDefinition
-   * public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
-   * 
-   * @PropertyDefinition
-   * private long _id;
-   * 
-   * @PropertyDefinition
-   * private long _marketDataId;
-   * 
-   * /*
-   * This value is not stored in db, but it is rather paired with _computationTargetId
+   * Sets this value is not stored in db, but it is rather paired with _computationTargetId
    * @param computationTargetSpecification  the new value of the property
    */
   public void setComputationTargetSpecification(ComputationTargetSpecification computationTargetSpecification) {
@@ -329,41 +262,6 @@ public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
 
   /**
    * Gets the the {@code computationTargetSpecification} property.
-   * 
-   * Please see distribution for license.
-   * /
-   * package com.opengamma.batch.domain;
-   * 
-   * import java.util.Map;
-   * 
-   * import org.joda.beans.BeanBuilder;
-   * import org.joda.beans.BeanDefinition;
-   * import org.joda.beans.JodaBeanUtils;
-   * import org.joda.beans.MetaProperty;
-   * import org.joda.beans.Property;
-   * import org.joda.beans.PropertyDefinition;
-   * import org.joda.beans.impl.direct.DirectBean;
-   * import org.joda.beans.impl.direct.DirectBeanBuilder;
-   * import org.joda.beans.impl.direct.DirectMetaBean;
-   * import org.joda.beans.impl.direct.DirectMetaProperty;
-   * import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-   * 
-   * import com.opengamma.batch.BatchMaster;
-   * import com.opengamma.engine.ComputationTargetSpecification;
-   * import com.opengamma.id.ObjectId;
-   * import com.opengamma.id.ObjectIdentifiable;
-   * 
-   * @BeanDefinition
-   * public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
-   * 
-   * @PropertyDefinition
-   * private long _id;
-   * 
-   * @PropertyDefinition
-   * private long _marketDataId;
-   * 
-   * /*
-   * This value is not stored in db, but it is rather paired with _computationTargetId
    * @return the property, not null
    */
   public final Property<ComputationTargetSpecification> computationTargetSpecification() {
