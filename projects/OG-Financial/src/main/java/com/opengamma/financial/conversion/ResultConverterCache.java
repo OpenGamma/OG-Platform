@@ -26,6 +26,7 @@ public class ResultConverterCache {
     registerConverter(new LabelledMatrix2DConverter());
     registerConverter(new MultipleCurrencyAmountConverter());
     registerConverter(new MultipleCurrencyInterestRateCurveSensitivityConverter());
+    registerConverter(new VolatilitySurfaceDataConverter());
   }
   
   public <T> void registerConverter(ResultConverter<?> converter) {
