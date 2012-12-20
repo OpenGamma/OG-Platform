@@ -12,6 +12,10 @@ $.register_module({
                     $(section.selector).html(html);
                 }, extras);
             },
+            check_radio : function (name, value){
+                var $radios = $('input:radio[name= '+ name +']');
+                $radios.filter('[value='+ value + ']').attr('checked', true);
+            },
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
             FAKE_DROPDOWN : [
                     {name:'Select', value:''},

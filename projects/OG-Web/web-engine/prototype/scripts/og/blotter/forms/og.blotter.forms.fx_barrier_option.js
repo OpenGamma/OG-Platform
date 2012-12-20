@@ -13,16 +13,12 @@ $.register_module({
                 constructor.title = 'FX Barrier Option';
                 var form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.fx_option_tash',
-                    data: {},
-                    type_map: {},
-                    selector: '.OG-blotter-form-block',
-                    extras:{}
+                    selector: '.OG-blotter-form-block'
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
                     new form.Block({
-                        module: 'og.blotter.forms.blocks.long_short_tash',
-                        extras: {value: data.longShort}
+                        module: 'og.blotter.forms.blocks.long_short_tash'
                     }), 
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_option_value_tash',
@@ -58,13 +54,10 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
-                    var $radios = $('input:radio[name=longShort]');
                     if(data.length) return;
-                    
                     $('[name="putCurrency"]').val(data.putCurrency);
                     $('[name="callCurrency"]').val(data.callCurrency);
-                    $radios.filter('[value='+ data.longShort + ']').attr('checked', true);
-                    
+                    og.blotter.util.check_radio("longShort", data.longShort);
                 });
             }; 
             constructor.load();
