@@ -25,7 +25,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Converter interest rate future option securities into the form used by the analytics library
+ * Converts interest rate future option securities into the form used by the analytics library
  */
 public class InterestRateFutureOptionSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   /** The security source */

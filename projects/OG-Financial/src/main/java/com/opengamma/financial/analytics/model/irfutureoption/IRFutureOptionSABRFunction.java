@@ -184,12 +184,15 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     }
     final String curveCalculationConfig = Iterables.getOnlyElement(curveCalculationConfigs);
     final String surfaceName = Iterables.getOnlyElement(surfaceNames) + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
-    final String fittingMethod = Iterables.getOnlyElement(fittingMethods);
     final Trade trade = target.getTrade();
     final Currency currency = FinancialSecurityUtils.getCurrency(trade.getSecurity());
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(getCurveRequirement(trade, curveCalculationConfig, context));
-    requirements.add(SABRFittingPropertyUtils.getNLSSSurfaceRequirement(desiredValue, currency));
+    final ValueRequirement surfaceRequirement = SABRFittingPropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, currency);
+    if (surfaceRequirement == null) {
+      return null;
+    }
+    requirements.add(surfaceRequirement);
     final Set<ValueRequirement> timeSeriesRequirement = getTimeSeriesRequirement(trade);
     if (timeSeriesRequirement == null) {
       return null;
