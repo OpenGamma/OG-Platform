@@ -63,11 +63,21 @@ import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.PositionSearchRequest;
+import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.web.FreemarkerOutputter;
@@ -144,12 +154,18 @@ public class BlotterResource {
   }
 
   private final SecurityMaster _securityMaster;
+  private final PortfolioMaster _portfolioMaster;
+  private final PositionMaster _positionMaster;
 
   private FreemarkerOutputter _freemarker;
 
-  public BlotterResource(SecurityMaster securityMaster) {
+  public BlotterResource(SecurityMaster securityMaster, PortfolioMaster portfolioMaster, PositionMaster positionMaster) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
+    ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
+    ArgumentChecker.notNull(positionMaster, "positionMaster");
     _securityMaster = securityMaster;
+    _portfolioMaster = portfolioMaster;
+    _positionMaster = positionMaster;
   }
 
   /* package */
@@ -201,26 +217,58 @@ public class BlotterResource {
     return _freemarker.build("blotter/bean-structure.ftl", beanData);
   }
 
-  // TODO change this to include the trade details, also change the name and path
+  // TODO clean this up. move into helper?
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @Path("trades/{tradeId}")
   public String getJSON(@PathParam("tradeId") String tradeIdStr) {
-    UniqueId securityId = UniqueId.parse(tradeIdStr);
-    // TODO this is wrong, need to get the trade from a position source and get the security ID from that
-    SecurityDocument document = _securityMaster.get(securityId);
-    ManageableSecurity security = document.getSecurity();
-    MetaBean metaBean = s_metaBeansByTypeName.get(security.getClass().getSimpleName());
-    if (metaBean == null) {
+    // TODO this is a bit of a palaver, surely there's something that already does this?
+    ObjectId tradeId = ObjectId.parse(tradeIdStr);
+    PositionSearchRequest positionSearch = new PositionSearchRequest();
+    positionSearch.addTradeObjectId(tradeId);
+    PositionSearchResult positions = _positionMaster.search(positionSearch);
+    ManageablePosition position = positions.getSinglePosition();
+    ManageableTrade trade = position.getTrade(tradeId);
+    ManageableSecurityLink securityLink = position.getSecurityLink();
+    SecurityDocument securityDocument;
+    if (securityLink.getObjectId() != null) {
+      securityDocument = _securityMaster.get(securityLink.getObjectId(), VersionCorrection.LATEST);
+    } else {
+      SecuritySearchRequest searchRequest = new SecuritySearchRequest(securityLink.getExternalId());
+      SecuritySearchResult searchResult = _securityMaster.search(searchRequest);
+      securityDocument = searchResult.getFirstDocument();
+      if (securityDocument == null) {
+        throw new IllegalStateException("No security found with external IDs " + securityLink.getExternalId());
+      }
+    }
+    ManageableSecurity security = securityDocument.getSecurity();
+    MetaBean securityMetaBean = s_metaBeansByTypeName.get(security.getClass().getSimpleName());
+    if (securityMetaBean == null) {
       throw new DataNotFoundException("No MetaBean is registered for security type " + security.getClass().getName());
     }
-    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<JSONObject>(security, new JsonDataSink());
     // TODO filter out underlyingId for securities with OTC underlying
-    // TODO trade data
-    JSONObject json = (JSONObject) new BeanTraverser().traverse(metaBean, writingVisitor);
+    // TODO trade data - need different structure depending on whether the security is OTC
+    // OTCs don't need quantity or security ID, trades in fungible securities need both
+    BeanVisitor<JSONObject> securityVisitor = new BuildingBeanVisitor<JSONObject>(security, new JsonDataSink());
+    JSONObject securityJson = (JSONObject) new BeanTraverser().traverse(securityMetaBean, securityVisitor);
+    BeanVisitor<JSONObject> tradeVisitor = new BuildingBeanVisitor<JSONObject>(trade, new JsonDataSink());
+    // TODO special handling of counterparty, send value as string not external ID
+    // TODO don't filter out quantity for fungible securities
+    // TODO include external security ID for fungible securities
+    ManageableTrade.Meta tradeMetaBean = ManageableTrade.meta();
+    // TODO factor this out, it's repeating logic from the structure building visitor and trade builder
+    PropertyFilter tradePropertyFilter = new PropertyFilter(tradeMetaBean.securityLink(),
+                                                            tradeMetaBean.quantity(),
+                                                            tradeMetaBean.deal(),
+                                                            tradeMetaBean.parentPositionId(),
+                                                            tradeMetaBean.providerId(),
+                                                            tradeMetaBean.securityLink());
+    JSONObject tradeJson = (JSONObject) new BeanTraverser(tradePropertyFilter).traverse(tradeMetaBean, tradeVisitor);
     JSONObject root = new JSONObject();
     try {
-      root.put("security", json);
+      // TODO only include security for OTCs
+      root.put("security", securityJson);
+      root.put("trade", tradeJson);
     } catch (JSONException e) {
       throw new OpenGammaRuntimeException("", e);
     }

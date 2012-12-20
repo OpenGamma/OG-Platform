@@ -90,7 +90,7 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
    * @return the matching position, not null
    * @throws IllegalStateException if no position was found
    */
-  public ManageablePosition getSingleSecurity() {
+  public ManageablePosition getSinglePosition() {
     if (getDocuments().size() != 1) {
       throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
     } else {
