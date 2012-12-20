@@ -55,8 +55,8 @@ $.register_module({
                 form.dom();
                 form.on('form:load', function (){
                     if(data.length) return;
-                    $('[name="putCurrency"]').val(data.putCurrency);
-                    $('[name="callCurrency"]').val(data.callCurrency);
+                    og.blotter.util.set_select("putCurrency", data.putCurrency);
+                    og.blotter.util.set_select("callCurrency", data.callCurrency);
                     og.blotter.util.check_radio("longShort", data.longShort);
                 });
             }; 

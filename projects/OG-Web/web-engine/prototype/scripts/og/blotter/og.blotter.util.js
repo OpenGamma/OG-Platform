@@ -6,6 +6,12 @@ $.register_module({
     name: 'og.blotter.util',
     dependencies: [],
     obj: function () {
+         var FAKE_ATTRIBUTES = [
+                {key: 'what',value: 'that'},
+                {key: 'colour',value: 'white'},
+                {key: 'moral',value: 'bad'},
+                {key: 'direction',value: 'down'},
+                {key: 'speed',value: 'fast'}];  
         return {
             update_block : function (section, extras){
                 section.block.html(function (html) {
@@ -13,9 +19,12 @@ $.register_module({
                 }, extras);
             },
             check_radio : function (name, value){
-                var $radios = $('input:radio[name= '+ name +']');
-                $radios.filter('[value='+ value + ']').attr('checked', true);
+                $('input:radio[name= '+ name +']').filter('[value='+ value + ']').attr('checked', true);
             },
+            set_select : function (name, value){
+                $('select[name='+ name +']').val(value);
+            },
+            
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
             FAKE_DROPDOWN : [
                     {name:'Select', value:''},
@@ -42,7 +51,7 @@ $.register_module({
                 expiry:"22.12.2012",
                 barrierDirection: "Knock In",
                 putCurrency: "USD",
-                callCurency: "TOP",
+                callCurrency: "EEK",
                 barrierType: "Up",
                 monitoringType: "DISCRETE",
                 samplingFrequency: "Friday",
@@ -50,13 +59,22 @@ $.register_module({
                 putAmount: "3.02",
                 strike: "55.05",
                 longShort: "Short",
-                attributes:  [
-                    {key: 'what',value: 'that'},
-                    {key: 'colour',value: 'white'},
-                    {key: 'moral',value: 'bad'},
-                    {key: 'direction',value: 'down'},
-                    {key: 'speed',value: 'fast'}
-                ]
+                attributes:  FAKE_ATTRIBUTES
+            },
+            FAKE_CAP_FLOOR : {
+                currency: "TOP",
+                payer: true,
+                cap: false,
+                attributes:  FAKE_ATTRIBUTES,
+                dayCount: "28/360",
+                frequency: "Annual", 
+                startDate: "21.12.2012", 
+                maturityDate: "22.12.2012", 
+                notional: "12",
+                strike: "15", 
+                longId: "1", 
+                shortId: "2", 
+                underlyingId: "3"          
             }
 
         };

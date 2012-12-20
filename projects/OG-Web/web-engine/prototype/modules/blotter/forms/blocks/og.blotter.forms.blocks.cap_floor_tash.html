@@ -23,7 +23,7 @@
         </label>
       </td>
       <td>
-        <input name="startDate" type="text" />
+        <input name="startDate" type="text" value="{{start}}"/>
       </td>
     </tr>
     <tr>
@@ -33,7 +33,7 @@
         </label>
       </td>
       <td>
-        <input name="maturityDate" type="text" />
+        <input name="maturityDate" type="text" value="{{maturity}}"/>
       </td>
     </tr>
     <tr>
@@ -43,7 +43,7 @@
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span>{{{item_0}}}</span><span><input name="notional" type="text" /></span></div>
+        <div><span>{{{item_0}}}</span><span><input name="notional" type="text" value="{{notional}}"/></span></div>
       </td>
     </tr>
     <tr>
@@ -53,7 +53,7 @@
         </label>
       </td>
       <td>
-        <input name="strike" type="text" />
+        <input name="strike" type="text" value="{{strike}}"/>
       </td>
     </tr>
   </tbody>
@@ -72,12 +72,12 @@
       </td>
       {{#if cms}}
         <td class="og-double-cell">
-          <div><span><input name="longId" type="text" />
-          </span><span><input name="shortId" type="text" /></span></div>
+          <div><span><input name="longId" type="text" value="{{longId}}"/>
+          </span><span><input name="shortId" type="text" value="{{shortId}}"/></span></div>
         </td>
       {{else}}
         <td>
-          <input name="underlyingId" type="text" />
+          <input name="underlyingId" type="text" value="{{underlyingId}}"/>
         </td>
     {{/if}}
     </tr>
