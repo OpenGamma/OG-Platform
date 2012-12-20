@@ -7,6 +7,7 @@
     /**
      * Remove every nth item in Array keeping the first and last,
      * also specifically remove the second last (as we want to keep the last)
+     * @private
      * @param {Array} arr
      * @param {Number} nth
      * @returns {Array}
@@ -20,12 +21,17 @@
     };
     /**
      * Creates an Axis with labels for the bottom grid
+     * @name JSurface3D.Axis
+     * @namespace JSurface3D.Axis
      * @param {Object} config
-     * config.axis {String} x or z
-     * config.spacing {Array} Array of numbers adjusted to fit units of mesh
-     * config.labels {Array} Array of ladles
-     * config.label {String} Axis label
-     * @param {Object} js3d
+     * <pre>
+     *     axis     {String} x or z
+     *     spacing  {Array}  Array of numbers adjusted to fit units of mesh
+     *     labels   {Array}  Array of labels
+     *     label    {String} Axis label
+     * </pre>
+     * @param {Object} js3d A JSurface3D instance
+     * @private
      * @return {THREE.Object3D}
      */
     window.JSurface3D.Axis = function (config, js3d) {

@@ -34,6 +34,14 @@
         mesh.updateMatrix();
         return mesh;
     };
+    /**
+     * Create slicing functionality
+     * @param {Object} js3d An instance of JSurface3D
+     * @name JSurface3D.Slice
+     * @mamespace JSurface3D.Slice
+     * @private
+     * @constructor
+     */
     window.JSurface3D.Slice = function (js3d) {
         var slice = this, matlib = js3d.matlib, settings = js3d.settings;
         slice.lft_x_handle_position = js3d.x_segments;

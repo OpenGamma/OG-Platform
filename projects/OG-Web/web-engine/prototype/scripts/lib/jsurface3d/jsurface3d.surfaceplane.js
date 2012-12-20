@@ -4,11 +4,22 @@
  */
 (function () {
     if (!window.JSurface3D) throw new Error('JSurface3D.SurfacePlane requires JSurface3D');
+    /**
+     * Creates a surface plane with extrutions and vertex shading.
+     * Clips plane if required
+     * Adds update method
+     * @name JSurface3D.SurfacePlane
+     * @namespace JSurface3D.SurfacePlane
+     * @param {Object} js3d JSurface3D instance
+     * @private
+     * @returns {Function} {THREE.Object3D} A surface plane object
+     * @constructor
+     */
     window.JSurface3D.SurfacePlane = function (js3d) {
         var surfaceplane = new THREE.Object3D(), wiremesh, planemesh;
         surfaceplane.name = 'SurfacePlane';
         surfaceplane.init = function () {
-            var settings = js3d.settings, matlib = js3d.matlib, plane = new JSurface3D.Plane(js3d, 'surface'), i, wire;
+            var settings = js3d.settings, matlib = js3d.matlib, plane = JSurface3D.plane(js3d, 'surface'), i, wire;
             plane.verticesNeedUpdate = true;
             for (i = 0; i < js3d.adjusted_vol.length; i++) {plane.vertices[i].y = js3d.adjusted_vol[i];} // extrude
             wire = THREE.GeometryUtils.clone(plane);
@@ -32,7 +43,7 @@
                     }
                 }
             }());
-            // apply surface materials
+            /* apply surface materials */
             plane.materials = matlib.get_material('compound_surface');
             wire.materials = matlib.get_material('compound_surface_wire');
             (function () { // clip/slice
@@ -69,12 +80,12 @@
             });
             js3d.interactive_meshes.add('surface', surfaceplane.children[0]);
             // TODO: deal with MeshFaceMaterial buffers. Possibly latest version of THREE needs to be added first
-//            if (js3d.buffers.surface) js3d.buffers.surface.add(wiremesh);
-//            if (js3d.buffers.surface) js3d.buffers.surface.add(planemesh);
+            // if (js3d.buffers.surface) js3d.buffers.surface.add(wiremesh);
+            // if (js3d.buffers.surface) js3d.buffers.surface.add(planemesh);
         };
         surfaceplane.update = function () {
-//            if (js3d.buffers.surface) js3d.buffers.surface.clear(wiremesh);
-//            if (js3d.buffers.surface) js3d.buffers.surface.clear(planemesh);
+            // if (js3d.buffers.surface) js3d.buffers.surface.clear(wiremesh);
+            // if (js3d.buffers.surface) js3d.buffers.surface.clear(planemesh);
             surfaceplane.remove(wiremesh);
             surfaceplane.remove(planemesh);
             surfaceplane.init(js3d);

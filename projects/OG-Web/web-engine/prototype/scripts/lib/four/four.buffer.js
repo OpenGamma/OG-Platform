@@ -7,7 +7,7 @@
     if (!Detector) throw new Error('Four.Buffer requires Detector');
     /**
      * Buffer constructor
-     * A buffer stores references to objects that requre their webgl buffers cleared together
+     * A buffer stores references to objects that require their webgl buffers cleared together
      */
     window.Four.Buffer = function (renderer) {
         var buffer = {};
