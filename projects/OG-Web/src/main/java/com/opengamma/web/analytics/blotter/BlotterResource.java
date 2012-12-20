@@ -284,19 +284,22 @@ public class BlotterResource {
 
   // TODO create fungible trade - identifier and quantity
 
+  // TODO different versions for OTC / non OTC
   // the horror... make this go away
   private static Map<String, Object> manageableTradeStructure() {
     Map<String, Object> structure = Maps.newHashMap();
     List<Map<String, Object>> properties = Lists.newArrayList();
-    properties.add(property("uniqueId", true, true, typeInfo("string", "UniqueId")));
-    properties.add(property("quantity", true, false, typeInfo("number", "")));
-    properties.add(property("counterparty", true, false, typeInfo("string", "")));
-    properties.add(property("tradeDate", true, false, typeInfo("string", "LocalDate")));
-    properties.add(property("tradeTime", true, false, typeInfo("string", "OffsetTime")));
-    properties.add(property("premium", true, false, typeInfo("number", "")));
-    properties.add(property("premiumCurrency", true, false, typeInfo("string", "Currency")));
-    properties.add(property("premiumDate", true, false, typeInfo("string", "LocalDate")));
-    properties.add(property("premiumTime", true, false, typeInfo("string", "OffsetTime")));
+    properties.add(property("uniqueId", true, typeInfo("string", "UniqueId")));
+    // TODO don't need quantity for OTC, always 1
+    //properties.add(property("quantity", true, false, typeInfo("number", "")));
+    properties.add(property("counterparty", false, typeInfo("string", "")));
+    properties.add(property("tradeDate", false, typeInfo("string", "LocalDate")));
+    properties.add(property("tradeTime", false, typeInfo("string", "OffsetTime")));
+    // TODO which premium fields are relevant for OTCs?
+    properties.add(property("premium", false, typeInfo("number", "")));
+    properties.add(property("premiumCurrency", false, typeInfo("string", "Currency")));
+    properties.add(property("premiumDate", false, typeInfo("string", "LocalDate")));
+    properties.add(property("premiumTime", false, typeInfo("string", "OffsetTime")));
     properties.add(attributesProperty());
     structure.put("type", "ManageableTrade");
     structure.put("properties", properties);
@@ -305,12 +308,11 @@ public class BlotterResource {
   }
 
   private static Map<String, Object> property(String name,
-                                              boolean optional,
                                               boolean readOnly,
                                               Map<String, Object> typeInfo) {
     return ImmutableMap.<String, Object>of("name", name,
                                            "type", "single",
-                                           "optional", optional,
+                                           "optional", true,
                                            "readOnly", readOnly,
                                            "types", ImmutableList.of(typeInfo));
   }
@@ -319,7 +321,7 @@ public class BlotterResource {
     Map<String, Object> map = Maps.newHashMap();
     map.put("name", "attributes");
     map.put("type", "map");
-    map.put("optional", false);
+    map.put("optional", true); // can't be null but have a default value so client doesn't need to specify
     map.put("readOnly", false);
     map.put("types", ImmutableList.of(typeInfo("string", "")));
     map.put("valueTypes", ImmutableList.of(typeInfo("string", "")));
