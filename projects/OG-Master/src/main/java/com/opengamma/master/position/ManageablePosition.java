@@ -193,7 +193,7 @@ public class ManageablePosition extends DirectBean
     ArgumentChecker.notNull(tradeObjectId, "tradeObjectId");
     ObjectId objectId = tradeObjectId.getObjectId();
     for (ManageableTrade trade : getTrades()) {
-      if (getUniqueId().equalObjectId(objectId)) {
+      if (trade.getUniqueId().equalObjectId(objectId)) {
         return trade;
       }
     }

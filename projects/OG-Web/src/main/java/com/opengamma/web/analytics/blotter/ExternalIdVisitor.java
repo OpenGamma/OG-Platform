@@ -34,10 +34,11 @@ import com.opengamma.util.ArgumentChecker;
     if (id != null) {
       return id;
     }
-    ObjectId objectId = security.getUniqueId().getObjectId();
-    if (objectId == null) {
+    UniqueId uniqueId = security.getUniqueId();
+    if (uniqueId == null) {
       throw new IllegalStateException("Security must have a unique ID");
     }
+    ObjectId objectId = uniqueId.getObjectId();
     ExternalId externalId = ExternalId.of(ObjectId.EXTERNAL_SCHEME, objectId.toString());
     security.addExternalId(externalId);
     _securityMaster.update(new SecurityDocument(security));

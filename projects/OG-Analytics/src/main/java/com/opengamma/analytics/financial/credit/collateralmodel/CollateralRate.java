@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.collateral;
+package com.opengamma.analytics.financial.credit.collateralmodel;
 
 /**
  * Enumerate the rates at which a return is earnt on posted collateral
@@ -17,7 +17,7 @@ public enum CollateralRate {
   /**
    * Federal Reserve funds rate
    */
-  FED,
+  FEDFUNDS,
   /**
    * No return earnt
    */

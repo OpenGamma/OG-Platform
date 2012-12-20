@@ -28,6 +28,7 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
@@ -38,6 +39,7 @@ import com.opengamma.util.money.Currency;
  */
 public class ExternalIdVisitorTest {
 
+  // TODO use test data from BlotterTestUtils
   private static final SwapLeg PAY_LEG =
       new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("Act/365"),
                                SimpleFrequency.QUARTERLY,
@@ -69,7 +71,8 @@ public class ExternalIdVisitorTest {
     swap.setUniqueId(uid);
     assertTrue(swap.getExternalIdBundle().isEmpty());
     swap.accept(visitor);
-    assertEquals(swap.getExternalIdBundle().getExternalId(UniqueId.EXTERNAL_SCHEME), uid.toExternalId());
+    assertEquals(ExternalId.of(ObjectId.EXTERNAL_SCHEME, uid.getObjectId().toString()),
+                 swap.getExternalIdBundle().getExternalId(ObjectId.EXTERNAL_SCHEME));
     verify(securityMaster).update(new SecurityDocument(swap));
   }
 

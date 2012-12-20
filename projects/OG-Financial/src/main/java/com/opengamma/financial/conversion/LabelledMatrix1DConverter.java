@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.financial.analytics.LabelledMatrix1D;
-import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 
 /**
  * 
@@ -32,7 +31,7 @@ public class LabelledMatrix1DConverter implements ResultConverter<LabelledMatrix
 
   @Override
   public Class<?> getConvertedClass() {
-    return LocalDateLabelledMatrix1D.class;
+    return LabelledMatrix1D.class;
   }
   
 }
