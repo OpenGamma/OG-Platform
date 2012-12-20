@@ -32,13 +32,29 @@ $.register_module({
                 {issuer:'issuer 3',currency: 'currency 3',coupon_type: 'type 3',coupon_rate: 'rate 3',date: 'date 3'},
                 {issuer:'issuer 4',currency: 'currency 4',coupon_type: 'type 4',coupon_rate: 'rate 4',date: 'date 4'}
             ],
-            FAKE_ATTRIBUTES : [
-                {key: 'what',value: 'that'},
-                {key: 'colour',value: 'white'},
-                {key: 'moral',value: 'bad'},
-                {key: 'direction',value: 'down'},
-                {key: 'speed',value: 'fast'}
-            ]
+            FAKE_FX_BARRIER : {
+                settlementDate:"21.12.2012",
+                barrierLevel: "55.30",
+                expiry:"22.12.2012",
+                barrierDirection: "Knock In",
+                putCurrency: "USD",
+                callCurency: "TOP",
+                barrierType: "Up",
+                monitoringType: "DISCRETE",
+                samplingFrequency: "Friday",
+                callAmount: "2.30",
+                putAmount: "3.02",
+                strike: "55.05",
+                longShort: "Short",
+                attributes:  [
+                    {key: 'what',value: 'that'},
+                    {key: 'colour',value: 'white'},
+                    {key: 'moral',value: 'bad'},
+                    {key: 'direction',value: 'down'},
+                    {key: 'speed',value: 'fast'}
+                ]
+            }
+
         };
     }
 });

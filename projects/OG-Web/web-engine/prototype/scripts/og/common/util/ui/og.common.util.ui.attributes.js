@@ -10,9 +10,8 @@ $.register_module({
         attribute = Handlebars.compile('<li><div class="og-del og-js-rem"></div>{{{key}}} = {{{value}}}</li>');
         var Attributes = function (config) {
             var block = this, id = og.common.id('attributes'), form = config.form;
-            var data = og.blotter.util.FAKE_ATTRIBUTES;
             form.Block.call(block, {module: 'og.views.forms.attributes_tash', 
-                extras: {id: id, data: og.blotter.util.FAKE_ATTRIBUTES}});
+                extras: {id: id, data: config.attributes}});
             block.on('click', '#' + id + ' ' + add_list + ' .og-js-rem', function (event) {
                 $(event.target).parent().remove();
             }).on('click', '#' + id + ' .og-js-add-attribute', function (event) {
