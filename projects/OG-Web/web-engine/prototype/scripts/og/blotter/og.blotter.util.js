@@ -75,6 +75,16 @@ $.register_module({
                 longId: "1", 
                 shortId: "2", 
                 underlyingId: "3"          
+            },
+            FAKE_FRA : {
+                currency: "NOK",
+                attributes:  FAKE_ATTRIBUTES,
+                startDate: "21.12.2012", 
+                endDate: "22.12.2012", 
+                fixingDate: "20.12.2012",
+                underlyingId: "3",
+                amount: "12",
+                rate: "0.15"                         
             }
 
         };
