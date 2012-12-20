@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.view.rest;
 
-import static com.opengamma.util.functional.Functional.merge;
+import static com.opengamma.lambdava.streams.Lambdava.merge;
 
 import java.net.URI;
 import java.util.Collection;
@@ -35,7 +35,7 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
 
   private final URI _baseUri;
   private final FudgeRestClient _client;
-  
+
   public RemoteCompiledViewDefinitionWithGraphs(URI baseUri) {
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
@@ -52,7 +52,7 @@ public class RemoteCompiledViewDefinitionWithGraphs implements CompiledViewDefin
     URI uri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_PORTFOLIO).build();
     return _client.accessFudge(uri).get(Portfolio.class);
   }
-  
+
   @Override
   public CompiledViewCalculationConfiguration getCompiledCalculationConfiguration(String viewCalculationConfiguration) {
     URI baseUri = UriBuilder.fromUri(_baseUri).path(DataCompiledViewDefinitionResource.PATH_COMPILED_CALCULATION_CONFIGURATIONS).build();

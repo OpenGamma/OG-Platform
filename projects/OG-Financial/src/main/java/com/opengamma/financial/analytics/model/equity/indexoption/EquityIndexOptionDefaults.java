@@ -28,7 +28,7 @@ import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Populates {@link EquityIndexOptionFunction}, including {@link EquityIndexVanillaBarrierOptionFunction}, with defaults.

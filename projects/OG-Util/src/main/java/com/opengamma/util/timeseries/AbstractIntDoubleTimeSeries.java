@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.timeseries;
 
+import static com.opengamma.util.tuple.TuplesUtil.pairToEntry;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -114,7 +116,7 @@ public abstract class AbstractIntDoubleTimeSeries<DATE_TYPE> extends AbstractFas
     @Override
     public Entry<DATE_TYPE, Double> next() {
       final Entry<Integer, Double> next = _iterator.next();
-      return _converter.makePair(_converter.convertFromInt(next.getKey()), next.getValue());
+      return pairToEntry(_converter.<Double>makePair(_converter.convertFromInt(next.getKey()), next.getValue()));
     }
 
     @Override

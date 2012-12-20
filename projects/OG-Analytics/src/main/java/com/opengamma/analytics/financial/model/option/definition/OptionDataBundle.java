@@ -12,7 +12,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * 

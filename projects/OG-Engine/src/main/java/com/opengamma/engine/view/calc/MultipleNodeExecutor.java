@@ -37,7 +37,7 @@ import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.monitor.OperationTimer;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * This DependencyGraphExecutor executes the given dependency graph as a number of dependent jobs suitable for a number of calculation nodes to exploit parallelism from the dependency graph.

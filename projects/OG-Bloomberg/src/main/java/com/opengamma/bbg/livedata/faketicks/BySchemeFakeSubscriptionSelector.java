@@ -13,8 +13,8 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Decides based of scheme which subscriptions to fake.

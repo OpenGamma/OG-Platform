@@ -46,7 +46,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.util.test.Timeout;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Test the ViewProcessorManager class.

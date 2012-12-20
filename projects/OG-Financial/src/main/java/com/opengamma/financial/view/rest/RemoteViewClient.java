@@ -43,7 +43,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 import com.sun.jersey.api.client.ClientResponse;
 
 /**

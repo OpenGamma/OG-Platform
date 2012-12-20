@@ -31,7 +31,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.web.analytics.push.WebPushTestUtils;
 
 public class MarketDataSnapshotListResourceTest {

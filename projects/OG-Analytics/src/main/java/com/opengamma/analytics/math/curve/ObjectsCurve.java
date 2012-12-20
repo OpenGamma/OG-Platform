@@ -16,7 +16,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.ParallelArrayBinarySort;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
 /**
@@ -90,8 +90,8 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
       yTemp.add(entry.getSecond());
     }
     final Pair<T, U> firstEntry = data.iterator().next();
-    _xData = xTemp.toArray((T[]) Array.newInstance(firstEntry.getKey().getClass(), 0));
-    _yData = yTemp.toArray((U[]) Array.newInstance(firstEntry.getValue().getClass(), 0));
+    _xData = xTemp.toArray((T[]) Array.newInstance(firstEntry._1().getClass(), 0));
+    _yData = yTemp.toArray((U[]) Array.newInstance(firstEntry._2().getClass(), 0));
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
     }
@@ -176,8 +176,8 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
       yTemp.add(entry.getSecond());
     }
     final Pair<T, U> firstEntry = data.iterator().next();
-    _xData = xTemp.toArray((T[]) Array.newInstance(firstEntry.getKey().getClass(), 0));
-    _yData = yTemp.toArray((U[]) Array.newInstance(firstEntry.getValue().getClass(), 0));
+    _xData = xTemp.toArray((T[]) Array.newInstance(firstEntry._1().getClass(), 0));
+    _yData = yTemp.toArray((U[]) Array.newInstance(firstEntry._2().getClass(), 0));
     if (!isSorted) {
       ParallelArrayBinarySort.parallelBinarySort(_xData, _yData);
     }

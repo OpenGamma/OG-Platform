@@ -105,7 +105,7 @@ import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.impl.PositionSearchIterator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Utilities for working with data in the Bloomberg schema.

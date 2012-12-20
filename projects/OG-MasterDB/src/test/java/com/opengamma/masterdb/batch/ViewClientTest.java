@@ -7,7 +7,7 @@ package com.opengamma.masterdb.batch;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.util.functional.Functional.first;
+import static com.opengamma.lambdava.streams.Lambdava.functional;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -21,6 +21,7 @@ import java.util.Set;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.value.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.slf4j.Logger;
@@ -41,11 +42,7 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -111,7 +108,7 @@ public class ViewClientTest {
 
     assertEquals("boo~far", argument.getValue().getViewDefinitionId().toString());
     assertEquals(1, argument.getValue().getAllCalculationConfigurationNames().size());
-    assertEquals("Test Calc Config", first(argument.getValue().getAllCalculationConfigurationNames()));
+    assertEquals("Test Calc Config", functional(argument.getValue().getAllCalculationConfigurationNames()).first());
 
     ArgumentCaptor<ViewComputationResultModel> fullFragment = ArgumentCaptor.forClass(ViewComputationResultModel.class);
     ArgumentCaptor<ViewDeltaResultModel> deltaFragment = ArgumentCaptor.forClass(ViewDeltaResultModel.class);
@@ -121,28 +118,28 @@ public class ViewClientTest {
     assertEquals(UniqueId.of("ViewCycle", client.getUniqueId().getValue(), "0"), fullFragment.getValue().getViewCycleId());
 
     assertEquals(
-      newHashSet(
-        new ComputedValueResult(
-          new ValueSpecification(
-            "Value2",
-            new ComputationTargetSpecification(
-              ComputationTargetType.PRIMITIVE,
-              UniqueId.of("Scheme", "PrimitiveValue")),
-            ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
-          (byte) 2, AggregatedExecutionLog.EMPTY),
-        new ComputedValueResult(
-          new ValueSpecification(
-            "Value1",
-            new ComputationTargetSpecification(
-              ComputationTargetType.PRIMITIVE,
-              UniqueId.of("Scheme", "PrimitiveValue")),
-            ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
-          (byte) 1, AggregatedExecutionLog.EMPTY)
-      ),
-      fullFragment.getValue().getAllMarketData());
+        newHashSet(
+            new ComputedValueResult(
+                new ValueSpecification(
+                    "Value2",
+                    new ComputationTargetSpecification(
+                        ComputationTargetType.PRIMITIVE,
+                        UniqueId.of("Scheme", "PrimitiveValue")),
+                    ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
+                (byte) 2, AggregatedExecutionLog.EMPTY),
+            new ComputedValueResult(
+                new ValueSpecification(
+                    "Value1",
+                    new ComputationTargetSpecification(
+                        ComputationTargetType.PRIMITIVE,
+                        UniqueId.of("Scheme", "PrimitiveValue")),
+                    ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
+                (byte) 1, AggregatedExecutionLog.EMPTY)
+        ),
+        fullFragment.getValue().getAllMarketData());
 
-    assertEquals(newHashMap(), 
-      fullFragment.getValue().getRequirementToSpecificationMapping());
+    assertEquals(newHashMap(),
+        fullFragment.getValue().getRequirementToSpecificationMapping());
   }
 
 
@@ -150,11 +147,11 @@ public class ViewClientTest {
    * Avoids the ConcurrentHashMap-based implementation of InMemoryLKVSnapshotProvider, where the LKV map can appear to
    * lag behind if accessed from a different thread immediately after a change.
    */
-  private static class SynchronousInMemoryLKVSnapshotProvider extends AbstractMarketDataProvider implements MarketDataInjector, 
+  private static class SynchronousInMemoryLKVSnapshotProvider extends AbstractMarketDataProvider implements MarketDataInjector,
       MarketDataAvailabilityProvider {
-    
+
     private static final Logger s_logger = LoggerFactory.getLogger(SynchronousInMemoryLKVSnapshotProvider.class);
-    
+
     private final Map<ValueRequirement, ComputedValue> _lastKnownValues = new HashMap<ValueRequirement, ComputedValue>();
     private final MarketDataPermissionProvider _permissionProvider = new PermissiveMarketDataPermissionProvider();
 
@@ -168,7 +165,7 @@ public class ViewClientTest {
       // No actual subscription to make, but we still need to acknowledge it.
       subscriptionSucceeded(valueRequirements);
     }
-    
+
     @Override
     public void unsubscribe(ValueRequirement valueRequirement) {
     }
@@ -193,7 +190,7 @@ public class ViewClientTest {
     public boolean isCompatible(MarketDataSpecification marketDataSpec) {
       return true;
     }
-    
+
     @Override
     public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
       synchronized (_lastKnownValues) {
@@ -211,7 +208,7 @@ public class ViewClientTest {
       }
       // Don't notify listeners of the change - we'll kick off a computation cycle manually in the tests
     }
-    
+
     @Override
     public void addValue(ExternalId identifier, String valueName, Object value) {
     }
@@ -237,7 +234,7 @@ public class ViewClientTest {
     }
 
   }
-  
+
   private static class SynchronousInMemoryLKVSnapshot extends AbstractMarketDataSnapshot {
 
     private final Map<ValueRequirement, ComputedValue> _snapshot;

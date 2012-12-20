@@ -16,7 +16,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * State required by the {@link DependencyGraphBuilder} to iterate over and backtrack through

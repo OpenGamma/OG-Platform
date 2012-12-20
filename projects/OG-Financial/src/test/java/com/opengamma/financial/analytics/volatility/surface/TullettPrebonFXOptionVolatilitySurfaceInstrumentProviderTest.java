@@ -8,7 +8,7 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 @Test
 public class TullettPrebonFXOptionVolatilitySurfaceInstrumentProviderTest {

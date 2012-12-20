@@ -12,7 +12,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Viewport on one of the main analytics grids displaying portfolio or primitives data.

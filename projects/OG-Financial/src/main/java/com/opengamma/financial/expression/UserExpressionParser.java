@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.base.Function;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Parses a string representation of a user expression into a {@link UserExpression}

@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractRemoteClient;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Provides access to a remote time-series provider.

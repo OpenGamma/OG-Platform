@@ -8,7 +8,7 @@ package com.opengamma.bbg.livedata.faketicks;
 import java.util.Collection;
 
 import com.opengamma.livedata.LiveDataSpecification;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
 
 /**
  * Selects which subscriptions are faked and which are real tickers.

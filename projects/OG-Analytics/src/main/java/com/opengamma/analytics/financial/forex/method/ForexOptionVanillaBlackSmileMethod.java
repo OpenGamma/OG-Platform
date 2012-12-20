@@ -29,7 +29,7 @@ import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Pricing method for vanilla Forex option transactions with Black function and a volatility provider.

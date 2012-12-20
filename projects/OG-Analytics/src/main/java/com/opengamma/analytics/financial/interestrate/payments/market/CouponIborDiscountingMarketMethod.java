@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Method to compute present value and present value sensitivity for Ibor coupon with gearing factor and spread.

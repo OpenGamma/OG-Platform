@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Utilities for working with Exchanges.

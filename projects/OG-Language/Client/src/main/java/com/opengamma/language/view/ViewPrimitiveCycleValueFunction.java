@@ -30,7 +30,7 @@ import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.util.async.AsynchronousExecution;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**

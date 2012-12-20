@@ -35,7 +35,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.transport.jaxrs.FudgeResponse;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**

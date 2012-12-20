@@ -42,7 +42,7 @@ import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySu
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * @deprecated Uses the old properties

@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * 

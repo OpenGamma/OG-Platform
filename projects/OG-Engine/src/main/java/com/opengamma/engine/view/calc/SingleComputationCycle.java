@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view.calc;
 
-import static com.opengamma.util.functional.Functional.submapByKeySet;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -77,7 +75,9 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.log.LogLevel;
 import com.opengamma.util.log.SimpleLogEvent;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
+
+import static com.opengamma.lambdava.streams.Lambdava.submapByKeySet;
 
 /**
  * Holds all data and actions for a single computation pass. The view cycle may be executed at most once.
@@ -105,8 +105,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     /**
      * Node was not executed because of function blacklist suppression.
      */
-    SUPPRESSED;
-  };
+    SUPPRESSED
+  }
 
   // Injected inputs
   private final UniqueId _cycleId;

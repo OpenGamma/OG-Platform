@@ -9,7 +9,7 @@ import java.util.Collection;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * The shared cache through which various elements in view recalculation will

@@ -22,7 +22,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Maps the codes used by the generic currency conversion functions to Bloomberg ticker lookups

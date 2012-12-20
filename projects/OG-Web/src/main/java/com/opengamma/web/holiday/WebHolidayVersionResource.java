@@ -26,7 +26,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.holiday.HolidayDocument;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * RESTful resource for a version of a holiday.

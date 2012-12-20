@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.interestrate.market.description.CurveSe
 import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Pricing method for inflation zero-coupon. The price is computed by index estimation and discounting.

@@ -43,7 +43,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  *

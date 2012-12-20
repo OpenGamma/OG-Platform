@@ -12,7 +12,7 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Object to represent values linked to a surface (pair of doubles) for which the values can be added or multiplied by a constant. 

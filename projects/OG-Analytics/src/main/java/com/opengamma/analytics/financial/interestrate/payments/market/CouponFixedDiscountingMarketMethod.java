@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.interestrate.market.description.Multipl
 import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Method to compute present value and present value sensitivity for fixed coupon.

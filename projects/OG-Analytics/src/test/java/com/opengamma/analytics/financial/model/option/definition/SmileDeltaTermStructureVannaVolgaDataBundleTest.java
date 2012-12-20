@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTerm
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * 

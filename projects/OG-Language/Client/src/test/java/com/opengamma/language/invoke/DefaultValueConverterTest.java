@@ -26,7 +26,7 @@ import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.convert.Converters;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.test.TestUtils;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 public class DefaultValueConverterTest {
 

@@ -6,7 +6,7 @@
 package com.opengamma.master.config.impl;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static com.opengamma.util.functional.Functional.functional;
+import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.Collection;
 import java.util.List;

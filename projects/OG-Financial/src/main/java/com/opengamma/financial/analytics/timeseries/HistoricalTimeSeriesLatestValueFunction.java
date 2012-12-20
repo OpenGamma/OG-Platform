@@ -28,7 +28,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjustment;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Function to source the latest time series data point from a {@link HistoricalTimeSeriesSource} attached to the execution context.
@@ -48,7 +48,7 @@ public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.No
     } else {
       final String adjusterString = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);
       final HistoricalTimeSeriesAdjustment htsa = HistoricalTimeSeriesAdjustment.parse(adjusterString);
-      value = htsa.adjust(latestDataPoint.getValue());
+      value = htsa.adjust(latestDataPoint._2());
     }
     return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints()), value));
   }

@@ -40,7 +40,7 @@ import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 public class DbMarketDataSnapshotMasterTest extends DbTest {
 

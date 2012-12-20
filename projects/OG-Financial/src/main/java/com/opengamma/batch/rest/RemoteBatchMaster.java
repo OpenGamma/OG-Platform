@@ -19,7 +19,7 @@ import com.opengamma.master.impl.AbstractRemoteMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Provides access to a remote {@link com.opengamma.financial.batch.BatchMaster}.

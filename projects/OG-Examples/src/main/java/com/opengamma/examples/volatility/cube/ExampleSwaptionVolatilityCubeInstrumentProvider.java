@@ -30,8 +30,8 @@ import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentPro
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Generates Example instrument codes for volatilities given points.

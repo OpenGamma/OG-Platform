@@ -9,6 +9,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Comparator;
 
+import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.Pair;
 import org.testng.annotations.Test;
 
 /**

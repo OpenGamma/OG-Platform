@@ -34,7 +34,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.async.AsynchronousOperation;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 public class WriteBehindViewComputationCacheTest {
 

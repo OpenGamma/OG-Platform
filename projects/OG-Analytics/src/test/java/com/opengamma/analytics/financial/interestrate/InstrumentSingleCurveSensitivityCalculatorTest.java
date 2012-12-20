@@ -36,7 +36,7 @@ import com.opengamma.analytics.math.rootfinding.YieldCurveFittingTestDataBundle.
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * 

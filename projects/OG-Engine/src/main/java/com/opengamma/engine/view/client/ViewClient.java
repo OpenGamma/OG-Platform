@@ -23,7 +23,7 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Represents a managed client of a specific view process in the context of a particular user. This is the unit of

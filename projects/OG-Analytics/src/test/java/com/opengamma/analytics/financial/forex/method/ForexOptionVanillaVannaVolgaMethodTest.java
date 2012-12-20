@@ -41,8 +41,8 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 public class ForexOptionVanillaVannaVolgaMethodTest {
   // General

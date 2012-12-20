@@ -37,7 +37,7 @@ import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
 import com.opengamma.transport.socket.SocketFudgeConnection;
 import com.opengamma.util.ThreadUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A test of the remote View Computation Cache Source infrastucture operating

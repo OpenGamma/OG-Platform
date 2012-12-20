@@ -25,7 +25,7 @@ import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Portfolio tree traversal callback methods that construct value requirements for the specified portfolio's nodes,

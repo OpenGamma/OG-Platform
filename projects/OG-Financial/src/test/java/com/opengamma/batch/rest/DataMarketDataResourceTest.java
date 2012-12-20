@@ -29,7 +29,7 @@ import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**

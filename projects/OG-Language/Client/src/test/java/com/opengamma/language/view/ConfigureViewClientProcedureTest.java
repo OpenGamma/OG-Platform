@@ -22,7 +22,7 @@ import com.opengamma.language.config.ConfigurationItem;
 import com.opengamma.language.config.MarketDataOverride;
 import com.opengamma.language.config.MarketDataOverride.Operation;
 import com.opengamma.language.config.ValueProperty;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**

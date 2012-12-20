@@ -7,7 +7,7 @@ package com.opengamma.integration.tool.marketdata;
 
 
 import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.util.functional.Functional.map;
+import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +18,7 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.lambdava.functions.Function1;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
@@ -44,7 +45,6 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.impl.ConfigSearchIterator;
-import com.opengamma.util.functional.Function1;
 import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
@@ -106,12 +106,12 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
 
     // Get all other required hts external ids for curves
     List<LocalDate> dates = buildDates();
-    Set<String> curveNames = map(new HashSet<String>(), curves, new Function1<YieldCurveDefinition, String>() {
+    Set<String> curveNames = functional(curves).map(new Function1<YieldCurveDefinition, String>() {
       @Override
       public String execute(YieldCurveDefinition yieldCurveDefinition) {
         return yieldCurveDefinition.getName() + "_" + yieldCurveDefinition.getCurrency().getCode();
       }
-    });
+    }).asSet();
     curveNodesExternalIds = getCurveRequiredExternalIds(configSource, curveNames, dates);
     
     // Load the required time series

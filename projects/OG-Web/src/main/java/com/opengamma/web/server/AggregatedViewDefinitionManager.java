@@ -35,7 +35,7 @@ import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Manages the lifecycle of aggregated view definitions. There is really no such thing as an aggregated view

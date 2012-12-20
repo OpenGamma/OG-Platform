@@ -27,8 +27,8 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.Sta
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**

@@ -21,7 +21,7 @@ import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.calc.ViewCycleState;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * {@link ViewCycle} implementation that acts as a placeholder when a calculation cycle hasn't completed and there

@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.MapMaker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Implementation of {@link Map2} backed by a standard {@link ConcurrentHashMap}.

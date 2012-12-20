@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.depgraph;
 
-import static com.opengamma.util.functional.Functional.submapByKeySet;
-
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,7 +26,9 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
+
+import static com.opengamma.lambdava.streams.Lambdava.submapByKeySet;
 
 /**
  * Represents a directed graph of nodes describing how to execute a view to produce the required terminal outputs.

@@ -48,8 +48,8 @@ import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties
 import com.opengamma.financial.analytics.model.volatility.surface.fitted.SurfaceFittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
 
 /**
  *

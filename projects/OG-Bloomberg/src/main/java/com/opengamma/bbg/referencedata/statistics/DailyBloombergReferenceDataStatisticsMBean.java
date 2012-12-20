@@ -16,7 +16,7 @@ import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
-import com.opengamma.util.tuple.LongObjectPair;
+import com.opengamma.lambdava.tuple.LongObjectPair;
 
 /**
  * A JMX Mbean for {@link BloombergReferenceDataStatistics} 

@@ -36,7 +36,7 @@ import com.opengamma.engine.view.calc.ComputationCycleQuery;
 import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Extracts some type of structured object from a cycle 

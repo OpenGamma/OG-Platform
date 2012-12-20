@@ -16,11 +16,12 @@ import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Test ArgumentChecker.
@@ -592,11 +593,24 @@ public class ArgumentCheckerTest {
   }
 
   public void test_inOrderOrEqual_generics() {
-    Pair<String, String> a = ObjectsPair.of("c", "d");
-    Pair<String, String> b = ObjectsPair.of("e", "f");
-    ArgumentChecker.inOrderOrEqual(a, b, "a", "b");
-    ArgumentChecker.inOrderOrEqual(a, a, "a", "b");
-    ArgumentChecker.inOrderOrEqual(b, b, "a", "b");
+    final Pair<String, String> a = ObjectsPair.of("c", "d");
+    final Pair<String, String> b = ObjectsPair.of("e", "f");
+    final FirstThenSecondPairComparator<String, String> comparator = new FirstThenSecondPairComparator<String, String>();
+    Comparable<? super Pair<String, String>> ca = new Comparable<Pair<String, String>>() {
+      @Override
+      public int compareTo(Pair<String, String> other) {
+        return comparator.compare(a, other);
+      }
+    };
+    Comparable<? super Pair<String, String>> cb = new Comparable<Pair<String, String>>() {
+      @Override
+      public int compareTo(Pair<String, String> other) {
+        return comparator.compare(b, other);
+      }
+    };
+    ArgumentChecker.inOrderOrEqual(ca, b, "a", "b");
+    ArgumentChecker.inOrderOrEqual(ca, a, "a", "b");
+    ArgumentChecker.inOrderOrEqual(cb, b, "a", "b");
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

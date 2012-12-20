@@ -42,7 +42,7 @@ import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCoupo
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.CompareUtils;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * For an instrument, this calculates the sensitivity of the par rate (the exact meaning of par rate depends on the instrument - for swaps it is the par swap rate) to points on the yield 

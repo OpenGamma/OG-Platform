@@ -23,7 +23,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.test.DbTest;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Tests DbBatchGetTest.

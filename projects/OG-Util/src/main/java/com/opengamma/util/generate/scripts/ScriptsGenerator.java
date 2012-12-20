@@ -6,14 +6,12 @@
 package com.opengamma.util.generate.scripts;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static com.opengamma.util.functional.Functional.filter;
+import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -21,8 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.functional.Function1;
-import com.opengamma.util.functional.Functional;
+import com.opengamma.lambdava.functions.Function1;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -67,22 +64,21 @@ public class ScriptsGenerator {
   private static String scriptName(String camelCase) {
     camelCase = camelCase.replaceFirst("^.*\\.", "");
 
-    List<String> split = Functional.map(
-      new ArrayList<String>(),
-      filter(Arrays.asList(
-        camelCase.split("(?=[A-Z])")),
+    Iterable<String> split = functional(Arrays.asList(camelCase.split("(?=[A-Z])")))
+      .filter(
         new Function1<String, Boolean>() {
           @Override
           public Boolean execute(String s) {
             return !s.equals("");
           }
-        }),
-      new Function1<String, String>() {
-        @Override
-        public String execute(String s) {
-          return s.toLowerCase();
-        }
-      });
+        })
+      .map(
+        new Function1<String, String>() {
+          @Override
+          public String execute(String s) {
+            return s.toLowerCase();
+          }
+        });
     return Joiner.on("-").join(split);
   }
 

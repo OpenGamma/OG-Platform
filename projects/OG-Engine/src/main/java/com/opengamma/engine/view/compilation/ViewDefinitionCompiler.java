@@ -38,7 +38,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Ultimately produces a set of {@link DependencyGraph}s from a {@link ViewDefinition}, one for each

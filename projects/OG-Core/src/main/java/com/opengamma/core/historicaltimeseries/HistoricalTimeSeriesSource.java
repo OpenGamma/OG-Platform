@@ -14,7 +14,7 @@ import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A source of daily historical time-series as accessed by the engine.

@@ -53,7 +53,7 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * @deprecated Use the version that does not refer to funding or forward curves

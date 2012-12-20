@@ -13,8 +13,8 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Interface of a "market" providing discounting factors, forward rate (linked to Ibor index), inflation price index and issuer specific curves.

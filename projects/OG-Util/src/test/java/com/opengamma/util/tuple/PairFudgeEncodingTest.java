@@ -9,6 +9,7 @@ import static org.testng.Assert.assertEquals;
 
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.lambdava.tuple.*;
 import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
 

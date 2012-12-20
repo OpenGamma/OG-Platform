@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.model.option.pricing.FiniteDifferenceGr
 import com.opengamma.analytics.financial.model.tree.RecombiningBinomialTree;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * 

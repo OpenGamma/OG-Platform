@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Test {@link VolatilityCubeData}.

@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Implementation of the function re-initialization hook that discards any requests.

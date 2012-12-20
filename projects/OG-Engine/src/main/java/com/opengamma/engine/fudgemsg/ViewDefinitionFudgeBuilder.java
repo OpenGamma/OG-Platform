@@ -28,7 +28,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Fudge message builder for {@link ViewDefinition} and {@link ViewCalculationConfiguration}. 

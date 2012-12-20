@@ -8,7 +8,7 @@ package com.opengamma.engine.function.blacklist;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Utility class for managing a subscription to blacklist rules

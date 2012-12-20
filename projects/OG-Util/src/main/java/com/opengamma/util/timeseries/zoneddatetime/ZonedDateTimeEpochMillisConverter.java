@@ -30,7 +30,7 @@ import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Converter for ZonedDateTime and EpochMillis.

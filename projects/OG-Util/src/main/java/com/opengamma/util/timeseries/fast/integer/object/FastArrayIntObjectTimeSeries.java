@@ -26,7 +26,7 @@ import org.apache.commons.lang.ArrayUtils;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
-import com.opengamma.util.tuple.IntObjectPair;
+import com.opengamma.lambdava.tuple.IntObjectPair;
 
 /**
  * Time series.

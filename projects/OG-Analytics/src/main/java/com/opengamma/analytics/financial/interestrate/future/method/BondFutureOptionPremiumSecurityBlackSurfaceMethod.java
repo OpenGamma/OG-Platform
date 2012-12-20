@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Method for the pricing of bond future options. The pricing is done with a Black approach on the bond future.

@@ -14,7 +14,7 @@ import java.util.List;
 import org.springframework.util.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Holds as much information about a Java type as possible. This will drive parameter conversions

@@ -35,7 +35,7 @@ import com.opengamma.analytics.math.rootfinding.newton.NewtonDefaultVectorRootFi
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.ShermanMorrisonVectorRootFinder;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * 

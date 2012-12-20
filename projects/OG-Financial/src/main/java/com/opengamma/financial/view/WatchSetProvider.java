@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Interface to allow an alternate set of unique identifiers to be watched for changes in addition to those

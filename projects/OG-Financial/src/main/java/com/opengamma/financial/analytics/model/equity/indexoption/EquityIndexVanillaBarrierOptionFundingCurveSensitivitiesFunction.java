@@ -42,7 +42,7 @@ import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * This Function provides the sensitivity to the discount rate. <p>

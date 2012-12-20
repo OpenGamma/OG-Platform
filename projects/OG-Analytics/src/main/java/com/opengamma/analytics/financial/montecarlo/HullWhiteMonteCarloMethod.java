@@ -24,7 +24,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.random.RandomNumberGenerator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Monte Carlo pricing method in the hull-White one factor model.

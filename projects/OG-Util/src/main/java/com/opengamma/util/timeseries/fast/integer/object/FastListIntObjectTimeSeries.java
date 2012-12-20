@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.timeseries.fast.integer.object;
 
+import static com.opengamma.util.tuple.TuplesUtil.pairToEntry;
+
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntIterator;
@@ -25,7 +27,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
-import com.opengamma.util.tuple.IntObjectPair;
+import com.opengamma.lambdava.tuple.IntObjectPair;
 
 /**
  * 
@@ -250,7 +252,7 @@ public class FastListIntObjectTimeSeries<T> extends AbstractFastMutableIntObject
     public Int2ObjectMap.Entry<T> next() {
       final int time = _intIter.nextInt();
       final T value = _typeTIter.next();
-      return new IntObjectPair<T>(time, value);
+      return pairToEntry(new IntObjectPair<T>(time, value));
     }
 
     @Override

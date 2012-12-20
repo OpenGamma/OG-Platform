@@ -28,7 +28,7 @@ import com.opengamma.util.async.AsynchronousHandle;
 import com.opengamma.util.async.AsynchronousHandleExecution;
 import com.opengamma.util.async.AsynchronousResult;
 import com.opengamma.util.async.ResultListener;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Base class for objects that manage a set of AbstractCalculationNodes with the intention of invoking job executions on them.

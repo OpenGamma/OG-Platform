@@ -11,7 +11,7 @@ import java.util.Collection;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalId;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**

@@ -37,7 +37,7 @@ import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverter;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 

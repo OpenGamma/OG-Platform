@@ -56,7 +56,7 @@ import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A batch master implementation using a database for persistence.

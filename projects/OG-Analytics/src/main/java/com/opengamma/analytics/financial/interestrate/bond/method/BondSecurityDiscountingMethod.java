@@ -28,7 +28,7 @@ import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.analytics.util.surface.StringValue;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Class with methods related to bond security valued by discounting.

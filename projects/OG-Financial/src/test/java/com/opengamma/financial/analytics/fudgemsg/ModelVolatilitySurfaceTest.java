@@ -24,8 +24,8 @@ import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
-import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Test ConstantVolatilitySurface/InterpolatedVolatilitySurface.

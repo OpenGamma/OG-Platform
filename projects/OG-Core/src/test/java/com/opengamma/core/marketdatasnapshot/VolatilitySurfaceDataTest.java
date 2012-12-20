@@ -17,8 +17,8 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * 

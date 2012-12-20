@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.timeseries;
 
+import com.opengamma.lambdava.tuple.Pair;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongList;
 
@@ -15,7 +16,6 @@ import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.object.FastLongObjectTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * @param <DATE_TYPE> The type of dates 

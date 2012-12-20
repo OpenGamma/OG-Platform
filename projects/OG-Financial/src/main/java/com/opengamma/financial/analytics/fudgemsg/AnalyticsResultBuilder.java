@@ -24,8 +24,8 @@ import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVola
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * 

@@ -6,7 +6,7 @@
 package com.opengamma.core.marketdatasnapshot.impl;
 
 import static com.google.common.collect.Maps.newHashMap;
-import static com.opengamma.util.functional.Functional.groupBy;
+import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.Collection;
 import java.util.Map;
@@ -18,7 +18,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdSchemeDelegator;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.functional.Function1;
+import com.opengamma.lambdava.functions.Function1;
+import com.opengamma.lambdava.streams.Functional;
 
 /**
  * A source of snapshots that uses the scheme of the unique identifier to determine which
@@ -59,19 +60,18 @@ public class DelegatingSnapshotSource extends UniqueIdSchemeDelegator<MarketData
 
   @Override
   public Map<UniqueId, StructuredMarketDataSnapshot> get(Collection<UniqueId> uniqueIds) {
-    Map<String, Collection<UniqueId>> groups = groupBy(uniqueIds, new Function1<UniqueId, String>() {
+    Map<String, Functional<UniqueId>> groups = functional(uniqueIds).groupBy(new Function1<UniqueId, String>() {
       @Override
       public String execute(UniqueId uniqueId) {
         return uniqueId.getScheme();
       }
-    });    
-    
+    });
+
     Map<UniqueId, StructuredMarketDataSnapshot> snapshots = newHashMap();
-    
-    for (Map.Entry<String, Collection<UniqueId>> entries : groups.entrySet()) {
-      snapshots.putAll(chooseDelegate(entries.getKey()).get(entries.getValue()));
+
+    for (Map.Entry<String, Functional<UniqueId>> entries : groups.entrySet()) {
+      snapshots.putAll(chooseDelegate(entries.getKey()).get(entries.getValue().asList()));
     }
-    
     return snapshots;
   }
   

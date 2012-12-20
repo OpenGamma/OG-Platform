@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A surface that is defined by a set of nodal points (i.e. <i>(x, y, z)</i> data). Any attempt to find a <i>z</i> value 

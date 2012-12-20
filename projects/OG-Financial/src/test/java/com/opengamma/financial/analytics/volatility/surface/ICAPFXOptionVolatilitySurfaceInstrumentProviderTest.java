@@ -9,7 +9,7 @@ import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVol
 import com.opengamma.financial.fudgemsg.FinancialTestBase;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 public class ICAPFXOptionVolatilitySurfaceInstrumentProviderTest extends FinancialTestBase {
 

@@ -26,7 +26,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Base class for ISDA CDS pricing functions

@@ -15,7 +15,7 @@ import java.util.TreeMap;
 
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * 

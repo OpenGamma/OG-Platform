@@ -24,7 +24,7 @@ import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProv
 import com.opengamma.engine.view.calcnode.stats.CalculationNodeStatistics;
 import com.opengamma.engine.view.calcnode.stats.TotallingNodeStatisticsGatherer;
 import com.opengamma.util.TerminatableJob;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Modifies the parameters available to MultipleNodeExecutorFactory to report the effect of each.

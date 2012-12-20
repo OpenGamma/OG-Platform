@@ -38,7 +38,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionR
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 // TODO jonathan 2012-02-01 -- added this for immediate demo needs. Need to revisit and fully implement.
 

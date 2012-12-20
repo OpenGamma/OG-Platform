@@ -6,12 +6,13 @@
 package com.opengamma.batch.domain;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.opengamma.util.functional.Functional.sort;
+import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import com.opengamma.engine.value.ValueProperties;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -26,8 +27,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.opengamma.engine.value.ValueProperties;
 
 @BeanDefinition
 public class RiskValueProperties extends DirectBean {
@@ -64,14 +63,14 @@ public class RiskValueProperties extends DirectBean {
       } else if (ValueProperties.NearlyInfinitePropertiesImpl.class.isInstance(requirement)) {
         ValueProperties.NearlyInfinitePropertiesImpl nearlyInifite = (ValueProperties.NearlyInfinitePropertiesImpl) requirement;
         JSONArray without = new JSONArray();
-        for (String value : sort(nearlyInifite.getWithout())) {
+        for (String value : functional(nearlyInifite.getWithout()).sort()) {
           without.put(escape(escapePattern, value));
         }
         json.put("without", without);
       } else {
         JSONArray properties = new JSONArray();
         if (requirement.getProperties() != null) {
-          for (String property : sort(requirement.getProperties())) {
+          for (String property : functional(requirement.getProperties()).sort()) {
             JSONObject propertyJson = new JSONObject();
 
             propertyJson.put("name", property);
@@ -80,7 +79,7 @@ public class RiskValueProperties extends DirectBean {
             }
 
             JSONArray values = new JSONArray();
-            for (String value : sort(requirement.getValues(property))) {
+            for (String value : functional(requirement.getValues(property)).sort()) {
               values.put(escape(escapePattern, value));
             }
             propertyJson.put("values", values);
@@ -122,7 +121,7 @@ public class RiskValueProperties extends DirectBean {
             JSONArray valueArray = property.getJSONArray("values");
             Collection<String> values = newArrayList();
             for (int j = 0; j < valueArray.length(); j++) {
-              values.add(unescape(valueArray.getString(j)));              
+              values.add(unescape(valueArray.getString(j)));
             }
             builder.with(propertyName, values);
           }

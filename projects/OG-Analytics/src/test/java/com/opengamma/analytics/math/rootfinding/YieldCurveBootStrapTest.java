@@ -62,7 +62,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.monitor.OperationTimer;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
 Timings on Richard's mac pro from 24/08/2010 with 200 warm ups and 1000 benchmark cycles

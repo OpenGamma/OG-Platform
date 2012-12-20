@@ -26,7 +26,7 @@ import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Pricing method for single barrier Forex option transactions in the Black world.

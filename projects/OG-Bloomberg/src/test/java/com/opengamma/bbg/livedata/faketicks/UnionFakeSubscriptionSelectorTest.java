@@ -22,8 +22,8 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.client.JmsLiveDataClient;
 import com.opengamma.livedata.test.LiveDataClientTestUtils;
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Test.

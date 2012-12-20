@@ -45,7 +45,7 @@ import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.master.historicaltimeseries.ExternalIdResolver;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Loads identifier bundle with dates for a given identifier.

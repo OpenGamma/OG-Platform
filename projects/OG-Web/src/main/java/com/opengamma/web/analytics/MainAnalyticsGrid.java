@@ -21,7 +21,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Grid for displaying analytics data for a portfolio or for calculated values that aren't associated with the

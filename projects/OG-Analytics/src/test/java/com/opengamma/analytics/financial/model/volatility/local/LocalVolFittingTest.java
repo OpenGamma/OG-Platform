@@ -59,7 +59,7 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquareWithPenalty;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * This is a very basic attempt at PLAT-2215 (Local Volatility Calibration from Forward PDE). This does not converge. It is not clear if this is because the method is

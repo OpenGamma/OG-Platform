@@ -19,7 +19,7 @@ import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDa
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * 

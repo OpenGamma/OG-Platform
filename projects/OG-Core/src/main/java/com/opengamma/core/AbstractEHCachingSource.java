@@ -39,7 +39,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.map.HashDeepMap2;
 import com.opengamma.util.map.Map2;
 import com.opengamma.util.map.SoftValueHashMap2;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A cache decorating a {@code FinancialSecuritySource}.

@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Provides access to database scripts from a standard directory structure.

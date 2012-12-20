@@ -12,7 +12,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * 

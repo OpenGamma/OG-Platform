@@ -32,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * An ultra-simple historical data simulator, we load the initial values from a CSV file (with a header row)

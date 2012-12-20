@@ -33,7 +33,7 @@ import com.opengamma.language.invoke.TypeConverterProviderBean;
 import com.opengamma.language.test.TestUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Tests the {@link FetchTimeSeriesFunction} class.

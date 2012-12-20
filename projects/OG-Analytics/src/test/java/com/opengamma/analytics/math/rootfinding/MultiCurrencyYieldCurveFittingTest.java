@@ -37,7 +37,7 @@ import com.opengamma.analytics.math.rootfinding.newton.ShermanMorrisonVectorRoot
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * 

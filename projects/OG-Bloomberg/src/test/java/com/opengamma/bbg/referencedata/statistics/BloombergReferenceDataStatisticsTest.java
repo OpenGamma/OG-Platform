@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.Sets;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Test.
@@ -184,8 +184,8 @@ public class BloombergReferenceDataStatisticsTest {
   }
 
   private <TValue> void assertPairEquals(Pair<? extends Number, TValue> expected, Pair<? extends Number, TValue> actual) {
-    assertEquals(expected.getKey().longValue(), actual.getKey().longValue());
-    assertEquals(expected.getValue(), actual.getValue());
+    assertEquals(expected._1().longValue(), actual._1().longValue());
+    assertEquals(expected._2(), actual._2());
   }
 
 }

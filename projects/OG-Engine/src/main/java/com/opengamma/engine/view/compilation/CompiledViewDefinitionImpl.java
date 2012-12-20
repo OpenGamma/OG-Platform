@@ -5,8 +5,6 @@
  */
 package com.opengamma.engine.view.compilation;
 
-import static com.opengamma.util.functional.Functional.merge;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,6 +23,8 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.util.ArgumentChecker;
+
+import static com.opengamma.lambdava.streams.Lambdava.merge;
 
 /**
  * Default implementation of {@link CompiledViewDefinition}.

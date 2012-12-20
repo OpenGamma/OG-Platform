@@ -40,7 +40,7 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 
 /**

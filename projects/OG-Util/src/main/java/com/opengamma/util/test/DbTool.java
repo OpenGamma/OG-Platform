@@ -46,7 +46,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.management.DbManagement;
 import com.opengamma.util.db.management.DbManagementUtils;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Command-line interface to create or clear databases.

@@ -10,8 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.time.Instant;
 
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.ObjectsPair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * In-memory storage of function costs.

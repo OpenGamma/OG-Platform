@@ -14,7 +14,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.web.analytics.rest.AggregatorNamesResource;
 
 public class AggregatorNamesResourceTest {

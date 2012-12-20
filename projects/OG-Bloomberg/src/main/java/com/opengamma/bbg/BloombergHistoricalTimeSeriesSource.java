@@ -28,7 +28,7 @@ import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderG
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Loads time-series from Bloomberg.

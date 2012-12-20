@@ -7,7 +7,7 @@ package com.opengamma.core.marketdatasnapshot;
 
 import java.util.Map;
 
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A snapshot of volatility surface data.

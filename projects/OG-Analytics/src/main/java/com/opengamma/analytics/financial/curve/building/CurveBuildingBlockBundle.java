@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Bundle of curves names and the curve building block associated.

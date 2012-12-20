@@ -10,7 +10,7 @@ import java.util.Collection;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Re-initialization hook for functions. When a function is being initialized, it can register itself

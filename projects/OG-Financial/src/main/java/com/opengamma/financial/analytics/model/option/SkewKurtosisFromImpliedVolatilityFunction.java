@@ -31,7 +31,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * 

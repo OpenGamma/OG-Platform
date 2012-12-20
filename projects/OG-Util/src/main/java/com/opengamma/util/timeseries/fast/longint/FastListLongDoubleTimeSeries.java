@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.timeseries.fast.longint;
 
+import static com.opengamma.util.tuple.TuplesUtil.pairToEntry;
+
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleIterator;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
@@ -28,7 +30,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
-import com.opengamma.util.tuple.LongDoublePair;
+import com.opengamma.lambdava.tuple.LongDoublePair;
 
 /**
  * 
@@ -255,7 +257,7 @@ public class FastListLongDoubleTimeSeries extends AbstractFastMutableLongDoubleT
     public Long2DoubleMap.Entry next() {
       final long time = _longIter.nextLong();
       final double value = _doubleIter.nextDouble();
-      return new LongDoublePair(time, value);
+      return pairToEntry(new LongDoublePair(time, value));
     }
 
     @Override

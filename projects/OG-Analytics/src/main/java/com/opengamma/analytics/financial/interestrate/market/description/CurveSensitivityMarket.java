@@ -15,7 +15,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 import com.opengamma.util.tuple.Triple;
 
 /**

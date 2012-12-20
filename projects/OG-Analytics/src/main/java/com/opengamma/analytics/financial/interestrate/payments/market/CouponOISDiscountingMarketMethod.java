@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.method.PricingMarketMethod
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Method to compute present value and its sensitivities for OIS coupons.

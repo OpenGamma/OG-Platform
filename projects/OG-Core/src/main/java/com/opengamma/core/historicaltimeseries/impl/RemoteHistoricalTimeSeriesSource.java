@@ -24,7 +24,7 @@ import com.opengamma.util.fudgemsg.FudgeMapWrapper;
 import com.opengamma.util.rest.AbstractRemoteClient;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Provides remote access to an {@link HistoricalTimeSeriesSource}.

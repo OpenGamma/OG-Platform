@@ -75,7 +75,7 @@ import com.opengamma.util.log.LogEvent;
 import com.opengamma.util.log.LogLevel;
 import com.opengamma.util.log.SimpleLogEvent;
 import com.opengamma.util.test.Timeout;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Tests ViewClient

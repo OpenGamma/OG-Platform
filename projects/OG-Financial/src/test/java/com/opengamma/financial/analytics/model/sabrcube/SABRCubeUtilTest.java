@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 public class SABRCubeUtilTest {
 

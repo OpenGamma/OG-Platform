@@ -17,7 +17,7 @@ import com.opengamma.financial.analytics.cashflow.FixedPaymentMatrix;
 import com.opengamma.financial.analytics.cashflow.FloatingPaymentMatrix;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  *

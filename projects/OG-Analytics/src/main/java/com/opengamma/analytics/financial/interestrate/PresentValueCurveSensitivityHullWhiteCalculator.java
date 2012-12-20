@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureHullWhiteMethod;
-import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.lambdava.tuple.DoublesPair;
 
 /**
  * Present value curve sensitivity calculator for interest rate instruments using Hull-White (extended Vasicek) one factor model.
