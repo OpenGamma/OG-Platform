@@ -239,8 +239,6 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
         } else {
           s_logger.warn("Value was null when getting required input data " + bondExternalSensitivitiesData.getExposureExternalId());
         }
-      } else {
-        entries[i] = 0d;
       }
       i++;
     }
