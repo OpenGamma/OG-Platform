@@ -38,7 +38,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public abstract class SABRIRFutureOptionNLSSDefaults extends DefaultPropertyFunction {
+public class SABRIRFutureOptionNLSSDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(SABRIRFutureOptionNLSSDefaults.class);
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.SABR_SURFACES,
@@ -63,8 +63,8 @@ public abstract class SABRIRFutureOptionNLSSDefaults extends DefaultPropertyFunc
   public SABRIRFutureOptionNLSSDefaults(final String priority, final String xInterpolatorName, final String yInterpolatorName,
       final String leftXExtrapolatorName, final String rightXExtrapolatorName, final String leftYExtrapolatorName, final String rightYExtrapolatorName,
       final String useFixedAlpha, final String useFixedBeta, final String useFixedRho, final String useFixedNu, final String alpha, final String beta,
-      final String rho, final String nu, final String error, final ComputationTargetType target) {
-    super(target, true);
+      final String rho, final String nu, final String error) {
+    super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(xInterpolatorName, "x interpolator name");
     ArgumentChecker.notNull(yInterpolatorName, "y interpolator name");
