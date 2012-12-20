@@ -116,7 +116,7 @@ public class BaseNonCompiledInvokerTest {
           .outputs(
 
               output(DV01)
-                  .targetSpec(originalTarget())  //takes  ComputationTargetSpecification, target info enum
+                  .targetSpec(originalTarget())  //takes  ComputationTargetSpecification or TargetSpecificationReference
                   .properties(copyFrom(PV01)
                       .withReplacement(ValuePropertyNames.FUNCTION, getUniqueId())
                       .withAny(ValuePropertyNames.SHIFT))
