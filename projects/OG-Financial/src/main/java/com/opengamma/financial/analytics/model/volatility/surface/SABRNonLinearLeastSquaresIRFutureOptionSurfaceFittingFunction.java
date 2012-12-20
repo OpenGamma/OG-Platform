@@ -170,7 +170,7 @@ public class SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction exten
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Currency currency = Currency.of(target.getUniqueId().getValue());
-    final ValueProperties resultProperties = SABRFittingPropertyUtils.addFittingProperties(createValueProperties()
+    final ValueProperties resultProperties = SABRFittingPropertyUtils.addNLSSFittingProperties(createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .withAny(ValuePropertyNames.SURFACE)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION)
@@ -188,7 +188,7 @@ public class SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction exten
       s_logger.error("Need to provide a single surface name; have {}", surfaceNames);
       return null;
     }
-    if (!SABRFittingPropertyUtils.ensureFittingProperties(desiredValue)) {
+    if (!SABRFittingPropertyUtils.ensureNLSSFittingProperties(desiredValue)) {
       return null;
     }
     final String surfaceName = Iterables.getOnlyElement(surfaceNames);

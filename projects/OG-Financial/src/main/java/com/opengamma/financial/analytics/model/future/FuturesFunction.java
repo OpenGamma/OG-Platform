@@ -52,10 +52,14 @@ import com.opengamma.util.ArgumentChecker;
  * @param <T> The type of the data returned from the calculator
  */
 public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(FuturesFunction.class);
+  /** The converter */
   private static final FutureSecurityConverter CONVERTER = new FutureSecurityConverter();
 
+  /** The value requirement name */
   private final String _valueRequirementName;
+  /** The calculator */
   private final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> _calculator;
 
   /**
@@ -123,42 +127,89 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     return true;
   }
 
+  /**
+   * Creates general value properties
+   * @param target The target
+   * @return The value properties
+   */
   protected abstract ValueProperties.Builder createValueProperties(final ComputationTarget target);
 
+  /**
+   * Creates value properties with the property values set
+   * @param target The target
+   * @param desiredValue The desired value
+   * @return The value properties
+   */
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     return createValueProperties(target);
   }
 
+  /**
+   * Creates the data bundle used in futures pricing
+   * @param security The security
+   * @param inputs The market data inputs
+   * @param timeSeriesBundle A bundle containing time series
+   * @param desiredValue The desired value
+   * @return The data bundle used for pricing futures
+   */
   protected abstract SimpleFutureDataBundle getFutureDataBundle(final FutureSecurity security, final FunctionInputs inputs,
       final HistoricalTimeSeriesBundle timeSeriesBundle, final ValueRequirement desiredValue);
 
+  /**
+   * @return The calculator
+   */
   protected InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> getCalculator() {
     return _calculator;
   }
 
+  /**
+   * Gets the spot value requirement
+   * @param security The security
+   * @return The spot asset value requirement if the future has a spot asset id, null otherwise
+   */
   protected ValueRequirement getSpotAssetRequirement(final FutureSecurity security) {
     final ExternalId spotAssetId = getSpotAssetId(security);
+    if (spotAssetId == null) {
+      return null;
+    }
     final ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotAssetId);
     return req;
   }
 
+  /**
+   * Gets the spot asset id from a security
+   * @param sec The security
+   * @return The spot asset id, null if not available
+   */
   protected ExternalId getSpotAssetId(final FutureSecurity sec) {
     final ExternalId spotAssetId = FinancialSecurityUtils.getUnderlyingId(sec);
     if (spotAssetId == null) {
-      throw new OpenGammaRuntimeException(sec.getContractCategory() + " failed to find spot asset id.");
+      s_logger.error("Failed to find spot asset id (category = {}) for future with id bundle {}", sec.getContractCategory(), sec.getExternalIdBundle());
+      return null;
     }
     return spotAssetId;
   }
 
-  protected Double getSpot(final FutureSecurity security, final FunctionInputs inputs) {
-    final ValueRequirement spotRequirement = getSpotAssetRequirement(security);
-    final Object spotObject = inputs.getValue(spotRequirement);
+  /**
+   * Gets the spot value
+   * @param inputs The market data inputs
+   * @return The spot value
+   * @throws OpenGammaRuntimeException If the spot value is null
+   */
+  protected Double getSpot(final FunctionInputs inputs) {
+    final Object spotObject = inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     if (spotObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + spotRequirement);
+      throw new OpenGammaRuntimeException("Could not get the spot value");
     }
     return (Double) spotObject;
   }
 
+  /**
+   * Gets the historical time series of the future price
+   * @param context The compilation context
+   * @param security The security
+   * @return The value requirement for the time series of future price
+   */
   protected ValueRequirement getReferencePriceRequirement(final FunctionCompilationContext context, final FutureSecurity security) {
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final ExternalIdBundle idBundle = security.getExternalIdBundle();

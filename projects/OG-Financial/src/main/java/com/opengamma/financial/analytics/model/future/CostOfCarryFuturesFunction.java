@@ -30,6 +30,10 @@ public abstract class CostOfCarryFuturesFunction<T> extends FuturesFunction<T> {
   /** The calculation method name */
   public static final String CALCULATION_METHOD_NAME = "CostOfCarry";
 
+  /**
+   * @param valueRequirementName The value requirement name
+   * @param calculator The calculator
+   */
   public CostOfCarryFuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator)  {
     super(valueRequirementName, calculator);
   }
@@ -61,7 +65,7 @@ public abstract class CostOfCarryFuturesFunction<T> extends FuturesFunction<T> {
   @Override
   protected SimpleFutureDataBundle getFutureDataBundle(final FutureSecurity security, final FunctionInputs inputs,
     final HistoricalTimeSeriesBundle timeSeriesBundle, final ValueRequirement desiredValue) {
-    final Double spotUnderlyer = getSpot(security, inputs);
+    final Double spotUnderlyer = getSpot(inputs);
     final Double costOfCarry = getCostOfCarry(security, inputs);
     return new SimpleFutureDataBundle(null, null, spotUnderlyer, null, costOfCarry);
   }

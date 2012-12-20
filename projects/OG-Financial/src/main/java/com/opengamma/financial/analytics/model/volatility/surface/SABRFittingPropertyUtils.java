@@ -30,14 +30,19 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.util.money.Currency;
 
 /**
  *
  */
 public class SABRFittingPropertyUtils {
 
-  public static ValueProperties addFittingProperties(final ValueProperties properties) {
+  public static ValueProperties addNLSSFittingProperties(final ValueProperties properties) {
     final ValueProperties result = properties.copy()
       .withAny(X_INTERPOLATOR_NAME)
       .withAny(Y_INTERPOLATOR_NAME)
@@ -58,7 +63,7 @@ public class SABRFittingPropertyUtils {
     return result;
   }
 
-  public static boolean ensureFittingProperties(final ValueRequirement desiredValue) {
+  public static boolean ensureNLSSFittingProperties(final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> xInterpolatorName = constraints.getValues(X_INTERPOLATOR_NAME);
     if (xInterpolatorName == null || xInterpolatorName.size() != 1) {
@@ -121,6 +126,22 @@ public class SABRFittingPropertyUtils {
       return false;
     }
     return true;
+  }
+
+  public static ValueRequirement getNLSSSurfaceRequirement(final ValueRequirement desiredValue, final Currency currency) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final ValueProperties fittingProperties = addNLSSFittingProperties(ValueProperties.none());
+    ValueProperties.Builder properties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURRENCY, currency.getCode())
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION)
+        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, SmileFittingProperties.NON_LINEAR_LEAST_SQUARES);
+    for (final String constraint : constraints.getProperties()) {
+      if (fittingProperties.getProperties().contains(constraint)) {
+        properties = properties.with(constraint, constraints.getValues(constraint));
+      }
+    }
+    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties.get());
   }
 
   public static DoubleMatrix1D getStartingValues(final ValueRequirement desiredValue) {

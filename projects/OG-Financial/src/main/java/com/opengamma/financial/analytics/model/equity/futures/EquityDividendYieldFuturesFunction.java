@@ -49,8 +49,13 @@ import com.opengamma.util.money.Currency;
 public class EquityDividendYieldFuturesFunction<T> extends FuturesFunction<T> {
   /** The calculation method name */
   public static final String CALCULATION_METHOD_NAME = "DividendYield";
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityDividendYieldFuturesFunction.class);
 
+  /**
+   * @param valueRequirementName The value requirement name to be calculated
+   * @param calculator The calculator
+   */
   public EquityDividendYieldFuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator)  {
     super(valueRequirementName, calculator);
   }
@@ -82,7 +87,7 @@ public class EquityDividendYieldFuturesFunction<T> extends FuturesFunction<T> {
   @Override
   protected SimpleFutureDataBundle getFutureDataBundle(final FutureSecurity security, final FunctionInputs inputs,
         final HistoricalTimeSeriesBundle timeSeriesBundle, final ValueRequirement desiredValue) {
-    final Double spotUnderlyer = getSpot(security, inputs);
+    final Double spotUnderlyer = getSpot(inputs);
     Double dividendYield = timeSeriesBundle.get(MarketDataRequirementNames.DIVIDEND_YIELD, getSpotAssetId(security)).getTimeSeries().getLatestValue();
     dividendYield /= 100.0;
     final String fundingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);

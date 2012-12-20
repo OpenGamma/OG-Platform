@@ -367,8 +367,9 @@ import com.opengamma.financial.analytics.model.volatility.local.defaultpropertie
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceTradeDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.HestonFourierIRFutureSurfaceFittingFunction;
+import com.opengamma.financial.analytics.model.volatility.surface.SABRIRFutureOptionNLSSPrimitiveDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.SABRIRFutureOptionNLSSTradeDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction;
-import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceMixedLogNormalInterpolatorFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceSABRInterpolatorFunction;
@@ -1145,6 +1146,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
 
   private static void addInterestRateFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionMarketUnderlyingPriceFunction.class));
+
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackVolatilitySensitivityFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackImpliedVolatilityFunction.class));
@@ -1155,6 +1158,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionConstantSpreadThetaFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, PriorityClass.NORMAL.name(), 
         "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE"));
+    
     functionConfigs.add(functionConfiguration(IRFutureOptionSABRPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(IRFutureOptionSABRSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(IRFutureOptionSABRYCNSFunction.class));
@@ -1162,10 +1166,13 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
         "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES));    
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction.class));
-    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
+    functionConfigs.add(functionConfiguration(SABRIRFutureOptionNLSSPrimitiveDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
         LINEAR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "false", "true", "false", "false", 
         "0.05", "1.0", "0.07", "0.0", "0.001"));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionMarketUnderlyingPriceFunction.class));
+    functionConfigs.add(functionConfiguration(SABRIRFutureOptionNLSSTradeDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
+        LINEAR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "false", "true", "false", "false", 
+        "0.05", "1.0", "0.07", "0.0", "0.001"));
+
     functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonDefaults.class,
