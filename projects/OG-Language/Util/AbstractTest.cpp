@@ -7,6 +7,7 @@
 #include "stdafx.h"
 #include "AbstractTest.h"
 #include "Fudge.h"
+#include "Error.h"
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/basicconfigurator.h>
 
@@ -50,6 +51,7 @@ CAbstractTest::~CAbstractTest () {
 ///
 /// @param[in] signal the signal to ignore
 static void _IgnoreSignal (int signal) {
+	__unused (signal)
 	// No-op
 }
 

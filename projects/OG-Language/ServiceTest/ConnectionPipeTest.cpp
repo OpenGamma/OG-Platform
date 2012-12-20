@@ -101,7 +101,7 @@ public:
 			ASSERT (FudgeCodec_encodeMsg (env, &ptrBuffer, &cbBuffer) == FUDGE_OK);
 			FudgeMsgEnvelope_release (env);
 			FudgeMsg_release (msg);
-			ASSERT (poPipe->Write (ptrBuffer, cbBuffer, TIMEOUT) == cbBuffer);
+			ASSERT (poPipe->Write (ptrBuffer, cbBuffer, TIMEOUT) == (size_t)cbBuffer);
 			delete ptrBuffer;
 		} else {
 			LOGWARN (TEXT ("Couldn't open client pipe, error ") << GetLastError ());

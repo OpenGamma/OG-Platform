@@ -13,6 +13,10 @@
     height: 23px;
 }
 
+.OG-gadget-tabs-label {
+    display: inline;
+}
+
 .OG-gadget-tabs ul:before {
     content: '';
     background: #fff;
@@ -31,7 +35,7 @@
     border-bottom: 1px solid #d8d8d8;
     border-right: 1px solid #d8d8d8;
     position: relative;
-    cursor: default;
+    cursor: move;
 }
 
 .OG-gadget-tabs li:first-child {
@@ -96,7 +100,39 @@
         background-color: #fff;
     }
 
-    .OG-gadget-tabs li div {
+    .OG-gadget-tabs li.og-active:after {
+        background-color: transparent;
+    }
+
+    /**
+     * Add shadows to the left and right of the active tab
+     */
+    .OG-gadget-tabs li.og-active:before {
+        background-color: transparent;
+        background-image:
+            -webkit-linear-gradient(left,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%),
+            -webkit-linear-gradient(left,  rgba(0,0,0,1) 0%,rgba(0,0,0,0) 100%);
+        background-image:
+            -moz-linear-gradient(left,  rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%),
+            -moz-linear-gradient(left,  rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
+        background-image:
+            linear-gradient(to right,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 100%),
+            linear-gradient(to right,  rgba(0,0,0,1) 0%,rgba(0,0,0,0) 100%);;
+        background-position: left top, right top;
+        background-size: 6px 100%, 6px 100%;
+        background-repeat: no-repeat;
+        bottom: 0;
+        content: '';
+        left: -7px;
+        position: absolute;
+        right: -6px;
+        top: 0;
+        opacity: 0.1;
+        width: auto;
+        z-index: 2;
+    }
+
+    .OG-gadget-tabs li > div {
         position: relative;
         z-index: 2;
         overflow: hidden;
@@ -104,7 +140,12 @@
         white-space: nowrap;
     }
 
-    .OG-gadget-tabs li div:first-child {
+    .OG-gadget-tabs li > div span {
+        color: #aaa;
+    }
+
+
+    .OG-gadget-tabs li > div:first-child {
         padding: 2px 5px 1px 5px;
     }
 
@@ -129,10 +170,19 @@
         position: absolute;
         right: -5px;
         top: -5px;
-        z-index: 2;
+        z-index: 4;
     }
 
     .OG-gadget-tabs li .og-delete:hover {
         background-position: -11px -35px;
     }
 
+/* multiselect */
+    .OG-gadget-tabs .OG-multiselect {
+        display: none;
+        margin: -1px 0 0 -4px;
+    }
+
+    .OG-gadget-tabs .og-active .OG-multiselect {
+        display: inline-block;
+    }

@@ -3,6 +3,11 @@
  * Please see distribution for license.
  */
 
+.OG-analytics-form {
+    border-top: 1px solid #fff;
+    position: relative;
+}
+
 .OG-analytics-form .og-view,
 .OG-analytics-form .og-aggregation,
 .OG-analytics-form .og-datasources,
@@ -90,10 +95,10 @@
     font-size: 10px;
     color: #fff;
     display: inline-block;
-    padding: 0 2px 2px 2px;
+    padding: 1px 2px 1px 2px;
     line-height: 12px;
     position: relative;
-    top: -4px;
+    top: -5px;
     text-transform: uppercase;
     vertical-align: bottom;
 }
@@ -116,6 +121,9 @@
     list-style: none;
     display: inline-block;
     font-family: 'Open Sans', arial, serif;
+}
+.OG-analytics-form .og-option-title li:first-letter {
+    text-transform: capitalize;
 }
 
 .OG-analytics-form .og-option-title span {

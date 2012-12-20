@@ -156,8 +156,7 @@ $.register_module({
                     }}]
                 }),
                 new forms.Dropdown({ // item_1
-                    form: form, value: master.region.split(sep)[1],
-                    resource: 'regions', placeholder: 'Please select...',
+                    form: form, value: master.region.split(sep)[1], placeholder: 'Please select...',
                     processor: function (selector, data, errors) {
                         data.region = master.region.split(sep)[0] + sep + $(selector).val();
                     },

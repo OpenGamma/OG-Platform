@@ -4,118 +4,192 @@
  */
 $.register_module({
     name: 'og.analytics.Data',
-    dependencies: ['og.analytics.connection'],
+    dependencies: ['og.api.rest'],
     obj: function () {
-        var module = this, counter = 1;
-        return function (config) {
-            var data = this, events = {init: [], data: []}, id = 'data_' + counter++, meta, viewport = null;
-            var fire = function (type) {
-                var args = Array.prototype.slice.call(arguments, 1);
-                events[type].forEach(function (value) {value.handler.apply(null, value.args.concat(args));});
-            };
-            var data_handler = function (result) {
-                if (!events.data.length) return; // if a tree falls, etc.
-                var matrix = [], rows = data.meta.rows,
-                    row_start = viewport.rows[0] || 1, row_end = viewport.rows[1],
-                    fixed_len = data.meta.columns.fixed
-                        .reduce(function (acc, set) {return acc + set.columns.length;}, 0),
-                    req_cols = viewport.cols.reduce(function (acc, val) {return (acc[val] = null), acc;}, {});
-                while (rows--) if (rows >= row_start && rows <= row_end) matrix.push(function (cols, row) {
-                    var lcv = 0;
-                    while (lcv++ < cols)
-                        row.push(lcv < fixed_len || lcv in req_cols ? (Math.random() * 1000).toPrecision(6) : null);
-                    return row;
-                }(fixed_len + data.meta.columns.scroll.reduce(function (acc, set) {
-                    return acc + set.columns.length;
-                }, 0) - 1, [rows]));
-                fire('data', matrix.reverse());
-                setTimeout(data_handler, 1000);
-            };
-            var initialize = function () {
-                meta.rows = 10000;
-                meta.columns = {
-                    fixed: [
-                        {
-                            name: 'Portfolio View',
-                            columns: [
-                                {name: 'Fixed 1', width: 50},
-                                {name: 'Fixed 2', width: 150}
-                            ]
-                        }
-                    ],
-                    scroll: [
-                        {
-                            name: 'Set 1',
-                            columns: [
-                                {name: 'Column 3', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 4', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 5', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 6', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 7', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 8', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 9', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 10', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 11', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 12', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 13', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 14', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 15', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 16', width: 65 + Math.floor(Math.random() * 75)}
-                            ]
-                        },
-                        {
-                            name: 'Set 2',
-                            columns: [
-                                {name: 'Column 17', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 18', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 19', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 20', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 21', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 22', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 23', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 24', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 25', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 26', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 27', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 28', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 29', width: 65 + Math.floor(Math.random() * 75)}
-                            ]
-                        },
-                        {
-                            name: 'Set 3',
-                            columns: [
-                                {name: 'Column 30', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 31', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 32', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 33', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 34', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 35', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 36', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 37', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 38', width: 65 + Math.floor(Math.random() * 75)},
-                                {name: 'Column 39', width: 65 + Math.floor(Math.random() * 75)}
-                            ]
-                        }
-                    ]
+        var module = this, counter = 1, connections = {};
+        $(window).on('unload', function () {
+            Object.keys(connections).forEach(function (key) {try {connections[key].kill();} catch (error) {}});
+        });
+        var constructor = function (source, config, label) {
+            var data = this, api = og.api.rest.views, id = 'data_' + counter++ + '_' + +new Date, meta,
+                viewport = null, viewport_id, viewport_cache, prefix, view_id = config.view_id, viewport_version,
+                graph_id = config.graph_id, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets',
+                ROWS = 'rowCount', grid_type = null, depgraph = !!source.depgraph, loading_viewport_id = false,
+                fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'}, bypass_types = config.bypass,
+                label = config.label ? config.label + '-' : '';
+            var data_handler = (function () {
+                var timeout = null, rate = 500, last = +new Date, current, delta;
+                var handler = function (result) {
+                    if (!result || result.error) // do not kill connection even if there is an error, just warn
+                        return og.dev.warn(data.prefix + (result && result.message || 'reset connection'));
+                    if (result.data && result.data.version === viewport_version) fire('data', result.data.data);
                 };
-                fire('init', meta);
-                data_handler();
+                return function (result) {
+                    clearTimeout(timeout);
+                    if (!view_id) return; // connection is dead
+                    if ((delta = (current = +new Date) - last) >= rate) return (last = current), handler(result);
+                    timeout = setTimeout(data_handler.partial(result), rate - delta);
+                };
+            })();
+            var data_setup = function () {
+                if (!view_id || !viewport) return;
+                var promise, viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
+                subscribed = true;
+                (viewport_id ? viewports.get({
+                    view_id: view_id, grid_type: grid_type, graph_id: graph_id,
+                    viewport_id: viewport_id, update: data_setup
+                }) : (promise = viewports.put({
+                        view_id: view_id, grid_type: grid_type, graph_id: graph_id,
+                        loading: function () {loading_viewport_id = true;},
+                        rows: viewport.rows, columns: viewport.cols, format: viewport.format
+                    })).pipe(function (result) {
+                        loading_viewport_id = false;
+                        if (result.error) return (data.prefix = module.name + ' (' + label + view_id + '-dead):\n'),
+                            (view_id = graph_id = viewport_id = subscribed = null), result; // goes to data_setup
+                        viewport_id = result.meta.id; viewport_version = promise.id;
+                        return viewports.get({
+                            view_id: view_id, grid_type: grid_type, graph_id: graph_id, dry: true,
+                            viewport_id: viewport_id, update: data_setup
+                        });
+                    })
+                ).pipe(data_handler);
             };
-            data.busy = (function (busy) {
-                return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
-            })(false);
+            var disconnect_handler = function () {fire('disconnect'), data.disconnect(data.prefix + 'disconnected');};
+            var fire = (function () {
+                var fatal_fired = false;
+                return function (type) {
+                    var args = Array.prototype.slice.call(arguments);
+                    try {
+                        if (type === 'fatal' && !fatal_fired) // fire only once ever
+                            return (fatal_fired = true), og.common.events.fire.apply(data, args);
+                        og.common.events.fire.apply(data, args);
+                    } catch (error) {og.dev.warn(data.prefix + 'a ' + type + ' handler threw ', error);}
+                }
+            })();
+            var initialize = function () {
+                var message, put_options = ['viewdefinition', 'aggregators', 'providers']
+                    .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {});
+                if (depgraph || bypass_types) grid_type = source.type; // don't bother with type_setup
+                if (view_id && grid_type) return structure_setup();
+                if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);
+                try {api.put(put_options).pipe(view_handler);} // initial request params come from outside so try/catch
+                catch (error) {fire('fatal', data.prefix + error.message);}
+            };
+            var reconnect_handler = function () {initialize();};
+            var structure_handler = function (result) {
+                if (!grid_type || (depgraph && !graph_id)) return;
+                if (result.error) return fire('fatal', data.prefix + result.message);
+                if (!result.data[SETS].length) return;
+                meta.data_rows = result.data[ROOT] ? result.data[ROOT][1] + 1 : result.data[ROWS];
+                meta.structure = result.data[ROOT] || [];
+                meta.columns.fixed = [{name: fixed_set[grid_type], columns: result.data[SETS][0].columns}];
+                meta.columns.scroll = result.data[SETS].slice(1);
+                fire('meta', meta, {grid_type: grid_type, view_id: view_id, graph_id: graph_id, meta: result});
+                if (!subscribed) return data_setup();
+            };
+            var same_viewport = function (one, two) {
+                if ((!one || !two) && one !== two) return false; // if either viewport is null
+                return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|') &&
+                    one.format === two.format;
+            };
+            var structure_setup = function (update) {
+                var initial = !update;
+                if (initial) return api.grid.structure
+                    .get({view_id: view_id, grid_type: grid_type, update: structure_setup, initial: initial});
+                api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: structure_handler})
+                    .pipe(function (result) {
+                        if (result.error) return fire('fatal', data.prefix + result.message);
+                        return !depgraph ? structure_handler(result) : api.grid.depgraphs.put({
+                            view_id: view_id, grid_type: grid_type, row: source.row, col: source.col
+                        }).pipe(function (result) {
+                            if (result.error) return fire('fatal', data.prefix + result.message);
+                            return api.grid.depgraphs.structure
+                                .get({view_id: view_id, grid_type: grid_type, graph_id: (graph_id = result.meta.id)})
+                                .pipe(structure_handler);
+                        })
+                    });
+            };
+            var type_setup = function (update) {
+                var port_request, prim_request, initial = grid_type === null;
+                grid_type = source.type;
+                port_request = api.grid.structure
+                    .get({dry: initial, view_id: view_id, update: initial ? type_setup : null, grid_type: 'portfolio'});
+                if (initial) return /* just register interest and bail*/; else prim_request = api.grid.structure
+                    .get({view_id: view_id, grid_type: 'primitives'});
+                $.when(port_request, prim_request).then(function (port_struct, prim_struct) {
+                    var portfolio = port_struct.data &&
+                            !!(port_struct.data[ROOT] ? port_struct.data[ROOT][1] : port_struct.data[ROWS]),
+                        primitives = prim_struct.data &&
+                            !!(prim_struct.data[ROOT] ? prim_struct.data[ROOT][1] : prim_struct.data[ROWS]);
+                    if (!grid_type)
+                        grid_type = source.type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
+                    structure_handler(grid_type === 'portfolio' ? port_struct : prim_struct);
+                    fire('types', {portfolio: portfolio, primitives: primitives});
+                });
+            };
+            var view_handler = function (result) {
+                if (result.error) return fire('fatal', data.prefix + result.message);
+                data.prefix = module.name + ' (' + label + (view_id = result.meta.id) + '):\n';
+                return grid_type ? structure_setup() : type_setup();
+            };
+            data.disconnect = function () {
+                if (arguments.length) og.dev.warn.apply(null, Array.prototype.slice.call(arguments));
+                if (view_id && !data.parent) api.del({view_id: view_id});
+                data.prefix = module.name + ' (' + label + view_id + '-dead' + '):\n';
+                view_id = graph_id = viewport_id = subscribed = null;
+            };
             data.id = id;
-            data.kill = function () {for (var type in events) events[type] = [];};
-            data.meta = meta = {columns: null};
-            data.on = function (type, handler) {
-                if (type in events)
-                    events[type].push({handler: handler, args: Array.prototype.slice.call(arguments, 2)});
+            data.kill = function () {
+                data.disconnect.apply(data, Array.prototype.slice.call(arguments));
+                delete connections[data.id];
+                if (!data.parent)
+                    og.api.rest.off('disconnect', disconnect_handler).off('reconnect', reconnect_handler);
+            };
+            data.meta = meta = {columns: {}};
+            data.parent = config.parent;
+            data.prefix = prefix = module.name + ' (' + label + 'undefined' + '):\n';
+            data.reconnect = function (connection) {
+                view_id = connection.view_id; graph_id = connection.graph_id;
+                initialize();
             };
             data.viewport = function (new_viewport) {
-                viewport = new_viewport;
-                if (viewport.rows === 'all') viewport.rows = [0, meta.rows];
+                var promise, viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
+                if (new_viewport === null) {
+                    if (viewport_id) viewports
+                        .del({view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id});
+                    viewport = viewport_cache = viewport_id = null;
+                    if (meta.viewport) (meta.viewport.cols = []), (meta.viewport.rows = []);
+                    return data;
+                }
+                if (!new_viewport.rows.length || !new_viewport.cols.length)
+                    return og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport), data;
+                if (same_viewport(viewport_cache, new_viewport)) return data; // duplicate viewport, do nothing
+                viewport_cache = JSON.parse(JSON.stringify(data.meta.viewport = viewport = new_viewport));
+                if (!viewport_id) return loading_viewport_id ? data : data_setup(), data;
+                try { // viewport definitions come from outside, so try/catch
+                    (promise = viewports.put({
+                        view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
+                        rows: viewport.rows, columns: viewport.cols, format: viewport.format
+                    })).pipe(function (result) {if (result.error) return; else viewport_version = promise.id;});
+                } catch (error) {fire('fatal', data.prefix + error.message);}
+                return data;
             };
-            setTimeout(initialize, 50);
+            connections[data.id] = data;
+            data.on('fatal', function (message) {data.kill(message);});
+            if (data.parent) { // use parent's connection information
+                bypass_types = true; // child data connections don't need to know about grid types
+                data.parent.on('meta', function (meta, raw) {
+                    data.disconnect();
+                    view_id = raw.view_id; graph_id = raw.graph_id; grid_type = raw.grid_type;
+                    structure_handler(raw.meta);
+                });
+            } else {
+                og.api.rest.on('disconnect', disconnect_handler).on('reconnect', reconnect_handler);
+                setTimeout(initialize); // allow events to be attached
+            }
         };
+        constructor.prototype.off = og.common.events.off;
+        constructor.prototype.on = og.common.events.on;
+        return constructor;
     }
 });

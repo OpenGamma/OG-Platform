@@ -191,7 +191,7 @@ $.register_module({
                 if (!position || !~json.positions.pluck('id').indexOf(position)) return;
                 api.rest.positions.get({id: position, update: view.update, cache_for: 500, dependencies: ['position']});
                 gadgets.positions({
-                    id: position, selector: '.og-js-details-positions', editable: false, view: view
+                    id: position, selector: '.og-js-gadgets-positions', editable: false, view: view
                 });
                 gadgets.trades({id: position, selector: '.og-js-trades-table'});
             };

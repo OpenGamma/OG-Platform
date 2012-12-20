@@ -3,10 +3,11 @@
   <macrodef name="git">
     <attribute name="command" />
     <attribute name="dir" default="" />
+    <attribute name="failonerror" default="true" />
     <element name="args" optional="true" />
     <sequential>
       <echo message="git @{command}" />
-      <exec executable="git" dir="@{dir}" osfamily="unix" failonerror="true">
+      <exec executable="git" dir="@{dir}" osfamily="unix" failonerror="@{failonerror}">
         <arg value="@{command}" />
         <args />
       </exec>
@@ -81,7 +82,7 @@
     <attribute name="displayname" />
     <sequential>
       <echo message="Checking out @{branch} for @{displayname} --------------------------" />
-      <git command="checkout" dir="@{dest}">
+      <git command="checkout" dir="@{dest}" failonerror="false">
         <args>
           <arg value="@{branch}"/>
         </args>

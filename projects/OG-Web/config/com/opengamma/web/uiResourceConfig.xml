@@ -54,9 +54,13 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-collapse.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-tools.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-down.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-down-chevron.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-presets.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-play.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-pause.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-tick.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-speech.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-divider.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-field-box.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-gradient-01.css</fragment>
@@ -77,9 +81,13 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-maximize.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-drop.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window-2.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-ellipsis.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-background.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-dropbox.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-multiselect.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-loader.css</fragment>
   </bundle>
   <bundle id="common.search.css">
     <fragment>/styles/common/search/og.common.search.OG-search.css</fragment>
@@ -140,11 +148,15 @@
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-container.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadgets-container.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs-options.css</fragment>
+    <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-expanded-positions.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-layout-analytics.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-layout-gadget.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-resize.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-form.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-analytics-cell-options.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-form-menu.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-analytics-type-menu.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-analytics-inplace.css</fragment>
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
@@ -175,6 +187,7 @@
     <fragment>/scripts/lib/js.ext.string.prototype.lang.js</fragment>
     <fragment>/scripts/lib/js.ext.string.prototype.trim.js</fragment>
     <fragment>/scripts/lib/js.ext.object.keys.js</fragment>
+    <fragment>/scripts/lib/js.ext.function.prototype.bind.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.partial.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.preload.js</fragment>
     <fragment>/scripts/lib/json2.js</fragment>
@@ -188,6 +201,7 @@
     <fragment>/scripts/lib/jquery/jquery-tablesorter.js</fragment>
     <fragment>/scripts/lib/jquery/jquery-tablesorter.parsers.js</fragment>
     <fragment>/scripts/lib/jquery/jquery-blurkill.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery.sparkline.2.0.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.core.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.widget.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.mouse.js</fragment>
@@ -212,9 +226,30 @@
     <fragment>/scripts/lib/jquery/slick_grid/slick.grid.js</fragment>
     <fragment>/scripts/lib/jquery/slick_grid/slick.rowselectionmodel.js</fragment>
     <fragment>/scripts/lib/routemap.js</fragment>
+    <fragment>/scripts/lib/og.standalone.curve.js</fragment>
+    <fragment>/scripts/lib/og.standalone.data.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.layout.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.awesometable.js</fragment>
     <fragment>/scripts/lib/three/three.js</fragment>
+    <fragment>/scripts/lib/three/detector.js</fragment>
+    <fragment>/scripts/lib/four/four.buffer.js</fragment>
+    <fragment>/scripts/lib/four/four.buffercount.js</fragment>
+    <fragment>/scripts/lib/four/four.interactivemeshes.js</fragment>
+    <fragment>/scripts/lib/four/four.matlib.js</fragment>
+    <fragment>/scripts/lib/four/four.multimaterial_object.js</fragment>
+    <fragment>/scripts/lib/four/four.scale.js</fragment>
+    <fragment>/scripts/lib/four/four.text3d.js</fragment>
+    <fragment>/scripts/lib/four/four.tube.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.surfaceworld.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.axis.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.hud.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.plane.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.slice.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.smile.js</fragment>
+    <fragment>/scripts/lib/jsurface3d/jsurface3d.surfaceplane.js</fragment>
+    <fragment>/scripts/lib/stats.js</fragment>
+    <fragment>/scripts/lib/event.emitter.js</fragment>
   </bundle>
   <bundle id="core.js">
       <fragment>/scripts/og/common/og.common.core.js</fragment>
@@ -224,6 +259,7 @@
       <fragment>/scripts/og/views/common/og.views.common.layout.js</fragment>
       <fragment>/scripts/og/common/og.common.routes.js</fragment>
       <fragment>/scripts/og/common/og.common.lang.js</fragment>
+      <fragment>/scripts/og/common/og.common.events.js</fragment>
   </bundle>
   <bundle id="api.js">
     <fragment>/scripts/og/api/og.api.text.js</fragment>
@@ -240,6 +276,7 @@
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.content_editable.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.message.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.dialog.js</fragment>
+    <fragment>/scripts/og/common/util/ui/og.common.util.ui.dropmenu.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.AutoCombo.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toolbar.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.tooltip.js</fragment>
@@ -262,18 +299,33 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.manager.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.trades.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.positions.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.expanded_positions.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries_plot.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.curve.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.data.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.surface.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.depgraph.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.securitiesidentifiers.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.gadgetscontainer.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.mapping.js</fragment>
   </bundle>
   <bundle id="grid.js">
-    <fragment>/scripts/og/analytics/og.analytics.connection.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.url.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.cell.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.cellmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.formatter.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.clipboard.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.dropmenu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.aggregators_menu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.datasources_menu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.status.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.containers.js</fragment>
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
@@ -338,6 +390,7 @@
   </bundle>
   <bundle id="og_analytics2.js">
       <bundle idref="lib.js" />
+      <fragment>/scripts/lib/fonts/helvetiker/helvetiker_regular.typeface.js</fragment>
       <bundle idref="core.js" />
       <bundle idref="api.js" />
       <bundle idref="util.js" />
@@ -350,6 +403,7 @@
   </bundle>
   <bundle id="og_gadget.js">
       <bundle idref="lib.js" />
+      <fragment>/scripts/lib/fonts/helvetiker/helvetiker_regular.typeface.js</fragment>
       <bundle idref="core.js" />
       <bundle idref="api.js" />
       <bundle idref="util.js" />

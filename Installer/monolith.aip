@@ -289,7 +289,6 @@
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
     <ROW Action="SimulatedMarketDataUsed" Type="38" Target="MsgBox &quot;The engine will be configured to run from simulated market and historical data.&quot;, vbOKOnly + vbInformation, &quot;Example Engine&quot;" WithoutSeq="true"/>
     <ROW Action="TOOL_UI_FLAG" Type="51" Source="TOOL_UI_FLAG" Target="-silent"/>
-    <ROW Action="UpdateFeaturesInstallStates" Type="1" Source="aicustact.dll" Target="UpdateFeatureStates" Options="1"/>
     <ROW Action="viewer.exe" Type="1730" Source="viewer.exe" Target="http://localhost:8080/"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiEventMappingComponent">
@@ -323,7 +322,6 @@
     <ROW Action="OG_LANGUAGE_JAR_1" Sequence="202"/>
     <ROW Action="OG_LANGUAGE_EXT_1" Sequence="201"/>
     <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
-    <ROW Action="UpdateFeaturesInstallStates" Condition="( NOT Installed )" Sequence="1279"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
     <ROW Condition="JRE_32" Description="A 32-bit Java runtime environment is required." Builds="NoJVM32"/>
@@ -401,12 +399,12 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.TxtUpdateComponent">
     <ROW Name="Default" TxtUpdateSet="bloombergexample_run.properties" FindPattern="port = \r\n" ReplacePattern="port = [bloomberg_sapi_defaultport]" Options="3" Order="2" FileEncoding="-1"/>
-    <ROW Name="Append/Create" TxtUpdateSet="bloombergexample_run.properties" FindPattern="MANAGER.NEXT.FILE = classpath:fullstack/fullstack-bloombergexample.properties&#13;&#10;opengamma.bloomberg.sapi.host = [BLOOMBERG_SAPI_HOST]&#13;&#10;opengamma.bloomberg.sapi.port = [BLOOMBERG_SAPI_PORT]&#13;&#10;&#13;&#10;jetty.resourceBase = [APPDIR]www&#13;&#10;jetty.log.dir = [APPDIR]log" Options="32" Order="0" FileEncoding="0"/>
+    <ROW Name="Append/Create" TxtUpdateSet="bloombergexample_run.properties" FindPattern="MANAGER.NEXT.FILE = classpath:fullstack/fullstack-bloombergexample.properties&#13;&#10;bloomberg.host = [BLOOMBERG_SAPI_HOST]&#13;&#10;bloomberg.port = [BLOOMBERG_SAPI_PORT]&#13;&#10;&#13;&#10;jetty.resourceBase = [APPDIR]www&#13;&#10;jetty.log.dir = [APPDIR]log" Options="32" Order="0" FileEncoding="0"/>
     <ROW Name="Slashes" TxtUpdateSet="bloombergexample_run.properties" FindPattern="\" ReplacePattern="/" Options="2" Order="1" FileEncoding="-1"/>
     <ROW Name="NoHash" TxtUpdateSet="bloombergexample_run.properties" FindPattern="port = #" ReplacePattern="port = " Options="2" Order="3" FileEncoding="-1"/>
     <ROW Name="Append/Create" TxtUpdateSet="example_run.properties" FindPattern="MANAGER.NEXT.FILE = classpath:fullstack/fullstack-example.properties&#13;&#10;jetty.resourceBase = [APPDIR]www&#13;&#10;jetty.log.dir = [APPDIR]log" Options="32" Order="0" FileEncoding="0"/>
     <ROW Name="Slashes" TxtUpdateSet="example_run.properties" FindPattern="\" ReplacePattern="/" Options="2" Order="1" FileEncoding="-1"/>
-    <ROW Name="Append/Create" TxtUpdateSet="bloombergexample_run.properties_1" FindPattern="MANAGER.NEXT.FILE = classpath:toolcontext/toolcontext-bloombergexample.properties&#13;&#10;opengamma.bloomberg.sapi.host = [BLOOMBERG_SAPI_HOST]&#13;&#10;opengamma.bloomberg.sapi.port = [BLOOMBERG_SAPI_PORT]&#13;&#10;&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
+    <ROW Name="Append/Create" TxtUpdateSet="bloombergexample_run.properties_1" FindPattern="MANAGER.NEXT.FILE = classpath:toolcontext/toolcontext-bloombergexample.properties&#13;&#10;bloomberg.host = [BLOOMBERG_SAPI_HOST]&#13;&#10;bloomberg.port = [BLOOMBERG_SAPI_PORT]&#13;&#10;&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
     <ROW Name="Default" TxtUpdateSet="bloombergexample_run.properties_1" FindPattern="port = \r\n" ReplacePattern="port = [bloomberg_sapi_defaultport]" Options="3" Order="1" FileEncoding="-1"/>
     <ROW Name="NoHash" TxtUpdateSet="bloombergexample_run.properties_1" FindPattern="port = #" ReplacePattern="port = " Options="2" Order="2" FileEncoding="-1"/>
     <ROW Name="Append/Create" TxtUpdateSet="example_run.properties_1" FindPattern="MANAGER.NEXT.FILE = classpath:toolcontext/toolcontext-example.properties&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
@@ -460,6 +458,10 @@
     <ROW XmlElement="38" Name="name" Flags="14" Order="0" Value="com.opengamma.util.test.DbTool"/>
     <ROW XmlElement="38" Name="level" Flags="14" Order="1" Value="info"/>
     <ROW XmlElement="39" Name="ref" Flags="14" Order="0" Value="INSTALL"/>
+    <ROW XmlElement="40" Name="name" Flags="14" Order="0" Value="com.opengamma.install"/>
+    <ROW XmlElement="40" Name="level" Flags="14" Order="1" Value="INFO"/>
+    <ROW XmlElement="41" Name="name" Flags="14" Order="0" Value="com.opengamma.install"/>
+    <ROW XmlElement="41" Name="level" Flags="14" Order="1" Value="INFO"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.XmlElementComponent">
     <ROW XmlElement="0" Name="configuration" Order="0" Flags="30"/>
@@ -502,6 +504,8 @@
     <ROW XmlElement="37" ParentElement="36" Name="appender-ref" Order="0" Flags="14"/>
     <ROW XmlElement="38" ParentElement="13" Name="logger" Order="4" Flags="14"/>
     <ROW XmlElement="39" ParentElement="38" Name="appender-ref" Order="0" Flags="14"/>
+    <ROW XmlElement="40" ParentElement="0" Name="logger" Order="5" Flags="14"/>
+    <ROW XmlElement="41" ParentElement="13" Name="logger" Order="5" Flags="14"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.XmlFileComponent">
     <ROW XmlFile="bloombergexample_logback.xml" FileName="bloomb~1.xml|bloombergexample-logback.xml" DirProperty="config_Dir" Component="og_bloombergexample" RootElement="0" Flags="89" Version="1.0" Encoding="UTF-8" IndentUnits="2"/>

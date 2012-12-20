@@ -66,12 +66,16 @@
         </#if>  
         <#if security.announcementDate?has_content>
           <@rowout label="Announcement date">${security.announcementDate}</@rowout>
-        </#if>  
-        <@rowout label="Interest accrual date">${security.interestAccrualDate.toLocalDate()} - ${security.interestAccrualDate.zone}</@rowout>
+        </#if>
+        <#if security.interestAccrualDate?has_content>
+            <@rowout label="Interest accrual date">${security.interestAccrualDate.toLocalDate()} - ${security.interestAccrualDate.zone}</@rowout>
+        </#if>
         <#if security.settlementDate?has_content>
           <@rowout label="Settlement date">${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}</@rowout>
         </#if>
-        <@rowout label="First coupon date">${security.firstCouponDate.toLocalDate()} - ${security.firstCouponDate.zone}</@rowout>
+        <#if security.firstCouponDate?has_content>
+            <@rowout label="First coupon date">${security.firstCouponDate.toLocalDate()} - ${security.firstCouponDate.zone}</@rowout>
+        </#if>
         <#if security.issuancePrice?has_content>
           <@rowout label="Issuance price">${security.issuancePrice}</@rowout>
         </#if>
@@ -96,7 +100,9 @@
               <@rowout label="">${key} - ${basket[key]}</@rowout>
             </#list>
         <#else>
-            <@rowout label="Underlying identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
+            <#if futureSecurityType != "MetalFuture">
+              <@rowout label="Underlying identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
+            </#if>
         </#if>
         
         <#break>
@@ -198,6 +204,11 @@
         <@rowout label="Region Identifier">${security.regionId.scheme.name?replace("_", " ")} - ${security.regionId.value}</@rowout>
         <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
         <#break>
+      <#case "NONDELIVERABLE_FX FORWARD">
+        <@rowout label="Forward Date">${security.forwardDate.toLocalDate()} - ${security.forwardDate.zone}</@rowout>
+        <@rowout label="Region Identifier">${security.regionId.scheme.name?replace("_", " ")} - ${security.regionId.value}</@rowout>
+        <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
+        <#break>        
       <#case "FX">
         <@rowout label="Pay Amount">${security.payAmount}</@rowout>
         <@rowout label="Pay Currency">${security.payCurrency}</@rowout>
@@ -262,6 +273,17 @@
         <@rowout label="Exercise Type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
         <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="Is Margined">${security.margined?string?upper_case}</@rowout>
+        <@rowout label="Option Type">${security.optionType}</@rowout>
+        <@rowout label="Point Value">${security.pointValue}</@rowout>
+        <@rowout label="Strike">${security.strike}</@rowout>
+        <@rowout label="Underlying Identifier">${security.underlyingId.scheme.name?replace("_", " ")} - ${security.underlyingId.value}</@rowout>
+        <#break>
+      <#case "BONDFUTURE_OPTION">
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <@rowout label="Trading Exchange">${security.tradingExchange}</@rowout>
+        <@rowout label="Settlement Exchange">${security.settlementExchange}</@rowout>
+        <@rowout label="Exercise Type">${customRenderer.printExerciseType(security.exerciseType)}</@rowout>
+        <@rowout label="Expiry">${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}</@rowout>
         <@rowout label="Option Type">${security.optionType}</@rowout>
         <@rowout label="Point Value">${security.pointValue}</@rowout>
         <@rowout label="Strike">${security.strike}</@rowout>

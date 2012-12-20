@@ -15,6 +15,7 @@
     <dependency org="org.apache.ant" name="ant" rev="[1.7.0,1.8.0["/>
     <dependency org="org.joda" name="joda-beans" rev="0.6"/>
     <dependency org="org.joda" name="joda-convert" rev="1.2"/>
+    <dependency org="com.opengamma" name="elsql" rev="0.7"/>
     <dependency org="org.testng" name="testng" rev="6.3.1"/>
     <dependency org="org.slf4j" name="slf4j" rev="1.5.11" conf="*->core,jcl-migration,log4j-migration"/>
     <dependency org="ch.qos.logback" name="logback-classic" rev="0.9.17"/>
@@ -38,12 +39,14 @@
     <dependency org="org.apache.derby" name="derby" rev="10.6+"/>
     <dependency org="org.postgresql" name="postgresql-jdbc" rev="[9.0,10.0["/>
     <dependency org="com.microsoft" name="sqljdbc" rev="3.0"/>
-    <dependency org="org.hsqldb" name="hsqldb" rev="2.2.8"/>
+    <dependency org="org.hsqldb" name="hsqldb" rev="2.2.9"/>
     <dependency org="org.mockito" name="mockito" rev="1.9"/>
     <dependency org="it.unimi.dsi" name="fastutil" rev="6.4.2"/>
     <dependency org="org.mongodb" name="mongo-java-driver" rev="2.7.3"/>
     <dependency org="org.scannotation" name="scannotation" rev="1.0.2"/>
     <dependency org="net.sf.opencsv" name="opencsv" rev="[2.0,3["/>
+    <dependency org="redis" name="jedis" rev="2.1.0"/>
+    <dependency org="com.opensymphony" name="quartz" rev="1.8.1"/>
     <exclude org="org.junit"/>
   </dependencies>
 </ivy-module>

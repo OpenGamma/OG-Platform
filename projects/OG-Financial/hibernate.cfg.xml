@@ -16,6 +16,7 @@
         <mapping resource="com/opengamma/financial/security/master/db/hibernate/FrequencyBean.hbm.xml"/>
         <mapping resource="com/opengamma/financial/security/master/db/hibernate/DayCountBean.hbm.xml"/>
         <mapping resource="com/opengamma/financial/security/master/db/hibernate/BusinessDayConventionBean.hbm.xml"/>
+        <mapping resource="com/opengamma/financial/security/master/db/hibernate/StubTypeBean.hbm.xml"/>
         <mapping resource="com/opengamma/financial/security/master/db/hibernate/SecurityBean.hbm.xml"/>     
     </session-factory>
 </hibernate-configuration>

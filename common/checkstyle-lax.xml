@@ -16,7 +16,9 @@
     <module name="ConstantName">
       <property name="format" value="^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$|^s_[a-z][a-zA-Z0-9]*$"/>
     </module>
-    <module name="AvoidStarImport"/>
+    <module name="AvoidStarImport">
+      <property name="severity" value="error"/>
+    </module>
     <module name="EmptyBlock">
       <property name="tokens" value="LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_IF,LITERAL_FOR,LITERAL_TRY,LITERAL_WHILE,STATIC_INIT"/>
     </module>
@@ -27,7 +29,7 @@
       <property name="option" value="space"/>
     </module>
     <module name="EqualsHashCode"/>
-    <module name="IllegalImport"/>
+    <module name="IllegalImport"/><!-- other imports disallowed by regex below -->
     <module name="IllegalInstantiation">
       <property name="classes" value="Boolean"/>
     </module>
@@ -141,9 +143,18 @@
     <property name="severity" value="error"/>
   </module>
   <module name="RegexpSingleline">
+    <property name="format" value="import org.testng.internal."/>
+    <property name="message" value="Invalid import, internal testng classes not allowed"/>
+    <property name="severity" value="error"/>
+  </module>
+  <module name="RegexpSingleline">
     <property name="format" value="import com.beust.jcommander.internal."/>
     <property name="message" value="Invalid import, maybe you want com.google.common.collect"/>
     <property name="severity" value="error"/>
+  </module>
+  <module name="RegexpSingleline">
+    <property name="format" value="UnsupportedEncodingException "/>
+    <property name="message" value="Use constants on Guava Charsets class instead"/>
   </module>
   <module name="SuppressionCommentFilter">
     <property name="offCommentFormat" value="CSOFF"/>

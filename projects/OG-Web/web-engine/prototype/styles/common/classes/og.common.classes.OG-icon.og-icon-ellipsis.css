@@ -1,0 +1,13 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-icon.og-icon-ellipsis:after {
+    background-position: -4px -1px;
+    background-color: transparent;
+    display: inline-block;
+    height: 2px;
+    position: relative;
+    width: 8px;
+    z-index: 2;
+}

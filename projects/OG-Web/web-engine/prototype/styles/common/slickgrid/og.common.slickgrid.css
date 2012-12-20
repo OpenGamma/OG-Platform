@@ -64,7 +64,7 @@
 
 /* Fix vertical alignment */
 .ui-widget-content .slick-cell {
-    line-height: 22px;
+    line-height: 24px;
 }
 
 /* Empty cell */
@@ -80,14 +80,11 @@
 
 .slick-header {
   position: relative;
-  background: #a3ceec;
-  height: 30px;
-  margin: 0 -2px;
-  padding: 0 4px 2px 0;
-  border-bottom: 1px solid #fff;
+  background: #d7e7f2;
+  border: 1px solid #fff;
 }
 
-.slick-header input,
+/*.slick-header input,*/
 .slick-header select {
   z-index: 1;
 }
@@ -116,33 +113,51 @@
 
 .slick-resizable-handle {
   z-index: 1;
-  border-right: 1px solid #9bc3e0;
-  top: 4px;
   width: 7px;
+  opacity: 1;
 }
+
+.slick-resizable-handle:after {
+  content: '';
+  z-index: 1;
+  border-right: 1px solid #fff;
+  top: 2px;
+  bottom: 2px;
+  width: 5px;
+  opacity: 1;
+  position: absolute;
+  opacity: 0.1;
+}
+
 
 .slick-resizable-handle:before {
   content: '';
-  border-left: 1px solid #b5d8f0;
-  top: 0;
-  bottom: 0;
+  border-left: 1px solid #000;
+  top: 2px;
+  bottom: 2px;
   left: 6px;
   position: absolute;
+  opacity: 0.1;
 }
 
 .slick-header-column.ui-state-default  {
-  line-height: 20px;
   border-style: none;
-  padding-left: 7px;
-  height: 20px;
+  height: 19px;
   background: none;
 }
 
 .slick-column-name {
-  color: #fff;
+  color: #555;
+  font-weight: bold;
   display: inline-block;
-  line-height: 20px;
+  line-height: 21px;
   vertical-align: middle;
+}
+
+.slick-column-name input,
+.slick-column-name select {
+    position: relative;
+    top: -2px;
 }
 
 .grid-canvas {
@@ -151,4 +166,39 @@
 
 .slick-viewport {
   overflow-y: scroll!important;
+}
+
+/**
+ * Search
+ **/
+.OG-js-search .slick-header-column.ui-state-default  {
+    border-style: none;
+    background: none;
+    height: 20px;
+}
+
+/**
+ * Gadgets
+ **/
+.OG-gadget-container .slick-header {
+    border-bottom: 1px solid #dadcdd;
+    background-color: #ecf5fa;
+}
+
+.OG-gadget-container .slick-header-columns::before {
+    content: none;
+}
+
+.OG-gadget-container .slick-row:hover {
+    background-color: transparent;
+}
+
+.OG-gadget-container .grid-canvas .slick-cell{
+  color: #555;
+}
+
+.OG-gadget-container .matrix .slick-row .l0 {
+  background-color: #ecf5fa;
+  color: #555;
+  font-weight: bold;
 }

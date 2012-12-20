@@ -24,7 +24,7 @@ $.register_module({
                     });
                 }).on('mouseup', function () {
                     if (!bottom || !right) return;
-                    layout.inner.sizePane('south', bottom - layout.main.south.options.size);
+                    layout.inner.sizePane('south', bottom);
                     layout.main.sizePane('east', right);
                     $bars.remove(), $overlay.remove();
                 });
@@ -43,7 +43,7 @@ $.register_module({
             };
             var mousedown_handler = function (event) {
                 return event.which !== 3 || event.button !== 2 ? left_handler()
-                    : event.stopPropagation(), (block_menu = true), right_handler();
+                    : (event.stopPropagation(), (block_menu = true), right_handler());
             };
             var resize = function () {
                 $resizer.css({

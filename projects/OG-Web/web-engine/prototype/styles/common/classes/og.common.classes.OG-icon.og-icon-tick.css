@@ -1,0 +1,39 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-icon.og-icon-tick-down,
+.OG-icon.og-icon-tick-up,
+.OG-icon.og-icon-tick-static {
+    cursor: default;
+}
+
+.OG-icon.og-icon-tick-down:after {
+    display: inline-block;
+    background-position: -43px -47px;
+    background-color: transparent;
+    height: 11px;
+    width: 9px;
+    z-index: 2;
+    position: absolute;
+}
+
+.OG-icon.og-icon-tick-up:after {
+    display: inline-block;
+    background-position: -53px -47px;
+    background-color: transparent;
+    height: 11px;
+    width: 9px;
+    z-index: 2;
+    position: absolute;
+}
+
+.OG-icon.og-icon-tick-static:after {
+    display: inline-block;
+    background-position: -63px -47px;
+    background-color: transparent;
+    height: 11px;
+    width: 9px;
+    z-index: 2;
+    position: absolute;
+}

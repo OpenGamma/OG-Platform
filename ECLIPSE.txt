@@ -37,9 +37,9 @@ be incorrect.
       
         * Or install the plug-ins manually
 
-            i. IvyDE                                  http://ant.apache.org/ivy/ivyde/download.cgi
-           ii. Eclipse-CS                             http://eclipse-cs.sourceforge.net/downloads.html
-          iii. TestNG                                 http://testng.org/doc/download.html
+            i. IvyDE (required)                       http://ant.apache.org/dist/ant/ivyde/updatesite
+           ii. Eclipse-CS (optional, but recommended) http://eclipse-cs.sourceforge.net/downloads.html
+          iii. TestNG (optional, but recommended)     http://testng.org/doc/download.html
 
   2. Import the default preferences
      a. Go to "File->Import"
@@ -127,7 +127,7 @@ Recommended Extras for Contributors
 Tips if you have problems
 -------------------------
 
-  * Make sure you have the latest Eclipse (Juno at the time of writing). The settings files
+  * Make sure you have the latest Eclipse (Indigo at the time of writing). The settings files
     don't work with Galileo properly: specifically, if you get an error about 'path fragments',
     that is because you're trying to use Galileo.
 

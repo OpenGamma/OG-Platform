@@ -113,6 +113,7 @@
 
 		<javac srcdir="${src.dir}" destdir="${classes.dir}"
       classpath="${lib.path.jar.file}" debug="${build.debug}" optimize="${build.optimize}"
+      source="${build.javac.source}" target="${build.javac.target}"
       memoryMaximumSize="512M" fork="true"
       verbose="${build.verbose}" listfiles="${build.listfiles}" />
 		<copy todir="${classes.dir}">
@@ -169,6 +170,7 @@
 	<target name="compile-tests-main" depends="compile-tests-mkdir">
 		<javac srcdir="${tests.src.dir}" destdir="${tests.classes.dir}"
       classpathref="tests.build.classpath.id" debug="${build.debug}"
+      source="${build.javac.source}" target="${build.javac.target}"
       memoryMaximumSize="512M" fork="true"
       optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
 	</target>
@@ -178,6 +180,7 @@
 	<target name="compile-tests-interop" depends="compile-tests-mkdir" if="tests.interop">
 		<javac srcdir="${tests.dir}/interop" destdir="${tests.classes.dir}"
       classpathref="tests.build.classpath.id" debug="${build.debug}"
+      source="${build.javac.source}" target="${build.javac.target}"
       memoryMaximumSize="512M" fork="true"
       optimize="${build.optimize}" verbose="${build.verbose}" listfiles="${build.listfiles}" />
 	</target>
@@ -200,6 +203,9 @@
 	<!-- number of previous versions to test upgrade scripts from -->
 
 	<target name="tests" depends="test-batch-clean,test-batch,junit-report" description="run unit tests and generate report"/>
+
+  <!-- convenience redeclaration for typos and maven users -->
+  <target name="test" depends="tests" />
 
 	<target name="test-batch" depends="junit-batch,testng-batch"/>
 
@@ -264,6 +270,7 @@
 			<fileset dir="${lib.dir}/jar/org.apache.ant/ant" includes="*.jar" />
 			<pathelement path="${classes.dir}" />
 			<pathelement path="${tests.classes.dir}" />
+			<pathelement path="${tests.resources.dir}" />
 			<pathelement path="${config.dir}" />
 			<pathelement path="${clover.jar.file}" />
 			<pathelement path="${test.properties.dir}" />
@@ -276,6 +283,7 @@
 			<fileset dir="${lib.dir}/jar/org.apache.ant/ant" includes="*.jar" />
 			<pathelement path="${classes.dir}" />
 			<pathelement path="${tests.classes.dir}" />
+			<pathelement path="${tests.resources.dir}" />
 			<pathelement path="${config.dir}" />
 			<pathelement path="${clover.jar.file}" />
 			<pathelement path="${test.properties.dir}" />
@@ -576,7 +584,11 @@
 
 	<!-- clean the project libraries directory (dependencies) -->
 	<target name="clean-lib" unless="disable.clean-lib">
-		<delete includeemptydirs="true" dir="${lib.dir}" />
+    <mkdir dir="${lib.dir}" />
+    <!-- failonerror to avoid locked files in Eclipse -->
+    <delete dir="${lib.dir}" failonerror="false" />
+    <!-- immediately re-make directory to preserve "derived" setting in Eclipse -->
+    <mkdir dir="${lib.dir}" />
 	</target>
 
 	<!-- clean the project build files -->
@@ -590,9 +602,12 @@
 	</target>
 
 	<!-- clean the project distribution files -->
-	<target name="clean-dist">
-		<delete includeemptydirs="true" dir="${dist.dir}" />
-	</target>
+  <target name="clean-dist">
+    <mkdir dir="${dist.dir}" />
+    <delete dir="${dist.dir}" />
+    <!-- immediately re-make directory to preserve "derived" setting in Eclipse -->
+    <mkdir dir="${dist.dir}" />
+  </target>
 
 	<!-- clean all test generated files -->
 	<target name="clean-tests">

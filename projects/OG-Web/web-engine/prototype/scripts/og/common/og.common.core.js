@@ -20,12 +20,15 @@
         },
         /** @private */
         warn = typeof console !== 'undefined' && console.warn ? function () {
-            console.warn.apply(console, Array.prototype.slice.call(arguments));
+            var args = Array.prototype.slice.call(arguments);
+            console.$ = args;
+            console.warn.apply(console, args);
         } : log.partial('[warning]'),
         top_level = window, default_module = {
             live_data_root: '/jax/', html_root: '/prototype/modules/', data_root: '/prototype/',
             obj: function () {return default_obj;}
         };
+    if (typeof console === 'undefined') console = {log: $.noop}; // just in case there's an errant console.log somewhere
     $.extend(default_obj, {warn: warn, log: log});
     /** @private */
     check_dependencies = function (module) {
@@ -35,9 +38,7 @@
                 dependency.split('.').reduce(function (acc, val) {
                     if (typeof acc[val] === 'undefined') throw new Error; else return acc[val];
                 }, top_level);
-            } catch (error) {
-                throw new ReferenceError(module.name + ' requires ' + dependency);
-            }
+            } catch (error) {throw new ReferenceError(module.name + ' requires ' + dependency);}
         });
     };
     $.extend({
@@ -66,3 +67,9 @@
         }
     });
 })(jQuery, this, document);
+// add a global error listener
+window.onerror = function (message, url, line) {
+    var file = url + ':' + line, agent = navigator.userAgent;
+    og.dev.warn(['UNCAUGHT ERROR!', message, file, agent].join('\n'));
+    return true; // all errors are caught here as a last resort
+};

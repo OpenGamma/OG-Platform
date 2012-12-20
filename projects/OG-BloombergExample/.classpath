@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="build/classes" path="src"/>
-	<classpathentry kind="src" output="tests/classes" path="tests/unit"/>
-	<classpathentry kind="lib" path="config"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="config"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG-Security"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG-Financial"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/OG-MasterDB"/>

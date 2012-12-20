@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
+
+  <!-- Bloomberg data loaders -->
+  <import resource="classpath:bbgData-${opengamma.platform.marketdatasource}.xml" />
+  
+	<bean id="bloombergSecurityProvider" class="com.opengamma.bbg.security.BloombergSecurityProvider">
+		<constructor-arg ref="bloombergReferenceDataProvider" />
+		<constructor-arg>
+      <bean class="com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider" />
+    </constructor-arg>
+	</bean>
+
+	<bean id="securityLoader" class="com.opengamma.bbg.loader.BloombergSecurityFileLoader">
+    <constructor-arg ref="bloombergSecurityProvider" />
+		<constructor-arg ref="dbSecurityMaster" />
+		<property name="refDataProvider" ref="bloombergReferenceDataProvider" />
+	</bean>
+
+</beans>

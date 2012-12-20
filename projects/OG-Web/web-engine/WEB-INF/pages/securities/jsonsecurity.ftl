@@ -2,7 +2,7 @@
 <#setting number_format="0.#####">
 {
     "template_data": {
-     <#if securityAttributes??>
+     <#if securityAttributes?? && securityAttributes?has_content>
       "attributes": {
       <#list securityAttributes?keys as key>
         <#assign value = securityAttributes[key]> "${key}" : "${value}"<#if key_has_next>,</#if>
@@ -20,6 +20,7 @@
         "rate":"${security.rate}",
         "region":"${security.regionId?replace("_", " ")}",
         "underlyingId":"${security.underlyingId?replace("_", " ")}",
+        "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
         "startDate": {
               "date": "${security.startDate.toLocalDate()}",
               "zone": "${security.startDate.zone}"
@@ -338,6 +339,22 @@
         "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
         "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "isMargined":"${security.margined?string?upper_case}",
+        "optionType":"${security.optionType}",
+        "pointValue":"${security.pointValue}",
+        "strike":"${security.strike}",
+        "underlyingId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+        "underlyingExternalId":"${security.underlyingId.scheme}-${security.underlyingId.value}",
+        <#if underlyingSecurity??>
+          "underlyingName":"${underlyingSecurity.name}",
+          "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
+        </#if>
+      <#break>
+      <#case "BONDFUTURE_OPTION">
+        "currency":"${security.currency}",
+        "tradingExchange":"${security.tradingExchange}",
+        "settlementExchange":"${security.settlementExchange}",
+        "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
+        "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "optionType":"${security.optionType}",
         "pointValue":"${security.pointValue}",
         "strike":"${security.strike}",

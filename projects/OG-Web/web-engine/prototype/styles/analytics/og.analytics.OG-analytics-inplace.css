@@ -1,0 +1,44 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-analytics-inplace .OG-icon.og-icon-down-chevron {
+    border: 1px solid #dadcdd;
+    cursor: pointer;
+    height: 11px;
+    left: -2px;
+}
+.OG-analytics-inplace .ui-layout-content {
+    background-color: #F8F8F8;
+    box-shadow: 3px 3px 3px #ebebeb;
+    -moz-box-shadow: 3px 3px 3px #ebebeb;
+    -webkit-box-shadow: 3px 3px 3px #ebebeb;
+    height:275px;
+}
+.OG-analytics-inplace .ui-layout-header:after,
+.OG-analytics-inplace .ui-layout-header {
+    background: none;
+}
+
+.OG-analytics-inplace .OG-gadgets-container {
+    background: none;
+    display: none;
+    height: 300px;
+    margin-left: -1px;
+    margin-top: 17px;
+    width: 480px;
+    position: absolute;
+}
+
+.OG-analytics-inplace .OG-gadget-tabs {
+    border-top: none;
+}
+
+.OG-analytics-inplace .OG-gadget-tabs ul:before {
+    height: 0;
+}
+
+/* Remove left shadow on tabs to coincide with rest of inplace gadget */
+.OG-analytics-inplace .OG-gadget-tabs li.og-active:before {
+    background-size: 0 100%, 6px 100%;
+}

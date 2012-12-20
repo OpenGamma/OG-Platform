@@ -18,11 +18,17 @@
           </thead>
           <tbody>
             <tr><td><span>Company Name</span></td><td>${companyName}</td></tr>
-            <tr><td><span>Short Name</span></td><td>${shortName}</td></tr>
+            <tr>
+              <td><span>Short Name</span></td>
+              <td>{{if shortName}}${shortName}{{else}}(no value){{/if}}</td>
+            </tr>
             <tr><td><span>Exchange</span></td><td>${exchange}</td></tr>
             <tr><td><span>Currency</span></td><td>${currency}</td></tr>
             <tr><td><span>Exchange Code</span></td><td>${exchangeCode}</td></tr>
-            <tr><td><span>GICS code</span></td><td>${gicsCode}</td></tr>
+            <tr>
+              <td><span>GICS code</span></td>
+              <td>{{if gicsCode}}${gicsCode}{{else}}(no value){{/if}}</td>
+            </tr>
           </tbody>
         </table>
       </section>

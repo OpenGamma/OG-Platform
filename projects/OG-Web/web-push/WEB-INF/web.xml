@@ -9,11 +9,11 @@
     <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
     <init-param>
       <param-name>javax.ws.rs.Application</param-name>
-      <param-value>com.opengamma.web.server.push.TestApplication</param-value>
+      <param-value>com.opengamma.web.analytics.push.TestApplication</param-value>
     </init-param>
     <init-param>
       <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>
-      <param-value>com.opengamma.web.server.push.rest.SubscribingFilterFactory</param-value>
+      <param-value>com.opengamma.web.analytics.rest.SubscribingFilterFactory</param-value>
     </init-param>
   </servlet>
 
@@ -24,7 +24,7 @@
 
   <servlet>
     <servlet-name>handshake</servlet-name>
-    <servlet-class>com.opengamma.web.server.push.HandshakeServlet</servlet-class>
+    <servlet-class>com.opengamma.web.analytics.push.HandshakeServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>handshake</servlet-name>
@@ -33,7 +33,7 @@
 
   <servlet>
     <servlet-name>updates</servlet-name>
-    <servlet-class>com.opengamma.web.server.push.LongPollingServlet</servlet-class>
+    <servlet-class>com.opengamma.web.analytics.push.LongPollingServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>updates</servlet-name>

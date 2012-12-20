@@ -23,7 +23,8 @@ $.register_module({
                         enableAddRow: false,
                         enableCellNavigation: false,
                         showHeaderRow: false,
-                        headerHeight: 39
+                        headerHeight: 29,
+                        headerCssClass: '.slick-header-search'
                     });
                     obj.columns = og.common.slickgrid.calibrate_columns({
                         container: '.OG-js-search',

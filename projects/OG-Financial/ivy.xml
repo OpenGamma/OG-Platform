@@ -10,6 +10,7 @@
     <dependencies>
         <dependency name="og-analytics" rev="latest.integration" />
         <dependency name="og-master" rev="latest.integration" />
+        <dependency name="og-provider" rev="latest.integration" />
         <dependency name="og-engine" rev="latest.integration" />
         
         <dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->orm"/>

@@ -27,6 +27,9 @@ LOGGING (com.opengamma.language.util.NamedPipeTest);
 #endif
 
 static int _ReadAndWrite (CTimeoutIO *poIO, int nOperations, bool bThrottle, const TCHAR *pszLabel) {
+#if !defined(_DEBUG) && !defined(FORCE_LOGGING_DEBUG)
+	__unused (pszLabel)
+#endif /* !_DEBUG && !FORCE_LOGGING_DEBUG */
 	LOGDEBUG (pszLabel << TEXT (" ") << ((nOperations > 0) ? TEXT ("reading") : TEXT ("writing")));
 	int nCount = 0;
 	char *pBuffer = new char[PAYLOAD_SIZE];

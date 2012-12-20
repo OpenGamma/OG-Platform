@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <dirent.h>
+#include <unistd.h>
 #endif
 #include <assert.h>
 

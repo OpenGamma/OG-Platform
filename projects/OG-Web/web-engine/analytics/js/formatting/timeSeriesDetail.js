@@ -23,7 +23,7 @@
       })(5, '');
       iframe = '<iframe src="/jax/bundles/fm/prototype/gadget.ftl#/timeseries/key=' + key + '"\
           frameborder="0" scrolling="no" title="Time-Series"></iframe>';
-      og.api.common.set_cache(key, data);
+      og.api.common.cache_set(key, data);
       $(iframe).appendTo('body').dialog({
           autoOpen: true, height: 375, width: 875, modal: false,
           resizable: false, beforeClose: function () { $(this).remove(); self.beforeClosed.fire(); }

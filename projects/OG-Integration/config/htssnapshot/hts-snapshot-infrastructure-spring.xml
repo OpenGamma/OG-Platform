@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+  <!-- ================================================================== -->
+  <bean id="standardFudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
+    
+  <!-- ================================================================== -->
+  
+  <bean id="htsDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${db.hts.driver}" />
+    <property name="jdbcUrl" value="${db.hts.url}" />
+    <property name="username" value="${db.hts.username}" />
+    <property name="password" value="${db.hts.password}" />
+    <property name="poolName" value="TimeSeries"/>
+    <property name="partitionCount" value="1" />
+    <property name="acquireIncrement" value="1" />
+    <property name="minConnectionsPerPartition" value="1" />
+    <property name="maxConnectionsPerPartition" value="10" />
+  </bean>
+
+  <bean id="htsDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
+    <property name="name" value="TimeSeries"/>
+    <property name="dataSource" ref="htsDataSource"/>
+    <property name="dialectName" value="${db.hts.dialect}"/>
+    <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
+    <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
+  </bean>
+  
+  <bean id="jedisConfig" class="redis.clients.jedis.JedisPoolConfig"> 
+    <property name="testWhileIdle" value="true"/> 
+    <property name="minEvictableIdleTimeMillis" value="60000"/>
+    <property name="timeBetweenEvictionRunsMillis" value="30000"/>
+    <property name="numTestsPerEvictionRun" value="-1"/>
+  </bean>
+   
+  <bean id="htsRedisConnector" class="com.opengamma.util.redis.RedisConnectorFactoryBean" >
+    <property name="name" value="Standard"/>
+    <property name="config" ref="jedisConfig"/>
+    <property name="host" value="${redis.host}"/>
+    <property name="port" value="${redis.port}"/>
+  </bean>
+  
+  <!-- ================================================================== -->
+  <bean id="standardMBeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+    <property name="locateExistingServerIfPossible" value="true" />
+  </bean>
+ 
+</beans>

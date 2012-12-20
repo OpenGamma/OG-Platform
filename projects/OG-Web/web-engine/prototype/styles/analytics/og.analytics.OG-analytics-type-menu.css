@@ -1,0 +1,18 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-analytics-typemenu .og-menu{
+	background: none repeat scroll 0 0 #fff;
+	border: 1px solid #DADCDD;
+	display: none;
+	margin-left: -6px;
+	margin-top: 1px;
+	padding: 2px 5px 2px 1px;
+	position: fixed;
+	z-index: 6;
+}
+
+.OG-analytics-typemenu input {
+	margin-bottom: 3px;
+}

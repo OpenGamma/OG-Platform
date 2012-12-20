@@ -26,7 +26,7 @@ LOGGING (com.opengamma.language.connector.SynchronousCalls);
 /// @param[in] poOwner parent slot manager
 /// @param[in] nIdentifier slot identifier
 CSynchronousCallSlot::CSynchronousCallSlot (CSynchronousCalls *poOwner, fudge_i32 nIdentifier)
-: m_oState (STATE_IDLE | 1), m_oSequence (1), m_sem (0, 1) {
+: m_oState (STATE_IDLE | 1), m_sem (0, 1), m_oSequence (1) {
 	LOGDEBUG (TEXT ("Created call slot ") << nIdentifier);
 	m_poOwner = poOwner;
 	m_nIdentifier = nIdentifier;

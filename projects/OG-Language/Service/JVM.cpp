@@ -58,12 +58,13 @@ CJVM::~CJVM () {
 /// @param[in] pszLibrary full path to the JVM library (or just the path name if it is in the path
 /// @return the library, or NULL if none could be loaded
 static CLibrary *_LoadJVMLibrary (const TCHAR *pszLibrary) {
-	const TCHAR *pszSearchPath = NULL;
 	TCHAR *psz = _tcsdup (pszLibrary);
 	if (!psz) {
 		LOGFATAL (TEXT ("Out of memory"));
 		return NULL;
 	}
+#ifdef _WIN32
+	const TCHAR *pszSearchPath = NULL;
 	size_t i = _tcslen (pszLibrary);
 	int separators = 2;
 	while (--i > 0) {
@@ -76,7 +77,12 @@ static CLibrary *_LoadJVMLibrary (const TCHAR *pszLibrary) {
 			}
 		}
 	}
-	CLibrary *po = CLibrary::Create (pszLibrary, pszSearchPath);
+#endif /* ifdef _WIN32 */
+	CLibrary *po = CLibrary::Create (pszLibrary
+#ifdef _WIN32
+			, pszSearchPath
+#endif /* ifdef _WIN32 */
+			);
 	free (psz);
 	return po;
 }
@@ -245,6 +251,8 @@ static char *_OptionMemory (const char *pszPrefix, unsigned long dwMemory) {
 /// @param pEnv see Java documentation
 /// @param cls see Java documentation
 static void JNICALL _notifyStop (JNIEnv *pEnv, jclass cls) {
+	__unused (pEnv)
+	__unused (cls)
 	LOGINFO (TEXT ("STOP called from JVM"));
 	ServiceStop (false);
 }
@@ -254,6 +262,8 @@ static void JNICALL _notifyStop (JNIEnv *pEnv, jclass cls) {
 /// @param pEnv see Java documentation
 /// @param cls see Java documentation
 static void JNICALL _notifyPause (JNIEnv *pEnv, jclass cls) {
+	__unused (pEnv)
+	__unused (cls)
 	LOGINFO (TEXT ("PAUSE called from JVM"));
 	ServiceSuspend ();
 }

@@ -33,7 +33,10 @@ class CFudgeInitialiser {
 public:
 	/// Creates a CFudgeInitialiser instance, initialising the Fudge library.
 	CFudgeInitialiser () {
-		FudgeStatus status = Fudge_init ();
+#ifndef NDEBUG
+		FudgeStatus status = 
+#endif /* ifndef NDEBUG */
+			Fudge_init ();
 		assert (status == FUDGE_OK);
 	}
 };

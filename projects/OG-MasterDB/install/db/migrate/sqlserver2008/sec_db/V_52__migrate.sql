@@ -1,3 +1,4 @@
+SET XACT_ABORT ON;
 BEGIN TRAN;
 
   -- update the version

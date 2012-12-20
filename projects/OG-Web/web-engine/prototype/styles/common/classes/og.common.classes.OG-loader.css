@@ -1,0 +1,76 @@
+/*
+ * Copyright 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Please see distribution for license.
+ */
+.OG-loader {
+    height: 15px;
+    position: relative;
+    background: rgb(164,210,57);
+    background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2E0ZDIzOSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjUwJSIgc3RvcC1jb2xvcj0iIzZiYzU2MyIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM2ZWJjYTkiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+    background-image: linear-gradient(to right, rgba(164,210,57,1) 0%,rgba(107,197,99,1) 50%,rgba(110,188,169,1) 100%);
+    display: inline-block;
+    border: 1px solid #fff;
+    box-shadow: 0 0 15px rgba(50, 50, 50, 0.2);
+    border-radius: 3px;
+    width: 150px;
+    animation-duration: .25s;
+    animation-name: move;
+    animation-iteration-count: infinite;
+    -webkit-animation-duration: .25s;
+    -webkit-animation-name: move;
+    -webkit-animation-iteration-count: infinite;
+}
+
+/**
+ * White lines
+ */
+.OG-loader::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 1px;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAABCAYAAADn9T9+AAAAEElEQVQIW2NkIAD+AwFICQAaOAP+wDVTjwAAAABJRU5ErkJggg==) repeat;
+    transform: skew(-25deg, 0);
+    -webkit-transform: skew(-15deg, 0);
+    -webkit-backface-visibility: hidden; /* Antialias */
+    opacity: .7;
+}
+
+@-webkit-keyframes move {
+    from {background-position-x: 0;}
+    to {background-position: 150px 0;}
+}
+
+@-moz-keyframes move {
+    from {background-position-x: 0;}
+    to {background-position: 150px 0;}
+}
+
+/**
+ * Border
+ */
+.OG-loader::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    bottom: -2px;
+    left: -2px;
+    border: 1px solid #999;
+    background-image:
+        -webkit-linear-gradient(top, rgba(255,255,255,0.1) 0%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0) 51%,rgba(255,255,255,0) 100%),
+        -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,0) 49%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.1) 100%);
+    background-image:
+        linear-gradient(to bottom, rgba(255,255,255,0.1) 0%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0) 51%,rgba(255,255,255,0) 100%),
+        linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,0) 49%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.1) 100%);
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.ie8 .OG-loader,
+.ie9 .OG-loader {
+    display: none;
+}

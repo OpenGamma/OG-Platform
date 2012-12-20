@@ -24,6 +24,7 @@ DWORD CThread::StartProc (void *pObject) {
 /// @param[in] handle thread handle
 /// @param[in] pObject CThread instance
 void *CThread::StartProc (apr_thread_t *handle, void *pObject) {
+	__unused (handle)
 #endif
 	CThread *poThread = (CThread*)pObject;
 	poThread->Run ();
@@ -82,7 +83,8 @@ bool CThread::Start () {
 ///
 /// @param[in] signal signal to ignore
 static void _IgnoreSignal (int signal) {
-	LOGDEBUG (TEXT ("Signal ") << signal << TEXT (" ignored"));
+	__unused (signal)
+	// No-op
 }
 
 /// Suppresses signals used internally.

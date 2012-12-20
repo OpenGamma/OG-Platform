@@ -58,9 +58,10 @@ bool CTimeoutIO::WaitOnOverlapped (unsigned long timeout) {
 		return false;
 	}
 	bool bLazyWait = false;
-	if (IsLazyClosing ()) {
+	unsigned long lLazy = IsLazyClosing ();
+	if (lLazy) {
 		bLazyWait = true;
-		timeout = IsLazyClosing ();
+		timeout = lLazy;
 	}
 waitOnSignal:
 	LOGDEBUG (TEXT ("Waiting for I/O for ") << timeout << TEXT ("ms"));
@@ -110,9 +111,14 @@ waitOnSignal:
 /// @param[in] bRead true for a read operation, false for a write
 /// @return true if an I/O operation is available, false otherwise
 bool CTimeoutIO::BeginOverlapped (unsigned long timeout, bool bRead) {
-	m_oBlockedThread.Set (CThread::GetInterruptible ());
+	if (m_oBlockedThread.GetAndSet (CThread::GetInterruptible ()) == (CThread::INTERRUPTIBLE_HANDLE)-1) {
+		unsigned long lLazy = m_lLazyTimeout;
+		if (lLazy && (lLazy < timeout)) {
+			timeout = lLazy;
+		}
+	}
 	if (IsClosed ()) {
-		m_oBlockedThread.Set (NULL);
+		m_oBlockedThread.Set (0);
 		LOGDEBUG (TEXT ("Already closed; no I/O operations available"));
 		SetLastError (ECANCELED);
 		return false;
@@ -129,7 +135,7 @@ bool CTimeoutIO::BeginOverlapped (unsigned long timeout, bool bRead) {
 		// I/O operation should complete without blocking
 		return true;
 	} else {
-		m_oBlockedThread.Set (NULL);
+		m_oBlockedThread.Set (0);
 		if (n == 0) {
 			// I/O operation shouldn't complete without blocking
 			SetLastError (ETIMEDOUT);
@@ -140,7 +146,7 @@ bool CTimeoutIO::BeginOverlapped (unsigned long timeout, bool bRead) {
 
 /// Complete an overlapped I/O operation.
 void CTimeoutIO::EndOverlapped () {
-	m_oBlockedThread.Set (NULL);
+	m_oBlockedThread.Set (0);
 }
 
 #endif /* ifdef _WIN32 */
@@ -184,9 +190,10 @@ size_t CTimeoutIO::Read (void *pBuffer, size_t cbBuffer, unsigned long timeout) 
 	return cbBytesRead;
 #else /* ifdef _WIN32 */
 	bool bLazyWait = false;
-	if (IsLazyClosing ()) {
+	unsigned long lLazy = IsLazyClosing ();
+	if (lLazy) {
 		bLazyWait = true;
-		timeout = IsLazyClosing ();
+		timeout = lLazy;
 	}
 timeoutOperation:
 	ssize_t cbBytesRead;
@@ -200,7 +207,8 @@ timeoutOperation:
 		int ec = GetLastError ();
 		if (ec == EINTR) {
 			LOGDEBUG (TEXT ("Read interrupted"));
-			if (IsLazyClosing ()) {
+			lLazy = IsLazyClosing ();
+			if (lLazy) {
 				if (bLazyWait) {
 					LOGINFO (TEXT ("Closing file on idle timeout"));
 					Close ();
@@ -208,7 +216,7 @@ timeoutOperation:
 			}
 			if (!IsClosed () && !bLazyWait) {
 				bLazyWait = true;
-				timeout = IsLazyClosing ();
+				timeout = lLazy;
 				LOGDEBUG (TEXT ("Resuming operation with idle timeout of ") << timeout << TEXT ("ms"));
 				goto timeoutOperation;
 			}
@@ -264,9 +272,10 @@ size_t CTimeoutIO::Write (const void *pBuffer, size_t cbBuffer, unsigned long ti
 	return cbBytesWritten;
 #else
 	bool bLazyWait = false;
-	if (IsLazyClosing ()) {
+	unsigned long lLazy = IsLazyClosing ();
+	if (lLazy) {
 		bLazyWait = true;
-		timeout = IsLazyClosing ();
+		timeout = lLazy;
 	}
 timeoutOperation:
 	ssize_t cbWritten;
@@ -280,7 +289,8 @@ timeoutOperation:
 		int ec = GetLastError ();
 		if (ec == EINTR) {
 			LOGDEBUG (TEXT ("Write interrupted"));
-			if (IsLazyClosing ()) {
+			lLazy = IsLazyClosing ();
+			if (lLazy) {
 				if (bLazyWait) {
 					LOGINFO (TEXT ("Closing file on idle timeout"));
 					Close ();
@@ -288,7 +298,7 @@ timeoutOperation:
 			}
 			if (!IsClosed () && !bLazyWait) {
 				bLazyWait = true;
-				timeout = IsLazyClosing ();
+				timeout = lLazy;
 				LOGDEBUG (TEXT ("Resuming operation with idle timeout of ") << timeout << TEXT ("ms"));
 				goto timeoutOperation;
 			}
@@ -325,7 +335,7 @@ bool CTimeoutIO::CancelIO () {
 #ifdef _WIN32
 	SetEvent (m_overlapped.hEvent);
 #else
-	CThread::INTERRUPTIBLE_HANDLE hBlockedThread = m_oBlockedThread.GetAndSet (NULL);
+	CThread::INTERRUPTIBLE_HANDLE hBlockedThread = m_oBlockedThread.GetAndSet ((CThread::INTERRUPTIBLE_HANDLE)-1);
 	if (hBlockedThread) {
 		LOGDEBUG (TEXT ("Interrupting thread blocked on I/O"));
 		CThread::Interrupt (hBlockedThread);
@@ -386,5 +396,8 @@ bool CTimeoutIO::LazyClose (unsigned long timeout) {
 bool CTimeoutIO::CancelLazyClose () {
 	LOGDEBUG (TEXT ("Cancelling lazy close (was ") << m_lLazyTimeout << TEXT ("ms)"));
 	m_lLazyTimeout = 0;
+#ifndef _WIN32
+	m_oBlockedThread.CompareAndSet (0, (CThread::INTERRUPTIBLE_HANDLE)-1);
+#endif /* ifndef _WIN32 */
 	return true;
 }

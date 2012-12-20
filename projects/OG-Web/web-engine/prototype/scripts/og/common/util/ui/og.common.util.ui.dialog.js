@@ -56,7 +56,7 @@ $.register_module({
                 // Check required data
                 if (!obj.message) throw new Error('obj.message is required for an error dialog');
                 $obj = $(css_class);
-                $obj.attr('title', obj.title || 'Oops, something seem to have gone wrong');
+                $obj.attr('title', obj.title || 'Oops, something seems to have gone wrong');
                 $obj.html(obj.message);
                 $obj.dialog($.extend(true, default_options.error.jquery, obj));
             }

@@ -339,3 +339,32 @@
 .og-data-points .og-slick .slick-resizable-handle:before {
     border-left-color: transparent;
 }
+
+/**
+ * Legend
+ */
+.OG-timeseries-gadget .legend {
+    opacity: 0.5;
+    position: absolute;
+    top: 13px;
+    width: 155px;
+    background-color: #000;
+    padding: 2px;
+    border: 1px solid #fff;
+    color: #fff;
+    font-size: 12px;
+}
+
+.OG-timeseries-gadget .legend div,
+.OG-timeseries-gadget .legend table {
+    color: #fff!important;
+    font-size: 12px!important;
+}
+
+.OG-timeseries-gadget .legend .og-date {
+    top: 2px!important;
+}
+
+.OG-timeseries-gadget .legend table {
+    top: 20px!important;
+}

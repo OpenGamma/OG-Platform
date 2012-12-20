@@ -213,7 +213,7 @@
   
   <!-- Default HTS Resolver with no BBG dep -->
   <bean id="htsResolver" class="com.opengamma.financial.spring.DefaultHistoricalTimeSeriesResolverFactoryBean">
-    <property name="configSource" ref="sharedConfigSource" />
+    <property name="configMaster" ref="sharedConfigSource" />
     <property name="historicalTimeSeriesMaster" ref="dbHtsMaster" />
   </bean>
   

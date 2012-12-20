@@ -84,6 +84,10 @@
     <property name="uniqueIdScheme" value="DbBat" />
   </bean>
     
+  <bean id="hsqldbDbUserMaster" class="com.opengamma.masterdb.user.DbUserMaster">
+    <constructor-arg ref="hsqldbDbConnector" />
+  </bean>
+    
    <!-- ============================================================================== -->
   <bean id="postgresDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
     <property name="driverClass" value="${postgres.jdbc.driver}"/>
@@ -148,6 +152,9 @@
     <property name="uniqueIdScheme" value="DbBat" />
   </bean>
 
+  <bean id="postgresDbUserMaster" class="com.opengamma.masterdb.user.DbUserMaster">
+    <constructor-arg ref="postgresDbConnector" />
+  </bean>
   
   <!-- ============================================================================== -->
   <bean id="sqlserver2008DataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
@@ -213,4 +220,7 @@
     <property name="uniqueIdScheme" value="DbBat" />
   </bean>
 
+  <bean id="sqlserver2008DbUserMaster" class="com.opengamma.masterdb.user.DbUserMaster">
+    <constructor-arg ref="sqlserver2008DbConnector" />
+  </bean>
 </beans>

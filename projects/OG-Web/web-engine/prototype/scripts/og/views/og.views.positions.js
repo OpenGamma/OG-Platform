@@ -135,7 +135,7 @@ $.register_module({
                         $('.OG-layout-admin-details-north').empty();
                     }
                     common.gadgets.positions({
-                        id: args.id, selector: '.og-js-details-positions', view: view,
+                        id: args.id, selector: '.og-js-gadgets-positions', view: view,
                         version: args.version, editable: args.version && args.version !== '*' ? false : true
                     });
                     common.gadgets.trades({

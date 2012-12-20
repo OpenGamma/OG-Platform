@@ -12,15 +12,49 @@
     position: relative;
 }
 
+.OG-g-loading-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    background-color: #fff;
+    opacity: .5;
+}
+
+.OG-g-loading {
+    font: 10px arial;
+    text-transform: uppercase;
+    display: block;
+    left: 50%;
+    top: 50%;
+    position: absolute;
+    margin-left: -75px;
+    margin-top: -40px;
+    z-index: 4;
+}
+
+.OG-g-loading .OG-loader {
+    display: block;
+    margin-top: 2px;
+}
+
 .OG-g-cell {
     position: absolute;
     overflow: hidden;
     height: 18px;
+    line-height: 22px;
     border: 1px solid transparent;
     border-bottom: 1px solid #dadcdd;
     border-right: 1px solid #dadcdd;
     text-overflow: ellipsis;
+    padding: 0 0 0 5px;
+    cursor: default;
+    white-space: nowrap;
 }
+
+.OG-g-cell.og-error {color: gray;}
 
 .OG-g-h-fixed, .OG-g-b-fixed,
 .OG-g-h-scroll, .OG-g-b-scroll {
@@ -28,9 +62,13 @@
     background: #fff;
 }
 
-.OG-g-h-scroll,
-.OG-g-b-fixed {
+.OG-g-h-scroll {
+    background-color: #ecf5fa;
     overflow: hidden;
+}
+
+.OG-g-b-fixed {
+    overflow-y: auto; overflow-x: hidden
 }
 
 .OG-g-b-scroll {
@@ -43,22 +81,61 @@
     position: absolute;
     overflow: hidden;
     height: 30px;
+    line-height: 30px;
     border: 1px solid transparent;
     border-bottom: 1px solid #dadcdd;
     border-right: 1px solid #dadcdd;
     text-overflow: ellipsis;
     background: #ecf5fa;
+    padding: 0 0 0 4px;
 }
 
 .OG-g-h-set-name {
-    background: #dadcdd;
-    height: 20px;
+    background: #eee;
+    height: 18px;
     position: absolute;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    cursor: default;
+    text-transform: uppercase;
+    font-size: 10px;
+    color: #555;
+    text-shadow: 0 1px 0 #fff;
+    padding: 2px 3px;
+}
+
+.OG-g-h-set-name:after {
+    display: block;
+    content: '';
+    background: #fafafa;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 50%;
+    left: 0;
+}
+
+.OG-g-h-set-name div {
+    position: relative;
+    z-index: 2;
+}
+
+.OG-g-h-scroll .OG-g-h-set-name div {
+    display: inline-block;
+    background: #dadcdd;
+    border-top: 1px solid #d6d8d9;
+    border-left: 1px solid #d6d8d9;
+    font-size: 10px;
+    height: 14px;
+    line-height: 14px;
+    padding: 0 2px;
+    text-shadow: none;
 }
 
 .OG-g-h-cols {
     position: relative;
-    top: 20px;
+    font-weight: bold;
 }
 
 /* Fixed Cols */
@@ -68,9 +145,28 @@
 
 /* Selection Overlay */
 .OG-g-sel {
-    background: #42669a;
+    background: #ff0000;
     opacity: 0.4;
     filter:alpha(opacity=40);
     z-index: 1;
     position: absolute;
+}
+
+/* Selection Overlay Copyable */
+.OG-g-cop {
+    background: #42669a;
+}
+
+/* Indicator area */
+.OG-g-cell .og-icon-tick-down,
+.OG-g-cell .og-icon-tick-up,
+.OG-g-cell .og-icon-tick-static {
+    position: absolute;
+    top: 6px;
+    right: 13px;
+}
+
+/* negative value */
+.OG-g .og-neg {
+    color: #a62a2a;
 }

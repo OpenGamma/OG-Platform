@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+ 
+  <parent>
+    <groupId>com.opengamma</groupId>
+    <artifactId>og-parent</artifactId>
+    <version>1.2.1-SNAPSHOT</version>
+    <relativePath>../OG-Parent</relativePath>
+  </parent>  
+  <artifactId>og-server</artifactId>
+  <packaging>pom</packaging>
+  <name>OG-Server</name>
+  <description>OpenGamma server dependencies</description>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.opengamma</groupId>
+        <artifactId>og-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>scripts-tools</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <template>scripts-templates/script-template.ftl</template>
+          <additionalScripts>
+            <param>scripts-templates/run-tool.sh</param>
+            <param>scripts-templates/java-utils.sh</param>
+          </additionalScripts>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <configuration>
+              <target>
+                <zip basedir="${project.build.directory}/scripts-tools" destfile="${project.build.directory}/scripts-tools.zip" />
+                <attachartifact file="${project.build.directory}/scripts-tools.zip" classifier="scripts-tools" type="zip" />
+                <zip basedir="scripts-templates" destfile="${project.build.directory}/scripts-templates.zip" />
+                <attachartifact file="${project.build.directory}/scripts-templates.zip" classifier="scripts-templates" type="zip" />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-util</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-component</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-component</artifactId>
+      <version>${project.version}</version>
+      <classifier>resources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-engine</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-financial</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-analytics</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-livedata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-master</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-masterdb</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-integration</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-web</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-web</artifactId>
+      <version>${project.version}</version>
+      <classifier>resources</classifier>
+    </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-region-data</artifactId>
+      <version>1.0.0.v20110908a</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-maven-plugin</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+</project>

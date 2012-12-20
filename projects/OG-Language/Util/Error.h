@@ -9,6 +9,8 @@
 
 #include <errno.h>
 
+#define __unused(x) (void)(x);
+
 #ifndef _WIN32
 
 // Returns the last error on the calling thread. For compatability with Win32 style API.

@@ -30,7 +30,7 @@
     <!--for creating subscriptions to entity updates-->
     <init-param>
       <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>
-      <param-value>com.opengamma.web.server.push.rest.SubscribingFilterFactory</param-value>
+      <param-value>com.opengamma.web.analytics.rest.SubscribingFilterFactory</param-value>
     </init-param>
     <load-on-startup>3</load-on-startup>
   </servlet>
@@ -42,7 +42,7 @@
   <!--HTTP push support-->
   <servlet>
     <servlet-name>handshake</servlet-name>
-    <servlet-class>com.opengamma.web.server.push.HandshakeServlet</servlet-class>
+    <servlet-class>com.opengamma.web.analytics.push.HandshakeServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>handshake</servlet-name>
@@ -51,7 +51,7 @@
 
   <servlet>
     <servlet-name>updates</servlet-name>
-    <servlet-class>com.opengamma.web.server.push.LongPollingServlet</servlet-class>
+    <servlet-class>com.opengamma.web.analytics.push.LongPollingServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>updates</servlet-name>
@@ -65,7 +65,7 @@
   </listener>
   <!-- Bind CometD/Bayeux to Web analytics -->
   <listener>
-    <listener-class>com.opengamma.web.analytics.WebAnalyticsBayeuxInitializer</listener-class>
+    <listener-class>com.opengamma.web.server.WebAnalyticsBayeuxInitializer</listener-class>
   </listener>
 
   <!-- Disable Jetty's locking of static files -->

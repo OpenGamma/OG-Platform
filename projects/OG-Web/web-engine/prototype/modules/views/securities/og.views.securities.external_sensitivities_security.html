@@ -42,7 +42,7 @@
             <tr>
               <td><span>${factor.factorType}</span></td>
               <td><span>${factor.factorName}</span></td>
-              <td><span>${factor.node}</span></td>
+              <td><span>{{if factor.node}}${factor.node}{{else}}(no value){{/if}}</span></td>
               {{if factor.priceTsId}}
                 <td><span><a class="og-js-live-anchor" href="{{html
                   og.common.routes.prefix() +

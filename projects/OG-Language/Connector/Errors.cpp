@@ -6,6 +6,7 @@
 
 #include "stdafx.h"
 #include "Errors.h"
+#include <Util/Error.h>
 
 LOGGING (com.opengamma.language.connector.Errors);
 
@@ -31,6 +32,7 @@ static TCHAR *_ParameterConversionError (int nIndex, const TCHAR *pszMessage) {
 /// @param[in] pszMessage reason for failed conversion, never NULL
 /// @return the full error message
 static TCHAR *_ResultConversionError (int nIndex, const TCHAR *pszMessage) {
+	__unused (nIndex)
 	TCHAR sz[MESSAGE_BUFFER_SIZE];
 	StringCbPrintf (sz, sizeof (sz), TEXT ("Invalid function result - %s"), pszMessage);
 	return _tcsdup (sz);
