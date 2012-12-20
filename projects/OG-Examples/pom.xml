@@ -26,6 +26,11 @@
       <artifactId>og-component</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.opengamma</groupId>
+      <artifactId>og-integration</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.activemq</groupId>
