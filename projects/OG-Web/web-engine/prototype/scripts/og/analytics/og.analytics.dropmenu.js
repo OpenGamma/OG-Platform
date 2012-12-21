@@ -7,37 +7,36 @@ $.register_module({
     dependencies: ['og.common.util.ui.DropMenu'],
     obj: function () {
         var events = {
-                queryselected: 'dropmenu:queryselected',
-                querycancelled: 'dropmenu:querycancelled'
+                selected: 'selected',
+                cancelled: 'cancelled'
             },
 
             DropMenu = function (config) {
-                var menu = new og.common.util.ui.DropMenu(), form = config.form, dummy_s = '<wrapper>', conf = config;
-                if (menu.$dom) {
-                    menu.$dom.toggle_prefix = $(dummy_s);
-                    menu.$dom.toggle_infix = $(dummy_s).append('<span>then</span>');
-                    menu.block = new form.Block({
-                        data: config.data || {},
-                        extras: config.extras || {},
-                        module: config.tmpl,
-                        children: config.children || [],
-                        generator: config.generator || null
-                    });
-                    form.on('form:load', function () {
-                        menu.$dom.cntr = $(config.cntr);
-                        menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
-                        menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
-                        if (menu.$dom.toggle)
-                           menu.block.on('mousedown', menu.$dom.toggle.selector, menu.toggle_menu.bind(menu));
-                        if (menu.$dom.menu) {
-                            menu.$dom.menu_actions = $('.og-menu-actions', menu.$dom.menu);
-                            menu.$dom.opt = $('.OG-dropmenu-options', menu.$dom.menu);
-                            menu.$dom.opt.data('pos', ((menu.opts = []).push(menu.$dom.opt), menu.opts.length-1));
-                            menu.$dom.add = $('.OG-link-add', menu.$dom.menu);
-                            menu.$dom.opt_cp = menu.$dom.opt.clone(true);
-                        }
-                    });
-                }
+                var menu = new og.common.util.ui.DropMenu(), form = config.form, dummy_s = '<wrapper>';
+                menu.opts = [];
+                menu.$dom.toggle_prefix = $(dummy_s);
+                menu.$dom.toggle_infix = $(dummy_s).append('<span>then</span>');
+                menu.block = new form.Block({
+                    data: config.data || {},
+                    extras: config.extras || {},
+                    module: config.tmpl,
+                    children: config.children || [],
+                    generator: config.generator || null
+                });
+                form.on('form:load', function () {
+                    menu.$dom.cntr = $(config.selector);
+                    menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
+                    menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
+                    if (menu.$dom.toggle)
+                        menu.block.on('mousedown', menu.$dom.toggle.selector, menu.toggle_menu.bind(menu));
+                    if (menu.$dom.menu) {
+                        menu.$dom.menu_actions = $('.og-menu-actions', menu.$dom.menu);
+                        menu.$dom.opt = $('.OG-dropmenu-options', menu.$dom.menu);
+                        menu.$dom.opt.data('pos', ((menu.opts = []).push(menu.$dom.opt), menu.opts.length1));
+                        menu.$dom.add = $('.OG-link-add', menu.$dom.menu);
+                        menu.$dom.opt_cp = menu.$dom.opt.clone(true);
+                    }
+                });
                 return menu;
             };
         DropMenu.prototype = og.common.util.ui.DropMenu.prototype;

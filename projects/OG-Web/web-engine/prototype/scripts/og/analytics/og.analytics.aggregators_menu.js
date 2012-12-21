@@ -13,8 +13,7 @@ $.register_module({
                 return og.dev.warn('og.analytics.AggregatorsMenu: Missing param key [config.form] to constructor.');
 
             // Private
-            var menu = new og.analytics.DropMenu({
-                    cntr: '.og-aggregation',
+            var default_conf = {
                     data: { aggregators:[], required_fields:[] },
                     form: config.form,
                     selector: '.og-aggregation',
@@ -25,7 +24,8 @@ $.register_module({
                             value: '', placeholder: 'select aggregation...'
                         })
                     ]
-                }),
+                },
+                menu = new og.analytics.DropMenu(default_conf),
                 events = {
                     reset:'reset',
                     replay:'replay'
@@ -36,7 +36,7 @@ $.register_module({
                 checkbox_s = '.og-option :checkbox', tmpl_menu = '', tmpl_toggle = '';
 
             var add_handler = function (opts) {
-                menu.block.children.push(new og.common.util.ui.Dropdown({
+               menu.block.children.push(new og.common.util.ui.Dropdown({
                     form: config.form, resource: 'aggregators', index: 'aggregators.'+ opts &&
                         opts.hasOwnProperty('idx') ? opts.idx : menu.opts.length,
                     value: opts && opts.hasOwnProperty('val') ? opts.val : '', placeholder: 'select aggregation...'
@@ -83,12 +83,14 @@ $.register_module({
             var init = function (conf) {
                 $dom = menu.$dom;
                 if ($dom) {
-                    $query = $('.aggregation-selection', $dom.toggle);
                     $dom.toggle_prefix.append('<span>Aggregated by</span>');
                     if ($dom.menu) {
-                        menu.block
-                            .on('mousedown', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
-                            .on('change', 'select', menu_handler);
+                        form.on('form:load', function () {
+                            $query = $('.aggregation-selection', $dom.toggle);
+                            menu.block
+                                .on('mousedown', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
+                                .on('change', 'select', menu_handler);
+                        });
                         if (conf.opts) menu.replay_query(conf.opts);
                     }
                 }
@@ -145,22 +147,18 @@ $.register_module({
                 display_query();
             };
 
-            var replay = function (config) {
-                // console.log(config);
-                /*if (!conf && !conf.aggregators || !$.isArray(conf.aggregators)) return;
-                return menu.opts.forEach(function (option) {
-                    option.remove();
-                }), menu.opts.length = 0, query = [],
+            var replay = function (conf) {
+                if (!conf || !conf.hasOwnProperty('aggregators') || !$.isArray(conf.aggregators)) return;
+                form.on('form:load', function () {
+                    menu.opts.forEach(function (option) { option.remove(); });
+                    menu.opts.length = 0;
+                    query = [];
                     conf.aggregators.forEach(function (entry, index) {
-                        if (menu.opts.length < conf.aggregators.length) add_handler({
-                            val: entry, idx: index
-                        });
-                        init_menu_elems(index);
-                        $select.val(entry.val);
-                        $checkbox[0].disabled = false;
+                        if (menu.opts.length < conf.aggregators.length) add_handler({ val: entry, idx: index });
                         query.splice(index, 0, {pos: index, val: entry.val, required_field: entry.required_field});
-                        display_query();
-                    });*/
+                    });
+                    display_query();
+                });
             };
 
             var reset = function () {
@@ -181,8 +179,7 @@ $.register_module({
                 return remove_orphans(), query.pluck('val');
             };
 
-            return menu.on(events.reset, reset).on(events.replay, replay),
-                config.form.on('form:load', function () { init(config); }), menu;
+            return menu.on(events.reset, reset).on(events.replay, replay), init(config), menu;
         };
     }
 });
