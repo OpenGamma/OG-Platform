@@ -118,7 +118,8 @@ import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYiel
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldSpotFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldValueDeltaFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldValueRhoFuturesFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackDefaults;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBAWPresentValueFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionDefaults;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackFundingCurveSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackImpliedVolFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackPresentValueFunction;
@@ -908,6 +909,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityIndexOptionBlackSpotVannaFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionBlackVommaFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexOptionBlackRhoFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionBAWPresentValueFunction.class));
     final List<String> equityIndexOptionDefaults = EquityInstrumentDefaultValues.builder()
         .useIndexName()
         .useForwardCurveCalculationConfigNames()
@@ -918,7 +920,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     final List<String> equityIndexOptionDefaultsWithPriority = new ArrayList<String>();
     equityIndexOptionDefaultsWithPriority.add(PriorityClass.NORMAL.name());
     equityIndexOptionDefaultsWithPriority.addAll(equityIndexOptionDefaults);
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityIndexOptionBlackDefaults.class.getName(), equityIndexOptionDefaultsWithPriority));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityIndexOptionDefaults.class.getName(), equityIndexOptionDefaultsWithPriority));
     
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotIndexFunction.class));
