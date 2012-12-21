@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.MetaBean;
@@ -54,29 +55,39 @@ import com.opengamma.util.ArgumentChecker;
     ManageableTrade.Meta meta = ManageableTrade.meta();
     BeanBuilder<? extends ManageableTrade> tradeBuilder =
         tradeBuilder(tradeData,
+                     meta.uniqueId(), // TODO handle uniqueId differently for new trades - shouldn't be specified
                      meta.tradeDate(),
                      meta.tradeTime(),
                      meta.premium(),
                      meta.premiumCurrency(),
                      meta.premiumDate(),
-                     meta.premiumTime(),
-                     meta.attributes());
+                     meta.premiumTime());
+    tradeBuilder.set(meta.attributes(), tradeData.getMapValues(meta.attributes().name()));
     tradeBuilder.set(meta.quantity(), BigDecimal.ONE);
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(securityId));
-    // TODO set counterparty on trade, scheme Cpty
     String counterparty = tradeData.getValue(COUNTERPARTY);
+    if (StringUtils.isEmpty(counterparty)) {
+      throw new IllegalArgumentException("Trade counterparty is required");
+    }
     tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
     ManageableTrade trade = tradeBuilder.build();
-    // TODO need the node ID so we can add the position to it
-    ManageablePosition position = new ManageablePosition();
+    // TODO need the node ID so we can add the position to the portfolio node
+    ManageablePosition position = getPosition(trade);
     position.setSecurityLink(new ManageableSecurityLink(securityId));
     position.addTrade(trade);
+    position.setQuantity(trade.getQuantity());
     ManageablePosition savedPosition = savePosition(position);
     List<ManageableTrade> trades = savedPosition.getTrades();
     ManageableTrade savedTrade = trades.get(0);
     return savedTrade.getUniqueId();
   }
 
+  /**
+   * Creates a builder for a {@link ManageableTrade} and sets the simple properties from the data source.
+   * @param tradeData The trade data
+   * @param properties The trade properties to set
+   * @return A builder with property values set from the trade data
+   */
   private BeanBuilder<? extends ManageableTrade> tradeBuilder(BeanDataSource tradeData, MetaProperty<?>... properties) {
     BeanBuilder<? extends ManageableTrade> builder = ManageableTrade.meta().builder();
     for (MetaProperty<?> property : properties) {
@@ -100,9 +111,12 @@ import com.opengamma.util.ArgumentChecker;
    */
   /* package */ abstract ManageablePosition savePosition(ManageablePosition position);
 
+  /* package */ abstract ManageablePosition getPosition(ManageableTrade trade);
+
   private UniqueId buildSecurity(BeanDataSource securityData, BeanDataSource underlyingData) {
     ExternalId underlyingId = buildUnderlying(underlyingData);
     BeanDataSource dataSource;
+    // TODO would it be better to just return the bean builder from the visitor and handle this property manually?
     if (underlyingId != null) {
       dataSource = new PropertyReplacingDataSource(securityData, "underlyingId", underlyingId.toString());
     } else {

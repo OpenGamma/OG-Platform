@@ -187,15 +187,23 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getVolatilityRequirement(surfaceName, currency));
-    final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()));
-    if (tsRequirements == null) {
+    try {
+      final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()));
+      if (tsRequirements == null) {
+        return null;
+      }
+      requirements.addAll(tsRequirements);
+    } catch (final IllegalArgumentException e) {
+      s_logger.error(e.getMessage());
+      return null;
+    } catch (final OpenGammaRuntimeException e) {
+      s_logger.error(e.getMessage());
       return null;
     }
     final BondFutureOptionSecurity security = (BondFutureOptionSecurity) target.getTrade().getSecurity();
     requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, BondFutureOptionUtils.getCallBloombergTicker(security)));
     requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, BondFutureOptionUtils.getPutBloombergTicker(security)));
     requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId()));
-    requirements.addAll(tsRequirements);
     return requirements;
   }
 

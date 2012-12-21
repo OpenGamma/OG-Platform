@@ -26,19 +26,18 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.util.tuple.Triple;
 
@@ -46,16 +45,21 @@ import com.opengamma.util.tuple.Triple;
  *
  */
 public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityIndexVanillaBarrierOptionFunction {
-
+  /** The calculator */
   private static final EquityIndexOptionPresentValueCalculator PVC = EquityIndexOptionPresentValueCalculator.getInstance(); // Vanilla PV Calculator
+  /** The amount by which to bump the volatility surface */
   private static final double SHIFT = 0.0001; // FIXME This really should be configurable by the user!
 
+  /**
+   * Default constructor
+   */
   public EquityIndexVanillaBarrierOptionVegaMatrixFunction() {
     super(ValueRequirementNames.VEGA_QUOTE_MATRIX);
   }
 
   @Override
-  protected Object computeValues(final Set<EquityIndexOption> vanillaOptions, final StaticReplicationDataBundle market) {
+  protected Set<ComputedValue> computeValues(final Set<EquityIndexOption> vanillaOptions, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
     final NodalDoublesSurface vegaSurface;
     if (market.getVolatilitySurface() instanceof BlackVolatilitySurfaceMoneynessFcnBackedByGrid) {
       // unpack the market data, including the interpolators
@@ -144,9 +148,7 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
         i++;
       }
       final DoubleLabelledMatrix2D vegaMatrix = new DoubleLabelledMatrix2D(uniqueX, uniqueY, values);
-      return vegaMatrix;
-
-
+      return Collections.singleton(new ComputedValue(resultSpec, vegaMatrix));
     }
     throw new OpenGammaRuntimeException("Currently will only accept a VolatilitySurface of type: BlackVolatilitySurfaceMoneynessFcnBackedByGrid");
   }
@@ -160,18 +162,23 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
   }
 
   /* We specify one additional property, the UnderlyingTicker, to allow a View to contain a VegaQuoteMatrix for each VolMatrix */
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final String bbgTicker) {
+  @Override
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     return super.createValueProperties(target)
-      .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker);
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
+        .withAny(ValuePropertyNames.UNDERLYING_TICKER);
+  }
+
+  /* We specify one additional property, the UnderlyingTicker, to allow a View to contain a VegaQuoteMatrix for each VolMatrix */
+  private ValueProperties.Builder createValueProperties(final ComputationTarget target, final String bbgTicker) {
+    return super.createValueProperties(target)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
+        .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker);
   }
 
   @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue, final FunctionExecutionContext executionContext) {
-    final HistoricalTimeSeriesSource tsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final String bbgTicker = getBloombergTicker(tsSource, getEquityBarrierOptionSecurity(target).getUnderlyingId());
-    final Builder propsBuilder =  super.createValueProperties(target, desiredValue, executionContext)
-      .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker);
-    return propsBuilder;
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+    throw new UnsupportedOperationException();
   }
 
 }

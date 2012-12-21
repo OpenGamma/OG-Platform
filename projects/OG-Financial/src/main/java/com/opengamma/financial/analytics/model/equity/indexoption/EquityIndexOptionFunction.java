@@ -21,7 +21,6 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefiniti
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -45,7 +44,6 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.EquityIndexOptionConverter;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -61,18 +59,24 @@ import com.opengamma.util.async.AsynchronousExecution;
  *
  */
 public abstract class EquityIndexOptionFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexOptionFunction.class);
+  /** The value requirement name */
   private final String _valueRequirementName;
+  /** The calculation method */
+  private final String _calculationMethod;
+  /** Converts the security to the form used in analytics */
   private EquityIndexOptionConverter _converter; // set in init(), not constructor
 
-  // Get rid of this, refactor EquityIndexOptionFundingCurveSensitivitiesFunction
-  protected final EquityIndexOptionConverter getConverter() {
-    return _converter;
-  }
-
-  public EquityIndexOptionFunction(final String valueRequirementName) {
+  /**
+   * @param valueRequirementName The value requirement name, not null
+   * @param calculationMethod The calculation method name, not null
+   */
+  public EquityIndexOptionFunction(final String valueRequirementName, final String calculationMethod) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
+    ArgumentChecker.notNull(calculationMethod, "calculation method");
     _valueRequirementName = valueRequirementName;
+    _calculationMethod = calculationMethod;
   }
 
   @Override
@@ -88,7 +92,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     // 1. Build the analytic derivative to be priced
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
-    final EquityIndexOptionSecurity security = getEquityIndexOptionSecurity(target);
+    final EquityIndexOptionSecurity security = (EquityIndexOptionSecurity) target.getSecurity();
     final ExternalId underlyingId = security.getUnderlyingId();
     final EquityIndexOptionDefinition defn = _converter.visitEquityIndexOptionSecurity(security);
     final EquityIndexOption derivative = (EquityIndexOption) defn.toDerivative(now);
@@ -99,16 +103,22 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     // 2. Build up the market data bundle
     final StaticReplicationDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
 
-    // 3. The Calculation - what we came here to do
-    final Object results = computeValues(derivative, market);
-
-    // 4. Create Result's Specification that matches the properties promised and Return
+    // 3. Create Result's Specification that matches the properties promised and Return
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    //final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, desiredValue, executionContext).get());
-    return Collections.singleton(new ComputedValue(spec, results));
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, desiredValue).get());
+    // 4. The Calculation - what we came here to do
+    return computeValues(derivative, market, inputs, desiredValues, spec);
   }
 
+  /**
+   * Constructs a market data bundle
+   * @param underlyingId The underlying id of the index option
+   * @param executionContext The execution context
+   * @param inputs The market data inputs
+   * @param target The target
+   * @param desiredValues The desired values of the function
+   * @return The market data bundle used in pricing
+   */
   // buildMarketBundle is re-used by EquityIndexVanillaBarrierOptionFunction, hence is available to call  */
   protected StaticReplicationDataBundle buildMarketBundle(final ExternalId underlyingId, final FunctionExecutionContext executionContext,
       final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -152,7 +162,17 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return market;
   }
 
-  protected abstract Object computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market);
+  /**
+   * Calculates the result
+   * @param derivative The derivative
+   * @param market The market data bundle
+   * @param inputs The market data inputs
+   * @param desiredValues The desired values
+   * @param resultSpec The result specification
+   * @return The result of the calculation
+   */
+  protected abstract Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec);
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -164,66 +184,9 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return target.getSecurity() instanceof EquityIndexOptionSecurity;
   }
 
-  protected EquityIndexOptionSecurity getEquityIndexOptionSecurity(final ComputationTarget target) {
-    return (EquityIndexOptionSecurity) target.getSecurity();
-  }
-
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target).get()));
-  }
-
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
-        .withAny(ValuePropertyNames.SURFACE)
-        .withAny(ValuePropertyNames.CURVE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
-  }
-
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue, final FunctionExecutionContext executionContext) {
-    final String fundingCurveName = getFundingCurveName(desiredValue);
-    final String curveConfigName = getCurveConfigName(desiredValue);
-    final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String smileInterpolatorName = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
-    final ValueProperties.Builder builder = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
-        .with(ValuePropertyNames.CURVE, fundingCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName)
-        .with(ValuePropertyNames.SURFACE, volSurfaceName)
-        .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolatorName)
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
-    return builder;
-  }
-
-  protected String getFundingCurveName(final ValueRequirement desiredValue) {
-    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
-    if (fundingCurves == null || fundingCurves.size() != 1) {
-      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.CURVE);
-      return null;
-    }
-    final String fundingCurveName = fundingCurves.iterator().next();
-    return fundingCurveName;
-  }
-
-  protected String getCurveConfigName(final ValueRequirement desiredValue) {
-    final Set<String> curveConfigNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveConfigNames == null || curveConfigNames.size() != 1) {
-      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-      return null;
-    }
-    final String curveConfigName = curveConfigNames.iterator().next();
-    return curveConfigName;
-  }
-
-  protected ValueRequirement getDiscountCurveRequirement(final String fundingCurveName, final String curveCalculationConfigName, final Security security) {
-    final ValueProperties properties = ValueProperties.builder()
-      .with(ValuePropertyNames.CURVE, fundingCurveName)
-      .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
-      .get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, FinancialSecurityUtils.getCurrency(security).getUniqueId(), properties);
   }
 
   @Override
@@ -244,7 +207,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     // TODO: REVIEW THIS - TimeSeriesSource, used to get Ticker, the Vol ComputationTarget, from ExternalIdBundle
     // We are now also using the ticker for the Spot / Market_Value Requirement
     final HistoricalTimeSeriesSource tsSource = OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
-    
+
     // 1. Spot Index Requirement
     final ValueRequirement spotReq = getSpotRequirement(underlyingId, tsSource);
 
@@ -281,8 +244,72 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return Sets.newHashSet(fundingReq, spotReq, volReq);
   }
 
+  /**
+   * Creates general result properties
+   * @param target The target
+   * @return The value properties of the result
+   */
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
+    return createValueProperties()
+        .with(ValuePropertyNames.CALCULATION_METHOD, _calculationMethod)
+        .withAny(ValuePropertyNames.SURFACE)
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+        .withAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
+  }
+
+  /**
+   * Creates result properties with the values set
+   * @param target The target
+   * @param desiredValue The desired value
+   * @return The value properties of the result
+   */
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+    final String fundingCurveName = getFundingCurveName(desiredValue);
+    final String curveConfigName = getCurveConfigName(desiredValue);
+    final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
+    final String smileInterpolatorName = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
+    final ValueProperties.Builder builder = createValueProperties()
+        .with(ValuePropertyNames.CALCULATION_METHOD, _calculationMethod)
+        .with(ValuePropertyNames.CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName)
+        .with(ValuePropertyNames.SURFACE, volSurfaceName)
+        .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolatorName)
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
+    return builder;
+  }
+
+  private String getFundingCurveName(final ValueRequirement desiredValue) {
+    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
+    if (fundingCurves == null || fundingCurves.size() != 1) {
+      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.CURVE);
+      return null;
+    }
+    final String fundingCurveName = fundingCurves.iterator().next();
+    return fundingCurveName;
+  }
+
+  private String getCurveConfigName(final ValueRequirement desiredValue) {
+    final Set<String> curveConfigNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveConfigNames == null || curveConfigNames.size() != 1) {
+      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+      return null;
+    }
+    final String curveConfigName = curveConfigNames.iterator().next();
+    return curveConfigName;
+  }
+
+  private ValueRequirement getDiscountCurveRequirement(final String fundingCurveName, final String curveCalculationConfigName, final Security security) {
+    final ValueProperties properties = ValueProperties.builder()
+      .with(ValuePropertyNames.CURVE, fundingCurveName)
+      .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
+      .get();
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, FinancialSecurityUtils.getCurrency(security).getUniqueId(), properties);
+  }
+
   // TODO: One should not be required to pass the FundingCurve and CurveConfig names, so that the VolatilitySurface can build an EquityForwardCurve
-  protected ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final Security security,
+  private ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final Security security,
       final String surfaceName, final String smileInterpolator, final String curveConfig, final String fundingCurveName, final ExternalId underlyingBuid) {
     // Targets for equity vol surfaces are the underlying tickers
     final String bbgTicker = getBloombergTicker(tsSource, underlyingBuid);
@@ -301,11 +328,15 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
   }
 
-  /*
+  /**
    * Get the Ticker from the BUID via the HistoricalTimeSeriesSource.<p>
    * This might seem like a strange way to do it. It is. The reason is that only the tsSource appeared to contain the ExternalIdBundle!
-   * TODO: Find a more appropriate way.
+   * @param tsSource The time series source
+   * @param underlyingBuid The underlying BUID
+   * @return The Bloomberg ticker
    */
+  // TODO: Find a more appropriate way.
+  // TODO: handle other data sources
   protected String getBloombergTicker(final HistoricalTimeSeriesSource tsSource, final ExternalId underlyingBuid) {
     if (tsSource == null || underlyingBuid == null) {
       throw new OpenGammaRuntimeException("Unable to find option underlyer's ticker from the ExternalIdBundle");
@@ -319,16 +350,20 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     return bbgTicker;
   }
 
-  protected ValueRequirement getSpotRequirement(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource) {
+  private ValueRequirement getSpotRequirement(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource) {
     final String bbgTicker = getBloombergTicker(tsSource, underlyingId);
 //    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);  // FIXME: Using WEAK Ticker gives stale data,
     final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.getName(), bbgTicker); //FIXME: NOT using WEAK Ticker means the spot may be out of line with VolSurface
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, newId);
     // return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of(underlyingId.getScheme().getName(), underlyingId.getValue()));
-    
+
   }
 
-  protected final String getValueRequirementName() {
+  /**
+   * Gets the value requirement name
+   * @return The value requirement name
+   */
+  protected String getValueRequirementName() {
     return _valueRequirementName;
   }
 

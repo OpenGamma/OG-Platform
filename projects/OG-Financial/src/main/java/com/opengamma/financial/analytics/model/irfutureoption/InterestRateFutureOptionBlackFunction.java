@@ -174,11 +174,16 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getVolatilityRequirement(surfaceName, currency));
-    final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()));
-    if (tsRequirements == null) {
+    try {
+      final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()));
+      if (tsRequirements == null) {
+        return null;
+      }
+      requirements.addAll(tsRequirements);
+    } catch (final OpenGammaRuntimeException e) {
+      s_logger.error(e.getMessage());
       return null;
     }
-    requirements.addAll(tsRequirements);
     return requirements;
   }
 

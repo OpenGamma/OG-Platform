@@ -27,10 +27,17 @@ import com.opengamma.util.tuple.Triple;
  *
  */
 public class EquityForwardCurveDefaults extends DefaultPropertyFunction {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCurveDefaults.class);
+  /** The priority of this set of defaults */
   private final PriorityClass _priority;
+  /** Map from currency to curve configuration, curve name and currency */
   private final Map<String, Triple<String, String, String>> _perEquityConfig;
 
+  /**
+   * @param priority The priority, not null
+   * @param perEquityConfig The default values per equity, not null
+   */
   public EquityForwardCurveDefaults(final String priority, final String... perEquityConfig) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(priority, "priority");
@@ -50,7 +57,7 @@ public class EquityForwardCurveDefaults extends DefaultPropertyFunction {
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    final String equityId = target.getUniqueId().getValue();
+    final String equityId = EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
     return _perEquityConfig.containsKey(equityId);
   }
 
@@ -64,7 +71,7 @@ public class EquityForwardCurveDefaults extends DefaultPropertyFunction {
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
-    final String equityId = target.getUniqueId().getValue();
+    final String equityId = EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
     if (!_perEquityConfig.containsKey(equityId)) {
       s_logger.error("Could not get config for equity " + equityId + "; should never happen");
       return null;

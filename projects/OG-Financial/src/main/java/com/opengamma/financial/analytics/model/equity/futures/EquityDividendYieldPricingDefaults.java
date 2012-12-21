@@ -34,9 +34,12 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class EquityDividendYieldPricingDefaults extends DefaultPropertyFunction {
+  /** The default values */
   private final Map<Currency, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
+  /** The priority */
   private final PriorityClass _priority;
 
+  /** The value requirements for which these defaults apply */
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.VALUE_DELTA,

@@ -17,20 +17,21 @@ import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePr
  * 
  */
 public abstract class EquityInstrumentDefaultValues {
-  private static final Map<String, String> TICKERS = new HashMap<String, String>(); 
+  private static final Map<String, String> INDEX_NAMES = new HashMap<String, String>(); 
   private static final Map<String, String> DISCOUNTING_CURVE_NAMES = new HashMap<String, String>();
   private static final Map<String, String> FORWARD_CURVE_NAMES = new HashMap<String, String>();
   private static final Map<String, String> DISCOUNTING_CURVE_CALCULATION_CONFIG_NAMES = new HashMap<String, String>();
   private static final Map<String, String> FORWARD_CURVE_CALCULATION_CONFIG_NAMES = new HashMap<String, String>();
   private static final Map<String, String> FORWARD_CURVE_CALCULATION_METHOD_NAMES = new HashMap<String, String>();
-  private static final Map<String, String> VOLATILITY_SURFACE_NAMES = new HashMap<String, String>(); 
+  private static final Map<String, String> VOLATILITY_SURFACE_NAMES = new HashMap<String, String>();
+  private static final Map<String, String> INTERPOLATOR_NAMES = new HashMap<String, String>();
   
   static {
-    TICKERS.put("DJX Index", "USD");
-    TICKERS.put("SPX Index", "USD");
-    TICKERS.put("NDX Index", "USD");
-    TICKERS.put("RUY Index", "USD");
-    TICKERS.put("NKY Index", "JPY");
+    INDEX_NAMES.put("DJX", "USD");
+    INDEX_NAMES.put("SPX", "USD");
+    INDEX_NAMES.put("NDX", "USD");
+    INDEX_NAMES.put("RUY", "USD");
+    INDEX_NAMES.put("NKY", "JPY");
     DISCOUNTING_CURVE_NAMES.put("USD", "Discounting");
     DISCOUNTING_CURVE_NAMES.put("JPY", "Discounting");
     FORWARD_CURVE_NAMES.put("USD", "Discounting");
@@ -41,11 +42,16 @@ public abstract class EquityInstrumentDefaultValues {
     FORWARD_CURVE_CALCULATION_CONFIG_NAMES.put("JPY", "DefaultTwoCurveJPYConfig");
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("USD", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
     FORWARD_CURVE_CALCULATION_METHOD_NAMES.put("JPY", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD);
-    VOLATILITY_SURFACE_NAMES.put("DJX Index", "BBG");
-    VOLATILITY_SURFACE_NAMES.put("SPX Index", "BBG");
-    VOLATILITY_SURFACE_NAMES.put("NDX Index", "BBG");
-    VOLATILITY_SURFACE_NAMES.put("RUY Index", "BBG");
-    VOLATILITY_SURFACE_NAMES.put("NKY Index", "BBG");
+    VOLATILITY_SURFACE_NAMES.put("DJX", "BBG");
+    VOLATILITY_SURFACE_NAMES.put("SPX", "BBG");
+    VOLATILITY_SURFACE_NAMES.put("NDX", "BBG");
+    VOLATILITY_SURFACE_NAMES.put("RUY", "BBG");
+    VOLATILITY_SURFACE_NAMES.put("NKY", "BBG");
+    INTERPOLATOR_NAMES.put("DJX", "Spline");
+    INTERPOLATOR_NAMES.put("SPX", "Spline");
+    INTERPOLATOR_NAMES.put("NDX", "Spline");
+    INTERPOLATOR_NAMES.put("RUY", "Spline");
+    INTERPOLATOR_NAMES.put("NKY", "Spline");
   }
 
   /**
@@ -53,7 +59,7 @@ public abstract class EquityInstrumentDefaultValues {
    */
   public interface Builder {
     
-    Builder useTickers();
+    Builder useIndexName();
     
     Builder useDiscountingCurveNames();
     
@@ -69,6 +75,8 @@ public abstract class EquityInstrumentDefaultValues {
     
     Builder useVolatilitySurfaceNames();
     
+    Builder useInterpolationMethodNames();
+    
     List<String> createDefaults();
   }
   
@@ -80,7 +88,7 @@ public abstract class EquityInstrumentDefaultValues {
   }
   
   private static final class MyBuilder implements Builder {
-    private final boolean _useTickers;
+    private final boolean _useIndexName;
     private final boolean _useDiscountingCurveNames;
     private final boolean _useDiscountingCurveCurrency;
     private final boolean _useDiscountingCurveCalculationConfigNames;
@@ -88,16 +96,18 @@ public abstract class EquityInstrumentDefaultValues {
     private final boolean _useForwardCurveCalculationMethodNames;
     private final boolean _useForwardCurveCalculationConfigNames;
     private final boolean _useVolatilitySurfaceNames;
+    private final boolean _useInterpolationMethodNames;
     private final List<Integer> _order;
     
     /* package */ MyBuilder() {
-      this(false, false, false, false, false, false, false, false, new ArrayList<Integer>());
+      this(false, false, false, false, false, false, false, false, false, new ArrayList<Integer>());
     }
     
-    /* package */ MyBuilder(final boolean useTickers, final boolean useDiscountingCurveNames, final boolean useDiscountingCurveCurrency,
+    /* package */ MyBuilder(final boolean useIndexName, final boolean useDiscountingCurveNames, final boolean useDiscountingCurveCurrency,
         final boolean useDiscountingCurveCalculationConfigNames, final boolean useForwardCurveNames, final boolean useForwardCurveCalculationNames, 
-        final boolean useForwardCurveCalculationConfigNames, final boolean useVolatilitySurfaceNames, final List<Integer> order) {
-      _useTickers = useTickers;
+        final boolean useForwardCurveCalculationConfigNames, final boolean useVolatilitySurfaceNames, final boolean useInterpolationMethodNames,
+        final List<Integer> order) {
+      _useIndexName = useIndexName;
       _useDiscountingCurveNames = useDiscountingCurveNames;
       _useDiscountingCurveCurrency = useDiscountingCurveCurrency;
       _useDiscountingCurveCalculationConfigNames = useDiscountingCurveCalculationConfigNames;
@@ -105,19 +115,20 @@ public abstract class EquityInstrumentDefaultValues {
       _useForwardCurveCalculationMethodNames = useForwardCurveCalculationNames;
       _useForwardCurveCalculationConfigNames = useForwardCurveCalculationConfigNames;
       _useVolatilitySurfaceNames = useVolatilitySurfaceNames;
+      _useInterpolationMethodNames = useInterpolationMethodNames;
       _order = order;
     }
     
     @Override
-    public Builder useTickers() {
-      if (_useTickers == true) {
+    public Builder useIndexName() {
+      if (_useIndexName == true) {
         return this;
       }
       List<Integer> order = new ArrayList<Integer>(_order);
       order.add(0);
       return new MyBuilder(true, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
           _useForwardCurveNames, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
-          _useVolatilitySurfaceNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
     }
     
     @Override
@@ -127,9 +138,9 @@ public abstract class EquityInstrumentDefaultValues {
       }
       List<Integer> order = new ArrayList<Integer>(_order);
       order.add(1);
-      return new MyBuilder(_useTickers, true, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
+      return new MyBuilder(_useIndexName, true, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
           _useForwardCurveNames, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
-          _useVolatilitySurfaceNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
     }
 
     @Override
@@ -139,9 +150,9 @@ public abstract class EquityInstrumentDefaultValues {
       }
       List<Integer> order = new ArrayList<Integer>(_order);
       order.add(2);
-      return new MyBuilder(_useTickers, _useDiscountingCurveNames, true, _useDiscountingCurveCalculationConfigNames, 
+      return new MyBuilder(_useIndexName, _useDiscountingCurveNames, true, _useDiscountingCurveCalculationConfigNames, 
           _useForwardCurveNames, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
-          _useVolatilitySurfaceNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
     }
 
     @Override
@@ -151,9 +162,9 @@ public abstract class EquityInstrumentDefaultValues {
       }
       List<Integer> order = new ArrayList<Integer>(_order);
       order.add(3);
-      return new MyBuilder(_useTickers, _useDiscountingCurveNames, _useDiscountingCurveCurrency, true, 
+      return new MyBuilder(_useIndexName, _useDiscountingCurveNames, _useDiscountingCurveCurrency, true, 
           _useForwardCurveNames, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
-          _useVolatilitySurfaceNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
     }
 
     @Override
@@ -163,9 +174,9 @@ public abstract class EquityInstrumentDefaultValues {
       }
       List<Integer> order = new ArrayList<Integer>(_order);
       order.add(4);
-      return new MyBuilder(_useTickers, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
+      return new MyBuilder(_useIndexName, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
           true, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
-          _useVolatilitySurfaceNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
     }
 
     @Override
@@ -175,9 +186,9 @@ public abstract class EquityInstrumentDefaultValues {
       }
       List<Integer> order = new ArrayList<Integer>(_order);
       order.add(5);
-      return new MyBuilder(_useTickers, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
+      return new MyBuilder(_useIndexName, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
           _useForwardCurveNames, true, _useForwardCurveCalculationConfigNames, 
-          _useVolatilitySurfaceNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
     }
 
     @Override
@@ -187,9 +198,9 @@ public abstract class EquityInstrumentDefaultValues {
       }
       List<Integer> order = new ArrayList<Integer>(_order);
       order.add(6);
-      return new MyBuilder(_useTickers, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
+      return new MyBuilder(_useIndexName, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
           _useForwardCurveNames, _useForwardCurveCalculationMethodNames, true, 
-          _useVolatilitySurfaceNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
     }
 
     @Override
@@ -199,24 +210,36 @@ public abstract class EquityInstrumentDefaultValues {
       }
       List<Integer> order = new ArrayList<Integer>(_order);
       order.add(7);
-      return new MyBuilder(_useTickers, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
+      return new MyBuilder(_useIndexName, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
           _useForwardCurveNames, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
-          true, order);
+          true, _useInterpolationMethodNames, order);
     }
     
+    @Override
+    public Builder useInterpolationMethodNames() {
+      if (_useInterpolationMethodNames == true) {
+        return this;
+      }
+      List<Integer> order = new ArrayList<Integer>(_order);
+      order.add(8);
+      return new MyBuilder(_useIndexName, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
+          _useForwardCurveNames, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
+          _useVolatilitySurfaceNames, true, order);
+    }
+
     @SuppressWarnings("synthetic-access")
     @Override
     public List<String> createDefaults() {
       List<String> result = new ArrayList<String>();
-      Iterator<Map.Entry<String, String>> iterator = TICKERS.entrySet().iterator();
-      for (int i = 0; i < TICKERS.size(); i++) {
+      Iterator<Map.Entry<String, String>> iterator = INDEX_NAMES.entrySet().iterator();
+      for (int i = 0; i < INDEX_NAMES.size(); i++) {
         Map.Entry<String, String> entry = iterator.next();
-        String ticker = entry.getKey();
+        String indexName = entry.getKey();
         String id = entry.getValue();
         for (Integer field : _order) {
           switch (field) {
             case 0: 
-              result.add(ticker);
+              result.add(indexName);
               break;
             case 1:
               result.add(DISCOUNTING_CURVE_NAMES.get(id));
@@ -237,7 +260,10 @@ public abstract class EquityInstrumentDefaultValues {
               result.add(FORWARD_CURVE_CALCULATION_CONFIG_NAMES.get(id));
               break;
             case 7:
-              result.add(VOLATILITY_SURFACE_NAMES.get(ticker));
+              result.add(VOLATILITY_SURFACE_NAMES.get(indexName));
+              break;
+            case 8:
+              result.add(INTERPOLATOR_NAMES.get(indexName));
               break;
             default:
               throw new IllegalStateException();

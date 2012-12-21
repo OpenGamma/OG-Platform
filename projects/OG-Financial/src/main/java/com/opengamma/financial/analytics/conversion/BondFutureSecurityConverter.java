@@ -21,12 +21,18 @@ import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * FIXME CASE - BondFutureDefinition needs a reference price. Without a trade, where will it come from?
+ * Converts bond future securities into the form that is used by the analytics library
  */
 public class BondFutureSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+  /** The security source */
   private final SecuritySource _securitySource;
+  /** Converter for the bonds in the deliverable basket */
   private final BondSecurityConverter _bondConverter;
 
+  /**
+   * @param securitySource The security source, not null
+   * @param bondConverter The bond converter, not null
+   */
   public BondFutureSecurityConverter(final SecuritySource securitySource, final BondSecurityConverter bondConverter) {
     ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(bondConverter, "bond converter");
@@ -34,6 +40,7 @@ public class BondFutureSecurityConverter extends FinancialSecurityVisitorAdapter
     _bondConverter = bondConverter;
   }
 
+  //FIXME CASE - BondFutureDefinition needs a reference price. Without a trade, where will it come from?
   @Override
   public BondFutureDefinition visitBondFutureSecurity(final BondFutureSecurity bondFuture) {
     ArgumentChecker.notNull(bondFuture, "security");

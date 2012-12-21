@@ -32,6 +32,10 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
   /** The calculation method name */
   public static final String CALCULATION_METHOD_NAME = "MarkToMarket";
 
+  /**
+   * @param valueRequirementName The value requirement name
+   * @param calculator The calculator for the value
+   */
   public MarkToMarketFuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator)  {
     super(valueRequirementName, calculator);
   }
@@ -47,7 +51,11 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
     }
     requirements.add(refPriceReq);
     requirements.add(getMarketPriceRequirement(security));
-    requirements.add(getSpotAssetRequirement(security));
+    final ValueRequirement spotAssetRequirement = getSpotAssetRequirement(security);
+    if (spotAssetRequirement == null) {
+      return null;
+    }
+    requirements.add(spotAssetRequirement);
     return requirements;
   }
 
@@ -64,7 +72,7 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
   protected SimpleFutureDataBundle getFutureDataBundle(final FutureSecurity security, final FunctionInputs inputs,
     final HistoricalTimeSeriesBundle timeSeriesBundle, final ValueRequirement desiredValue) {
     final Double marketPrice = getMarketPrice(security, inputs);
-    final Double spotUnderlyer = getSpot(security, inputs);
+    final Double spotUnderlyer = getSpot(inputs);
     return new SimpleFutureDataBundle(null, marketPrice, spotUnderlyer, null, null);
   }
 
