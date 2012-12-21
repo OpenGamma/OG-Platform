@@ -6,18 +6,20 @@ $.register_module({
     name: 'og.analytics.form2',
     dependencies: [],
     obj: function () {
-        var module = this, constructor, viewdef_menu, aggregation_menu, datasources_menu, query,
+        var module = this, constructor, menus = [], viewdef_menu, aggregation_menu, datasources_menu, query,
+            url_config,
             events = {
-                focus: 'dropmenu:focus',
-                focused:'dropmenu:focused',
-                open: 'dropmenu:open',
-                opened: 'dropmenu:opened',
-                close: 'dropmenu:close',
-                closed: 'dropmenu:closed',
-                closeall: 'dropmenu:closeall',
-                selected: 'dropmenu:selected',
-                cancelled: 'dropmenu:cancelled',
-                reset:'dropmenu:reset'
+                focus: 'focus',
+                focused:'focused',
+                open: 'open',
+                opened: 'opened',
+                close: 'close',
+                closed: 'closed',
+                closeall: 'closeall',
+                selected: 'selected',
+                cancelled: 'cancelled',
+                replay: 'replay',
+                reset:'reset'
             },
             tashes = {
                 form_container:  'og.analytics.form_tash'
@@ -38,16 +40,17 @@ $.register_module({
                 (aggregation_menu = new og.analytics.AggregatorsMenu({form:form})).block
             );
             form.dom();
+            menus.push(aggregation_menu);
         };
 
-        var replay = function () {
-            console.log(arguments);
+        var replay = function (config) {
+            if (!config) return;
+            menus.forEach(function (menu) { if (menu) { menu.fire(events.replay, config); } });
         };
 
         var reset = function () {
-            console.log(arguments);
             if (query) query = null;
-            form.children.forEach(function (menu) { if (menu) menu.fire(events.reset, arguments); });
+            menus.forEach(function (menu) { if (menu) menu.fire(events.reset); });
         };
 
         constructor = function () {

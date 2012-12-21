@@ -27,8 +27,8 @@ $.register_module({
                     ]
                 }),
                 events = {
-                    reset:'dropmenu:reset',
-                    replay:'dropmenu:replay'
+                    reset:'reset',
+                    replay:'replay'
                 },
                 $dom, query = [], sel_val, sel_pos, $parent, $query, form = config.form,
                 $select, $checkbox, default_sel_txt = 'select aggregation...', default_query_text = 'Default',
@@ -88,9 +88,7 @@ $.register_module({
                     if ($dom.menu) {
                         menu.block
                             .on('mousedown', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
-                            .on('change', 'select', menu_handler)
-                            .on(events.reset, '', reset)
-                            .on(events.replay, '', replay);
+                            .on('change', 'select', menu_handler);
                         if (conf.opts) menu.replay_query(conf.opts);
                     }
                 }
@@ -147,8 +145,8 @@ $.register_module({
                 display_query();
             };
 
-            var replay = function () {
-                console.log(arguments);
+            var replay = function (config) {
+                // console.log(config);
                 /*if (!conf && !conf.aggregators || !$.isArray(conf.aggregators)) return;
                 return menu.opts.forEach(function (option) {
                     option.remove();
@@ -166,7 +164,7 @@ $.register_module({
             };
 
             var reset = function () {
-                console.log(arguments);
+                // console.log(arguments);
                 /*for (var i = menu.opts.length-1; i >=0; i-=1) {
                     if (menu.opts.length === 1) {
                         menu.opts[i].val(default_sel_txt);
@@ -183,9 +181,8 @@ $.register_module({
                 return remove_orphans(), query.pluck('val');
             };
 
-            return config.form.on('form:load', function () {
-                init(config);
-            }), menu;
+            return menu.on(events.reset, reset).on(events.replay, replay),
+                config.form.on('form:load', function () { init(config); }), menu;
         };
     }
 });
