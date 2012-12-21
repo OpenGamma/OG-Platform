@@ -64,11 +64,11 @@ import com.opengamma.util.ArgumentChecker;
     tradeBuilder.set(meta.attributes(), tradeData.getMapValues(meta.attributes().name()));
     tradeBuilder.set(meta.quantity(), BigDecimal.ONE);
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(securityId));
-    // TODO set counterparty on trade, scheme Cpty
     String counterparty = tradeData.getValue(COUNTERPARTY);
     if (!StringUtils.isEmpty(counterparty)) {
-      tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
+      throw new IllegalArgumentException("Trade counterparty is required");
     }
+    tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
     ManageableTrade trade = tradeBuilder.build();
     // TODO need the node ID so we can add the position to it
     ManageablePosition position = new ManageablePosition();
@@ -81,6 +81,12 @@ import com.opengamma.util.ArgumentChecker;
     return savedTrade.getUniqueId();
   }
 
+  /**
+   * Creates a builder for a {@link ManageableTrade} and sets the simple properties from the data source.
+   * @param tradeData The trade data
+   * @param properties The trade properties to set
+   * @return A builder with property values set from the trade data
+   */
   private BeanBuilder<? extends ManageableTrade> tradeBuilder(BeanDataSource tradeData, MetaProperty<?>... properties) {
     BeanBuilder<? extends ManageableTrade> builder = ManageableTrade.meta().builder();
     for (MetaProperty<?> property : properties) {
@@ -107,6 +113,7 @@ import com.opengamma.util.ArgumentChecker;
   private UniqueId buildSecurity(BeanDataSource securityData, BeanDataSource underlyingData) {
     ExternalId underlyingId = buildUnderlying(underlyingData);
     BeanDataSource dataSource;
+    // TODO would it be better to just return the bean builder from the visitor and handle this property manually?
     if (underlyingId != null) {
       dataSource = new PropertyReplacingDataSource(securityData, "underlyingId", underlyingId.toString());
     } else {

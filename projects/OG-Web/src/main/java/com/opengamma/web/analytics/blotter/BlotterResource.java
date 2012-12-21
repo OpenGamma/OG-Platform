@@ -339,17 +339,17 @@ public class BlotterResource {
   private static Map<String, Object> manageableTradeStructure() {
     Map<String, Object> structure = Maps.newHashMap();
     List<Map<String, Object>> properties = Lists.newArrayList();
-    properties.add(property("uniqueId", true, typeInfo("string", "UniqueId")));
-    // TODO don't need quantity for OTC, always 1
+    properties.add(property("uniqueId", true, true, typeInfo("string", "UniqueId")));
+    // don't need quantity for OTCs, always 1
     //properties.add(property("quantity", true, false, typeInfo("number", "")));
-    properties.add(property("counterparty", false, typeInfo("string", "")));
-    properties.add(property("tradeDate", false, typeInfo("string", "LocalDate")));
-    properties.add(property("tradeTime", false, typeInfo("string", "OffsetTime")));
+    properties.add(property("counterparty", false, false, typeInfo("string", "")));
+    properties.add(property("tradeDate", true, false, typeInfo("string", "LocalDate")));
+    properties.add(property("tradeTime", true, false, typeInfo("string", "OffsetTime")));
     // TODO which premium fields are relevant for OTCs?
-    properties.add(property("premium", false, typeInfo("number", "")));
-    properties.add(property("premiumCurrency", false, typeInfo("string", "Currency")));
-    properties.add(property("premiumDate", false, typeInfo("string", "LocalDate")));
-    properties.add(property("premiumTime", false, typeInfo("string", "OffsetTime")));
+    properties.add(property("premium", true, false, typeInfo("number", "")));
+    properties.add(property("premiumCurrency", true, false, typeInfo("string", "Currency")));
+    properties.add(property("premiumDate", true, false, typeInfo("string", "LocalDate")));
+    properties.add(property("premiumTime", true, false, typeInfo("string", "OffsetTime")));
     properties.add(attributesProperty());
     structure.put("type", "ManageableTrade");
     structure.put("properties", properties);
@@ -358,11 +358,12 @@ public class BlotterResource {
   }
 
   private static Map<String, Object> property(String name,
+                                              boolean optional,
                                               boolean readOnly,
                                               Map<String, Object> typeInfo) {
     return ImmutableMap.<String, Object>of("name", name,
                                            "type", "single",
-                                           "optional", true,
+                                           "optional", optional,
                                            "readOnly", readOnly,
                                            "types", ImmutableList.of(typeInfo));
   }
