@@ -103,7 +103,7 @@ further customization can be customized by simply overriding that task (for an e
 `OG-Analytics/build.xml`.
 
 `common.xml` also includes `common/build.properties` and `tests.properties` files.  All the database settings are in
-the .properties files under config/ in the appropriate project (e.g. OG-Examples or OG-BloombergExample)
+the `.properties` files under `config/` in the appropriate project (e.g. `OG-Examples` or `OG-BloombergExample`)
 
 
 More information
