@@ -24,6 +24,10 @@ $.register_module({
             set_select : function (name, value){
                 $('select[name='+ name +']').val(value);
             },
+            check_checkbox : function (name, value)
+            {
+                $('input:checkbox[name= '+ name +']').attr('checked', value);
+            },
             
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
             FAKE_DROPDOWN : [
