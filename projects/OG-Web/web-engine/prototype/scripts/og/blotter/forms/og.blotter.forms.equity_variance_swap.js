@@ -13,7 +13,7 @@ $.register_module({
             constructor.load = function () {
                 constructor.title = 'Equity Varience Swap';
                 var form = new og.common.util.ui.Form({
-                    module: 'og.blotter.forms.equity_variance_swap_tash',
+                    module: 'og.blotter.forms.simple_tash',
                     selector: '.OG-blotter-form-block'
                 });
                 form.children.push(

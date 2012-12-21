@@ -12,7 +12,7 @@ $.register_module({
             constructor.load = function () {
                 constructor.title = 'Cap/Floor';
                 var form = new og.common.util.ui.Form({
-                    module: 'og.blotter.forms.cap_floor_tash',
+                    module: 'og.blotter.forms.simple_tash',
                     selector: '.OG-blotter-form-block'
                 });
                 form.children.push(

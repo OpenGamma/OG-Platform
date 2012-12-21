@@ -12,7 +12,7 @@ $.register_module({
             constructor.load = function () {
                 constructor.title = 'Forward Rate Agreement';
                 var form = new og.common.util.ui.Form({
-                    module: 'og.blotter.forms.forward_rate_agreement_tash',
+                    module: 'og.blotter.forms.simple_tash',
                     selector: '.OG-blotter-form-block'
                 });
                 form.children.push(
