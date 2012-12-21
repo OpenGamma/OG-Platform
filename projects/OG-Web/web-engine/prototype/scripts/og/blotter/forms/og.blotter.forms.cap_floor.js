@@ -27,7 +27,7 @@ $.register_module({
                             new form.Block({module:'og.views.forms.currency_tash'}),
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.frequencies', index: 'frequency',
-                                value: data.currency, placeholder: 'Select Frequency'
+                                value: data.frequency, placeholder: 'Select Frequency'
                             }),
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.daycountconventions', index: 'dayCount',
