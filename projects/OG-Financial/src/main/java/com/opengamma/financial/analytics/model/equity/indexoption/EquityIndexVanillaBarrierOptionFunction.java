@@ -32,7 +32,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.OptionType;
@@ -45,6 +44,8 @@ import com.opengamma.util.money.Currency;
  * and then calls down to the EquityIndexOptionFunction as its requirements
  */
 public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityIndexOptionFunction {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexVanillaBarrierOptionFunction.class);
 
   /**
    * @param requirementName The desired output
@@ -57,16 +58,26 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
    * This method is defined by extending Functions
    * @param vanillaOptions Set of EquityIndexOptions that European Barrier is composed of. Binaries are modelled as spreads
    * @param market EquityOptionDataBundle
-   * @return  ComputedValue typically
+   * @param inputs The market data inputs
+   * @param desiredValues The desired values
+   * @param resultSpec The result specification
+   * @return the result
    */
-  protected abstract Object computeValues(Set<EquityIndexOption> vanillaOptions, StaticReplicationDataBundle market);
+  protected abstract Set<ComputedValue> computeValues(Set<EquityIndexOption> vanillaOptions, StaticReplicationDataBundle market, final FunctionInputs inputs,
+      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec);
+
+  @Override
+  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
+    throw new OpenGammaRuntimeException("Execution wasn't intended to go here. Please review.");
+  }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
     throws AsynchronousExecution {
 
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
-    final EquityBarrierOptionSecurity barrierSec = getEquityBarrierOptionSecurity(target);
+    final EquityBarrierOptionSecurity barrierSec = (EquityBarrierOptionSecurity) target.getSecurity();
     final ExternalId underlyingId = barrierSec.getUnderlyingId();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
 
@@ -91,24 +102,10 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
     // 3. Build up the market data bundle
     final StaticReplicationDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
 
-    // 4. Compute Values
-    final Object results = computeValues(vanillas, market);
-
-    // 5. Properties of what's required of this function
-    // final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, desiredValue, executionContext).get());
-    // 6. Return result
-    return Collections.singleton(new ComputedValue(spec, results));
-
-  }
-
-  @Override
-  protected EquityIndexOptionSecurity getEquityIndexOptionSecurity(final ComputationTarget target) {
-    throw new OpenGammaRuntimeException("Execution wasn't intended to go here. Please review.");
-  }
-
-  protected EquityBarrierOptionSecurity getEquityBarrierOptionSecurity(final ComputationTarget target) {
-    return (EquityBarrierOptionSecurity) target.getSecurity();
+    // 4. Properties of what's required of this function
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, desiredValue).get());
+    // 5. Compute Values and return
+    return computeValues(vanillas, market, inputs, desiredValues, spec);
   }
 
   @Override
@@ -163,14 +160,15 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
   }
 
   @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue, final FunctionExecutionContext executionContext) {
-    final Builder builder = super.createValueProperties(target, desiredValue, executionContext)
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Builder builder = super.createValueProperties(target, desiredValue)
         .with(ValuePropertyNames.BINARY_OVERHEDGE, desiredValue.getConstraint(ValuePropertyNames.BINARY_OVERHEDGE))
         .with(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH, desiredValue.getConstraint(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH));
     return builder;
   }
 
-  protected Set<EquityIndexOption> vanillaDecomposition(final ZonedDateTime valuation, final EquityBarrierOptionSecurity barrierOption,
+  //TODO does all of this work need to be done in financial?
+  private Set<EquityIndexOption> vanillaDecomposition(final ZonedDateTime valuation, final EquityBarrierOptionSecurity barrierOption,
       final double smoothingFullWidth, final double overhedge) {
 
     final Set<EquityIndexOption> vanillas = new HashSet<EquityIndexOption>();
@@ -253,13 +251,6 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
         throw new OpenGammaRuntimeException("Encountered an EquityBarrierOption with unexpected BarrierDirection of: " + bUpDown);
     }
     return vanillas;
-  }
-
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexVanillaBarrierOptionFunction.class);
-
-  @Override
-  protected Object computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market) {
-    throw new OpenGammaRuntimeException("Execution wasn't intended to go here. Please review.");
   }
 
 }

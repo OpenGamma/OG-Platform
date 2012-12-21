@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -30,7 +31,9 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class EquityVarianceSwapStaticReplicationDefaults extends DefaultPropertyFunction {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCalculationDefaults.class);
+  /** The value requirements for which these defaults are valid */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
@@ -68,7 +71,7 @@ public class EquityVarianceSwapStaticReplicationDefaults extends DefaultProperty
       return false;
     }
     final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) security;
-    final String underlyingEquity = varianceSwap.getSpotUnderlyingId().getValue();
+    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityName(varianceSwap);
     return _surfacesPerEquity.containsKey(underlyingEquity);
   }
 
@@ -85,7 +88,7 @@ public class EquityVarianceSwapStaticReplicationDefaults extends DefaultProperty
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
     final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) target.getSecurity();
-    final String underlyingEquity = varianceSwap.getSpotUnderlyingId().getValue();
+    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityName(varianceSwap);
     if (!_surfacesPerEquity.containsKey(underlyingEquity)) {
       s_logger.error("Could not get config for underlying equity " + underlyingEquity + "; should never happen");
       return null;

@@ -10,7 +10,7 @@ import java.util.Set;
 
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -18,24 +18,24 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Produces the current value of the underlying index, according to the market data
+ * Calculates the present value of an equity index option using the Black formula.
  */
-public class EquityIndexOptionSpotIndexFunction extends EquityIndexOptionFunction {
+public class EquityIndexOptionBlackPresentValueFunction extends EquityIndexOptionFunction {
+  /** The Black present value calculator */
+  private static final EquityIndexOptionPresentValueCalculator s_calculator = EquityIndexOptionPresentValueCalculator.getInstance();
 
   /**
    * Default constructor
    */
-  public EquityIndexOptionSpotIndexFunction() {
-    super(ValueRequirementNames.SPOT);
+  public EquityIndexOptionBlackPresentValueFunction() {
+    super(ValueRequirementNames.PRESENT_VALUE);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
-    final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    return Collections.singleton(new ComputedValue(resultSpec, model.spotIndexValue(market)));
+    final double pv = s_calculator.visitEquityIndexOption(derivative, market);
+    return Collections.singleton(new ComputedValue(resultSpec, pv));
   }
 
-  //TODO this function return values unnecessary properties - the surface name, currency, interpolator and calculation method, which are used
-  // to construct the market data bundle.
 }

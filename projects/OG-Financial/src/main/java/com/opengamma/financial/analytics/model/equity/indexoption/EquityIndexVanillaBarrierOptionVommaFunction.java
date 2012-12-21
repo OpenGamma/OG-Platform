@@ -5,38 +5,40 @@
  */
 package com.opengamma.financial.analytics.model.equity.indexoption;
 
+import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
- *
+ * Calculates the vomma (the second order sensitivity of the price w.r.t. implied volatility) for vanilla barrier options
+ * using the Black formula.
  */
 public class EquityIndexVanillaBarrierOptionVommaFunction extends EquityIndexVanillaBarrierOptionFunction {
 
+  /**
+   * Default constructor
+   */
   public EquityIndexVanillaBarrierOptionVommaFunction() {
     super(ValueRequirementNames.VALUE_VOMMA);
   }
 
   @Override
-  protected Object computeValues(Set<EquityIndexOption> vanillaOptions, StaticReplicationDataBundle market) {
-    EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
+  protected Set<ComputedValue> computeValues(final Set<EquityIndexOption> vanillaOptions, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
+    final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
     double sum = 0.0;
-    for (EquityIndexOption derivative : vanillaOptions) {
+    for (final EquityIndexOption derivative : vanillaOptions) {
       sum += model.vomma(derivative, market);
     }
-    return sum;
-  }
-
-  @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
-    return super.createValueProperties(target).with(ValuePropertyNames.CURRENCY, getEquityBarrierOptionSecurity(target).getCurrency().getCode());
+    return Collections.singleton(new ComputedValue(resultSpec, sum));
   }
 
 }

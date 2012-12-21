@@ -27,10 +27,16 @@ import com.opengamma.util.ArgumentChecker;
  * and smoothing (width of ramp created by pricing binary as call or put spread)
  */
 public class EquityIndexVanillaBarrierOptionDefaults extends DefaultPropertyFunction {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexVanillaBarrierOptionDefaults.class);
+  /** Default value for the call spread width */
   private final String _callSpreadFullWidth;
+  /** Default value for the overhedge */
   private final String _barrierOverhedge;
 
+  /**
+   * Value requirement names for which these properties apply
+   */
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.FORWARD,
@@ -48,10 +54,14 @@ public class EquityIndexVanillaBarrierOptionDefaults extends DefaultPropertyFunc
     ValueRequirementNames.VALUE_RHO
   };
 
+  /**
+   * @param barrierOverhedge The overhedge value, not null
+   * @param callSpreadFullWidth The call spread width, not null
+   */
   public EquityIndexVanillaBarrierOptionDefaults(final String barrierOverhedge, final String callSpreadFullWidth) {
     super(ComputationTargetType.SECURITY, true);
-    ArgumentChecker.notNull(barrierOverhedge, "No barrierOverhedge name was provided to use as default value.");
-    ArgumentChecker.notNull(callSpreadFullWidth, "No callSpreadFullWidth name was provided to use as default value.");
+    ArgumentChecker.notNull(barrierOverhedge, "barrier overhedge");
+    ArgumentChecker.notNull(callSpreadFullWidth, "call spread width");
     _barrierOverhedge = barrierOverhedge;
     _callSpreadFullWidth = callSpreadFullWidth;
   }

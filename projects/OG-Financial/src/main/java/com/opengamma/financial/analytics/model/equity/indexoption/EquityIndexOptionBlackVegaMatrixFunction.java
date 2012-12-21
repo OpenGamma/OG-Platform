@@ -19,38 +19,44 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionExecutionContext;
+import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.VegaMatrixHelper;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 
 /**
- * TODO: REVIEW- These options, if priced under Black, fail as the vol surface is functional => No X-Y nodes. It seems desirable to be able to establish where the risk is, so that we can sum it up.
- * We can rework so that the requirement is VALUE_VEGA and the Initial Vol Matrix, which still has X-Y nodes, and each option shows risk only in itself.
- * UPDATE: What has been done is to bundle the Interpolator and the Initial Vol Matrix into the BlackVolSurface as extended class BlackVolatilitySurfaceMoneynessFcnBackedByGrid...
+ * Calculates the bucketed vega of an equity index option using the Black formula.
  */
-public class EquityIndexOptionVegaMatrixFunction  extends EquityIndexOptionFunction {
+public class EquityIndexOptionBlackVegaMatrixFunction  extends EquityIndexOptionFunction {
+  /** The Black present value calculator */
   private static final EquityIndexOptionPresentValueCalculator PVC = EquityIndexOptionPresentValueCalculator.getInstance();
+  /** Calculates derivative sensitivities */
   private static final DerivativeSensitivityCalculator CALCULATOR = new DerivativeSensitivityCalculator(PVC);
+  /** The format for the output */
+  private static final DecimalFormat FORMATTER = new DecimalFormat("#.##");
+  /** The shift to use in bumping */
   private static final double SHIFT = 0.0001; // FIXME This really should be configurable by the user!
 
-  public EquityIndexOptionVegaMatrixFunction() {
+  /**
+   * Default constructor
+   */
+  public EquityIndexOptionBlackVegaMatrixFunction() {
     super(ValueRequirementNames.VEGA_QUOTE_MATRIX);
   }
 
   @Override
-  protected Object computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market) {
+  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
     final NodalDoublesSurface vegaSurface = CALCULATOR.calcBlackVegaForEntireSurface(derivative, market, SHIFT);
     final Double[] xValues;
     final Double[] yValues;
@@ -94,36 +100,39 @@ public class EquityIndexOptionVegaMatrixFunction  extends EquityIndexOptionFunct
       i++;
     }
     final DoubleLabelledMatrix2D matrix = new DoubleLabelledMatrix2D(uniqueX, expLabels, uniqueY, uniqueY, values);
-    return matrix;
+    return Collections.singleton(new ComputedValue(resultSpec, matrix));
   }
 
   private double roundTwoDecimals(final double d) {
-    final DecimalFormat twoDForm = new DecimalFormat("#.##");
-    return Double.valueOf(twoDForm.format(d));
+    return Double.valueOf(FORMATTER.format(d));
   }
 
   @Override
   /* The VegaMatrixFunction advertises the particular underlying Bloomberg ticker that it applies to. The target must share this underlying. */
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-
     final String bbgTicker = getBloombergTicker(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), ((EquityIndexOptionSecurity) target.getSecurity()).getUnderlyingId());
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, bbgTicker).get()));
   }
 
-
   /* We specify one additional property, the UnderlyingTicker, to allow a View to contain a VegaQuoteMatrix for each VolMatrix */
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final String bbgTicker) {
+  @Override
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     return super.createValueProperties(target)
-      .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker);
+      .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
+      .with(ValuePropertyNames.UNDERLYING_TICKER); //TODO do we need this given that the target is the security?
   }
 
   @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue, final FunctionExecutionContext executionContext) {
-    final HistoricalTimeSeriesSource tsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final String bbgTicker = getBloombergTicker(tsSource, getEquityIndexOptionSecurity(target).getUnderlyingId());
-    final Builder propsBuilder =  super.createValueProperties(target, desiredValue, executionContext)
-      .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker);
-    return propsBuilder;
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+    throw new UnsupportedOperationException();
   }
+
+  /* We specify one additional property, the UnderlyingTicker, to allow a View to contain a VegaQuoteMatrix for each VolMatrix */
+  private ValueProperties.Builder createValueProperties(final ComputationTarget target, final String bbgTicker) {
+    return super.createValueProperties(target)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
+        .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker);
+  }
+
 }
 

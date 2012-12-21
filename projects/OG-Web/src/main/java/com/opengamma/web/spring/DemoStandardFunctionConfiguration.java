@@ -118,19 +118,19 @@ import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYiel
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldSpotFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldValueDeltaFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldValueRhoFuturesFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionDefaults;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackDefaults;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackFundingCurveSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackImpliedVolFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackPresentValueFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackRhoFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackSpotDeltaFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackSpotGammaFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackSpotVannaFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackVegaFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackVegaMatrixFunction;
+import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionBlackVommaFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionForwardValueFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionFundingCurveSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionImpliedVolFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionPresentValueFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionRhoFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionSpotDeltaFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionSpotGammaFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionSpotIndexFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionSpotVannaFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionVegaFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionVegaMatrixFunction;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexOptionVommaFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionDefaults;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionForwardValueFunction;
 import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction;
@@ -613,13 +613,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(PortfolioExchangeTradedPnLFunction.class));
     functionConfigs.add(functionConfiguration(PortfolioExchangeTradedDailyPnLFunction.Impl.class));
     functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, ValueRequirementNames.DAILY_PNL, MissingInputsFunction.AGGREGATION_STYLE_FULL));
+    functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
 
     addPnLCalculators(functionConfigs);
     addVaRCalculators(functionConfigs);
     addPortfolioAnalysisCalculators(functionConfigs);
     addFixedIncomeInstrumentCalculators(functionConfigs);
-
-    functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
+    addEquityDividendYieldFuturesFunctions(functionConfigs);
+    addEquityForwardFunctions(functionConfigs);
     addBondCalculators(functionConfigs);
     addBondFutureCalculators(functionConfigs);
     addSABRCalculators(functionConfigs);
@@ -631,7 +632,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addInterestRateFutureOptionCalculators(functionConfigs);
     addBondFutureOptionBlackCalculators(functionConfigs);
     addCommodityFutureOptionCalculators(functionConfigs);
-    addEquityDerivativesCalculators(functionConfigs);
+    addEquityIndexOptionCalculators(functionConfigs);
+    addEquityIndexOptionBlackCalculators(functionConfigs);
     addEquityVarianceSwapCalculators(functionConfigs);
     addBlackCalculators(functionConfigs);
     addLocalVolatilityPDEFunctions(functionConfigs);
@@ -890,7 +892,73 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         PriorityClass.NORMAL.name()));
   }
 
-  private static void addEquityDerivativesCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addEquityIndexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(EquityIndexOptionForwardValueFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionSpotIndexFunction.class));    
+  }
+  
+  private static void addEquityIndexOptionBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(EquityIndexOptionBlackPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionBlackImpliedVolFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionBlackSpotDeltaFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionBlackFundingCurveSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionBlackVegaMatrixFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionBlackVegaFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionBlackSpotGammaFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionBlackSpotVannaFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionBlackVommaFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexOptionBlackRhoFunction.class));
+    final List<String> equityIndexOptionDefaults = EquityInstrumentDefaultValues.builder()
+        .useIndexName()
+        .useForwardCurveCalculationConfigNames()
+        .useForwardCurveNames()
+        .useVolatilitySurfaceNames()
+        .useInterpolationMethodNames()
+        .createDefaults();
+    final List<String> equityIndexOptionDefaultsWithPriority = new ArrayList<String>();
+    equityIndexOptionDefaultsWithPriority.add(PriorityClass.NORMAL.name());
+    equityIndexOptionDefaultsWithPriority.addAll(equityIndexOptionDefaults);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityIndexOptionBlackDefaults.class.getName(), equityIndexOptionDefaultsWithPriority));
+    
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotIndexFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionForwardValueFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionRhoFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotDeltaFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotGammaFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotVannaFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionVegaFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionVegaMatrixFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionVommaFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionDefaults.class, "0.0", "0.001"));
+  }
+
+  private static void addEquityForwardFunctions(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class));
+    final List<String> equityForwardDefaults = EquityInstrumentDefaultValues.builder()
+        .useIndexName()
+        .useDiscountingCurveNames()
+        .useDiscountingCurveCalculationConfigNames()
+        .createDefaults();
+    final List<String> equityForwardDefaultsWithPriority = new ArrayList<String>();
+    equityForwardDefaultsWithPriority.add(PriorityClass.NORMAL.name());
+    equityForwardDefaultsWithPriority.addAll(equityForwardDefaults);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCalculationDefaults.class.getName(), equityForwardDefaultsWithPriority));
+    final List<String> equityForwardCurveDefaults = EquityInstrumentDefaultValues.builder()
+        .useIndexName()
+        .useDiscountingCurveNames()
+        .useDiscountingCurveCalculationConfigNames()
+        .useDiscountingCurveCurrency()
+        .createDefaults();
+    final List<String> equityForwardCurveDefaultsWithPriority = new ArrayList<String>();
+    equityForwardCurveDefaultsWithPriority.add(PriorityClass.NORMAL.name());
+    equityForwardCurveDefaultsWithPriority.addAll(equityForwardCurveDefaults);
+    functionConfigs.add(functionConfiguration(EquityForwardCurveFunction.class));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurveDefaults.class.getName(), equityForwardCurveDefaultsWithPriority));
+  }
+
+  private static void addEquityDividendYieldFuturesFunctions(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new StaticFunctionConfiguration(EquityDividendYieldForwardFuturesFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(EquityDividendYieldPresentValueFuturesFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(EquityDividendYieldPV01FuturesFunction.class.getName()));
@@ -906,74 +974,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     final List<String> equityFutureDefaultsWithPriority = new ArrayList<String>();
     equityFutureDefaultsWithPriority.add(PriorityClass.NORMAL.name());
     equityFutureDefaultsWithPriority.addAll(equityFutureDefaults);
-    
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityDividendYieldPricingDefaults.class.getName(), equityFutureDefaultsWithPriority));
-    functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class));
-    final List<String> equityForwardDefaults = EquityInstrumentDefaultValues.builder()
-        .useTickers()
-        .useDiscountingCurveNames()
-        .useDiscountingCurveCalculationConfigNames()
-        .createDefaults();
-    final List<String> equityForwardDefaultsWithPriority = new ArrayList<String>();
-    equityForwardDefaultsWithPriority.add(PriorityClass.NORMAL.name());
-    equityForwardDefaultsWithPriority.addAll(equityForwardDefaults);
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCalculationDefaults.class.getName(), equityForwardDefaultsWithPriority));
-        
-    final List<String> equityForwardCurveDefaults = EquityInstrumentDefaultValues.builder()
-        .useTickers()
-        .useDiscountingCurveNames()
-        .useDiscountingCurveCalculationConfigNames()
-        .useDiscountingCurveCurrency()
-        .createDefaults();
-    final List<String> equityForwardCurveDefaultsWithPriority = new ArrayList<String>();
-    equityForwardCurveDefaultsWithPriority.add(PriorityClass.NORMAL.name());
-    equityForwardCurveDefaultsWithPriority.addAll(equityForwardCurveDefaults);
-    functionConfigs.add(functionConfiguration(EquityForwardCurveFunction.class));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurveDefaults.class.getName(), equityForwardCurveDefaultsWithPriority));
-
-    functionConfigs.add(functionConfiguration(EquityIndexOptionPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionImpliedVolFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionForwardValueFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionSpotIndexFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionSpotDeltaFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionFundingCurveSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionVegaMatrixFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionVegaFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionSpotGammaFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionSpotVannaFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionVommaFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionRhoFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexOptionDefaults.class, PriorityClass.NORMAL.name(), "BBG", "Spline",
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting",
-        "EUR", "DefaultTwoCurveEURConfig", "Discounting",
-        "CAD", "DefaultTwoCurveCADConfig", "Discounting",
-        "AUD", "DefaultTwoCurveAUDConfig", "Discounting",
-        "CHF", "DefaultTwoCurveCHFConfig", "Discounting",
-        "MXN", "DefaultCashCurveMXNConfig", "Cash",
-        "JPY", "DefaultTwoCurveJPYConfig", "Discounting",
-        "GBP", "DefaultTwoCurveGBPConfig", "Discounting",
-        "NZD", "DefaultTwoCurveNZDConfig", "Discounting",
-        "HUF", "DefaultCashCurveHUFConfig", "Cash",
-        "KRW", "DefaultCashCurveKRWConfig", "Cash",
-        "BRL", "DefaultCashCurveBRLConfig", "Cash",
-        "HKD", "DefaultCashCurveHKDConfig", "Cash"));
-    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotIndexFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionForwardValueFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionRhoFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotDeltaFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotGammaFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionSpotVannaFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionVegaFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionVegaMatrixFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionVommaFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(EquityIndexVanillaBarrierOptionDefaults.class, "0.0", "0.001"));
   }
 
   private static void addEquityVarianceSwapCalculators(final List<FunctionConfiguration> functionConfigs) {
     final List<String> equityVarianceSwapStaticReplicationDefaults = EquityInstrumentDefaultValues.builder()
-        .useTickers()
+        .useIndexName()
         .useDiscountingCurveNames()
         .useDiscountingCurveCalculationConfigNames()
         .useVolatilitySurfaceNames()
@@ -987,7 +993,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityVarianceSwapStaticReplicationDefaults.class.getName(), equityVarianceSwapStaticReplicationDefaultsWithPriority));
 
     final List<String> equityVarianceSwapDefaults = EquityInstrumentDefaultValues.builder()
-        .useTickers()
+        .useIndexName()
         .useDiscountingCurveNames()
         .useForwardCurveNames()
         .useForwardCurveCalculationConfigNames()
@@ -1376,7 +1382,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(EquityBlackVolatilitySurfaceFunction.Spline.class.getName())); 
 
     final List<String> defaults = EquityInstrumentDefaultValues.builder()
-        .useTickers()
+        .useIndexName()
         .useForwardCurveNames()
         .useForwardCurveCalculationMethodNames()
         .useDiscountingCurveCurrency()
@@ -1423,7 +1429,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(AffineDividendFunction.class.getName()));
     
     final List<String> defaults = EquityInstrumentDefaultValues.builder()
-        .useTickers()
+        .useIndexName()
         .useDiscountingCurveNames()
         .useDiscountingCurveCurrency()
         .useDiscountingCurveCalculationConfigNames()

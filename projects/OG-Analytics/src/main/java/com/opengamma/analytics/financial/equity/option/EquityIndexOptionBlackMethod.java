@@ -17,7 +17,8 @@ import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository
  */
 public final class EquityIndexOptionBlackMethod {
 
-  /** TODO What else?
+  // TODO What else?
+  /**
    * Delta wrt Fwd
    * Delta wrt Strike (DualDelta)
    * Gamma (spot, fwd, strike)
@@ -27,6 +28,9 @@ public final class EquityIndexOptionBlackMethod {
 
   private static final EquityIndexOptionBlackMethod INSTANCE = new EquityIndexOptionBlackMethod();
 
+  /**
+   * @return The static instance
+   */
   public static EquityIndexOptionBlackMethod getInstance() {
     return INSTANCE;
   }
@@ -79,7 +83,7 @@ public final class EquityIndexOptionBlackMethod {
 
   /** 
    * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
-   * @return The <b>spot</b> value of the index, ie the current market value 
+   * @return The <b>spot</b> value of the index, i.e. the current market value 
    */
   public double spotIndexValue(StaticReplicationDataBundle marketData) {
     Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");

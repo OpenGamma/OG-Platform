@@ -150,10 +150,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = ValueProperties.all().copy()
-        .with(ValuePropertyNames.FUNCTION, getUniqueId())
-        .with(ValuePropertyNames.CALCULATION_METHOD, SmileFittingProperties.SABR)
-        .get();
+    final ValueProperties properties = ValueProperties.all();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     for (final String valueRequirement : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties));

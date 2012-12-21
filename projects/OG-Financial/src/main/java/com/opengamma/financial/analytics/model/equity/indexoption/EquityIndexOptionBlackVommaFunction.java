@@ -18,27 +18,22 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Calculates the vega (first order sensitivity of the price to the implied volatility) for a vanilla equity barrier option
- * using the Black formula.
+ * Returns the spot Vomma, i.e. the 2nd order sensitivity of the spot price to the implied vol,
+ *          $\frac{\partial^2 (PV)}{\partial \sigma^2}$
  */
-public class EquityIndexVanillaBarrierOptionVegaFunction extends EquityIndexVanillaBarrierOptionFunction {
+public class EquityIndexOptionBlackVommaFunction extends EquityIndexOptionFunction {
 
   /**
    * Default constructor
    */
-  public EquityIndexVanillaBarrierOptionVegaFunction() {
-    super(ValueRequirementNames.VALUE_VEGA);
+  public EquityIndexOptionBlackVommaFunction() {
+    super(ValueRequirementNames.VALUE_VOMMA);
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final Set<EquityIndexOption> vanillaOptions, final StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
+  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+      final Set<ValueRequirement> desiredValue, final ValueSpecification resultSpec) {
     final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    double sum = 0.0;
-    for (final EquityIndexOption derivative : vanillaOptions) {
-      sum += model.vega(derivative, market);
-    }
-    return Collections.singleton(new ComputedValue(resultSpec, sum));
+    return Collections.singleton(new ComputedValue(resultSpec, model.vomma(derivative, market)));
   }
-
 }

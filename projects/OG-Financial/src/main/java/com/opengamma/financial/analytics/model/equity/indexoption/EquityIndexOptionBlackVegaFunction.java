@@ -18,27 +18,22 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Calculates the vega (first order sensitivity of the price to the implied volatility) for a vanilla equity barrier option
- * using the Black formula.
+ * Calculates the vega of an equity index option using the Black method.
  */
-public class EquityIndexVanillaBarrierOptionVegaFunction extends EquityIndexVanillaBarrierOptionFunction {
+public class EquityIndexOptionBlackVegaFunction extends EquityIndexOptionFunction {
+  /** The Black calculator */
+  private static final EquityIndexOptionBlackMethod MODEL = EquityIndexOptionBlackMethod.getInstance();
 
   /**
    * Default constructor
    */
-  public EquityIndexVanillaBarrierOptionVegaFunction() {
+  public EquityIndexOptionBlackVegaFunction() {
     super(ValueRequirementNames.VALUE_VEGA);
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final Set<EquityIndexOption> vanillaOptions, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
-    final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    double sum = 0.0;
-    for (final EquityIndexOption derivative : vanillaOptions) {
-      sum += model.vega(derivative, market);
-    }
-    return Collections.singleton(new ComputedValue(resultSpec, sum));
+    return Collections.singleton(new ComputedValue(resultSpec, MODEL.vega(derivative, market)));
   }
-
 }

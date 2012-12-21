@@ -11,31 +11,43 @@ import java.util.Set;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Produces the current value of the underlying index, according to the market data
+ * Calculates the Black implied volatility of an equity index option.
  */
-public class EquityIndexOptionSpotIndexFunction extends EquityIndexOptionFunction {
+public class EquityIndexOptionBlackImpliedVolFunction extends EquityIndexOptionFunction {
 
   /**
-   * Default constructor
+   * @param valueRequirementName
    */
-  public EquityIndexOptionSpotIndexFunction() {
-    super(ValueRequirementNames.SPOT);
+  public EquityIndexOptionBlackImpliedVolFunction() {
+    super(ValueRequirementNames.IMPLIED_VOLATILITY);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
     final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    return Collections.singleton(new ComputedValue(resultSpec, model.spotIndexValue(market)));
+    return Collections.singleton(new ComputedValue(resultSpec, model.impliedVol(derivative, market)));
   }
 
-  //TODO this function return values unnecessary properties - the surface name, currency, interpolator and calculation method, which are used
-  // to construct the market data bundle.
+  @Override
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
+    return super.createValueProperties(target)
+        .withoutAny(ValuePropertyNames.CURRENCY);
+  }
+
+  @Override
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+    return super.createValueProperties(target, desiredValue)
+        .withoutAny(ValuePropertyNames.CURRENCY);
+  }
 }
