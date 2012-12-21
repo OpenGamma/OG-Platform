@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.MetaBean;
@@ -59,18 +60,21 @@ import com.opengamma.util.ArgumentChecker;
                      meta.premium(),
                      meta.premiumCurrency(),
                      meta.premiumDate(),
-                     meta.premiumTime(),
-                     meta.attributes());
+                     meta.premiumTime());
+    tradeBuilder.set(meta.attributes(), tradeData.getMapValues(meta.attributes().name()));
     tradeBuilder.set(meta.quantity(), BigDecimal.ONE);
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(securityId));
     // TODO set counterparty on trade, scheme Cpty
     String counterparty = tradeData.getValue(COUNTERPARTY);
-    tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
+    if (!StringUtils.isEmpty(counterparty)) {
+      tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
+    }
     ManageableTrade trade = tradeBuilder.build();
     // TODO need the node ID so we can add the position to it
     ManageablePosition position = new ManageablePosition();
     position.setSecurityLink(new ManageableSecurityLink(securityId));
     position.addTrade(trade);
+    position.setQuantity(trade.getQuantity());
     ManageablePosition savedPosition = savePosition(position);
     List<ManageableTrade> trades = savedPosition.getTrades();
     ManageableTrade savedTrade = trades.get(0);

@@ -250,7 +250,8 @@ public class BlotterResource {
     // TODO trade data - need different structure depending on whether the security is OTC
     // OTCs don't need quantity or security ID, trades in fungible securities need both
     BeanVisitor<JSONObject> securityVisitor = new BuildingBeanVisitor<JSONObject>(security, new JsonDataSink());
-    JSONObject securityJson = (JSONObject) new BeanTraverser().traverse(securityMetaBean, securityVisitor);
+    PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
+    JSONObject securityJson = (JSONObject) new BeanTraverser(securityPropertyFilter).traverse(securityMetaBean, securityVisitor);
     BeanVisitor<JSONObject> tradeVisitor = new BuildingBeanVisitor<JSONObject>(trade, new JsonDataSink());
     // TODO special handling of counterparty, send value as string not external ID
     // TODO don't filter out quantity for fungible securities
@@ -281,7 +282,8 @@ public class BlotterResource {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   public String createOtcTrade(@FormParam("trade") String tradeJsonStr) {
-    return createTrade(tradeJsonStr, new NewOtcTradeBuilder(_securityMaster, null, s_metaBeans));
+    // TODO no need to create a new builder every time?
+    return createTrade(tradeJsonStr, new NewOtcTradeBuilder(_securityMaster, _positionMaster, s_metaBeans));
   }
 
   @PUT
@@ -377,8 +379,6 @@ public class BlotterResource {
   }
 
   private static Map<String, Object> typeInfo(String expectedType, String actualType) {
-    return ImmutableMap.<String, Object>of("beanType", false,
-                                           "expectedType", expectedType,
-                                           "actualType", actualType);
+    return ImmutableMap.<String, Object>of("beanType", false, "expectedType", expectedType, "actualType", actualType);
   }
 }

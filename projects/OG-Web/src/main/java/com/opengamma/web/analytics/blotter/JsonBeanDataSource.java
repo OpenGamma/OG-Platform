@@ -44,6 +44,9 @@ import com.opengamma.util.ArgumentChecker;
     if (isNull(value)) {
       return null;
     }
+    if (!(value instanceof String)) {
+      throw new IllegalArgumentException("Value " + value + " of property " + propertyName + " is not a string");
+    }
     return (String) value;
   }
 
