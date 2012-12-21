@@ -29,6 +29,7 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinit
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOptionDefinition;
@@ -110,7 +111,8 @@ public class InstrumentDefinitionVisitorTest {
         fail();
       } catch (final IllegalArgumentException e) {
       } catch (final NullPointerException e) {
-        throw new NullPointerException("accept(InstrumentDefinitionVisitor visitor) in " + definition.getClass().getSimpleName() + " does not check that the visitor is not null");
+        throw new NullPointerException("accept(InstrumentDefinitionVisitor visitor) in " + definition.getClass().getSimpleName()
+            + " does not check that the visitor is not null");
       }
     }
     for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
@@ -119,7 +121,8 @@ public class InstrumentDefinitionVisitorTest {
         fail();
       } catch (final IllegalArgumentException e) {
       } catch (final NullPointerException e) {
-        throw new NullPointerException("accept(InstrumentDefinitionVisitor visitor, S data) in " + definition.getClass().getSimpleName() + " does not check that the visitor is not null");
+        throw new NullPointerException("accept(InstrumentDefinitionVisitor visitor, S data) in " + definition.getClass().getSimpleName()
+            + " does not check that the visitor is not null");
       }
     }
   }
@@ -957,6 +960,16 @@ public class InstrumentDefinitionVisitorTest {
     @Override
     public String visitEquityIndexDividendFutureDefinition(final EquityIndexDividendFutureDefinition future) {
       return getValue(future, false);
+    }
+
+    @Override
+    public String visitEquityIndexOptionDefinition(final EquityIndexOptionDefinition option, final T data) {
+      return getValue(option, true);
+    }
+
+    @Override
+    public String visitEquityIndexOptionDefinition(final EquityIndexOptionDefinition option) {
+      return getValue(option, false);
     }
   }
 }

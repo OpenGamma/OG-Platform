@@ -25,6 +25,7 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -110,7 +111,8 @@ public class InstrumentDerivativeVisitorTest {
           fail();
         } catch (final IllegalArgumentException e) {
         } catch (final NullPointerException e) {
-          throw new NullPointerException("accept(InstrumentDerivativeVisitor visitor) in " + derivative.getClass().getSimpleName() + " does not check that the visitor is not null");
+          throw new NullPointerException("accept(InstrumentDerivativeVisitor visitor) in " + derivative.getClass().getSimpleName()
+              + " does not check that the visitor is not null");
         }
       } else {
         throw new NullPointerException("Derivative was null");
@@ -122,7 +124,8 @@ public class InstrumentDerivativeVisitorTest {
         fail();
       } catch (final IllegalArgumentException e) {
       } catch (final NullPointerException e) {
-        throw new NullPointerException("accept(InstrumentDerivativeVisitor visitor, S data) in " + derivative.getClass().getSimpleName() + " does not check that the visitor is not null");
+        throw new NullPointerException("accept(InstrumentDerivativeVisitor visitor, S data) in " + derivative.getClass().getSimpleName()
+            + " does not check that the visitor is not null");
       }
     }
   }
@@ -981,6 +984,16 @@ public class InstrumentDerivativeVisitorTest {
     @Override
     public String visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final T data) {
       return getValue(future, true);
+    }
+
+    @Override
+    public String visitEquityIndexOption(final EquityIndexOption option, final T data) {
+      return getValue(option, true);
+    }
+
+    @Override
+    public String visitEquityIndexOption(final EquityIndexOption option) {
+      return getValue(option, false);
     }
   }
 }

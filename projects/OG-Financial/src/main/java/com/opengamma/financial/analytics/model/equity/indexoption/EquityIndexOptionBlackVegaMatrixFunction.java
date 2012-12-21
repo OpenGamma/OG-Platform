@@ -13,10 +13,10 @@ import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import com.opengamma.analytics.financial.equity.DerivativeSensitivityCalculator;
+import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
+import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.engine.ComputationTarget;
@@ -40,9 +40,9 @@ import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
  */
 public class EquityIndexOptionBlackVegaMatrixFunction  extends EquityIndexOptionFunction {
   /** The Black present value calculator */
-  private static final EquityIndexOptionPresentValueCalculator PVC = EquityIndexOptionPresentValueCalculator.getInstance();
+  private static final EquityOptionBlackPresentValueCalculator PVC = EquityOptionBlackPresentValueCalculator.getInstance();
   /** Calculates derivative sensitivities */
-  private static final DerivativeSensitivityCalculator CALCULATOR = new DerivativeSensitivityCalculator(PVC);
+  private static final EquityDerivativeSensitivityCalculator CALCULATOR = new EquityDerivativeSensitivityCalculator(PVC);
   /** The format for the output */
   private static final DecimalFormat FORMATTER = new DecimalFormat("#.##");
   /** The shift to use in bumping */

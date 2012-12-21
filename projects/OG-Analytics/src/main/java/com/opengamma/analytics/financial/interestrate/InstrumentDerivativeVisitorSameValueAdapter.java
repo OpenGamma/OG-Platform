@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -86,8 +87,12 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
  * @param <RESULT_TYPE> The type of the results
  */
 public class InstrumentDerivativeVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE> implements InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
+  /** The value */
   private final RESULT_TYPE _value;
 
+  /**
+   * @param value The value
+   */
   public InstrumentDerivativeVisitorSameValueAdapter(final RESULT_TYPE value) {
     _value = value;
   }
@@ -792,6 +797,16 @@ public class InstrumentDerivativeVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE>
     return _value;
   }
 
+  @Override
+  public RESULT_TYPE visitEquityIndexOption(final EquityIndexOption option, final DATA_TYPE data) {
+    return _value;
+  }
+  
+  @Override
+  public RESULT_TYPE visitEquityIndexOption(final EquityIndexOption option) {
+    return _value;
+  }
+  
   @Override
   public RESULT_TYPE visitForwardLiborAnnuity(final AnnuityCouponIbor forwardLiborAnnuity, final DATA_TYPE data) {
     return _value;

@@ -16,9 +16,9 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.GeneralSmileInterpolator;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
@@ -46,7 +46,7 @@ import com.opengamma.util.tuple.Triple;
  */
 public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityIndexVanillaBarrierOptionFunction {
   /** The calculator */
-  private static final EquityIndexOptionPresentValueCalculator PVC = EquityIndexOptionPresentValueCalculator.getInstance(); // Vanilla PV Calculator
+  private static final EquityOptionBlackPresentValueCalculator PVC = EquityOptionBlackPresentValueCalculator.getInstance(); // Vanilla PV Calculator
   /** The amount by which to bump the volatility surface */
   private static final double SHIFT = 0.0001; // FIXME This really should be configurable by the user!
 
@@ -112,7 +112,7 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
           final StaticReplicationDataBundle shiftedMarket = market.withShiftedSurface(shiftedSurface);
           // Sensitivities
           for (int v = 0; v < nVanillas; v++) {
-            final Double shiftedPV = PVC.visit(vanillas[v], shiftedMarket);
+            final Double shiftedPV = vanillas[v].accept(PVC, shiftedMarket);
             Validate.notNull(shiftedPV, "Null PV in shifted scenario, T = " + expiries[t] + ", k = " + strikes[t][k]);
             final Double vega = (shiftedPV - basePrices[v]) / -SHIFT;
             final Triple<Double, Double, Double> xyz = new Triple<Double, Double, Double>(expiries[t], strikes[t][k], vega);
