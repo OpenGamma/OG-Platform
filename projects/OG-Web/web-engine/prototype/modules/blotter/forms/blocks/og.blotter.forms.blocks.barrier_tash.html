@@ -11,7 +11,7 @@
         </label>
       </td>
       <td>
-        <input name="expiry" type="text" />
+        <input name="expiry" type="text" value="{{expiry}}"/>
       </td>
     </tr>
     <tr>
@@ -21,21 +21,17 @@
         </label>
       </td>
       <td>
-        <input name="barrierLevel" type="text" />
+        <input name="barrierLevel" type="text" value="{{level}}" />
       </td>
     </tr>
     <tr>
       <td>
         <label>
-          <span>Barrier Type</span>
+          <span>Direction / Type</span>
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span><label>Up <input type="radio" name="barrierDirection" value="up">
-        </label><label>Down <input type="radio" name="barrierDirection" value="down"></label>
-        </span><span><label>In <input type="radio" name="barrierType" value="in">
-        </label><label>Out <input type="radio" name="barrierType" value="out"></label>
-        </span></div>
+        <div><span>{{{item_0}}}</span><span>{{{item_1}}}</span></div>
       </td>
     </tr>
     <tr>
@@ -45,7 +41,7 @@
         </label>
       </td>
       <td>
-        {{{item_0}}}
+        {{{item_2}}}
       </td>
     </tr>
     <tr>
@@ -55,7 +51,7 @@
         </label>
       </td>
       <td>
-        {{{item_1}}}
+        {{{item_3}}}
       </td>
     </tr>
     <tr>
@@ -65,7 +61,7 @@
         </label>
       </td>
       <td>
-        <input name="settlementDate" type="text" />
+        <input name="settlementDate" type="text" value="{{date}}" />
       </td>
     </tr>
   </tbody>

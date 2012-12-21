@@ -6,12 +6,25 @@ $.register_module({
     name: 'og.blotter.util',
     dependencies: [],
     obj: function () {
+         var FAKE_ATTRIBUTES = [
+                {key: 'what',value: 'that'},
+                {key: 'colour',value: 'white'},
+                {key: 'moral',value: 'bad'},
+                {key: 'direction',value: 'down'},
+                {key: 'speed',value: 'fast'}];  
         return {
             update_block : function (section, extras){
                 section.block.html(function (html) {
                     $(section.selector).html(html);
                 }, extras);
             },
+            check_radio : function (name, value){
+                $('input:radio[name= '+ name +']').filter('[value='+ value + ']').attr('checked', true);
+            },
+            set_select : function (name, value){
+                $('select[name='+ name +']').val(value);
+            },
+            
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
             FAKE_DROPDOWN : [
                     {name:'Select', value:''},
@@ -32,13 +45,38 @@ $.register_module({
                 {issuer:'issuer 3',currency: 'currency 3',coupon_type: 'type 3',coupon_rate: 'rate 3',date: 'date 3'},
                 {issuer:'issuer 4',currency: 'currency 4',coupon_type: 'type 4',coupon_rate: 'rate 4',date: 'date 4'}
             ],
-            FAKE_ATTRIBUTES : [
-                {key: 'what',value: 'that'},
-                {key: 'colour',value: 'white'},
-                {key: 'moral',value: 'bad'},
-                {key: 'direction',value: 'down'},
-                {key: 'speed',value: 'fast'}
-            ]
+            FAKE_FX_BARRIER : {
+                settlementDate:"21.12.2012",
+                barrierLevel: "55.30",
+                expiry:"22.12.2012",
+                barrierDirection: "Knock In",
+                putCurrency: "USD",
+                callCurrency: "EEK",
+                barrierType: "Up",
+                monitoringType: "DISCRETE",
+                samplingFrequency: "Friday",
+                callAmount: "2.30",
+                putAmount: "3.02",
+                strike: "55.05",
+                longShort: "Short",
+                attributes:  FAKE_ATTRIBUTES
+            },
+            FAKE_CAP_FLOOR : {
+                currency: "TOP",
+                payer: true,
+                cap: false,
+                attributes:  FAKE_ATTRIBUTES,
+                dayCount: "28/360",
+                frequency: "Annual", 
+                startDate: "21.12.2012", 
+                maturityDate: "22.12.2012", 
+                notional: "12",
+                strike: "15", 
+                longId: "1", 
+                shortId: "2", 
+                underlyingId: "3"          
+            }
+
         };
     }
 });
