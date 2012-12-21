@@ -38,8 +38,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction.class);
+public class SABRIRFutureOptionNLSSDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(SABRIRFutureOptionNLSSDefaults.class);
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.SABR_SURFACES,
     ValueRequirementNames.VOLATILITY_SURFACE_FITTED_POINTS};
@@ -60,7 +60,7 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction exten
   private final String _nu;
   private final String _error;
 
-  public SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction(final String priority, final String xInterpolatorName, final String yInterpolatorName,
+  public SABRIRFutureOptionNLSSDefaults(final String priority, final String xInterpolatorName, final String yInterpolatorName,
       final String leftXExtrapolatorName, final String rightXExtrapolatorName, final String leftYExtrapolatorName, final String rightYExtrapolatorName,
       final String useFixedAlpha, final String useFixedBeta, final String useFixedRho, final String useFixedNu, final String alpha, final String beta,
       final String rho, final String nu, final String error) {

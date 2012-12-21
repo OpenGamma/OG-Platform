@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
@@ -28,9 +29,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Defaults function for forward values for equity variance swap securities
  */
 public class EquityForwardCalculationDefaults extends DefaultPropertyFunction {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCalculationDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.FORWARD
@@ -65,7 +67,7 @@ public class EquityForwardCalculationDefaults extends DefaultPropertyFunction {
       return false;
     }
     final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) security;
-    final String underlyingEquity = varianceSwap.getSpotUnderlyingId().getValue();
+    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityName(varianceSwap);
     return _equityCurveConfigAndDiscountingCurveNames.containsKey(underlyingEquity);
   }
 
@@ -81,7 +83,7 @@ public class EquityForwardCalculationDefaults extends DefaultPropertyFunction {
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
     final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) target.getSecurity();
-    final String underlyingEquity = varianceSwap.getSpotUnderlyingId().getValue();
+    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityName(varianceSwap);
     if (!_equityCurveConfigAndDiscountingCurveNames.containsKey(underlyingEquity)) {
       s_logger.error("Could not get config for equity " + underlyingEquity + "; should never happen");
       return null;

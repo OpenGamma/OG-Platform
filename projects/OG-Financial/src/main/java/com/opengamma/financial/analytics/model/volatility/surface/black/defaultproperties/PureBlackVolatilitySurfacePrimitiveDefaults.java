@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties;
 
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -26,12 +26,9 @@ public class PureBlackVolatilitySurfacePrimitiveDefaults extends PureBlackVolati
       return false;
     }
     final UniqueId uniqueId = target.getUniqueId();
-    final String targetScheme = uniqueId.getScheme();
-    if (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) || targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
-      final String ticker = uniqueId.getValue();
-      if (getAllTickers().contains(ticker)) {
-        return true;
-      }
+    final String ticker = EquitySecurityUtils.getIndexOrEquityName(uniqueId);
+    if (getAllTickers().contains(ticker)) {
+      return true;
     }
     return false;
   }

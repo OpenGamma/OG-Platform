@@ -250,7 +250,8 @@ public class BlotterResource {
     // TODO trade data - need different structure depending on whether the security is OTC
     // OTCs don't need quantity or security ID, trades in fungible securities need both
     BeanVisitor<JSONObject> securityVisitor = new BuildingBeanVisitor<JSONObject>(security, new JsonDataSink());
-    JSONObject securityJson = (JSONObject) new BeanTraverser().traverse(securityMetaBean, securityVisitor);
+    PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
+    JSONObject securityJson = (JSONObject) new BeanTraverser(securityPropertyFilter).traverse(securityMetaBean, securityVisitor);
     BeanVisitor<JSONObject> tradeVisitor = new BuildingBeanVisitor<JSONObject>(trade, new JsonDataSink());
     // TODO special handling of counterparty, send value as string not external ID
     // TODO don't filter out quantity for fungible securities
@@ -281,7 +282,8 @@ public class BlotterResource {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   public String createOtcTrade(@FormParam("trade") String tradeJsonStr) {
-    return createTrade(tradeJsonStr, new NewOtcTradeBuilder(_securityMaster, null, s_metaBeans));
+    // TODO no need to create a new builder every time?
+    return createTrade(tradeJsonStr, new NewOtcTradeBuilder(_securityMaster, _positionMaster, s_metaBeans));
   }
 
   @PUT
@@ -292,7 +294,7 @@ public class BlotterResource {
   public String updateOtcTrade(@FormParam("trade") String tradeJsonStr,
                                @PathParam("tradeIdStr") String tradeIdStr) {
     return createTrade(tradeJsonStr,
-                       new ExistingOtcTradeBuilder(UniqueId.parse(tradeIdStr), _securityMaster, null, s_metaBeans));
+                       new ExistingOtcTradeBuilder(UniqueId.parse(tradeIdStr), _securityMaster, _positionMaster, s_metaBeans));
   }
 
   private String createTrade(String jsonStr, OtcTradeBuilder tradeBuilder) {
@@ -337,17 +339,17 @@ public class BlotterResource {
   private static Map<String, Object> manageableTradeStructure() {
     Map<String, Object> structure = Maps.newHashMap();
     List<Map<String, Object>> properties = Lists.newArrayList();
-    properties.add(property("uniqueId", true, typeInfo("string", "UniqueId")));
-    // TODO don't need quantity for OTC, always 1
+    properties.add(property("uniqueId", true, true, typeInfo("string", "UniqueId")));
+    // don't need quantity for OTCs, always 1
     //properties.add(property("quantity", true, false, typeInfo("number", "")));
-    properties.add(property("counterparty", false, typeInfo("string", "")));
-    properties.add(property("tradeDate", false, typeInfo("string", "LocalDate")));
-    properties.add(property("tradeTime", false, typeInfo("string", "OffsetTime")));
+    properties.add(property("counterparty", false, false, typeInfo("string", "")));
+    properties.add(property("tradeDate", true, false, typeInfo("string", "LocalDate")));
+    properties.add(property("tradeTime", true, false, typeInfo("string", "OffsetTime")));
     // TODO which premium fields are relevant for OTCs?
-    properties.add(property("premium", false, typeInfo("number", "")));
-    properties.add(property("premiumCurrency", false, typeInfo("string", "Currency")));
-    properties.add(property("premiumDate", false, typeInfo("string", "LocalDate")));
-    properties.add(property("premiumTime", false, typeInfo("string", "OffsetTime")));
+    properties.add(property("premium", true, false, typeInfo("number", "")));
+    properties.add(property("premiumCurrency", true, false, typeInfo("string", "Currency")));
+    properties.add(property("premiumDate", true, false, typeInfo("string", "LocalDate")));
+    properties.add(property("premiumTime", true, false, typeInfo("string", "OffsetTime")));
     properties.add(attributesProperty());
     structure.put("type", "ManageableTrade");
     structure.put("properties", properties);
@@ -356,11 +358,12 @@ public class BlotterResource {
   }
 
   private static Map<String, Object> property(String name,
+                                              boolean optional,
                                               boolean readOnly,
                                               Map<String, Object> typeInfo) {
     return ImmutableMap.<String, Object>of("name", name,
                                            "type", "single",
-                                           "optional", true,
+                                           "optional", optional,
                                            "readOnly", readOnly,
                                            "types", ImmutableList.of(typeInfo));
   }
@@ -377,8 +380,6 @@ public class BlotterResource {
   }
 
   private static Map<String, Object> typeInfo(String expectedType, String actualType) {
-    return ImmutableMap.<String, Object>of("beanType", false,
-                                           "expectedType", expectedType,
-                                           "actualType", actualType);
+    return ImmutableMap.<String, Object>of("beanType", false, "expectedType", expectedType, "actualType", actualType);
   }
 }

@@ -79,9 +79,9 @@ public class ManageableTrade extends DirectBean
   @PropertyDefinition(validate = "notNull")
   private ManageableSecurityLink _securityLink;
   /**
-   * The counterparty external identifier, null if not known.
+   * The counterparty external identifier, not null.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private ExternalId _counterpartyExternalId;
   /**
    * The trade date.
@@ -335,6 +335,7 @@ public class ManageableTrade extends DirectBean
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_securityLink, "securityLink");
+    JodaBeanUtils.notNull(_counterpartyExternalId, "counterpartyExternalId");
     JodaBeanUtils.notNull(_attributes, "attributes");
     super.validate();
   }
@@ -499,18 +500,19 @@ public class ManageableTrade extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the counterparty external identifier, null if not known.
-   * @return the value of the property
+   * Gets the counterparty external identifier, not null.
+   * @return the value of the property, not null
    */
   public ExternalId getCounterpartyExternalId() {
     return _counterpartyExternalId;
   }
 
   /**
-   * Sets the counterparty external identifier, null if not known.
-   * @param counterpartyExternalId  the new value of the property
+   * Sets the counterparty external identifier, not null.
+   * @param counterpartyExternalId  the new value of the property, not null
    */
   public void setCounterpartyExternalId(ExternalId counterpartyExternalId) {
+    JodaBeanUtils.notNull(counterpartyExternalId, "counterpartyExternalId");
     this._counterpartyExternalId = counterpartyExternalId;
   }
 

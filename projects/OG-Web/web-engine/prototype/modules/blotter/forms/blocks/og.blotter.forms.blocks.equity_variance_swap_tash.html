@@ -12,7 +12,7 @@
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span>{{{item_0}}}</span><span><input name="notional" type="text" /></span></div>
+        <div><span>{{{item_0}}}</span><span><input name="notional" type="text" value="{{notional}}"/></span></div>
       </td>
     </tr>
     <tr>
@@ -22,7 +22,7 @@
         </label>
       </td>
       <td>
-        <input name="strike" type="text" />
+        <input name="strike" type="text" value="{{strike}}"/>
       </td>
     </tr>
     <tr>
@@ -32,7 +32,7 @@
         </label>
       </td>
       <td>
-        <input name="regionId" type="text" />
+        <input name="regionId" type="text" value="{{region}}"/>
       </td>
     </tr>
     <tr>
@@ -42,7 +42,7 @@
         </label>
       </td>
       <td>
-        <input name="spotUnderlyingId" type="text" />
+        <input name="spotUnderlyingId" type="text" value="{{underlying}}"/>
       </td>
     </tr>
     <tr>
@@ -52,7 +52,7 @@
         </label>
       </td>
       <td>
-        <input name="settlementDate" type="text" />
+        <input name="settlementDate" type="text" value="{{settlement}}"/>
       </td>
     </tr>
     <tr>
@@ -60,8 +60,10 @@
         <span>Observation</span>
       </td>
       <td class="og-triple-cell">
-        <div><span>{{{item_1}}}</span><span><input name="firstObservationDate" type="text" placeholder="First Date" />
-        </span><span><input name="lastObservationDate" type="text" placeholder="Last Date" /></span></div>
+        <div><span>{{{item_1}}}
+        </span><span><input name="firstObservationDate" type="text" placeholder="First Date" value="{{first}}"/>
+        </span><span><input name="lastObservationDate" type="text" placeholder="Last Date" value="{{last}}"/>
+        </span></div>
       </td> 
     </tr>
     <tr>
@@ -69,8 +71,7 @@
         Annualization Factor
       </td>
       <td>
-        <select name="annualizationFactor">
-        </select>
+        <input name="annualizationFactor" type="text" value="{{annualization}}"/>
       </td>
     </tr>
     <tr>

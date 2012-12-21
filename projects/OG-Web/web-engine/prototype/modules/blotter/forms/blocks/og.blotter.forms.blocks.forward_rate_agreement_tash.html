@@ -58,7 +58,7 @@
           </label>
         </td>
         <td class="og-double-cell">
-          <div><span>{{{item_0}}}</span><span><input name="amount" type="text" /></span></div>
+          <div><span>{{{item_0}}}</span><span><input name="amount" type="text" value="{{amount}}"/></span></div>
         </td>
       </tr>
       <tr>
@@ -68,7 +68,7 @@
           </label>
         </td>
         <td>
-          <select name="regionId"></select>
+          <select name="regionId" value="{{region}}"></select>
         </td>
       </tr>
       <tr>
@@ -78,7 +78,7 @@
           </label>
         </td>
         <td>
-          <input name="rate" type="text" />
+          <input name="rate" type="text" value="{{rate}}"/>
         </td>
       </tr>
       <tr>
@@ -88,7 +88,7 @@
           </label>
         </td>
         <td>
-          <input name="underlyingId" type="text" />
+          <input name="underlyingId" type="text" value="{{underlyingId}}"/>
         </td>
       </tr>
     </tbody>
@@ -116,7 +116,7 @@
           </label>
         </td>
         <td>
-          <input name="fixingDate" type="text" />
+          <input name="fixingDate" type="text" value="{{fixing}}"/>
         </td>
       </tr>          
       <tr>
@@ -126,7 +126,7 @@
           </label>
         </td>
         <td>
-          <input name="startDate" type="text" />
+          <input name="startDate" type="text" value="{{start}}"/>
         </td>
       </tr>
       <tr>
@@ -136,7 +136,7 @@
           </label>
         </td>
         <td>
-          <input name="endDate" type="text" />
+          <input name="endDate" type="text" value="{{end}}"/>
         </td>
       </tr>
     </tbody>

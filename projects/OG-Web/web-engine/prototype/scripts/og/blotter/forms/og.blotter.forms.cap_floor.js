@@ -12,7 +12,7 @@ $.register_module({
             constructor.load = function () {
                 constructor.title = 'Cap/Floor';
                 var form = new og.common.util.ui.Form({
-                    module: 'og.blotter.forms.cap_floor_tash',
+                    module: 'og.blotter.forms.simple_tash',
                     selector: '.OG-blotter-form-block'
                 });
                 form.children.push(
@@ -27,7 +27,7 @@ $.register_module({
                             new form.Block({module:'og.views.forms.currency_tash'}),
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.frequencies', index: 'frequency',
-                                value: data.currency, placeholder: 'Select Frequency'
+                                value: data.frequency, placeholder: 'Select Frequency'
                             }),
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.daycountconventions', index: 'dayCount',

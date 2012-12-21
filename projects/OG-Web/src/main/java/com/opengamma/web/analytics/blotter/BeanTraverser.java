@@ -20,7 +20,9 @@ import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * TODO is there a generally useful way to have pluggable handlers to override default behaviour for specific properties?
+ * or would that have to be done in the visitors?
+ * could also handle it by property name instead of using the metaproperty
  */
 /* package */ class BeanTraverser {
 

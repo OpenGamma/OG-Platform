@@ -5,12 +5,14 @@
  */
 package com.opengamma.web.analytics.blotter;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.joda.beans.MetaBean;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
@@ -56,5 +58,14 @@ import com.opengamma.util.ArgumentChecker;
   ManageablePosition savePosition(ManageablePosition position) {
     // TODO check position ID exists and this is a valid update to the previous version (same security etc)
     return getPositionMaster().update(new PositionDocument(position)).getPosition();
+  }
+
+  @Override
+  ManageablePosition getPosition(ManageableTrade trade) {
+    ManageableTrade originalTrade = getPositionMaster().getTrade(_tradeId);
+    UniqueId positionId = originalTrade.getParentPositionId();
+    ManageablePosition position = getPositionMaster().get(positionId).getPosition();
+    position.setTrades(Collections.<ManageableTrade>emptyList());
+    return position;
   }
 }

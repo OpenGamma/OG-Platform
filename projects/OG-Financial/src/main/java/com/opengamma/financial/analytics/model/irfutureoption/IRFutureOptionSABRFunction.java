@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.irfutureoption;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -50,6 +51,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.surface.SABRFittingPropertyUtils;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
@@ -148,12 +150,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties()
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(ValuePropertyNames.SURFACE)
-        .withAny(SmileFittingProperties.PROPERTY_FITTING_METHOD)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SmileFittingProperties.SABR)
-        .get();
+    final ValueProperties properties = ValueProperties.all();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     for (final String valueRequirement : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties));
@@ -164,6 +161,12 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> calculationMethod = constraints.getValues(ValuePropertyNames.CALCULATION_METHOD);
+    if (calculationMethod != null && calculationMethod.size() == 1) {
+      if (!Iterables.getOnlyElement(calculationMethod).equals(SmileFittingProperties.SABR)) {
+        return null;
+      }
+    }
     final Set<String> curveCalculationConfigs = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     if (curveCalculationConfigs == null || curveCalculationConfigs.size() != 1) {
       return null;
@@ -178,17 +181,67 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     }
     final String curveCalculationConfig = Iterables.getOnlyElement(curveCalculationConfigs);
     final String surfaceName = Iterables.getOnlyElement(surfaceNames) + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
-    final String fittingMethod = Iterables.getOnlyElement(fittingMethods);
     final Trade trade = target.getTrade();
+    final Currency currency = FinancialSecurityUtils.getCurrency(trade.getSecurity());
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(getCurveRequirement(trade, curveCalculationConfig, context));
-    requirements.add(getSurfaceRequirement(trade, surfaceName, fittingMethod));
+    final ValueRequirement surfaceRequirement = SABRFittingPropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, currency);
+    if (surfaceRequirement == null) {
+      return null;
+    }
+    requirements.add(surfaceRequirement);
     final Set<ValueRequirement> timeSeriesRequirement = getTimeSeriesRequirement(trade);
     if (timeSeriesRequirement == null) {
       return null;
     }
     requirements.addAll(timeSeriesRequirement);
     return requirements;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    String surfaceName = null;
+    boolean curvePropertiesSet = false;
+    boolean surfacePropertiesSet = false;
+    ValueProperties.Builder properties = createValueProperties()
+        .with(ValuePropertyNames.CALCULATION_METHOD, SmileFittingProperties.SABR)
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode());
+    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+      final ValueSpecification value = entry.getKey();
+      final String inputName = value.getValueName();
+      if (inputName.equals(ValueRequirementNames.YIELD_CURVE) && !curvePropertiesSet) {
+        final ValueProperties curveProperties = value.getProperties().copy()
+            .withoutAny(ValuePropertyNames.FUNCTION)
+            .withoutAny(ValuePropertyNames.CURVE)
+            .withoutAny(ValuePropertyNames.CURRENCY)
+            .get();
+        for (final String property : curveProperties.getProperties()) {
+          properties.with(property, curveProperties.getValues(property));
+        }
+        curvePropertiesSet = true;
+      } else if (inputName.equals(ValueRequirementNames.SABR_SURFACES) && !surfacePropertiesSet) {
+        final String fullSurfaceName = value.getProperty(ValuePropertyNames.SURFACE);
+        surfaceName = fullSurfaceName.substring(0, fullSurfaceName.length() - 3);
+        final ValueProperties surfaceFittingProperties = value.getProperties().copy()
+            .withoutAny(ValuePropertyNames.FUNCTION)
+            .withoutAny(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL)
+            .withoutAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE)
+            .withoutAny(ValuePropertyNames.CURRENCY)
+            .withoutAny(ValuePropertyNames.SURFACE)
+            .get();
+        for (final String property : surfaceFittingProperties.getProperties()) {
+          properties.with(property, surfaceFittingProperties.getValues(property));
+        }
+        surfacePropertiesSet = true;
+      }
+    }
+    assert surfaceName != null;
+    properties = properties.with(ValuePropertyNames.SURFACE, surfaceName);
+    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    for (final String valueRequirement : _valueRequirementNames) {
+      results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties.get()));
+    }
+    return results;
   }
 
   /**
@@ -226,18 +279,6 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     }
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     return requirements;
-  }
-
-  private ValueRequirement getSurfaceRequirement(final Trade trade, final String surfaceName, final String fittingMethod) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(trade.getSecurity());
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURRENCY, currency.getCode())
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION)
-        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
-        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod)
-        .get();
-    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
   }
 
   private Set<ValueRequirement> getTimeSeriesRequirement(final Trade trade) {

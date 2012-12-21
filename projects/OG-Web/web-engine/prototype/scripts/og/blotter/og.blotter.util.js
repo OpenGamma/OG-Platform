@@ -24,6 +24,9 @@ $.register_module({
             set_select : function (name, value){
                 $('select[name='+ name +']').val(value);
             },
+            check_checkbox : function (name, value){
+                $('input:checkbox[name= '+ name +']').attr('checked', value);
+            },
             
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
             FAKE_DROPDOWN : [
@@ -61,6 +64,27 @@ $.register_module({
                 longShort: "Short",
                 attributes:  FAKE_ATTRIBUTES
             },
+            FAKE_FX_OPTION : {
+                exerciseType: "Bermudan",
+                putCurrency: "USD",
+                callCurrency: "EEK",
+                callAmount: "2.30",
+                putAmount: "3.02",
+                longShort: "Short",
+                attributes:  FAKE_ATTRIBUTES,
+                expiry:"22.12.2012",
+                settlementDate:"22.12.2012",
+                deliveryInCallCurrency: true
+                
+            },
+            FAKE_FX_FORWARD : {
+                recieveCurrency: "USD",
+                payCurrency: "EEK",
+                recieveAmount: "2.30",
+                payAmount: "3.02",
+                attributes:  FAKE_ATTRIBUTES,
+                forwardDate:"22.12.2012"
+            },
             FAKE_CAP_FLOOR : {
                 currency: "TOP",
                 payer: true,
@@ -75,8 +99,31 @@ $.register_module({
                 longId: "1", 
                 shortId: "2", 
                 underlyingId: "3"          
+            },
+            FAKE_FRA : {
+                currency: "NOK",
+                attributes:  FAKE_ATTRIBUTES,
+                startDate: "21.12.2012", 
+                endDate: "22.12.2012", 
+                fixingDate: "20.12.2012",
+                underlyingId: "3",
+                amount: "12",
+                rate: "0.15"                         
+            },
+            FAKE_VARIANCE_SWAP : {
+                attributes: FAKE_ATTRIBUTES,    
+                spotUnderlyingId: "3",
+                currency: "EUR",
+                strike: "12",
+                notional: "15",
+                parameterizedAsVariance: true,
+                annualizationFactor: "0.14",
+                firstObservationDate: "21.12.2012",  
+                lastObservationDate: "23.12.2012", 
+                settlementDate: "24.12.2012",   
+                regionId: "2",
+                observationFrequency: "Semi-annual"
             }
-
         };
     }
 });
