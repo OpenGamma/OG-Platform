@@ -85,8 +85,21 @@ $.register_module({
                 underlyingId: "3",
                 amount: "12",
                 rate: "0.15"                         
+            },
+            FAKE_VARIANCE_SWAP : {
+                attributes: FAKE_ATTRIBUTES,    
+                spotUnderlyingId: "3",
+                currency: "EUR",
+                strike: "12",
+                notional: "15",
+                parameterizedAsVariance: true,
+                annualizationFactor: "0.14",
+                firstObservationDate: "21.12.2012",  
+                lastObservationDate: "23.12.2012", 
+                settlementDate: "24.12.2012",   
+                regionId: "2",
+                observationFrequency: "Semi-annual"
             }
-
         };
     }
 });
