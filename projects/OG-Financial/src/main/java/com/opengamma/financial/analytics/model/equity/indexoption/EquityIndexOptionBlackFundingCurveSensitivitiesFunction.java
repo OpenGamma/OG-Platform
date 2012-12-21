@@ -35,6 +35,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -48,7 +49,7 @@ public class EquityIndexOptionBlackFundingCurveSensitivitiesFunction extends Equ
    * Default constructor
    */
   public EquityIndexOptionBlackFundingCurveSensitivitiesFunction() {
-    super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+    super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, FXOptionBlackFunction.BLACK_METHOD);
   }
 
   @Override

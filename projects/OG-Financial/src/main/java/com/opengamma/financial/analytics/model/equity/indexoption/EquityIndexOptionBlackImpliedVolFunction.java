@@ -19,6 +19,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * Calculates the Black implied volatility of an equity index option.
@@ -29,7 +30,7 @@ public class EquityIndexOptionBlackImpliedVolFunction extends EquityIndexOptionF
    * @param valueRequirementName
    */
   public EquityIndexOptionBlackImpliedVolFunction() {
-    super(ValueRequirementNames.IMPLIED_VOLATILITY);
+    super(ValueRequirementNames.IMPLIED_VOLATILITY, FXOptionBlackFunction.BLACK_METHOD);
   }
 
   @Override

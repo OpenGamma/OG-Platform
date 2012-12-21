@@ -16,6 +16,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * Returns the spot gamma w.r.t. the spot underlying, i.e. the 2nd order sensitivity of the present value to the spot value of the underlying,
@@ -27,7 +28,7 @@ public class EquityIndexOptionBlackSpotGammaFunction extends EquityIndexOptionFu
    * Default constructor
    */
   public EquityIndexOptionBlackSpotGammaFunction() {
-    super(ValueRequirementNames.VALUE_GAMMA);
+    super(ValueRequirementNames.VALUE_GAMMA, FXOptionBlackFunction.BLACK_METHOD);
   }
 
   @Override

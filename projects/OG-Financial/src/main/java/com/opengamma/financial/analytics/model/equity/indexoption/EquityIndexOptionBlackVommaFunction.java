@@ -16,6 +16,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * Returns the spot Vomma, i.e. the 2nd order sensitivity of the spot price to the implied vol,
@@ -27,7 +28,7 @@ public class EquityIndexOptionBlackVommaFunction extends EquityIndexOptionFuncti
    * Default constructor
    */
   public EquityIndexOptionBlackVommaFunction() {
-    super(ValueRequirementNames.VALUE_VOMMA);
+    super(ValueRequirementNames.VALUE_VOMMA, FXOptionBlackFunction.BLACK_METHOD);
   }
 
   @Override

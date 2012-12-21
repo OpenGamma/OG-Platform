@@ -16,6 +16,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * Vanna w.r.t. the spot underlying, i.e. the 2nd order cross-sensitivity of the present value to the spot underlying and implied vol,
@@ -27,7 +28,7 @@ public class EquityIndexOptionBlackSpotVannaFunction extends EquityIndexOptionFu
    * Default constructor
    */
   public EquityIndexOptionBlackSpotVannaFunction() {
-    super(ValueRequirementNames.VALUE_VANNA);
+    super(ValueRequirementNames.VALUE_VANNA, FXOptionBlackFunction.BLACK_METHOD);
   }
 
   @Override

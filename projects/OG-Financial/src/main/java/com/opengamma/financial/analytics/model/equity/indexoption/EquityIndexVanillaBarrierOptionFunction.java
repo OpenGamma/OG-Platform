@@ -29,6 +29,7 @@ import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
@@ -51,7 +52,7 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
    * @param requirementName The desired output
    */
   public EquityIndexVanillaBarrierOptionFunction(final String requirementName) {
-    super(requirementName);
+    super(requirementName, FXOptionBlackFunction.BLACK_METHOD);
   }
 
   /**

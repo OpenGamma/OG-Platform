@@ -44,7 +44,6 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.EquityIndexOptionConverter;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -64,15 +63,20 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
   private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexOptionFunction.class);
   /** The value requirement name */
   private final String _valueRequirementName;
+  /** The calculation method */
+  private final String _calculationMethod;
   /** Converts the security to the form used in analytics */
   private EquityIndexOptionConverter _converter; // set in init(), not constructor
 
   /**
    * @param valueRequirementName The value requirement name, not null
+   * @param calculationMethod The calculation method name, not null
    */
-  public EquityIndexOptionFunction(final String valueRequirementName) {
+  public EquityIndexOptionFunction(final String valueRequirementName, final String calculationMethod) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
+    ArgumentChecker.notNull(calculationMethod, "calculation method");
     _valueRequirementName = valueRequirementName;
+    _calculationMethod = calculationMethod;
   }
 
   @Override
@@ -247,7 +251,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
    */
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, _calculationMethod)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
@@ -267,7 +271,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String smileInterpolatorName = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
     final ValueProperties.Builder builder = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, _calculationMethod)
         .with(ValuePropertyNames.CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName)
         .with(ValuePropertyNames.SURFACE, volSurfaceName)

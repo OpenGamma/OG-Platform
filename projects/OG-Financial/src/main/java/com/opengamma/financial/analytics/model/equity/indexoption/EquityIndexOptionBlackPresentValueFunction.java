@@ -16,6 +16,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * Calculates the present value of an equity index option using the Black formula.
@@ -28,7 +29,7 @@ public class EquityIndexOptionBlackPresentValueFunction extends EquityIndexOptio
    * Default constructor
    */
   public EquityIndexOptionBlackPresentValueFunction() {
-    super(ValueRequirementNames.PRESENT_VALUE);
+    super(ValueRequirementNames.PRESENT_VALUE, FXOptionBlackFunction.BLACK_METHOD);
   }
 
   @Override

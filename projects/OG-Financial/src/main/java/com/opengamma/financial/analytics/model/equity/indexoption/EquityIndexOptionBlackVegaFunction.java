@@ -16,6 +16,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * Calculates the vega of an equity index option using the Black method.
@@ -28,7 +29,7 @@ public class EquityIndexOptionBlackVegaFunction extends EquityIndexOptionFunctio
    * Default constructor
    */
   public EquityIndexOptionBlackVegaFunction() {
-    super(ValueRequirementNames.VALUE_VEGA);
+    super(ValueRequirementNames.VALUE_VEGA, FXOptionBlackFunction.BLACK_METHOD);
   }
 
   @Override

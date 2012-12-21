@@ -16,6 +16,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * Calculates the rho of an equity index option using the Black formula.
@@ -26,7 +27,7 @@ public class EquityIndexOptionBlackRhoFunction extends EquityIndexOptionFunction
    * Default constructor
    */
   public EquityIndexOptionBlackRhoFunction() {
-    super(ValueRequirementNames.VALUE_RHO);
+    super(ValueRequirementNames.VALUE_RHO, FXOptionBlackFunction.BLACK_METHOD);
   }
 
   @Override

@@ -16,6 +16,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * The <b>forward</b> value of the index, i.e. the fair strike of a forward agreement paying the index value at maturity,
@@ -27,7 +28,7 @@ public class EquityIndexOptionForwardValueFunction extends EquityIndexOptionFunc
    * Default constructor
    */
   public EquityIndexOptionForwardValueFunction() {
-    super(ValueRequirementNames.FORWARD);
+    super(ValueRequirementNames.FORWARD, FXOptionBlackFunction.BLACK_METHOD);
   }
 
   @Override

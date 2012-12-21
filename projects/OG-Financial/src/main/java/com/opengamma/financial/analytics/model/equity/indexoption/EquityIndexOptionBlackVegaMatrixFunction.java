@@ -32,6 +32,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.VegaMatrixHelper;
+import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 
 /**
@@ -51,7 +52,7 @@ public class EquityIndexOptionBlackVegaMatrixFunction  extends EquityIndexOption
    * Default constructor
    */
   public EquityIndexOptionBlackVegaMatrixFunction() {
-    super(ValueRequirementNames.VEGA_QUOTE_MATRIX);
+    super(ValueRequirementNames.VEGA_QUOTE_MATRIX, FXOptionBlackFunction.BLACK_METHOD);
   }
 
   @Override
