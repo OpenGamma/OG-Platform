@@ -77,6 +77,14 @@ $.register_module({
                 deliveryInCallCurrency: true
                 
             },
+            FAKE_FX_FORWARD : {
+                recieveCurrency: "USD",
+                payCurrency: "EEK",
+                recieveAmount: "2.30",
+                payAmount: "3.02",
+                attributes:  FAKE_ATTRIBUTES,
+                forwardDate:"22.12.2012"
+            },
             FAKE_CAP_FLOOR : {
                 currency: "TOP",
                 payer: true,
