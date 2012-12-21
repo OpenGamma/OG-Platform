@@ -8,9 +8,9 @@ package com.opengamma.financial.analytics.model.equity.indexoption;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class EquityIndexVanillaBarrierOptionPresentValueFunction extends EquityIndexVanillaBarrierOptionFunction {
   /** The present value calculator */
-  private static final EquityIndexOptionPresentValueCalculator s_calculator = EquityIndexOptionPresentValueCalculator.getInstance();
+  private static final EquityOptionBlackPresentValueCalculator s_calculator = EquityOptionBlackPresentValueCalculator.getInstance();
 
   /**
    * Default constructor
