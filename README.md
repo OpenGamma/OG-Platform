@@ -79,7 +79,7 @@ To build and install the example engines run:
     ant install
 
 which will create a directory called `opengamma/` in the project root.  To start the OpenGamma server with one of the
-example engine configurations, follow the instructions in opengamma/README.txt.
+example engine configurations, follow the instructions in `opengamma/README.txt`.
 
 
 Eclipse
