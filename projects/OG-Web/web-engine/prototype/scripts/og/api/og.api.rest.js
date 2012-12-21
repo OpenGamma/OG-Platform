@@ -235,7 +235,8 @@ $.register_module({
             blotter: (function () { // all requests that begin with /blotter
                 var blotter = {  
                     root: 'blotter',
-                    get: not_available_get, put: not_available_put, del: not_available_del // no requests to /blotter
+                    get: not_available_get, put: not_available_put, del: not_available_del, // no requests to /blotter
+                    trades: {root: 'blotter/trades'}
                 };
                 [ // blotter/lookup/* endpoints
                     'barrierdirections', 'barriertypes', 'businessdayconventions', 'daycountconventions',
@@ -246,6 +247,13 @@ $.register_module({
                         root: 'blotter/lookup/' + key, get: simple_get, put: not_available_put, del: not_available_del
                     };
                 });
+                blotter.trades.get = function (config) {
+                    var root = this.root, method = root.split('/'), meta;
+                    meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['id']}]});
+                    return request(method.concat(config.id), {data: {}, meta: meta});
+                };
+                blotter.trades.put = not_implemented_put;
+                blotter.trades.del = not_implemented_del;
                 return blotter;
             })(),
             clean: function () {
@@ -261,7 +269,6 @@ $.register_module({
             compressor: { // all requests that begin with /compressor
                 root: 'compressor',
                 get: function (config) {
-                    config = config || {};
                     var root = this.root, method = [root, 'decompress'], data = {}, meta;
                     meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['content']}]});
                     meta.type = 'POST';
@@ -269,7 +276,6 @@ $.register_module({
                     return request(method, {data: data, meta: meta});
                 },
                 put: function (config) {
-                    config = config || {};
                     var root = this.root, method = [root, 'compress'], data = {}, meta;
                     meta = check({bundle: {method: root + '#put', config: config}, required: [{all_of: ['content']}]});
                     meta.type = 'POST';
