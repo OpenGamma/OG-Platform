@@ -11,7 +11,7 @@
         </label>
       </td>
       <td>
-        <input name="expiry" type="text" />
+        <input name="expiry" type="text" value="{{expiry}}"/>
       </td>
     </tr>
     <tr>
@@ -31,18 +31,15 @@
         </label>
       </td>
       <td>
-        <input name="settlementDate" type="text" />
+        <input name="settlementDate" type="text" value="{{settlement}}"/>
       </td>
     </tr>
     {{#if nondev}}
       <tr>
         <td>
-          <label>
-            <span>Delivery Currency</span>
-          </label>
         </td>
         <td>
-          <div>{{{item_1}}}</div>
+          <div><input name="deliveryInCallCurrency" type="checkbox" /><span>Deliver In Call Currency</span></div>
         </td>
       </tr>
     {{else}}

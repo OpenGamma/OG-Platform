@@ -24,8 +24,7 @@ $.register_module({
             set_select : function (name, value){
                 $('select[name='+ name +']').val(value);
             },
-            check_checkbox : function (name, value)
-            {
+            check_checkbox : function (name, value){
                 $('input:checkbox[name= '+ name +']').attr('checked', value);
             },
             
@@ -64,6 +63,19 @@ $.register_module({
                 strike: "55.05",
                 longShort: "Short",
                 attributes:  FAKE_ATTRIBUTES
+            },
+            FAKE_FX_OPTION : {
+                exerciseType: "Bermudan",
+                putCurrency: "USD",
+                callCurrency: "EEK",
+                callAmount: "2.30",
+                putAmount: "3.02",
+                longShort: "Short",
+                attributes:  FAKE_ATTRIBUTES,
+                expiry:"22.12.2012",
+                settlementDate:"22.12.2012",
+                deliveryInCallCurrency: true
+                
             },
             FAKE_CAP_FLOOR : {
                 currency: "TOP",
