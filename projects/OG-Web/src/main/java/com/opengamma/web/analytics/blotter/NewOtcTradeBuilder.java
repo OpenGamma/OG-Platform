@@ -10,6 +10,7 @@ import java.util.Set;
 import org.joda.beans.MetaBean;
 
 import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
@@ -46,5 +47,10 @@ import com.opengamma.master.security.SecurityMaster;
   @Override
   /* package */ ManageablePosition savePosition(ManageablePosition position) {
     return getPositionMaster().add(new PositionDocument(position)).getPosition();
+  }
+
+  @Override
+  ManageablePosition getPosition(ManageableTrade trade) {
+    return new ManageablePosition();
   }
 }

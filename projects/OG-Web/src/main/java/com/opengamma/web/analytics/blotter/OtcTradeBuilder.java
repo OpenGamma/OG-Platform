@@ -55,6 +55,7 @@ import com.opengamma.util.ArgumentChecker;
     ManageableTrade.Meta meta = ManageableTrade.meta();
     BeanBuilder<? extends ManageableTrade> tradeBuilder =
         tradeBuilder(tradeData,
+                     meta.uniqueId(), // TODO handle uniqueId differently for new trades - shouldn't be specified
                      meta.tradeDate(),
                      meta.tradeTime(),
                      meta.premium(),
@@ -65,13 +66,13 @@ import com.opengamma.util.ArgumentChecker;
     tradeBuilder.set(meta.quantity(), BigDecimal.ONE);
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(securityId));
     String counterparty = tradeData.getValue(COUNTERPARTY);
-    if (!StringUtils.isEmpty(counterparty)) {
+    if (StringUtils.isEmpty(counterparty)) {
       throw new IllegalArgumentException("Trade counterparty is required");
     }
     tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
     ManageableTrade trade = tradeBuilder.build();
-    // TODO need the node ID so we can add the position to it
-    ManageablePosition position = new ManageablePosition();
+    // TODO need the node ID so we can add the position to the portfolio node
+    ManageablePosition position = getPosition(trade);
     position.setSecurityLink(new ManageableSecurityLink(securityId));
     position.addTrade(trade);
     position.setQuantity(trade.getQuantity());
@@ -109,6 +110,8 @@ import com.opengamma.util.ArgumentChecker;
    * @return The saved position
    */
   /* package */ abstract ManageablePosition savePosition(ManageablePosition position);
+
+  /* package */ abstract ManageablePosition getPosition(ManageableTrade trade);
 
   private UniqueId buildSecurity(BeanDataSource securityData, BeanDataSource underlyingData) {
     ExternalId underlyingId = buildUnderlying(underlyingData);

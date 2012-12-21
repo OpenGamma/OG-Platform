@@ -294,7 +294,7 @@ public class BlotterResource {
   public String updateOtcTrade(@FormParam("trade") String tradeJsonStr,
                                @PathParam("tradeIdStr") String tradeIdStr) {
     return createTrade(tradeJsonStr,
-                       new ExistingOtcTradeBuilder(UniqueId.parse(tradeIdStr), _securityMaster, null, s_metaBeans));
+                       new ExistingOtcTradeBuilder(UniqueId.parse(tradeIdStr), _securityMaster, _positionMaster, s_metaBeans));
   }
 
   private String createTrade(String jsonStr, OtcTradeBuilder tradeBuilder) {
