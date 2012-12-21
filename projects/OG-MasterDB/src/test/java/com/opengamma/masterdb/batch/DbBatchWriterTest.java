@@ -157,7 +157,7 @@ public class DbBatchWriterTest extends DbTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void addValuesToNonexistentSnapshot() {
-    _batchMaster.addValuesToMarketData(ObjectId.of("nonexistent", "nonexistent"), Collections.<MarketDataValue>emptySet());
+    _batchMaster.addValuesToMarketData(ObjectId.of("nonexistent", "nonexistent"), ImmutableSet.of(new MarketDataValue()));
   }
 
   @Test
