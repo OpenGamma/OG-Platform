@@ -95,7 +95,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     final EquityIndexOptionSecurity security = (EquityIndexOptionSecurity) target.getSecurity();
     final ExternalId underlyingId = security.getUnderlyingId();
     final EquityIndexOptionDefinition defn = _converter.visitEquityIndexOptionSecurity(security);
-    final EquityIndexOption derivative = (EquityIndexOption) defn.toDerivative(now);
+    final EquityIndexOption derivative = defn.toDerivative(now);
     if (derivative.getTimeToSettlement() < 0.0) {
       throw new OpenGammaRuntimeException("EquityIndexOption with expiry, " + security.getExpiry().getExpiry().toString() + ", has already settled.");
     }

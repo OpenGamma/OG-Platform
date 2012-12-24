@@ -13,9 +13,9 @@ import java.util.Set;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOptionPresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -48,7 +48,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction extends EquityIndexVanillaBarrierOptionFunction {
   /** The present value calculator */
-  private static final EquityIndexOptionPresentValueCalculator PV_CALCULATOR = EquityIndexOptionPresentValueCalculator.getInstance();
+  private static final EquityOptionBlackPresentValueCalculator PV_CALCULATOR = EquityOptionBlackPresentValueCalculator.getInstance();
 
   /**
    * Default constructor

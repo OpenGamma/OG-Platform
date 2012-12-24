@@ -62,6 +62,9 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   ManageablePosition getPosition(ManageableTrade trade) {
+    if (!_tradeId.isVersioned()) {
+      throw new IllegalArgumentException("trade ID must be versioned. trade: " + trade);
+    }
     ManageableTrade originalTrade = getPositionMaster().getTrade(_tradeId);
     UniqueId positionId = originalTrade.getParentPositionId();
     ManageablePosition position = getPositionMaster().get(positionId).getPosition();

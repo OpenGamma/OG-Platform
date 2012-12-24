@@ -11,18 +11,18 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
-import com.opengamma.analytics.financial.equity.Derivative;
-import com.opengamma.analytics.financial.equity.EquityInstrumentDefinition;
-import com.opengamma.analytics.financial.equity.EquityInstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * Calendar aware version of an EquityIndexOption
  * The definition is responsible for constructing the 'Derivative' for pricing visitors.
  */
-public class EquityIndexOptionDefinition implements EquityInstrumentDefinition<Derivative> {
+public class EquityIndexOptionDefinition implements InstrumentDefinition<EquityIndexOption> {
 
   /** Call if true, Put if false */
   private final boolean _isCall;
@@ -53,8 +53,8 @@ public class EquityIndexOptionDefinition implements EquityInstrumentDefinition<D
    * @param settlementDate Cash settlement occurs on this LocalDate
    * @param pointValue Unit notional. A unit move in price is multiplied by this to give pnl of a single contract
    */
-  public EquityIndexOptionDefinition(boolean isCall, double strike, Currency currency, ExternalIdBundle indexId,
-      ExerciseDecisionType exerciseType, ZonedDateTime expiryDT, LocalDate settlementDate, double pointValue) {
+  public EquityIndexOptionDefinition(final boolean isCall, final double strike, final Currency currency, final ExternalIdBundle indexId,
+      final ExerciseDecisionType exerciseType, final ZonedDateTime expiryDT, final LocalDate settlementDate, final double pointValue) {
     _isCall = isCall;
     _strike = strike;
     _currency = currency;
@@ -81,19 +81,22 @@ public class EquityIndexOptionDefinition implements EquityInstrumentDefinition<D
   /**
    * Creates Analytics version of Option, as of exact dateTime, ready for pricing
    * @param valueDate Date at which valuation will occur
+   * @param yieldCurveNames not used
    * @return EquityIndexOption derivative as of date
    */
-  public Derivative toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public EquityIndexOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     return toDerivative(date);
   }
 
   @Override
-  public <U, V> V accept(EquityInstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitEquityIndexOptionDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(EquityInstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitEquityIndexOptionDefinition(this);
   }
 
