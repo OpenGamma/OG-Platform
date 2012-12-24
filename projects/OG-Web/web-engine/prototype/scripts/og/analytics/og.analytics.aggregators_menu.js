@@ -25,21 +25,20 @@ $.register_module({
                         })
                     ]
                 },
-                menu = new og.analytics.DropMenu(default_conf),
                 events = {
                     reset:'reset',
                     replay:'replay'
                 },
-                $dom, query = [], sel_val, sel_pos, $parent, $query, form = config.form,
+                $dom, query = [], sel_val, sel_pos, $parent, $query, form = config.form, initialized = false,
                 $select, $checkbox, default_sel_txt = 'select aggregation...', default_query_text = 'Default',
                 del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', select_s = 'select',
                 checkbox_s = '.og-option :checkbox', tmpl_menu = '', tmpl_toggle = '';
 
             var add_handler = function (opts) {
-               menu.block.children.push(new og.common.util.ui.Dropdown({
-                    form: config.form, resource: 'aggregators', index: 'aggregators.'+ opts &&
-                        opts.hasOwnProperty('idx') ? opts.idx : menu.opts.length,
-                    value: opts && opts.hasOwnProperty('val') ? opts.val : '', placeholder: 'select aggregation...'
+                menu.block.children.push(new og.common.util.ui.Dropdown({
+                    form: config.form, resource: 'aggregators', index: 'aggregators.'+ (opts &&
+                        opts.hasOwnProperty('idx') ? opts.idx : menu.opts.length),
+                    value: (opts && opts.hasOwnProperty('val') ? opts.val : ''), placeholder: 'select aggregation...'
                 }).html(function (html) {
                     var idx, $elem = menu.$dom.opt_cp.clone(true); $elem.find('td.aggregation').html(html);
                     menu.add_handler($elem); idx = menu.opts.length-1;
@@ -80,26 +79,18 @@ $.register_module({
                 } else $query.text(default_query_text);
             };
 
-            var init = function (conf) {
+            var init = function () {
                 $dom = menu.$dom;
                 if ($dom) {
                     $dom.toggle_prefix.append('<span>Aggregated by</span>');
                     if ($dom.menu) {
-                        form.on('form:load', function () {
-                            $query = $('.aggregation-selection', $dom.toggle);
-                            menu.block
-                                .on('mousedown', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
-                                .on('change', 'select', menu_handler);
-                        });
-                        if (conf.opts) menu.replay_query(conf.opts);
+                        $query = $('.aggregation-selection', $dom.toggle);
+                        menu.block
+                            .on('mousedown', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
+                            .on('change', 'select', menu_handler);
                     }
                 }
-            };
-
-            var init_menu_elems = function (index) {
-                $parent = menu.opts[index];
-                $select = $parent.find(select_s);
-                $checkbox = $parent.find(checkbox_s);
+                menu.fire('initialized', initialized = true);
             };
 
             var menu_handler = function (event) {
@@ -131,7 +122,7 @@ $.register_module({
             };
 
             var reset_query = function () {
-                return $query.text(default_query_text), $select.val(default_sel_txt).focus(), remove_entry();
+                return $query.text(default_query_text), remove_entry();
             };
 
             var select_handler = function (entry) {
@@ -148,38 +139,31 @@ $.register_module({
             };
 
             var replay = function (conf) {
-                if (!conf || !conf.hasOwnProperty('aggregators') || !$.isArray(conf.aggregators)) return;
-                form.on('form:load', function () {
+                var replay_opts = function () {
+                    if (!conf || !conf.hasOwnProperty('aggregators') || !$.isArray(conf.aggregators)) return;
                     menu.opts.forEach(function (option) { option.remove(); });
                     menu.opts.length = 0;
                     query = [];
                     conf.aggregators.forEach(function (entry, index) {
                         if (menu.opts.length < conf.aggregators.length) add_handler({ val: entry, idx: index });
-                        query.splice(index, 0, {pos: index, val: entry.val, required_field: entry.required_field});
+                        query.splice(index, 0, {pos: index, val: entry, required_field: true});
                     });
                     display_query();
-                });
+                };
+                if (!initialized) menu.on('initialized', replay_opts); else replay_opts();
             };
 
             var reset = function () {
-                // console.log(arguments);
-                /*for (var i = menu.opts.length-1; i >=0; i-=1) {
-                    if (menu.opts.length === 1) {
-                        menu.opts[i].val(default_sel_txt);
-                        break;
-                    }
-                    init_menu_elems(i);
-                    delete_handler(i);
-                }
-                return init_menu_elems(0), reset_query();*/
+                return add_handler(), reset_query();
             };
 
             // Public
-            menu.get_query = function () {
+            var get_query = function () {
                 return remove_orphans(), query.pluck('val');
             };
 
-            return menu.on(events.reset, reset).on(events.replay, replay), init(config), menu;
+            return menu = new og.analytics.DropMenu(default_conf, init),
+                menu.on(events.reset, reset).on(events.replay, replay), menu;
         };
     }
 });

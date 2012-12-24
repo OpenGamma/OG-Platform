@@ -10,8 +10,7 @@ $.register_module({
                 selected: 'selected',
                 cancelled: 'cancelled'
             },
-
-            DropMenu = function (config) {
+            DropMenu = function (config, callback) {
                 var menu = new og.common.util.ui.DropMenu(), form = config.form, dummy_s = '<wrapper>';
                 menu.opts = [];
                 menu.$dom.toggle_prefix = $(dummy_s);
@@ -36,6 +35,7 @@ $.register_module({
                         menu.$dom.add = $('.OG-link-add', menu.$dom.menu);
                         menu.$dom.opt_cp = menu.$dom.opt.clone(true);
                     }
+                    callback();
                 });
                 return menu;
             };
