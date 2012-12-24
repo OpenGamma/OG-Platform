@@ -7,19 +7,26 @@ package com.opengamma.analytics.financial.equity.option;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.financial.equity.Derivative;
-import com.opengamma.analytics.financial.equity.DerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * OG-Analytics derivative of the exchange traded Equity Index Option
  */
-public class EquityIndexOption implements Derivative {
+public class EquityIndexOption implements InstrumentDerivative {
+  /** The time to expiry in years*/
   private final double _timeToExpiry;
+  /** The time to settlement in years */
   private final double _timeToSettlement;
+  /** The option strike */
   private final double _strike;
+  /** Is the option a put or call */
   private final boolean _isCall;
+  /** The unit amount per tick */
   private final double _unitAmount;
+  /** The currency */
   private final Currency _currency;
 
   /**
@@ -31,12 +38,8 @@ public class EquityIndexOption implements Derivative {
    * @param currency       The reporting currency of the future
    *  @param unitAmount    The unit value per tick, in given currency. A negative value may represent a short position  
    */
-  public EquityIndexOption(final double timeToExpiry,
-                        final double timeToSettlement,
-                        final double strike,
-                        final boolean isCall,
-                        final Currency currency,
-                        final double unitAmount) {
+  public EquityIndexOption(final double timeToExpiry, final double timeToSettlement, final double strike, final boolean isCall, final Currency currency,
+      final double unitAmount) {
     _timeToExpiry = timeToExpiry;
     _timeToSettlement = timeToSettlement;
     _strike = strike;
@@ -56,7 +59,6 @@ public class EquityIndexOption implements Derivative {
    * Gets the date when payments are made 
    * @return the delivery date (in years as a double)
    */
-  @Override
   public double getTimeToSettlement() {
     return _timeToSettlement;
   }
@@ -84,14 +86,14 @@ public class EquityIndexOption implements Derivative {
   }
 
   @Override
-  /// @export "accept-visitor"
-  public <S, T> T accept(final DerivativeVisitor<S, T> visitor, final S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitEquityIndexOption(this, data);
   }
 
-  /// @end
   @Override
-  public <T> T accept(final DerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitEquityIndexOption(this);
   }
 
@@ -114,7 +116,7 @@ public class EquityIndexOption implements Derivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -124,7 +126,7 @@ public class EquityIndexOption implements Derivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    EquityIndexOption other = (EquityIndexOption) obj;
+    final EquityIndexOption other = (EquityIndexOption) obj;
 
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;

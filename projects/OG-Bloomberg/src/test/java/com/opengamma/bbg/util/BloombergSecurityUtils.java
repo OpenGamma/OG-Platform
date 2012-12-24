@@ -286,7 +286,7 @@ public final class BloombergSecurityUtils {
     equitySecurity.setShortName("T");
     equitySecurity.setName("AT&T INC");
     equitySecurity.setGicsCode(GICSCode.of("50101020"));
-    addSecurityAttribute(equitySecurity, "preferred", "false");
+    equitySecurity.setPreferred(false);
     return equitySecurity;
   }
 
@@ -341,7 +341,7 @@ public final class BloombergSecurityUtils {
     equitySecurity.setShortName("AAPL");
     equitySecurity.setName("APPLE INC");
     equitySecurity.setGicsCode(GICSCode.of("45202010"));
-    addSecurityAttribute(equitySecurity, "preferred", "false");
+    equitySecurity.setPreferred(false);
     return equitySecurity;
   }
 
@@ -355,7 +355,7 @@ public final class BloombergSecurityUtils {
     equitySecurity.setUniqueId(BloombergSecurityProvider.createUniqueId("EQ0000000003443730"));
     equitySecurity.setShortName("UNG");
     equitySecurity.setName("US NATURAL GAS FUND LP");
-    addSecurityAttribute(equitySecurity, "preferred", "false");
+    equitySecurity.setPreferred(false);
     return equitySecurity;
   }
 

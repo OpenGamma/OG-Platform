@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -87,8 +88,12 @@ import com.opengamma.util.ArgumentChecker;
  * @param <RESULT_TYPE> The return type of the calculation
  */
 public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> implements InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
+  /** The delegate visitor */
   private final InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> _delegate;
 
+  /**
+   * @param delegate The delegate, not null
+   */
   public InstrumentDerivativeVisitorDelegate(final InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> delegate) {
     ArgumentChecker.notNull(delegate, "delegate");
     _delegate = delegate;
@@ -794,6 +799,16 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
     return _delegate.visitEquityIndexDividendFuture(future);
   }
 
+  @Override
+  public RESULT_TYPE visitEquityIndexOption(final EquityIndexOption option, final DATA_TYPE data) {
+    return _delegate.visitEquityIndexOption(option, data);
+  }
+  
+  @Override
+  public RESULT_TYPE visitEquityIndexOption(final EquityIndexOption option) {
+    return _delegate.visitEquityIndexOption(option);
+  }
+  
   @Override
   public RESULT_TYPE visitForwardLiborAnnuity(final AnnuityCouponIbor forwardLiborAnnuity, final DATA_TYPE data) {
     return _delegate.visitForwardLiborAnnuity(forwardLiborAnnuity, data);

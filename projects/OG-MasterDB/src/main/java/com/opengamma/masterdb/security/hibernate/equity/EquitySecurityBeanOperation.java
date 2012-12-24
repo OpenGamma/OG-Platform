@@ -7,8 +7,6 @@ package com.opengamma.masterdb.security.hibernate.equity;
 
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
 
-import java.util.Date;
-
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
@@ -44,27 +42,25 @@ public final class EquitySecurityBeanOperation extends AbstractSecurityBeanOpera
     if (security.getGicsCode() != null) {
       gicsCodeBean = secMasterSession.getOrCreateGICSCodeBean(security.getGicsCode().getCode(), "");
     }
-    final EquitySecurityBean bean = createBean(secMasterSession.getOrCreateExchangeBean(security.getExchangeCode(), security.getExchange()), security.getCompanyName(), secMasterSession
-        .getOrCreateCurrencyBean(security
-        .getCurrency().getCode()), gicsCodeBean);
+    final EquitySecurityBean bean = createBean(
+        secMasterSession.getOrCreateExchangeBean(security.getExchangeCode(), security.getExchange()),
+          security.getCompanyName(),
+          secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()),
+          gicsCodeBean,
+          security.isPreferred());
     bean.setShortName(security.getShortName());
     return bean;
   }
 
-  public EquitySecurityBean createBean(final ExchangeBean exchange, final String companyName, final CurrencyBean currency, final GICSCodeBean gicsCode) {
+  public EquitySecurityBean createBean(
+      final ExchangeBean exchange, final String companyName, final CurrencyBean currency,
+      final GICSCodeBean gicsCode, boolean preferred) {
     final EquitySecurityBean equity = new EquitySecurityBean();
     equity.setExchange(exchange);
     equity.setCompanyName(companyName);
     equity.setCurrency(currency);
     equity.setGicsCode(gicsCode);
-    return equity;
-  }
-
-  public EquitySecurityBean createBean(final OperationContext context, final HibernateSecurityMasterDao secMasterSession, final Date effectiveDateTime, final boolean deleted, final Date lastModified,
-      final String modifiedBy, final EquitySecurityBean firstVersion, final String displayName, final ExchangeBean exchange, final String companyName, final CurrencyBean currency,
-      final GICSCodeBean gicsCode) {
-    final EquitySecurityBean equity = createBean(exchange, companyName, currency, gicsCode);
-    secMasterSession.persistSecurityBean(context, equity);
+    equity.setPreferred(preferred);
     return equity;
   }
 
@@ -73,6 +69,7 @@ public final class EquitySecurityBeanOperation extends AbstractSecurityBeanOpera
     final EquitySecurity security = new EquitySecurity(bean.getExchange().getDescription(), bean.getExchange().getName(), bean.getCompanyName(), currencyBeanToCurrency(bean.getCurrency()));
     security.setShortName(bean.getShortName());
     security.setGicsCode(gicsCodeBeanToGICSCode(bean.getGicsCode()));
+    security.setPreferred(bean.isPreferred());
     return security;
   }
 

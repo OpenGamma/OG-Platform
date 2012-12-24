@@ -31,9 +31,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Populates {@link EquityIndexOptionFunction}, including {@link EquityIndexVanillaBarrierOptionFunction}, with defaults.
  */
-public class EquityIndexOptionBlackDefaults extends DefaultPropertyFunction {
+public class EquityIndexOptionDefaults extends DefaultPropertyFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexOptionBlackDefaults.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexOptionDefaults.class);
   /** Map of equity name to discounting curve name */
   private final Map<String, String> _equityToCurveName;
   /** Map of equity name to discounting curve calculation configuration name */
@@ -65,7 +65,7 @@ public class EquityIndexOptionBlackDefaults extends DefaultPropertyFunction {
    * @param priority The priority class of {@link DefaultPropertyFunction} instances, allowing them to be ordered relative to each other, not null
    * @param perEquityConfig Defaults values of curve configuration, discounting curve, surface name and interpolation method per equity, not null
    */
-  public EquityIndexOptionBlackDefaults(final String priority, final String... perEquityConfig) {
+  public EquityIndexOptionDefaults(final String priority, final String... perEquityConfig) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perEquityConfig, "per equity configuration");

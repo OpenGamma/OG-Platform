@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -381,6 +382,8 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitEnergyFutureOption(EnergyFutureOption future);
 
+  //  -----     Equity     -----
+  
   RESULT_TYPE visitEquityFuture(EquityFuture future);
 
   RESULT_TYPE visitEquityFuture(EquityFuture future, DATA_TYPE data);
@@ -388,6 +391,10 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitEquityIndexDividendFuture(EquityIndexDividendFuture future);
 
   RESULT_TYPE visitEquityIndexDividendFuture(EquityIndexDividendFuture future, DATA_TYPE data);
+  
+  RESULT_TYPE visitEquityIndexOption(EquityIndexOption option, DATA_TYPE data);
+  
+  RESULT_TYPE visitEquityIndexOption(EquityIndexOption option);
 
   //  -----     Deprecated     -----
 
