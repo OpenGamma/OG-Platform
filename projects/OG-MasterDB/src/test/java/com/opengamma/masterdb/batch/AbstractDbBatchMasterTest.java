@@ -8,8 +8,12 @@ package com.opengamma.masterdb.batch;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 
 import java.sql.Timestamp;
+import java.sql.Types;
 
+import javax.time.Duration;
 import javax.time.Instant;
+import javax.time.InstantProvider;
+import javax.time.calendar.LocalTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +61,7 @@ public abstract class AbstractDbBatchMasterTest extends DbTest {
     template.update("INSERT INTO rsk_live_data_snapshot (id, base_uid_scheme, base_uid_value, base_uid_version) VALUES (?,?,?,?)", 1, _marketDataSnapshotUid.getScheme(), _marketDataSnapshotUid.getValue(), _marketDataSnapshotUid.getVersion());
     template.update("INSERT INTO rsk_live_data_snapshot_entry (id, snapshot_id, computation_target_id, name, value) VALUES (?,?,?,?,?)", 1, 1, 1, "FV", 999.99);    
     template.update("INSERT INTO rsk_run (id, version_correction, viewdef_scheme, viewdef_value, viewdef_version, live_data_snapshot_id, create_instant, start_instant, end_instant, valuation_time, num_restarts, complete) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-      1, _versionCorrection.toString(), _viewDefinitionUid.getScheme(), _viewDefinitionUid.getValue(), _viewDefinitionUid.getVersion(), 1, now, now, null, toSqlTimestamp(_valuationTime), 0, false);      
+      1, _versionCorrection.toString(), _viewDefinitionUid.getScheme(), _viewDefinitionUid.getValue(), _viewDefinitionUid.getVersion(), 1, now, now, toSqlTimestamp(Instant.now().plus(Duration.ofStandardDays(1))), toSqlTimestamp(_valuationTime), 0, false);
 
   }
 
