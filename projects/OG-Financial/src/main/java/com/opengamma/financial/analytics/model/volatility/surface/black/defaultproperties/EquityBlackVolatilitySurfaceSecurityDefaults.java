@@ -11,6 +11,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
  *
@@ -27,6 +28,9 @@ public class EquityBlackVolatilitySurfaceSecurityDefaults extends EquityBlackVol
       return false;
     }
     final Security security = target.getSecurity();
+    if (!(security instanceof EquityIndexOptionSecurity) && !(security instanceof EquityOptionSecurity)) {
+      return false;
+    }
     final String ticker = EquitySecurityUtils.getIndexOrEquityName(security);
     if (getAllTickers().contains(ticker)) {
       return true;
