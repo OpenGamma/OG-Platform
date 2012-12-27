@@ -74,7 +74,7 @@
             label.rotation.x = -Math.PI * 0.5;
             label.position.x = -(axis_len / 2) -3;
             label.position.y = 1;
-            label.position.z = 25;
+            label.position.z = 22;
             label.matrixAutoUpdate = false;
             label.updateMatrix();
             mesh.add(label);
@@ -90,6 +90,7 @@
                     var offset = config.axis === 'y' ? 0 : axis_len / 2;
                     return (val + offset) * (settings.texture_size / axis_len);
                 }), nth);
+            plane.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
             canvas.width = settings.texture_size;
             canvas.height = 32;
             ctx.beginPath();

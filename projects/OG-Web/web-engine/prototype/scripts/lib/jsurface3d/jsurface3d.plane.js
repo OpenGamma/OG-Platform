@@ -41,6 +41,7 @@
             yoff = js3d.adjusted_zs;
         }
         plane = new THREE.PlaneGeometry(xlen, ylen, xseg, yseg);
+        plane.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
         len = (xseg + 1) * (yseg + 1);
         for (i = 0, k = 0; i < len; i++, k++) {
             vertex = plane.vertices[i];

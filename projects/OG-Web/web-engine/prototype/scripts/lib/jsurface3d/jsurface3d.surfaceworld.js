@@ -99,27 +99,26 @@
             }());
             // surface labels
             ['x', 'z'].forEach(function (val) {
-                var data = js3d.data, lbl_arr = data[val + 's_labels'] || data[val + 's'],
+                var data = js3d.data, lbl_arr = data[val + 's_labels'] || data[val + 's'], width, offset, lbl, vertices,
                     txt = val === 'x'
                         ? lbl_arr[index % (js3d.x_segments + 1)]
                         : lbl_arr[~~(index / (js3d.x_segments + 1))],
-                    scale = '0.1', group = new THREE.Object3D(),
-                    width = THREE.FontUtils.drawText(txt).offset,
-                    offset, lbl, vertices;
+                    scale = '0.1', group = new THREE.Object3D();
                 group.name = 'Surface Label ' + val;
                 // create label
-                offset = ((width / 2) * scale) + (width * 0.05); // half the width * scale + a relative offset
                 lbl = js3d.text3d(txt, color);
                 lbl.matrixAutoUpdate = false;
+                width = lbl.geometry.boundingSphere.radius / 2;
+                offset = ((width / 2) * scale) + (width * 0.05); // half the width * scale + a relative offset
                 vertices = val === 'x' ? zvertices : xvertices;
                 group.add(lbl);
                 // create box
                 (function () {
-                    var txt_width = THREE.FontUtils.drawText(txt).offset, height = 60,
-                        box_width = txt_width * 3,
+                    var height = 60,
+                        box_width = (width * 2) + 20,
                         box = new THREE.CubeGeometry(box_width, height, 4, 4, 0, 0),
-                        mesh = new THREE.Mesh(box, matlib.get_material('phong', '0xdddddd'));
-                    mesh.position.x = (box_width / 2) - (txt_width / 2);
+                        mesh = new THREE.Mesh(box, matlib.get_material('phong', 0xdddddd));
+                    mesh.position.x = box_width / 2 - 10;
                     mesh.position.y = 20;
                     // create the tail by moving the 2 center vertices closes to the surface
                     mesh.geometry.vertices.filter(function (val) {
@@ -214,6 +213,7 @@
                         new THREE.PlaneGeometry(5000, 5000, 100, 100),
                         matlib.get_material('compound_floor_wire')
                     );
+                    floor.rotation.x = - Math.PI / 2;
                     floor.position.y = -0.01;
                     groups.surface_bottom.add(buffers.surface.add(floor));
                 })();

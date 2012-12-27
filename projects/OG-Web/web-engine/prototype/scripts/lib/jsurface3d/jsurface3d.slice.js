@@ -49,8 +49,9 @@
         slice.lft_z_handle_position = js3d.z_segments;
         slice.rgt_z_handle_position = 0;
         slice.load = function () {
-            var plane = new THREE.PlaneGeometry(5000, 5000, 0, 0),
-                mesh = new THREE.Mesh(plane, matlib.get_material('wire', '0xcccccc'));
+            var plane = new THREE.PlaneGeometry(5000, 5000, 0, 0), mesh;
+            plane.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+            mesh = new THREE.Mesh(plane, matlib.get_material('wire', 0xcccccc));
             mesh.matrixAutoUpdate = false;
             mesh.updateMatrix();
             slice.intersection_plane = mesh;

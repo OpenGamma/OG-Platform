@@ -66,14 +66,14 @@
             (function () { // x shadow
                 var z = settings.surface_z / 2 + settings.smile_distance, half_width = settings.surface_x / 2,
                     points = [{x: -half_width, y: 0, z: -z}, {x: half_width, y: 0, z: -z}],
-                    shadow = new Four.Tube(matlib, points, '0xaaaaaa');
+                    shadow = new Four.Tube(matlib, points, 0xaaaaaa);
                 shadow.matrixAutoUpdate = false;
                 obj.add(shadow);
             }());
             (function () { // z shadow
                 var x = settings.surface_x / 2 + settings.smile_distance, half_width = settings.surface_z / 2,
                     points = [{x: x, y: 0, z: -half_width}, {x: x, y: 0, z: half_width}],
-                    shadow = new Four.Tube(matlib, points, '0xaaaaaa');
+                    shadow = new Four.Tube(matlib, points, 0xaaaaaa);
                 shadow.matrixAutoUpdate = false;
                 obj.add(shadow);
             }());

@@ -20,11 +20,6 @@
  * Creates a surface instance
  * @name JSurface3D
  * @namespace JSurface3D
- * @requires JSurface3D.Plane
- * @requires JSurface3D.Plane
- * @requires JSurface3D.Plane
- * @requires JSurface3D.Plane
- * @requires JSurface3D.Plane
  * @constructor
  * @param {Object} config surface configuration object
  *     @param {String} config.selector A css selector. This is where the suface will load
@@ -37,18 +32,18 @@
  *         font_face_3d: 'helvetiker', // 3D text font (glyphs for 3D fonts need to be loaded separately)
  *         font_size: 35,              // 3D text font size (not in any particular units)
  *         font_height: 4,             // Extrusion height for 3D text
- *         font_color: '0x000000',     // Font color for value labels
- *         font_color_axis_labels: '0xcccccc',    // Font color for axis labels
+ *         font_color: 0x000000,       // Font color for value labels
+ *         font_color_axis_labels: 0xcccccc,      // Font color for axis labels
  *         hud: true,                             // Toggle options overlay and volatility display
  *         log: false,                            // Apply natural log by default
- *         interactive_surface_color: '0xff0000', // Highlight for interactive surface elements (in hex)
+ *         interactive_surface_color: 0xff0000,   // Highlight for interactive surface elements (in hex)
  *         interactive_hud_color: '#f00',         // Highlight colour for volatility display (in css)
  *         precision_lbl: 2,                      // Floating point precisions for labels
  *         precision_hud: 3,                      // Floating point precisions for vol display
- *         slice_handle_color: '0xbbbbbb',        // Default colour for slice handles
- *         slice_handle_color_hover: '0x999999',  // Hover colour for slice handles
- *         slice_bar_color: '0xe7e7e7',           // Default slice bar colour
- *         slice_bar_color_active: '0xffbd00',    // Active slice bar colour
+ *         slice_handle_color: 0xbbbbbb,          // Default colour for slice handles
+ *         slice_handle_color_hover: 0x999999,    // Hover colour for slice handles
+ *         slice_bar_color: 0xe7e7e7,             // Default slice bar colour
+ *         slice_bar_color_active: 0xffbd00,      // Active slice bar colour
  *         smile_distance: 50,                    // Distance the smile planes are from the surface
  *         snap_distance: 3,                      // Mouse proximity to vertices before an interaction is approved
  *         surface_x: 100,                        // Width
@@ -82,20 +77,20 @@
             debug: false,               // stats.js is required for debugging (https://github.com/mrdoob/stats.js/)
             floating_height: 5,         // Height the surface floats over the floor
             font_face_3d: 'helvetiker', // 3D text font (glyphs for 3D fonts need to be loaded separately)
-            font_size: 35,              // 3D text font size (not in any particular units)
+            font_size: 30,              // 3D text font size (not in any particular units)
             font_height: 4,             // Extrusion height for 3D text
-            font_color: '0x000000',     // Font color for value labels
-            font_color_axis_labels: '0xcccccc',    // Font color for axis labels
+            font_color: 0x555555,       // Font color for value labels
+            font_color_axis_labels: 0x555555,      // Font color for axis labels
             hud: true,                             // Toggle options overlay and volatility display
             log: false,                            // Apply natural log by default
-            interactive_surface_color: '0xff0000', // Highlight for interactive surface elements (in hex)
+            interactive_surface_color: 0xff0000,   // Highlight for interactive surface elements (in hex)
             interactive_hud_color: '#f00',         // Highlight colour for volatility display (in css)
             precision_lbl: 2,                      // Floating point precisions for labels
             precision_hud: 3,                      // Floating point precisions for vol display
-            slice_handle_color: '0xbbbbbb',        // Default colour for slice handles
-            slice_handle_color_hover: '0x999999',  // Hover colour for slice handles
-            slice_bar_color: '0xe7e7e7',           // Default slice bar colour
-            slice_bar_color_active: '0xffbd00',    // Active slice bar colour
+            slice_handle_color: 0xbbbbbb,          // Default colour for slice handles
+            slice_handle_color_hover: 0x999999,    // Hover colour for slice handles
+            slice_bar_color: 0xe7e7e7,             // Default slice bar colour
+            slice_bar_color_active: 0xffbd00,      // Active slice bar colour
             smile_distance: 50,                    // Distance the smile planes are from the surface
             snap_distance: 3,                      // Mouse proximity to vertices before an interaction is approved
             surface_x: 100,                        // Width
