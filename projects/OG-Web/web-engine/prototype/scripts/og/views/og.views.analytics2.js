@@ -15,7 +15,6 @@ $.register_module({
                 $('.OG-masthead .og-analytics-beta').addClass('og-active');
                 var new_page = false;
                 if (!form) form = new og.analytics.form2();
-                form.fire('replay', og.analytics.url.last.main);
                 view.check_state({args: args, conditions: [
                     {new_page: function () {new_page = true; og.analytics.containers.initialize();}}
                 ]});
@@ -23,7 +22,7 @@ $.register_module({
                 if (!new_page && !args.data && og.analytics.url.last.main) {
                     og.analytics.url.clear_main(), $(main_selector).html('');
                     if (!og.analytics.url.last.main) form.fire('reset');
-                }
+                } else form.fire('replay', og.analytics.url.last.main);
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});

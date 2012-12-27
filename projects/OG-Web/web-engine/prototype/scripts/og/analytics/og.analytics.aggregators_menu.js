@@ -35,7 +35,7 @@ $.register_module({
                 checkbox_s = '.og-option :checkbox', tmpl_menu = '', tmpl_toggle = '';
 
             var add_handler = function (opts) {
-                menu.block.children.push(new og.common.util.ui.Dropdown({
+                new og.common.util.ui.Dropdown({
                     form: config.form, resource: 'aggregators', index: 'aggregators.'+ (opts &&
                         opts.hasOwnProperty('idx') ? opts.idx : menu.opts.length),
                     value: (opts && opts.hasOwnProperty('val') ? opts.val : ''), placeholder: 'select aggregation...'
@@ -43,7 +43,7 @@ $.register_module({
                     var idx, $elem = menu.$dom.opt_cp.clone(true); $elem.find('td.aggregation').html(html);
                     menu.add_handler($elem); idx = menu.opts.length-1;
                     menu.opts[idx].find('.og-option input[type=checkbox]').attr('name', 'required_fields.'+idx);
-                }));
+                });
             };
 
             var checkbox_handler = function (entry) {
@@ -154,6 +154,9 @@ $.register_module({
             };
 
             var reset = function () {
+                menu.opts.forEach(function (option) { option.remove(); });
+                menu.opts.length = 0;
+                query = [];
                 return add_handler(), reset_query();
             };
 
