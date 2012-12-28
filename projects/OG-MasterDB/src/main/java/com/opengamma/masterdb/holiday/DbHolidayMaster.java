@@ -227,7 +227,20 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     ArgumentChecker.notNull(document.getHoliday().getType(), "document.holiday.type");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    
+    switch (document.getHoliday().getType()) {
+      case BANK:
+        ArgumentChecker.notNull(document.getHoliday().getRegionExternalId(), "document.holiday.region");
+        break;
+      case CURRENCY:
+        ArgumentChecker.notNull(document.getHoliday().getCurrency(), "document.holiday.currency");
+        break;
+      case TRADING:
+      case SETTLEMENT:
+        ArgumentChecker.notNull(document.getHoliday().getExchangeExternalId(), "document.holiday.exchange");
+        break;
+      default:
+        throw new IllegalArgumentException("Holiday type not set");
+    }
     final long docId = nextId("hol_holiday_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // the arguments for inserting into the holiday table
