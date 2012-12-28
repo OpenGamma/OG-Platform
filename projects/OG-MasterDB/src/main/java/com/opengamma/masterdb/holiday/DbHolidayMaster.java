@@ -224,6 +224,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
   @Override
   protected HolidayDocument insert(final HolidayDocument document) {
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
+    ArgumentChecker.notNull(document.getHoliday().getType(), "document.holiday.type");
     ArgumentChecker.notNull(document.getName(), "document.name");
     
     final long docId = nextId("hol_holiday_seq");

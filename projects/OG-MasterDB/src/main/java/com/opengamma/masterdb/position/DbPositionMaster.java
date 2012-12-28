@@ -212,6 +212,12 @@ public class DbPositionMaster
   @Override
   protected PositionDocument insert(final PositionDocument document) {
     ArgumentChecker.notNull(document.getPosition(), "document.position");
+    ArgumentChecker.notNull(document.getPosition().getQuantity(), "document.position.quantity");
+    for (ManageableTrade trade : document.getPosition().getTrades()) {
+      ArgumentChecker.notNull(trade.getQuantity(), "position.trade.quantity");
+      ArgumentChecker.notNull(trade.getCounterpartyExternalId(), "position.trade.counterpartyexternalid");
+      ArgumentChecker.notNull(trade.getTradeDate(), "position.trade.tradedate");
+    }
 
     final long positionId = nextId("pos_master_seq");
     final long positionOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : positionId);
