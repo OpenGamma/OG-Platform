@@ -112,7 +112,8 @@ import com.opengamma.util.paging.PagingRequest;
   protected ConfigDocument insert(ConfigDocument document) {
     ArgumentChecker.notNull(document.getName(), "document.name");
     ArgumentChecker.notNull(document.getConfig(), "document.value");
-    
+    ArgumentChecker.notNull(document.getType(), "document.type");
+
     final Object value = document.getConfig().getValue();
     final long docId = nextId("cfg_config_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
