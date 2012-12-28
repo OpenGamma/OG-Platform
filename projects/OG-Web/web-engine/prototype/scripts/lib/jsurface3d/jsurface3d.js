@@ -173,6 +173,9 @@
         js3d.update = function (level, data) {
             js3d.surface_world.init_data(data || js3d.data);
             if (level === 'world') {
+                buffers.hover.clear();
+                buffers.slice.clear();
+                buffers.surface.clear();
                 js3d.groups.animation.add(js3d.surface_world.create_world());
                 if (js3d.webgl) js3d.slice.load();
             }
@@ -181,6 +184,7 @@
         /** @ignore */
         js3d.load = function () {
             var animation_group = js3d.groups.animation, camera;
+            scene = new THREE.Scene();
             js3d.sel_offset = $selector.offset();
             js3d.width = $selector.width();
             js3d.height = $selector.height();
@@ -194,10 +198,10 @@
                 new THREE.WebGLRenderer({antialias: true}) : new THREE.CanvasRenderer();
             renderer.setSize(js3d.width, js3d.height);
             /* buffers */
-            buffers.load = new Four.Buffer(renderer);
-            buffers.hover = new Four.Buffer(renderer);
-            buffers.slice = new Four.Buffer(renderer);
-            buffers.surface = new Four.Buffer(renderer);
+            buffers.load = new Four.Buffer(renderer, scene);
+            buffers.hover = new Four.Buffer(renderer, scene);
+            buffers.slice = new Four.Buffer(renderer, scene);
+            buffers.surface = new Four.Buffer(renderer, scene);
             buffers.load.add(animation_group);
             /* lights */
             keylight = new THREE.DirectionalLight(0xf2f6ff, 0.7, 300);  // surface light
@@ -223,7 +227,6 @@
             camera.position.z = settings.zoom_default;
             camera.lookAt({x: 0, y: 0 + settings.camera_focus_y_offset, z: 0});
             /* scene */
-            scene = new THREE.Scene();
             scene.add(animation_group);
             scene.add(camera);
             /* render scene */

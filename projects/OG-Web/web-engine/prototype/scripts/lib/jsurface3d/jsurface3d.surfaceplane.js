@@ -22,7 +22,7 @@
             var settings = js3d.settings, matlib = js3d.matlib, plane = JSurface3D.plane(js3d, 'surface'), i, wire;
             plane.verticesNeedUpdate = true;
             for (i = 0; i < js3d.adjusted_vol.length; i++) {plane.vertices[i].y = js3d.adjusted_vol[i];} // extrude
-            wire = THREE.GeometryUtils.clone(plane);
+            wire = plane.clone();
             plane.computeCentroids();
             plane.computeFaceNormals();
             plane.computeBoundingSphere();
@@ -44,8 +44,6 @@
                 }
             }());
             /* apply surface materials */
-            plane.materials = matlib.get_material('compound_surface');
-            wire.materials = matlib.get_material('compound_surface_wire');
             (function () { // clip/slice
                 var row, i, x, l,
                     zlft = Math.abs(js3d.slice.lft_z_handle_position - js3d.z_segments) * js3d.x_segments,
@@ -66,9 +64,9 @@
                     else plane_face.materialIndex = wire_face.materialIndex = 0;
                 }
             }());
-            wiremesh = new THREE.Mesh(wire, new THREE.MeshFaceMaterial());
+            wiremesh = new THREE.Mesh(wire, new THREE.MeshFaceMaterial(matlib.get_material('compound_surface_wire')));
             wiremesh.position.y = 0.01; // move wiremesh to account for Z-fighting
-            planemesh = new THREE.Mesh(plane, new THREE.MeshFaceMaterial());
+            planemesh = new THREE.Mesh(plane, new THREE.MeshFaceMaterial(matlib.get_material('compound_surface')));
             surfaceplane.add(planemesh);
             surfaceplane.add(wiremesh);
             surfaceplane.position.y = settings.floating_height;
