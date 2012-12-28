@@ -188,7 +188,9 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_add_addWithMissingTypeProperty() {
     ManageableHoliday holiday = new ManageableHoliday();
-    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
     HolidayDocument added = _holMaster.add(doc);
   }
 
@@ -197,7 +199,9 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     ManageableHoliday holiday = new ManageableHoliday();
     holiday.setType(HolidayType.BANK);
     holiday.setRegionExternalId(ExternalId.of("A", "B"));
-    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
     HolidayDocument added = _holMaster.add(doc);
   }
 
@@ -205,7 +209,9 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
   public void test_add_addBankWithMissingRegionProperty() {
     ManageableHoliday holiday = new ManageableHoliday();
     holiday.setType(HolidayType.BANK);
-    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
     HolidayDocument added = _holMaster.add(doc);
   }
 
@@ -214,7 +220,9 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     ManageableHoliday holiday = new ManageableHoliday();
     holiday.setType(HolidayType.CURRENCY);
     holiday.setCurrency(Currency.USD);
-    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
     HolidayDocument added = _holMaster.add(doc);
   }
 
@@ -222,7 +230,9 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
   public void test_add_addCurrencyWithMissingCurrencyProperty() {
     ManageableHoliday holiday = new ManageableHoliday();
     holiday.setType(HolidayType.CURRENCY);
-    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
     HolidayDocument added = _holMaster.add(doc);
   }
 
@@ -231,7 +241,9 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     ManageableHoliday holiday = new ManageableHoliday();
     holiday.setType(HolidayType.SETTLEMENT);
     holiday.setExchangeExternalId(ExternalId.of("A", "B"));
-    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
     HolidayDocument added = _holMaster.add(doc);
   }
 
@@ -239,7 +251,9 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
   public void test_add_addSettlementWithMissingExchangeProperty() {
     ManageableHoliday holiday = new ManageableHoliday();
     holiday.setType(HolidayType.SETTLEMENT);
-    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
     HolidayDocument added = _holMaster.add(doc);
   }
 
@@ -248,7 +262,9 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     ManageableHoliday holiday = new ManageableHoliday();
     holiday.setType(HolidayType.TRADING);
     holiday.setExchangeExternalId(ExternalId.of("A", "B"));
-    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
     HolidayDocument added = _holMaster.add(doc);
   }
 
@@ -256,7 +272,9 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
   public void test_add_addTradingWithMissingExchangeProperty() {
     ManageableHoliday holiday = new ManageableHoliday();
     holiday.setType(HolidayType.TRADING);
-    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument doc = new HolidayDocument();
+    doc.setName("Test");
+    doc.setHoliday(holiday);
     HolidayDocument added = _holMaster.add(doc);
   }
 
