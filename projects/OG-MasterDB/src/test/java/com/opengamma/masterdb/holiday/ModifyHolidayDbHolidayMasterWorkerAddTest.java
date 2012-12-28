@@ -235,7 +235,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     HolidayDocument added = _holMaster.add(doc);
   }
 
-  @Test
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_add_addSettlementWithMissingExchangeProperty() {
     ManageableHoliday holiday = new ManageableHoliday();
     holiday.setType(HolidayType.SETTLEMENT);
@@ -252,7 +252,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     HolidayDocument added = _holMaster.add(doc);
   }
 
-  @Test
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_add_addTradingWithMissingExchangeProperty() {
     ManageableHoliday holiday = new ManageableHoliday();
     holiday.setType(HolidayType.TRADING);
