@@ -11,6 +11,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.Instant;
 
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.PositionDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
@@ -21,6 +23,8 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.test.DbTest;
+
+import java.math.BigDecimal;
 
 /**
  * Tests ModifyExchangeDbExchangeMasterWorker.
@@ -85,6 +89,22 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
     
     ExchangeDocument test = _exgMaster.get(added.getUniqueId());
     assertEquals(added, test);
+  }
+
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingNameProperty() {
+    ManageableExchange exchange = new ManageableExchange();
+    ExchangeDocument doc = new ExchangeDocument(exchange);
+    ExchangeDocument test = _exgMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addWithMinimalProperties() {
+    ManageableExchange exchange = new ManageableExchange();
+    exchange.setName("Test");
+    ExchangeDocument doc = new ExchangeDocument(exchange);
+    ExchangeDocument test = _exgMaster.add(doc);
   }
 
 }

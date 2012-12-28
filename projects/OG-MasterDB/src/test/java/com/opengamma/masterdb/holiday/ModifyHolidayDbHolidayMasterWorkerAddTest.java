@@ -14,6 +14,8 @@ import java.util.Arrays;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ManageableExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
@@ -181,6 +183,81 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
     
     HolidayDocument test = _holMaster.get(added.getUniqueId());
     assertEquals(added, test);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingTypeProperty() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument added = _holMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addBankWithMinimalProperties() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.BANK);
+    holiday.setRegionExternalId(ExternalId.of("A", "B"));
+    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument added = _holMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addBankWithMissingRegionProperty() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.BANK);
+    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument added = _holMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addCurrencyWithMinimalProperties() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.CURRENCY);
+    holiday.setCurrency(Currency.USD);
+    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument added = _holMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addCurrencyWithMissingCurrencyProperty() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.CURRENCY);
+    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument added = _holMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addSettlementWithMinimalProperties() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.SETTLEMENT);
+    holiday.setExchangeExternalId(ExternalId.of("A", "B"));
+    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument added = _holMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addSettlementWithMissingExchangeProperty() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.SETTLEMENT);
+    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument added = _holMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addTradingWithMinimalProperties() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.TRADING);
+    holiday.setExchangeExternalId(ExternalId.of("A", "B"));
+    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument added = _holMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addTradingWithMissingExchangeProperty() {
+    ManageableHoliday holiday = new ManageableHoliday();
+    holiday.setType(HolidayType.TRADING);
+    HolidayDocument doc = new HolidayDocument(holiday);
+    HolidayDocument added = _holMaster.add(doc);
   }
 
 }

@@ -12,6 +12,9 @@ import static org.testng.AssertJUnit.assertTrue;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.core.holiday.HolidayType;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.ManageableHoliday;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
@@ -112,4 +115,102 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
   public void test_toString() {
     assertEquals(_htsMaster.getClass().getSimpleName() + "[DbHts]", _htsMaster.toString());
   }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingNameProperty() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingDataFieldProperty() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Test");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingDataSourceProperty() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Test");
+    info.setDataField("DF");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingDataProviderProperty() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Test");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setObservationTime("OT");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingObservationTimeProperty() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Test");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingExternalIdBundleProperty() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Test");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addWithMinimalProperties() {
+    ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName("Test");
+    info.setDataField("DF");
+    info.setDataSource("DS");
+    info.setDataProvider("DP");
+    info.setObservationTime("OT");
+    ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of("A", "B"), LocalDate.of(2011, 6, 30), null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument(info);
+    HistoricalTimeSeriesInfoDocument added = _htsMaster.add(doc);
+  }
+
 }
