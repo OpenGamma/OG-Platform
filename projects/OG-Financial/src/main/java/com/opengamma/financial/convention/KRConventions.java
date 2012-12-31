@@ -63,7 +63,7 @@ public class KRConventions {
       final ExternalId tullettImpliedDeposit = tullettPrebonSecurityId("AMIDPKRWSPT" + (i < 10 ? "0" : "") + "M");
       final ExternalId simpleImpliedDeposit = simpleNameSecurityId(impliedDepositName);
       utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, act360, following, Period.ofMonths(i), 0, false, kr);
-      utils.addConventionBundle(ExternalIdBundle.of(tullettImpliedDeposit, simpleImpliedDeposit), depositName, act360, following, Period.ofMonths(i), 0, false, kr);
+      utils.addConventionBundle(ExternalIdBundle.of(tullettImpliedDeposit, simpleImpliedDeposit), impliedDepositName, act360, following, Period.ofMonths(i), 0, false, kr);
     }
 
     for (int i = 1; i < 5; i++) {
