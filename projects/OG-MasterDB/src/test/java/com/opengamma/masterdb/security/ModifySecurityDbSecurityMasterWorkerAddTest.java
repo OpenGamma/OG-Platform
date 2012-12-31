@@ -5,12 +5,17 @@
  */
 package com.opengamma.masterdb.security;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.Instant;
+import javax.time.calendar.TimeZone;
 
+import com.opengamma.master.user.ManageableOGUser;
+import com.opengamma.master.user.UserDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
@@ -88,6 +93,40 @@ public class ModifySecurityDbSecurityMasterWorkerAddTest extends AbstractDbSecur
     
     SecurityDocument test = _secMaster.get(added.getUniqueId());
     assertEquals(added, test);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingNameProperty() {
+    ManageableSecurity security = mock(ManageableSecurity.class);
+    when(security.getSecurityType()).thenReturn("MANAGEABLE");
+    when(security.getExternalIdBundle()).thenReturn(ExternalIdBundle.of("A", "B"));
+    SecurityDocument doc = new SecurityDocument(security);
+    SecurityDocument added = _secMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingExternalIdBundleProperty() {
+    ManageableSecurity security = mock(ManageableSecurity.class);
+    when(security.getSecurityType()).thenReturn("MANAGEABLE");
+    when(security.getName()).thenReturn("Test");
+    SecurityDocument doc = new SecurityDocument(security);
+    SecurityDocument added = _secMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingTypeProperty() {
+    ManageableSecurity security = mock(ManageableSecurity.class);
+    when(security.getName()).thenReturn("Test");
+    when(security.getExternalIdBundle()).thenReturn(ExternalIdBundle.of("A", "B"));
+    SecurityDocument doc = new SecurityDocument(security);
+    SecurityDocument added = _secMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addWithMinimalProperties() {
+    ManageableSecurity security = new ManageableSecurity();
+    SecurityDocument doc = new SecurityDocument(security);
+    SecurityDocument added = _secMaster.add(doc);
   }
 
 }

@@ -8,6 +8,7 @@ package com.opengamma.masterdb.holiday;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -224,8 +225,22 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
   @Override
   protected HolidayDocument insert(final HolidayDocument document) {
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
+    ArgumentChecker.notNull(document.getHoliday().getType(), "document.holiday.type");
     ArgumentChecker.notNull(document.getName(), "document.name");
-    
+    switch (document.getHoliday().getType()) {
+      case BANK:
+        ArgumentChecker.notNull(document.getHoliday().getRegionExternalId(), "document.holiday.region");
+        break;
+      case CURRENCY:
+        ArgumentChecker.notNull(document.getHoliday().getCurrency(), "document.holiday.currency");
+        break;
+      case TRADING:
+      case SETTLEMENT:
+        ArgumentChecker.notNull(document.getHoliday().getExchangeExternalId(), "document.holiday.exchange");
+        break;
+      default:
+        throw new IllegalArgumentException("Holiday type not set");
+    }
     final long docId = nextId("hol_holiday_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     // the arguments for inserting into the holiday table
@@ -238,14 +253,28 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getName())
-      .addValue("provider_scheme", (document.getProviderId() != null ? document.getProviderId().getScheme().getName() : null))
-      .addValue("provider_value", (document.getProviderId() != null ? document.getProviderId().getValue() : null))
-      .addValue("hol_type", holiday.getType() != null ? holiday.getType().name() : null)
-      .addValue("region_scheme", (holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getScheme().getName() : null))
-      .addValue("region_value", (holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getValue() : null))
-      .addValue("exchange_scheme", (holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getScheme().getName() : null))
-      .addValue("exchange_value", (holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getValue() : null))
-      .addValue("currency_iso", (holiday.getCurrency() != null ? holiday.getCurrency().getCode() : null));
+      .addValue("provider_scheme",
+          document.getProviderId() != null ? document.getProviderId().getScheme().getName() : null,
+          Types.VARCHAR)
+      .addValue("provider_value",
+          document.getProviderId() != null ? document.getProviderId().getValue() : null,
+          Types.VARCHAR)
+      .addValue("hol_type", holiday.getType().name())
+      .addValue("region_scheme",
+          holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getScheme().getName() : null,
+          Types.VARCHAR)
+      .addValue("region_value",
+          holiday.getRegionExternalId() != null ? holiday.getRegionExternalId().getValue() : null,
+          Types.VARCHAR)
+      .addValue("exchange_scheme",
+          holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getScheme().getName() : null,
+          Types.VARCHAR)
+      .addValue("exchange_value",
+          holiday.getExchangeExternalId() != null ? holiday.getExchangeExternalId().getValue() : null,
+          Types.VARCHAR)
+      .addValue("currency_iso",
+          holiday.getCurrency() != null ? holiday.getCurrency().getCode() : null,
+          Types.VARCHAR);
     // the arguments for inserting into the date table
     final List<DbMapSqlParameterSource> dateList = new ArrayList<DbMapSqlParameterSource>();
     for (LocalDate date : holiday.getHolidayDates()) {

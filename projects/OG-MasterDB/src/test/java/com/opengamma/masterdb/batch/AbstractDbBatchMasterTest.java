@@ -8,12 +8,20 @@ package com.opengamma.masterdb.batch;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 
 import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.SqlParameterValue;
+import org.springframework.jdbc.core.namedparam.AbstractSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -57,8 +65,8 @@ public abstract class AbstractDbBatchMasterTest extends DbTest {
     template.update("INSERT INTO rsk_live_data_snapshot (id, base_uid_scheme, base_uid_value, base_uid_version) VALUES (?,?,?,?)", 1, _marketDataSnapshotUid.getScheme(), _marketDataSnapshotUid.getValue(), _marketDataSnapshotUid.getVersion());
     template.update("INSERT INTO rsk_live_data_snapshot_entry (id, snapshot_id, computation_target_id, name, value) VALUES (?,?,?,?,?)", 1, 1, 1, "FV", 999.99);    
     template.update("INSERT INTO rsk_run (id, version_correction, viewdef_scheme, viewdef_value, viewdef_version, live_data_snapshot_id, create_instant, start_instant, end_instant, valuation_time, num_restarts, complete) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-      1, _versionCorrection.toString(), _viewDefinitionUid.getScheme(), _viewDefinitionUid.getValue(), _viewDefinitionUid.getVersion(), 1, now, now, null, toSqlTimestamp(_valuationTime), 0, false);      
-
+      1, _versionCorrection.toString(), _viewDefinitionUid.getScheme(), _viewDefinitionUid.getValue(), _viewDefinitionUid.getVersion(), 1, now, now,
+        new SqlParameterValue(Types.TIMESTAMP, null), toSqlTimestamp(_valuationTime), 0, false);
   }
 
   @AfterMethod
