@@ -28,6 +28,10 @@ import com.opengamma.id.ExternalIdBundle;
  */
 public class JPConventions {
 
+  /**
+   * Adds conventions for deposit, Libor fixings, swaps, FRAs and IR futures.
+   * @param conventionMaster The convention master, not null
+   */
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
     Validate.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");

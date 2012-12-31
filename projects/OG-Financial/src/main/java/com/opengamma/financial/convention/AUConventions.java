@@ -26,10 +26,14 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- *
+ * Contains information used to construct standard versions of AUD instruments.
  */
 public class AUConventions {
 
+  /**
+   * Adds conventions for deposit, Libor fixings, swap, IR futures and FRAs.
+   * @param conventionMaster The convention master, not null
+   */
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionBundleMaster conventionMaster) {
     Validate.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -48,40 +52,40 @@ public class AUConventions {
     // IR FUTURES
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("AUD_IR_FUTURE")), "AUD_IR_FUTURE", act365, modified, Period.ofMonths(3), 0, true, au);
 
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU00O/N Index"), simpleNameSecurityId("AUD LIBOR O/N")), "AUD LIBOR O/N", act365,
-        following, Period.ofDays(1), 0, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU00S/N Index"), simpleNameSecurityId("AUD LIBOR S/N")), "AUD LIBOR S/N", act365,
-        following, Period.ofDays(1), 0, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU00T/N Index"), simpleNameSecurityId("AUD LIBOR T/N")), "AUD LIBOR T/N", act365,
-        following, Period.ofDays(1), 0, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0001W Index"), simpleNameSecurityId("AUD LIBOR 1w")), "AUD LIBOR 1w", act365,
-        following, Period.ofDays(1), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0002W Index"), simpleNameSecurityId("AUD LIBOR 2w")), "AUD LIBOR 2w", act365,
-        following, Period.ofDays(1), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0001M Index"), simpleNameSecurityId("AUD LIBOR 1m")), "AUD LIBOR 1m", act365,
-        following, Period.ofMonths(1), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0002M Index"), simpleNameSecurityId("AUD LIBOR 2m")), "AUD LIBOR 2m", act365,
-        following, Period.ofMonths(2), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0003M Index"), simpleNameSecurityId("AUD LIBOR 3m")), "AUD LIBOR 3m", act365,
-        following, Period.ofMonths(3), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0004M Index"), simpleNameSecurityId("AUD LIBOR 4m")), "AUD LIBOR 4m", act365,
-        following, Period.ofMonths(4), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0005M Index"), simpleNameSecurityId("AUD LIBOR 5m")), "AUD LIBOR 5m", act365,
-        following, Period.ofMonths(5), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0006M Index"), simpleNameSecurityId("AUD LIBOR 6m")), "AUD LIBOR 6m", act365,
-        following, Period.ofMonths(6), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0007M Index"), simpleNameSecurityId("AUD LIBOR 7m")), "AUD LIBOR 7m", act365,
-        following, Period.ofMonths(7), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0008M Index"), simpleNameSecurityId("AUD LIBOR 8m")), "AUD LIBOR 8m", act365,
-        following, Period.ofMonths(8), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0009M Index"), simpleNameSecurityId("AUD LIBOR 9m")), "AUD LIBOR 9m", act365,
-        following, Period.ofMonths(9), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0010M Index"), simpleNameSecurityId("AUD LIBOR 10m")), "AUD LIBOR 10m", act365,
-        following, Period.ofMonths(10), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0011M Index"), simpleNameSecurityId("AUD LIBOR 11m")), "AUD LIBOR 11m", act365,
-        following, Period.ofMonths(11), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0012M Index"), simpleNameSecurityId("AUD LIBOR 12m")), "AUD LIBOR 12m", act365,
-        following, Period.ofMonths(12), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU00O/N Index"), simpleNameSecurityId("AUD LIBOR O/N")),
+        "AUD LIBOR O/N", act365, following, Period.ofDays(1), 0, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU00S/N Index"), simpleNameSecurityId("AUD LIBOR S/N"),
+        tullettPrebonSecurityId("ASLIBAUDSNL")), "AUD LIBOR S/N", act365, following, Period.ofDays(1), 0, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU00T/N Index"), simpleNameSecurityId("AUD LIBOR T/N")),
+        "AUD LIBOR T/N", act365, following, Period.ofDays(1), 0, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0001W Index"), simpleNameSecurityId("AUD LIBOR 1w"),
+        tullettPrebonSecurityId("ASLIBAUD1WL")), "AUD LIBOR 1w", act365, following, Period.ofDays(1), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0002W Index"), simpleNameSecurityId("AUD LIBOR 2w"),
+        tullettPrebonSecurityId("ASLIBAUD2WL")), "AUD LIBOR 2w", act365, following, Period.ofDays(1), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0001M Index"), simpleNameSecurityId("AUD LIBOR 1m"),
+        tullettPrebonSecurityId("ASLIBAUD01L")), "AUD LIBOR 1m", act365, following, Period.ofMonths(1), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0002M Index"), simpleNameSecurityId("AUD LIBOR 2m"),
+        tullettPrebonSecurityId("ASLIBAUD02L")), "AUD LIBOR 2m", act365, following, Period.ofMonths(2), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0003M Index"), simpleNameSecurityId("AUD LIBOR 3m"),
+        tullettPrebonSecurityId("ASLIBAUD03L")), "AUD LIBOR 3m", act365, following, Period.ofMonths(3), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0004M Index"), simpleNameSecurityId("AUD LIBOR 4m"),
+        tullettPrebonSecurityId("ASLIBAUD04L")), "AUD LIBOR 4m", act365, following, Period.ofMonths(4), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0005M Index"), simpleNameSecurityId("AUD LIBOR 5m"),
+        tullettPrebonSecurityId("ASLIBAUD05L")), "AUD LIBOR 5m", act365, following, Period.ofMonths(5), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0006M Index"), simpleNameSecurityId("AUD LIBOR 6m"),
+        tullettPrebonSecurityId("ASLIBAUD06L")), "AUD LIBOR 6m", act365, following, Period.ofMonths(6), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0007M Index"), simpleNameSecurityId("AUD LIBOR 7m"),
+        tullettPrebonSecurityId("ASLIBAUD07L")), "AUD LIBOR 7m", act365, following, Period.ofMonths(7), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0008M Index"), simpleNameSecurityId("AUD LIBOR 8m"),
+        tullettPrebonSecurityId("ASLIBAUD08L")), "AUD LIBOR 8m", act365, following, Period.ofMonths(8), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0009M Index"), simpleNameSecurityId("AUD LIBOR 9m"),
+        tullettPrebonSecurityId("ASLIBAUD09L")), "AUD LIBOR 9m", act365, following, Period.ofMonths(9), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0010M Index"), simpleNameSecurityId("AUD LIBOR 10m"),
+        tullettPrebonSecurityId("ASLIBAUD10L")), "AUD LIBOR 10m", act365, following, Period.ofMonths(10), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0011M Index"), simpleNameSecurityId("AUD LIBOR 11m"),
+        tullettPrebonSecurityId("ASLIBAUD11L")), "AUD LIBOR 11m", act365, following, Period.ofMonths(11), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0012M Index"), simpleNameSecurityId("AUD LIBOR 12m"),
+        tullettPrebonSecurityId("ASLIBAUD12L")), "AUD LIBOR 12m", act365, following, Period.ofMonths(12), 2, false, au);
 
     //TODO need to check that these are right for deposit rates
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("ADDR1T Curncy"), simpleNameSecurityId("AUD DEPOSIT 1d")), "AUD DEPOSIT 1d", act365,
