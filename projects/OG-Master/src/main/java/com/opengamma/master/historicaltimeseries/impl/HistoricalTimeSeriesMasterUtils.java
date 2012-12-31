@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
@@ -135,6 +136,27 @@ public class HistoricalTimeSeriesMasterUtils {
    */
   public UniqueId writeTimeSeries(String description, String dataSource, String dataProvider, String dataField,
       String observationTime, ExternalIdBundle externalIdBundle, LocalDateDoubleTimeSeries timeSeries) {
+    return writeTimeSeries(description, dataSource, dataProvider, dataField, observationTime, externalIdBundle, null,
+        timeSeries);
+  }
+  
+  /**
+   * Adds or updates a time-series in the master.  Can be a sub-set of the data points present and will not 'erase' 
+   * points that are missing, only supplement them.
+   * 
+   * @param description  a description of the time-series for display purposes, not null
+   * @param dataSource  the data source, not null
+   * @param dataProvider  the data provider, not null
+   * @param dataField  the data field, not null
+   * @param observationTime  the descriptive observation time key, e.g. LONDON_CLOSE, not null
+   * @param externalIdBundle  the external identifiers with which the time-series is associated, not null
+   * @param externalIdSearchType  the external identifier search type for matching an existing time-series, null to use the default
+   * @param timeSeries  the time-series, not null
+   * @return the unique identifier of the time-series
+   */
+  public UniqueId writeTimeSeries(String description, String dataSource, String dataProvider, String dataField,
+      String observationTime, ExternalIdBundle externalIdBundle, ExternalIdSearchType externalIdSearchType,
+      LocalDateDoubleTimeSeries timeSeries) {
     ArgumentChecker.notNull(description, "description");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
@@ -145,6 +167,9 @@ public class HistoricalTimeSeriesMasterUtils {
     
     HistoricalTimeSeriesInfoSearchRequest htsSearchReq = new HistoricalTimeSeriesInfoSearchRequest();
     ExternalIdSearch idSearch = new ExternalIdSearch(externalIdBundle);
+    if (externalIdSearchType != null) {
+      idSearch.setSearchType(externalIdSearchType);
+    }
     htsSearchReq.setExternalIdSearch(idSearch);
     htsSearchReq.setDataSource(dataSource);
     htsSearchReq.setDataProvider(dataProvider);
@@ -152,6 +177,9 @@ public class HistoricalTimeSeriesMasterUtils {
     htsSearchReq.setObservationTime(observationTime);
     HistoricalTimeSeriesInfoSearchResult searchResult = _htsMaster.search(htsSearchReq);
     if (searchResult.getDocuments().size() > 0) {
+      if (searchResult.getDocuments().size() > 1) {
+        s_logger.warn("Found multiple time-series matching search. Will only update the first. Search {} returned {}", htsSearchReq, searchResult.getInfoList());
+      }
       // update existing time series
       HistoricalTimeSeriesInfoDocument existingTsDoc = searchResult.getFirstDocument();
       return writeTimeSeries(description, dataSource, dataProvider, dataField, observationTime, existingTsDoc.getObjectId(), timeSeries);
