@@ -29,7 +29,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- *
+ * Contains information used to construct standard versions of USD instruments.
  */
 public class USConventions {
 
