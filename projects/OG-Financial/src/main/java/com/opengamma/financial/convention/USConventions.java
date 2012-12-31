@@ -32,6 +32,10 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class USConventions {
 
+  /**
+   *
+   * @param conventionMaster The convention master, not null
+   */
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
