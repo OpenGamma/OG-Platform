@@ -31,7 +31,7 @@ $.register_module({
                     if (menu.$dom.menu) {
                         menu.$dom.menu_actions = $('.og-menu-actions', menu.$dom.menu);
                         menu.$dom.opt = $('.OG-dropmenu-options', menu.$dom.menu);
-                        menu.$dom.opt.data('pos', ((menu.opts = []).push(menu.$dom.opt), menu.opts.length1));
+                        menu.$dom.opt.data('pos', ((menu.opts = []).push(menu.$dom.opt), menu.opts.length-1));
                         menu.$dom.add = $('.OG-link-add', menu.$dom.menu);
                         menu.$dom.opt_cp = menu.$dom.opt.clone(true);
                     }
