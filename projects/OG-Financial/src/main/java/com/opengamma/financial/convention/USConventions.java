@@ -12,8 +12,6 @@ import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.
 
 import javax.time.calendar.Period;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -27,6 +25,7 @@ import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Contains information used to construct standard versions of USD instruments.
@@ -34,7 +33,7 @@ import com.opengamma.id.ExternalIdBundle;
 public class USConventions {
 
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -205,14 +204,14 @@ public class USConventions {
   }
 
   public static void addCAPMConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_CAPM")), "USD_CAPM",
         ExternalIdBundle.of(bloombergTickerSecurityId("US0003M Index")), ExternalIdBundle.of(bloombergTickerSecurityId("SPX Index")));
   }
 
   public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("US_TREASURY_BOND_CONVENTION")), "US_TREASURY_BOND_CONVENTION", true, true, 0, 1,
         true);
@@ -220,14 +219,14 @@ public class USConventions {
 
   //TODO need to get the correct convention
   public static void addCorporateBondConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("US_CORPORATE_BOND_CONVENTION")), "US_CORPORATE_BOND_CONVENTION", true, true, 0, 1,
         true);
   }
 
   public static void addBondFutureConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_BOND_FUTURE_DELIVERABLE_CONVENTION")),
         "USD_BOND_FUTURE_DELIVERABLE_CONVENTION", true, true, 0, 0, DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),

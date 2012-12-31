@@ -11,8 +11,6 @@ import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.
 
 import javax.time.calendar.Period;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -22,14 +20,19 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Contains information used to construct standard versions of SEK instruments.
  */
 public class SEConventions {
 
+  /**
+   * Adds conventions for deposit, Libor and Stibor fixings.
+   * @param conventionMaster The convention master, not null
+   */
   public static void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");

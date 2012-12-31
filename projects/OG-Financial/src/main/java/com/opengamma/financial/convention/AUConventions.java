@@ -12,8 +12,6 @@ import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.
 
 import javax.time.calendar.Period;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.IndexType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -24,6 +22,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Contains information used to construct standard versions of AUD instruments.
@@ -31,11 +30,11 @@ import com.opengamma.id.ExternalIdBundle;
 public class AUConventions {
 
   /**
-   * Adds conventions for deposit, Libor fixings, swap, IR futures and FRAs.
+   * Adds conventions for deposit, Libor fixings, swaps, IR futures and FRAs.
    * @param conventionMaster The convention master, not null
    */
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
