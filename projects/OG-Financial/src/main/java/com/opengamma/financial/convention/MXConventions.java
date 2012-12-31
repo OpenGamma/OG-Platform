@@ -6,6 +6,7 @@
 package com.opengamma.financial.convention;
 
 import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
+import static com.opengamma.core.id.ExternalSchemes.tullettPrebonSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
 import javax.time.calendar.Period;
@@ -27,7 +28,7 @@ public class MXConventions {
   private static final char[] BBG_MONTH_CODES = new char[] {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'};
 
   /**
-   * Add conventions for deposits.
+   * Add conventions for deposits and implied deposits.
    * @param conventionMaster The convention master, not null
    */
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionBundleMaster conventionMaster) {
@@ -53,7 +54,11 @@ public class MXConventions {
       final String depositName = "MXN DEPOSIT " + i + "m";
       final ExternalId bbgDeposit = bloombergTickerSecurityId("MPDR" + BBG_MONTH_CODES[i - 1] + " Curncy");
       final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
+      final String impliedDepositName = "MXN IMPLIED DEPOSIT " + i + "m";
+      final ExternalId tullettImpliedDeposit = tullettPrebonSecurityId("LMIDPMXNSPT" + (i < 10 ? "0" : "") + i + "M");
+      final ExternalId simpleImpliedDeposit = simpleNameSecurityId(impliedDepositName);
       utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, dc, following, Period.ofMonths(i), 0, false, mx);
+      utils.addConventionBundle(ExternalIdBundle.of(tullettImpliedDeposit, simpleImpliedDeposit), impliedDepositName, dc, following, Period.ofMonths(i), 0, false, mx);
     }
 
     for (int i = 1; i < 2; i++) {

@@ -60,7 +60,7 @@ public class KRConventions {
       final ExternalId bbgDeposit = bloombergTickerSecurityId("KWDR" + BBG_MONTH_CODES[i - 1] + " Curncy");
       final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
       final String impliedDepositName = "KRW IMPLIED DEPOSIT " + i + "m";
-      final ExternalId tullettImpliedDeposit = tullettPrebonSecurityId("AMIDPKRWSPT" + (i < 10 ? "0" : "") + "M");
+      final ExternalId tullettImpliedDeposit = tullettPrebonSecurityId("AMIDPKRWSPT" + (i < 10 ? "0" : "") + i + "M");
       final ExternalId simpleImpliedDeposit = simpleNameSecurityId(impliedDepositName);
       utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, act360, following, Period.ofMonths(i), 0, false, kr);
       utils.addConventionBundle(ExternalIdBundle.of(tullettImpliedDeposit, simpleImpliedDeposit), impliedDepositName, act360, following, Period.ofMonths(i), 0, false, kr);

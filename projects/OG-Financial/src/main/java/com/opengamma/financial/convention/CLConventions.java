@@ -45,7 +45,7 @@ public class CLConventions {
 
     for (int i = 1; i < 12; i++) {
       final String impliedDepositName = "CLP IMPLIED DEPOSIT " + i + "m";
-      final ExternalId tullettImpliedDeposit = tullettPrebonSecurityId("LMIDPCLPSPT" + (i < 10 ? "0" : "") + "M");
+      final ExternalId tullettImpliedDeposit = tullettPrebonSecurityId("LMIDPCLPSPT" + (i < 10 ? "0" : "") + i + "M");
       final ExternalId simpleImpliedDeposit = simpleNameSecurityId(impliedDepositName);
       utils.addConventionBundle(ExternalIdBundle.of(tullettImpliedDeposit, simpleImpliedDeposit), impliedDepositName, ACT_360, FOLLOWING, Period.ofMonths(i), 0, false, CL);
     }
