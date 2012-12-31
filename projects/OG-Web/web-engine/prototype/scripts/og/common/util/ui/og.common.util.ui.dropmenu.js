@@ -14,13 +14,18 @@ $.register_module({
             close: 'dropmenu:close',
             closed: 'dropmenu:closed'
         };
-        var DropMenu = function () {
+        var DropMenu = function (config) {
             var menu = this;
             menu.state = 'closed';
             menu.opened = false;
             menu.init_blurkill = false;
             menu.events = events;
             menu.$dom = {};
+            if (config && config.hasOwnProperty('tmpl') && config.hasOwnProperty('data')) {
+                menu.$dom.cntr = config.$cntr.html($((Handlebars.compile(config.tmpl||''))(config.data||{})));
+                menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
+                menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
+            }
             menu.on(menu.events.open, menu.open, menu)
                 .on(menu.events.close, menu.close, menu)
                 .on(menu.events.focus, menu.focus, menu);

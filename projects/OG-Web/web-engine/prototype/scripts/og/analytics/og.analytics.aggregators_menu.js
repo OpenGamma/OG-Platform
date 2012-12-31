@@ -29,7 +29,7 @@ $.register_module({
                     reset:'reset',
                     replay:'replay'
                 },
-                $dom, query = [], sel_val, sel_pos, $parent, $query, form = config.form, initialized = false,
+                menu, $dom, query = [], sel_val, sel_pos, $parent, $query, form = config.form, initialized = false,
                 $select, $checkbox, default_sel_txt = 'select aggregation...', default_query_text = 'Default',
                 del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', select_s = 'select',
                 checkbox_s = '.og-option :checkbox', tmpl_menu = '', tmpl_toggle = '';
@@ -140,7 +140,9 @@ $.register_module({
 
             var replay = function (conf) {
                 var replay_opts = function () {
-                    if (!conf || !conf.hasOwnProperty('aggregators') || !$.isArray(conf.aggregators)) return;
+                    if (!conf || !conf.hasOwnProperty('aggregators')) return;
+                    var aggregators = conf.aggregators;
+                    if (!$.isArray(aggregators) || !aggregators.length) return;
                     menu.opts.forEach(function (option) { option.remove(); });
                     menu.opts.length = 0;
                     query = [];
