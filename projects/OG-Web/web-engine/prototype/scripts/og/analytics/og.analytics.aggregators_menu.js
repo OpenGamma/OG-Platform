@@ -85,7 +85,7 @@ $.register_module({
                     $dom.toggle_prefix.append('<span>Aggregated by</span>');
                     if ($dom.menu) {
                         $query = $('.aggregation-selection', $dom.toggle);
-                        menu.block
+                        $dom.menu
                             .on('mousedown', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                             .on('change', 'select', menu_handler);
                     }
