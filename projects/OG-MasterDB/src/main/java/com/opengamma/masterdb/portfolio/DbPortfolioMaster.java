@@ -8,6 +8,7 @@ package com.opengamma.masterdb.portfolio;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -285,8 +286,8 @@ public class DbPortfolioMaster
       .addValue("node_oid", nodeOid)
       .addValue("portfolio_id", portfolioId)
       .addValue("portfolio_oid", portfolioOid)
-      .addValue("parent_node_id", parentNodeId)
-      .addValue("parent_node_oid", parentNodeOid)
+      .addValue("parent_node_id", parentNodeId, Types.BIGINT)
+      .addValue("parent_node_oid", parentNodeOid, Types.BIGINT)
       .addValue("depth", depth)
       .addValue("name", StringUtils.defaultString(node.getName()));
     argsList.add(treeArgs);

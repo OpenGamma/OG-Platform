@@ -5,13 +5,22 @@
  */
 package com.opengamma.masterdb.user;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import javax.time.Instant;
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundleWithDates;
+import com.opengamma.id.ExternalIdWithDates;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.master.portfolio.ManageablePortfolio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
@@ -97,6 +106,30 @@ public class ModifyUserDbUserMasterWorkerAddTest extends AbstractDbUserMasterWor
     
     UserDocument test = _usrMaster.get(added.getUniqueId());
     assertEquals(added, test);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingTimeZoneProperty() {
+    ManageableOGUser user = mock(ManageableOGUser.class);
+    when(user.getUserId()).thenReturn("AddedUser");
+    UserDocument doc = new UserDocument(user);
+    UserDocument test = _usrMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingUserIdProperty() {
+    ManageableOGUser user = mock(ManageableOGUser.class);
+    when(user.getTimeZone()).thenReturn(TimeZone.UTC);
+    UserDocument doc = new UserDocument(user);
+    UserDocument test = _usrMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addWithMinimalProperties() {
+    // Time zone is set to UTC automatically and user ID is a required arg to constructor
+    ManageableOGUser user = new ManageableOGUser("AddedUser");
+    UserDocument doc = new UserDocument(user);
+    UserDocument test = _usrMaster.add(doc);
   }
 
 }

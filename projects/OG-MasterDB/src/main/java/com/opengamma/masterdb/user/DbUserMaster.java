@@ -197,7 +197,9 @@ public class DbUserMaster
   @Override
   protected UserDocument insert(UserDocument document) {
     ArgumentChecker.notNull(document.getUser(), "document.user");
-    
+    ArgumentChecker.notNull(document.getUser().getUserId(), "document.user.userid");
+    ArgumentChecker.notNull(document.getUser().getTimeZone(), "document.user.timezone");
+
     final long docId = nextId("usr_oguser_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     final UniqueId uniqueId = createUniqueId(docOid, docId);
