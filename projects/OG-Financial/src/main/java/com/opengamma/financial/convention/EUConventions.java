@@ -148,35 +148,35 @@ public class EUConventions {
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDR3T Curncy"), simpleNameSecurityId("EUR DEPOSIT 3d")),
         "EUR DEPOSIT 3d", act360, following, Period.ofDays(1), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDR1Z Curncy"), simpleNameSecurityId("EUR DEPOSIT 1w"),
-        icapSecurityId("EUR_1W")), "EUR DEPOSIT 1w", act360, following, Period.ofDays(7), 2, false, eu);
+        icapSecurityId("EUR_1W"), tullettPrebonSecurityId("MNDEPEURSPT01W")), "EUR DEPOSIT 1w", act360, following, Period.ofDays(7), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDR2Z Curncy"), simpleNameSecurityId("EUR DEPOSIT 2w"),
-        icapSecurityId("EUR_2W")), "EUR DEPOSIT 2w", act360, following, Period.ofDays(14), 2, false, eu);
+        icapSecurityId("EUR_2W"), tullettPrebonSecurityId("MNDEPEURSPT02W")), "EUR DEPOSIT 2w", act360, following, Period.ofDays(14), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDR3Z Curncy"), simpleNameSecurityId("EUR DEPOSIT 3w"),
-        icapSecurityId("EUR_3W")), "EUR DEPOSIT 3w", act360, following, Period.ofDays(21), 2, false, eu);
+        icapSecurityId("EUR_3W"), tullettPrebonSecurityId("MNDEPEURSPT03W")), "EUR DEPOSIT 3w", act360, following, Period.ofDays(21), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDRA Curncy"), simpleNameSecurityId("EUR DEPOSIT 1m"),
-        icapSecurityId("EUR_1M")), "EUR DEPOSIT 1m", act360, following, Period.ofMonths(1), 2, false, eu);
+        icapSecurityId("EUR_1M"), tullettPrebonSecurityId("MNDEPEURSPT01M")), "EUR DEPOSIT 1m", act360, following, Period.ofMonths(1), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDRB Curncy"), simpleNameSecurityId("EUR DEPOSIT 2m"),
-        icapSecurityId("EUR_2M")), "EUR DEPOSIT 2m", act360, following, Period.ofMonths(2), 2, false, eu);
+        icapSecurityId("EUR_2M"), tullettPrebonSecurityId("MNDEPEURSPT02M")), "EUR DEPOSIT 2m", act360, following, Period.ofMonths(2), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDRC Curncy"), simpleNameSecurityId("EUR DEPOSIT 3m"),
-        icapSecurityId("EUR_3M")), "EUR DEPOSIT 3m", act360, following, Period.ofMonths(3), 2, false, eu);
+        icapSecurityId("EUR_3M"), tullettPrebonSecurityId("MNDEPEURSPT03M")), "EUR DEPOSIT 3m", act360, following, Period.ofMonths(3), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDRD Curncy"), simpleNameSecurityId("EUR DEPOSIT 4m"),
-        icapSecurityId("EUR_4M")), "EUR DEPOSIT 4m", act360, following, Period.ofMonths(4), 2, false, eu);
+        icapSecurityId("EUR_4M"), tullettPrebonSecurityId("MNDEPEURSPT04M")), "EUR DEPOSIT 4m", act360, following, Period.ofMonths(4), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDRE Curncy"), simpleNameSecurityId("EUR DEPOSIT 5m"),
-        icapSecurityId("EUR_5M")), "EUR DEPOSIT 5m", act360, following, Period.ofMonths(5), 2, false, eu);
+        icapSecurityId("EUR_5M"), tullettPrebonSecurityId("MNDEPEURSPT05M")), "EUR DEPOSIT 5m", act360, following, Period.ofMonths(5), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDRF Curncy"), simpleNameSecurityId("EUR DEPOSIT 6m"),
-        icapSecurityId("EUR_6M")), "EUR DEPOSIT 6m", act360, following, Period.ofMonths(6), 2, false, eu);
+        icapSecurityId("EUR_6M"), tullettPrebonSecurityId("MNDEPEURSPT06M")), "EUR DEPOSIT 6m", act360, following, Period.ofMonths(6), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDRG Curncy"), simpleNameSecurityId("EUR DEPOSIT 7m"),
-        icapSecurityId("EUR_7M")), "EUR DEPOSIT 7m", act360, following, Period.ofMonths(7), 2, false, eu);
+        icapSecurityId("EUR_7M"), tullettPrebonSecurityId("MNDEPEURSPT07M")), "EUR DEPOSIT 7m", act360, following, Period.ofMonths(7), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDRH Curncy"), simpleNameSecurityId("EUR DEPOSIT 8m"),
-        icapSecurityId("EUR_8M")), "EUR DEPOSIT 8m", act360, following, Period.ofMonths(8), 2, false, eu);
+        icapSecurityId("EUR_8M"), tullettPrebonSecurityId("MNDEPEURSPT08M")), "EUR DEPOSIT 8m", act360, following, Period.ofMonths(8), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDRI Curncy"), simpleNameSecurityId("EUR DEPOSIT 9m"),
-        icapSecurityId("EUR_9M")), "EUR DEPOSIT 9m", act360, following, Period.ofMonths(9), 2, false, eu);
+        icapSecurityId("EUR_9M"), tullettPrebonSecurityId("MNDEPEURSPT09M")), "EUR DEPOSIT 9m", act360, following, Period.ofMonths(9), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDRJ Curncy"), simpleNameSecurityId("EUR DEPOSIT 10m"),
-        icapSecurityId("EUR_10M")), "EUR DEPOSIT 10m", act360, following, Period.ofMonths(10), 2, false, eu);
+        icapSecurityId("EUR_10M"), tullettPrebonSecurityId("MNDEPEURSPT10M")), "EUR DEPOSIT 10m", act360, following, Period.ofMonths(10), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDRK Curncy"), simpleNameSecurityId("EUR DEPOSIT 11m"),
-        icapSecurityId("EUR_11M")), "EUR DEPOSIT 11m", act360, following, Period.ofMonths(11), 2, false, eu);
+        icapSecurityId("EUR_11M"), tullettPrebonSecurityId("MNDEPEURSPT11M")), "EUR DEPOSIT 11m", act360, following, Period.ofMonths(11), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDR1 Curncy"), simpleNameSecurityId("EUR DEPOSIT 1y"),
-        icapSecurityId("EUR_12M")), "EUR DEPOSIT 1y", act360, following, Period.ofYears(1), 2, false, eu);
+        icapSecurityId("EUR_12M"), tullettPrebonSecurityId("MNDEPEURSPT12M")), "EUR DEPOSIT 1y", act360, following, Period.ofYears(1), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDR2 Curncy"), simpleNameSecurityId("EUR DEPOSIT 2y")),
         "EUR DEPOSIT 2y", act360, following, Period.ofYears(2), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUDR3 Curncy"), simpleNameSecurityId("EUR DEPOSIT 3y")),
