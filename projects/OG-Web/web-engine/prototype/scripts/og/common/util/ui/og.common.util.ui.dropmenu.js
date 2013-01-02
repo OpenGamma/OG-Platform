@@ -26,9 +26,9 @@ $.register_module({
                 menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
                 menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
             }
-            menu.on(menu.events.open, menu.open, menu)
-                .on(menu.events.close, menu.close, menu)
-                .on(menu.events.focus, menu.focus, menu);
+            menu.on(events.open, menu.open.bind(menu))
+                .on(events.close, menu.close.bind(menu))
+                .on(events.focus, menu.focus.bind(menu));
             return menu;
         };
         DropMenu.prototype.constructor = DropMenu;

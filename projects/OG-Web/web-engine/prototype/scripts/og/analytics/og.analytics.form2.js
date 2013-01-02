@@ -33,6 +33,9 @@ $.register_module({
             form = new og.common.util.ui.Form({
                 module: tashes.form_container,
                 selector: '.' + selectors.form_container
+            }).on('click', '.og-load', function () {
+                var data = form.compile();
+                console.log(data);
             });
 
         var init = function () {

@@ -15,10 +15,19 @@ $.register_module({
             // Private
             var default_conf = {
                     data: { live:[], snapshot:[], historical:[] },
-                    extras: { types: ['Live', 'Snapshot', 'Historical']},
                     form: config.form,
                     selector: '.og-datasources',
-                    tmpl: 'og.analytics.form_datasources_tash'
+                    tmpl: 'og.analytics.form_datasources_tash',
+                    children: [
+                        new og.common.util.ui.Dropdown({
+                            form: config.form, value: 'Live', placeholder: 'select type...',
+                            data_generator: function (callback) { callback(['Live', 'Snapshot', 'Historical']);}
+                        }),
+                        new og.common.util.ui.Dropdown({
+                            form: config.form, resource: 'livedatasources', index: 'live.0',
+                            value: 'Bloomberg', placeholder: 'select data source...'
+                        })
+                    ]
                 },
                 events = {
                     open: 'dropmenu:open',
@@ -40,11 +49,19 @@ $.register_module({
                 custom_val = 'Custom', date_selected_s = 'date-selected', active_s = 'active', versions_s = '.versions',
                 corrections_s = '.corrections', initialized = false, menu, form = config.form;
 
-            var add_handler = function () {
-                menu.add_handler();
-                var idx = menu.opts.length-1;
-                set_type_select(idx, {type: 'live'});
-                type_handler(idx, {post_handler: replay_post_handler(idx, {src:{idx:1}})});
+            var add_handler = function (opts) {
+                var index = opts && opts.hasOwnProperty('idx') ? opts.idx : menu.opts.length;
+                new og.common.util.ui.Dropdown({
+                    form: config.form, resource: opts.source, index: opts.name + '.' + index,
+                    value: (opts && opts.hasOwnProperty('val') ? opts.val : ''), placeholder: 'select data source...'
+                }).html(function (html) {
+                    var idx, $elem = menu.$dom.opt_cp.clone(true); $elem.find('td.ds-opts').html(html);
+                    menu.add_handler($elem); idx = menu.opts.length-1;
+                    $('.type-opts select', menu.opts[idx]).attr('class', 'type');
+                    $('.ds-opts select', menu.opts[idx]).attr('class', 'source');
+                    populate_src_options(idx);
+                    source_handler(idx);
+                });
             };
 
             var date_handler = function (entry, preload) { // TODO AG: refocus custom, hide datepicker
@@ -83,7 +100,7 @@ $.register_module({
                 })
                 .datepicker('show');
                 widget = custom_dp.datepicker('widget').on(events.preventblurkill, function(event) {
-                    menu.fire(events.open);
+                    menu.open();
                 });
             };
 
@@ -132,13 +149,15 @@ $.register_module({
                             'data' in res_keys.data && res_keys.data.data)
                             res_keys.data.data.forEach(function (entry) {resolver_keys.push(entry.split('|')[1]);});
                         if ($dom.menu) {
-                            $dom.menu
+                            $dom.menu.find('.type-opts select').attr('class', 'type');
+                            $dom.menu.find('.ds-opts select').attr('class', 'source');
+                            menu.block
                                 .on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                                 .on('change', 'select', menu_handler);
                             init_listeners();
                         }
-                        set_type_select(0, {type: 'live'});
-                        type_handler(0, {post_handler: replay_post_handler(0, {src:{idx:1}})});
+                        populate_src_options(0);
+                        source_handler(0);
                         menu.fire('initialized', initialized = true);
                     });
                 }
@@ -153,7 +172,9 @@ $.register_module({
                 var entry, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s);
                 if (!parent) return;
                 entry = parent.data('pos');
-                if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler();
+                if (elem.is(menu.$dom.add)) {
+                    return menu.stop(event), add_handler({source:'livedatasources', name:'live', val:'Bloomberg'});
+                }
                 if (elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                 if (elem.is(type_s)) return type_handler(entry);
                 if (elem.is(source_s)) return source_handler(entry);
@@ -172,6 +193,7 @@ $.register_module({
                     if (config && 'post_handler' in config && config.post_handler) config.post_handler();
                 }
             };
+
             var populate_livedatasources = function (entry, config) {
                 if (!menu.opts[entry]) return;
                 og.api.rest.livedatasources.get({cache_for: 5000}).pipe(function (resp) {
@@ -201,12 +223,14 @@ $.register_module({
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase();
                 if (!source_select) return;
                 if (type_val) menu.opts[entry].data('type', type_val).addClass(type_val);
-                source_select.hide();
-                (data || []).forEach(function (d) {
-                    if ($.isPlainObject(d) && 'name' in d && typeof d.name === 'string') snapshots[d.name] = d.id;
-                    source_select.append($($option.html()).text(d.name || d));
-                });
-                source_select.show();
+                if (data) {
+                    source_select.hide();
+                    data.forEach(function (d) {
+                        if ($.isPlainObject(d) && 'name' in d && typeof d.name === 'string') snapshots[d.name] = d.id;
+                        source_select.append($($option.html()).text(d.name || d));
+                    });
+                    source_select.show();
+                }
             };
 
             var remove_date = function (entry) {
@@ -309,11 +333,8 @@ $.register_module({
                     if (menu.opts.length === 1 && query.length === 1) return remove_ext_opts(entry), reset_query(entry);
                     return remove_entry(idx), remove_ext_opts(entry), display_query(),
                         enable_extra_options(entry, false);
-                    // fire; typeselected
                 }
-                if (parent.hasClass(parent.data('type'))) {
-                    remove_entry(idx); remove_ext_opts(entry); display_query();
-                }
+                if (parent.hasClass(parent.data('type'))) remove_entry(idx); remove_ext_opts(entry); display_query();
                 switch (type_val) {
                     case 'live': populate_livedatasources(entry, conf); break;
                     case 'snapshot': populate_marketdatasnapshots(entry, conf); break;
