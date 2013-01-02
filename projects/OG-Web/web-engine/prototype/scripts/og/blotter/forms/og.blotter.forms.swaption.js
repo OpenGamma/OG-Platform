@@ -6,16 +6,17 @@ $.register_module({
     name: 'og.blotter.forms.Swaption',
     dependencies: [],
     obj: function () {   
-        return function () {
-            var constructor = this;
+        return function (config) {
+            config = og.blotter.util.FAKE_SWAPTION;
+            config.floating = og.blotter.util.FAKE_FLOATING;
+            config.fixed = og.blotter.util.FAKE_FIXED;
+            console.log(config);
+            var constructor = this, ui = og.common.util.ui, data = config || {}, floating = "floatingspreadirleg.";
             constructor.load = function () {
                 constructor.title = 'Swaption';
                 var form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.swaption_tash',
-                    data: {},
-                    type_map: {},
-                    selector: '.OG-blotter-form-block',
-                    extras:{}
+                    selector: '.OG-blotter-form-block'
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
@@ -29,15 +30,59 @@ $.register_module({
                     }),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_details_fixed_tash',
-                        extras: {}
-                    }) ,
+                        extras: {rate: data.fixed.rate},
+                        children : [
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.daycountconventions', 
+                                index: 'fixedinterestrateleg.dayCount',
+                                value: data.fixed.dayCount, placeholder: 'Select Day Count'
+                            }),
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.frequencies', 
+                                index: 'fixedinterestrateleg.frequency',
+                                value: data.fixed.frequency, placeholder: 'Select Frequency'
+                            })
+                        ]
+                    }),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_details_floating_tash',
-                        extras: {}
+                        extras: {type: floating, initial: data.floating.initialFloatingRate, 
+                            settlement: data.floating.settlementDays, spread: data.floating.spread, 
+                            gearing: data.floating.gearing},
+                        children: [
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.daycountconventions', index: floating + 'dayCount',
+                                value: data.floating.dayCount, placeholder: 'Select Day Count'
+                            }),
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.frequencies', index: floating + 'frequency',
+                                value: data.floating.frequency, placeholder: 'Select Frequency'
+                            }),
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.businessdayconventions', 
+                                index: floating + 'businessDayConvention',
+                                value: data.floating.businessDayConvention, 
+                                placeholder: 'Select Business Day Convention'
+                            }),
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.floatingratetypes', 
+                                index: floating + 'floatingRateTypes',
+                                value: data.floating.floatingRateType, placeholder: 'Select Floating Rate Type'
+                            }),
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.frequencies', index: floating + 'offsetFixing',
+                                value: data.floating.offsetFixing, placeholder: 'Select Offset Fixing'
+                            })
+                        ]
                     }),
-                    new og.common.util.ui.Attributes({form: form})   
+                    new og.common.util.ui.Attributes({form: form, attributes: data.attributes})  
                 );
                 form.dom();
+                form.on('form:load', function (){
+                    if(data.length) return;
+                    og.blotter.util.check_checkbox(floating + 'eom', data.floating.eom);
+                    og.blotter.util.check_checkbox('fixedinterestrateleg.eom', data.fixed.eom);
+                }); 
             }; 
             constructor.load();
             constructor.kill = function () {
