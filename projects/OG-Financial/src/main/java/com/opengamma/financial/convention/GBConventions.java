@@ -82,7 +82,12 @@ public class GBConventions {
       final ExternalId tullettLibor = tullettPrebonSecurityId("ASLIBGBP" + (i < 10 ? "0" : "") + i + "L");
       final ExternalId simpleLibor = simpleNameSecurityId(liborName);
       final String depositName = "GBP DEPOSIT " + i + "m";
-      final ExternalId bbgDeposit = bloombergTickerSecurityId("BPDR" + BBG_MONTH_CODES[i - 1] + " Curncy");
+      ExternalId bbgDeposit;
+      if (i == 12) {
+        bbgDeposit = bloombergTickerSecurityId("BPDR1" + " Curncy");
+      } else {
+        bbgDeposit = bloombergTickerSecurityId("BPDR" + BBG_MONTH_CODES[i - 1] + " Curncy");
+      }
       final ExternalId tullettDeposit = tullettPrebonSecurityId("MNDEPGBDTDY" + (i < 10 ? "0" : "") + i + "M");
       final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
       utils.addConventionBundle(ExternalIdBundle.of(bbgLibor, tullettLibor, simpleLibor), liborName, ACT_365, MODIFIED, Period.ofMonths(i), 0, false, GB);
