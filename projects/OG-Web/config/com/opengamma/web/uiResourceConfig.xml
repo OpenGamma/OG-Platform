@@ -13,6 +13,7 @@
     <fragment>/styles/common/og.common.buttons.css</fragment>
     <fragment>/styles/common/og.common.OG-tabs.css</fragment>
     <fragment>/styles/common/og.common.buttons.OG-smallButton.css</fragment>
+    <fragment>/styles/common/og.common.buttons.OG-button-save.css</fragment>
     <fragment>/styles/common/og.common.OG-masthead.css</fragment>
     <fragment>/styles/common/og.common.OG-main.css</fragment>
     <fragment>/styles/common/og.common.OG-mod-0.css</fragment>
