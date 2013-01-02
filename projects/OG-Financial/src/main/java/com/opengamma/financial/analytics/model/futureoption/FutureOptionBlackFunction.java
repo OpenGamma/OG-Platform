@@ -43,8 +43,8 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CommodityFutureOptionConverter;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
@@ -166,7 +166,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
 
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
@@ -180,7 +180,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String smileInterpolatorName = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
     final ValueProperties.Builder builder = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(ValuePropertyNames.CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName)
         .with(ValuePropertyNames.SURFACE, volSurfaceName)

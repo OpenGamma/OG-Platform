@@ -46,9 +46,9 @@ import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecu
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -198,7 +198,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
 
   private ValueProperties getResultProperties(final String currency) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
         .with(ValuePropertyNames.CURRENCY, currency).get();
@@ -206,7 +206,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
 
   private ValueProperties getResultProperties(final String currency, final String curveCalculationConfig, final String surfaceName) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(ValuePropertyNames.CURRENCY, currency).get();

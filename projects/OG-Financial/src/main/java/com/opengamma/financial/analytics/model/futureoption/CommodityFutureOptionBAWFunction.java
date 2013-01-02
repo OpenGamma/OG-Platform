@@ -10,6 +10,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -21,14 +22,11 @@ import com.opengamma.util.money.Currency;
  *
  */
 public abstract class CommodityFutureOptionBAWFunction extends FutureOptionFunction {
-  /** The calculation method name */
-  public static final String BAW_METHOD = "BaroneAdesiWhaleyMethod";
-
   /**
    * @param valueRequirementName The value requirement name
    */
   public CommodityFutureOptionBAWFunction(final String... valueRequirementName) {
-    super(valueRequirementName, BAW_METHOD);
+    super(valueRequirementName, CalculationPropertyNamesAndValues.BAW_METHOD);
   }
 
   @Override

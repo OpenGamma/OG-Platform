@@ -10,8 +10,8 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -27,7 +27,7 @@ public abstract class CommodityFutureOptionBlackFunction extends FutureOptionFun
    * @param valueRequirementName The value requirement name
    */
   public CommodityFutureOptionBlackFunction(final String... valueRequirementName) {
-    super(valueRequirementName, FXOptionBlackFunction.BLACK_METHOD);
+    super(valueRequirementName, CalculationPropertyNamesAndValues.BLACK_METHOD);
   }
 
   @Override
