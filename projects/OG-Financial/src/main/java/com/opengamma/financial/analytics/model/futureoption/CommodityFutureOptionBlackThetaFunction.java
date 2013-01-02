@@ -23,6 +23,9 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class CommodityFutureOptionBlackThetaFunction extends CommodityFutureOptionBlackFunction {
 
+  /**
+   * Default constructor
+   */
   public CommodityFutureOptionBlackThetaFunction() {
     super(ValueRequirementNames.VALUE_THETA);
   }
@@ -32,7 +35,7 @@ public class CommodityFutureOptionBlackThetaFunction extends CommodityFutureOpti
       final ComputationTarget target) {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final double theta = derivative.accept(CommodityFutureOptionBlackThetaCalculator.getInstance(), market);
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName()[0], target.toSpecification(), createResultProperties(desiredValue.getConstraints()));
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementNames()[0], target.toSpecification(), createResultProperties(desiredValue.getConstraints()));
     return Collections.singleton(new ComputedValue(spec, theta));
   }
 
