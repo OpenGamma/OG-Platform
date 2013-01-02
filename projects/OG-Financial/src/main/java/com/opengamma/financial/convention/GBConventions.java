@@ -25,21 +25,29 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Contains information used to construct standard versions of GBP instruments
+ * Contains information used to construct standard versions of GBP instruments.
  *
  */
 public class GBConventions {
   /** Month codes used by Bloomberg */
   private static final char[] BBG_MONTH_CODES = new char[] {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'};
+  /** Modified business day convention */
   private static final BusinessDayConvention MODIFIED = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  /** Following business day convention */
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  /** Act/365 */
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+  /** Annual frequency */
   private static final Frequency ANNUAL = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.ANNUAL_NAME);
+  /** Semi-annual frequency */
   private static final Frequency SEMI_ANNUAL = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
+  /** Quarterly frequency */
   private static final Frequency QUARTERLY = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
+  /** GB holidays */
   private static final ExternalId GB = ExternalSchemes.financialRegionId("GB");
 
   /**
+   * Adds conventions for deposit, Libor fixings, swaps, FRAs and IR futures.
    * @param conventionMaster The convention master, not null
    */
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
@@ -74,7 +82,12 @@ public class GBConventions {
       final ExternalId tullettLibor = tullettPrebonSecurityId("ASLIBGBP" + (i < 10 ? "0" : "") + i + "L");
       final ExternalId simpleLibor = simpleNameSecurityId(liborName);
       final String depositName = "GBP DEPOSIT " + i + "m";
-      final ExternalId bbgDeposit = bloombergTickerSecurityId("BPDR" + BBG_MONTH_CODES[i - 1] + " Curncy");
+      ExternalId bbgDeposit;
+      if (i == 12) {
+        bbgDeposit = bloombergTickerSecurityId("BPDR1" + " Curncy");
+      } else {
+        bbgDeposit = bloombergTickerSecurityId("BPDR" + BBG_MONTH_CODES[i - 1] + " Curncy");
+      }
       final ExternalId tullettDeposit = tullettPrebonSecurityId("MNDEPGBDTDY" + (i < 10 ? "0" : "") + i + "M");
       final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
       utils.addConventionBundle(ExternalIdBundle.of(bbgLibor, tullettLibor, simpleLibor), liborName, ACT_365, MODIFIED, Period.ofMonths(i), 0, false, GB);
@@ -140,6 +153,10 @@ public class GBConventions {
 
   }
 
+  /**
+   * Adds conventions for GBP government bonds.
+   * @param conventionMaster The convention master, not null
+   */
   public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
@@ -147,6 +164,10 @@ public class GBConventions {
         true, 6, 0, true);
   }
 
+  /**
+   * Adds conventions for GBP-denominated corporate bonds.
+   * @param conventionMaster The convention master, not null
+   */
   public static void addCorporateBondConvention(final ConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
@@ -154,6 +175,10 @@ public class GBConventions {
         true, 6, 0, true);
   }
 
+  /**
+   * Adds conventions for GBP bond futures.
+   * @param conventionMaster The convention master, not null
+   */
   public static void addBondFutureConvention(final ConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);

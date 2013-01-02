@@ -33,7 +33,7 @@ import com.opengamma.util.ArgumentChecker;
 public class USConventions {
 
   /**
-   *
+   * Adds conventions for deposit, Libor fixings, swaps, FRAs and IR futures.
    * @param conventionMaster The convention master, not null
    */
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
@@ -207,6 +207,9 @@ public class USConventions {
     utils.addConventionBundle(ExternalId.of(FactorExposureData.FACTOR_SCHEME, "IR.SWAP.USD.360M").toBundle(), "IR.SWAP.USD.360M", act360, modified, Period.ofMonths(360), 2, false, null);
   }
 
+  /**
+   * @param conventionMaster The convention master, not null
+   */
   public static void addCAPMConvention(final ConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
@@ -214,6 +217,10 @@ public class USConventions {
         ExternalIdBundle.of(bloombergTickerSecurityId("US0003M Index")), ExternalIdBundle.of(bloombergTickerSecurityId("SPX Index")));
   }
 
+  /**
+   * Adds conventions for US Treasury bonds,
+   * @param conventionMaster The convention master, not null
+   */
   public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
@@ -221,6 +228,10 @@ public class USConventions {
         true);
   }
 
+  /**
+   * Adds conventions for USD-denominated corporate bonds
+   * @param conventionMaster The convention master, not null
+   */
   //TODO need to get the correct convention
   public static void addCorporateBondConvention(final ConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
@@ -229,6 +240,10 @@ public class USConventions {
         true);
   }
 
+  /**
+   * Add conventions for USD bond futures
+   * @param conventionMaster The convention master, not null
+   */
   public static void addBondFutureConvention(final ConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
