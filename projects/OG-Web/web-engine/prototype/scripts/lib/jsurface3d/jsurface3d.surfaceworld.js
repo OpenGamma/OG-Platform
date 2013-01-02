@@ -7,6 +7,8 @@
     /**
      * Implements any valid hover interaction with the surface.
      * Adds vertex_sphere, lines (tubes), active axis labels
+     * @private
+     * @param {Object} js3d An instance of JSurface3D
      * @param {THREE.Vector3} vertex The vertex within settings.snap_distance of the mouse
      * @param {Number} index The index of the vertex
      * @param {THREE.Mesh} object The closest object to the camera that THREE.Ray returned
@@ -18,7 +20,7 @@
         hover_group = hover_buffer.add(new THREE.Object3D());
         hover_group.name = 'Hover Group';
         vertex_sphere.position.copy(vertex);
-        vertex_sphere.position.y += 5;
+        vertex_sphere.position.y += js3d.settings.floating_height;
         vertex_sphere.updateMatrix();
         vertex_sphere.visible = true;
         (function () {
@@ -97,27 +99,26 @@
             }());
             // surface labels
             ['x', 'z'].forEach(function (val) {
-                var data = js3d.data, lbl_arr = data[val + 's_labels'] || data[val + 's'],
+                var data = js3d.data, lbl_arr = data[val + 's_labels'] || data[val + 's'], width, offset, lbl, vertices,
                     txt = val === 'x'
                         ? lbl_arr[index % (js3d.x_segments + 1)]
                         : lbl_arr[~~(index / (js3d.x_segments + 1))],
-                    scale = '0.1', group = new THREE.Object3D(),
-                    width = THREE.FontUtils.drawText(txt).offset,
-                    offset, lbl, vertices;
+                    scale = '0.1', group = new THREE.Object3D();
                 group.name = 'Surface Label ' + val;
                 // create label
-                offset = ((width / 2) * scale) + (width * 0.05); // half the width * scale + a relative offset
                 lbl = js3d.text3d(txt, color);
                 lbl.matrixAutoUpdate = false;
+                width = lbl.geometry.boundingSphere.radius / 2;
+                offset = ((width / 2) * scale) + (width * 0.05); // half the width * scale + a relative offset
                 vertices = val === 'x' ? zvertices : xvertices;
                 group.add(lbl);
                 // create box
                 (function () {
-                    var txt_width = THREE.FontUtils.drawText(txt).offset, height = 60,
-                        box_width = txt_width * 3,
+                    var height = 60,
+                        box_width = (width * 2) + 20,
                         box = new THREE.CubeGeometry(box_width, height, 4, 4, 0, 0),
-                        mesh = new THREE.Mesh(box, matlib.get_material('phong', '0xdddddd'));
-                    mesh.position.x = (box_width / 2) - (txt_width / 2);
+                        mesh = new THREE.Mesh(box, matlib.get_material('phong', 0xdddddd));
+                    mesh.position.x = box_width / 2 - 10;
                     mesh.position.y = 20;
                     // create the tail by moving the 2 center vertices closes to the surface
                     mesh.geometry.vertices.filter(function (val) {
@@ -165,10 +166,21 @@
         ray = new THREE.Ray(js3d.camera.position, vector.subSelf(js3d.camera.position).normalize());
         return ray.intersectObjects(meshes);
     };
+    /**
+     * Creates all geomerty, initializes data and implements interactions
+     * @name JSurface3D.SurfaceWorld
+     * @namespace JSurface3D.SurfaceWorld
+     * @param {Object} js3d JSurface3D instance
+     * @private
+     * @constructor
+     */
     window.JSurface3D.SurfaceWorld = function (js3d) {
         var surface_world = this, settings = js3d.settings, matlib = js3d.matlib, webgl = js3d.webgl;
         /**
-         * Create 3D world, removes any existing geometry first
+         * Creates all the geomerty and groups, removes existing items first
+         * @name JSurface3D.SurfaceWorld.prototype.create_world
+         * @function
+         * @private
          * @return {THREE.Object3D}
          */
         surface_world.create_world = function () {
@@ -188,7 +200,7 @@
                 // create bottom grid
                 (function () {
                     var grid = Four.multimaterial_object(
-                        new JSurface3D.Plane(js3d, 'surface'),
+                        JSurface3D.plane(js3d, 'surface'),
                         matlib.get_material('compound_grid_wire')
                     );
                     grid.overdraw = true;
@@ -201,6 +213,7 @@
                         new THREE.PlaneGeometry(5000, 5000, 100, 100),
                         matlib.get_material('compound_floor_wire')
                     );
+                    floor.rotation.x = - Math.PI / 2;
                     floor.position.y = -0.01;
                     groups.surface_bottom.add(buffers.surface.add(floor));
                 })();
@@ -214,7 +227,7 @@
                     groups.surface_bottom.add(x_axis);
                     groups.surface_bottom.add(z_axis);
                 })();
-                groups.surface_top.add(js3d.smile());
+                groups.surface_top.add(JSurface3D.smile(js3d));
                 groups.animation.add(js3d.vertex_sphere);
                 groups.surface_top.position.y = js3d.settings.floating_height;
                 groups.surface.add(groups.surface_bottom);
@@ -225,6 +238,10 @@
         };
         /**
          * Scale data to fit surface dimensions, apply Log (to x and z) if enabled
+         * @name JSurface3D.SurfaceWorld.prototype.init_data
+         * @param {Object} data
+         * @function
+         * @private
          */
         surface_world.init_data = function (data) {
             var log = function (arr) {return arr.map(function (val) {return Math.log(val);});};
@@ -258,6 +275,9 @@
         };
         /**
          * Implement interactivity
+         * @name JSurface3D.SurfaceWorld.prototype.interactive
+         * @function
+         * @private
          */
         surface_world.interactive = function () {
             var imeshes = js3d.interactive_meshes.meshes, groups = js3d.groups,

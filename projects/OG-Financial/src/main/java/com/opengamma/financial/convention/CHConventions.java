@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
@@ -9,8 +9,6 @@ import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
 import javax.time.calendar.Period;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.IndexType;
@@ -22,14 +20,19 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Contains information used to construct standard version of CHF instruments
  */
 public class CHConventions {
 
+  /**
+   * Adds conventions for deposit, Libor, swaps and FRAs
+   * @param conventionMaster The convention master, not null
+   */
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention modified = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -158,16 +161,24 @@ public class CHConventions {
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CHF_IBOR_INDEX")), "CHF_IBOR_INDEX", act360, following, 2, false);
   }
 
+  /**
+   * Adds conventions for CHF government bonds
+   * @param conventionMaster The convention master, not null
+   */
   //TODO all of the conventions named treasury need to be changed
   public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "convention master");
+    ArgumentChecker.notNull(conventionMaster, "convention master");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CH_TREASURY_BOND_CONVENTION")), "HU_TREASURY_BOND_CONVENTION", true,
         true, 0, 3, true);
   }
 
+  /**
+   * Adds conventions for CHF-denominated corporate bonds
+   * @param conventionMaster The convention master, not null
+   */
   public static void addCorporateBondConvention(final ConventionBundleMaster conventionMaster) {
-    Validate.notNull(conventionMaster, "conventionMaster");
+    ArgumentChecker.notNull(conventionMaster, "conventionMaster");
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CH_CORPORATE_BOND_CONVENTION")), "HU_CORPORATE_BOND_CONVENTION", true,
         true, 0, 3, true);
