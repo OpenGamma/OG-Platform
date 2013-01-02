@@ -6,16 +6,14 @@ $.register_module({
     name: 'og.blotter.forms.Swap',
     dependencies: [],
     obj: function () {   
-        return function () {
-            var constructor = this;
+        return function (config) {
+            config = og.blotter.util.FAKE_SWAP;
+            var constructor = this, ui = og.common.util.ui, data = config || {};
             constructor.load = function () {
                 constructor.title = 'Swap';
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.swap_tash',
-                    data: {},
-                    type_map: {},
-                    selector: '.OG-blotter-form-block',
-                    extras:{}
+                    selector: '.OG-blotter-form-block'
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
@@ -33,11 +31,38 @@ $.register_module({
                     }) ,
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_details_floating_tash',
-                        extras: {}
+                        extras: {initial: data.initialFloatingRate, settlement: data.settlementDays, 
+                            spread: data.spread, gearing: data.gearing},
+                        children: [
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.daycountconventions', index: 'dayCount',
+                                value: data.dayCount, placeholder: 'Select Day Count'
+                            }),
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.frequencies', index: 'frequency',
+                                value: data.frequency, placeholder: 'Select Frequency'
+                            }),
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.businessdayconventions', index: 'businessDayConvention',
+                                value: data.businessDayConvention, placeholder: 'Select Business Day Convention'
+                            }),
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.floatingratetypes', index: 'floatingRateTypes',
+                                value: data.floatingRateType, placeholder: 'Select Floating Rate Type'
+                            }),
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.frequencies', index: 'offsetFixing',
+                                value: data.offsetFixing, placeholder: 'Select Offset Fixing'
+                            })
+                        ]
                     }),
-                    new og.common.util.ui.Attributes({form: form})
+                    new og.common.util.ui.Attributes({form: form, attributes: data.attributes})
                 );
                 form.dom();
+                form.on('form:load', function (){
+                    if(data.length) return;
+                    og.blotter.util.check_checkbox("eom", data.eom);
+                }); 
             }; 
             constructor.kill = function () {
             };

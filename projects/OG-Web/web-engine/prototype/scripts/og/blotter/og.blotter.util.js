@@ -25,7 +25,7 @@ $.register_module({
                 $('select[name='+ name +']').val(value);
             },
             check_checkbox : function (name, value){
-                $('input:checkbox[name= '+ name +']').attr('checked', value);
+                $('input:checkbox[name= '+ name +']').attr('checked', value); 
             },
             
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
@@ -123,6 +123,19 @@ $.register_module({
                 settlementDate: "24.12.2012",   
                 regionId: "2",
                 observationFrequency: "Semi-annual"
+            },
+            FAKE_SWAP : {
+                attributes: FAKE_ATTRIBUTES,  
+                eom: true,  
+                dayCount: "28/360",
+                frequency: "Annual", 
+                businessDayConvention: "Following",
+                initialFloatingRate: "0.15",
+                settlementDays: "10",
+                spread: "0.5",
+                gearing: "0.1",
+                floatingRateType: "IBOR",
+                offsetFixing: "Nine Month"
             }
         };
     }
