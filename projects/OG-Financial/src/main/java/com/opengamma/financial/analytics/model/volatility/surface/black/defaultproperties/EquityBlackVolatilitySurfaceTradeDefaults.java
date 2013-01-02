@@ -18,6 +18,9 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
  */
 public class EquityBlackVolatilitySurfaceTradeDefaults extends EquityBlackVolatilitySurfaceDefaults {
 
+  /**
+   * @param defaultsPerTicker The default values per ticker
+   */
   public EquityBlackVolatilitySurfaceTradeDefaults(final String... defaultsPerTicker) {
     super(ComputationTargetType.TRADE, defaultsPerTicker);
   }
@@ -40,7 +43,6 @@ public class EquityBlackVolatilitySurfaceTradeDefaults extends EquityBlackVolati
 
   @Override
   protected String getTicker(final ComputationTarget target) {
-    final EquityIndexOptionSecurity security = (EquityIndexOptionSecurity) target.getTrade().getSecurity();
-    return EquitySecurityUtils.getIndexOrEquityName(security);
+    return EquitySecurityUtils.getIndexOrEquityName(target.getTrade().getSecurity());
   }
 }

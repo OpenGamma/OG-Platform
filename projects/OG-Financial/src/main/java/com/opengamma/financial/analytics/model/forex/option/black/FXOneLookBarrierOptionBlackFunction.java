@@ -35,7 +35,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.equity.indexoption.EquityIndexVanillaBarrierOptionBlackFunction;
+import com.opengamma.financial.analytics.model.equity.option.EquityVanillaBarrierOptionBlackFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -326,7 +326,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
   }
 
 
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexVanillaBarrierOptionBlackFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityVanillaBarrierOptionBlackFunction.class);
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target, final Set<ValueRequirement> desiredValues,

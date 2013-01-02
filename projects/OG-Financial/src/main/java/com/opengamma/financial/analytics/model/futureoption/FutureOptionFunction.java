@@ -82,7 +82,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final ExternalId underlyingId = security.accept(UnderlyingFutureVisitor.getInstance());
+    final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
     final InstrumentDefinition<?> defn = security.accept(_converter);
     final InstrumentDerivative derivative = defn.toDerivative(now);
     final double timeToExpiry = derivative.accept(LastTimeCalculator.getInstance());
