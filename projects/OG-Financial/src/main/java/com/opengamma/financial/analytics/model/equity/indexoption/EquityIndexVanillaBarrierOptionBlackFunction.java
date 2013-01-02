@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.equity.indexoption;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,6 +19,7 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -28,8 +28,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
@@ -44,15 +42,15 @@ import com.opengamma.util.money.Currency;
  * This function splits a barrier option into a sum of vanilla calls or puts,
  * and then calls down to the EquityIndexOptionFunction as its requirements
  */
-public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityIndexOptionFunction {
+public abstract class EquityIndexVanillaBarrierOptionBlackFunction extends EquityIndexOptionBlackFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexVanillaBarrierOptionFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexVanillaBarrierOptionBlackFunction.class);
 
   /**
    * @param requirementName The desired output
    */
-  public EquityIndexVanillaBarrierOptionFunction(final String requirementName) {
-    super(requirementName, FXOptionBlackFunction.BLACK_METHOD);
+  public EquityIndexVanillaBarrierOptionBlackFunction(final String requirementName) {
+    super(requirementName);
   }
 
   /**
@@ -61,15 +59,16 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
    * @param market EquityOptionDataBundle
    * @param inputs The market data inputs
    * @param desiredValues The desired values
-   * @param resultSpec The result specification
+   * @param targetSpec The target specification of the result
+   * @param resultProperties The result properties
    * @return the result
    */
   protected abstract Set<ComputedValue> computeValues(Set<EquityIndexOption> vanillaOptions, StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec);
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties);
 
   @Override
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     throw new OpenGammaRuntimeException("Execution wasn't intended to go here. Please review.");
   }
 
@@ -104,9 +103,9 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
     final StaticReplicationDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
 
     // 4. Properties of what's required of this function
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, desiredValue).get());
+    final ValueProperties resultProperties = createValueProperties(target, desiredValue).get();
     // 5. Compute Values and return
-    return computeValues(vanillas, market, inputs, desiredValues, spec);
+    return computeValues(vanillas, market, inputs, desiredValues, target.toSpecification(), resultProperties);
   }
 
   @Override
@@ -142,11 +141,6 @@ public abstract class EquityIndexVanillaBarrierOptionFunction extends EquityInde
       return null;
     }
     return commonReqs;
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target).get()));
   }
 
   /**

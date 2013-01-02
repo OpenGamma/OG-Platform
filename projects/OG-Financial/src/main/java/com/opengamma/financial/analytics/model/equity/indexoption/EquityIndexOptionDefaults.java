@@ -29,7 +29,7 @@ import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Populates {@link EquityIndexOptionFunction}, including {@link EquityIndexVanillaBarrierOptionFunction}, with defaults.
+ * Populates {@link EquityIndexOptionFunction}, including {@link EquityIndexVanillaBarrierOptionBlackFunction}, with defaults.
  */
 public class EquityIndexOptionDefaults extends DefaultPropertyFunction {
   /** The logger */

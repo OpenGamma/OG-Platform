@@ -11,17 +11,18 @@ import java.util.Set;
 import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * Calculates the present value of an equity index option using the Black formula.
  */
-public class EquityIndexOptionBlackPresentValueFunction extends EquityIndexOptionFunction {
+public class EquityIndexOptionBlackPresentValueFunction extends EquityIndexOptionBlackFunction {
   /** The Black present value calculator */
   private static final EquityOptionBlackPresentValueCalculator s_calculator = EquityOptionBlackPresentValueCalculator.getInstance();
 
@@ -29,12 +30,13 @@ public class EquityIndexOptionBlackPresentValueFunction extends EquityIndexOptio
    * Default constructor
    */
   public EquityIndexOptionBlackPresentValueFunction() {
-    super(ValueRequirementNames.PRESENT_VALUE, FXOptionBlackFunction.BLACK_METHOD);
+    super(ValueRequirementNames.PRESENT_VALUE);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     final double pv = s_calculator.visitEquityIndexOption(derivative, market);
     return Collections.singleton(new ComputedValue(resultSpec, pv));
   }

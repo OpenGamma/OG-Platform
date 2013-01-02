@@ -11,29 +11,31 @@ import java.util.Set;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * Returns the spot Vomma, i.e. the 2nd order sensitivity of the spot price to the implied vol,
  *          $\frac{\partial^2 (PV)}{\partial \sigma^2}$
  */
-public class EquityIndexOptionBlackVommaFunction extends EquityIndexOptionFunction {
+public class EquityIndexOptionBlackVommaFunction extends EquityIndexOptionBlackFunction {
 
   /**
    * Default constructor
    */
   public EquityIndexOptionBlackVommaFunction() {
-    super(ValueRequirementNames.VALUE_VOMMA, FXOptionBlackFunction.BLACK_METHOD);
+    super(ValueRequirementNames.VALUE_VOMMA);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValue, final ValueSpecification resultSpec) {
+      final Set<ValueRequirement> desiredValue, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
     return Collections.singleton(new ComputedValue(resultSpec, model.vomma(derivative, market)));
   }

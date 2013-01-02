@@ -11,29 +11,31 @@ import java.util.Set;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * Vanna w.r.t. the spot underlying, i.e. the 2nd order cross-sensitivity of the present value to the spot underlying and implied vol,
  * $\frac{\partial^2 (PV)}{\partial spot \partial \sigma}$
  */
-public class EquityIndexOptionBlackSpotVannaFunction extends EquityIndexOptionFunction {
+public class EquityIndexOptionBlackSpotVannaFunction extends EquityIndexOptionBlackFunction {
 
   /**
    * Default constructor
    */
   public EquityIndexOptionBlackSpotVannaFunction() {
-    super(ValueRequirementNames.VALUE_VANNA, FXOptionBlackFunction.BLACK_METHOD);
+    super(ValueRequirementNames.VALUE_VANNA);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
     return Collections.singleton(new ComputedValue(resultSpec, model.vannaWrtSpot(derivative, market)));
   }

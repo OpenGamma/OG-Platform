@@ -27,6 +27,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -44,7 +45,7 @@ import com.opengamma.util.tuple.Triple;
 /**
  *
  */
-public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityIndexVanillaBarrierOptionFunction {
+public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityIndexVanillaBarrierOptionBlackFunction {
   /** The calculator */
   private static final EquityOptionBlackPresentValueCalculator PVC = EquityOptionBlackPresentValueCalculator.getInstance(); // Vanilla PV Calculator
   /** The amount by which to bump the volatility surface */
@@ -59,7 +60,8 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
 
   @Override
   protected Set<ComputedValue> computeValues(final Set<EquityIndexOption> vanillaOptions, final StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     final NodalDoublesSurface vegaSurface;
     if (market.getVolatilitySurface() instanceof BlackVolatilitySurfaceMoneynessFcnBackedByGrid) {
       // unpack the market data, including the interpolators
@@ -156,9 +158,8 @@ public class EquityIndexVanillaBarrierOptionVegaMatrixFunction extends EquityInd
   @Override
   /* The VegaMatrixFunction advertises the particular underlying Bloomberg ticker that it applies to. The target must share this underlying. */
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-
     final String bbgTicker = getBloombergTicker(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), ((EquityBarrierOptionSecurity) target.getSecurity()).getUnderlyingId());
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, bbgTicker).get()));
+    return Collections.singleton(new ValueSpecification(getValueRequirementNames()[0], target.toSpecification(), createValueProperties(target, bbgTicker).get()));
   }
 
   /* We specify one additional property, the UnderlyingTicker, to allow a View to contain a VegaQuoteMatrix for each VolMatrix */

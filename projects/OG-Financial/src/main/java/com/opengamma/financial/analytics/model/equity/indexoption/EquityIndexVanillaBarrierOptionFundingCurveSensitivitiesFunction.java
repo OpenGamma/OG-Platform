@@ -24,6 +24,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -46,7 +47,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * The sensitivity to settlement rate is in the discounting, the ZeroBond price: PV = Z(t,S) * C(F,K,sig,T) <p>
  * We use chain rule to distribute closed-form model sensitivity across the curve
  */
-public class EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction extends EquityIndexVanillaBarrierOptionFunction {
+public class EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction extends EquityIndexVanillaBarrierOptionBlackFunction {
   /** The present value calculator */
   private static final EquityOptionBlackPresentValueCalculator PV_CALCULATOR = EquityOptionBlackPresentValueCalculator.getInstance();
 
@@ -81,7 +82,8 @@ public class EquityIndexVanillaBarrierOptionFundingCurveSensitivitiesFunction ex
 
   @Override
   protected Set<ComputedValue> computeValues(final Set<EquityIndexOption> vanillaOptions, final StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final String fundingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final Object fundingObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);

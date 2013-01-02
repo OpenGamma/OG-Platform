@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.equity.indexoption;
 
-import java.util.Collections;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
@@ -29,6 +28,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -62,21 +62,16 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityIndexOptionFunction.class);
   /** The value requirement name */
-  private final String _valueRequirementName;
-  /** The calculation method */
-  private final String _calculationMethod;
+  private final String[] _valueRequirementNames;
   /** Converts the security to the form used in analytics */
   private EquityIndexOptionConverter _converter; // set in init(), not constructor
 
   /**
-   * @param valueRequirementName The value requirement name, not null
-   * @param calculationMethod The calculation method name, not null
+   * @param valueRequirementNames A list of value requirement names, not null or empty
    */
-  public EquityIndexOptionFunction(final String valueRequirementName, final String calculationMethod) {
-    ArgumentChecker.notNull(valueRequirementName, "value requirement name");
-    ArgumentChecker.notNull(calculationMethod, "calculation method");
-    _valueRequirementName = valueRequirementName;
-    _calculationMethod = calculationMethod;
+  public EquityIndexOptionFunction(final String... valueRequirementNames) {
+    ArgumentChecker.notEmpty(valueRequirementNames, "value requirement names");
+    _valueRequirementNames = valueRequirementNames;
   }
 
   @Override
@@ -103,11 +98,11 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
     // 2. Build up the market data bundle
     final StaticReplicationDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
 
-    // 3. Create Result's Specification that matches the properties promised and Return
+    // 3. Create result properties
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, desiredValue).get());
+    final ValueProperties resultProperties = createValueProperties(target, desiredValue).get();
     // 4. The Calculation - what we came here to do
-    return computeValues(derivative, market, inputs, desiredValues, spec);
+    return computeValues(derivative, market, inputs, desiredValues, target.toSpecification(), resultProperties);
   }
 
   /**
@@ -168,11 +163,12 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
    * @param market The market data bundle
    * @param inputs The market data inputs
    * @param desiredValues The desired values
-   * @param resultSpec The result specification
+   * @param targetSpec The target specification of the result
+   * @param resultProperties The result properties
    * @return The result of the calculation
    */
   protected abstract Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec);
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties);
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -186,7 +182,12 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target).get()));
+    final ValueProperties properties = createValueProperties(target).get();
+    final Set<ValueSpecification> result = Sets.newHashSetWithExpectedSize(_valueRequirementNames.length);
+    for (final String valueRequirementName : _valueRequirementNames) {
+      result.add(new ValueSpecification(valueRequirementName, target.toSpecification(), properties));
+    }
+    return result;
   }
 
   @Override
@@ -249,15 +250,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
    * @param target The target
    * @return The value properties of the result
    */
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, _calculationMethod)
-        .withAny(ValuePropertyNames.SURFACE)
-        .withAny(ValuePropertyNames.CURVE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
-  }
+  protected abstract ValueProperties.Builder createValueProperties(final ComputationTarget target);
 
   /**
    * Creates result properties with the values set
@@ -265,20 +258,7 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
    * @param desiredValue The desired value
    * @return The value properties of the result
    */
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
-    final String fundingCurveName = getFundingCurveName(desiredValue);
-    final String curveConfigName = getCurveConfigName(desiredValue);
-    final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String smileInterpolatorName = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
-    final ValueProperties.Builder builder = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, _calculationMethod)
-        .with(ValuePropertyNames.CURVE, fundingCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName)
-        .with(ValuePropertyNames.SURFACE, volSurfaceName)
-        .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolatorName)
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
-    return builder;
-  }
+  protected abstract ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue);
 
   private String getFundingCurveName(final ValueRequirement desiredValue) {
     final Set<String> fundingCurves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
@@ -360,11 +340,11 @@ public abstract class EquityIndexOptionFunction extends AbstractFunction.NonComp
   }
 
   /**
-   * Gets the value requirement name
-   * @return The value requirement name
+   * Gets the value requirement names
+   * @return The value requirement names
    */
-  protected String getValueRequirementName() {
-    return _valueRequirementName;
+  protected String[] getValueRequirementNames() {
+    return _valueRequirementNames;
   }
 
 }

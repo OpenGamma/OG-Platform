@@ -11,17 +11,18 @@ import java.util.Set;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * Calculates the vega of an equity index option using the Black method.
  */
-public class EquityIndexOptionBlackVegaFunction extends EquityIndexOptionFunction {
+public class EquityIndexOptionBlackVegaFunction extends EquityIndexOptionBlackFunction {
   /** The Black calculator */
   private static final EquityIndexOptionBlackMethod MODEL = EquityIndexOptionBlackMethod.getInstance();
 
@@ -29,12 +30,13 @@ public class EquityIndexOptionBlackVegaFunction extends EquityIndexOptionFunctio
    * Default constructor
    */
   public EquityIndexOptionBlackVegaFunction() {
-    super(ValueRequirementNames.VALUE_VEGA, FXOptionBlackFunction.BLACK_METHOD);
+    super(ValueRequirementNames.VALUE_VEGA);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     return Collections.singleton(new ComputedValue(resultSpec, MODEL.vega(derivative, market)));
   }
 }

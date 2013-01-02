@@ -11,28 +11,30 @@ import java.util.Set;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 
 /**
  * Calculates the spot value delta of an equity index option using the Black formula.
  */
-public class EquityIndexOptionBlackSpotDeltaFunction extends EquityIndexOptionFunction {
+public class EquityIndexOptionBlackSpotDeltaFunction extends EquityIndexOptionBlackFunction {
 
   /**
    * Default constructor
    */
   public EquityIndexOptionBlackSpotDeltaFunction() {
-    super(ValueRequirementNames.VALUE_DELTA, FXOptionBlackFunction.BLACK_METHOD);
+    super(ValueRequirementNames.VALUE_DELTA);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
     return Collections.singleton(new ComputedValue(resultSpec, model.deltaWrtSpot(derivative, market)));
   }

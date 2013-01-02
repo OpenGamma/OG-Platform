@@ -24,6 +24,7 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -35,7 +36,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -43,13 +43,13 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Calculates the nodal sensitivities of an equity index option to the funding curve (bucketed rho).
  */
-public class EquityIndexOptionBlackFundingCurveSensitivitiesFunction extends EquityIndexOptionFunction {
+public class EquityIndexOptionBlackFundingCurveSensitivitiesFunction extends EquityIndexOptionBlackFunction {
 
   /**
    * Default constructor
    */
   public EquityIndexOptionBlackFundingCurveSensitivitiesFunction() {
-    super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, FXOptionBlackFunction.BLACK_METHOD);
+    super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
   }
 
   @Override
@@ -77,7 +77,7 @@ public class EquityIndexOptionBlackFundingCurveSensitivitiesFunction extends Equ
 
   @Override
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final YieldAndDiscountCurve fundingCurve = market.getDiscountCurve();
     if (!(fundingCurve instanceof YieldCurve)) {
       throw new OpenGammaRuntimeException("Can only handle YieldCurve");
@@ -115,6 +115,7 @@ public class EquityIndexOptionBlackFundingCurveSensitivitiesFunction extends Equ
       throw new OpenGammaRuntimeException("Curve specification was null");
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fundingCurveName, curveBundle, sensVector, curveSpec, resultSpec);
   }
 

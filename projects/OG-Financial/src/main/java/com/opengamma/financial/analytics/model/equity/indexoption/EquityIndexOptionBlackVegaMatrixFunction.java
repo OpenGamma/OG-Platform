@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -32,13 +33,12 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.VegaMatrixHelper;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 
 /**
  * Calculates the bucketed vega of an equity index option using the Black formula.
  */
-public class EquityIndexOptionBlackVegaMatrixFunction  extends EquityIndexOptionFunction {
+public class EquityIndexOptionBlackVegaMatrixFunction  extends EquityIndexOptionBlackFunction {
   /** The Black present value calculator */
   private static final EquityOptionBlackPresentValueCalculator PVC = EquityOptionBlackPresentValueCalculator.getInstance();
   /** Calculates derivative sensitivities */
@@ -52,12 +52,13 @@ public class EquityIndexOptionBlackVegaMatrixFunction  extends EquityIndexOption
    * Default constructor
    */
   public EquityIndexOptionBlackVegaMatrixFunction() {
-    super(ValueRequirementNames.VEGA_QUOTE_MATRIX, FXOptionBlackFunction.BLACK_METHOD);
+    super(ValueRequirementNames.VEGA_QUOTE_MATRIX);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues, final ValueSpecification resultSpec) {
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     final NodalDoublesSurface vegaSurface = CALCULATOR.calcBlackVegaForEntireSurface(derivative, market, SHIFT);
     final Double[] xValues;
     final Double[] yValues;
@@ -112,7 +113,7 @@ public class EquityIndexOptionBlackVegaMatrixFunction  extends EquityIndexOption
   /* The VegaMatrixFunction advertises the particular underlying Bloomberg ticker that it applies to. The target must share this underlying. */
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final String bbgTicker = getBloombergTicker(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), ((EquityIndexOptionSecurity) target.getSecurity()).getUnderlyingId());
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target, bbgTicker).get()));
+    return Collections.singleton(new ValueSpecification(getValueRequirementNames()[0], target.toSpecification(), createValueProperties(target, bbgTicker).get()));
   }
 
   /* We specify one additional property, the UnderlyingTicker, to allow a View to contain a VegaQuoteMatrix for each VolMatrix */
