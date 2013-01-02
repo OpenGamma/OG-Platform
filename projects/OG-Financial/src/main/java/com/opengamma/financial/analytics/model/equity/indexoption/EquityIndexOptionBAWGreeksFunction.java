@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.equity.indexoption;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.equity.EqyOptBaroneAdesiGreekCalculator;
+import com.opengamma.analytics.financial.equity.EqyOptBaroneAdesiWhaleyGreekCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.greeks.Greek;
@@ -44,7 +44,6 @@ public class EquityIndexOptionBAWGreeksFunction extends EquityIndexOptionBAWFunc
     Greek.THETA
   };
 
-
   /**
    * Default constructor
    */
@@ -52,11 +51,10 @@ public class EquityIndexOptionBAWGreeksFunction extends EquityIndexOptionBAWFunc
     super(GREEK_NAMES);
   }
 
-
   @Override
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
-    final GreekResultCollection greeks = derivative.accept(EqyOptBaroneAdesiGreekCalculator.getInstance(), market);
+    final GreekResultCollection greeks = derivative.accept(EqyOptBaroneAdesiWhaleyGreekCalculator.getInstance(), market);
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     for (int i = 0; i < GREEKS.length; i++) {
       final ValueSpecification spec = new ValueSpecification(GREEK_NAMES[i], targetSpec, resultProperties);

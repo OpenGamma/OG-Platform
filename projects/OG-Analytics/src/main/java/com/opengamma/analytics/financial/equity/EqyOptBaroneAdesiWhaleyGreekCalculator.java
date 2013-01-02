@@ -17,20 +17,20 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * The greeks returned are delta, dual-delta, rho, carry rho, theta and vega.
  */
-public final class EqyOptBaroneAdesiGreekCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, GreekResultCollection> {
+public final class EqyOptBaroneAdesiWhaleyGreekCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, GreekResultCollection> {
   /** A static instance of this calculator */
-  private static final EqyOptBaroneAdesiGreekCalculator INSTANCE = new EqyOptBaroneAdesiGreekCalculator();
+  private static final EqyOptBaroneAdesiWhaleyGreekCalculator INSTANCE = new EqyOptBaroneAdesiWhaleyGreekCalculator();
   /** The pricing model */
   private static final BaroneAdesiWhaleyModel MODEL = new BaroneAdesiWhaleyModel();
 
   /**
    * @return A static instance of this class
    */
-  public static EqyOptBaroneAdesiGreekCalculator getInstance() {
+  public static EqyOptBaroneAdesiWhaleyGreekCalculator getInstance() {
     return INSTANCE;
   }
 
-  private EqyOptBaroneAdesiGreekCalculator() {
+  private EqyOptBaroneAdesiWhaleyGreekCalculator() {
   }
 
   @Override

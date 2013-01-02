@@ -25,6 +25,7 @@ import com.opengamma.engine.value.ValueSpecification;
  *
  */
 public class CommodityFutureOptionBAWGreeksFunction extends CommodityFutureOptionBAWFunction {
+  /** Value requirement names */
   private static final String[] GREEK_NAMES = new String[] {
     ValueRequirementNames.VALUE_DELTA,
     ValueRequirementNames.VALUE_DUAL_DELTA,
@@ -33,6 +34,7 @@ public class CommodityFutureOptionBAWGreeksFunction extends CommodityFutureOptio
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.VALUE_THETA
   };
+  /** Equivalent greeks */
   private static final Greek[] GREEKS = new Greek[] {
     Greek.DELTA,
     Greek.DUAL_DELTA,
@@ -42,6 +44,9 @@ public class CommodityFutureOptionBAWGreeksFunction extends CommodityFutureOptio
     Greek.THETA
   };
 
+  /**
+   * Default constructor
+   */
   public CommodityFutureOptionBAWGreeksFunction() {
     super(GREEK_NAMES);
   }
