@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapSta
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 
 /**
- * 
+ *
  */
 public class VarianceSwapPresentValueCalculator extends AbstractDerivativeVisitor<StaticReplicationDataBundle, Double> {
 
@@ -32,7 +32,7 @@ public class VarianceSwapPresentValueCalculator extends AbstractDerivativeVisito
   }
 
   @Override
-  public Double visit(Derivative derivative) {
+  public Double visit(final Derivative derivative) {
     return null;
   }
 
@@ -49,22 +49,22 @@ public class VarianceSwapPresentValueCalculator extends AbstractDerivativeVisito
   }
 
   @Override
-  public Double visitEquityFuture(EquityFuture equityFuture) {
+  public Double visitEquityFuture(final EquityFuture equityFuture) {
     return null;
   }
 
   @Override
-  public Double visitEquityIndexDividendFuture(EquityIndexDividendFuture equityIndexDividendFuture) {
+  public Double visitEquityIndexDividendFuture(final EquityIndexDividendFuture equityIndexDividendFuture) {
     return null;
   }
 
   @Override
-  public Double visitEquityIndexOption(EquityIndexOption equityIndexOption, StaticReplicationDataBundle data) {
+  public Double visitEquityIndexOption(final EquityIndexOption equityIndexOption, final StaticReplicationDataBundle data) {
     return null;
   }
 
   @Override
-  public Double visitEquityIndexOption(EquityIndexOption equityIndexOption) {
+  public Double visitEquityIndexOption(final EquityIndexOption equityIndexOption) {
     return null;
   }
 

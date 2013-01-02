@@ -30,7 +30,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class to calculate the expected variance (<b>not</b> annualised) of an equity variance swap when a discount curve, affine dividends and a <b>pure</b> local volatility surface is 
- * specified. See White (2012), Equity Variance Swap with Dividends, for details of the model
+ * specified. See White (2012), Equity Variance Swap with Dividends, for details of the model.
  */
 public class EquityVarianceSwapForwardPurePDE {
   //  TODO The parameters here (in particular those of the meshing functions) have been chosen to minimise the errors in VarianceSwapWithDividendsTest, and will not be the
@@ -82,7 +82,7 @@ public class EquityVarianceSwapForwardPurePDE {
 
   /**
    * Computes the expected variance by solving the forward PDE for the price of a call on the pure stock price, then using these computed prices at the expiry and all
-   * dividend dates, computes the expected variance with and without adjustments for the dividend payments
+   * dividend dates, computes the expected variance with and without adjustments for the dividend payments.
    * @param spot The current level of the stock or index, greater than zero
    * @param discountCurve The risk free interest rate curve, not null
    * @param dividends The dividends structure, not null

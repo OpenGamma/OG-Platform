@@ -12,13 +12,22 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.PureImpliedVolatilitySurface;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class containing utility methods 
+ * Class containing utility methods for pure volatility surfaces
  */
 public class VolatilitySurfaceConverter {
 
+  /**
+   * Converts a Black volatility surface (parameterised by strike) to a pure implied volatility surface.
+   * @param volSurface The Black volatility surface, not null
+   * @param divCurves Bundle containing a discounting curve, forward curve and dividends data, not null
+   * @return A pure implied surface
+   */
   public static PureImpliedVolatilitySurface convertImpliedVolSurface(final BlackVolatilitySurfaceStrike volSurface, final EquityDividendsCurvesBundle divCurves) {
+    ArgumentChecker.notNull(volSurface, "volatility surface");
+    ArgumentChecker.notNull(divCurves, "curves and dividend data");
     final Function<Double, Double> impVol = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... tx) {
@@ -41,7 +50,15 @@ public class VolatilitySurfaceConverter {
     return new PureImpliedVolatilitySurface(FunctionalDoublesSurface.from(impVol));
   }
 
+  /**
+   * Converts a pure implied volatility surface to a Black volatility surface parameterised by strike.
+   * @param pureVolSurface The pure volatility surface, not null
+   * @param divCurves Bundle containing a discounting curve, forward curve and dividends data, not null
+   * @return A Black volatility surface parameterised by strike
+   */
   public static BlackVolatilitySurfaceStrike convertImpliedVolSurface(final PureImpliedVolatilitySurface pureVolSurface, final EquityDividendsCurvesBundle divCurves) {
+    ArgumentChecker.notNull(pureVolSurface, "pure volatility surface");
+    ArgumentChecker.notNull(divCurves, "curves and dividend data");
     final Function<Double, Double> impVol = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... tk) {
@@ -66,7 +83,15 @@ public class VolatilitySurfaceConverter {
     return new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(impVol));
   }
 
+  /**
+   * Converts a local volatility surface (parameterised by strike) to a pure implied volatility surface.
+   * @param volSurface The local volatility surface, not null
+   * @param divCurves Bundle containing a discounting curve, forward curve and dividends data, not null
+   * @return A Black volatility surface parameterised by strike
+   */
   public static PureLocalVolatilitySurface convertLocalVolSurface(final LocalVolatilitySurfaceStrike volSurface, final EquityDividendsCurvesBundle divCurves) {
+    ArgumentChecker.notNull(volSurface, "volatility surface");
+    ArgumentChecker.notNull(divCurves, "curves and dividend data");
     final Function<Double, Double> pureLocalVol = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... tx) {
@@ -81,7 +106,15 @@ public class VolatilitySurfaceConverter {
     return new PureLocalVolatilitySurface(FunctionalDoublesSurface.from(pureLocalVol));
   }
 
+  /**
+   * Converts a pure local volatility surface to a local volatility surface.
+   * @param pureVolSurface The pure local volatility surface, not null
+   * @param divCurves Bundle containing a discounting curve, forward curve and dividends data, not null
+   * @return A local volatility surface
+   */
   public static LocalVolatilitySurfaceStrike convertLocalVolSurface(final PureLocalVolatilitySurface pureVolSurface, final EquityDividendsCurvesBundle divCurves) {
+    ArgumentChecker.notNull(pureVolSurface, "volatility surface");
+    ArgumentChecker.notNull(divCurves, "curves and dividend data");
     final Function<Double, Double> localVol = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... ts) {

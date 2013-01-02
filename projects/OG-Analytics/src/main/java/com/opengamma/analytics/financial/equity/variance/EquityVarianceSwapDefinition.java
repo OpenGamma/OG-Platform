@@ -21,6 +21,7 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
  * An equity variance swap is a forward contract of the realized variance of an underlying stock or index.
  */
 public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
+  /** Should the dividends be corrected for when pricing */
   private final boolean _correctForDividends;
 
   /**
@@ -117,7 +118,7 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
       realizedTS = ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES;
     } else {
       realizedTS = underlyingTimeSeries.subSeries(getObsStartDate().toLocalDate(), true, valueDate.toLocalDate(), false);
-    }    
+    }
     final double[] observations = realizedTS.toFastIntDoubleTimeSeries().valuesArrayFast();
     final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
     final int nGoodBusinessDays = countExpectedGoodDays(getObsStartDate().toLocalDate(), valueDate.toLocalDate(), getCalendar(), getObsFreq());

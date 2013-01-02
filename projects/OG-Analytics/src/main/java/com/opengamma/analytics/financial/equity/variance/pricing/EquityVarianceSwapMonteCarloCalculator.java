@@ -35,7 +35,7 @@ public class EquityVarianceSwapMonteCarloCalculator {
 
   /**
    * Constructor taking a seed for the random number generator. The calculator is set up to use antithetic variables
-   * and use variance.
+   * and calculate the variance of the result.
    * @param seed The seed
    */
   public EquityVarianceSwapMonteCarloCalculator(final int seed) {
