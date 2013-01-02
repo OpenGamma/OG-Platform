@@ -27,7 +27,6 @@ $.register_module({
             check_checkbox : function (name, value){
                 $('input:checkbox[name= '+ name +']').attr('checked', value); 
             },
-            
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
             FAKE_DROPDOWN : [
                     {name:'Select', value:''},
@@ -125,7 +124,12 @@ $.register_module({
                 observationFrequency: "Semi-annual"
             },
             FAKE_SWAP : {
-                attributes: FAKE_ATTRIBUTES,  
+                attributes: FAKE_ATTRIBUTES
+            },
+            FAKE_SWAPTION : {
+                attributes: FAKE_ATTRIBUTES
+            },
+            FAKE_FLOATING : {
                 eom: true,  
                 dayCount: "28/360",
                 frequency: "Annual", 
@@ -136,6 +140,13 @@ $.register_module({
                 gearing: "0.1",
                 floatingRateType: "IBOR",
                 offsetFixing: "Nine Month"
+            },
+            FAKE_FIXED : {
+                eom: true,  
+                dayCount: "1/1",
+                frequency: "Monthly", 
+                businessDayConvention: "None",
+                rate: "0.144"
             }
         };
     }

@@ -3,15 +3,50 @@
     <col style="width: 30%">              
     <col style="width: 70%">
   </colgroup>
+  <thead>
+    <tr>
+      <th>
+        <span><em>Floating</em></span>
+      </th>
+      <th></th>
+    </tr>
+  </thead>
   <tbody>
     <tr>
       <td>
-        <span>Fixed</span>
       </td>
-      <td class="og-triple-cell">
-        <div><span><select><option value="" selected disabled="disabled">Day Count</option>
-        </select></span><span><select><option value="" selected disabled="disabled">Frequency</option>
-        </select></span><span><input name="" type="text" placeholder="Fixed Rate" /></span></div>
+      <td>
+        <input name="fixedinterestrateleg.eom" type="checkbox" /><span>EOM</span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Day Count</span>
+        </label>
+      </td>
+      <td>
+        {{{item_0}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Frequency</span>
+        </label>
+      </td>
+      <td>
+        {{{item_1}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Rate</span>
+        </label>
+      </td>
+      <td>
+        <input name="fixedinterestrateleg.rate" type="text" value="{{rate}}"/>
       </td>
     </tr>
   </tbody>
