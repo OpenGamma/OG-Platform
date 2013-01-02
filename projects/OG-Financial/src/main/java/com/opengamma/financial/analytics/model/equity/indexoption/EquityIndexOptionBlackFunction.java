@@ -18,7 +18,10 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
  */
 public abstract class EquityIndexOptionBlackFunction extends EquityIndexOptionFunction {
 
-  public EquityIndexOptionBlackFunction(final String valueRequirementName) {
+  /**
+   * @param valueRequirementName The value requirement names, not null
+   */
+  public EquityIndexOptionBlackFunction(final String... valueRequirementName) {
     super(valueRequirementName);
   }
 

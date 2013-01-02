@@ -22,8 +22,11 @@ import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
  */
 public abstract class EquityIndexOptionBAWFunction extends EquityIndexOptionFunction {
 
-  public EquityIndexOptionBAWFunction(final String valueRequirementName) {
-    super(valueRequirementName);
+  /**
+   * @param valueRequirementNames The value requirement names
+   */
+  public EquityIndexOptionBAWFunction(final String... valueRequirementNames) {
+    super(valueRequirementNames);
   }
 
   @Override

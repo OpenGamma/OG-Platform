@@ -1,20 +1,20 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.futureoption;
+package com.opengamma.financial.analytics.model.equity.indexoption;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.commodity.calculator.ComFutOptBaroneAdesiGreekCalculator;
+import com.opengamma.analytics.financial.equity.EqyOptBaroneAdesiGreekCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -24,7 +24,8 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-public class CommodityFutureOptionBAWGreeksFunction extends CommodityFutureOptionBAWFunction {
+public class EquityIndexOptionBAWGreeksFunction extends EquityIndexOptionBAWFunction {
+  /** Value requirement names */
   private static final String[] GREEK_NAMES = new String[] {
     ValueRequirementNames.VALUE_DELTA,
     ValueRequirementNames.VALUE_DUAL_DELTA,
@@ -33,6 +34,7 @@ public class CommodityFutureOptionBAWGreeksFunction extends CommodityFutureOptio
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.VALUE_THETA
   };
+  /** Equivalent greeks */
   private static final Greek[] GREEKS = new Greek[] {
     Greek.DELTA,
     Greek.DUAL_DELTA,
@@ -42,20 +44,22 @@ public class CommodityFutureOptionBAWGreeksFunction extends CommodityFutureOptio
     Greek.THETA
   };
 
-  public CommodityFutureOptionBAWGreeksFunction() {
+
+  /**
+   * Default constructor
+   */
+  public EquityIndexOptionBAWGreeksFunction() {
     super(GREEK_NAMES);
   }
 
+
   @Override
-  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final Set<ValueRequirement> desiredValues,
-      final ComputationTarget target) {
-    final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final GreekResultCollection greeks = derivative.accept(ComFutOptBaroneAdesiGreekCalculator.getInstance(), market);
-    final ComputationTargetSpecification targetSpec = target.toSpecification();
-    final ValueProperties properties = createResultProperties(desiredValue.getConstraints());
+  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+    final GreekResultCollection greeks = derivative.accept(EqyOptBaroneAdesiGreekCalculator.getInstance(), market);
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     for (int i = 0; i < GREEKS.length; i++) {
-      final ValueSpecification spec = new ValueSpecification(GREEK_NAMES[i], targetSpec, properties);
+      final ValueSpecification spec = new ValueSpecification(GREEK_NAMES[i], targetSpec, resultProperties);
       final double greek = greeks.get(GREEKS[i]);
       result.add(new ComputedValue(spec, greek));
     }
