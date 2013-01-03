@@ -93,7 +93,6 @@ $.register_module({
             if (typeof cell.value === 'undefined') return '';
             if (cell.value.error) {
                 formatted = typeof cell.value.v === 'string' ? cell.value.v : '***ERROR***';
-                og.dev.warn(module.name + ': ' + formatted);
                 return formatted;
             };
             if (formatters[cell.type]) return formatters[cell.type](cell.value, single);

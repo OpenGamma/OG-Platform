@@ -108,7 +108,7 @@ $.register_module({
         var init_elements = function () {
             var grid = this, config = grid.config, elements, in_timeout, out_timeout, stall = 15,
                 last_x, last_y, page_x, page_y, last_corner, cell // cached values for hover events;
-            var hoverin_handler = function (event) {
+            var hoverin_handler = function (event, silent) {
                 (page_x = event.pageX), (page_y = event.pageY);
                 if (grid.selector.busy()) return last_x = last_y = last_corner = null;
                 if (page_x === last_x && page_y === last_y) return;
@@ -125,7 +125,7 @@ $.register_module({
                 cell.top = corner.top - scroll_top + grid.meta.header_height + grid.offset.top;
                 cell.right = corner.right - (page_x > fixed_width ? scroll_left : 0);
                 last_corner = corner_cache; last_x = page_x; last_y = page_y;
-                grid.fire('cellhoverin', cell);
+                if (!silent) grid.fire('cellhoverin', cell);
             };
             var hoverout_handler = function () {
                 if (!last_x) return; else (last_x = last_y = last_corner = null), grid.fire('cellhoverout', cell);
@@ -149,6 +149,16 @@ $.register_module({
                     grid.meta.nodes[row = +$target.attr('data-row')] = !grid.meta.nodes[row];
                     grid.resize().selector.clear();
                     return false; // kill bubbling if it's a node
+                })
+                .on('contextmenu', '.OG-g-sel, .OG-g-cell', function (event) { // for cells
+                    hoverin_handler(event, true); // silently run hoverin_handler to set cell
+                    return grid.fire('contextmenu', cell);
+                })
+                .on('contextmenu', '.OG-g-h-cols', function (event) { // for column headers
+                    hoverin_handler(event, true); // silently run hoverin_handler to set cell
+                    var col = cell.col, columns = grid.meta.columns;
+                    return grid.fire('contextmenu', ['description', 'header', 'type']
+                        .reduce(function (acc, key) {return (acc[key] = columns[key + 's'][col]), acc;}, {col: col}));
                 })
                 .on('mousemove', '.OG-g-sel, .OG-g-cell', function (event) {
                     in_timeout = clearTimeout(in_timeout) || setTimeout(hoverin_handler.partial(event), stall);
