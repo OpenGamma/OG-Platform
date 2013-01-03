@@ -10,7 +10,6 @@ $.register_module({
             config = og.blotter.util.FAKE_SWAP;
             config.floating = og.blotter.util.FAKE_FLOATING;
             config.fixed = og.blotter.util.FAKE_FIXED;
-            console.log(config);
             var constructor = this, ui = og.common.util.ui, data = config || {}, 
             floating = "floatingspreadirleg.";
             fixed = "fixedinterestrateleg.";
