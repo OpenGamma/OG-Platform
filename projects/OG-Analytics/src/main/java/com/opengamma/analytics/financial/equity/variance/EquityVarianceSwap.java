@@ -5,7 +5,9 @@
  */
 package com.opengamma.analytics.financial.equity.variance;
 
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -56,6 +58,18 @@ public class EquityVarianceSwap extends VarianceSwap {
    */
   public boolean correctForDividends() {
     return _dividendsCorrected;
+  }
+
+  @Override
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityVarianceSwap(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityVarianceSwap(this);
   }
 
 }

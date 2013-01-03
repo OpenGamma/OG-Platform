@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
@@ -68,8 +66,8 @@ public class EquityDerivativeSensitivityCalculator {
    * @return A Double. Currency amount per unit amount change in the black volatility
    */
   public Double calcForwardSensitivity(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final double relShift) {
-    Validate.notNull(derivative, "null EquityDerivative");
-    Validate.notNull(market, "null EquityOptionDataBundle");
+    ArgumentChecker.notNull(derivative, "null EquityDerivative");
+    ArgumentChecker.notNull(market, "null EquityOptionDataBundle");
 
     // Shift UP
     StaticReplicationDataBundle bumpedMarket = new StaticReplicationDataBundle(market.getVolatilitySurface(), market.getDiscountCurve(), market.getForwardCurve()
@@ -111,8 +109,8 @@ public class EquityDerivativeSensitivityCalculator {
    * @return A Double in the currency, deriv.getCurrency(). Currency amount per unit amount change in discount rate
    */
   public Double calcDiscountRateSensitivity(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final double shift) {
-    Validate.notNull(market);
-    Validate.notNull(derivative);
+    ArgumentChecker.notNull(market, "market");
+    ArgumentChecker.notNull(derivative, "derivative");
     // Sensitivity from the discounting
 
     final double pv = derivative.accept(_pricer, market);
@@ -161,8 +159,8 @@ public class EquityDerivativeSensitivityCalculator {
    * @return A DoubleMatrix1D containing bucketed delta in order and length of market.getDiscountCurve(). Currency amount per unit amount change in discount rate
    */
   public DoubleMatrix1D calcDeltaBucketed(final InstrumentDerivative derivative, final StaticReplicationDataBundle market) {
-    Validate.notNull(derivative, "null EquityDerivative");
-    Validate.notNull(market, "null EquityOptionDataBundle");
+    ArgumentChecker.notNull(derivative, "null EquityDerivative");
+    ArgumentChecker.notNull(market, "null EquityOptionDataBundle");
 
     // We know that the EquityDerivative only has true sensitivity to one maturity on one curve.
     // A function written for interestRate sensitivities spreads this sensitivity across yield nodes
@@ -205,8 +203,8 @@ public class EquityDerivativeSensitivityCalculator {
    * @return A Double. Currency amount per unit amount change in the black volatility
    */
   public Double calcBlackVegaParallel(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final double shift) {
-    Validate.notNull(derivative, "null EquityDerivative");
-    Validate.notNull(market, "null EquityOptionDataBundle");
+    ArgumentChecker.notNull(derivative, "null EquityDerivative");
+    ArgumentChecker.notNull(market, "null EquityOptionDataBundle");
 
     // Parallel shift UP
     final BlackVolatilitySurface<?> upSurface = market.getVolatilitySurface().withShift(shift, true);
@@ -221,19 +219,19 @@ public class EquityDerivativeSensitivityCalculator {
   }
 
   /**
-   * This calculates the sensitivity of the present value (PV) to the lognormal Black implied volatities at the knot points of the surface. <p>
+   * This calculates the sensitivity of the present value (PV) to the lognormal Black implied volatilities at the knot points of the surface. <p>
    * The return format is a DoubleMatrix2D with rows equal to the total number of maturities and columns equal to the number of strikes. <p>
    * Note - the change of the surface due to the movement of a single node is interpolator-dependent, so an instrument may have non-local sensitivity
    * @param derivative the EquityDerivative
    * @param market the EquityOptionDataBundle
-   * @return A NodalDoublesSurface with same axes as market.getVolatilitySurface(). Contains currencys amount per unit amount change in the black volatility of each node
+   * @return A NodalDoublesSurface with same axes as market.getVolatilitySurface(). Contains currency amount per unit amount change in the black volatility of each node
    */
   public NodalDoublesSurface calcBlackVegaForEntireSurface(final InstrumentDerivative derivative, final StaticReplicationDataBundle market) {
     return calcBlackVegaForEntireSurface(derivative, market, DEFAULT_ABS_SHIFT);
   }
 
   /**
-   * This calculates the sensitivity of the present value (PV) to the lognormal Black implied volatities at the knot points of the surface. <p>
+   * This calculates the sensitivity of the present value (PV) to the lognormal Black implied volatilities at the knot points of the surface. <p>
    * The return format is a DoubleMatrix2D with rows equal to the total number of maturities and columns equal to the number of strikes. <p>
    * Note - the change of the surface due to the movement of a single node is interpolator-dependent, so an instrument may have non-local sensitivity
    * @param derivative the EquityDerivative
@@ -242,15 +240,15 @@ public class EquityDerivativeSensitivityCalculator {
    * @return A NodalDoublesSurface with same axes as market.getVolatilitySurface(). Contains currency amount per unit amount change in the black volatility of each node
    */
   public NodalDoublesSurface calcBlackVegaForEntireSurface(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final double shift) {
-    Validate.notNull(derivative, "null EquityDerivative");
-    Validate.notNull(market, "null EquityOptionDataBundle");
+    ArgumentChecker.notNull(derivative, "null EquityDerivative");
+    ArgumentChecker.notNull(market, "null EquityOptionDataBundle");
 
     if (market.getVolatilitySurface().getSurface() instanceof InterpolatedDoublesSurface) {
       final InterpolatedDoublesSurface blackSurf = (InterpolatedDoublesSurface) market.getVolatilitySurface().getSurface();
       final Double[] maturities = blackSurf.getXData();
       final Double[] strikes = blackSurf.getYData();
       final int nNodes = maturities.length;
-      Validate.isTrue(nNodes == strikes.length);
+      ArgumentChecker.isTrue(nNodes == strikes.length, "Number of strikes must match number of nodes");
       // Bump and reprice
       final Double[] vegas = new Double[nNodes];
       for (int j = 0; j < nNodes; j++) {
@@ -302,7 +300,7 @@ public class EquityDerivativeSensitivityCalculator {
           final StaticReplicationDataBundle shiftedMarket = market.withShiftedSurface(shiftedSurface);
           final Double pvScenario = option.accept(_pricer, shiftedMarket);
 
-          Validate.notNull(pvScenario, "Null PV in shifted scenario, T = " + volExpiries[t] + ", k = " + strikes[t][k]);
+          ArgumentChecker.notNull(pvScenario, "Null PV in shifted scenario, T = " + volExpiries[t] + ", k = " + strikes[t][k]);
           final Double vega = (pvScenario - pvBase) / -shift;
           final Triple<Double, Double, Double> xyz = new Triple<Double, Double, Double>(volExpiries[t], strikes[t][k], vega);
           triplesExpiryStrikeVega.add(xyz);
@@ -331,7 +329,7 @@ public class EquityDerivativeSensitivityCalculator {
       final double shift) {
 
     final Surface<Double, Double, Double> surface = market.getVolatilitySurface().getSurface();
-    Validate.isTrue(surface instanceof InterpolatedDoublesSurface, "Currently will only accept a Equity VolatilitySurfaces based on an InterpolatedDoublesSurface");
+    ArgumentChecker.isTrue(surface instanceof InterpolatedDoublesSurface, "Currently will only accept a Equity VolatilitySurfaces based on an InterpolatedDoublesSurface");
 
     final InterpolatedDoublesSurface blackSurf = (InterpolatedDoublesSurface) surface;
     final InterpolatedSurfaceAdditiveShiftFunction volShifter = new InterpolatedSurfaceAdditiveShiftFunction();

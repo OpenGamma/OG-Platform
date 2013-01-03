@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -80,6 +81,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 
 /**
  * 
@@ -383,7 +385,7 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitEnergyFutureOption(EnergyFutureOption future);
 
   //  -----     Equity     -----
-  
+
   RESULT_TYPE visitEquityFuture(EquityFuture future);
 
   RESULT_TYPE visitEquityFuture(EquityFuture future, DATA_TYPE data);
@@ -391,10 +393,20 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitEquityIndexDividendFuture(EquityIndexDividendFuture future);
 
   RESULT_TYPE visitEquityIndexDividendFuture(EquityIndexDividendFuture future, DATA_TYPE data);
-  
+
   RESULT_TYPE visitEquityIndexOption(EquityIndexOption option, DATA_TYPE data);
-  
+
   RESULT_TYPE visitEquityIndexOption(EquityIndexOption option);
+
+  //  -----     Variance swaps     -----
+
+  RESULT_TYPE visitVarianceSwap(VarianceSwap varianceSwap);
+
+  RESULT_TYPE visitVarianceSwap(VarianceSwap varianceSwap, DATA_TYPE data);
+
+  RESULT_TYPE visitEquityVarianceSwap(EquityVarianceSwap varianceSwap);
+
+  RESULT_TYPE visitEquityVarianceSwap(EquityVarianceSwap varianceSwap, DATA_TYPE data);
 
   //  -----     Deprecated     -----
 

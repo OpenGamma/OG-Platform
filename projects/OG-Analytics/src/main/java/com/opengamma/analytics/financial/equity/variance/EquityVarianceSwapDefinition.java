@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.equity.variance;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -66,7 +67,7 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
   }
 
   /**
-   * Static constructor of a variance swap using a vega parameterisation of the contract.
+   * Static constructor of a variance swap using a variance parameterisation of the contract.
    * @param obsStartDate Date of the first observation, not null
    * @param obsEndDate Date of the last observation, not null
    * @param settlementDate The settlement date, not null
@@ -97,6 +98,11 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
     return _correctForDividends;
   }
 
+  @Override
+  public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate, final String... yieldCurveNames) {
+    return toDerivative(valueDate, ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, yieldCurveNames);
+  }
+
   /**
    * The definition is responsible for constructing a view of the variance swap as of a particular date.
    * In particular,  it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
@@ -104,10 +110,11 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
    * ( For an example of a market disruption event, see http://cfe.cboe.com/Products/Spec_VT.aspx )
    * @param valueDate Date at which valuation will occur, not null
    * @param underlyingTimeSeries Time series of underlying observations, not null
+   * @param yieldCurveNames Not used
    * @return VarianceSwap derivative as of date
    */
   @Override
-  public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries) {
+  public EquityVarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(valueDate, "date");
     ArgumentChecker.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
     final double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, getObsStartDate());
@@ -154,4 +161,15 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
     return true;
   }
 
+  @Override
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityVarianceSwapDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityVarianceSwapDefinition(this);
+  }
 }

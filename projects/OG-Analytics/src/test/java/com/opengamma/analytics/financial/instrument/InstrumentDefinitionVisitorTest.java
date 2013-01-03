@@ -30,6 +30,7 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionD
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
+import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwapDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOptionDefinition;
@@ -90,6 +91,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixe
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
 
 /**
  * Class testing the instrument definition visitor.
@@ -970,6 +972,26 @@ public class InstrumentDefinitionVisitorTest {
     @Override
     public String visitEquityIndexOptionDefinition(final EquityIndexOptionDefinition option) {
       return getValue(option, false);
+    }
+
+    @Override
+    public String visitVarianceSwapDefinition(final VarianceSwapDefinition varianceSwap) {
+      return getValue(varianceSwap, false);
+    }
+
+    @Override
+    public String visitVarianceSwapDefinition(final VarianceSwapDefinition varianceSwap, final T data) {
+      return getValue(varianceSwap, true);
+    }
+
+    @Override
+    public String visitEquityVarianceSwapDefinition(final EquityVarianceSwapDefinition varianceSwap) {
+      return getValue(varianceSwap, false);
+    }
+
+    @Override
+    public String visitEquityVarianceSwapDefinition(final EquityVarianceSwapDefinition varianceSwap, final T data) {
+      return getValue(varianceSwap, true);
     }
   }
 }
