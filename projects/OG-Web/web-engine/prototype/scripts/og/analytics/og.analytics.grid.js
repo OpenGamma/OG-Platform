@@ -216,6 +216,7 @@ $.register_module({
             columns.fixed[0].columns.forEach(populate);
             columns.scroll.forEach(function (set) {set.columns.forEach(populate);});
             unravel_structure.call(grid);
+            meta.row_class = {}; // TODO populate with added, deleted, edited by data row index
             if (grid.elements.empty) init_elements.call(grid);
             grid.resize();
             render_rows.call(grid, null, true);
@@ -254,15 +255,17 @@ $.register_module({
                     cols = meta.viewport.cols, rows = meta.viewport.rows, grid_row = meta.available.indexOf(rows[0]),
                     types = meta.columns.types, type, total_cols = cols.length, formatter = grid.formatter, col_end,
                     row_len = rows.length, col_len = fixed ? fixed_len : total_cols - fixed_len, column, cells, value,
-                    widths = meta.columns.widths, result = {
+                    widths = meta.columns.widths, row_class = meta.row_class, result = {
                         rows: [], loading: loading, holder_height: Math
                             .max(inner.height + (fixed ? scrollbar : 0), inner.scroll_height - (fixed ? 0 : scrollbar)),
                     };
                 if (loading) return result;
                 for (i = 0; i < row_len; i += 1) {
-                    result.rows.push({top: grid_row++ * row_height, cells: (cells = [])});
+                    result.rows.push({
+                        top: row_height * grid_row++, cells: (cells = []), row_class: row_class[data_row = rows[i]]
+                    });
                     if (fixed) {j = 0; col_end = col_len;} else {j = fixed_len; col_end = col_len + fixed_len;}
-                    for (data_row = rows[i]; j < col_end; j += 1) {
+                    for (; j < col_end; j += 1) {
                         index = i * total_cols + j; column = cols[j];
                         value = formatter[type = types[column]] ?
                             data[index] && formatter[type](data[index], widths[column], row_height)
