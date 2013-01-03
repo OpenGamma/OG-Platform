@@ -15,17 +15,6 @@
     <tr>
       <td>
         <label>
-          <span>Notional</span>
-        </label>
-      </td>
-      <td class="og-double-cell">
-        <div><span><select><option value="" selected disabled="disabled">Currency</option></select>
-        </span><span><input name="" type="text" /></span></div>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <label>
           <span>Region</span>
         </label>
       </td>
@@ -40,7 +29,7 @@
         </label>
       </td>
       <td>
-        <input name="" type="text" />
+        <input name="tradeDate" type="text" value="{{trade}}"/>
       </td>
     </tr>
     <tr>
@@ -50,17 +39,17 @@
         </label>
       </td>
       <td>
-        <input name="" type="text" />
+        <input name="effectiveDate" type="text" value="{{effective}}"/>
       </td>
     </tr>
     <tr>
       <td>
         <label>
-          <span>Termination Date</span>
+          <span>Maturity Date</span>
         </label>
       </td>
       <td>
-        <input name="" type="text" />
+        <input name="maturityDate" type="text" value="{{maturity}}"/>
       </td>
     </tr>
   </tbody>

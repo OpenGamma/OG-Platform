@@ -11,7 +11,9 @@ $.register_module({
             config.floating = og.blotter.util.FAKE_FLOATING;
             config.fixed = og.blotter.util.FAKE_FIXED;
             console.log(config);
-            var constructor = this, ui = og.common.util.ui, data = config || {}, floating = "floatingspreadirleg.";
+            var constructor = this, ui = og.common.util.ui, data = config || {}, 
+            floating = "floatingspreadirleg.";
+            fixed = "fixedinterestrateleg.";
             constructor.load = function () {
                 constructor.title = 'Swap';
                 form = new og.common.util.ui.Form({
@@ -26,20 +28,21 @@ $.register_module({
                     }),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_details_tash',
-                        extras: {}
+                        extras: {trade: data.tradeDate, maturity: data.maturityDate, effective: data.effectiveDate}
                     }),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_details_fixed_tash',
-                        extras: {rate: data.fixed.rate},
+                        extras: {rate: data.fixed.rate, notional: data.fixed.notional},
                         children : [
+                            new form.Block({module:'og.views.forms.currency_tash'}),
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.daycountconventions', 
-                                index: 'fixedinterestrateleg.dayCount',
+                                index: fixed + 'dayCount',
                                 value: data.fixed.dayCount, placeholder: 'Select Day Count'
                             }),
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.frequencies', 
-                                index: 'fixedinterestrateleg.frequency',
+                                index: fixed + 'frequency',
                                 value: data.fixed.frequency, placeholder: 'Select Frequency'
                             })
                         ]
@@ -48,8 +51,9 @@ $.register_module({
                         module: 'og.blotter.forms.blocks.swap_details_floating_tash',
                         extras: {type: floating, initial: data.floating.initialFloatingRate, 
                             settlement: data.floating.settlementDays, spread: data.floating.spread, 
-                            gearing: data.floating.gearing},
+                            gearing: data.floating.gearing, notional: data.floating.notional},
                         children: [
+                            new form.Block({module:'og.views.forms.currency_tash'}),
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.daycountconventions', index: floating + 'dayCount',
                                 value: data.floating.dayCount, placeholder: 'Select Day Count'
@@ -81,7 +85,7 @@ $.register_module({
                 form.on('form:load', function (){
                     if(data.length) return;
                     og.blotter.util.check_checkbox(floating + 'eom', data.floating.eom);
-                    og.blotter.util.check_checkbox('fixedinterestrateleg.eom', data.fixed.eom);
+                    og.blotter.util.check_checkbox(fixed + 'eom', data.fixed.eom);
                 }); 
             }; 
             constructor.kill = function () {

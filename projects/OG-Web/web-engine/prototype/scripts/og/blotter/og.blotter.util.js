@@ -124,10 +124,16 @@ $.register_module({
                 observationFrequency: "Semi-annual"
             },
             FAKE_SWAP : {
-                attributes: FAKE_ATTRIBUTES
+                attributes: FAKE_ATTRIBUTES,
+                tradeDate: "21.12.2012", 
+                effectiveDate: "22.12.2012", 
+                maturityDate: "20.12.2012"
             },
             FAKE_SWAPTION : {
-                attributes: FAKE_ATTRIBUTES
+                attributes: FAKE_ATTRIBUTES,
+                tradeDate: "21.12.2012", 
+                effectiveDate: "22.12.2012", 
+                maturityDate: "20.12.2012"
             },
             FAKE_FLOATING : {
                 eom: true,  
@@ -139,14 +145,16 @@ $.register_module({
                 spread: "0.5",
                 gearing: "0.1",
                 floatingRateType: "IBOR",
-                offsetFixing: "Nine Month"
+                offsetFixing: "Nine Month",
+                notional: "100"
             },
             FAKE_FIXED : {
                 eom: true,  
                 dayCount: "1/1",
                 frequency: "Monthly", 
                 businessDayConvention: "None",
-                rate: "0.144"
+                rate: "0.144",
+                notional: "35"
             }
         };
     }
