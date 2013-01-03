@@ -78,4 +78,18 @@ public final class EquitySecurityUtils {
     return null;
   }
 
+  /**
+   * Removes the postfix if the uid is a Bloomberg ticker.
+   * @param uid The unique id, not null
+   * @return The ticker without postfix
+   */
+  public static String getTrimmedTarget(final UniqueId uid) {
+    ArgumentChecker.notNull(uid, "unique id");
+    final String value = uid.getValue();
+    if (uid.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER.getName()) || uid.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
+      final int lastSpace = value.lastIndexOf(" ");
+      return value.substring(0, lastSpace);
+    }
+    return value;
+  }
 }

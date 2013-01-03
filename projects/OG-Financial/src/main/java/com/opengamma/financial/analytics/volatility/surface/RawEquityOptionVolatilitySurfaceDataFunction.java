@@ -9,7 +9,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.id.UniqueId;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 
 /**
  * Constructs volatility surface data objects for equity options (single-name and index) if the target is a Bloomberg
@@ -45,7 +45,7 @@ public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilityS
    */
   @Override
   protected VolatilitySurfaceDefinition<?, ?> getDefinition(final VolatilitySurfaceDefinitionSource definitionSource, final ComputationTarget target, final String definitionName) {
-    final String fullDefinitionName = definitionName + "_" + getTrimmedTarget(target.getUniqueId());
+    final String fullDefinitionName = definitionName + "_" + EquitySecurityUtils.getTrimmedTarget(target.getUniqueId());
     final VolatilitySurfaceDefinition<?, ?> definition = definitionSource.getDefinition(fullDefinitionName, InstrumentTypeProperties.EQUITY_OPTION);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface definition named " + fullDefinitionName + " for instrument type " + InstrumentTypeProperties.EQUITY_OPTION);
@@ -64,7 +64,7 @@ public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilityS
    */
   @Override
   protected VolatilitySurfaceSpecification getSpecification(final VolatilitySurfaceSpecificationSource specificationSource, final ComputationTarget target, final String specificationName) {
-    final String fullSpecificationName = specificationName + "_" + getTrimmedTarget(target.getUniqueId());
+    final String fullSpecificationName = specificationName + "_" + EquitySecurityUtils.getTrimmedTarget(target.getUniqueId());
     final VolatilitySurfaceSpecification specification = specificationSource.getSpecification(fullSpecificationName, InstrumentTypeProperties.EQUITY_OPTION);
     if (specification == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName + " for instrument type " + InstrumentTypeProperties.EQUITY_OPTION);
@@ -72,12 +72,4 @@ public class RawEquityOptionVolatilitySurfaceDataFunction extends RawVolatilityS
     return specification;
   }
 
-  private String getTrimmedTarget(final UniqueId uid) {
-    final String value = uid.getValue();
-    if (uid.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER) || uid.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK)) {
-      final int lastSpace = value.lastIndexOf(" ");
-      return value.substring(0, lastSpace);
-    }
-    return value;
-  }
 }
