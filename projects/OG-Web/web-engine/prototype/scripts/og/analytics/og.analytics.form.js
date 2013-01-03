@@ -65,7 +65,6 @@ $.register_module({
                 og.api.text({module: 'og.analytics.form_tash'}),
                 og.api.text({module: 'og.analytics.form_aggregation_tash'}),
                 og.api.text({module: 'og.analytics.form_datasources_tash'}),
-                og.api.rest.viewdefinitions.get({page: '*'}),
                 og.api.rest.aggregators.get()
             ).pipe(function (tmpl, ag_tmpl, ds_tmpl, vds, ag_data) {
                 if (!tmpl.error) template = tmpl;

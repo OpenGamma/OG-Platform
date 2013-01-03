@@ -26,6 +26,7 @@ $.register_module({
             },
             selectors = {
                 form_container: 'OG-analytics-form',
+                calculations_cntr: 'og-calculations',
                 aggregation_cntr: 'og-aggregation',
                 datasources_cntr: 'og-datasources'
             },
@@ -34,8 +35,11 @@ $.register_module({
                 module: tashes.form_container,
                 selector: '.' + selectors.form_container
             }).on('click', '.og-load', function () {
-                var data = form.compile();
-                console.log(data);
+                og.analytics.url.main(query = {
+                    aggregators: aggregation_menu.get_query() || [],
+                    providers: datasources_menu.get_query(),
+                    viewdefinition: 'DbCfg~2197901'
+                });
             });
 
         var init = function () {
@@ -49,12 +53,12 @@ $.register_module({
 
         var replay = function (config) {
             if (!config) return;
-            menus.forEach(function (menu) { if (menu) { menu.fire(events.replay, config); } });
+            menus.forEach(function (menu) { if (menu) { menu.replay(config); } });
         };
 
         var reset = function () {
             if (query) query = null;
-            menus.forEach(function (menu) { if (menu) menu.fire(events.reset); });
+            menus.forEach(function (menu) { if (menu) menu.reset(); });
         };
 
         constructor = function () {

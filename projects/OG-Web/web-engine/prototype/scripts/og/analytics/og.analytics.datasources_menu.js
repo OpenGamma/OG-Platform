@@ -14,17 +14,16 @@ $.register_module({
 
             // Private
             var default_conf = {
-                    data: { live:[], snapshot:[], historical:[] },
                     form: config.form,
                     selector: '.og-datasources',
                     tmpl: 'og.analytics.form_datasources_tash',
                     children: [
                         new og.common.util.ui.Dropdown({
-                            form: config.form, value: 'Live', placeholder: 'select type...',
+                            form: config.form, value: 'Live', placeholder: 'select type...', classes:'type',
                             data_generator: function (callback) { callback(['Live', 'Snapshot', 'Historical']);}
                         }),
                         new og.common.util.ui.Dropdown({
-                            form: config.form, resource: 'livedatasources', index: 'live.0',
+                            form: config.form, resource: 'livedatasources', classes:'source',
                             value: 'Bloomberg', placeholder: 'select data source...'
                         })
                     ]
@@ -47,18 +46,16 @@ $.register_module({
                 del_s = '.og-icon-delete', parent_s = '.OG-dropmenu-options', wrapper = '<wrapper>', type_s = '.type',
                 source_s = '.source',  extra_opts_s = '.extra-opts', latest_s = '.latest', custom_s = '.custom',
                 custom_val = 'Custom', date_selected_s = 'date-selected', active_s = 'active', versions_s = '.versions',
-                corrections_s = '.corrections', initialized = false, menu, form = config.form;
+                corrections_s = '.corrections', initialized = false, form = config.form;
 
             var add_handler = function (opts) {
                 var index = opts && opts.hasOwnProperty('idx') ? opts.idx : menu.opts.length;
                 new og.common.util.ui.Dropdown({
-                    form: config.form, resource: opts.source, index: opts.name + '.' + index,
+                    form: config.form, resource: opts.source, rest_options: opts.rest_options || {},
                     value: (opts && opts.hasOwnProperty('val') ? opts.val : ''), placeholder: 'select data source...'
                 }).html(function (html) {
                     var idx, $elem = menu.$dom.opt_cp.clone(true); $elem.find('td.ds-opts').html(html);
                     menu.add_handler($elem); idx = menu.opts.length-1;
-                    $('.type-opts select', menu.opts[idx]).attr('class', 'type');
-                    $('.ds-opts select', menu.opts[idx]).attr('class', 'source');
                     populate_src_options(idx);
                     source_handler(idx);
                 });
@@ -84,7 +81,7 @@ $.register_module({
                 menu.delete_handler(menu.opts[entry]);
                 if (menu.opts.length) {
                     for (var i = ~idx ? idx : sel_pos, len = query.length; i < len; query[i++].pos -= 1);
-                    if (~idx) return remove_entry(idx), display_query(); // fire; optsrepositioned
+                    if (~idx) return remove_entry(idx), display_query(); // emitEvent; optsrepositioned
                 }
             };
 
@@ -158,14 +155,14 @@ $.register_module({
                         }
                         populate_src_options(0);
                         source_handler(0);
-                        menu.fire('initialized', initialized = true);
+                        menu.emitEvent('initialized', [initialized = true]);
                     });
                 }
             };
 
             var init_listeners = function () {
-                menu.on(events.queryresequested, remove_orphans);
-                menu.on(events.resetquery, reset);
+                menu.addListener(events.queryresequested, remove_orphans);
+                menu.addListener(events.resetquery, menu.reset);
             };
 
             var menu_handler = function (event) {
@@ -343,8 +340,10 @@ $.register_module({
                 }
             };
 
+            return menu = new og.analytics.DropMenu(default_conf, init),
+
             // Public
-            var get_query = function () {
+            menu.get_query = function () {
                 if (!query.length) return;
                 var arr = [];
                 query.forEach(function (entry) {
@@ -362,46 +361,59 @@ $.register_module({
                     }
                     arr.push(obj);
                 });
-                menu.fire(events.queryresequested);
+                menu.emitEvent(events.queryresequested);
                 return arr;
-            };
+            },
 
-            var replay = function (conf) {
+            menu.replay = function (conf) {
+                if (!conf && !conf.providers || !$.isArray(conf.providers) || !conf.providers.length) return;
+
+                var datasources = conf.providers.map(function (entry) {
+                    var obj = {};
+                    if (entry.marketDataType) {
+                        switch (entry.marketDataType) {
+                            case 'live' : obj.source = 'livedatasources'; break;
+                            case 'snapshot':
+                                obj.source = 'marketdatasnapshots'; break;
+                            case 'fixedHistorical':
+                            case 'latestHistorical': obj.source = 'configs'; break;
+                        }
+                    }
+                    if (entry.source) obj.val = entry.source;
+                    else if (entry.snapshotId) obj.val = entry.snapshotId;
+                    else if (entry.resolverKey) {
+                        obj.val = entry.resolverKey;
+                        if (entry.date) obj.date = entry.date;
+                    }
+                    obj.rest_options = obj.source === 'configs' ?
+                                    {type: 'HistoricalTimeSeriesRating'} :
+                                    {cache_for: 5000};
+                    return obj;
+                });
+
                 var replay_opts = function () {
-                    if (!conf && !conf.datasources || !$.isArray(conf.datasources) || !conf.datasources.length) return;
                     var i, len, src;
                     menu.opts.forEach(function (option) { option.remove(); }); menu.opts.length = 0; query = [];
-                    for (len = conf.datasources.length, src; menu.opts.length < len; menu.add_handler());
-                    for (i = 0, len = conf.datasources.length; i < len; i+=1) {
-                        if ('marketDataType' in conf.datasources[i] && conf.datasources[i] &&
-                            typeof conf.datasources[i].marketDataType === 'string')
-                            set_type_select(i, {type:conf.datasources[i].marketDataType});
-                        type_handler(i, {post_handler: replay_post_handler(i, {src:conf.datasources[i]})});
+                    for (i = 0, len = datasources.length; i < len; i+=1) {
+                        add_handler({
+                            source: datasources[i].source,
+                            val: datasources[i].val,
+                            rest_options: datasources[i].rest_options || {},
+                            date: datasources[i].date || null
+                        });
                     }
                 };
-                if (!initialized) menu.on('initialized', replay_opts); else replay_opts();
-            };
+                if (!initialized) menu.addListener('initialized', replay_opts); else replay_opts();
+            },
 
-            var reset = function () {
-                var type_select, source_select;
-                for (var i = menu.opts.length-1; i >= 0; i-=1) {
-                    if (menu.opts.length === 1 && menu.opts[i]) {
-                        type_select = $(type_s, menu.opts[i]),
-                        source_select = $(source_s, menu.opts[i]);
-                        if (type_select) type_select.val(default_sel_txt);
-                        if (source_select) source_select.val(default_type_txt);
-                        remove_ext_opts(i);
-                        reset_query(i);
-                        break;
-                    }
-                    delete_handler(i);
-                }
-                set_type_select(0, {type: 'live'});
-                type_handler(0, {post_handler: replay_post_handler(0, {src:{idx:1}})});
-            };
+            menu.reset = function () {
+                menu.opts.forEach(function (option) { option.remove(); });
+                menu.opts.length = 0;
+                query = [];
+                return add_handler({source:'livedatasources', val:'Bloomberg'}), reset_query();
+            },
 
-            return menu = new og.analytics.DropMenu(default_conf, init),
-                menu.on(events.reset, reset).on(events.replay, replay), menu;
+            menu;
         };
     }
 });

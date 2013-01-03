@@ -14,14 +14,12 @@ $.register_module({
 
             // Private
             var default_conf = {
-                    data: { aggregators:[], required_fields:[] },
                     form: config.form,
                     selector: '.og-aggregation',
                     tmpl: 'og.analytics.form_aggregation_tash',
                     children: [
                         new og.common.util.ui.Dropdown({
-                            form: config.form, resource: 'aggregators', index: 'aggregators.0',
-                            value: '', placeholder: 'select aggregation...'
+                            form: config.form, resource: 'aggregators', value: '', placeholder: 'select aggregation...'
                         })
                     ]
                 },
@@ -29,15 +27,14 @@ $.register_module({
                     reset:'reset',
                     replay:'replay'
                 },
-                menu, $dom, query = [], sel_val, sel_pos, $parent, $query, form = config.form, initialized = false,
+                $dom, query = [], sel_val, sel_pos, $parent, $query, form = config.form, initialized = false,
                 $select, $checkbox, default_sel_txt = 'select aggregation...', default_query_text = 'Default',
                 del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', select_s = 'select',
-                checkbox_s = '.og-option :checkbox', tmpl_menu = '', tmpl_toggle = '';
+                checkbox_s = '.og-option :checkbox', tmpl_menu = '', tmpl_toggle = '', menu;
 
             var add_handler = function (opts) {
                 new og.common.util.ui.Dropdown({
-                    form: config.form, resource: 'aggregators', index: 'aggregators.'+ (opts &&
-                        opts.hasOwnProperty('idx') ? opts.idx : menu.opts.length),
+                    form: config.form, resource: 'aggregators',
                     value: (opts && opts.hasOwnProperty('val') ? opts.val : ''), placeholder: 'select aggregation...'
                 }).html(function (html) {
                     var idx, $elem = menu.$dom.opt_cp.clone(true); $elem.find('td.aggregation').html(html);
@@ -90,7 +87,7 @@ $.register_module({
                             .on('change', 'select', menu_handler);
                     }
                 }
-                menu.fire('initialized', initialized = true);
+                menu.emitEvent('initialized', [initialized = true]);
             };
 
             var menu_handler = function (event) {
@@ -138,7 +135,10 @@ $.register_module({
                 display_query();
             };
 
-            var replay = function (conf) {
+            return menu = new og.analytics.DropMenu(default_conf, init),
+
+            // Public
+            menu.replay = function (conf) {
                 var replay_opts = function () {
                     if (!conf || !conf.hasOwnProperty('aggregators')) return;
                     var aggregators = conf.aggregators;
@@ -152,23 +152,21 @@ $.register_module({
                     });
                     display_query();
                 };
-                if (!initialized) menu.on('initialized', replay_opts); else replay_opts();
-            };
+                if (!initialized) menu.addListener('initialized', replay_opts); else replay_opts();
+            },
 
-            var reset = function () {
+            menu.reset = function () {
                 menu.opts.forEach(function (option) { option.remove(); });
                 menu.opts.length = 0;
                 query = [];
                 return add_handler(), reset_query();
-            };
+            },
 
-            // Public
-            var get_query = function () {
+            menu.get_query = function () {
                 return remove_orphans(), query.pluck('val');
-            };
+            },
 
-            return menu = new og.analytics.DropMenu(default_conf, init),
-                menu.on(events.reset, reset).on(events.replay, replay), menu;
+            menu;
         };
     }
 });
