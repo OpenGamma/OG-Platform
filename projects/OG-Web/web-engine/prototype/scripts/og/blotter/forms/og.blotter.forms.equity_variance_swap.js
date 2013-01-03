@@ -9,7 +9,6 @@ $.register_module({
         return function (config) {
             config = og.blotter.util.FAKE_VARIANCE_SWAP;
             var constructor = this, ui = og.common.util.ui, data = config || {};
-            console.log(data);
             constructor.load = function () {
                 constructor.title = 'Equity Varience Swap';
                 var form = new og.common.util.ui.Form({
