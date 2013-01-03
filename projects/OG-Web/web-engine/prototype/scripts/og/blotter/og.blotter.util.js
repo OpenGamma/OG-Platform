@@ -131,9 +131,14 @@ $.register_module({
             },
             FAKE_SWAPTION : {
                 attributes: FAKE_ATTRIBUTES,
-                tradeDate: "21.12.2012", 
-                effectiveDate: "22.12.2012", 
-                maturityDate: "20.12.2012"
+                longShort: "Short",
+                payer: true,
+                expiry: "22.12.2012",
+                cashSettled: false,
+                currency: "USD",
+                notional: "120",
+                exerciseType: "Bermudan",
+                settlementDate: "20.12.2012"
             },
             FAKE_FLOATING : {
                 eom: true,  

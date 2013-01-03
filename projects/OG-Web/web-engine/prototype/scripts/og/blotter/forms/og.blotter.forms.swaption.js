@@ -11,7 +11,6 @@ $.register_module({
             config.swap = og.blotter.util.FAKE_SWAP;
             config.swap.floating = og.blotter.util.FAKE_FLOATING;
             config.swap.fixed = og.blotter.util.FAKE_FIXED;
-            console.log(config);
             var constructor = this, ui = og.common.util.ui, data = config || {}, 
             floating = "swapsecurity.floatingspreadirleg.";
             fixed = "swapsecurity.fixedinterestrateleg.";
@@ -24,8 +23,21 @@ $.register_module({
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
                     new form.Block({
-                        module: 'og.blotter.forms.blocks.swap_quick_entry_tash',
-                        extras: {}
+                        module: 'og.blotter.forms.blocks.long_short_tash'
+                    }),
+                    new form.Block({
+                        module: 'og.blotter.forms.blocks.swaption_details_tash',
+                        extras: {notional: data.notional, expiry: data.expiry, settlement: data.settlementDate},
+                        children: [
+                            new form.Block({module:'og.views.forms.currency_tash'}),
+                            new ui.Dropdown({
+                                form: form, resource: 'blotter.exercisetypes', index: 'exerciseType',
+                                value: data.exerciseType, placeholder: 'Select Exercise Type'
+                            })
+                        ]
+                    }),
+                    new form.Block({
+                        module: 'og.blotter.forms.blocks.swap_quick_entry_tash'
                     }),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_details_tash',
@@ -55,7 +67,7 @@ $.register_module({
                             settlement: data.swap.floating.settlementDays, spread: data.swap.floating.spread, 
                             gearing: data.swap.floating.gearing, notional: data.swap.floating.notional},
                         children: [
-                            new form.Block({module:'og.views.forms.currency_tash'}),
+                            new form.Block({module:'og.views.forms.currency_tash',extras:{name: floating +'currency'}}),
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.daycountconventions', index: floating + 'dayCount',
                                 value: data.swap.floating.dayCount, placeholder: 'Select Day Count'
@@ -88,6 +100,10 @@ $.register_module({
                     if(data.length) return;
                     og.blotter.util.check_checkbox(floating + 'eom', data.swap.floating.eom);
                     og.blotter.util.check_checkbox(fixed + 'eom', data.swap.fixed.eom);
+                    og.blotter.util.set_select("currency", data.currency);
+                    og.blotter.util.check_radio("payer", data.payer);
+                    og.blotter.util.check_radio("cashSettled", data.cashSettled);
+                    og.blotter.util.check_radio("longShort", data.longShort);
                 }); 
             }; 
             constructor.load();
