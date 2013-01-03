@@ -19,7 +19,7 @@ $.register_module({
                     new og.blotter.forms.blocks.Portfolio({form: form}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_forward_tash',
-                        extras: {pay: data.payAmount, recieve: data.recieveAmount, date: data.forwardDate},
+                        extras: {pay: data.payAmount, recieve: data.recieveAmount},
                         children: [
                             new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'payCurrency'}}),
                             new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'recieveCurrency'}})
@@ -29,9 +29,13 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
+                    og.blotter.util.add_datetimepicker("forwardDate");
+
                     if(data.length) return;
                     og.blotter.util.set_select("recieveCurrency", data.recieveCurrency);
                     og.blotter.util.set_select("payCurrency", data.payCurrency);
+                    og.blotter.util.set_datetime("forwardDate", data.forwardDate);
+
                 });
             }; 
             constructor.load();

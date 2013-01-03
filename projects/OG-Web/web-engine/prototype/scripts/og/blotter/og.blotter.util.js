@@ -27,6 +27,14 @@ $.register_module({
             check_checkbox : function (name, value){
                 $('input:checkbox[name= '+ name +']').attr('checked', value); 
             },
+            add_datetimepicker : function (name){
+                $('input[name= '+ name +']').datetimepicker({
+                    firstDay: 1, showTimezone: true, dateFormat: 'yy-mm-dd', timeFormat: 'hh:mm ttz'
+                });
+            },
+            set_datetime : function (name, value){
+                $('input[name= '+ name +']').datetimepicker('setDate', value);
+            },
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
             FAKE_DROPDOWN : [
                     {name:'Select', value:''},
@@ -82,7 +90,7 @@ $.register_module({
                 recieveAmount: "2.30",
                 payAmount: "3.02",
                 attributes:  FAKE_ATTRIBUTES,
-                forwardDate:"22.12.2012"
+                forwardDate:"22-12-2012"
             },
             FAKE_CAP_FLOOR : {
                 currency: "TOP",
