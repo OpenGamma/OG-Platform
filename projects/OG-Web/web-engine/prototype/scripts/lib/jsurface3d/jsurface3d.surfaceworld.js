@@ -159,8 +159,8 @@
      */
     var intersects_mesh = function (js3d, event, meshes) {
         var mouse = {x: 0, y: 0}, vector, ray;
-        mouse.x = ((event.clientX - js3d.sel_offset.left) / js3d.width) * 2 - 1;
-        mouse.y = -((event.clientY - js3d.sel_offset.top) / js3d.height) * 2 + 1;
+        mouse.x = ((event.pageX - js3d.sel_offset.left) / js3d.width) * 2 - 1;
+        mouse.y = -((event.pageY - js3d.sel_offset.top) / js3d.height) * 2 + 1;
         vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
         js3d.projector.unprojectVector(vector, js3d.camera);
         ray = new THREE.Ray(js3d.camera.position, vector.subSelf(js3d.camera.position).normalize());
@@ -315,8 +315,8 @@
                 /**
                  * original mouse x & y
                  */
-                mouse_x = event.clientX;
-                mouse_y = event.clientY;
+                mouse_x = event.pageX;
+                mouse_y = event.pageY;
                 /**
                  * Trigger custom events
                  */
@@ -331,7 +331,7 @@
             });
             $selector.on('mousedown.surface.interactive', function (event) {
                 event.preventDefault();
-                mousedown = true, sx = event.clientX, sy = event.clientY;
+                mousedown = true, sx = event.pageX, sy = event.pageY;
                 if (hit_handle) $selector.trigger('slice_handle_click');
                 $(document).on('mouseup.surface.interactive', function () {
                     rotation_enabled = true;
