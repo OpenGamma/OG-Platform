@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
@@ -40,6 +42,8 @@ import com.opengamma.id.ExternalId;
  * Calculates the bucketed vega of an equity index or equity option using the Black formula.
  */
 public class EquityOptionBlackVegaMatrixFunction  extends EquityOptionBlackFunction {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionBlackVegaMatrixFunction.class);
   /** The Black present value calculator */
   private static final EquityOptionBlackPresentValueCalculator PVC = EquityOptionBlackPresentValueCalculator.getInstance();
   /** Calculates derivative sensitivities */
@@ -115,6 +119,10 @@ public class EquityOptionBlackVegaMatrixFunction  extends EquityOptionBlackFunct
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ExternalId id = FinancialSecurityUtils.getUnderlyingId(target.getSecurity());
     final String bbgTicker = getBloombergTicker(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), id);
+    if (bbgTicker == null) {
+      s_logger.error("Could not get underlying ticker for " + target.getSecurity());
+      return null;
+    }
     return Collections.singleton(new ValueSpecification(getValueRequirementNames()[0], target.toSpecification(), createValueProperties(target, bbgTicker).get()));
   }
 
