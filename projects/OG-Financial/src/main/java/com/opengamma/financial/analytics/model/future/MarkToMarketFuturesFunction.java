@@ -52,10 +52,9 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
     requirements.add(refPriceReq);
     requirements.add(getMarketPriceRequirement(security));
     final ValueRequirement spotAssetRequirement = getSpotAssetRequirement(security);
-    if (spotAssetRequirement == null) {
-      return null;
+    if (spotAssetRequirement != null) {
+      requirements.add(spotAssetRequirement);
     }
-    requirements.add(spotAssetRequirement);
     return requirements;
   }
 
