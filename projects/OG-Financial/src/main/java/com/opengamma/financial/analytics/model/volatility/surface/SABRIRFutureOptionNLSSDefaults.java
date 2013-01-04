@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
@@ -64,7 +64,7 @@ public class SABRIRFutureOptionNLSSDefaults extends DefaultPropertyFunction {
       final String leftXExtrapolatorName, final String rightXExtrapolatorName, final String leftYExtrapolatorName, final String rightYExtrapolatorName,
       final String useFixedAlpha, final String useFixedBeta, final String useFixedRho, final String useFixedNu, final String alpha, final String beta,
       final String rho, final String nu, final String error) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.ANYTHING, true); // [PLAT-2286] TODO: Use the correct target type
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(xInterpolatorName, "x interpolator name");
     ArgumentChecker.notNull(yInterpolatorName, "y interpolator name");

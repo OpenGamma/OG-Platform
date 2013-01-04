@@ -15,14 +15,13 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -43,7 +42,7 @@ public class ISDALegacyCDSHazardCurveDefaults extends DefaultPropertyFunction {
 
   public ISDALegacyCDSHazardCurveDefaults(final String priority, final String nIterations, final String tolerance, final String rangeMultiplier,
       final String... yieldCurvePropertiesForCurrency) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(nIterations, "number of iterations");
     ArgumentChecker.notNull(tolerance, "tolerance");
@@ -67,13 +66,7 @@ public class ISDALegacyCDSHazardCurveDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     final Security security = target.getSecurity();
-    if (!(security instanceof LegacyVanillaCDSSecurity)) {
-      return false;
-    }
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
     if (_yieldCurvePropertiesForCurrency.containsKey(currency)) {
       return true;

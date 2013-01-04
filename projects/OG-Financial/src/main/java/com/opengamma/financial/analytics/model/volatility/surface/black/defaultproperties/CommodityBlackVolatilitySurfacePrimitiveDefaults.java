@@ -6,10 +6,9 @@
 package com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -22,19 +21,13 @@ public class CommodityBlackVolatilitySurfacePrimitiveDefaults extends CommodityB
   };
 
   public CommodityBlackVolatilitySurfacePrimitiveDefaults(final String... defaultsPerCurrency) {
-    super(ComputationTargetType.PRIMITIVE, VALUE_REQUIREMENTS, defaultsPerCurrency);
+    super(ComputationTargetType.CURRENCY, VALUE_REQUIREMENTS, defaultsPerCurrency);
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    final UniqueId uniqueId = target.getUniqueId();
-    if (!Currency.OBJECT_SCHEME.equals(uniqueId.getScheme())) {
-      return false;
-    }
-    return getAllCurrencies().contains(uniqueId.getValue());
+    final Currency currency = (Currency) target.getValue();
+    return getAllCurrencies().contains(currency.getCode());
   }
 
   @Override

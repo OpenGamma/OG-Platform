@@ -66,7 +66,6 @@ import com.opengamma.financial.analytics.volatility.fittedresults.HestonFittedSu
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
@@ -149,8 +148,8 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
     }
-    final UniqueIdentifiable uniqueId = curveCalculationConfig.getUniqueId();
-    if (Currency.OBJECT_SCHEME.equals(uniqueId.getUniqueId().getScheme()) && !(uniqueId.getUniqueId().getValue().equals(currency.getCode()))) {
+    final ComputationTargetSpecification curveCalculationTarget = curveCalculationConfig.getTarget();
+    if (!ComputationTargetSpecification.of(currency).equals(curveCalculationTarget)) {
       return null;
     }
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));

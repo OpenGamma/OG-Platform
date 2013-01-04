@@ -48,6 +48,7 @@ import com.opengamma.engine.test.ViewProcessorTestEnvironment;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
@@ -74,6 +75,7 @@ import com.opengamma.util.log.LogBridge;
 import com.opengamma.util.log.LogEvent;
 import com.opengamma.util.log.LogLevel;
 import com.opengamma.util.log.SimpleLogEvent;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
 
@@ -534,10 +536,10 @@ public class ViewClientTest {
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), 0);
     env.setMarketDataProvider(marketDataProvider);
     final InMemoryFunctionRepository functionRepository = new InMemoryFunctionRepository();
-    
-    final ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, "USD");
+
+    final ComputationTarget target = new ComputationTarget(ComputationTargetType.CURRENCY, Currency.USD);
     final MockFunction fn1 = new MockFunction(MockFunction.UNIQUE_ID + "1", target) {
-      
+
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
         LogBridge.getInstance().log(new SimpleLogEvent(LogLevel.WARN, "Warning during execution"));
@@ -547,25 +549,25 @@ public class ViewClientTest {
 
     };
     final ValueRequirement requirement1 = new ValueRequirement("value1", target.toSpecification());
-    fn1.addResult(requirement1, "result1");
+    fn1.addResult(new ValueSpecification(requirement1.getValueName(), target.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "fn1").get()), "result1");
     functionRepository.addFunction(fn1);
-    
+
     final MockFunction fn2 = new MockFunction(MockFunction.UNIQUE_ID + "2", target) {
-      
+
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
         LogBridge.getInstance().log(new SimpleLogEvent(LogLevel.WARN, "Warning during execution"));
         return super.execute(executionContext, inputs, target, desiredValues);
       }
-      
+
     };
     fn2.addRequirement(requirement1);
     final ValueRequirement requirement2 = new ValueRequirement("value2", target.toSpecification());
-    fn2.addResult(requirement2, "result2");
-    functionRepository.addFunction(fn2);    
-    
+    fn2.addResult(new ValueSpecification(requirement2.getValueName(), target.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, "fn2").get()), "result2");
+    functionRepository.addFunction(fn2);
+
     env.setFunctionRepository(functionRepository);
-    
+
     final ViewDefinition vd = new ViewDefinition(UniqueId.of("test", "vd1"), "Test view", UserPrincipal.getLocalUser());
     final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(vd, "Default");
     calcConfig.addSpecificRequirement(requirement2);
@@ -592,14 +594,14 @@ public class ViewClientTest {
     assertEquals(1, result1.getAllResults().size());
     final ComputedValueResult result1Value = Iterables.getOnlyElement(result1.getAllResults()).getComputedValue();
     assertEquals("result2", result1Value.getValue());
-    
+
     final AggregatedExecutionLog log1 = result1Value.getAggregatedExecutionLog();
     assertNotNull(log1);
     assertTrue(log1.getLogLevels().contains(LogLevel.ERROR));
     assertTrue(log1.getLogLevels().contains(LogLevel.WARN));
     assertFalse(log1.getLogLevels().contains(LogLevel.INFO));
     assertNull(log1.getLogs());
-    
+
     final Pair<String, ValueSpecification> resultSpec = Pair.of(calcConfig.getName(), Iterables.getOnlyElement(client.getLatestCompiledViewDefinition().getTerminalValuesRequirements().keySet()));
     client.setMinimumLogMode(ExecutionLogMode.FULL, ImmutableSet.of(resultSpec));
 
@@ -613,7 +615,7 @@ public class ViewClientTest {
     assertEquals(1, result2.getAllResults().size());
     final ComputedValueResult result2Value = Iterables.getOnlyElement(result2.getAllResults()).getComputedValue();
     assertEquals("result2", result2Value.getValue());
-    
+
     final AggregatedExecutionLog log2 = result2Value.getAggregatedExecutionLog();
     assertNotNull(log2);
     assertTrue(log2.getLogLevels().contains(LogLevel.ERROR));
@@ -621,7 +623,7 @@ public class ViewClientTest {
     assertFalse(log2.getLogLevels().contains(LogLevel.INFO));
     assertNotNull(log2.getLogs());
     assertEquals(2, log2.getLogs().size());
-    
+
     final ExecutionLogWithContext result2LogContext = log2.getLogs().get(0);
     assertNotNull(result2LogContext);
     assertEquals(fn2.getFunctionDefinition().getShortName(), result2LogContext.getFunctionName());
@@ -634,7 +636,7 @@ public class ViewClientTest {
     assertNull(result2Log.getExceptionClass());
     assertNull(result2Log.getExceptionMessage());
     assertNull(result2Log.getExceptionStackTrace());
-    
+
     final ExecutionLogWithContext result1LogContext = log2.getLogs().get(1);
     assertNotNull(result1LogContext);
     assertEquals(fn1.getFunctionDefinition().getShortName(), result1LogContext.getFunctionName());
@@ -650,7 +652,7 @@ public class ViewClientTest {
     assertNull(result1Log.getExceptionClass());
     assertNull(result1Log.getExceptionMessage());
     assertNull(result1Log.getExceptionStackTrace());
-    
+
     client.setMinimumLogMode(ExecutionLogMode.INDICATORS, ImmutableSet.of(resultSpec));
     recalcJob.triggerCycle();
 
@@ -660,12 +662,12 @@ public class ViewClientTest {
     assertEquals(1, result3.getAllResults().size());
     final ComputedValueResult result3Value = Iterables.getOnlyElement(result3.getAllResults()).getComputedValue();
     assertEquals("result2", result3Value.getValue());
-    
+
     final AggregatedExecutionLog log3 = result3Value.getAggregatedExecutionLog();
     assertNotNull(log3);
-    // Delta cycle - should reuse the previous result which *does* include logs. 
+    // Delta cycle - should reuse the previous result which *does* include logs.
     assertNotNull(log3.getLogs());
-    
+
     // Force a full cycle - should *not* reuse any previous result, so back to indicators only
     recalcJob.dirtyViewDefinition();
     recalcJob.triggerCycle();
@@ -677,9 +679,9 @@ public class ViewClientTest {
     assertEquals(1, result4.getAllResults().size());
     final ComputedValueResult result4Value = Iterables.getOnlyElement(result4.getAllResults()).getComputedValue();
     assertEquals("result2", result4Value.getValue());
-    
+
     final AggregatedExecutionLog log4 = result4Value.getAggregatedExecutionLog();
-    assertNotNull(log4); 
+    assertNotNull(log4);
     assertNull(log4.getLogs());
   }
 

@@ -366,7 +366,7 @@ public class WebView {
                 }
                 for (final ComputedValueResult value : scopedValues) {
                   values.add(new ComputedValueResult(new ValueSpecification(value.getSpecification().getValueName(), target, value.getSpecification().getProperties()), value.getValue(), value
-                      .getExecutionLog()));
+                      .getAggregatedExecutionLog()));
                 }
               }
               targetResult = new ViewTargetResultModel() {

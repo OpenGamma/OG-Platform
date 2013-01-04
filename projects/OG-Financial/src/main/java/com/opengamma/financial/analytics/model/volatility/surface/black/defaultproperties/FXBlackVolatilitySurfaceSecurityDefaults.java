@@ -7,9 +7,9 @@ package com.opengamma.financial.analytics.model.volatility.surface.black.default
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -20,18 +20,12 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 public class FXBlackVolatilitySurfaceSecurityDefaults extends FXBlackVolatilitySurfaceDefaults {
 
   public FXBlackVolatilitySurfaceSecurityDefaults(final String... defaultsPerCurrencyPair) {
-    super(ComputationTargetType.SECURITY, defaultsPerCurrencyPair);
+    super(FinancialSecurityTypes.FX_OPTION_SECURITY, defaultsPerCurrencyPair);
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     final Security security = target.getSecurity();
-    if (!(security instanceof FXOptionSecurity)) {
-      return false;
-    }
     final FXOptionSecurity fxOption = (FXOptionSecurity) security;
     final Currency putCurrency = fxOption.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = fxOption.accept(ForexVisitors.getCallCurrencyVisitor());

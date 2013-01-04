@@ -21,6 +21,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -30,7 +31,6 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
-import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -112,13 +112,8 @@ public abstract class CommodityBlackVolatilitySurfaceFunction extends BlackVolat
   }
 
   @Override
-  protected boolean isCorrectIdType(final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null; {}", target);
-      return false;
-    }
-    final String targetScheme = target.getUniqueId().getScheme();
-    return Currency.OBJECT_SCHEME.equals(targetScheme);
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override

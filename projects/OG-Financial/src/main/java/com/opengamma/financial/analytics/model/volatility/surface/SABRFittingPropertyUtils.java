@@ -32,6 +32,7 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -155,7 +156,7 @@ public class SABRFittingPropertyUtils {
               .with(constraint, constraints.getValues(constraint));
         }
       }
-      return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties.get());
+      return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetSpecification.of(currency), properties.get());
     }
     s_logger.error("Could not handle fitting method {}", fittingMethod);
     return null;

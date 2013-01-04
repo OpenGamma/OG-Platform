@@ -79,8 +79,6 @@ public abstract class DupireLocalVolatilitySurfaceFunction extends AbstractFunct
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, target.toSpecification(), properties.get()));
   }
 
-  protected abstract boolean isCorrectIdType(final ComputationTarget target);
-
   protected abstract String getInstrumentType();
 
   protected abstract String getBlackSmileInterpolatorName();
