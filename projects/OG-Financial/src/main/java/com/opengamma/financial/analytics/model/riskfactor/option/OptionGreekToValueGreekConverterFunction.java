@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.riskfactor.option;
@@ -41,7 +41,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class OptionGreekToValueGreekConverterFunction extends PropertyPreservingFunction {
 
@@ -49,7 +49,7 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
   protected Collection<String> getPreservedProperties() {
     return Collections.singleton(ValuePropertyNames.CURRENCY);
   }
-  
+
   @Override
   protected Collection<String> getOptionalPreservedProperties() {
     return Collections.emptySet();
@@ -136,7 +136,10 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
       // TODO what to do here? will only happen for the price
     } else {
       for (final UnderlyingType underlying : underlyings) {
-        requirements.add(UnderlyingTypeToValueRequirementMapper.getValueRequirement(context.getSecuritySource(), underlying, security));
+        try {
+          requirements.add(UnderlyingTypeToValueRequirementMapper.getValueRequirement(context.getSecuritySource(), underlying, security));
+        } catch (final Exception e) {
+        }
       }
     }
     return requirements;
@@ -157,9 +160,9 @@ public class OptionGreekToValueGreekConverterFunction extends PropertyPreserving
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final Position position = target.getPosition();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    ValueProperties.Builder properties = createValueProperties();
+    final ValueProperties.Builder properties = createValueProperties();
     final String underlyingGreekRequirementName = AvailableValueGreeks.getGreekRequirementNameForValueGreekName(getRequirementName());
-    for (ValueSpecification input : inputs.keySet()) {
+    for (final ValueSpecification input : inputs.keySet()) {
       if (underlyingGreekRequirementName.equals(input.getValueName())) {
         properties.with(ValuePropertyNames.CURRENCY, input.getProperty(ValuePropertyNames.CURRENCY));
         break;
