@@ -152,12 +152,12 @@ $.register_module({
                 })
                 .on('contextmenu', '.OG-g-sel, .OG-g-cell', function (event) { // for cells
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
-                    return grid.fire('contextmenu', cell);
+                    return grid.fire('contextmenu', event, cell, null);
                 })
                 .on('contextmenu', '.OG-g-h-cols', function (event) { // for column headers
                     hoverin_handler(event, true); // silently run hoverin_handler to set cell
                     var col = cell.col, columns = grid.meta.columns;
-                    return grid.fire('contextmenu', ['description', 'header', 'type']
+                    return grid.fire('contextmenu', event, null, ['description', 'header', 'type']
                         .reduce(function (acc, key) {return (acc[key] = columns[key + 's'][col]), acc;}, {col: col}));
                 })
                 .on('mousemove', '.OG-g-sel, .OG-g-cell', function (event) {
