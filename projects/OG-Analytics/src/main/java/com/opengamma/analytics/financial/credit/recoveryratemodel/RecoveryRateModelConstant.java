@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -8,23 +8,19 @@ package com.opengamma.analytics.financial.credit.recoveryratemodel;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class to specify the recovery rate model to apply to an obligor
+ * Class to specify a constant recovery rate model to tag to a given obligor/trade
  */
-public abstract class RecoveryRateModel {
+public class RecoveryRateModelConstant {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Maybe deprecate this and not have the specific types of recovery model derive from it
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Member variables for the recovery rate model
+  // Member variables for the constant recovery rate model
 
   private final double _recoveryRate;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public RecoveryRateModel(final double recoveryRate) {
+  public RecoveryRateModelConstant(final double recoveryRate) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -45,4 +41,5 @@ public abstract class RecoveryRateModel {
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
 }

@@ -14,6 +14,10 @@ public class CreditSpreadBumpers {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // TODO : Add error checkers for the input arguments
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   // Method to bump the credit spread term structure at every tenor point by a specified amount
 
   public double[] getBumpedCreditSpreads(final double[] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType) {
