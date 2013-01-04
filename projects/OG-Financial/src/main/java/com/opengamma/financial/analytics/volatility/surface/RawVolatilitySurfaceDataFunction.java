@@ -21,6 +21,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
@@ -196,17 +197,24 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         s_logger.info("Did not specify a single instrument type; asked for " + instrumentTypes);
         return null;
       }
-      final String surfaceName = surfaceNames.iterator().next();
+      final String surfaceName = Iterables.getOnlyElement(surfaceNames);
       if (surfaceName == null) {
-        throw new OpenGammaRuntimeException("Surface name was null");
+        s_logger.error("Surface name was null");
+        return null;
       }
-      final String instrumentType = instrumentTypes.iterator().next();
+      final String instrumentType = Iterables.getOnlyElement(instrumentTypes);
       if (instrumentType == null) {
-        throw new OpenGammaRuntimeException("Instrument type was null");
+        s_logger.error("Instrument type was null");
+        return null;
       }
-      final VolatilitySurfaceDefinition<?, ?> definition = getDefinition(_definitionSource, target, surfaceName);
-      final VolatilitySurfaceSpecification specification = getSpecification(_specificationSource, target, surfaceName);
-      return buildDataRequirements(specification, definition, _now, surfaceName, instrumentType);
+      try {
+        final VolatilitySurfaceDefinition<?, ?> definition = getDefinition(_definitionSource, target, surfaceName);
+        final VolatilitySurfaceSpecification specification = getSpecification(_specificationSource, target, surfaceName);
+        return buildDataRequirements(specification, definition, _now, surfaceName, instrumentType);
+      } catch (final OpenGammaRuntimeException e) {
+        s_logger.error(e.getMessage());
+        return null;
+      }
     }
 
     @Override
