@@ -248,12 +248,27 @@ $.register_module({
                     };
                 });
                 blotter.trades.get = function (config) {
+                    config = config || {};
                     var root = this.root, method = root.split('/'), meta;
                     meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['id']}]});
                     return request(method.concat(config.id), {data: {}, meta: meta});
                 };
-                blotter.trades.put = not_implemented_put;
-                blotter.trades.del = not_implemented_del;
+                blotter.trades.put = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.id;
+                    meta = check({bundle: {method: root + '#put', config: config}, required: [{all_of: ['trade']}]});
+                    data.trade = str({trade: config.trade, security: config.security});
+                    meta.type = id ? 'PUT' : 'POST';
+                    if (id) method.push(id);
+                    return request(method, {data: data, meta: meta});
+                };
+                blotter.trades.del = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta;
+                    meta = check({bundle: {method: root + '#del', config: config}, required: [{all_of: ['id']}]});
+                    meta.type = 'DELETE';
+                    return request(method.concat(config.id), {data: {}, meta: meta});
+                };
                 return blotter;
             })(),
             clean: function () {
