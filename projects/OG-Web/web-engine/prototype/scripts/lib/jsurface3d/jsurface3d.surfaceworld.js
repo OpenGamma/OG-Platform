@@ -4,6 +4,7 @@
  */
 (function () {
     if (!window.JSurface3D) throw new Error('JSurface3D.SurfaceWorld requires JSurface3D');
+    var last_vertex;
     /**
      * Implements any valid hover interaction with the surface.
      * Adds vertex_sphere, lines (tubes), active axis labels
@@ -16,7 +17,9 @@
     var hover = function (js3d, vertex, index, object) {
         var hover_buffer = js3d.buffers.hover, hover_group = js3d.groups.hover, matlib = js3d.matlib,
             vertex_sphere = js3d.vertex_sphere, settings = js3d.settings;
+        if (vertex === last_vertex) return;
         if (hover_group) js3d.groups.surface_top.remove(hover_group), hover_buffer.clear();
+        last_vertex = vertex;
         hover_group = hover_buffer.add(new THREE.Object3D());
         hover_group.name = 'Hover Group';
         vertex_sphere.position.copy(vertex);
@@ -366,6 +369,7 @@
             $selector.on('surface_out', function () {
                 if (groups.hover) {
                     groups.surface_top.remove(groups.hover);
+                    last_vertex = null;
                     js3d.buffers.hover.clear();
                 }
                 js3d.vertex_sphere.visible = false;
