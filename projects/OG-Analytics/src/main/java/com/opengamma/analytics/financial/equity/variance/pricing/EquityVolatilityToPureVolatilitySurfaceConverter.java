@@ -16,10 +16,22 @@ import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurf
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Converts an volatility surface where the prices (and so the implied volatilities) include information about dividends to a pure implied volatility
+ * surface, where the effect of dividends has been removed.
  */
 public class EquityVolatilityToPureVolatilitySurfaceConverter {
 
+  /**
+   * @param spot The spot, greater than zero
+   * @param discountCurve The discount curve, not null
+   * @param dividends The dividends, not null
+   * @param expiries The expiries, not null
+   * @param strikes The strikes, not null. Must have the same number of strikes as expiries.
+   * @param otmPrices The out of the money prices, not null. Must have the same number of price strips as expiries, with each price strip being
+   * the same length as the strikes.
+   * @param surfaceInterpolator The volatility surface interpolator, not null
+   * @return A pure implied volatility surface
+   */
   public static PureImpliedVolatilitySurface getConvertedSurface(final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends,
       final double[] expiries, final double[][] strikes, final double[][] otmPrices, final VolatilitySurfaceInterpolator surfaceInterpolator) {
     ArgumentChecker.notNull(discountCurve, "discount curve");

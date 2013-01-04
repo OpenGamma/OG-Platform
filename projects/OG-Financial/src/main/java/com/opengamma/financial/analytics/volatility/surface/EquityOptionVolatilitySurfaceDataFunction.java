@@ -39,6 +39,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -46,6 +47,7 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionVolatilitySurfaceDataFunction.class);
 
   @Override
@@ -62,7 +64,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     // 1. Build the surface name, in two parts: the given name and the target
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String fullName = surfaceName + "_" + target.getUniqueId().getValue();  // e.g. FOO_DJX
+    final String fullName = surfaceName + "_" + EquitySecurityUtils.getTrimmedTarget(target.getUniqueId());  // e.g. FOO_DJX
 
     final ConfigSource configSrc = OpenGammaExecutionContext.getConfigSource(executionContext);
     final ConfigDBVolatilitySurfaceSpecificationSource specSrc = new ConfigDBVolatilitySurfaceSpecificationSource(configSrc);
@@ -146,7 +148,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
       throw new OpenGammaRuntimeException("Function takes only get a single surface. One has asked for " + surfaceNames);
     }
     final String givenName = surfaceNames.iterator().next();
-    final String fullName = givenName + "_" + target.getUniqueId().getValue();
+    final String fullName = givenName + "_" + EquitySecurityUtils.getTrimmedTarget(target.getUniqueId());
 
     // 2. Look up the specification
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);

@@ -41,6 +41,7 @@ public interface ExchangeResolver extends LinkResolver<Exchange> {
    * @throws DataNotFoundException if the target could not be resolved
    * @throws RuntimeException if an error occurs
    */
+  @Override
   Exchange resolve(Link<Exchange> link);
 
   /**

@@ -5,15 +5,15 @@
  */
 package com.opengamma.web.analytics.blotter;
 
-import static org.mockito.Mockito.mock;
-
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.conversion.JodaBeanConverters;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.impl.InMemoryPositionMaster;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.impl.InMemorySecurityMaster;
 
 /**
  *
@@ -26,10 +26,10 @@ public class OtcTradeBuilderTest {
 
   // TODO create trade with various fields missing (especially attributes)
 
-  @Test(enabled = false)
+  @Test
   public void newSecurityWithNoUnderlying() {
-    SecurityMaster securityMaster = mock(SecurityMaster.class);
-    PositionMaster positionMaster = mock(PositionMaster.class);
+    SecurityMaster securityMaster = new InMemorySecurityMaster();
+    PositionMaster positionMaster = new InMemoryPositionMaster();
     NewOtcTradeBuilder builder = new NewOtcTradeBuilder(securityMaster, positionMaster, BlotterResource.s_metaBeans);
     BeanDataSource tradeData = BlotterTestUtils.beanData(
         "counterparty", "testCpty",
@@ -41,7 +41,7 @@ public class OtcTradeBuilderTest {
         "premiumTime", "13:00+00:00",
         "attributes", ImmutableMap.of("attr1", "val1", "attr2", "val2")
     );
-    UniqueId uniqueId = builder.buildTrade(tradeData, BlotterTestUtils.FX_FORWARD_DATA_SOURCE, null);
+    UniqueId uniqueId = builder.buildAndSaveTrade(tradeData, BlotterTestUtils.FX_FORWARD_DATA_SOURCE, null);
   }
 
   @Test

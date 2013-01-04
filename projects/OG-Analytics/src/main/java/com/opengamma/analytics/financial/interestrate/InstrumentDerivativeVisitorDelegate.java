@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -80,6 +81,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -803,12 +805,32 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   public RESULT_TYPE visitEquityIndexOption(final EquityIndexOption option, final DATA_TYPE data) {
     return _delegate.visitEquityIndexOption(option, data);
   }
-  
+
   @Override
   public RESULT_TYPE visitEquityIndexOption(final EquityIndexOption option) {
     return _delegate.visitEquityIndexOption(option);
   }
-  
+
+  @Override
+  public RESULT_TYPE visitVarianceSwap(final VarianceSwap varianceSwap) {
+    return _delegate.visitVarianceSwap(varianceSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitVarianceSwap(final VarianceSwap varianceSwap, final DATA_TYPE data) {
+    return _delegate.visitVarianceSwap(varianceSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap) {
+    return _delegate.visitEquityVarianceSwap(varianceSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap, final DATA_TYPE data) {
+    return _delegate.visitEquityVarianceSwap(varianceSwap, data);
+  }
+
   @Override
   public RESULT_TYPE visitForwardLiborAnnuity(final AnnuityCouponIbor forwardLiborAnnuity, final DATA_TYPE data) {
     return _delegate.visitForwardLiborAnnuity(forwardLiborAnnuity, data);

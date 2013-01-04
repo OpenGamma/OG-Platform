@@ -23,6 +23,9 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class CommodityFutureOptionBlackPVFunction extends CommodityFutureOptionBlackFunction {
 
+  /**
+   * Default constructor
+   */
   public CommodityFutureOptionBlackPVFunction() {
     super(ValueRequirementNames.PRESENT_VALUE);
   }
@@ -32,7 +35,7 @@ public class CommodityFutureOptionBlackPVFunction extends CommodityFutureOptionB
       final ComputationTarget target) {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final double pv = derivative.accept(CommodityFutureOptionBlackPresentValueCalculator.getInstance(), market);
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName()[0], target.toSpecification(), createResultProperties(desiredValue.getConstraints()));
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementNames()[0], target.toSpecification(), createResultProperties(desiredValue.getConstraints()));
     return Collections.singleton(new ComputedValue(spec, pv));
   }
 

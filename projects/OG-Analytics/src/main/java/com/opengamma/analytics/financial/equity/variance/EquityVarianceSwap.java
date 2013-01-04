@@ -5,7 +5,9 @@
  */
 package com.opengamma.analytics.financial.equity.variance;
 
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -15,6 +17,7 @@ import com.opengamma.util.money.Currency;
  * strike of a zero value swap) will differ from the no dividend case.
  */
 public class EquityVarianceSwap extends VarianceSwap {
+  /** Are the dividends to be corrected for in pricing */
   private final boolean _dividendsCorrected;
 
   /**
@@ -49,8 +52,24 @@ public class EquityVarianceSwap extends VarianceSwap {
     _dividendsCorrected = correctForDividends;
   }
 
+  /**
+   * Returns true if the dividends are to be corrected when pricing.
+   * @return true if the dividends are to be corrected when pricing
+   */
   public boolean correctForDividends() {
     return _dividendsCorrected;
+  }
+
+  @Override
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityVarianceSwap(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitEquityVarianceSwap(this);
   }
 
 }

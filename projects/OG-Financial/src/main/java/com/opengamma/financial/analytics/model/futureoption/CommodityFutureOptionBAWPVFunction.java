@@ -32,7 +32,7 @@ public class CommodityFutureOptionBAWPVFunction extends CommodityFutureOptionBAW
       final ComputationTarget target) {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final double pv = derivative.accept(CommodityFutureOptionBAWPresentValueCalculator.getInstance(), market);
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName()[0], target.toSpecification(), createResultProperties(desiredValue.getConstraints()));
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementNames()[0], target.toSpecification(), createResultProperties(desiredValue.getConstraints()));
     return Collections.singleton(new ComputedValue(spec, pv));
   }
 

@@ -19,11 +19,11 @@ import org.joda.beans.MetaBean;
 
   void setBeanData(MetaBean metaBean, Bean bean);
 
-  void setValue(String propertyName, Object value);
+  void setValue(String propertyName, String value);
 
-  void setCollectionValues(String propertyName, Collection<?> values);
+  void setCollectionValues(String propertyName, Collection<String> values);
 
-  void setMapValues(String propertyName, Map<?, ?> values);
+  void setMapValues(String propertyName, Map<String, String> values);
 
   void setBeanValue(String propertyName, Bean bean, BeanTraverser traverser);
 

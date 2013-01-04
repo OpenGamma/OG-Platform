@@ -42,6 +42,7 @@ public interface RegionResolver extends LinkResolver<Region> {
    * @throws DataNotFoundException if the target could not be resolved
    * @throws RuntimeException if an error occurs
    */
+  @Override
   Region resolve(Link<Region> link);
 
   /**

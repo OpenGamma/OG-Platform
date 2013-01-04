@@ -52,15 +52,17 @@ import com.opengamma.util.async.AsynchronousExecution;
  * Base class for futures option pricing and analytics
  */
 public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The values that the function can calculate */
   private final String[] _valueRequirementNames;
-  private final String _calculationMethod;
+  /** Converts securities into a form that analytics can use */
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _converter;
 
-  public FutureOptionFunction(final String[] valueRequirementNames, final String calculationMethod) {
+  /**
+   * @param valueRequirementNames The value requirement names, not null or empty
+   */
+  public FutureOptionFunction(final String[] valueRequirementNames) {
     ArgumentChecker.notEmpty(valueRequirementNames, "value requirement names");
-    ArgumentChecker.notNull(calculationMethod, "calculation method");
     _valueRequirementNames = valueRequirementNames;
-    _calculationMethod = calculationMethod;
   }
 
   @Override
@@ -80,7 +82,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final ExternalId underlyingId = security.accept(UnderlyingFutureVisitor.getInstance());
+    final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
     final InstrumentDefinition<?> defn = security.accept(_converter);
     final InstrumentDerivative derivative = defn.toDerivative(now);
     final double timeToExpiry = derivative.accept(LastTimeCalculator.getInstance());
@@ -91,6 +93,15 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     return computeValues(derivative, market, desiredValues, target);
   }
 
+  /**
+   * Constructs a market data bundle for use in the analytics library.
+   * @param underlyingId The id of the underlying
+   * @param executionContext The execution context
+   * @param inputs The market data inputs
+   * @param target The computation target
+   * @param desiredValues The desired values
+   * @return The market data in a form that the analytics library can use
+   */
   protected StaticReplicationDataBundle buildMarketBundle(final ExternalId underlyingId, final FunctionExecutionContext executionContext,
       final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 
@@ -129,6 +140,14 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     return market;
   }
 
+  /**
+   * Calculates the value
+   * @param derivative The derivative
+   * @param market The market data bundle
+   * @param desiredValue The desired value
+   * @param target The computation target
+   * @return A set of values
+   */
   protected abstract Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final Set<ValueRequirement> desiredValue,
       final ComputationTarget target);
 
@@ -185,32 +204,26 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     return Sets.newHashSet(underlyingFutureReq, fundingReq, volReq);
   }
 
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethod())
-        .withAny(ValuePropertyNames.SURFACE)
-        .withAny(ValuePropertyNames.CURVE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
-  }
+  /**
+   * Creates general value properties
+   * @param target The computation target
+   * @return The value properties
+   */
+  protected abstract ValueProperties.Builder createValueProperties(final ComputationTarget target);
 
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
-    final String fundingCurveName = getFundingCurveName(desiredValue);
-    final String curveConfigName = getCurveConfigName(desiredValue);
-    final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String smileInterpolatorName = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
-    final ValueProperties.Builder builder = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethod())
-        .with(ValuePropertyNames.CURVE, fundingCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName)
-        .with(ValuePropertyNames.SURFACE, volSurfaceName)
-        .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolatorName)
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
-    return builder;
-  }
+  /**
+   * Creates value properties with the values set
+   * @param target The computation target
+   * @param desiredValue The desired value of the calculation
+   * @return The value properties
+   */
+  protected abstract ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue);
 
-
+  /**
+   * Gets the funding curve name from the constraints on the desired value
+   * @param desiredValue The desired value
+   * @return The funding curve name
+   */
   protected String getFundingCurveName(final ValueRequirement desiredValue) {
     final Set<String> fundingCurves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
     if (fundingCurves == null || fundingCurves.size() != 1) {
@@ -220,6 +233,11 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     return fundingCurveName;
   }
 
+  /**
+   * Gets the curve calculation configuration name from the constraints on the desired value
+   * @param desiredValue The desired value
+   * @return The curve calculation configuration name
+   */
   protected String getCurveConfigName(final ValueRequirement desiredValue) {
     final Set<String> curveCalculationConfigNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
@@ -229,6 +247,13 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     return curveConfigName;
   }
 
+  /**
+   * Constructs the funding curve requirement
+   * @param fundingCurveName The funding curve name
+   * @param curveCalculationConfigName The curve calculation configuration name
+   * @param security The security
+   * @return The funding curve requirement
+   */
   protected ValueRequirement getDiscountCurveRequirement(final String fundingCurveName, final String curveCalculationConfigName, final Security security) {
     final ValueProperties properties = ValueProperties.builder()
       .with(ValuePropertyNames.CURVE, fundingCurveName)
@@ -237,24 +262,45 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, FinancialSecurityUtils.getCurrency(security).getUniqueId(), properties);
   }
 
+  /**
+   * Constructs the volatility surface requirement
+   * @param security The security
+   * @param surfaceName The surface name
+   * @param smileInterpolator The interpolation method used
+   * @return The volatility surface requirement
+   */
   protected abstract ValueRequirement getVolatilitySurfaceRequirement(FinancialSecurity security, final String surfaceName, final String smileInterpolator);
 
+  /**
+   * Constructs the underlying future price requirement
+   * @param underlyingId The id of the underlying future
+   * @return The underlying future price requirement
+   */
   protected ValueRequirement getUnderlyingFutureRequirement(final ExternalId underlyingId) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingId);
   }
 
-  protected String[] getValueRequirementName() {
+  /**
+   * Gets the value requirement names
+   * @return The value requirement names
+   */
+  protected String[] getValueRequirementNames() {
     return _valueRequirementNames;
   }
 
-  protected String getCalculationMethod() {
-    return _calculationMethod;
-  }
-
+  /**
+   * Gets the security converter
+   * @return The security converter
+   */
   protected FinancialSecurityVisitor<InstrumentDefinition<?>> getSecurityConverter() {
     return _converter;
   }
 
+  /**
+   * Copies the constraints, removing the function property and replacing it with the appropriate one for the function
+   * @param constraints The constraints
+   * @return The properties
+   */
   protected ValueProperties createResultProperties(final ValueProperties constraints) {
     return constraints.copy()
         .withoutAny(ValuePropertyNames.FUNCTION)

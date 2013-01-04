@@ -45,6 +45,7 @@ public interface HolidayResolver extends LinkResolver<Holiday> {
    * @throws DataNotFoundException if the target could not be resolved
    * @throws RuntimeException if an error occurs
    */
+  @Override
   Holiday resolve(Link<Holiday> link);
 
   /**

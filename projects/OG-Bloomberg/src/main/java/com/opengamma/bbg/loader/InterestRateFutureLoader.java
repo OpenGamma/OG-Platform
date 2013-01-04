@@ -69,17 +69,17 @@ public class InterestRateFutureLoader extends SecurityLoader {
   
   private static final Map<String, String> BBGCODE_UNDERLYING = Maps.newHashMap();
   static {
+    // Mid-curves
+    for (int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0 }) {
+      BBGCODE_UNDERLYING.put(i + "E", "US0003M Index");
+      BBGCODE_UNDERLYING.put(i + "R", "EUR003M Index");
+      BBGCODE_UNDERLYING.put(i + "L", "BP0003M Index");
+    }
     BBGCODE_UNDERLYING.put("ED", "US0003M Index");
-    BBGCODE_UNDERLYING.put("0E", "US0003M Index");
-    BBGCODE_UNDERLYING.put("2E", "US0003M Index");
     BBGCODE_UNDERLYING.put("EM", "US0001M Index");
     BBGCODE_UNDERLYING.put("ER", "EUR003M Index");
-    BBGCODE_UNDERLYING.put("0R", "EUR003M Index");
-    BBGCODE_UNDERLYING.put("2R", "EUR003M Index");
     BBGCODE_UNDERLYING.put("FP", "EUR003M Index");
     BBGCODE_UNDERLYING.put("L ", "BP0003M Index");
-    BBGCODE_UNDERLYING.put("0L", "BP0003M Index");
-    BBGCODE_UNDERLYING.put("2L", "BP0003M Index");
     BBGCODE_UNDERLYING.put("ES", "SF0003M Index");
     BBGCODE_UNDERLYING.put("EF", "JY0003M Index");
     BBGCODE_UNDERLYING.put("IR", "BBSW3M Index");

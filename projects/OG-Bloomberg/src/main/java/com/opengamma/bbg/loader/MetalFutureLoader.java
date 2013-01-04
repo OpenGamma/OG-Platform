@@ -80,7 +80,7 @@ public class MetalFutureLoader extends SecurityLoader {
   private static final Map<String, ExternalId> SPOT_MAP = new HashMap<String, ExternalId>();
   
   static {
-    SPOT_MAP.put("GOLD", ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "XAU Curncy")); // or GOLDS Comdty?
+    SPOT_MAP.put("GOLD", ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "GOLDS Comdty")); // or GOLDS Comdty?
   }
 
   /**
