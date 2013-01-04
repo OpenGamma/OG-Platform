@@ -1150,7 +1150,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "RUB", "DefaultCashCurveRUBConfig"));
   }
 
-
   private static void addInterestRateFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionMarketUnderlyingPriceFunction.class));
 

@@ -17,7 +17,10 @@ import com.opengamma.analytics.financial.commodity.definition.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.ExerciseTypeAnalyticsVisitorAdapter;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -35,24 +38,28 @@ import com.opengamma.util.ArgumentChecker;
 public class CommodityFutureOptionConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
 
   /** security source */
-  private SecuritySource _securitySource;
+  private final SecuritySource _securitySource;
   /** Converter to get underlying future */
-  private FutureSecurityConverter _futureSecurityConverter;
+  private final FutureSecurityConverter _futureSecurityConverter;
 
   /**
    * @param securitySource security source
    */
-  public CommodityFutureOptionConverter(final SecuritySource securitySource) {
+  public CommodityFutureOptionConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionBundleSource conventionSource,
+      final RegionSource regionSource) {
     ArgumentChecker.notNull(securitySource, "security source");
     _securitySource = securitySource;
-    _futureSecurityConverter = new FutureSecurityConverter();
+    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
+    _futureSecurityConverter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter);
   }
 
   @Override
   public CommodityFutureOptionDefinition<?, ?> visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity commodityOption) {
     ArgumentChecker.notNull(commodityOption, "security");
-    ExternalIdBundle underlyingBundle = ExternalIdBundle.of(commodityOption.getUnderlyingId());
-    CommodityFutureSecurity underlyingSecurity = (CommodityFutureSecurity) _securitySource.getSingle(underlyingBundle);
+    final ExternalIdBundle underlyingBundle = ExternalIdBundle.of(commodityOption.getUnderlyingId());
+    final CommodityFutureSecurity underlyingSecurity = (CommodityFutureSecurity) _securitySource.getSingle(underlyingBundle);
     if (underlyingSecurity == null) {
       throw new OpenGammaRuntimeException("No underlying future found with identifier " + commodityOption.getUnderlyingId());
     }
@@ -61,21 +68,21 @@ public class CommodityFutureOptionConverter extends FinancialSecurityVisitorAdap
     final boolean isCall = (commodityOption.getOptionType().equals(OptionType.CALL));
     final ExerciseDecisionType exerciseType = commodityOption.getExerciseType().accept(ExerciseTypeAnalyticsVisitorAdapter.getInstance());
     if (underlyingSecurity instanceof AgricultureFutureSecurity) {
-      AgricultureFutureDefinition underlyingDefinition = (AgricultureFutureDefinition) underlyingSecurity.accept(_futureSecurityConverter);
+      final AgricultureFutureDefinition underlyingDefinition = (AgricultureFutureDefinition) underlyingSecurity.accept(_futureSecurityConverter);
       return new AgricultureFutureOptionDefinition(expiry,
           underlyingDefinition,
           commodityOption.getStrike() * 100.0, // TODO: Remove when security stops scaling price
           exerciseType,
           isCall);
     } else if (underlyingSecurity instanceof EnergyFutureSecurity) {
-      EnergyFutureDefinition underlyingDefinition = (EnergyFutureDefinition) underlyingSecurity.accept(_futureSecurityConverter);
+      final EnergyFutureDefinition underlyingDefinition = (EnergyFutureDefinition) underlyingSecurity.accept(_futureSecurityConverter);
       return new EnergyFutureOptionDefinition(expiry,
           underlyingDefinition,
           commodityOption.getStrike() * 100.0, // TODO: Remove when security stops scaling price
           exerciseType,
           isCall);
     } else if (underlyingSecurity instanceof MetalFutureSecurity) {
-      MetalFutureDefinition underlyingDefinition = (MetalFutureDefinition) underlyingSecurity.accept(_futureSecurityConverter);
+      final MetalFutureDefinition underlyingDefinition = (MetalFutureDefinition) underlyingSecurity.accept(_futureSecurityConverter);
       return new MetalFutureOptionDefinition(expiry,
           underlyingDefinition,
           commodityOption.getStrike() * 100.0, // TODO: Remove when security stops scaling price
