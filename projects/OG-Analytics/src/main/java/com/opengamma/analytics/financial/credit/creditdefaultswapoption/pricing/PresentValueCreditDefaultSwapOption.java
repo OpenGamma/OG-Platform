@@ -29,6 +29,7 @@ public class PresentValueCreditDefaultSwapOption {
   // TODO : Need to sort out the calculation of the forward starting spread
   // TODO : Need to check through this model in detail
   // TODO : Need to add error checking for d1 and d2 calculations
+  // TODO : Need to check that strike is not equal to zero
 
   // NOTE : Have not included the PriceType field for the CDS - assume this is entered as part of the underlying CDS contract definition
 
