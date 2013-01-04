@@ -12,6 +12,7 @@ import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSour
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.AnalyticsFunctions;
+import com.opengamma.financial.currency.CurrencyFunctions;
 import com.opengamma.financial.view.ViewFunctions;
 
 /**
@@ -33,13 +34,17 @@ public class FinancialFunctions extends AbstractRepositoryConfigurationBean {
     return AnalyticsFunctions.DEFAULT;
   }
 
+  protected RepositoryConfigurationSource currencyFunctionConfiguration() {
+    return CurrencyFunctions.DEFAULT;
+  }
+
   protected RepositoryConfigurationSource viewFunctionConfiguration() {
     return ViewFunctions.DEFAULT;
   }
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), analyticsFunctionConfiguration(), viewFunctionConfiguration());
+    return new CombiningRepositoryConfigurationSource(super.createObject(), analyticsFunctionConfiguration(), currencyFunctionConfiguration(), viewFunctionConfiguration());
   }
 
 }

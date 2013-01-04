@@ -376,11 +376,9 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.pure.Pur
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
 import com.opengamma.financial.currency.BondFutureOptionBlackPnLSeriesCurrencyConversionFunction;
-import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPairs;
-import com.opengamma.financial.currency.DefaultCurrencyFunction;
 import com.opengamma.financial.currency.FXOptionBlackPnLSeriesCurrencyConversionFunction;
 import com.opengamma.financial.currency.FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction;
 import com.opengamma.financial.currency.YCNSPnLSeriesCurrencyConversionFunction;
@@ -424,29 +422,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(ForwardPriceRenamingFunction.class));
   }
 
-  protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
-    functionConfigs.add(functionConfiguration(CurrencyConversionFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(DefaultCurrencyFunction.Permissive.class, requirementName));
-  }
-
   protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.FAIR_VALUE);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PV01);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.DV01);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.DAILY_PNL);
-    //TODO PRESENT_VALUE_CURVE_SENSITIVITY
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_DELTA);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_VEGA);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_THETA);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_SPEED);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_VOMMA);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_VANNA);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_RHO);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_PHI);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
-
     functionConfigs.add(functionConfiguration(CurrencyPairsDefaults.class, CurrencyPairs.DEFAULT_CURRENCY_PAIRS));
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
