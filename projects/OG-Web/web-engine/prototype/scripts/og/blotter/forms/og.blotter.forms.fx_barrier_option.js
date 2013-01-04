@@ -14,7 +14,10 @@ $.register_module({
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.fx_option_tash',
                     selector: '.OG-blotter-form-block',
-                    data: {}
+                    data: {},
+                    processor: function (data) {    
+
+                    }
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
@@ -52,7 +55,7 @@ $.register_module({
                         ]
                     }),
                     attr = new og.common.util.ui.Attributes({
-                        form: form, attributes: data.attributes, index : "attributes"
+                        form: form, attributes: data.attributes, index : "security.attributes"
                     })
                 );
                 form.dom();
@@ -63,7 +66,6 @@ $.register_module({
                     og.blotter.util.check_radio("longShort", data.longShort);
                 });
                 form.on('form:submit', function (result){
-                    console.log(result);
                 });
             }; 
             constructor.load();
