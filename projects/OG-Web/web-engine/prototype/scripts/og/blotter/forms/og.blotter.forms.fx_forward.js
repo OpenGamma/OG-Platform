@@ -30,12 +30,10 @@ $.register_module({
                 form.dom();
                 form.on('form:load', function (){
                     og.blotter.util.add_datetimepicker("forwardDate");
-
                     if(data.length) return;
                     og.blotter.util.set_select("recieveCurrency", data.recieveCurrency);
                     og.blotter.util.set_select("payCurrency", data.payCurrency);
                     og.blotter.util.set_datetime("forwardDate", data.forwardDate);
-
                 });
             }; 
             constructor.load();

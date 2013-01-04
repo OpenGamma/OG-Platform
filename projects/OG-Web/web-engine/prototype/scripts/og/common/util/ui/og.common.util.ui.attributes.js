@@ -10,8 +10,20 @@ $.register_module({
         attribute = Handlebars.compile('<li><div class="og-del og-js-rem"></div>{{{key}}} = {{{value}}}</li>');
         var Attributes = function (config) {
             var block = this, id = og.common.id('attributes'), form = config.form;
-            form.Block.call(block, {module: 'og.views.forms.attributes_tash', 
-                extras: {id: id, data: config.attributes}});
+            form.Block.call(block, {
+                module: 'og.views.forms.attributes_tash', 
+                extras: {id: id, data: config.attributes},
+                processor: function (data) {
+
+                    var attributes = {};
+                    $('.og-attributes-add-list li').each(function (i, elm) {
+                        var arr = $(elm).text().split(' = ');
+                        attributes[arr[0]] = arr[1];
+                    });
+                    console.log(data, attributes);
+                    
+                }
+            });
             block.on('click', '#' + id + ' ' + add_list + ' .og-js-rem', function (event) {
                 $(event.target).parent().remove();
             }).on('click', '#' + id + ' .og-js-add-attribute', function (event) {
@@ -23,7 +35,7 @@ $.register_module({
                 $group.find('[name^=attr]').val('');
             });
         };
-        Attributes.prototype = new Block; // inherit Block prototype
+        Attributes.prototype = new Block(); // inherit Block prototype
         return Attributes;
     }
 });

@@ -8,12 +8,13 @@ $.register_module({
     obj: function (config) {   
         return function () {
             config = og.blotter.util.FAKE_FX_BARRIER;
-            var constructor = this, ui = og.common.util.ui, data = config || {};
+            var constructor = this, ui = og.common.util.ui, data = config || {}, attr, form;
             constructor.load = function () {
                 constructor.title = 'FX Barrier Option';
-                var form = new og.common.util.ui.Form({
+                form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.fx_option_tash',
-                    selector: '.OG-blotter-form-block'
+                    selector: '.OG-blotter-form-block',
+                    data: {}
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
@@ -50,7 +51,9 @@ $.register_module({
                             })
                         ]
                     }),
-                    new og.common.util.ui.Attributes({form: form, attributes: data.attributes})
+                    attr = new og.common.util.ui.Attributes({
+                        form: form, attributes: data.attributes, index : "attributes"
+                    })
                 );
                 form.dom();
                 form.on('form:load', function (){
@@ -59,8 +62,14 @@ $.register_module({
                     og.blotter.util.set_select("callCurrency", data.callCurrency);
                     og.blotter.util.check_radio("longShort", data.longShort);
                 });
+                form.on('form:submit', function (result){
+                    console.log(result);
+                });
             }; 
             constructor.load();
+            constructor.submit = function () {
+                form.submit();
+            };
             constructor.kill = function () {
             };
         };

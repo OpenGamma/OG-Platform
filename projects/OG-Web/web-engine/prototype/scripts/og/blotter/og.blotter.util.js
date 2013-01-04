@@ -35,6 +35,14 @@ $.register_module({
             set_datetime : function (name, value){
                 $('input[name= '+ name +']').datetimepicker('setDate', value);
             },
+            get_attributes : function (){
+                var attributes = {};
+                $('.og-attributes-add-list li').each(function (i, elm) {
+                    var arr = $(elm).text().split(' = ');
+                    attributes[arr[0]] = arr[1];
+                });
+                return attributes;
+            },
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
             FAKE_DROPDOWN : [
                     {name:'Select', value:''},
