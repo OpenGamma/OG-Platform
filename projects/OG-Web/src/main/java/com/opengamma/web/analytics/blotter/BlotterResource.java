@@ -218,6 +218,8 @@ public class BlotterResource {
   }
 
   // TODO clean this up. move into helper?
+  // TODO separate into different methods for OTC and fungible securities
+  // TODO move this logic to trade builder? can it populate a BeanDataSink to build the JSON?
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @Path("trades/{tradeId}")
@@ -228,7 +230,13 @@ public class BlotterResource {
     positionSearch.addTradeObjectId(tradeId);
     PositionSearchResult positions = _positionMaster.search(positionSearch);
     ManageablePosition position = positions.getSinglePosition();
+    // TODO this should never fail but there's a bug in position searching ATM
     ManageableTrade trade = position.getTrade(tradeId);
+    if (trade == null) {
+      throw new IllegalArgumentException("No trade with ID " + tradeId + " found on position " + position.getUniqueId() +
+                                             ", this is a known bug (http://jira.opengamma.com/browse/PLAT-2946)");
+    }
+    // TODO there's no need to look up the security for fungible security types
     ManageableSecurityLink securityLink = position.getSecurityLink();
     SecurityDocument securityDocument;
     if (securityLink.getObjectId() != null) {
@@ -258,7 +266,7 @@ public class BlotterResource {
     // TODO include external security ID for fungible securities
     ManageableTrade.Meta tradeMetaBean = ManageableTrade.meta();
     // TODO factor this out, it's repeating logic from the structure building visitor and trade builder
-    PropertyFilter tradePropertyFilter = new PropertyFilter(tradeMetaBean.securityLink(),
+    PropertyFilter tradePropertyFilter = new PropertyFilter(tradeMetaBean.securityLink(), // TODO how will fungible securities work?
                                                             tradeMetaBean.quantity(),
                                                             tradeMetaBean.deal(),
                                                             tradeMetaBean.parentPositionId(),
@@ -283,7 +291,8 @@ public class BlotterResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String createOtcTrade(@FormParam("trade") String tradeJsonStr) {
     // TODO no need to create a new builder every time?
-    return createTrade(tradeJsonStr, new NewOtcTradeBuilder(_securityMaster, _positionMaster, s_metaBeans));
+    return createOtcTrade(tradeJsonStr, new NewOtcTradeBuilder(_securityMaster, _positionMaster, s_metaBeans));
+    // TODO don't return JSON, just set the created header with the URL
   }
 
   @PUT
@@ -293,25 +302,26 @@ public class BlotterResource {
   // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
   public String updateOtcTrade(@FormParam("trade") String tradeJsonStr,
                                @PathParam("tradeIdStr") String tradeIdStr) {
-    return createTrade(tradeJsonStr,
-                       new ExistingOtcTradeBuilder(UniqueId.parse(tradeIdStr), _securityMaster, _positionMaster, s_metaBeans));
+    UniqueId tradeId = UniqueId.parse(tradeIdStr);
+    OtcTradeBuilder tradeBuilder = new ExistingOtcTradeBuilder(tradeId, _securityMaster, _positionMaster, s_metaBeans);
+    return createOtcTrade(tradeJsonStr, tradeBuilder);
   }
 
-  private String createTrade(String jsonStr, OtcTradeBuilder tradeBuilder) {
+  private String createOtcTrade(String jsonStr, OtcTradeBuilder tradeBuilder) {
     try {
       JSONObject json = new JSONObject(jsonStr);
       JSONObject tradeJson = json.getJSONObject("trade");
       JSONObject securityJson = json.getJSONObject("security");
       JSONObject underlyingJson = json.optJSONObject("underlying");
-      BeanDataSource underlyingData;
       BeanDataSource tradeData = new JsonBeanDataSource(tradeJson);
       BeanDataSource securityData = new JsonBeanDataSource(securityJson);
+      BeanDataSource underlyingData;
       if (underlyingJson != null) {
         underlyingData = new JsonBeanDataSource(underlyingJson);
       } else {
         underlyingData = null;
       }
-      UniqueId tradeId = tradeBuilder.buildTrade(tradeData, securityData, underlyingData);
+      UniqueId tradeId = tradeBuilder.buildAndSaveTrade(tradeData, securityData, underlyingData);
       return new JSONObject(ImmutableMap.of("tradeId", tradeId)).toString();
     } catch (JSONException e) {
       throw new IllegalArgumentException("Failed to parse JSON", e);

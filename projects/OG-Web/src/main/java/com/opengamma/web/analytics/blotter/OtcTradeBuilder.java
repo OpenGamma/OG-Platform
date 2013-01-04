@@ -14,6 +14,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
@@ -50,7 +51,9 @@ import com.opengamma.util.ArgumentChecker;
     _metaBeanFactory = new MapMetaBeanFactory(metaBeans);
   }
 
-  /* package */ UniqueId buildTrade(BeanDataSource tradeData, BeanDataSource securityData, BeanDataSource underlyingData) {
+  /* package */ UniqueId buildAndSaveTrade(BeanDataSource tradeData,
+                                           BeanDataSource securityData,
+                                           BeanDataSource underlyingData) {
     ObjectId securityId = buildSecurity(securityData, underlyingData).getObjectId();
     ManageableTrade.Meta meta = ManageableTrade.meta();
     BeanBuilder<? extends ManageableTrade> tradeBuilder =
@@ -80,6 +83,26 @@ import com.opengamma.util.ArgumentChecker;
     List<ManageableTrade> trades = savedPosition.getTrades();
     ManageableTrade savedTrade = trades.get(0);
     return savedTrade.getUniqueId();
+  }
+
+  // TODO is a sink the right thing here? it's designed for the visitor and traverser
+  // we want to put specific property values into something without caring what they are and without
+  // reference to the meta bean or meta properties
+  // sink is designed for the case where the bean metadata drives the process
+  // in this case we're referring to hard-coded properties (not metaproperties) of an instance
+  /**
+   * Extracts trade data and populates a data sink.
+   * @param trade The trade
+   * @param sink The sink that should be populated with the trade data
+   */
+  /* package */ void extractTradeData(ManageableTrade trade, BeanDataSink<?> sink) {
+    sink.setBeanData(trade.metaBean(), trade);
+    // TODO helper method for simple properties
+    sink.setValue(trade.uniqueId().name(), trade.uniqueId().metaProperty().getString(trade));
+  }
+
+  private void extractPropertyData(Property<?> property, BeanDataSink<?> sink) {
+
   }
 
   /**
@@ -148,6 +171,9 @@ import com.opengamma.util.ArgumentChecker;
     // TODO decorator to filter out trade properties
     BeanVisitor<Bean> visitor = new BeanBuildingVisitor<Bean>(data, _metaBeanFactory);
     MetaBean metaBean = _metaBeanFactory.beanFor(data);
+    // TODO externalIdBundle needs to be specified or building fails because it's null
+    // we never want to set it. BeanBuildingVisitor should return the bean builder so we can set an empty ID bundle
+    // and then call build(). we don't need to support externalIdBundle so can always set it to be EMPTY
     Object bean = new BeanTraverser().traverse(metaBean, visitor);
     if (!expectedType.isAssignableFrom(bean.getClass())) {
       throw new IllegalArgumentException("object type " + bean.getClass().getName() + " doesn't conform to " +

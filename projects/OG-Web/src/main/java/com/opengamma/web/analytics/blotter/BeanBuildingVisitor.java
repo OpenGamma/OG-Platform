@@ -39,9 +39,10 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ BeanBuildingVisitor(BeanDataSource data,
                                     MetaBeanFactory metaBeanFactory,
                                     Map<MetaProperty<?>, StringConvert> converters) {
-    _converters = converters;
     ArgumentChecker.notNull(data, "data");
     ArgumentChecker.notNull(metaBeanFactory, "metaBeanFactory");
+    ArgumentChecker.notNull(converters, "converters");
+    _converters = converters;
     _metaBeanFactory = metaBeanFactory;
     _data = data;
   }
@@ -110,6 +111,8 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public T finish() {
+    // TODO return builder instead?
+    // allows handling properties that need to be manually fudged before building the bean
     return _builder.build();
   }
 
