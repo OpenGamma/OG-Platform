@@ -24,6 +24,12 @@ $.register_module({
                     og.analytics.url.clear_main(), $(main_selector).html('');
                     if (!og.analytics.url.last.main) form.reset_query();
                 }
+//                $('body').awesome_contextmenu({
+//                    defaults: true, zindex: 4, items: [
+//                        {name: 'Insert Above', callback: $.noop},
+//                        {name: 'Insert Below', callback: $.noop}
+//                    ]
+//                });
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
