@@ -75,7 +75,8 @@
             });
         };
         matlib.vertex = function () {
-            return new THREE.MeshPhongMaterial({
+            // MeshPhongMaterial Throws a WebGL Error when using VertexColors and dealocating buffers
+            return new THREE.MeshBasicMaterial({
                 shading: THREE.FlatShading, vertexColors: THREE.VertexColors, side: THREE.DoubleSide
             });
         };

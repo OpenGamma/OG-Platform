@@ -38,7 +38,7 @@
                         vertex = plane.vertices[index];
                         color = new THREE.Color(0xffffff);
                         hue = ~~((vertex.y - min) / (max - min) * (hue_max - hue_min) + hue_min) / 360;
-                        color.setHSV(hue, 0.95, 0.7);
+                        color.setHSV(hue, 0.9, 1);
                         face.vertexColors[k] = color;
                     }
                 }
@@ -77,13 +77,12 @@
                 mesh.matrixAutoUpdate = false;
             });
             js3d.interactive_meshes.add('surface', surfaceplane.children[0]);
-            // TODO: deal with MeshFaceMaterial buffers. Possibly latest version of THREE needs to be added first
-            // if (js3d.buffers.surface) js3d.buffers.surface.add(wiremesh);
-            // if (js3d.buffers.surface) js3d.buffers.surface.add(planemesh);
+            if (js3d.buffers.surface) js3d.buffers.surface.add(planemesh);
+            if (js3d.buffers.surface) js3d.buffers.surface.add(wiremesh);
         };
         surfaceplane.update = function () {
-            // if (js3d.buffers.surface) js3d.buffers.surface.clear(wiremesh);
-            // if (js3d.buffers.surface) js3d.buffers.surface.clear(planemesh);
+            if (js3d.buffers.surface) js3d.buffers.surface.clear(planemesh);
+            if (js3d.buffers.surface) js3d.buffers.surface.clear(wiremesh);
             surfaceplane.remove(wiremesh);
             surfaceplane.remove(planemesh);
             surfaceplane.init(js3d);
