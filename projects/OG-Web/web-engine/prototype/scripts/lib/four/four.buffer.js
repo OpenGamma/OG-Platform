@@ -21,13 +21,6 @@
             (function dealobj (val) {
                 if (typeof val === 'object') scene.remove(val);
                 if ($.isArray(val)) val.forEach(function (val) {dealobj(val);});
-                else if (val instanceof THREE.Mesh) {
-                    if (val.geometry) val.geometry.deallocate();
-                    if (val.material) {
-                        if (val.material.materials) val.material.materials.forEach(function (val) {val.deallocate();});
-                        else val.material.deallocate();
-                    }
-                }
                 else if (val instanceof THREE.Texture) renderer.deallocateTexture(val);
                 else if (val instanceof THREE.ParticleSystem) renderer.deallocateObject(val);
                 else if (val instanceof THREE.Mesh) renderer.deallocateObject(val);
