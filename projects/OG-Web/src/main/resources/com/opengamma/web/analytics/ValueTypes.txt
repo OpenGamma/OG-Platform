@@ -1,4 +1,3 @@
-'BlackVolatilitySurface' com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid
 'Bond Coupon Payment Times' com.opengamma.financial.analytics.LocalDateLabelledMatrix1D
 'Bond Tenor' java.lang.Number
 'CAPM Beta' java.lang.Double
