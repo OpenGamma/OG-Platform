@@ -19,7 +19,7 @@ $.register_module({
                 return true;
             },
             off: function (type, handler) {
-                if (!this.events || !this.events[has](type)) return;
+                if (!this.events || !this.events[has](type)) return this;
                 this.events[type] = this.events[type] // if no handler was passed, clear all
                     .filter(function (listener) {return handler ? listener.handler !== handler : false;});
                 return this;

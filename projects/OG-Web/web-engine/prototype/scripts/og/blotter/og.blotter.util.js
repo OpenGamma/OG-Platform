@@ -25,9 +25,16 @@ $.register_module({
                 $('select[name='+ name +']').val(value);
             },
             check_checkbox : function (name, value){
-                $('input:checkbox[name= '+ name +']').attr('checked', value);
+                $('input:checkbox[name= '+ name +']').attr('checked', value); 
             },
-            
+            add_datetimepicker : function (name){
+                $('input[name= '+ name +']').datetimepicker({
+                    firstDay: 1, showTimezone: true, dateFormat: 'yy-mm-dd', timeFormat: 'hh:mm ttz'
+                });
+            },
+            set_datetime : function (name, value){
+                $('input[name= '+ name +']').datetimepicker('setDate', value);
+            },
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
             FAKE_DROPDOWN : [
                     {name:'Select', value:''},
@@ -83,7 +90,7 @@ $.register_module({
                 recieveAmount: "2.30",
                 payAmount: "3.02",
                 attributes:  FAKE_ATTRIBUTES,
-                forwardDate:"22.12.2012"
+                forwardDate:"22-12-2012"
             },
             FAKE_CAP_FLOOR : {
                 currency: "TOP",
@@ -123,6 +130,44 @@ $.register_module({
                 settlementDate: "24.12.2012",   
                 regionId: "2",
                 observationFrequency: "Semi-annual"
+            },
+            FAKE_SWAP : {
+                attributes: FAKE_ATTRIBUTES,
+                tradeDate: "21.12.2012", 
+                effectiveDate: "22.12.2012", 
+                maturityDate: "20.12.2012"
+            },
+            FAKE_SWAPTION : {
+                attributes: FAKE_ATTRIBUTES,
+                longShort: "Short",
+                payer: true,
+                expiry: "22.12.2012",
+                cashSettled: false,
+                currency: "USD",
+                notional: "120",
+                exerciseType: "Bermudan",
+                settlementDate: "20.12.2012"
+            },
+            FAKE_FLOATING : {
+                eom: true,  
+                dayCount: "28/360",
+                frequency: "Annual", 
+                businessDayConvention: "Following",
+                initialFloatingRate: "0.15",
+                settlementDays: "10",
+                spread: "0.5",
+                gearing: "0.1",
+                floatingRateType: "IBOR",
+                offsetFixing: "Nine Month",
+                notional: "100"
+            },
+            FAKE_FIXED : {
+                eom: true,  
+                dayCount: "1/1",
+                frequency: "Monthly", 
+                businessDayConvention: "None",
+                rate: "0.144",
+                notional: "35"
             }
         };
     }
