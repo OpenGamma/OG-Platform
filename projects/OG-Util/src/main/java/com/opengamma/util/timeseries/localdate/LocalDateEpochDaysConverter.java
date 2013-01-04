@@ -222,11 +222,6 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
   }
 
   @Override
-  public Pair<LocalDate, Double> makePair(final LocalDate dateTime, final Double value) {
-    return Pair.of(dateTime, value);
-  }
-
-  @Override
   public DoubleTimeSeries<LocalDate> convertFromLong(final DoubleTimeSeries<LocalDate> templateTS, final FastLongDoubleTimeSeries pldts) {
     final LocalDate[] dateTimes = new LocalDate[pldts.size()];
     final Double[] values = new Double[pldts.size()];

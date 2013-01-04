@@ -26,7 +26,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 /**
  * 
  */
-public final class RateReplacingInterestRateDerivativeVisitor extends AbstractInstrumentDerivativeVisitor<Double, InstrumentDerivative> {
+public final class RateReplacingInterestRateDerivativeVisitor extends InstrumentDerivativeVisitorAdapter<Double, InstrumentDerivative> {
   private static final RateReplacingInterestRateDerivativeVisitor INSTANCE = new RateReplacingInterestRateDerivativeVisitor();
 
   public static RateReplacingInterestRateDerivativeVisitor getInstance() {

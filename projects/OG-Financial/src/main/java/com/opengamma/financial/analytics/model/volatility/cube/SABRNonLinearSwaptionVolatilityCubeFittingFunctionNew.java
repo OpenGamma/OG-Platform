@@ -56,7 +56,7 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardSwapCurveMarketDataFunction;
-import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.model.volatility.cube.fitted.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.analytics.volatility.cube.ConfigDBSwaptionVolatilityCubeSpecificationSource;
@@ -372,7 +372,7 @@ public class SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew extends Abstr
         .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_QUOTE_TYPE, SurfaceAndCubeQuoteType.RELATIVE_STRIKE)
         .with(SurfaceAndCubePropertyNames.PROPERTY_CUBE_UNITS, SurfaceAndCubePropertyNames.VOLATILITY_QUOTE)
         .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR)
-        .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES).get();
+        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, SmileFittingProperties.NON_LINEAR_LEAST_SQUARES).get();
   }
 
   private ValueProperties getResultProperties(final ComputationTarget target, final ValueRequirement desiredSurface) {

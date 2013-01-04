@@ -76,7 +76,7 @@ public class CashSecurity extends FinancialSecurity {
   private double _amount;
 
   CashSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public CashSecurity(Currency currency, ExternalId region, ZonedDateTime start, ZonedDateTime maturity, DayCount dayCount, double rate, double amount) {

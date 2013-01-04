@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPh
 /**
  * Interpolates, for interest rate instruments using Black model, and returns the implied volatility required.
  */
-public final class BlackPriceCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public final class BlackPriceCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /** The method unique instance.*/
   private static final BlackPriceCalculator INSTANCE = new BlackPriceCalculator();

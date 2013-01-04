@@ -60,7 +60,7 @@ public class SwaptionPhysicalHullWhiteCalibrationObjective extends SuccessiveRoo
    * @param curves The curves.
    */
   @Override
-  public void setCurves(YieldCurveBundle curves) {
+  public void setCurves(final YieldCurveBundle curves) {
     _hwBundle = new HullWhiteOneFactorPiecewiseConstantDataBundle(_hwParameters, curves);
   }
 
@@ -84,19 +84,19 @@ public class SwaptionPhysicalHullWhiteCalibrationObjective extends SuccessiveRoo
    * Sets the calibration time for the next calibration.
    * @param calibrationTime The calibration time.
    */
-  public void setNextCalibrationTime(double calibrationTime) {
+  public void setNextCalibrationTime(final double calibrationTime) {
     _hwParameters.addVolatility(_hwParameters.getLastVolatility(), calibrationTime);
   }
 
   @Override
-  public void setInstrument(InstrumentDerivative instrument) {
+  public void setInstrument(final InstrumentDerivative instrument) {
     super.setInstrument(instrument);
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Instrument should be a physical delivery swaption");
-    _cfe = CASH_FLOW_EQUIVALENT_CALCULATOR.visit(((SwaptionPhysicalFixedIbor) instrument).getUnderlyingSwap(), _hwBundle);
+    _cfe = ((SwaptionPhysicalFixedIbor) instrument).getUnderlyingSwap().accept(CASH_FLOW_EQUIVALENT_CALCULATOR, _hwBundle);
   }
 
   @Override
-  public Double evaluate(Double x) {
+  public Double evaluate(final Double x) {
     _hwBundle.getHullWhiteParameter().setLastVolatility(x);
     return METHOD_HW_SWAPTION.presentValue((SwaptionPhysicalFixedIbor) getInstrument(), _cfe, _hwBundle).getAmount() - getPrice();
   }

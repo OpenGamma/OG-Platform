@@ -32,7 +32,7 @@ public class InterestRateInstrumentParRateFunctionDeprecated extends InterestRat
   @Override
   public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle, final FinancialSecurity security,
       final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod, final String currency) {
-    final Double parRate = CALCULATOR.visit(derivative, bundle);
+    final Double parRate = derivative.accept(CALCULATOR, bundle);
     return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), parRate));
   }
 

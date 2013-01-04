@@ -23,7 +23,7 @@ public abstract class SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDepre
 
   @Override
   protected Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data, final ValueRequirement desiredValue) {
-    return getResultAsMatrix(CALCULATOR.visit(derivative, data));
+    return getResultAsMatrix(derivative.accept(CALCULATOR, data));
   }
 
   protected abstract DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities);

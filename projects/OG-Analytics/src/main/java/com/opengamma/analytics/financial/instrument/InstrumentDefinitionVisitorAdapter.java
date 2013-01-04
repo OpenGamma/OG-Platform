@@ -14,6 +14,10 @@ import com.opengamma.analytics.financial.commodity.definition.EnergyFutureOption
 import com.opengamma.analytics.financial.commodity.definition.MetalForwardDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
+import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
+import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwapDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOptionDefinition;
@@ -74,6 +78,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixe
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
 
 /**
  * A convenience class that means that classes implementing InstrumentDefinitionVisitor do not have to implement every method.
@@ -684,7 +689,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitMetalFutureDefinition(final MetalFutureDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -694,7 +699,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitMetalFutureOptionDefinition(final MetalFutureOptionDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -704,7 +709,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitAgricultureForwardDefinition(final AgricultureForwardDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -714,7 +719,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitAgricultureFutureDefinition(final AgricultureFutureDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -724,7 +729,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitAgricultureFutureOptionDefinition(final AgricultureFutureOptionDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -734,7 +739,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitEnergyForwardDefinition(final EnergyForwardDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -744,7 +749,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitEnergyFutureDefinition(final EnergyFutureDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -754,7 +759,7 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
 
   @Override
   public RESULT_TYPE visitEnergyFutureOptionDefinition(final EnergyFutureOptionDefinition future, final DATA_TYPE data) {
-    return getException(future);
+    return getException(future, data);
   }
 
   @Override
@@ -762,13 +767,69 @@ public class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE> implemen
     return getException(future);
   }
 
+  @Override
+  public RESULT_TYPE visitEquityFutureDefinition(final EquityFutureDefinition future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityFutureDefinition(final EquityFutureDefinition future) {
+    return getException(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexDividendFutureDefinition(final EquityIndexDividendFutureDefinition future, final DATA_TYPE data) {
+    return getException(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexDividendFutureDefinition(final EquityIndexDividendFutureDefinition future) {
+    return getException(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexOptionDefinition(final EquityIndexOptionDefinition option, final DATA_TYPE data) {
+    return getException(option, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexOptionDefinition(final EquityIndexOptionDefinition option) {
+    return getException(option);
+  }
+
+  @Override
+  public RESULT_TYPE visitVarianceSwapDefinition(final VarianceSwapDefinition varianceSwap) {
+    return getException(varianceSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitVarianceSwapDefinition(final VarianceSwapDefinition varianceSwap, final DATA_TYPE data) {
+    return getException(varianceSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityVarianceSwapDefinition(final EquityVarianceSwapDefinition varianceSwap) {
+    return getException(varianceSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityVarianceSwapDefinition(final EquityVarianceSwapDefinition varianceSwap, final DATA_TYPE data) {
+    return getException(varianceSwap, data);
+  }
+
   private RESULT_TYPE getException(final InstrumentDefinition<?> definition, final DATA_TYPE data) {
-    throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName()
-        + " with data of type " + data.getClass().getSimpleName());
+    if (definition != null && data != null) {
+      throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName()
+          + " with data of type " + data.getClass().getSimpleName());
+    }
+    throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support this method");
   }
 
   private RESULT_TYPE getException(final InstrumentDefinition<?> definition) {
-    throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName());
+    if (definition != null) {
+      throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName());
+    }
+    throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support this method");
   }
 
 }

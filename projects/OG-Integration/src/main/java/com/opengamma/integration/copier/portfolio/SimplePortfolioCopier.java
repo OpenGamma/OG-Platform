@@ -55,7 +55,7 @@ public class SimplePortfolioCopier implements PortfolioCopier {
         ObjectsPair<ManageablePosition, ManageableSecurity[]> written = 
             portfolioWriter.writePosition(next.getFirst(), next.getSecond());
         
-        if (visitor != null) {
+        if (visitor != null && written != null) {
           visitor.info(StringUtils.arrayToDelimitedString(path, "/"), written.getFirst(), written.getSecond());
         }
       } else {

@@ -6,13 +6,13 @@
 package com.opengamma.analytics.financial.commodity.derivative;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
-import com.opengamma.analytics.financial.commodity.definition.EnergyFutureDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * energy future option commodity derivative
  */
-public class EnergyFutureOption extends CommodityFutureOption<EnergyFutureDefinition> {
+public class EnergyFutureOption extends CommodityFutureOption<EnergyFuture> {
 
   /**
    * Constructor for future options
@@ -23,17 +23,19 @@ public class EnergyFutureOption extends CommodityFutureOption<EnergyFutureDefini
    * @param exerciseType Exercise type - European or American
    * @param isCall Call if true, Put if false
    */
-  public EnergyFutureOption(final double expiry, final EnergyFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
+  public EnergyFutureOption(final double expiry, final EnergyFuture underlying, final double strike, final ExerciseDecisionType exerciseType, final boolean isCall) {
     super(expiry, underlying, strike, exerciseType, isCall);
   }
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitEnergyFutureOption(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitEnergyFutureOption(this);
   }
 
@@ -43,7 +45,7 @@ public class EnergyFutureOption extends CommodityFutureOption<EnergyFutureDefini
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }

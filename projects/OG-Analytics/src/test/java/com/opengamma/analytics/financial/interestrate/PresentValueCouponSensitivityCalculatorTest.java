@@ -70,12 +70,12 @@ public class PresentValueCouponSensitivityCalculatorTest {
     final Cash cash = new Cash(CUR, tradeTime, t, 1, r, yearFrac, FIVE_PC_CURVE_NAME);
     final Cash cashUp = new Cash(CUR, tradeTime, t, 1, r + DELTA, yearFrac, FIVE_PC_CURVE_NAME);
     final Cash cashDown = new Cash(CUR, tradeTime, t, 1, r - DELTA, yearFrac, FIVE_PC_CURVE_NAME);
-    final double pvUp = PVC.visit(cashUp, CURVES);
-    final double pvDown = PVC.visit(cashDown, CURVES);
+    final double pvUp = cashUp.accept(PVC, CURVES);
+    final double pvDown = cashDown.accept(PVC, CURVES);
     final double temp = (pvUp - pvDown) / 2 / DELTA;
-    PVCSC.visit(cash, CURVES);
+    cash.accept(PVCSC, CURVES);
 
-    assertEquals(temp, PVCSC.visit(cash, CURVES), 1e-10);
+    assertEquals(temp, cash.accept(PVCSC, CURVES), 1e-10);
   }
 
   @Test
@@ -95,11 +95,11 @@ public class PresentValueCouponSensitivityCalculatorTest {
         fixingYearFraction, rate + DELTA, FIVE_PC_CURVE_NAME);
     final ForwardRateAgreement fraDown = new ForwardRateAgreement(CUR, paymentTime, FIVE_PC_CURVE_NAME, paymentYearFraction, 1, index, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
         fixingYearFraction, rate - DELTA, FIVE_PC_CURVE_NAME);
-    final double pvUp = PVC.visit(fraUp, CURVES);
-    final double pvDown = PVC.visit(fraDown, CURVES);
+    final double pvUp = fraUp.accept(PVC, CURVES);
+    final double pvDown = fraDown.accept(PVC, CURVES);
     final double temp = (pvUp - pvDown) / 2 / DELTA;
     //TODO accuracy is off compared to old FRA definition
-    assertEquals(temp, PVCSC.visit(fra, CURVES), 1e-5);
+    assertEquals(temp, fra.accept(PVCSC, CURVES), 1e-5);
   }
 
   @Test
@@ -120,10 +120,10 @@ public class PresentValueCouponSensitivityCalculatorTest {
         paymentAccrualFactor, quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     final InterestRateFuture irDown = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice + DELTA, 1,
         paymentAccrualFactor, quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    final double pvUp = PVC.visit(irUp, CURVES);
-    final double pvDown = PVC.visit(irDown, CURVES);
+    final double pvUp = irUp.accept(PVC, CURVES);
+    final double pvDown = irDown.accept(PVC, CURVES);
     final double temp = (pvUp - pvDown) / 2 / DELTA;
-    assertEquals(temp, PVCSC.visit(ir, CURVES), 1e-10);
+    assertEquals(temp, ir.accept(PVCSC, CURVES), 1e-10);
   }
 
   @Test
@@ -140,14 +140,14 @@ public class PresentValueCouponSensitivityCalculatorTest {
       couponsUp[i] = new CouponFixed(CUR, tau * (i + 1), FIVE_PC_CURVE_NAME, yearFrac, coupon + DELTA);
       couponsDown[i] = new CouponFixed(CUR, tau * (i + 1), FIVE_PC_CURVE_NAME, yearFrac, coupon - DELTA);
     }
-    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FIVE_PC_CURVE_NAME)});
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FIVE_PC_CURVE_NAME) });
     final BondFixedSecurity bond = new BondFixedSecurity(nominal, new AnnuityCouponFixed(coupons), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
     final BondFixedSecurity bondUp = new BondFixedSecurity(nominal, new AnnuityCouponFixed(couponsUp), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
     final BondFixedSecurity bondDown = new BondFixedSecurity(nominal, new AnnuityCouponFixed(couponsDown), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
-    final double pvUp = PVC.visit(bondUp, CURVES);
-    final double pvDown = PVC.visit(bondDown, CURVES);
+    final double pvUp = bondUp.accept(PVC, CURVES);
+    final double pvDown = bondDown.accept(PVC, CURVES);
     final double temp = (pvUp - pvDown) / 2 / DELTA;
-    assertEquals(temp, PVCSC.visit(bond, CURVES), 1e-10);
+    assertEquals(temp, bond.accept(PVCSC, CURVES), 1e-10);
   }
 
   @Test
@@ -168,51 +168,11 @@ public class PresentValueCouponSensitivityCalculatorTest {
     final FixedFloatSwap swapUp = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate + DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
     final FixedFloatSwap swapDown = new FixedFloatSwap(CUR, fixedPaymentTimes, floatPaymentTimes, INDEX, swapRate - DELTA, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
 
-    final double pvUp = PVC.visit(swapUp, CURVES);
-    final double pvDown = PVC.visit(swapDown, CURVES);
+    final double pvUp = swapUp.accept(PVC, CURVES);
+    final double pvDown = swapDown.accept(PVC, CURVES);
     final double temp = (pvUp - pvDown) / 2 / DELTA;
 
-    assertEquals(temp, PVCSC.visit(swap, CURVES), 1e-10);
+    assertEquals(temp, swap.accept(PVCSC, CURVES), 1e-10);
   }
-
-  //  @Test
-  //  public void testBasisSwap() {
-  //    final int n = 20;
-  //    final double tau = 0.25;
-  //    final double[] paymentTimes = new double[n];
-  //    final double[] spreads = new double[n];
-  //    final double[] spreadsUp = new double[n];
-  //    final double[] spreadsDown = new double[n];
-  //    final double[] yearFracs = new double[n];
-  //    final double[] indexFixing = new double[n];
-  //    final double[] indexMaturity = new double[n];
-  //    final double spread = 0.001;
-  //    for (int i = 0; i < n; i++) {
-  //      indexFixing[i] = i * tau;
-  //      paymentTimes[i] = (i + 1) * tau;
-  //      indexMaturity[i] = paymentTimes[i];
-  //      spreads[i] = spread;
-  //      spreadsUp[i] = spread + DELTA;
-  //      spreadsDown[i] = spread - DELTA;
-  //      yearFracs[i] = tau;
-  //    }
-  //
-  //    final GenericAnnuity<CouponIborSpread> payLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexMaturity, yearFracs, 1.0, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME, true);
-  //    final GenericAnnuity<CouponIborSpread> receiveLeg = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreads, 1.0, FIVE_PC_CURVE_NAME,
-  //        ZERO_PC_CURVE_NAME, false);
-  //    final GenericAnnuity<CouponIborSpread> receiveLegUp = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsUp, 1.0, FIVE_PC_CURVE_NAME,
-  //        ZERO_PC_CURVE_NAME, false);
-  //    final GenericAnnuity<CouponIborSpread> receiveLegDown = new AnnuityCouponIbor(CUR, paymentTimes, indexFixing, INDEX, indexFixing, indexMaturity, yearFracs, yearFracs, spreadsDown, 1.0,
-  //        FIVE_PC_CURVE_NAME, ZERO_PC_CURVE_NAME, false);
-  //
-  //    final TenorSwap<?> swap = new TenorSwap<CouponIborSpread>(payLeg, receiveLeg);
-  //    final TenorSwap<?> swapUp = new TenorSwap<CouponIborSpread>(payLeg, receiveLegUp);
-  //    final TenorSwap<?> swapDown = new TenorSwap<CouponIborSpread>(payLeg, receiveLegDown);
-  //    final double pvUp = PVC.visit(swapUp, CURVES);
-  //    final double pvDown = PVC.visit(swapDown, CURVES);
-  //    final double temp = (pvUp - pvDown) / 2 / DELTA;
-  //
-  //    assertEquals(temp, PVCSC.visit(swap, CURVES), 1e-10);
-  //  }
 
 }

@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.market.calculator;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Calculator of the present value curve sensitivity as multiple currency interest rate curve sensitivity.
  */
-public final class PresentValueCurveSensitivityMarketCalculator extends AbstractInstrumentDerivativeVisitor<IMarketBundle, MultipleCurrencyCurveSensitivityMarket> {
+public final class PresentValueCurveSensitivityMarketCalculator extends InstrumentDerivativeVisitorAdapter<IMarketBundle, MultipleCurrencyCurveSensitivityMarket> {
 
   /**
    * The unique instance of the calculator.
@@ -75,9 +75,9 @@ public final class PresentValueCurveSensitivityMarketCalculator extends Abstract
   public MultipleCurrencyCurveSensitivityMarket visitGenericAnnuity(final Annuity<? extends Payment> annuity, final IMarketBundle market) {
     ArgumentChecker.notNull(annuity, "Annuity");
     ArgumentChecker.notNull(market, "Market");
-    MultipleCurrencyCurveSensitivityMarket cs = visit(annuity.getNthPayment(0), market);
+    MultipleCurrencyCurveSensitivityMarket cs = annuity.getNthPayment(0).accept(this, market);
     for (int loopp = 1; loopp < annuity.getNumberOfPayments(); loopp++) {
-      cs = cs.plus(visit(annuity.getNthPayment(loopp), market));
+      cs = cs.plus(annuity.getNthPayment(loopp).accept(this, market));
     }
     return cs;
   }
@@ -91,8 +91,8 @@ public final class PresentValueCurveSensitivityMarketCalculator extends Abstract
 
   @Override
   public MultipleCurrencyCurveSensitivityMarket visitSwap(final Swap<?, ?> swap, final IMarketBundle market) {
-    final MultipleCurrencyCurveSensitivityMarket sensitivity1 = visit(swap.getFirstLeg(), market);
-    final MultipleCurrencyCurveSensitivityMarket sensitivity2 = visit(swap.getSecondLeg(), market);
+    final MultipleCurrencyCurveSensitivityMarket sensitivity1 = swap.getFirstLeg().accept(this, market);
+    final MultipleCurrencyCurveSensitivityMarket sensitivity2 = swap.getSecondLeg().accept(this, market);
     return sensitivity1.plus(sensitivity2);
   }
 

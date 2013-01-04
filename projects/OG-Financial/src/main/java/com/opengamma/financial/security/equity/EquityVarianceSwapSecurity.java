@@ -97,7 +97,7 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   private Frequency _observationFrequency;
 
   EquityVarianceSwapSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public EquityVarianceSwapSecurity(ExternalId spotUnderlyingId, Currency currency, double strike, double notional,

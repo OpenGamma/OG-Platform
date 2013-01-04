@@ -92,8 +92,8 @@ public final class ForexDiscountingMethod implements ForexPricingMethod {
    * @return The sensitivity.
    */
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final Forex fx, final YieldCurveBundle curves) {
-    final InterestRateCurveSensitivity result1 = new InterestRateCurveSensitivity(PVSC.visit(fx.getPaymentCurrency1(), curves));
-    final InterestRateCurveSensitivity result2 = new InterestRateCurveSensitivity(PVSC.visit(fx.getPaymentCurrency2(), curves));
+    final InterestRateCurveSensitivity result1 = new InterestRateCurveSensitivity(fx.getPaymentCurrency1().accept(PVSC, curves));
+    final InterestRateCurveSensitivity result2 = new InterestRateCurveSensitivity(fx.getPaymentCurrency2().accept(PVSC, curves));
     MultipleCurrencyInterestRateCurveSensitivity result = MultipleCurrencyInterestRateCurveSensitivity.of(fx.getCurrency1(), result1);
     result = result.plus(fx.getCurrency2(), result2);
     return result;

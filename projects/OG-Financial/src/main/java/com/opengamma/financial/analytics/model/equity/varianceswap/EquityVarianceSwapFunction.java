@@ -5,35 +5,22 @@
  */
 package com.opengamma.financial.analytics.model.equity.varianceswap;
 
+import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
-
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
-import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
-import com.opengamma.analytics.util.time.TimeCalculator;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -42,137 +29,134 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.EquityVarianceSwapConverter;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceUtils;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.security.FinancialSecurityTypes;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  *
  */
 public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCompiledInvoker {
-  private final String _valueRequirementName;
-  private EquityVarianceSwapConverter _converter; // set in init()
+  /** Property for the type of volatility surface to use */
+  public static final String PROPERTY_VOLATILITY_SURFACE_TYPE = "VolatilitySurfaceType";
+  /** Pure implied volatility calculation method */
+  public static final String PURE_IMPLIED_VOLATILITY = "PureImpliedVolatility";
+  /** Pure local volatility calculation method */
+  public static final String PURE_LOCAL_VOLATILITY = "PureLocalVolatility";
+  private EquityVarianceSwapConverter _converter;
 
-  /** CalculationMethod constraint used in configuration to choose this model */
-  public static final String CALCULATION_METHOD = "StaticReplication";
-  /** Method may be Strike or Moneyness TODO Confirm */
-  public static final String STRIKE_PARAMETERIZATION_METHOD = "StrikeParameterizationMethod";
-
-  public EquityVarianceSwapFunction(final String valueRequirementName) {
-    ArgumentChecker.notNull(valueRequirementName, "value requirement name");
-    _valueRequirementName = valueRequirementName;
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    _converter = new EquityVarianceSwapConverter(holidaySource);
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    // 1. Build the analytic derivative to be priced
-    final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
-
-    final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime().minusYears(2); //TODO remove me - just for testing
-
-    final VarianceSwapDefinition defn = _converter.visitEquityVarianceSwapSecurity(security);
-    final HistoricalTimeSeries timeSeries = (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES);
-    final VarianceSwap deriv = defn.toDerivative(now, timeSeries.getTimeSeries());
-
-    // 2. Build up the market data bundle
-    final Object volSurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(security, surfaceName));
-    if (volSurfaceObject == null) {
-      throw new OpenGammaRuntimeException("Could not get Volatility Surface");
-    }
-    final VolatilitySurface volSurface = (VolatilitySurface) volSurfaceObject;
-    //TODO no choice of other surfaces
-    final BlackVolatilitySurface<?> blackVolSurf = new BlackVolatilitySurfaceStrike(volSurface.getSurface());
-
-    final Object discountObject = inputs.getValue(getDiscountCurveRequirement(security, curveName, curveCalculationConfig));
-    if (discountObject == null) {
-      throw new OpenGammaRuntimeException("Could not get Discount Curve");
-    }
-    if (!(discountObject instanceof YieldCurve)) { //TODO: make it more generic
-      throw new IllegalArgumentException("Can only handle YieldCurve");
-    }
-    final YieldCurve discountCurve = (YieldCurve) discountObject;
-
-    final Object spotObject = inputs.getValue(getSpotRequirement(security));
-    if (spotObject == null) {
-      throw new OpenGammaRuntimeException("Could not get Underlying's Spot value");
-    }
-    final double spot = (Double) spotObject;
-
-    final double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getLastObservationDate());
-    final double discountFactor = discountCurve.getDiscountFactor(expiry);
-    ArgumentChecker.isTrue(Double.doubleToLongBits(discountFactor) != 0, "The discount curve has returned a zero value for a discount bond. Check rates.");
-    final ForwardCurve forwardCurve = new ForwardCurve(spot, discountCurve.getCurve()); //TODO change this
-
-    final StaticReplicationDataBundle market = new StaticReplicationDataBundle(blackVolSurf, discountCurve, forwardCurve);
-    final ValueSpecification resultSpec = getValueSpecification(target, curveName, curveCalculationConfig, surfaceName);
-    // 3. Compute and return the value (ComputedValue)
-    return computeValues(resultSpec, inputs, deriv, market);
+  public ComputationTargetType getTargetType() {
+    return FinancialSecurityTypes.EQUITY_VARIANCE_SWAP_SECURITY;
   }
 
-  protected abstract Set<ComputedValue> computeValues(final ValueSpecification resultSpec, final FunctionInputs inputs, final VarianceSwap derivative, final StaticReplicationDataBundle market);
-
-  protected ValueSpecification getValueSpecification(final ComputationTarget target) {
-    final ValueProperties properties = getValueProperties(target);
-    return new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
-  }
-
-  protected ValueSpecification getValueSpecification(final ComputationTarget target, final String curveName, final String curveCalculationConfig, final String surfaceName) {
-    final ValueProperties properties = getValueProperties(target, curveName, curveCalculationConfig, surfaceName);
-    return new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
-  }
-
-  protected ValueProperties getValueProperties(final ComputationTarget target) {
-    final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
-    return createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
-        .with(ValuePropertyNames.CALCULATION_METHOD, CALCULATION_METHOD)
-        .withAny(ValuePropertyNames.CURVE)
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties properties = createValueProperties()
+        .withAny(PDEPropertyNamesAndValues.PROPERTY_DISCOUNTING_CURVE_NAME)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(ValuePropertyNames.SURFACE).get();
+        .withAny(ValuePropertyNames.CURVE_CURRENCY)
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+        .withAny(ValuePropertyNames.SURFACE)
+        .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethod())
+        .with(PROPERTY_VOLATILITY_SURFACE_TYPE, getVolatilitySurfaceType())
+        .get();
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties));
   }
 
-  protected ValueProperties getValueProperties(final ComputationTarget target, final String curveName, final String curveCalculationConfig, final String surfaceName) {
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> discountingCurveNames = constraints.getValues(PDEPropertyNamesAndValues.PROPERTY_DISCOUNTING_CURVE_NAME);
+    if (discountingCurveNames == null || discountingCurveNames.size() != 1) {
+      return null;
+    }
+    final Set<String> forwardCurveCalculationConfigs = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (forwardCurveCalculationConfigs == null || forwardCurveCalculationConfigs.size() != 1) {
+      return null;
+    }
+    final Set<String> forwardCurveNames = constraints.getValues(ValuePropertyNames.CURVE);
+    if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
+      return null;
+    }
+    final Set<String> forwardCurveCalculationMethods = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    if (forwardCurveCalculationMethods == null || forwardCurveCalculationMethods.size() != 1) {
+      return null;
+    }
+    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
+    if (surfaceNames == null || surfaceNames.size() != 1) {
+      return null;
+    }
+    final Set<String> curveCurrencies = constraints.getValues(ValuePropertyNames.CURVE_CURRENCY);
+    if (curveCurrencies == null || curveCurrencies.size() != 1) {
+      return null;
+    }
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
-    return createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
-        .with(ValuePropertyNames.CALCULATION_METHOD, CALCULATION_METHOD)
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
-        .with(ValuePropertyNames.SURFACE, surfaceName).get();
+    final ExternalId underlyingId = security.getSpotUnderlyingId();
+    final UniqueId uniqueUnderlyingId = underlyingId.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER) ?
+        UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), underlyingId.getValue()) : UniqueId.of(underlyingId.getScheme().getName(), underlyingId.getValue());
+    final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, uniqueUnderlyingId);
+    final Currency currency = FinancialSecurityUtils.getCurrency(security);
+    final ValueRequirement discountingCurveRequirement = getCurveRequirement(currency, desiredValue);
+    final ValueRequirement dividendsRequirement = getDividendRequirement(uniqueUnderlyingId);
+    final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(uniqueUnderlyingId, desiredValue);
+    final ValueRequirement volatilityRequirement = getVolatilityRequirement(uniqueUnderlyingId, desiredValue);
+    final ValueRequirement underlyingTSRequirement = getTimeSeriesRequirement(context, security);
+    return Sets.newHashSet(spotRequirement, discountingCurveRequirement, forwardCurveRequirement, volatilityRequirement, underlyingTSRequirement, dividendsRequirement);
+    //dividendsRequirement
   }
 
-  private ValueRequirement getSpotRequirement(final EquityVarianceSwapSecurity security) {
-    final ExternalId id = security.getSpotUnderlyingId();
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id);
-  }
-
-  // Note that createValueProperties is _not_ used - use will mean the engine can't find the requirement
-  private ValueRequirement getDiscountCurveRequirement(final EquityVarianceSwapSecurity security, final String curveName, final String curveCalculationConfig) {
+  private ValueRequirement getCurveRequirement(final Currency currency, final ValueRequirement desiredValue) {
+    final String curveName = desiredValue.getConstraint(PDEPropertyNamesAndValues.PROPERTY_DISCOUNTING_CURVE_NAME);
+    final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(security.getCurrency()), properties);
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
+        .get();
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, currency, properties);
   }
 
-  private ValueRequirement getVolatilitySurfaceRequirement(final EquityVarianceSwapSecurity security, final String surfaceName) {
-    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surfaceName)
+  private ValueRequirement getDividendRequirement(final UniqueId id) {
+    return new ValueRequirement(ValueRequirementNames.AFFINE_DIVIDENDS, id, ValueProperties.none());
+  }
+
+  private ValueRequirement getForwardCurveRequirement(final UniqueId id, final ValueRequirement desiredValue) {
+    final String forwardCurveCcyName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
+    final String discountingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE_CURRENCY, forwardCurveCcyName)
+        .with(ValuePropertyNames.CURVE, discountingCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
+        .get();
+    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, id, properties);
+  }
+
+  private ValueRequirement getVolatilityRequirement(final UniqueId id, final ValueRequirement desiredValue) {
+    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
+    final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
         .get();
-    ExternalId id = security.getSpotUnderlyingId();
-    if (ExternalSchemes.BLOOMBERG_TICKER.equals(id.getScheme())) {
-      id = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, id.getValue());
-    }
-    return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, id, properties);
+    return new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, id, properties);
   }
 
   private ValueRequirement getTimeSeriesRequirement(final FunctionCompilationContext context, final EquityVarianceSwapSecurity security) {
@@ -184,47 +168,31 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.EARLIEST_START, true, DateConstraint.VALUATION_TIME, true);
   }
 
-  @Override
-  public void init(final FunctionCompilationContext context) {
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    _converter = new EquityVarianceSwapConverter(holidaySource);
+  protected SmileSurfaceDataBundle getData(final FunctionInputs inputs) {
+    final Object volatilitySurfaceObject = inputs.getValue(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA);
+    if (volatilitySurfaceObject == null) {
+      throw new OpenGammaRuntimeException("Could not get volatility surface data");
+    }
 
+    final Object forwardCurveObject = inputs.getValue(ValueRequirementNames.FORWARD_CURVE);
+    if (forwardCurveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get forward curve");
+    }
+    final ForwardCurve forwardCurve = (ForwardCurve) forwardCurveObject;
+
+    @SuppressWarnings("unchecked")
+    final VolatilitySurfaceData<Object, Object> volatilitySurface = (VolatilitySurfaceData<Object, Object>) volatilitySurfaceObject;
+    return BlackVolatilitySurfaceUtils.getDataFromStandardQuotes(forwardCurve, volatilitySurface);
   }
 
-  @Override
-  public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.EQUITY_VARIANCE_SWAP_SECURITY;
+  protected EquityVarianceSwapConverter getConverter() {
+    return _converter;
   }
 
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
-    if (curveNames == null || curveNames.size() != 1) {
-      return null;
-    }
-    final Set<String> curveCalculationConfigs = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigs == null || curveCalculationConfigs.size() != 1) {
-      return null;
-    }
-    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      return null;
-    }
-    final String curveName = Iterables.getOnlyElement(curveNames);
-    final String curveCalculationConfig = Iterables.getOnlyElement(curveCalculationConfigs);
-    final String surfaceName = Iterables.getOnlyElement(surfaceNames);
-    final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
-    final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(4);
-    requirements.add(getDiscountCurveRequirement(security, curveName, curveCalculationConfig));
-    requirements.add(getSpotRequirement(security));
-    requirements.add(getVolatilitySurfaceRequirement(security, surfaceName));
-    final ValueRequirement requirement = getTimeSeriesRequirement(context, security);
-    if (requirement == null) {
-      return null;
-    }
-    requirements.add(requirement);
-    return requirements;
-  }
+  protected abstract String getValueRequirementName();
+
+  protected abstract String getCalculationMethod();
+
+  protected abstract String getVolatilitySurfaceType();
 
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calc;
@@ -110,7 +110,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>(nodes.size());
     for (final DependencyNode node : nodes) {
       final Set<ValueSpecification> inputs = node.getInputValues();
-      final ExecutionLogMode logMode = context.getLogModeSource().getLogMode(node.getOutputValues());
+      final ExecutionLogMode logMode = context.getLogModeSource().getLogMode(node);
       final CalculationJobItem jobItem = new CalculationJobItem(
           node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
           node.getComputationTarget(), inputs, node.getOutputValues(), logMode);
@@ -195,7 +195,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 
   /**
    * Returns an identifier that is unique within the fragments associated with a given context.
-   * 
+   *
    * @return the identifier
    */
   public int getIdentifier() {

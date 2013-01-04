@@ -47,9 +47,9 @@ import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -184,7 +184,7 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
 
   protected ValueProperties getResultProperties(final String currency) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
         .with(ValuePropertyNames.CURRENCY, currency)
@@ -194,7 +194,7 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
 
   protected ValueProperties getResultProperties(final String currency, final String curveCalculationConfig, final String surfaceName, final String curveName) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(ValuePropertyNames.CURRENCY, currency)

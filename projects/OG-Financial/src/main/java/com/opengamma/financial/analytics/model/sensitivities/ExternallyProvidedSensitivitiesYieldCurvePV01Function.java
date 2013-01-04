@@ -153,7 +153,7 @@ public class ExternallyProvidedSensitivitiesYieldCurvePV01Function extends Abstr
       throw new OpenGammaRuntimeException("Yield Curve Node Sensitivities result was not of type LabelledMatrix1D");
     }
     final DoubleLabelledMatrix1D ycns = (DoubleLabelledMatrix1D) value;
-    final double result = sum(ycns.getValues());
+    final double result = sum(ycns.getValues()) / 10000d;
     final ValueProperties properties = createCurrencyValueProperties(target)
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency)

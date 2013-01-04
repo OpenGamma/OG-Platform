@@ -42,11 +42,11 @@ import com.opengamma.util.SingletonFactoryBean;
 /**
  * Creates function repository configuration for surface supplying functions.
  * 
- * Note [PLAT-1094] - the functions should really be built by scanning the surfaces and currencies available. 
+ * Note [PLAT-1094] - the functions should really be built by scanning the surfaces and currencies available.
  */
 public class ExampleSurfaceFunctionConfiguration extends SingletonFactoryBean<RepositoryConfigurationSource> {
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleSurfaceFunctionConfiguration.class);
-  
+
   private ConfigMaster _configMaster;
   private ConfigDBVolatilitySurfaceDefinitionSource _volSurfaceDefinitionSource;
   private ConfigDBVolatilitySurfaceSpecificationSource _volSurfaceSpecificationSource;
@@ -56,13 +56,13 @@ public class ExampleSurfaceFunctionConfiguration extends SingletonFactoryBean<Re
   public void setConfigMaster(final ConfigMaster configMaster) {
     _configMaster = configMaster;
     // I've injected the master so we can do the more complex querying when we're ready.
-    ConfigSource configSource = new MasterConfigSource(_configMaster);
+    final ConfigSource configSource = new MasterConfigSource(_configMaster);
     _volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
     _volSurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     _priceCurveDefinitionSource = new ConfigDBFuturePriceCurveDefinitionSource(configSource);
     _priceCurveSpecificationSource = new ConfigDBFuturePriceCurveSpecificationSource(configSource);
   }
-  
+
   public RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
     addConfigFor(configs, VolatilitySurfaceSpecificationFunction.class.getName());
@@ -70,23 +70,23 @@ public class ExampleSurfaceFunctionConfiguration extends SingletonFactoryBean<Re
     addConfigFor(configs, RawFXVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, IRFutureOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, ExampleEquityOptionVolatilitySurfaceDataFunction.class.getName(), new String[] {"SECONDARY", "EQUITY_OPTION", "SECONDARY"});
-    addConfigFor(configs, Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated.class.getName(), new String[] {"SECONDARY", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator", 
+    addConfigFor(configs, Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated.class.getName(), new String[] {"SECONDARY", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator",
       "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator"});
     configs.add(new StaticFunctionConfiguration(ForexStrangleRiskReversalVolatilitySurfaceFunction.class.getName()));
     configs.add(new StaticFunctionConfiguration(ForexCallDeltaVolatilitySurfaceFunction.class.getName()));
     return new RepositoryConfiguration(configs);
   }
-  
+
   private void addConfigFor(final List<FunctionConfiguration> configurations, final String className) {
     configurations.add(new StaticFunctionConfiguration(className));
   }
-  
-  private void addConfigFor(List<FunctionConfiguration> configurations, String className, String[] params) {
+
+  private void addConfigFor(final List<FunctionConfiguration> configurations, final String className, final String[] params) {
     if (className.equals(Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated.class.getName())) {
       if (params.length != 8) {
         s_logger.error("Not enough parameters for " + className);
         s_logger.error(Arrays.asList(params).toString());
-        throw new OpenGammaRuntimeException("Not enough parameters for " + className);        
+        throw new OpenGammaRuntimeException("Not enough parameters for " + className);
       }
       configurations.add(new ParameterizedFunctionConfiguration(className, Arrays.asList(params)));
       return;
@@ -108,22 +108,22 @@ public class ExampleSurfaceFunctionConfiguration extends SingletonFactoryBean<Re
       return;
     }
     // Handle if it doesn't work and check system run mode so we don't bark warnings if not necessary.
-//    RunMode runMode = RunMode.valueOf(System.getProperty(PlatformConfigUtils.RUN_MODE_PROPERTY_NAME).toUpperCase());
-//    switch (runMode) {
-//      case EXAMPLE:
-//        s_logger.debug("Not adding function for " + className + " with parameters " + Arrays.asList(params));
-//        break;
-//      default:
-//        s_logger.warn("Not adding function for " + className + " with parameters " + Arrays.asList(params));
-//        break;
-//    }
+    //    RunMode runMode = RunMode.valueOf(System.getProperty(PlatformConfigUtils.RUN_MODE_PROPERTY_NAME).toUpperCase());
+    //    switch (runMode) {
+    //      case EXAMPLE:
+    //        s_logger.debug("Not adding function for " + className + " with parameters " + Arrays.asList(params));
+    //        break;
+    //      default:
+    //        s_logger.warn("Not adding function for " + className + " with parameters " + Arrays.asList(params));
+    //        break;
+    //    }
   }
-  
-  public boolean checkForDefinitionAndSpecification(String definitionName, String specificationName, String volSurfaceInstrumentType, String priceCurveInstrumentType) {
+
+  public boolean checkForDefinitionAndSpecification(final String definitionName, final String specificationName, final String volSurfaceInstrumentType, final String priceCurveInstrumentType) {
     if (checkForDefinitionAndSpecification(definitionName, volSurfaceInstrumentType, specificationName)) {
-      FuturePriceCurveDefinition<?> futurePriceCurveDefinition = _priceCurveDefinitionSource.getDefinition(definitionName, priceCurveInstrumentType);
+      final FuturePriceCurveDefinition<?> futurePriceCurveDefinition = _priceCurveDefinitionSource.getDefinition(definitionName, priceCurveInstrumentType);
       if (futurePriceCurveDefinition != null) {
-        FuturePriceCurveSpecification futurePriceCurveSpecification = _priceCurveSpecificationSource.getSpecification(specificationName, priceCurveInstrumentType);
+        final FuturePriceCurveSpecification futurePriceCurveSpecification = _priceCurveSpecificationSource.getSpecification(specificationName, priceCurveInstrumentType);
         if (futurePriceCurveSpecification != null) {
           return true;
         }
@@ -131,11 +131,11 @@ public class ExampleSurfaceFunctionConfiguration extends SingletonFactoryBean<Re
     }
     return false;
   }
-  
-  public boolean checkForDefinitionAndSpecification(String definitionName, String type, String specificationName) {
-    VolatilitySurfaceDefinition<?, ?> definition = _volSurfaceDefinitionSource.getDefinition(definitionName, type);
+
+  public boolean checkForDefinitionAndSpecification(final String definitionName, final String type, final String specificationName) {
+    final VolatilitySurfaceDefinition<?, ?> definition = _volSurfaceDefinitionSource.getDefinition(definitionName, type);
     if (definition != null) {
-      VolatilitySurfaceSpecification specification = _volSurfaceSpecificationSource.getSpecification(specificationName, type);
+      final VolatilitySurfaceSpecification specification = _volSurfaceSpecificationSource.getSpecification(specificationName, type);
       if (specification != null) {
         return true;
       }

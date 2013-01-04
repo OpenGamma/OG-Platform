@@ -130,7 +130,7 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
     if (currencies == null || currencies.size() != 1) {
       return null;
     }
-    final String surfaceName = Iterables.getOnlyElement(surfaceNames);
+    final String surfaceName = Iterables.getOnlyElement(surfaceNames) + "_PRICE";
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final Currency currency = Currency.of(Iterables.getOnlyElement(currencies));
     final ValueRequirement curveRequirement = getCurveRequirement(currency, desiredValue);

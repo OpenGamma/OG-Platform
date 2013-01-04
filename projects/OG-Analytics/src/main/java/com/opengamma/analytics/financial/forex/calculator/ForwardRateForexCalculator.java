@@ -13,13 +13,13 @@ import com.opengamma.analytics.financial.forex.method.ForexDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.ForexNonDeliverableForwardDiscountingMethod;
 import com.opengamma.analytics.financial.forex.method.ForexNonDeliverableOptionBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 
 /**
  * Calculator of the forward Forex rate for Forex derivatives.
  */
-public class ForwardRateForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public class ForwardRateForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The unique instance of the calculator.

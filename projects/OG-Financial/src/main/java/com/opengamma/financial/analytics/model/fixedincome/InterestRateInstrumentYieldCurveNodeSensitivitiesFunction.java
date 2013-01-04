@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.fixedincome;
@@ -56,7 +56,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends InterestRateInstrumentCurveSpecificFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class);
@@ -176,7 +176,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
         return null;
       }
       requirements.addAll(timeSeriesRequirements);
-    } catch (OpenGammaRuntimeException e) {
+    } catch (final OpenGammaRuntimeException e) {
       s_logger.error("Could not get time series requirements; error was {}", e.getMessage());
       return null;
     }

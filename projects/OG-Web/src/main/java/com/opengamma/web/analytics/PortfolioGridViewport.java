@@ -6,11 +6,10 @@
 package com.opengamma.web.analytics;
 
 import java.util.Collections;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.id.UniqueId;
 
 /**
@@ -18,43 +17,34 @@ import com.opengamma.id.UniqueId;
  */
 /* package */ class PortfolioGridViewport extends MainGridViewport {
 
-  // TODO this is a *temporary* hack
-  private static final Pattern POSITION_ID_PATTERN = Pattern.compile("DbPrt-DbPos~\\d+-(\\d+)~\\d+-(\\d+)");
   private static final int QUANTITY_COLUMN = 1;
 
   /**
    * @param gridStructure Row and column structure of the grid
    * @param callbackId ID that's passed to listeners when the grid structure changes
    */
-  /* package */ PortfolioGridViewport(final MainGridStructure gridStructure, final String callbackId) {
-    super(gridStructure, callbackId);
+  /* package */ PortfolioGridViewport(final MainGridStructure gridStructure,
+                                      final String callbackId,
+                                      final ViewportDefinition viewportDefinition,
+                                      final ViewCycle cycle,
+                                      final ResultsCache cache) {
+    super(gridStructure, callbackId, viewportDefinition, cycle, cache);
   }
 
   @Override
-     protected ViewportResults.Cell getFixedColumnResult(final int rowIndex, final int colIndex, final MainGridStructure.Row row) {
+  protected ViewportResults.Cell getFixedColumnResult(final int rowIndex, final int colIndex, final MainGridStructure.Row row) {
     if (colIndex == LABEL_COLUMN) {
       final ComputationTargetSpecification target = row.getTarget();
-      final UniqueId compoundId = target.getUniqueId();
-      // TODO this is a *temporary* hack
-      final Matcher idMatcher = POSITION_ID_PATTERN.matcher(compoundId.toString());
-      UniqueId targetId;
-      if (idMatcher.matches()) {
-        final String posId = idMatcher.group(1);
-        final String version = idMatcher.group(2);
-        targetId = UniqueId.of("DbPos", posId, version);
-      } else {
-        targetId = compoundId;
-      }
-      // TODO end hack
+      final UniqueId targetId = target.getUniqueId();
       final ComputationTargetType targetType = target.getType();
       if (targetType.isTargetType(ComputationTargetType.POSITION)) {
-        return ViewportResults.positionCell(row.getName(), colIndex, targetId);
+        return ViewportResults.objectCell(new PositionTarget(row.getName(), targetId), colIndex);
       } else if (targetType.isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
-        return ViewportResults.nodeCell(row.getName(), colIndex, targetId);
+        return ViewportResults.objectCell(new NodeTarget(row.getName(), targetId), colIndex);
       }
       throw new IllegalArgumentException("Unexpected target type for row: " + targetType);
     } else if (colIndex == QUANTITY_COLUMN) {
-      return ViewportResults.valueCell(row.getQuantity(), null, Collections.emptyList(), colIndex);
+      return ViewportResults.valueCell(row.getQuantity(), null, Collections.emptyList(), null, colIndex);
     }
     throw new IllegalArgumentException("Column " + colIndex + " is not fixed");
   }

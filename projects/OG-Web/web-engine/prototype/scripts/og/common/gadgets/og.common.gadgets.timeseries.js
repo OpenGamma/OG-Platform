@@ -6,11 +6,9 @@ $.register_module({
     name: 'og.common.gadgets.Timeseries',
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
-        var prefix = 'og_timeseries_gadget_', counter = 1;
         return function (config) {
-            var gadget = this, timeseries, alive = prefix + counter++, $selector = $(config.selector);
+            var gadget = this, timeseries, alive = og.common.id('gadget_timeseries'), $selector = $(config.selector);
             $(config.selector).addClass(alive).css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
-            gadget.counter = counter;
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;
                 if (!live && timeseries) gadget.dataman.kill();

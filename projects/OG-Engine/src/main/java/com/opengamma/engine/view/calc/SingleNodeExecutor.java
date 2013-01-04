@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calc;
@@ -41,11 +41,11 @@ import com.opengamma.util.async.Cancelable;
 
 /**
  * This DependencyGraphExecutor executes the given dependency graph
- * on a single calculation node in a single thread. Whether that node 
+ * on a single calculation node in a single thread. Whether that node
  * is the local machine or a remote machine on the grid depends on the
- * the {@code com.opengamma.engine.view.calcnode.JobRequestSender} configured in 
+ * the {@code com.opengamma.engine.view.calcnode.JobRequestSender} configured in
  * {@link com.opengamma.engine.view.ViewProcessContext}.
- * 
+ *
  */
 public class SingleNodeExecutor implements DependencyGraphExecutor<ExecutionResult>, JobResultReceiver {
 
@@ -71,7 +71,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<ExecutionResu
     final Set<ValueSpecification> sharedValues = new HashSet<ValueSpecification>(graph.getTerminalOutputSpecifications());
     for (final DependencyNode node : order) {
       final Set<ValueSpecification> inputs = node.getInputValues();
-      final ExecutionLogMode logMode = logModeSource.getLogMode(node.getOutputValues());
+      final ExecutionLogMode logMode = logModeSource.getLogMode(node);
       final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
           node.getComputationTarget(), inputs, node.getOutputValues(), logMode);
       items.add(jobItem);

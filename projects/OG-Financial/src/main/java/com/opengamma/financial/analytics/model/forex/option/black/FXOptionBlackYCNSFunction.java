@@ -46,6 +46,7 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
@@ -245,7 +246,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
         .withAny(PUT_CURVE_CALC_CONFIG)
         .withAny(CALL_CURVE_CALC_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
@@ -261,7 +262,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
         .withAny(PUT_CURVE_CALC_CONFIG)
         .withAny(CALL_CURVE_CALC_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(InterpolatedDataProperties.X_INTERPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME)
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME)
@@ -288,7 +289,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
         .with(PUT_CURVE_CALC_CONFIG, putCurveCalculationConfig)
         .with(CALL_CURVE_CALC_CONFIG, callCurveCalculationConfig)
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)
@@ -312,7 +313,7 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
         .with(PUT_CURVE_CALC_CONFIG, putCurveCalculationConfig)
         .with(CALL_CURVE_CALC_CONFIG, callCurveCalculationConfig)
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, interpolatorName)
         .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, leftExtrapolatorName)
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName)

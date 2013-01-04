@@ -37,7 +37,7 @@ public class FXDigitalCallSpreadBlackVegaMatrixFunction extends FXDigitalCallSpr
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final PresentValueBlackVolatilityNodeSensitivityCallSpreadBlackForexCalculator calculator = new PresentValueBlackVolatilityNodeSensitivityCallSpreadBlackForexCalculator(spread);
-    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = calculator.visit(fxDigital, data);
+    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle result = fxDigital.accept(calculator, data);
     final double[] expiries = result.getExpiries().getData();
     final double[] delta = result.getDelta().getData();
     final double[][] vega = result.getVega().getData();

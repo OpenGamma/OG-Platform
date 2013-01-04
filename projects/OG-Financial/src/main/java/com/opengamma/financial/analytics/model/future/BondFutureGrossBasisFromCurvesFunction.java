@@ -36,7 +36,7 @@ public class BondFutureGrossBasisFromCurvesFunction extends BondFutureFromCurves
       final ComputationTarget target) {
     final List<BondFutureDeliverable> deliverables = security.getBasket();
     final int n = deliverables.size();
-    final double[] grossBasis = CALCULATOR.visit(bondFuture, data);
+    final double[] grossBasis = bondFuture.accept(CALCULATOR, data);
     if (grossBasis.length != n) {
       throw new OpenGammaRuntimeException("Do not have a gross basis for every deliverable: should never happen");
     }

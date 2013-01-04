@@ -32,7 +32,7 @@ public class BondFutureOptionBlackDeltaFunction extends BondFutureOptionBlackFun
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative bondFutureOption, final YieldCurveWithBlackCubeBundle data, final MultiCurveCalculationConfig curveCalculationConfig,
       final ValueSpecification spec, final FunctionInputs inputs, final Set<ValueRequirement> desiredValue, final BondFutureOptionSecurity security) {
-    final Double gamma = CALCULATOR.visit(bondFutureOption, data);
+    final Double gamma = bondFutureOption.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, gamma));
   }
 

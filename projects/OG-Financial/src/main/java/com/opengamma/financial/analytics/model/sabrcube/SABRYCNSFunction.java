@@ -56,7 +56,7 @@ import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
-import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -185,7 +185,7 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     if (cubeNames == null || cubeNames.size() != 1) {
       return null;
     }
-    final Set<String> fittingMethods = constraints.getValues(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
+    final Set<String> fittingMethods = constraints.getValues(SmileFittingProperties.PROPERTY_FITTING_METHOD);
     if (fittingMethods == null || fittingMethods.size() != 1) {
       return null;
     }
@@ -226,7 +226,7 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     if (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)) {
       requirements.add(getCouponSensitivitiesRequirement(currency, curveCalculationConfigName));
     }
-    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_securityVisitor)); 
+    final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_securityVisitor));
     if (timeSeriesRequirements == null) {
       return null;
     }
@@ -241,8 +241,8 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CUBE, cubeName)
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
-        .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
-        .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, fittingMethod).get();
+        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetSpecification.of(currency), properties);
   }
 

@@ -12,8 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.equity.variance.VarianceSwapSensitivityCalculator;
+import com.opengamma.analytics.financial.equity.variance.VarianceSwapPresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -40,7 +41,7 @@ import com.opengamma.util.money.Currency;
 */
 public class EquityVarianceSwapStaticReplicationYCNSFunction extends EquityVarianceSwapStaticReplicationFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(EquityVarianceSwapStaticReplicationYCNSFunction.class);
-  private static final VarianceSwapSensitivityCalculator CALCULATOR = VarianceSwapSensitivityCalculator.getInstance();
+  private static final EquityDerivativeSensitivityCalculator CALCULATOR = new EquityDerivativeSensitivityCalculator(VarianceSwapPresentValueCalculator.getInstance());
 
   public EquityVarianceSwapStaticReplicationYCNSFunction() {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);

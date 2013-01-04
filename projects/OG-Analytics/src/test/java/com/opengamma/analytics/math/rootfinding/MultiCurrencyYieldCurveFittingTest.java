@@ -177,7 +177,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     final HashMap<String, double[]> foreignMaturities = new LinkedHashMap<String, double[]>();
 
     //domestic OIS instrument  - funding is assumed at OIS rate, so funding curve found from these along
-    domesticFundingMaturities.put("OIS", new double[] { 1./365, 1./12 , 3./12, 6./12, 1.0, 2.0, 5.0, 10, 15.0, 20., 30.});
+    domesticFundingMaturities.put("OIS", new double[] {1. / 365, 1. / 12, 3. / 12, 6. / 12, 1.0, 2.0, 5.0, 10, 15.0, 20., 30. });
 
     //need instruments to find domestic index (3M Libor) curve
     domesticIndexMaturities.put("libor", new double[] {3. / 12 }); //3M spot Libor
@@ -208,7 +208,7 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     }
     yields.add(temp);
     temp = new double[curveKnots.get(1).length];
-    index=0;
+    index = 0;
     for (final double t : curveKnots.get(1)) {
       temp[index++] = DOMESTIC_DISCOUNT_CURVE.evaluate(t) + DOMESTIC_SPREAD_CURVE.evaluate(t);
     }
@@ -246,8 +246,8 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     for (final String name : domesticFundingMaturities.keySet()) {
       for (final double t : domesticFundingMaturities.get(name)) {
         ird = makeSingleCurrencyIRD(name, t, paymentFreq, curveNames.get(0), curveNames.get(0), 0.0, DOMESTIC_NOTIONAL.getAmount());
-        marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
-        instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
+        marketValues[index] = ird.accept(ParRateCalculator.getInstance(), bundle);
+        instruments.add(ird.accept(REPLACE_RATE, marketValues[index]));
         index++;
       }
     }
@@ -256,8 +256,8 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     for (final String name : domesticIndexMaturities.keySet()) {
       for (final double t : domesticIndexMaturities.get(name)) {
         ird = makeSingleCurrencyIRD(name, t, paymentFreq, curveNames.get(0), curveNames.get(1), 0.0, DOMESTIC_NOTIONAL.getAmount());
-        marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
-        instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
+        marketValues[index] = ird.accept(ParRateCalculator.getInstance(), bundle);
+        instruments.add(ird.accept(REPLACE_RATE, marketValues[index]));
         index++;
       }
     }
@@ -265,8 +265,8 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     for (final String name : foreignIndexMaturities.keySet()) {
       for (final double t : foreignIndexMaturities.get(name)) {
         ird = makeSingleCurrencyIRD(name, t, paymentFreq, curveNames.get(2), curveNames.get(3), 0.0, FOREIGN_NOTIONAL.getAmount());
-        marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
-        instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
+        marketValues[index] = ird.accept(ParRateCalculator.getInstance(), bundle);
+        instruments.add(ird.accept(REPLACE_RATE, marketValues[index]));
         index++;
       }
     }
@@ -282,8 +282,8 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
           throw new IllegalArgumentException("Unknown forex type " + name);
         }
 
-        marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
-        instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
+        marketValues[index] = ird.accept(ParRateCalculator.getInstance(), bundle);
+        instruments.add(ird.accept(REPLACE_RATE, marketValues[index]));
         // marketValues[index] = 0.0; //for PV cal
         index++;
       }
@@ -295,11 +295,9 @@ public class MultiCurrencyYieldCurveFittingTest extends YieldCurveFittingSetup {
     }
     final DoubleMatrix1D startPosition = new DoubleMatrix1D(rates);
 
-
     final YieldCurveFittingTestDataBundle data = getYieldCurveFittingTestDataBundle(instruments, null, curveNames, curveKnots, extrapolator, calculator,
         sensitivityCalculator, marketValues, startPosition, yields, false, MY_FX_MATRIX);
 
     return data;
   }
-
 }

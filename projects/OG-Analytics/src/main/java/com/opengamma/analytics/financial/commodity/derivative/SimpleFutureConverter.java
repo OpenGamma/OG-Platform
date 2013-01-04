@@ -5,14 +5,14 @@
  */
 package com.opengamma.analytics.financial.commodity.derivative;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleFuture;
 
 /**
  * Convert from a specialized future to a simple one.
  */
-public final class SimpleFutureConverter extends AbstractInstrumentDerivativeVisitor<Object, SimpleFuture> {
-
+public final class SimpleFutureConverter extends InstrumentDerivativeVisitorAdapter<Object, SimpleFuture> {
+  /** The converter */
   private static SimpleFutureConverter s_instance;
 
   /**
@@ -21,6 +21,9 @@ public final class SimpleFutureConverter extends AbstractInstrumentDerivativeVis
   private SimpleFutureConverter() {
   }
 
+  /**
+   * @return A static instance of this converter
+   */
   public static SimpleFutureConverter getInstance() {
     if (s_instance == null) {
       s_instance = new SimpleFutureConverter();
@@ -29,17 +32,18 @@ public final class SimpleFutureConverter extends AbstractInstrumentDerivativeVis
   }
 
   @Override
-  public SimpleFuture visitAgricultureFuture(AgricultureFuture visitor) {
+  public SimpleFuture visitAgricultureFuture(final AgricultureFuture visitor) {
     return new SimpleFuture(visitor.getExpiry(), visitor.getSettlement(), visitor.getReferencePrice(), visitor.getUnitAmount(), visitor.getCurrency());
   }
 
   @Override
-  public SimpleFuture visitEnergyFuture(EnergyFuture visitor) {
+  public SimpleFuture visitEnergyFuture(final EnergyFuture visitor) {
     return new SimpleFuture(visitor.getExpiry(), visitor.getSettlement(), visitor.getReferencePrice(), visitor.getUnitAmount(), visitor.getCurrency());
   }
 
   @Override
-  public SimpleFuture visitMetalFuture(MetalFuture visitor) {
+  public SimpleFuture visitMetalFuture(final MetalFuture visitor) {
     return new SimpleFuture(visitor.getExpiry(), visitor.getSettlement(), visitor.getReferencePrice(), visitor.getUnitAmount(), visitor.getCurrency());
   }
+
 }

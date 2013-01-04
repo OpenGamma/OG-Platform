@@ -53,7 +53,7 @@ public class CouponFixedDiscountingMethodTest {
 
   private static final CouponFixedDiscountingMethod METHOD = CouponFixedDiscountingMethod.getInstance();
   private static final PresentValueParallelCurveSensitivityCalculator PVPCSC = PresentValueParallelCurveSensitivityCalculator.getInstance();
-  
+
   private static final double TOLERANCE_PV = 1.0E-2;
 
   @Test
@@ -61,12 +61,12 @@ public class CouponFixedDiscountingMethodTest {
    * Tests the present value of fixed coupons.
    */
   public void presentValue() {
-    CurrencyAmount pvRecComputed = METHOD.presentValue(CPN_REC, YC_BUNDLE);
-    double pvExpected = CPN_REC.getAmount() * YC_BUNDLE.getCurve(CURVES_NAME[0]).getDiscountFactor(CPN_REC.getPaymentTime());
+    final CurrencyAmount pvRecComputed = METHOD.presentValue(CPN_REC, YC_BUNDLE);
+    final double pvExpected = CPN_REC.getAmount() * YC_BUNDLE.getCurve(CURVES_NAME[0]).getDiscountFactor(CPN_REC.getPaymentTime());
     assertEquals("CouponFixed: Present value by discounting", pvExpected, pvRecComputed.getAmount(), TOLERANCE_PV);
-    CurrencyAmount pvPayComputed = METHOD.presentValue(CPN_PAY, YC_BUNDLE);
+    final CurrencyAmount pvPayComputed = METHOD.presentValue(CPN_PAY, YC_BUNDLE);
     assertEquals("CouponFixed: Present value by discounting", -pvRecComputed.getAmount(), pvPayComputed.getAmount(), TOLERANCE_PV);
-    CurrencyAmount pvPosPayComputed = METHOD.presentValuePositiveNotional(CPN_REC, YC_BUNDLE);
+    final CurrencyAmount pvPosPayComputed = METHOD.presentValuePositiveNotional(CPN_REC, YC_BUNDLE);
     assertEquals("CouponFixed: Present value by discounting", pvRecComputed.getAmount(), pvPosPayComputed.getAmount(), TOLERANCE_PV);
   }
 
@@ -75,8 +75,8 @@ public class CouponFixedDiscountingMethodTest {
    * Tests the present value curve sensitivity to parallel curve movements of fixed coupons.
    */
   public void presentValueParallelCurveSensitivity() {
-    StringValue pvpcsComputed = METHOD.presentValueParallelCurveSensitivity(CPN_PAY, YC_BUNDLE);
-    double pvpcsExpected = -CPN_PAY.getPaymentTime() * CPN_PAY.getAmount() * YC_BUNDLE.getCurve(CURVES_NAME[0]).getDiscountFactor(CPN_PAY.getPaymentTime());
+    final StringValue pvpcsComputed = METHOD.presentValueParallelCurveSensitivity(CPN_PAY, YC_BUNDLE);
+    final double pvpcsExpected = -CPN_PAY.getPaymentTime() * CPN_PAY.getAmount() * YC_BUNDLE.getCurve(CURVES_NAME[0]).getDiscountFactor(CPN_PAY.getPaymentTime());
     assertEquals("CouponFixed: Present value parallel curve sensitivity by discounting", 1, pvpcsComputed.getMap().size());
     assertEquals("CouponFixed: Present value parallel curve sensitivity by discounting", pvpcsExpected, pvpcsComputed.getMap().get(CURVES_NAME[0]), 1.0E-2);
   }
@@ -86,8 +86,8 @@ public class CouponFixedDiscountingMethodTest {
    * Tests the present value curve sensitivity to parallel curve movements of fixed coupons.
    */
   public void presentValueParallelCurveSensitivityMethodVsCalculator() {
-    StringValue pvpcsMethod = METHOD.presentValueParallelCurveSensitivity(CPN_PAY, YC_BUNDLE);
-    StringValue pvpcsCalculator = PVPCSC.visit(CPN_PAY, YC_BUNDLE);
+    final StringValue pvpcsMethod = METHOD.presentValueParallelCurveSensitivity(CPN_PAY, YC_BUNDLE);
+    final StringValue pvpcsCalculator = CPN_PAY.accept(PVPCSC, YC_BUNDLE);
     assertTrue("CouponFixed: Present value parallel curve sensitivity by discounting", StringValue.compare(pvpcsMethod, pvpcsCalculator, 1.0E-5));
   }
 

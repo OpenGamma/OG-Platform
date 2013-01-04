@@ -42,10 +42,12 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Ultimately produces a set of {@link DependencyGraph}s from a {@link ViewDefinition}, one for each {@link ViewCalculationConfiguration}. Additional information, such as the live data requirements,
- * is collected along the way and exposed after compilation.
+ * Ultimately produces a set of {@link DependencyGraph}s from a {@link ViewDefinition}, one for each
+ * {@link ViewCalculationConfiguration}. Additional information, such as the live data requirements, is collected
+ * along the way and exposed after compilation.
  * <p>
- * The compiled graphs are guaranteed to be calculable for at least the requested timestamp. One or more of the referenced functions may not be valid at other timestamps.
+ * The compiled graphs are guaranteed to be calculable for at least the requested timestamp. One or more of the
+ * referenced functions may not be valid at other timestamps.
  */
 public final class ViewDefinitionCompiler {
 
@@ -57,9 +59,18 @@ public final class ViewDefinitionCompiler {
   private ViewDefinitionCompiler() {
   }
 
+  //-------------------------------------------------------------------------
+
   /**
-   * Exposure of the completion status of a graph compilation. This is currently for debugging/diagnostic purposes. A full implementation should incorporate the "cancel"/"get" behavior of the Future
-   * returned by {@link #compileTask} with something that can return the progress of the task.
+   * Compiles the specified view definition wrt the supplied compilation context, valuation time and version
+   * correction and returns the compiled view. This method wraps the compileTask method, waiting for completion
+   * of the async compilation task and returning the resulting CompiledViewDefinitionWithGraphsImpl, rather than a
+   * future reference to it.
+   * @param viewDefinition        the view definition to compile
+   * @param compilationServices   the compilation context (market data availability provider, graph builder factory, etc.)
+   * @param valuationTime         the effective valuation time against which to compile
+   * @param versionCorrection     the version correction to use
+   * @return  the CompiledViewDefinitionWithGraphsImpl that results from the compilation
    */
   protected static final class CompilationCompletionEstimate implements Housekeeper.Callback<Supplier<Double>> {
 
@@ -110,7 +121,6 @@ public final class ViewDefinitionCompiler {
     public boolean completed(final DependencyGraphBuilder builder, final Supplier<Double> estimate) {
       return estimate.get() < 1d;
     }
-
   }
 
   // TODO: return something that provides the caller with access to a completion metric to feedback to any interactive user
@@ -293,6 +303,14 @@ public final class ViewDefinitionCompiler {
     }
   }
 
+  /**
+   * Returns all the dependency graphs built by the graph builders in the specified view compilation context. There is
+   * one dependency graph per configuration, and the list of configurations and their dep graph builders is found in the
+   * supplied view compilation context. This method waits for their compilation to complete if necessary, and removes
+   * all unnecessary values in each graph.
+   * @param context the view compilation context containing the dep graph builders to query for dep graphs
+   * @return        the map from config names to dependency graphs
+   */
   private static Map<String, DependencyGraph> processDependencyGraphs(final ViewCompilationContext context) {
     final Map<String, DependencyGraph> result = new HashMap<String, DependencyGraph>();
     for (final DependencyGraphBuilder builder : context.getBuilders()) {

@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -21,6 +22,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.id.UniqueIdentifiable;
 
 /**
  *
@@ -52,7 +54,39 @@ public class YieldCurveFunctionUtils {
     return requirements;
   }
 
-  public static ValueRequirement getCurveRequirement(final ComputationTargetSpecification target, final String yieldCurveName, final String curveCalculationConfigName,
+  public static Set<ValueRequirement> getCurveRequirements(final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource,
+      final ValueRequirement desiredValue) {
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    if (curveConfig.getExogenousConfigData() != null) {
+      final LinkedHashMap<String, String[]> exogenousCurves = curveConfig.getExogenousConfigData();
+      for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {
+        final String exogenousConfigName = entry.getKey();
+        final MultiCurveCalculationConfig exogenousConfig = configSource.getConfig(exogenousConfigName);
+        final UniqueIdentifiable id = exogenousConfig.getUniqueId();
+        final String curveCalculationMethod = exogenousConfig.getCalculationMethod();
+        for (final String exogenousCurveName : entry.getValue()) {
+          requirements.add(getCurveRequirement(id, exogenousCurveName, exogenousConfigName, curveCalculationMethod));
+        }
+        requirements.addAll(getCurveRequirements(exogenousConfig, configSource));
+      }
+    }
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final String[] yieldCurveNames = curveConfig.getYieldCurveNames();
+    final String curveCalculationConfigName;
+    if (constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG) == null) {
+      curveCalculationConfigName = curveConfig.getCalculationConfigName();
+    } else {
+      curveCalculationConfigName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
+    }
+    final String curveCalculationMethod = curveConfig.getCalculationMethod();
+    final UniqueIdentifiable uniqueId = curveConfig.getUniqueId();
+    for (final String yieldCurveName : yieldCurveNames) {
+      requirements.add(getCurveRequirement(uniqueId, yieldCurveName, curveCalculationConfigName, curveCalculationMethod));
+    }
+    return requirements;
+  }
+
+  public static ValueRequirement getCurveRequirement(final UniqueIdentifiable id, final String yieldCurveName, final String curveCalculationConfigName,
       final String curveCalculationMethod) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, yieldCurveName)

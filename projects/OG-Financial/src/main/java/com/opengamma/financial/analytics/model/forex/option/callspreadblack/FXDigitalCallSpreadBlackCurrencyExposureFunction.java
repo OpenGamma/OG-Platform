@@ -33,7 +33,7 @@ public class FXDigitalCallSpreadBlackCurrencyExposureFunction extends FXDigitalC
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final CurrencyExposureCallSpreadBlackForexCalculator calculator = new CurrencyExposureCallSpreadBlackForexCalculator(spread);
-    final MultipleCurrencyAmount result = calculator.visit(fxDigital, data);
+    final MultipleCurrencyAmount result = fxDigital.accept(calculator, data);
     return Collections.singleton(new ComputedValue(spec, result));
   }
 }

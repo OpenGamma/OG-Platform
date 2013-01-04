@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.Smi
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
 import com.opengamma.engine.value.ValueSpecification;
 
-public class BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter 
+/* package */ class BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter
     extends AbstractFormatter<BlackVolatilitySurfaceMoneynessFcnBackedByGrid> {
 
   /* package */ BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter() {

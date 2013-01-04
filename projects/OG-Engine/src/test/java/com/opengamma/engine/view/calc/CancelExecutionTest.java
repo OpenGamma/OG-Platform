@@ -24,10 +24,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.time.Instant;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -83,9 +87,13 @@ import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.log.ThreadLocalLogEventListener;
 import com.opengamma.util.test.Timeout;
 
+/**
+ * Test.
+ */
 public class CancelExecutionTest {
 
   private static final int JOB_SIZE = 100;
@@ -101,6 +109,19 @@ public class CancelExecutionTest {
         {new SingleNodeExecutorFactory() }, };
   }
 
+  private CacheManager _cacheManager;
+
+  @BeforeMethod
+  public void setUp() {
+    _cacheManager = new CacheManager();
+  }
+
+  @AfterMethod
+  public void tearDown() {
+    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   private static MultipleNodeExecutorFactory multipleNodeExecutorFactoryOneJob() {
     final MultipleNodeExecutorFactory factory = new MultipleNodeExecutorFactory();
     factory.afterPropertiesSet();
@@ -185,7 +206,7 @@ public class CancelExecutionTest {
         new SimplePortfolio("Test Portfolio"), 0);
     final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMillis(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
     final ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
-    when(logModeSource.getLogMode(any(Set.class))).thenReturn(ExecutionLogMode.INDICATORS);
+    when(logModeSource.getLogMode(any(DependencyNode.class))).thenReturn(ExecutionLogMode.INDICATORS);
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), UniqueId.of("Test", "ViewProcess1"), computationCycleResultListener, vpc, viewEvaluationModel,
         cycleOptions, logModeSource, VersionCorrection.of(Instant.ofEpochMillis(1), Instant.ofEpochMillis(1)));
     return cycle.getDependencyGraphExecutor().execute(graph, new LinkedBlockingQueue<ExecutionResult>(), cycle.getStatisticsGatherer(), logModeSource);

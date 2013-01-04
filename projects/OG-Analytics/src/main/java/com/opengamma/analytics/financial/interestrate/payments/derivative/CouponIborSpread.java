@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -64,7 +65,7 @@ public class CouponIborSpread extends CouponFloating {
    * @param forwardCurveName Name of the forward (or estimation) curve.
    */
   public CouponIborSpread(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double fixingTime,
-      IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread, final String forwardCurveName) {
+      final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double spread, final String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
     Validate.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
     _fixingPeriodStartTime = fixingPeriodStartTime;
@@ -94,7 +95,7 @@ public class CouponIborSpread extends CouponFloating {
    * @param forwardCurveName Name of the forward (or estimation) curve.
    */
   public CouponIborSpread(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double fixingTime,
-      IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName) {
+      final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName) {
     this(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime, index, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, 0.0, forwardCurveName);
   }
 
@@ -162,7 +163,7 @@ public class CouponIborSpread extends CouponFloating {
   }
 
   @Override
-  public CouponIborSpread withNotional(double notional) {
+  public CouponIborSpread withNotional(final double notional) {
     return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, getFixingPeriodStartTime(),
         getFixingPeriodEndTime(), getFixingYearFraction(), getSpread(), getForwardCurveName());
   }
@@ -231,11 +232,13 @@ public class CouponIborSpread extends CouponFloating {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponIborSpread(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponIborSpread(this);
   }
 

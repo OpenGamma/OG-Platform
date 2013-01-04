@@ -95,10 +95,10 @@ public class CalculationNodeTest {
 
     final ExecutionLog executionLog = resultItemLogIndicators.getExecutionLog();
     assertNotNull(executionLog);
-    assertTrue(executionLog.hasWarn());
-    assertFalse(executionLog.hasError());
-    assertFalse(executionLog.hasInfo());
-
+    assertTrue(executionLog.getLogLevels().contains(LogLevel.WARN));
+    assertFalse(executionLog.getLogLevels().contains(LogLevel.ERROR));
+    assertFalse(executionLog.getLogLevels().contains(LogLevel.INFO));
+    
     assertNull(executionLog.getEvents());
 
     assertNull(executionLog.getExceptionClass());
@@ -116,10 +116,10 @@ public class CalculationNodeTest {
 
     final ExecutionLog executionLog = resultItemLogIndicators.getExecutionLog();
     assertNotNull(executionLog);
-    assertTrue(executionLog.hasWarn());
-    assertFalse(executionLog.hasError());
-    assertFalse(executionLog.hasInfo());
-
+    assertTrue(executionLog.getLogLevels().contains(LogLevel.WARN));
+    assertFalse(executionLog.getLogLevels().contains(LogLevel.ERROR));
+    assertFalse(executionLog.getLogLevels().contains(LogLevel.INFO));
+    
     assertNotNull(executionLog.getEvents());
     assertEquals(1, executionLog.getEvents().size());
     final LogEvent event = Iterables.getOnlyElement(executionLog.getEvents());

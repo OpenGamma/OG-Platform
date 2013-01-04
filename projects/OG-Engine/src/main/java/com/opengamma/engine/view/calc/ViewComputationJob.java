@@ -374,7 +374,6 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   private void cycleFragmentCompleted(final ViewComputationResultModel result) {
-
     try {
       getViewProcess().cycleFragmentCompleted(result, _viewDefinition);
     } catch (final Exception e) {
@@ -587,7 +586,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       }
     };
     final SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(),
-        streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions, getViewProcess(), versionCorrection);
+        streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions, getViewProcess().getExecutionLogModeSource(), versionCorrection);
     return getCycleManager().manage(cycle);
   }
 

@@ -33,10 +33,10 @@ public class AnalyticsColumnsJsonWriterTest {
     String expectedJson =
         "[{\"name\":\"group1\",\"columns\":[" +
             "{\"header\":\"col1\",\"description\":\"col1 desc\",\"type\":\"DOUBLE\"}," +
-            "{\"header\":\"col2\",\"description\":\"col2 desc\",\"type\":\"PRIMITIVE\"}]}," +
+            "{\"header\":\"col2\",\"description\":\"col2 desc\",\"type\":\"STRING\"}]}," +
         "{\"name\":\"group2\",\"columns\":[" +
             "{\"header\":\"col3\",\"description\":\"col3 desc\",\"type\":\"DOUBLE\"}," +
-            "{\"header\":\"col4\",\"description\":\"col4 desc\",\"type\":\"PRIMITIVE\"}]}]";
+            "{\"header\":\"col4\",\"description\":\"col4 desc\",\"type\":\"STRING\"}]}]";
     assertTrue(JsonTestUtils.equal(new JSONArray(expectedJson), new JSONArray(json)));
   }
 }

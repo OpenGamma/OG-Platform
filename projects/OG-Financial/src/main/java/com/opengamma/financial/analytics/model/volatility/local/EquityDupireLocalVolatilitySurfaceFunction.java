@@ -96,7 +96,7 @@ public abstract class EquityDupireLocalVolatilitySurfaceFunction extends DupireL
   @Override
   protected ValueProperties getResultProperties(final String parameterizationType) {
     final ValueProperties equityProperties = getCurrencyProperties();
-    return LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(equityProperties,
+    return LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(equityProperties,
         getInstrumentType(), getBlackSmileInterpolatorName(), parameterizationType).get();
   }
 
@@ -104,7 +104,7 @@ public abstract class EquityDupireLocalVolatilitySurfaceFunction extends DupireL
   @Override
   protected ValueProperties getResultProperties(final ValueRequirement desiredValue, final String parameterizationType) {
     final ValueProperties equityProperties = getCurrencyProperties(desiredValue);
-    return LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(equityProperties,
+    return LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(equityProperties,
         getInstrumentType(), getBlackSmileInterpolatorName(), parameterizationType, desiredValue).get();
   }
 

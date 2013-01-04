@@ -38,6 +38,7 @@ import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Default implementation of {@link ViewClient}.
@@ -77,7 +78,7 @@ public class ViewClientImpl implements ViewClient {
 
   private final AtomicReference<ViewResultListener> _userResultListener = new AtomicReference<ViewResultListener>();
   
-  private final Set<ValueSpecification> _elevatedLogSpecs = new HashSet<ValueSpecification>();
+  private final Set<Pair<String, ValueSpecification>> _elevatedLogSpecs = new HashSet<Pair<String, ValueSpecification>>();
 
   /**
    * Constructs an instance.
@@ -462,11 +463,11 @@ public class ViewClientImpl implements ViewClient {
   
   //-------------------------------------------------------------------------
   @Override
-  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<ValueSpecification> resultSpecifications) {
+  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<Pair<String, ValueSpecification>> resultSpecifications) {
     _clientLock.lock();
     try {
       checkAttached();
-      Set<ValueSpecification> affected = new HashSet<ValueSpecification>(resultSpecifications);
+      Set<Pair<String, ValueSpecification>> affected = new HashSet<Pair<String, ValueSpecification>>(resultSpecifications);
       switch (minimumLogMode) {
         case INDICATORS:
           affected.retainAll(_elevatedLogSpecs);
@@ -478,7 +479,7 @@ public class ViewClientImpl implements ViewClient {
           break;
       }
       if (!affected.isEmpty()) {
-        getViewProcessor().getViewProcessForClient(getUniqueId()).setMinimumLogMode(minimumLogMode, affected);
+        getViewProcessor().getViewProcessForClient(getUniqueId()).getExecutionLogModeSource().setMinimumLogMode(minimumLogMode, affected);
       }
     } finally {
       _clientLock.unlock();

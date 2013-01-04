@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.interestrate.future.calculator;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.interestrate.future.method.InterestRate
 /**
  * Calculate security prices for futures (bond and interest rate).
  */
-public final class PriceFromCurvesDiscountingCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public final class PriceFromCurvesDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The calculator instance.

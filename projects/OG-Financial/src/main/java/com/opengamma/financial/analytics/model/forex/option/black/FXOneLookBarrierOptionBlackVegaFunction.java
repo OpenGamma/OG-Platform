@@ -32,11 +32,11 @@ public class FXOneLookBarrierOptionBlackVegaFunction extends FXOneLookBarrierOpt
   private static final PresentValueBlackVolatilitySensitivityBlackForexCalculator CALCULATOR = PresentValueBlackVolatilitySensitivityBlackForexCalculator.getInstance();
 
   @Override
-  protected Object computeValues(Set<ForexOptionVanilla> vanillaOptions, ForexOptionDataBundle<?> market) {
+  protected Object computeValues(final Set<ForexOptionVanilla> vanillaOptions, final ForexOptionDataBundle<?> market) {
     Validate.isTrue(market instanceof SmileDeltaTermStructureDataBundle, "FXOneLookBarrierOptionBlackVegaFunction requires a Vol surface with a smile.");
     double sum = 0.0;
-    for (ForexOptionVanilla derivative : vanillaOptions) {
-      final PresentValueForexBlackVolatilitySensitivity result = CALCULATOR.visit(derivative, market);
+    for (final ForexOptionVanilla derivative : vanillaOptions) {
+      final PresentValueForexBlackVolatilitySensitivity result = derivative.accept(CALCULATOR, market);
       final CurrencyAmount vegaValue = result.toSingleValue();
       sum += vegaValue.getAmount();
     }

@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -150,10 +149,9 @@ public class MultipleNodeExecutorTest {
     };
   }
 
-  @SuppressWarnings("unchecked")
   private RootGraphFragmentFuture execute(final MultipleNodeExecutor executor, final DependencyGraph graph) {
     final ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
-    when(logModeSource.getLogMode(any(Set.class))).thenReturn(ExecutionLogMode.INDICATORS);
+    when(logModeSource.getLogMode(any(DependencyNode.class))).thenReturn(ExecutionLogMode.INDICATORS);
     final Future<DependencyGraph> future = executor.executeImpl(graph, new LinkedBlockingQueue<ExecutionResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE, logModeSource);
     return (RootGraphFragmentFuture) future;
   }

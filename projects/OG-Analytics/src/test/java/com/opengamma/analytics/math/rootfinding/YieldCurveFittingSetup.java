@@ -78,6 +78,7 @@ public abstract class YieldCurveFittingSetup {
   /** Replaces rates */
   protected static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
   private static final Currency DUMMY_CUR = Currency.USD;
+  /** FX rates */
   protected static final FXMatrix FX_MATRIX = new FXMatrix(DUMMY_CUR);
   private static final IborIndex DUMMY_INDEX = new IborIndex(DUMMY_CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
       BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
@@ -205,7 +206,7 @@ public abstract class YieldCurveFittingSetup {
     // the root finder converged (and modelMarketValueDiff are within EPS of 0)
     // means this will also pass
     for (int i = 0; i < data.getMarketRates().length; i++) {
-      assertEquals(data.getMarketRates()[i], data.getMarketValueCalculator().visit(data.getDerivative(i), bundle), EPS);
+      assertEquals(data.getMarketRates()[i], data.getDerivative(i).accept(data.getMarketValueCalculator(), bundle), EPS);
     }
 
     // this test cannot be performed when we don't know what the true yield
@@ -367,8 +368,8 @@ public abstract class YieldCurveFittingSetup {
 
     final CouponFixed fixedCoupon = new CouponFixed(DUMMY_CUR, time, fundingCurveName, time, -notional, rate);
 
-    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(new CouponFixed[] {fixedCoupon});
-    return new SwapFixedCoupon<CouponOIS>(fixedLeg, new Annuity<CouponOIS>(new CouponOIS[] {oisCoupon}));
+    final AnnuityCouponFixed fixedLeg = new AnnuityCouponFixed(new CouponFixed[] {fixedCoupon });
+    return new SwapFixedCoupon<CouponOIS>(fixedLeg, new Annuity<CouponOIS>(new CouponOIS[] {oisCoupon }));
   }
 
   protected static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final String fundingCurveName, final String liborCurveName, final double rate, final double notional) {

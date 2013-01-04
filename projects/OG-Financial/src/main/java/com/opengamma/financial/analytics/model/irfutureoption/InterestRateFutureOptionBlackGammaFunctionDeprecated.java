@@ -36,7 +36,7 @@ public class InterestRateFutureOptionBlackGammaFunctionDeprecated extends Intere
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final String curveName, final ValueSpecification spec) {
 
-    final Double gamma = CALCULATOR.visit(irFutureOption, data);
+    final Double gamma = irFutureOption.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, gamma));
   }
 

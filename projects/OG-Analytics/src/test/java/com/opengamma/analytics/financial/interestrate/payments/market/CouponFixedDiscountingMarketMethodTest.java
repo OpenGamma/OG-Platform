@@ -36,7 +36,7 @@ public class CouponFixedDiscountingMarketMethodTest {
   private static final CouponFixedDefinition CPN_FIXED_DEFINITION = new CouponFixedDefinition(EUR, ACCRUAL_END_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2"};
+  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
   private static final CouponFixed CPN_FIXED = CPN_FIXED_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
 
   private static final MarketDiscountBundle MARKET = MarketDiscountDataSets.createMarket1();
@@ -50,16 +50,16 @@ public class CouponFixedDiscountingMarketMethodTest {
 
   @Test
   public void presentValue() {
-    MultipleCurrencyAmount pvComputed = METHOD_CPN_FIXED.presentValue(CPN_FIXED, MARKET);
-    double df = MARKET.getDiscountFactor(EUR, CPN_FIXED.getPaymentTime());
-    double pvExpected = CPN_FIXED.getAmount() * df;
+    final MultipleCurrencyAmount pvComputed = METHOD_CPN_FIXED.presentValue(CPN_FIXED, MARKET);
+    final double df = MARKET.getDiscountFactor(EUR, CPN_FIXED.getPaymentTime());
+    final double pvExpected = CPN_FIXED.getAmount() * df;
     assertEquals("CouponFixedDiscountingMarketMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD_CPN_FIXED.presentValue(CPN_FIXED, MARKET);
-    MultipleCurrencyAmount pvCalculator = PVC.visit(CPN_FIXED, MARKET);
+    final MultipleCurrencyAmount pvMethod = METHOD_CPN_FIXED.presentValue(CPN_FIXED, MARKET);
+    final MultipleCurrencyAmount pvCalculator = CPN_FIXED.accept(PVC, MARKET);
     assertEquals("CouponFixedDiscountingMarketMethod: present value", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -67,8 +67,8 @@ public class CouponFixedDiscountingMarketMethodTest {
 
   @Test
   public void presentValueMarketSensitivityMethodVsCalculator() {
-    MultipleCurrencyCurveSensitivityMarket pvcsMethod = METHOD_CPN_FIXED.presentValueMarketSensitivity(CPN_FIXED, MARKET);
-    MultipleCurrencyCurveSensitivityMarket pvcsCalculator = PVCSC.visit(CPN_FIXED, MARKET);
+    final MultipleCurrencyCurveSensitivityMarket pvcsMethod = METHOD_CPN_FIXED.presentValueMarketSensitivity(CPN_FIXED, MARKET);
+    final MultipleCurrencyCurveSensitivityMarket pvcsCalculator = CPN_FIXED.accept(PVCSC, MARKET);
     AssertSensivityObjects.assertEquals("CouponFixedDiscountingMarketMethod: presentValueMarketSensitivity", pvcsMethod, pvcsCalculator, TOLERANCE_DELTA);
   }
 

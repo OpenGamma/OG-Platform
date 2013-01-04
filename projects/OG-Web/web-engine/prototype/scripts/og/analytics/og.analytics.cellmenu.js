@@ -51,16 +51,18 @@ $.register_module({
                 });
                 grid.on('cellhoverin', function (cell) {
                     if (cellmenu.frozen || cellmenu.busy()) return;
+                    var type = cell.type, hide;
                     cellmenu.menu.removeClass(expand_class);
                     clearTimeout(timer);
-                    var type = cell.type, hide =
+                    cellmenu.current = cell;
+                    hide =
                         // Hide the cell menu if...
-                        !(cellmenu.current = cell).value                    // There is no cell Value
-                        || (cell.col === ((!primitives && !depgraph) && 1)) // Second column of portfolio
-                        || ((depgraph || primitives) && cell.col < 1)       // First column of depgraph or primitives
-                        || (cell.value.nodeId)                              // Is node
-                        || (cell.right > parent.width())                             // End of the cell not visible
-                        || (depgraph && ~mapping.depgraph_blacklist.indexOf(type));  // Unsupported type on a depgraph
+                        !cell.value.logLevel &&                                 // always show if log exists
+                        ((cell.col === ((!primitives && !depgraph) && 1))       // Second column of portfolio
+                        || ((depgraph || primitives) && cell.col < 1)           // 1st column of depgraph or primitives
+                        || (type === 'NODE_ID')                                 // Is node
+                        || (cell.right > parent.width())                        // End of the cell not visible
+                        || (depgraph && ~mapping.depgraph_blacklist.indexOf(type)));    // Unsupported type on depgraph
                     if (hide) cellmenu.hide(); else cellmenu.show();
                 })
                 .on('cellhoverout', function () {
@@ -73,8 +75,8 @@ $.register_module({
                 })
                 .on('scrollend', function () {cellmenu.busy(false);});
                 og.api.text({module: 'og.analytics.inplace_tash'}).pipe(function (tmpl_inplace) {
-                    var unique = 'inplace-' + +new Date;
-                    inplace_config = ({$cntr: $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace, data:{name:unique}});
+                    var unique = og.common.id('inplace');
+                    inplace_config = {$cntr: $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace, data: {name: unique}};
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
                     cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-layout-analytics-', unique);
                     cellmenu.inplace.$dom.toggle.on('click', function () {
@@ -84,9 +86,7 @@ $.register_module({
                         }
                         else cellmenu.destroy_frozen();
                     });
-                     cellmenu.container.on('del', function () {
-                        cellmenu.destroy_frozen();
-                    });
+                    cellmenu.container.on('del', function () {cellmenu.destroy_frozen();});
                 });
             });
         };

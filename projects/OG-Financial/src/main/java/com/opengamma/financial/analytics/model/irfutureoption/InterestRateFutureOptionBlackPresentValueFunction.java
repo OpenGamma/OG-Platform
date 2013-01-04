@@ -19,7 +19,7 @@ import com.opengamma.engine.value.ValueSpecification;
  * 
  */
 public class InterestRateFutureOptionBlackPresentValueFunction extends InterestRateFutureOptionBlackFunction {
-  private static final PresentValueBlackCalculator s_calculator = PresentValueBlackCalculator.getInstance();
+  private static final PresentValueBlackCalculator CALCULATOR = PresentValueBlackCalculator.getInstance();
 
   public InterestRateFutureOptionBlackPresentValueFunction() {
     super(ValueRequirementNames.PRESENT_VALUE);
@@ -27,7 +27,7 @@ public class InterestRateFutureOptionBlackPresentValueFunction extends InterestR
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
-    final double pv = s_calculator.visit(irFutureOption, data);
+    final double pv = irFutureOption.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, pv));
   }
 

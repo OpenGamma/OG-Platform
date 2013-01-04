@@ -7,14 +7,14 @@ package com.opengamma.analytics.financial.interestrate.bond.calculator;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 
 /**
  * Calculate dirty price for bonds.
  */
-public final class ModifiedDurationFromYieldCalculator extends AbstractInstrumentDerivativeVisitor<Double, Double> {
+public final class ModifiedDurationFromYieldCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
 
   /**
    * The calculator instance.

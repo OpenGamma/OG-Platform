@@ -9,14 +9,14 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarri
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Calculator of the vomma (second order derivative with respect to implied volatility) for Forex derivatives in the Black (Garman-Kohlhagen) world.
  */
-public class VommaValueBlackForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, CurrencyAmount> {
+public class VommaValueBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, CurrencyAmount> {
 
   /**
    * The unique instance of the calculator.

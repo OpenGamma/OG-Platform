@@ -314,6 +314,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     ArgumentChecker.notNull(document.getInfo().getDataSource(), "document.info.dataSource");
     ArgumentChecker.notNull(document.getInfo().getDataProvider(), "document.info.dataProvider");
     ArgumentChecker.notNull(document.getInfo().getObservationTime(), "document.info.observationTime");
+    ArgumentChecker.notNull(document.getInfo().getExternalIdBundle(), "document.info.externalIdBundle");
 
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.setDataField(document.getInfo().getDataField());
@@ -342,6 +343,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     ArgumentChecker.notNull(document.getInfo().getDataSource(), "document.info.dataSource");
     ArgumentChecker.notNull(document.getInfo().getDataProvider(), "document.info.dataProvider");
     ArgumentChecker.notNull(document.getInfo().getObservationTime(), "document.info.observationTime");
+    ArgumentChecker.notNull(document.getInfo().getExternalIdBundle(), "document.info.externalIdBundle");
 
     final long docId = nextId("hts_master_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);

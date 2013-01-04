@@ -38,12 +38,14 @@
         <@rowout label="Exchange">${security.exchange}</@rowout>
         <@rowout label="Company name">${security.companyName}</@rowout>
         <@rowout label="Currency">${security.currency}</@rowout>
-        <@rowout label="GICS code">
-          ${security.gicsCode.sectorCode}&nbsp;
-          ${security.gicsCode.industryGroupCode}&nbsp;
-          ${security.gicsCode.industryCode}&nbsp;
-          ${security.gicsCode.subIndustryCode}
-        </@rowout>
+        <#if security.gicsCode?has_content>
+          <@rowout label="GICS code">
+            ${security.gicsCode.sectorCode}&nbsp;
+            ${security.gicsCode.industryGroupCode}&nbsp;
+            ${security.gicsCode.industryCode}&nbsp;
+            ${security.gicsCode.subIndustryCode}
+          </@rowout>
+        </#if>
         <#break>
       <#case "BOND">
         <@rowout label="Issuer name">${security.issuerName}</@rowout>

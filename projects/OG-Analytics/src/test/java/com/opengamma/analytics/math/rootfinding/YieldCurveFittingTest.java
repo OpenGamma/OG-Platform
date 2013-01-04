@@ -190,9 +190,9 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
       final double[] times = maturities.get(name);
       for (final double t : times) {
         ird = makeSingleCurrencyIRD(name, t, paymentFreq, curveNames.get(0), curveNames.get(0), 0.0, 1.0);
-        ird = REPLACE_RATE.visit(ird, ParRateCalculator.getInstance().visit(ird, bundle));
+        ird = ird.accept(REPLACE_RATE, ird.accept(ParRateCalculator.getInstance(), bundle));
         instruments.add(ird);
-        marketValues[index] = calculator.visit(ird, bundle);
+        marketValues[index] = ird.accept(calculator, bundle);
         index++;
       }
     }
@@ -274,8 +274,8 @@ public class YieldCurveFittingTest extends YieldCurveFittingSetup {
     for (final String name : maturities.keySet()) {
       for (final double t : maturities.get(name)) {
         ird = makeSingleCurrencyIRD(name, t, paymentFreq, curveNames.get(0), curveNames.get(1), 0.0, 1.0);
-        marketValues[index] = ParRateCalculator.getInstance().visit(ird, bundle);
-        instruments.add(REPLACE_RATE.visit(ird, marketValues[index]));
+        marketValues[index] = ird.accept(ParRateCalculator.getInstance(), bundle);
+        instruments.add(ird.accept(REPLACE_RATE, marketValues[index]));
         index++;
       }
     }

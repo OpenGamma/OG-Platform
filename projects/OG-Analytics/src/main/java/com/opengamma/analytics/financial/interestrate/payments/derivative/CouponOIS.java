@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -58,8 +59,9 @@ public class CouponOIS extends Coupon {
    * @param notionalAccrued The notional accrued by the interest periods already fixed.
    * @param forwardCurveName The name of the forward curve.
    */
-  public CouponOIS(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, IndexON index, double fixingPeriodStartTime,
-      double fixingPeriodEndTime, double fixingPeriodAccrualFactor, double notionalAccrued, String forwardCurveName) {
+  public CouponOIS(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final IndexON index,
+      final double fixingPeriodStartTime,
+      final double fixingPeriodEndTime, final double fixingPeriodAccrualFactor, final double notionalAccrued, final String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     Validate.notNull(index, "Coupon OIS: index");
     _index = index;
@@ -119,18 +121,20 @@ public class CouponOIS extends Coupon {
   }
 
   @Override
-  public CouponOIS withNotional(double notional) {
+  public CouponOIS withNotional(final double notional) {
     return new CouponOIS(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, _index, _fixingPeriodStartTime, _fixingPeriodEndTime, _fixingPeriodAccrualFactor,
         _notionalAccrued / getNotional() * notional, _forwardCurveName);
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponOIS(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponOIS(this);
   }
 
@@ -157,7 +161,7 @@ public class CouponOIS extends Coupon {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -167,7 +171,7 @@ public class CouponOIS extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponOIS other = (CouponOIS) obj;
+    final CouponOIS other = (CouponOIS) obj;
     if (Double.doubleToLongBits(_fixingPeriodAccrualFactor) != Double.doubleToLongBits(other._fixingPeriodAccrualFactor)) {
       return false;
     }

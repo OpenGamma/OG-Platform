@@ -33,7 +33,7 @@ public class FXDigitalCallSpreadBlackGammaSpotFunction extends FXDigitalCallSpre
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final GammaSpotCallSpreadBlackForexCalculator calculator = new GammaSpotCallSpreadBlackForexCalculator(spread);
-    final CurrencyAmount result = calculator.visit(fxDigital, data);
+    final CurrencyAmount result = fxDigital.accept(calculator, data);
     final double gammaSpot = result.getAmount() / 100.0; // FIXME: the 100 should be removed when the scaling is available
     return Collections.singleton(new ComputedValue(spec, gammaSpot));
   }

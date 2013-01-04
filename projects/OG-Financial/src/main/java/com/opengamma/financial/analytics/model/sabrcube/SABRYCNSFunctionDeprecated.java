@@ -53,7 +53,7 @@ import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
-import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -190,7 +190,7 @@ public abstract class SABRYCNSFunctionDeprecated extends AbstractFunction.NonCom
     if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
       return null;
     }
-    final Set<String> fittingMethods = constraints.getValues(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
+    final Set<String> fittingMethods = constraints.getValues(SmileFittingProperties.PROPERTY_FITTING_METHOD);
     if (fittingMethods == null || fittingMethods.size() != 1) {
       return null;
     }
@@ -253,8 +253,8 @@ public abstract class SABRYCNSFunctionDeprecated extends AbstractFunction.NonCom
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CUBE, cubeName)
         .with(ValuePropertyNames.CURRENCY, Currency.USD.getCode()) // TODO should be 'currency.getCode()' when non-USD currencies supported
-        .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
-        .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, fittingMethod).get();
+        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetSpecification.of(Currency.USD), properties); // TODO should be 'currency' when non-USD currencies supported
   }
 

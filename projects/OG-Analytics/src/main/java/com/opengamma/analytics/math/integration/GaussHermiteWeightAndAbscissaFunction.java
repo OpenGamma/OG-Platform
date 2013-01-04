@@ -15,7 +15,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Class that generates weights and abscissas for Gauss-Hermite quadrature.
  * Orthonormal Hermite polynomials $H_N$ are used to generate the weights (see
- * {@link * com.opengamma.analytics.math.function.special.OrthonormalHermitePolynomialFunction})
+ * {@link OrthonormalHermitePolynomialFunction})
  * using the formula:
  * $$
  * \begin{align*}
@@ -26,12 +26,11 @@ import com.opengamma.util.tuple.Pair;
  * the first derivative of the $i^{th}$ polynomial.
  */
 public class GaussHermiteWeightAndAbscissaFunction implements QuadratureWeightAndAbscissaFunction {
+  /** Weight generator */
   private static final OrthonormalHermitePolynomialFunction HERMITE = new OrthonormalHermitePolynomialFunction();
+  /** The root-finder */
   private static final NewtonRaphsonSingleRootFinder ROOT_FINDER = new NewtonRaphsonSingleRootFinder(1e-12);
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public GaussianQuadratureData generate(final int n) {
     Validate.isTrue(n > 0);

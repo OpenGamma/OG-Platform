@@ -81,6 +81,7 @@
       <bean class="com.opengamma.language.function.FunctionProviderBean">
         <property name="functions">
           <list>
+            <bean class="com.opengamma.language.debug.DebugFunctionDimension" />
             <bean class="com.opengamma.language.debug.DebugFunctionIncrement" />
             <bean class="com.opengamma.language.debug.DebugFunctionLiteral">
               <constructor-arg value="DebugFunctionLiteral" />

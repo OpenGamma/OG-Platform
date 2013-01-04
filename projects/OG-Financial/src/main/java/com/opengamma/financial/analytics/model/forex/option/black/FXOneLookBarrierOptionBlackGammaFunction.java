@@ -27,12 +27,13 @@ public class FXOneLookBarrierOptionBlackGammaFunction extends FXOneLookBarrierOp
 
   /** The calculator to compute the gamma value. */
   private static final GammaValueBlackForexCalculator CALCULATOR = GammaValueBlackForexCalculator.getInstance();
+
   @Override
-  protected Object computeValues(Set<ForexOptionVanilla> vanillaOptions, ForexOptionDataBundle<?> market) {
+  protected Object computeValues(final Set<ForexOptionVanilla> vanillaOptions, final ForexOptionDataBundle<?> market) {
     Validate.isTrue(market instanceof SmileDeltaTermStructureDataBundle, "FXOneLookBarrierOptionBlackGammaFunction requires a Vol surface with a smile.");
     double sum = 0.0;
-    for (ForexOptionVanilla derivative : vanillaOptions) {
-      final CurrencyAmount gammaCcy = CALCULATOR.visit(derivative, market);
+    for (final ForexOptionVanilla derivative : vanillaOptions) {
+      final CurrencyAmount gammaCcy = derivative.accept(CALCULATOR, market);
       sum += gammaCcy.getAmount();
     }
     return sum;

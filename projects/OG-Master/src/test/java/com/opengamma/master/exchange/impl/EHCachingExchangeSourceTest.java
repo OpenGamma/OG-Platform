@@ -7,6 +7,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import net.sf.ehcache.CacheManager;
+
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
@@ -23,11 +27,26 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.test.Timeout;
 
+/**
+ * Test.
+ */
 public class EHCachingExchangeSourceTest {
 
+  private CacheManager _cacheManager;
+
+  @BeforeMethod
+  public void setUp() {
+    _cacheManager = new CacheManager();
+  }
+
+  @AfterMethod
+  public void tearDown() {
+    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   @Test
-  public void getById() throws InterruptedException
-  {
+  public void getById() throws InterruptedException {
     final AtomicLong getCount = new AtomicLong(0);
     ExchangeSource underlying = new ExchangeSource() {
       
@@ -74,7 +93,7 @@ public class EHCachingExchangeSourceTest {
       }
     };
     long ttl = Timeout.standardTimeoutSeconds();
-    EHCachingExchangeSource source = new EHCachingExchangeSource(underlying, EHCacheUtils.createCacheManager());
+    EHCachingExchangeSource source = new EHCachingExchangeSource(underlying, _cacheManager);
     source.setTTL((int) ttl);
     assertEquals(0, getCount.get());
     ExternalScheme scheme = ExternalScheme.of("Scheme");
@@ -94,4 +113,5 @@ public class EHCachingExchangeSourceTest {
     assertEquals(2, getCount.get());
     assertTrue(get3 != get2);
   }
+
 }

@@ -24,6 +24,7 @@ import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.calc.DefaultAggregatedExecutionLog;
 import com.opengamma.engine.view.calcnode.MutableExecutionLog;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -39,8 +40,7 @@ public class ViewCalculationResultModelImplTest {
 
   public static final Position POSITION = new SimplePosition(UniqueId.of("PositionIdentifier", "testPosition"), new BigDecimal(1), ExternalIdBundle.EMPTY);
   public static final ComputationTargetSpecification SPEC = ComputationTargetSpecification.of(POSITION);
-  public static final ComputedValueResult COMPUTED_VALUE_RESULT = new ComputedValueResult(new ValueSpecification("DATA", SPEC, ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId")
-      .get()), "12345", MutableExecutionLog.single(new SimpleLogEvent(LogLevel.INFO, "test"), ExecutionLogMode.FULL));
+  public static final ComputedValueResult COMPUTED_VALUE_RESULT;
   public static final SimplePortfolio PORTFOLIO;
   public static final SimplePortfolioNode PORTFOLIO_ROOT_NODE;
 
@@ -49,6 +49,12 @@ public class ViewCalculationResultModelImplTest {
     PORTFOLIO_ROOT_NODE = new SimplePortfolioNode(UniqueId.of("PortfolioIdentifier", "rootNode"), "rootNode");
     PORTFOLIO.setRootNode(PORTFOLIO_ROOT_NODE);
     PORTFOLIO_ROOT_NODE.addPosition(POSITION);
+
+    final ExecutionLog executionLog = MutableExecutionLog.single(new SimpleLogEvent(LogLevel.INFO, "test"), ExecutionLogMode.FULL);
+    final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of("Mock", SPEC, executionLog);
+    final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, null, ExecutionLogMode.INDICATORS);
+    COMPUTED_VALUE_RESULT = new ComputedValueResult(new ValueSpecification("DATA", SPEC, ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId")
+        .get()), "12345", aggregatedExecutionLog);
   }
 
   public void addValue() {

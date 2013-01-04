@@ -33,6 +33,7 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.PropertyReadWrite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -55,6 +56,12 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.equity.GICSCode;
@@ -113,6 +120,7 @@ import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SecurityNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.test.AbstractSecurityTestCaseAdapter;
 import com.opengamma.financial.security.test.SecurityTestCaseMethods;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -133,7 +141,7 @@ import com.opengamma.util.tuple.Pair;
  * Creates random securities.
  */
 @SuppressWarnings("unchecked")
-public abstract class SecurityTestCase implements SecurityTestCaseMethods {
+public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter implements SecurityTestCaseMethods {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityTestCase.class);
 
@@ -473,6 +481,12 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         values.addAll(permuteTestObjects(SecurityNotional.class));
       }
     });
+    s_dataProviders.put(InterestRateNotional.class, new TestDataProvider<Notional>() {
+      @Override
+      public void getValues(final Collection<Notional> values) {
+        values.addAll(permuteTestObjects(InterestRateNotional.class));
+      }
+    });
     s_dataProviders.put(byte[].class, new TestDataProvider<byte[]>() {
       @Override
       public void getValues(Collection<byte[]> values) {
@@ -612,7 +626,10 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         for (int j = 0; j < mps.size(); j++) {
           Object value = parameterValues[j].get(parameterIndex[j]);
           parameterIndex[j] = (parameterIndex[j] + 1) % parameterValues[j].size();
-          builder.set(mps.get(j).name(), value);
+          MetaProperty<?> metaProperty = mps.get(j);
+          if (metaProperty.readWrite() != PropertyReadWrite.READ_ONLY) {
+            builder.set(metaProperty.name(), value);
+          }
         }
         objects.add((T) builder.build());
       } catch (final Throwable t) {
@@ -674,10 +691,6 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
       assertNotNull(securityType);
     }
     for (final T security : securities) {
-      // Force the security type to be a valid string; they're random nonsense otherwise
-      if (securityClass != RawSecurity.class) {
-        security.setSecurityType(securityType);
-      }
       assertSecurity(securityClass, security);
     }
   }
@@ -893,25 +906,38 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   
   @Override
   @Test
-  public void testSimpleZeroDepositSecurity() {
-	  return;
-  }
-  
-  @Override
-  @Test
-  public void testPeriodicZeroDepositSecurity() {
-    return;
-  }
-  
-  @Override 
-  @Test
-  public void testContinuousZeroDepositSecurity() {
-    return;
-  }
-  
-  @Override
-  @Test
   public void testCDSSecurity() {
     assertSecurities(CDSSecurity.class);
   }
+
+  @Override
+  public void testStandardFixedRecoveryCDSSecurity() {
+    assertSecurities(StandardFixedRecoveryCDSSecurity.class);
+  }
+  
+  @Override
+  public void testStandardRecoveryLockCDSSecurity() {
+    assertSecurities(StandardRecoveryLockCDSSecurity.class);
+  }
+
+  @Override
+  public void testStandardVanillaCDSSecurity() {
+    assertSecurities(StandardVanillaCDSSecurity.class);
+  }
+
+  @Override
+  public void testLegacyFixedRecoveryCDSSecurity() {
+    assertSecurities(LegacyFixedRecoveryCDSSecurity.class);
+  }
+
+  @Override
+  public void testLegacyRecoveryLockCDSSecurity() {
+    assertSecurities(LegacyRecoveryLockCDSSecurity.class);
+  }
+
+  @Override
+  public void testLegacyVanillaCDSSecurity() {
+    assertSecurities(LegacyVanillaCDSSecurity.class);
+  }
+   
 }

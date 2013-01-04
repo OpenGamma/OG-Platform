@@ -101,7 +101,7 @@ public class FXBarrierOptionSecurity extends FinancialSecurity {
   private LongShort _longShort = LongShort.LONG;
 
   FXBarrierOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public FXBarrierOptionSecurity(Currency putCurrency, Currency callCurrency, double putAmount, double callAmount, Expiry expiry,

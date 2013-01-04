@@ -17,7 +17,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStripWithSecurity> {
   private final FixedIncomeStrip _originalStrip;
@@ -70,7 +70,7 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
 
   /**
    * Get the periods per year of a periodic zero deposit security
-   * 
+   *
    * @return the number of periods per year
    * @throws IllegalStateException if called on a non-periodic zero deposit strip
    */
@@ -146,7 +146,14 @@ public class FixedIncomeStripWithSecurity implements Comparable<FixedIncomeStrip
 
   @Override
   public int compareTo(final FixedIncomeStripWithSecurity o) {
-    int result = getStrip().compareTo(o.getStrip());
+    int result = 0;
+    if (getStrip().getInstrumentType() == StripInstrumentType.FUTURE || o.getStrip().getInstrumentType() == StripInstrumentType.FUTURE) {
+      result = getMaturity().compareTo(o.getMaturity());
+    }
+    if (result != 0) {
+      return result;
+    }
+    result = getStrip().compareTo(o.getStrip());
     if (result != 0) {
       return result;
     }

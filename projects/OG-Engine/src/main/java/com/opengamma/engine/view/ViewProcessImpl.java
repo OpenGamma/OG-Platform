@@ -6,9 +6,7 @@
 package com.opengamma.engine.view;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -24,7 +22,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewComputationJob;
@@ -45,7 +42,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Default implementation of {@link ViewProcess}.
  */
-public class ViewProcessImpl implements ViewProcessInternal, ExecutionLogModeSource, Lifecycle {
+public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcess.class);
 
@@ -71,7 +68,7 @@ public class ViewProcessImpl implements ViewProcessInternal, ExecutionLogModeSou
   private volatile ViewComputationJob _computationJob;
   private volatile Thread _computationThread;
 
-  private final Map<ValueSpecification, Integer> _elevatedResultSpecs = new ConcurrentHashMap<ValueSpecification, Integer>();
+  private final ExecutionLogModeSource _executionLogModeSource = new ExecutionLogModeSource();
 
   private final AtomicReference<Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider>> _latestCompiledViewDefinition =
       new AtomicReference<Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider>>();
@@ -232,60 +229,12 @@ public class ViewProcessImpl implements ViewProcessInternal, ExecutionLogModeSou
 
   //-------------------------------------------------------------------------
   /**
-   * Ensures at least a minimum level of logging output is present in the results for the given value specifications. Changes will take effect from the next computation cycle.
-   * <p>
-   * Each call to elevate the minimum level of logging output for a result must be paired with exactly one call to reduce the level of logging output, if required.
+   * Gets the execution log mode source.
    *
-   * @param minimumLogMode the minimum log mode to ensure, not null
-   * @param resultSpecifications the result specifications affected, not null or empty
+   * @return the execution log mode source, not null
    */
-  public void setMinimumLogMode(final ExecutionLogMode minimumLogMode, final Set<ValueSpecification> resultSpecifications) {
-    // Synchronization ensures only one writer, while getExecutionLogMode is allowed to read from the ConcurrentHashMap
-    // without further locking.
-    switch (minimumLogMode) {
-      case INDICATORS:
-        for (final ValueSpecification valueSpec : resultSpecifications) {
-          synchronized (_elevatedResultSpecs) {
-            final Integer value = _elevatedResultSpecs.get(valueSpec);
-            if (value == null) {
-              continue;
-            }
-            if (value == 1) {
-              _elevatedResultSpecs.remove(valueSpec);
-            } else {
-              _elevatedResultSpecs.put(valueSpec, value - 1);
-            }
-          }
-        }
-        break;
-      case FULL:
-        for (final ValueSpecification valueSpec : resultSpecifications) {
-          synchronized (_elevatedResultSpecs) {
-            final Integer value = _elevatedResultSpecs.get(valueSpec);
-            if (value == null) {
-              _elevatedResultSpecs.put(valueSpec, 1);
-            } else {
-              _elevatedResultSpecs.put(valueSpec, value + 1);
-            }
-          }
-        }
-        break;
-    }
-  }
-
-  @Override
-  public ExecutionLogMode getLogMode(final ValueSpecification valueSpec) {
-    return _elevatedResultSpecs.containsKey(valueSpec) ? ExecutionLogMode.FULL : ExecutionLogMode.INDICATORS;
-  }
-
-  @Override
-  public ExecutionLogMode getLogMode(final Set<ValueSpecification> valueSpecs) {
-    for (final ValueSpecification valueSpec : valueSpecs) {
-      if (getLogMode(valueSpec) == ExecutionLogMode.FULL) {
-        return ExecutionLogMode.FULL;
-      }
-    }
-    return ExecutionLogMode.INDICATORS;
+  public ExecutionLogModeSource getExecutionLogModeSource() {
+    return _executionLogModeSource;
   }
 
   //-------------------------------------------------------------------------
@@ -317,6 +266,7 @@ public class ViewProcessImpl implements ViewProcessInternal, ExecutionLogModeSou
         logListenerError(listener, e);
       }
     }
+    _executionLogModeSource.viewDefinitionCompiled(compiledViewDefinition);
   }
 
   public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {

@@ -25,7 +25,7 @@ import com.opengamma.util.log.SimpleLogEvent;
 public class MutableExecutionLog implements ExecutionLog {
 
   private final ExecutionLogMode _logMode;
-  private final EnumSet<LogLevel> _levels = EnumSet.noneOf(LogLevel.class);
+  private final EnumSet<LogLevel> _logLevels = EnumSet.noneOf(LogLevel.class);
   private final List<LogEvent> _events;
   
   private String _exceptionClass;
@@ -48,7 +48,7 @@ public class MutableExecutionLog implements ExecutionLog {
   public void add(LogEvent logEvent) {
     ArgumentChecker.notNull(logEvent, "logEvent");
     LogLevel level = logEvent.getLevel();
-    _levels.add(level);
+    _logLevels.add(level);
     if (_logMode == ExecutionLogMode.FULL) {
       _events.add(new SimpleLogEvent(level, logEvent.getMessage()));
     }
@@ -57,9 +57,9 @@ public class MutableExecutionLog implements ExecutionLog {
   public void setException(Throwable exception) {
     _exceptionClass = exception.getClass().getName();
     _exceptionMessage = exception.getMessage();
-    final StringBuffer buffer = new StringBuffer();
+    final StringBuilder buffer = new StringBuilder();
     for (StackTraceElement element : exception.getStackTrace()) {
-      buffer.append(element.toString() + "\n");
+      buffer.append(element.toString()).append("\n");
     }
     _exceptionStackTrace = buffer.toString();
   }
@@ -72,19 +72,10 @@ public class MutableExecutionLog implements ExecutionLog {
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public boolean hasError() {
-    return _levels.contains(LogLevel.ERROR);
-  }
 
   @Override
-  public boolean hasWarn() {
-    return _levels.contains(LogLevel.WARN);
-  }
-
-  @Override
-  public boolean hasInfo() {
-    return _levels.contains(LogLevel.INFO);
+  public EnumSet<LogLevel> getLogLevels() {
+    return EnumSet.copyOf(_logLevels);
   }
 
   @Override
@@ -115,6 +106,12 @@ public class MutableExecutionLog implements ExecutionLog {
 
   //-------------------------------------------------------------------------
   @Override
+  public boolean isEmpty() {
+    return _logLevels.isEmpty() && !hasException();
+  }
+  
+  //-------------------------------------------------------------------------
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -122,7 +119,7 @@ public class MutableExecutionLog implements ExecutionLog {
     result = prime * result + ((_exceptionClass == null) ? 0 : _exceptionClass.hashCode());
     result = prime * result + ((_exceptionMessage == null) ? 0 : _exceptionMessage.hashCode());
     result = prime * result + ((_exceptionStackTrace == null) ? 0 : _exceptionStackTrace.hashCode());
-    result = prime * result + ((_levels == null) ? 0 : _levels.hashCode());
+    result = prime * result + ((_logLevels == null) ? 0 : _logLevels.hashCode());
     result = prime * result + ((_logMode == null) ? 0 : _logMode.hashCode());
     return result;
   }
@@ -143,7 +140,7 @@ public class MutableExecutionLog implements ExecutionLog {
         && ObjectUtils.equals(_exceptionClass, other._exceptionClass)
         && ObjectUtils.equals(_exceptionMessage, other._exceptionMessage)
         && ObjectUtils.equals(_exceptionStackTrace, other._exceptionStackTrace)
-        && ObjectUtils.equals(_levels, other._levels)
+        && ObjectUtils.equals(_logLevels, other._logLevels)
         && ObjectUtils.equals(_logMode, other._logMode);
   }
 
@@ -152,11 +149,11 @@ public class MutableExecutionLog implements ExecutionLog {
     StringBuffer sb = new StringBuffer();
     ToStringStyle style = ToStringStyle.SHORT_PREFIX_STYLE;
     style.appendStart(sb, this);
-    style.append(sb, "error", hasError(), null);
-    style.append(sb, "warn", hasWarn(), null);
-    style.append(sb, "info", hasInfo(), null);
     if (hasException()) {
       style.append(sb, "exception", getExceptionClass(), null);
+    }
+    if (!_logLevels.isEmpty()) {
+      style.append(sb, "logLevels", _logLevels, null);
     }
     style.appendEnd(sb, this);
     return sb.toString();

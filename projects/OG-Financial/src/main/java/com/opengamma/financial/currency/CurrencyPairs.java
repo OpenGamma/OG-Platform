@@ -77,7 +77,7 @@ public final class CurrencyPairs {
    * 
    * @return the immutable pairs set, not null
    */
-  /* package */ Set<CurrencyPair> getPairs() {
+  public Set<CurrencyPair> getPairs() {
     return _pairs;
   }
 

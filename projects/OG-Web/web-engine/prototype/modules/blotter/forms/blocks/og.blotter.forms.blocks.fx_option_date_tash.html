@@ -1,0 +1,61 @@
+<table class="OG-table">
+  <colgroup>
+    <col style="width: 30%">
+    <col style="width: 70%">
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <label>
+          <span>Expiry Date</span>
+        </label>
+      </td>
+      <td>
+        <input name="expiry" type="text" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Excersize Type</span>
+        </label>
+      </td>
+      <td>
+        <select name="exerciseType"></select>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Settlement Date</span>
+        </label>
+      </td>
+      <td>
+        <input name="settlementDate" type="text" />
+      </td>
+    </tr>
+    {{#if nondev}}
+      <tr>
+        <td>
+          <label>
+            <span>Delivery Currency</span>
+          </label>
+        </td>
+        <td>
+          <div><select name="ITTODO"></select></div>
+        </td>
+      </tr>
+    {{else}}
+      <tr>
+        <td>
+          <label>
+            <span>Premium</span>
+          </label>
+        </td>
+        <td class="og-double-cell">
+          <div><span><select name="ITTODO"></select></span><span><input name="ITTODO" type="text" /></span></div>
+        </td>
+      </tr>
+    {{/if}}
+  </tbody>
+</table>

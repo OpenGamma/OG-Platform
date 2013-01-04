@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.cache.NotCalculatedSentinel;
 import com.opengamma.id.UniqueId;
@@ -45,8 +45,8 @@ public class ResultsCacheTest {
     final String spec2value1 = "spec2value1";
 
     final InMemoryViewComputationResultModel results1 = new InMemoryViewComputationResultModel();
-    results1.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, spec1value1, ExecutionLog.EMPTY));
-    results1.addValue(CALC_CONFIG, new ComputedValueResult(_spec2, spec2value1, ExecutionLog.EMPTY));
+    results1.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, spec1value1, AggregatedExecutionLog.EMPTY));
+    results1.addValue(CALC_CONFIG, new ComputedValueResult(_spec2, spec2value1, AggregatedExecutionLog.EMPTY));
 
     final ResultsCache cache = new ResultsCache();
     cache.put(results1);
@@ -62,7 +62,7 @@ public class ResultsCacheTest {
 
     final String spec1value2 = "spec1value2";
     final InMemoryViewComputationResultModel results2 = new InMemoryViewComputationResultModel();
-    results2.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, spec1value2, ExecutionLog.EMPTY));
+    results2.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, spec1value2, AggregatedExecutionLog.EMPTY));
     cache.put(results2);
 
     final ResultsCache.Result result1_2 = cache.getResult(CALC_CONFIG, _spec1, String.class);
@@ -78,7 +78,7 @@ public class ResultsCacheTest {
   @Test
   public void putResultsWithHistory() {
     final InMemoryViewComputationResultModel results1 = new InMemoryViewComputationResultModel();
-    results1.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, 1d, ExecutionLog.EMPTY));
+    results1.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, 1d, AggregatedExecutionLog.EMPTY));
     final ResultsCache cache = new ResultsCache();
     cache.put(results1);
 
@@ -88,7 +88,7 @@ public class ResultsCacheTest {
     assertEquals(1d, result1.getHistory().iterator().next());
 
     final InMemoryViewComputationResultModel results2 = new InMemoryViewComputationResultModel();
-    results2.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, 2d, ExecutionLog.EMPTY));
+    results2.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, 2d, AggregatedExecutionLog.EMPTY));
     cache.put(results2);
 
     final ResultsCache.Result result2 = cache.getResult(CALC_CONFIG, _spec1, Double.class);
@@ -102,21 +102,20 @@ public class ResultsCacheTest {
   @Test
   public void errorValues() {
     final InMemoryViewComputationResultModel resultsModel1 = new InMemoryViewComputationResultModel();
-    resultsModel1.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, NotCalculatedSentinel.EVALUATION_ERROR, ExecutionLog.EMPTY));
+    resultsModel1.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, NotCalculatedSentinel.EVALUATION_ERROR, AggregatedExecutionLog.EMPTY));
     final ResultsCache cache = new ResultsCache();
     cache.put(resultsModel1);
 
     final ResultsCache.Result result1 = cache.getResult(CALC_CONFIG, _spec1, Double.class);
-    assertNull(result1.getValue());
-    assertNotNull(result1.getHistory());
-    assertEquals(0, result1.getHistory().size());
+    assertEquals(NotCalculatedSentinel.EVALUATION_ERROR, result1.getValue());
+    assertNull(result1.getHistory());
 
     final InMemoryViewComputationResultModel resultsModel2 = new InMemoryViewComputationResultModel();
-    resultsModel2.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, 1d, ExecutionLog.EMPTY));
+    resultsModel2.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, 1d, AggregatedExecutionLog.EMPTY));
     cache.put(resultsModel2);
 
     final InMemoryViewComputationResultModel resultsModel3 = new InMemoryViewComputationResultModel();
-    resultsModel3.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, NotCalculatedSentinel.EVALUATION_ERROR, ExecutionLog.EMPTY));
+    resultsModel3.addValue(CALC_CONFIG, new ComputedValueResult(_spec1, NotCalculatedSentinel.EVALUATION_ERROR, AggregatedExecutionLog.EMPTY));
     cache.put(resultsModel3);
 
     final ResultsCache.Result result2 = cache.getResult(CALC_CONFIG, _spec1, Double.class);

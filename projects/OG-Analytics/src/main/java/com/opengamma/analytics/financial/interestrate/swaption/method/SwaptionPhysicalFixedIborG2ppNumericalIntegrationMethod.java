@@ -46,40 +46,40 @@ public class SwaptionPhysicalFixedIborG2ppNumericalIntegrationMethod implements 
    * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final G2ppPiecewiseConstantDataBundle g2Data) {
-    YieldAndDiscountCurve dsc = g2Data.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getDiscountCurve());
-    AnnuityPaymentFixed cfe = CFEC.visit(swaption.getUnderlyingSwap(), g2Data);
-    double theta = swaption.getTimeToExpiry();
-    int nbCf = cfe.getNumberOfPayments();
-    double[] t = new double[nbCf];
-    double[] df = new double[nbCf];
-    double[] discountedCashFlow = new double[nbCf];
+    final YieldAndDiscountCurve dsc = g2Data.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getDiscountCurve());
+    final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, g2Data);
+    final double theta = swaption.getTimeToExpiry();
+    final int nbCf = cfe.getNumberOfPayments();
+    final double[] t = new double[nbCf];
+    final double[] df = new double[nbCf];
+    final double[] discountedCashFlow = new double[nbCf];
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
       t[loopcf] = cfe.getNthPayment(loopcf).getPaymentTime();
       df[loopcf] = dsc.getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
       discountedCashFlow[loopcf] = df[loopcf] * cfe.getNthPayment(loopcf).getAmount();
     }
 
-    double rhog2pp = g2Data.getG2ppParameter().getCorrelation();
-    double[][] htheta = MODEL_G2PP.volatilityMaturityPart(g2Data.getG2ppParameter(), theta, t);
-    double[][] gamma = MODEL_G2PP.gamma(g2Data.getG2ppParameter(), 0, theta);
-    double[][] alpha = new double[2][nbCf];
-    double[] tau2 = new double[nbCf];
+    final double rhog2pp = g2Data.getG2ppParameter().getCorrelation();
+    final double[][] htheta = MODEL_G2PP.volatilityMaturityPart(g2Data.getG2ppParameter(), theta, t);
+    final double[][] gamma = MODEL_G2PP.gamma(g2Data.getG2ppParameter(), 0, theta);
+    final double[][] alpha = new double[2][nbCf];
+    final double[] tau2 = new double[nbCf];
     for (int loopcf = 0; loopcf < nbCf; loopcf++) {
       alpha[0][loopcf] = Math.sqrt(gamma[0][0]) * htheta[0][loopcf];
       alpha[1][loopcf] = Math.sqrt(gamma[1][1]) * htheta[1][loopcf];
       tau2[loopcf] = alpha[0][loopcf] * alpha[0][loopcf] + alpha[1][loopcf] * alpha[1][loopcf] + 2 * rhog2pp * gamma[0][1] * htheta[0][loopcf] * htheta[1][loopcf];
     }
-    double rhobar = rhog2pp * gamma[0][1] / Math.sqrt(gamma[0][0] * gamma[1][1]);
+    final double rhobar = rhog2pp * gamma[0][1] / Math.sqrt(gamma[0][0] * gamma[1][1]);
 
     final SwaptionIntegrant integrant = new SwaptionIntegrant(discountedCashFlow, alpha, tau2, rhobar);
     final double limit = 12.0;
     final double absoluteTolerance = 1.0E-1;
     final double relativeTolerance = 1.0E-6;
     final RungeKuttaIntegrator1D integrator1D = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, NB_INTEGRATION);
-    IntegratorRepeated2D integrator2D = new IntegratorRepeated2D(integrator1D);
+    final IntegratorRepeated2D integrator2D = new IntegratorRepeated2D(integrator1D);
     double pv = 0.0;
     try {
-      pv = 1.0 / (2.0 * Math.PI * Math.sqrt(1 - rhobar * rhobar)) * integrator2D.integrate(integrant, new Double[] {-limit, -limit}, new Double[] {limit, limit});
+      pv = 1.0 / (2.0 * Math.PI * Math.sqrt(1 - rhobar * rhobar)) * integrator2D.integrate(integrant, new Double[] {-limit, -limit }, new Double[] {limit, limit });
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
@@ -87,7 +87,7 @@ public class SwaptionPhysicalFixedIborG2ppNumericalIntegrationMethod implements 
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
     Validate.isTrue(curves instanceof G2ppPiecewiseConstantDataBundle, "Bundle should contain G2++ data");
     return presentValue((SwaptionPhysicalFixedIbor) instrument, (G2ppPiecewiseConstantDataBundle) curves);
@@ -118,7 +118,7 @@ public class SwaptionPhysicalFixedIborG2ppNumericalIntegrationMethod implements 
     @Override
     public Double evaluate(final Double x0, final Double x1) {
       double result = 0.0;
-      double densityPart = -(x0 * x0 + x1 * x1 - 2 * _rhobar * x0 * x1) / (2.0 * (1 - _rhobar * _rhobar));
+      final double densityPart = -(x0 * x0 + x1 * x1 - 2 * _rhobar * x0 * x1) / (2.0 * (1 - _rhobar * _rhobar));
       for (int loopcf = 0; loopcf < _discountedCashFlow.length; loopcf++) {
         result += _discountedCashFlow[loopcf] * Math.exp(-_alpha[0][loopcf] * x0 - _alpha[1][loopcf] * x1 - _tau2[loopcf] / 2.0 + densityPart);
       }

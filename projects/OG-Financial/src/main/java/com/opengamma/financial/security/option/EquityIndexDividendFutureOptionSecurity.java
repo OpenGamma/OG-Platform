@@ -84,7 +84,7 @@ public class EquityIndexDividendFutureOptionSecurity extends FinancialSecurity {
   private OptionType _optionType;
 
   EquityIndexDividendFutureOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public EquityIndexDividendFutureOptionSecurity(String exchange, Expiry expiry, ExerciseType exerciseType, ExternalId underlyingIdentifier,

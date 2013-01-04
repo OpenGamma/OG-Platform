@@ -19,6 +19,8 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -37,24 +39,28 @@ public class LegacyVanillaCDSSecurity extends LegacyCDSSecurity {
   private static final long serialVersionUID = 1L;
 
   /**
+   * The security type
+   */
+  public static final String SECURITY_TYPE = "LEGACY_VANILLA_CDS";
+  /**
    * The par spread.
    */
   @PropertyDefinition(validate = "notNull")
   private double _parSpread;
 
   LegacyVanillaCDSSecurity() { // For Fudge builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public LegacyVanillaCDSSecurity(final boolean isBuy, final ExternalId protectionSeller, final ExternalId protectionBuyer, final ExternalId referenceEntity, //CSIGNORE
-      final String debtSeniority, final String restructuringClause, final ExternalId regionId, final ZonedDateTime startDate,
+      final DebtSeniority debtSeniority, final RestructuringClause restructuringClause, final ExternalId regionId, final ZonedDateTime startDate,
       final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final Frequency couponFrequency, final DayCount dayCount,
       final BusinessDayConvention businessDayConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate,
       final boolean adjustMaturityDate, final InterestRateNotional notional, final double recoveryRate, final boolean includeAccruedPremium,
       final boolean protectionStart, final double parSpread) {
     super(isBuy, protectionSeller, protectionBuyer, referenceEntity, debtSeniority, restructuringClause, regionId, startDate,
         effectiveDate, maturityDate, stubType, couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart);
+        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, SECURITY_TYPE);
     setParSpread(parSpread);
   }
 

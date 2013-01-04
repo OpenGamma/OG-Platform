@@ -33,7 +33,7 @@ public class FXForwardPresentValueCurveSensitivityFunction extends FXForwardMult
   @Override
   protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ComputationTarget target, final Set<ValueRequirement> desiredValues,
       final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
-    final MultipleCurrencyInterestRateCurveSensitivity result = CALCULATOR.visit(fxForward, data);
+    final MultipleCurrencyInterestRateCurveSensitivity result = fxForward.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, result));
   }
 }

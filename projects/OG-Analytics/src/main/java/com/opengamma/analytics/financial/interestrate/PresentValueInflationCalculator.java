@@ -28,7 +28,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
-public class PresentValueInflationCalculator extends AbstractInstrumentDerivativeVisitor<MarketDiscountBundle, MultipleCurrencyAmount> {
+public class PresentValueInflationCalculator extends InstrumentDerivativeVisitorAdapter<MarketDiscountBundle, MultipleCurrencyAmount> {
 
   /**
    * Pricing method for zero-coupon with monthly reference index.
@@ -67,13 +67,6 @@ public class PresentValueInflationCalculator extends AbstractInstrumentDerivativ
   }
 
   @Override
-  public MultipleCurrencyAmount visit(final InstrumentDerivative derivative, final MarketDiscountBundle market) {
-    Validate.notNull(market);
-    Validate.notNull(derivative);
-    return derivative.accept(this, market);
-  }
-
-  @Override
   public MultipleCurrencyAmount visitFixedPayment(final PaymentFixed payment, final MarketDiscountBundle market) {
     return MultipleCurrencyAmount.of(payment.getCurrency(), market.getDiscountFactor(payment.getCurrency(), payment.getPaymentTime()) * payment.getAmount());
   }
@@ -88,7 +81,7 @@ public class PresentValueInflationCalculator extends AbstractInstrumentDerivativ
     Validate.notNull(annuity);
     MultipleCurrencyAmount pv = MultipleCurrencyAmount.of(annuity.getCurrency(), 0.0);
     for (final Payment p : annuity.getPayments()) {
-      pv = pv.plus(visit(p, market));
+      pv = pv.plus(p.accept(this, market));
     }
     return pv;
   }
@@ -116,17 +109,17 @@ public class PresentValueInflationCalculator extends AbstractInstrumentDerivativ
   @Override
   public MultipleCurrencyAmount visitBondCapitalIndexedSecurity(final BondCapitalIndexedSecurity<?> bond, final MarketDiscountBundle market) {
     Validate.notNull(bond, "Bond");
-    MarketDiscountBundle creditDiscounting = new MarketDiscountBundleDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuerCurrency()));
-    final MultipleCurrencyAmount pvNominal = visit(bond.getNominal(), creditDiscounting);
-    final MultipleCurrencyAmount pvCoupon = visit(bond.getCoupon(), creditDiscounting);
+    final MarketDiscountBundle creditDiscounting = new MarketDiscountBundleDiscountingDecorated(market, bond.getCurrency(), market.getCurve(bond.getIssuerCurrency()));
+    final MultipleCurrencyAmount pvNominal = bond.getNominal().accept(this, creditDiscounting);
+    final MultipleCurrencyAmount pvCoupon = bond.getCoupon().accept(this, creditDiscounting);
     return pvNominal.plus(pvCoupon);
   }
 
   @Override
   public MultipleCurrencyAmount visitBondCapitalIndexedTransaction(final BondCapitalIndexedTransaction<?> bond, final MarketDiscountBundle market) {
     Validate.notNull(bond, "Bond");
-    final MultipleCurrencyAmount pvBond = visit(bond.getBondTransaction(), market);
-    final MultipleCurrencyAmount pvSettlement = visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(
+    final MultipleCurrencyAmount pvBond = bond.getBondTransaction().accept(this, market);
+    final MultipleCurrencyAmount pvSettlement = bond.getBondTransaction().getSettlement().accept(this, market).multipliedBy(
         bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }

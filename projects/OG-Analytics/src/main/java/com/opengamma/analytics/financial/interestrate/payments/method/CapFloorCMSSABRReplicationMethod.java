@@ -90,7 +90,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
   public CurrencyAmount presentValue(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final SwapFixedCoupon<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
-    final double forward = PRC.visit(underlyingSwap, sabrData);
+    final double forward = underlyingSwap.accept(PRC, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
     final CMSIntegrant integrant = new CMSIntegrant(cmsCapFloor, sabrParameter, forward);
     final double strike = cmsCapFloor.getStrike();
@@ -133,7 +133,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final SwapFixedCoupon<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
-    final double forward = PRC.visit(underlyingSwap, sabrData);
+    final double forward = underlyingSwap.accept(PRC, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
     final double strike = cmsCapFloor.getStrike();
     // Common
@@ -178,7 +178,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
     final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
     resultMap.put(cmsCapFloor.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName(), list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
-    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(cmsCapFloor.getUnderlyingSwap(), sabrData));
+    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(cmsCapFloor.getUnderlyingSwap().accept(PRSC, sabrData));
     result = result.plus(forwardDr.multipliedBy(deltaS0));
     return result;
   }
@@ -193,9 +193,9 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final SwapFixedCoupon<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
-    final double forward = PRC.visit(underlyingSwap, sabrData);
+    final double forward = underlyingSwap.accept(PRC, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
-    double strike = cmsCapFloor.getStrike();
+    final double strike = cmsCapFloor.getStrike();
     final double maturity = underlyingSwap.getFixedLeg().getNthPayment(underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime() - cmsCapFloor.getSettlementTime();
     final CMSVegaIntegrant integrantVega = new CMSVegaIntegrant(cmsCapFloor, sabrParameter, forward);
     final double factor = discountFactor / integrantVega.h(forward) * integrantVega.g(forward);
@@ -243,14 +243,14 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
   public double presentValueStrikeSensitivity(final CapFloorCMS cmsCapFloor, final SABRInterestRateDataBundle sabrData) {
     final SABRInterestRateParameters sabrParameter = sabrData.getSABRParameter();
     final SwapFixedCoupon<? extends Payment> underlyingSwap = cmsCapFloor.getUnderlyingSwap();
-    final double forward = PRC.visit(underlyingSwap, sabrData);
+    final double forward = underlyingSwap.accept(PRC, sabrData);
     final double discountFactor = sabrData.getCurve(underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName()).getDiscountFactor(cmsCapFloor.getPaymentTime());
     final double strike = cmsCapFloor.getStrike();
     final double maturity = underlyingSwap.getFixedLeg().getNthPayment(underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime() - cmsCapFloor.getSettlementTime();
     final DoublesPair expiryMaturity = new DoublesPair(cmsCapFloor.getFixingTime(), maturity);
 
     final CMSStrikeIntegrant integrant = new CMSStrikeIntegrant(cmsCapFloor, sabrParameter, forward);
-    double factor = discountFactor * integrant.g(forward) / integrant.h(forward);
+    final double factor = discountFactor * integrant.g(forward) / integrant.h(forward);
 
     final double absoluteTolerance = 1.0E-9;
     final double relativeTolerance = 1.0E-5;
@@ -260,15 +260,15 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
     final double beta = sabrParameter.getBeta(expiryMaturity);
     final double rho = sabrParameter.getRho(expiryMaturity);
     final double nu = sabrParameter.getNu(expiryMaturity);
-    SABRFormulaData sabrPoint = new SABRFormulaData(alpha, beta, rho, nu);
+    final SABRFormulaData sabrPoint = new SABRFormulaData(alpha, beta, rho, nu);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, cmsCapFloor.getFixingTime(), cmsCapFloor.isCap());
-    Function1D<SABRFormulaData, double[]> sabrFunctionAdjoint = sabrParameter.getSabrFunction().getVolatilityAdjointFunction(option, forward);
-    double[] volA = sabrFunctionAdjoint.evaluate(sabrPoint);
+    final Function1D<SABRFormulaData, double[]> sabrFunctionAdjoint = sabrParameter.getSabrFunction().getVolatilityAdjointFunction(option, forward);
+    final double[] volA = sabrFunctionAdjoint.evaluate(sabrPoint);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volA[0]);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
-    double[] bsA = blackFunction.getPriceAdjoint(option, dataBlack);
+    final double[] bsA = blackFunction.getPriceAdjoint(option, dataBlack);
 
-    double[] kpkpp = integrant.kpkpp(strike);
+    final double[] kpkpp = integrant.kpkpp(strike);
     double firstPart;
     double thirdPart;
     if (cmsCapFloor.isCap()) {
@@ -278,7 +278,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
       firstPart = 3 * kpkpp[0] * integrant.bs(strike);
       thirdPart = integrator.integrate(integrant, 0.0, strike);
     }
-    double secondPart = integrant.k(strike) * (bsA[3] + bsA[2] * volA[2]);
+    final double secondPart = integrant.k(strike) * (bsA[3] + bsA[2] * volA[2]);
 
     return cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction() * factor * (firstPart + secondPart + thirdPart);
   }
@@ -408,13 +408,13 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
         gp = -_nbFixedPeriod / 2.0 * (_nbFixedPeriod + 1.0) / (_nbFixedPaymentYear * _nbFixedPaymentYear);
         gpp = _nbFixedPeriod / 2.0 * (_nbFixedPeriod + 1.0) * (1.0 + (_nbFixedPeriod + 2.0) / 3.0) / (_nbFixedPaymentYear * _nbFixedPaymentYear * _nbFixedPaymentYear);
       }
-      double g2 = g * g;
+      final double g2 = g * g;
       final double h = Math.pow(1.0 + _tau * x, _eta);
       final double hp = _eta * _tau * h / periodFactor;
       final double hpp = (_eta - 1.0) * _tau * hp / periodFactor;
       final double kp = hp / g - h * gp / g2;
       final double kpp = hpp / g - 2 * hp * gp / g2 - h * (gpp / g2 - 2 * (gp * gp) / (g2 * g));
-      return new double[] {kp, kpp};
+      return new double[] {kp, kpp };
     }
 
     /**
@@ -427,7 +427,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
       final Function1D<SABRFormulaData, Double> funcSabr = _sabrFunction.getVolatilityFunction(option, _forward);
       final double volatility = funcSabr.evaluate(_sabrData);
       final BlackFunctionData dataBlack = new BlackFunctionData(_forward, 1.0, volatility);
-      Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);
+      final Function1D<BlackFunctionData, Double> func = _blackFunction.getPriceFunction(option);
       return func.evaluate(dataBlack);
     }
 
@@ -450,7 +450,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
      * @param sabrParameter
      * @param forward
      */
-    public CMSDeltaIntegrant(CapFloorCMS cmsCap, SABRInterestRateParameters sabrParameter, double forward) {
+    public CMSDeltaIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameters sabrParameter, final double forward) {
       super(cmsCap, sabrParameter, forward);
       _nnp = nnp(forward);
     }
@@ -525,7 +525,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
      * @param sabrParameter
      * @param forward
      */
-    public CMSVegaIntegrant(CapFloorCMS cmsCap, SABRInterestRateParameters sabrParameter, double forward) {
+    public CMSVegaIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameters sabrParameter, final double forward) {
       super(cmsCap, sabrParameter, forward);
     }
 
@@ -573,7 +573,7 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
      * @param sabrParameter
      * @param forward
      */
-    public CMSStrikeIntegrant(CapFloorCMS cmsCap, SABRInterestRateParameters sabrParameter, double forward) {
+    public CMSStrikeIntegrant(final CapFloorCMS cmsCap, final SABRInterestRateParameters sabrParameter, final double forward) {
       super(cmsCap, sabrParameter, forward);
     }
 

@@ -26,7 +26,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
  * Builds the row and column structure of a dependency graph grid given the compiled view definition and the
  * target at the root of the graph.
  */
-/* package */ class DependencyGraphStructureBuilder {
+/* package */ class  DependencyGraphStructureBuilder {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphStructureBuilder.class);
 
@@ -61,6 +61,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
       s_logger.warn("Compiled view definition is not an instance of CompiledViewDefinitionWithGraphs, class={}." +
                         " Dependency graphs not supported");
       _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(),
+                                                    null,
                                                     Collections.<ValueSpecification>emptyList(),
                                                     Collections.<String>emptyList(),
                                                     targetResolver);
@@ -69,7 +70,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
       DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
       DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(root);
       AnalyticsNode node = createNode(root, depGraph);
-      _structure = new DependencyGraphGridStructure(node, _valueSpecs, _fnNames, targetResolver);
+      _structure = new DependencyGraphGridStructure(node, calcConfigName, _valueSpecs, _fnNames, targetResolver);
     }
   }
 

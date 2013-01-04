@@ -45,7 +45,7 @@ import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessImpl;
@@ -126,13 +126,13 @@ public class ViewClientTest {
             "Value2",
                     ComputationTargetSpecification.of(UniqueId.of("Scheme", "PrimitiveValue")),
             ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
-          (byte) 2, ExecutionLog.EMPTY),
+          (byte) 2, AggregatedExecutionLog.EMPTY),
         new ComputedValueResult(
           new ValueSpecification(
             "Value1",
                     ComputationTargetSpecification.of(UniqueId.of("Scheme", "PrimitiveValue")),
             ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
-          (byte) 1, ExecutionLog.EMPTY)
+          (byte) 1, AggregatedExecutionLog.EMPTY)
       ),
       fullFragment.getValue().getAllMarketData());
 

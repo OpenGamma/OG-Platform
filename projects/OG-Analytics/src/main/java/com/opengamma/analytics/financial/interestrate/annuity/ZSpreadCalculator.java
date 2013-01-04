@@ -65,7 +65,7 @@ public final class ZSpreadCalculator {
     Payment payment;
     for (int i = 0; i < n; i++) {
       payment = annuity.getNthPayment(i);
-      final double temp = PRESENT_VALUE_CALCULATOR.visit(payment, curves);
+      final double temp = payment.accept(PRESENT_VALUE_CALCULATOR, curves);
       sum += temp * Math.exp(-zSpread * payment.getPaymentTime());
     }
     return sum;
@@ -81,7 +81,7 @@ public final class ZSpreadCalculator {
     Payment payment;
     for (int i = 0; i < n; i++) {
       payment = annuity.getNthPayment(i);
-      final double temp = PRESENT_VALUE_CALCULATOR.visit(payment, curves);
+      final double temp = payment.accept(PRESENT_VALUE_CALCULATOR, curves);
       final double time = payment.getPaymentTime();
       sum -= time * temp * Math.exp(-zSpread * time);
     }
@@ -92,7 +92,7 @@ public final class ZSpreadCalculator {
     Validate.notNull(annuity, "annuity");
     Validate.notNull(curves, "curves");
 
-    final Map<String, List<DoublesPair>> temp = PV_SENSITIVITY_CALCULATOR.visit(annuity, curves);
+    final Map<String, List<DoublesPair>> temp = annuity.accept(PV_SENSITIVITY_CALCULATOR, curves);
     if (Double.doubleToLongBits(zSpread) == 0) {
       return temp;
     }

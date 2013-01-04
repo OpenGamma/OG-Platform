@@ -7,13 +7,13 @@ package com.opengamma.analytics.financial.forex.calculator;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 
 /**
  * Calculator of the implied volatility for Forex derivatives in the Black (Garman-Kohlhagen) world.
  */
-public class ImpliedVolatilityBlackForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public class ImpliedVolatilityBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The unique instance of the calculator.

@@ -24,35 +24,35 @@ public class CashExample {
   public static final String yieldCurveName = "Euro Yield Curve Fixed 2%";
   public static final double y = 0.02;
 
-  public static void cashDemo(PrintStream out) {
-    Cash loan = new Cash(ccy, 0.0, t, notional, r, t, yieldCurveName);
+  public static void cashDemo(final PrintStream out) {
+    final Cash loan = new Cash(ccy, 0.0, t, notional, r, t, yieldCurveName);
 
     out.println(loan.getInterestAmount());
   }
 
   public static YieldCurveBundle getBundle() {
-    YieldCurveBundle bundle = new YieldCurveBundle();
-    ConstantDoublesCurve curve = new ConstantDoublesCurve(y);
-    YieldCurve yieldCurve = YieldCurve.from(curve);
+    final YieldCurveBundle bundle = new YieldCurveBundle();
+    final ConstantDoublesCurve curve = new ConstantDoublesCurve(y);
+    final YieldCurve yieldCurve = YieldCurve.from(curve);
     bundle.setCurve(yieldCurveName, yieldCurve);
     return bundle;
   }
 
-  public static void parRateDemo(PrintStream out) {
-    Cash loan = new Cash(ccy, 0.0, t, notional, r, t, yieldCurveName);
-    YieldCurveBundle bundle = getBundle();
+  public static void parRateDemo(final PrintStream out) {
+    final Cash loan = new Cash(ccy, 0.0, t, notional, r, t, yieldCurveName);
+    final YieldCurveBundle bundle = getBundle();
 
-    ParRateCalculator parRateCalculator = ParRateCalculator.getInstance();
-    double parRate = parRateCalculator.visit(loan, bundle);
+    final ParRateCalculator parRateCalculator = ParRateCalculator.getInstance();
+    final double parRate = loan.accept(parRateCalculator, bundle);
     out.println(parRate);
   }
 
-  public static void presentValueDemo(PrintStream out) {
-    Cash loan = new Cash(ccy, 0.0, t, notional, r, t, yieldCurveName);
-    YieldCurveBundle bundle = getBundle();
+  public static void presentValueDemo(final PrintStream out) {
+    final Cash loan = new Cash(ccy, 0.0, t, notional, r, t, yieldCurveName);
+    final YieldCurveBundle bundle = getBundle();
 
-    PresentValueCalculator presentValueCalculator = PresentValueCalculator.getInstance();
-    double presentValue = presentValueCalculator.visit(loan, bundle);
+    final PresentValueCalculator presentValueCalculator = PresentValueCalculator.getInstance();
+    final double presentValue = loan.accept(presentValueCalculator, bundle);
     out.println(presentValue);
   }
 }

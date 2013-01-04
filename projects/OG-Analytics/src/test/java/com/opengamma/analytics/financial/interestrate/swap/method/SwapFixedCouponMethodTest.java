@@ -101,7 +101,7 @@ public class SwapFixedCouponMethodTest {
 
     // 2. Funding curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final String[] bumpedCurvesName = {bumpedCurveName, CURVES_NAME[1]};
+    final String[] bumpedCurvesName = {bumpedCurveName, CURVES_NAME[1] };
     final SwapFixedCoupon<Coupon> swapBumpedFunding = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, bumpedCurvesName);
     final double[] yieldsFunding = new double[nbPayDate + 1];
     final double[] nodeTimes = new double[nbPayDate + 1];
@@ -164,11 +164,11 @@ public class SwapFixedCouponMethodTest {
    * Tests the par rate calculator for the swaps.
    */
   public void parRate() {
-    double ratePayer = PRC.visit(SWAP_PAYER, CURVES);
-    double rateReceiver = PRC.visit(SWAP_RECEIVER, CURVES);
+    final double ratePayer = SWAP_PAYER.accept(PRC, CURVES);
+    final double rateReceiver = SWAP_RECEIVER.accept(PRC, CURVES);
     assertEquals("Par Rate swap", ratePayer, rateReceiver, TOLERANCE_RATE);
-    double ratePayer2 = PRC.visitFixedCouponSwap(SWAP_PAYER, FIXED_DAY_COUNT, CURVES);
-    double rateReceiver2 = PRC.visitFixedCouponSwap(SWAP_RECEIVER, FIXED_DAY_COUNT, CURVES);
+    final double ratePayer2 = PRC.visitFixedCouponSwap(SWAP_PAYER, FIXED_DAY_COUNT, CURVES);
+    final double rateReceiver2 = PRC.visitFixedCouponSwap(SWAP_RECEIVER, FIXED_DAY_COUNT, CURVES);
     assertEquals("Par Rate swap", ratePayer2, rateReceiver2, TOLERANCE_RATE);
     assertEquals("Par Rate swap", ratePayer2, rateReceiver, TOLERANCE_RATE);
   }

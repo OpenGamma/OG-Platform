@@ -49,7 +49,7 @@ public abstract class NodeSensitivityCalculatorTest {
 
   protected static final String DISCOUNTING_CURVE_NAME = "USD Discounting";
   protected static final String FORWARD_CURVE_NAME = "USD Forward 3M";
-  protected static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
+  protected static final String[] CURVE_NAMES = new String[] {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
 
   protected static final YieldCurveBundle CURVE_BUNDLE_YIELD;
   protected static final YieldAndDiscountCurve DISCOUNTING_YIELD_CURVE;
@@ -78,15 +78,15 @@ public abstract class NodeSensitivityCalculatorTest {
   protected static final double TOLERANCE_SENSI = 1.0E-6;
 
   static {
-    final double[] dscCurveNodes = new double[] {0.01, 0.5, 1, 1.5, 2.0, 3.1, 4.1, 5, 6.0};
-    final double[] fwdCurveNodes = new double[] {0.01, 1, 1.5, 1.9, 3., 4.0, 5.0, 6.0};
+    final double[] dscCurveNodes = new double[] {0.01, 0.5, 1, 1.5, 2.0, 3.1, 4.1, 5, 6.0 };
+    final double[] fwdCurveNodes = new double[] {0.01, 1, 1.5, 1.9, 3., 4.0, 5.0, 6.0 };
 
-    final double[] dscCurveYields = new double[] {0.03, 0.03, 0.04, 0.043, 0.06, 0.03, 0.036, 0.03, 0.03};
-    final double[] fwdCurveYields = new double[] {0.03, 0.05, 0.043, 0.048, 0.031, 0.0362, 0.032, 0.032};
+    final double[] dscCurveYields = new double[] {0.03, 0.03, 0.04, 0.043, 0.06, 0.03, 0.036, 0.03, 0.03 };
+    final double[] fwdCurveYields = new double[] {0.03, 0.05, 0.043, 0.048, 0.031, 0.0362, 0.032, 0.032 };
 
     DISCOUNTING_YIELD_CURVE = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveYields, INTERPOLATOR_DQ));
     FORWARD_YIELD_CURVE = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveYields, INTERPOLATOR_CS));
-    LinkedHashMap<String, YieldAndDiscountCurve> curvesY = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> curvesY = new LinkedHashMap<String, YieldAndDiscountCurve>();
     curvesY.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_YIELD_CURVE);
     curvesY.put(FORWARD_CURVE_NAME, FORWARD_YIELD_CURVE);
     CURVE_BUNDLE_YIELD = new YieldCurveBundle(curvesY);
@@ -102,7 +102,7 @@ public abstract class NodeSensitivityCalculatorTest {
 
     DISCOUNTING_DISCOUNTING_CURVE = DiscountCurve.from(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveDf, INTERPOLATOR_DQ));
     FORWARD_DISCOUNTING_CURVE = DiscountCurve.from(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveDf, INTERPOLATOR_CS));
-    LinkedHashMap<String, YieldAndDiscountCurve> curvesDF = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> curvesDF = new LinkedHashMap<String, YieldAndDiscountCurve>();
     curvesDF.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_DISCOUNTING_CURVE);
     curvesDF.put(FORWARD_CURVE_NAME, FORWARD_DISCOUNTING_CURVE);
     CURVE_BUNDLE_DISCOUNTING = new YieldCurveBundle(curvesDF);
@@ -140,7 +140,7 @@ public abstract class NodeSensitivityCalculatorTest {
     fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_YIELD_CURVE);
     final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
     fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_YIELD_CURVE);
-    YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
+    final YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = getValueCalculator();
     final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = getSensitivityCalculator();
     final DoubleMatrix1D result = getCalculator().calculateSensitivities(SWAP, sensitivityCalculator, fixedCurve, fittingCurve);
@@ -154,7 +154,7 @@ public abstract class NodeSensitivityCalculatorTest {
     fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_DISCOUNTING_CURVE);
     final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
     fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_DISCOUNTING_CURVE);
-    YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
+    final YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap);
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = getValueCalculator();
     final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> sensitivityCalculator = getSensitivityCalculator();
     final DoubleMatrix1D result = getCalculator().calculateSensitivities(SWAP, sensitivityCalculator, fixedCurve, fittingCurve);
@@ -203,7 +203,7 @@ public abstract class NodeSensitivityCalculatorTest {
         if (fixedCurves != null) {
           curves.addAll(fixedCurves);
         }
-        return valueCalculator.visit(ird, curves);
+        return ird.accept(valueCalculator, curves);
       }
     };
 
@@ -247,7 +247,7 @@ public abstract class NodeSensitivityCalculatorTest {
         if (fixedCurves != null) {
           curves.addAll(fixedCurves);
         }
-        return valueCalculator.visit(ird, curves);
+        return ird.accept(valueCalculator, curves);
       }
     };
 

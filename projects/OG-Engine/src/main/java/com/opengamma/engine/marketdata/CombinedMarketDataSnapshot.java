@@ -34,7 +34,7 @@ public class CombinedMarketDataSnapshot extends AbstractMarketDataSnapshot {
   
   @Override
   public UniqueId getUniqueId() {
-    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "CombinedMarketDataSnapshot:"+getSnapshotTime());
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "CombinedMarketDataSnapshot:" + getSnapshotTime());
   }
 
   @Override

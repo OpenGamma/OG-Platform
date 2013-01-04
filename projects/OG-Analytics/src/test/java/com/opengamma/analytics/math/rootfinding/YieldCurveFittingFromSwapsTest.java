@@ -8,6 +8,7 @@ package com.opengamma.analytics.math.rootfinding;
 
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+import static com.opengamma.analytics.math.rootfinding.YieldCurveFittingSetup.FX_MATRIX;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
@@ -79,10 +80,10 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     final List<double[]> yields = new ArrayList<double[]>();
 
     final String interpolatorName = Interpolator1DFactory.NATURAL_CUBIC_SPLINE;
-    final int[] payments = new int[] { 1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60 };
+    final int[] payments = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60 };
     curveNames.add("single curve");
-    curveKnots.add(new double[] { 0.5, 1.00, 1.5, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556 });
-    yields.add(new double[] { 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.052, 0.049, 0.045, 0.044, 0.043, 0.041, 0.04 });
+    curveKnots.add(new double[] {0.5, 1.00, 1.5, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556 });
+    yields.add(new double[] {0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.052, 0.049, 0.045, 0.044, 0.043, 0.041, 0.04 });
 
     final int n = payments.length;
     final double[] rates = new double[n];
@@ -109,13 +110,13 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     final List<double[]> yields = new ArrayList<double[]>();
 
     final String interpolatorName = Interpolator1DFactory.NATURAL_CUBIC_SPLINE;
-    final int[] payments = new int[] { 1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60 };
+    final int[] payments = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60 };
     curveNames.add("funding");
     curveNames.add("Libor");
-    curveKnots.add(new double[] { 1, 2, 5, 10, 20, 31 });
-    curveKnots.add(new double[] { 0.5, 1, 2, 5, 10, 20, 31 });
-    yields.add(new double[] { 0.021, 0.036, 0.06, 0.054, 0.049, 0.044 });
-    yields.add(new double[] { 0.01, 0.02, 0.035, 0.06, 0.055, 0.05, 0.045 });
+    curveKnots.add(new double[] {1, 2, 5, 10, 20, 31 });
+    curveKnots.add(new double[] {0.5, 1, 2, 5, 10, 20, 31 });
+    yields.add(new double[] {0.021, 0.036, 0.06, 0.054, 0.049, 0.044 });
+    yields.add(new double[] {0.01, 0.02, 0.035, 0.06, 0.055, 0.05, 0.045 });
 
     final double[] rates = new double[payments.length];
     int count = 0;
@@ -224,9 +225,9 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       final double[] marketValue = new double[n];
       for (int i = 0; i < n; i++) {
         instrument = makeSwap(curveKnots[i], SimpleFrequency.QUARTERLY, curveName, curveName, 0, 1.0);
-        instrument = REPLACE_RATE.visit(instrument, ParRateCalculator.getInstance().visit(instrument, curveBundle));
+        instrument = instrument.accept(REPLACE_RATE, instrument.accept(ParRateCalculator.getInstance(), curveBundle));
         instruments.add(instrument);
-        marketValue[i] = data.getMarketValueCalculator().visit(instrument, curveBundle);
+        marketValue[i] = instrument.accept(data.getMarketValueCalculator(), curveBundle);
       }
 
       dataBundle = updateInstruments(dataBundle, instruments, marketValue);
@@ -248,14 +249,14 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     final List<double[]> yields = new ArrayList<double[]>();
 
     final String interpolatorName = Interpolator1DFactory.DOUBLE_QUADRATIC;
-    final int[] payments = new int[] { 1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60 };
+    final int[] payments = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60 };
     curveNames.add("funding");
     curveNames.add("Libor");
     knownCurves.add("funding");
-    curveKnots.add(new double[] { 1, 5, 10, 20, 30 });
-    curveKnots.add(new double[] { 0.5, 1.00, 1.5, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556 });
-    yields.add(new double[] { 0.02, 0.04, 0.05, 0.05, 0.05 });
-    yields.add(new double[] { 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.052, 0.049, 0.045, 0.044, 0.043, 0.041, 0.04 });
+    curveKnots.add(new double[] {1, 5, 10, 20, 30 });
+    curveKnots.add(new double[] {0.5, 1.00, 1.5, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556 });
+    yields.add(new double[] {0.02, 0.04, 0.05, 0.05, 0.05 });
+    yields.add(new double[] {0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.052, 0.049, 0.045, 0.044, 0.043, 0.041, 0.04 });
 
     final int n = payments.length;
     final double[] rates = new double[n];
@@ -284,14 +285,14 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
     final List<double[]> yields = new ArrayList<double[]>();
 
     final String interpolatorName = Interpolator1DFactory.DOUBLE_QUADRATIC;
-    final int[] payments = new int[] { 1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60 };
+    final int[] payments = new int[] {1, 2, 3, 4, 6, 8, 10, 14, 20, 30, 40, 50, 60 };
     curveNames.add("funding");
     curveNames.add("Libor");
     knownCurves.add("Libor");
-    curveKnots.add(new double[] { 0.5, 1.00, 1.5, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556 });
-    curveKnots.add(new double[] { 0.5, 1.00, 1.5, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556 });
-    yields.add(new double[] { 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.052, 0.049, 0.045, 0.044, 0.043, 0.041, 0.04 });
-    yields.add(new double[] { 0.015, 0.0155, 0.025, 0.032, 0.042, 0.052, 0.0521, 0.0491, 0.045, 0.044, 0.043, 0.041, 0.04 });
+    curveKnots.add(new double[] {0.5, 1.00, 1.5, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556 });
+    curveKnots.add(new double[] {0.5, 1.00, 1.5, 2.005555556, 3.002777778, 4, 5, 7.008333333, 10, 15, 20.00277778, 25.00555556, 30.00555556 });
+    yields.add(new double[] {0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.052, 0.049, 0.045, 0.044, 0.043, 0.041, 0.04 });
+    yields.add(new double[] {0.015, 0.0155, 0.025, 0.032, 0.042, 0.052, 0.0521, 0.0491, 0.045, 0.044, 0.043, 0.041, 0.04 });
 
     final int n = payments.length;
     final double[] rates = new double[n];
@@ -339,12 +340,12 @@ public class YieldCurveFittingFromSwapsTest extends YieldCurveFittingSetup {
       curve2 = curveNames.get(1);
     }
     for (int i = 0; i < n; i++) {
-      instrument = makeSwap(swapMaturities[i]/2.0, SimpleFrequency.QUARTERLY, curve1, curve2, 0, 1.0);
-      instrument = REPLACE_RATE.visitFixedFloatSwap(instrument, ParRateCalculator.getInstance().visit(instrument, curveBundle));
+      instrument = makeSwap(swapMaturities[i] / 2.0, SimpleFrequency.QUARTERLY, curve1, curve2, 0, 1.0);
+      instrument = REPLACE_RATE.visitFixedFloatSwap(instrument, instrument.accept(ParRateCalculator.getInstance(), curveBundle));
       instruments.add(instrument);
       // if the calculator is Present Value this should be zero (by definition
       // of what par-rate is)
-      marketValues[i] = marketValueCalculator.visit(instrument, curveBundle);
+      marketValues[i] = instrument.accept(marketValueCalculator, curveBundle);
     }
 
     YieldCurveBundle knownCurves = null;

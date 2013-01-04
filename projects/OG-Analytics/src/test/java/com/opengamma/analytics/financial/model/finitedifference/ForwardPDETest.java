@@ -189,6 +189,66 @@ public class ForwardPDETest {
     PDEUtilityTools.printSurface("prices", prices);
   }
 
+  @Test
+  public void flatVolTest() {
+
+    final double spot = 10.0;
+    final double r = 0.1;
+    final double y = 0.0;
+    final double vol = 0.3;
+    final double expiry = 2.0;
+    final double mult = Math.exp(Math.sqrt(expiry) * vol * 6.0);
+
+    final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, true);
+    // ConvectionDiffusionPDESolver solver = new RichardsonExtrapolationFiniteDifference(base);
+
+    final int tNodes = 51;
+    final int xNodes = 101;
+
+    ConvectionDiffusionPDE1DStandardCoefficients pde = PDE_DATA_PROVIDER.getForwardBlackSholes(r, y, vol);
+    Function1D<Double, Double> intCon = INITIAL_COND_PROVIDER.getForwardCallPut(spot, true);
+    //only true if y =0
+    BoundaryCondition lower = new DirichletBoundaryCondition(spot, 0);
+    BoundaryCondition upper = new DirichletBoundaryCondition(0, mult * spot);
+
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, expiry, tNodes, 3.0);
+    //final MeshingFunction spaceMesh = new ExponentialMeshing(0, 5 * spot, xNodes, 0.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0, mult * spot, spot, xNodes, 0.05);
+
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCon, lower, upper, grid);
+    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(db);
+
+    double[][] price = new double[tNodes][xNodes];
+    for (int i = 0; i < tNodes; i++) {
+      double t = grid.getTimeNode(i);
+      double df = Math.exp(-r * t);
+      double fwd = spot * Math.exp((r - y) * t);
+      for (int j = 0; j < xNodes; j++) {
+        price[i][j] = df * BlackFormulaRepository.price(fwd, grid.getSpaceNode(j), t, vol, true);
+      }
+    }
+
+    //    double k = grid.getSpaceNode(1);
+    //    double pdePrice = res.getFunctionValue(1, 1);
+    //    double analPrice = price[1][1];
+    //    double t = grid.getTimeNode(1);
+    //    double fPrice = pdePrice * Math.exp(r * t);
+    //    double fwd = spot * Math.exp(r * t);
+    //    double iv = BlackFormulaRepository.impliedVolatility(fPrice, fwd, k, t, true);
+    //
+    //    System.out.println("debug " + grid.getSpaceNode(1) + "\t" + price[1][1] + "\t" + res.getFunctionValue(1, 1) + "\t" + iv);
+
+    //    PDEUtilityTools.printSurface("PDE res", res);
+    //    PDEUtilityTools.printSurface("call price", price, grid.getSpaceNodes(), grid.getTimeNodes(), System.out);
+    //
+    //    Map<DoublesPair, Double> iv = PDEUtilityTools.priceToImpliedVol(new ForwardCurve(spot, r), new YieldCurve("", ConstantDoublesCurve.from(r)), res, 0, 2.0, 0.0, mult * spot);
+    //    GridInterpolator2D gridIn = new GridInterpolator2D(Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE, Interpolator1DFactory.DOUBLE_QUADRATIC_INSTANCE);
+    //    Map<Double, Interpolator1DDataBundle> idb = gridIn.getDataBundle(iv);
+    //    PDEUtilityTools.printSurface("iv", idb, 0.1, 2.0, 0.7, 3 * spot, 100, 100);
+  }
+
   private ConvectionDiffusionPDE1DStandardCoefficients getForwardLocalVol(final LocalVolatilitySurfaceMoneyness localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {

@@ -52,8 +52,8 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
   private static final FXMatrix FX_MATRIX = new FXMatrix(USD, KRW, USD_KRW);
   private static final YieldCurveBundle CURVESFX = new YieldCurveBundle(CURVES.getCurvesMap(), FX_MATRIX, CURVE_CURRENCY);
 
-  private static final ForexNonDeliverableForward NDF = NDF_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[3], CURVE_NAMES[1]});
-  private static final Forex FOREX = FOREX_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[1], CURVE_NAMES[3]});
+  private static final ForexNonDeliverableForward NDF = NDF_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[3], CURVE_NAMES[1] });
+  private static final Forex FOREX = FOREX_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[1], CURVE_NAMES[3] });
 
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FX = ForexDiscountingMethod.getInstance();
@@ -68,15 +68,15 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
    * Tests the currency exposure.
    */
   public void currencyExposure() {
-    MultipleCurrencyAmount ce = METHOD_NDF.currencyExposure(NDF, CURVES);
-    double df1 = CURVES.getCurve(CURVE_NAMES[3]).getDiscountFactor(NDF.getPaymentTime());
-    double df2 = CURVES.getCurve(CURVE_NAMES[1]).getDiscountFactor(NDF.getPaymentTime());
-    double ce1 = -NOMINAL_USD * df1 * FX_RATE;
-    double ce2 = NOMINAL_USD * df2;
+    final MultipleCurrencyAmount ce = METHOD_NDF.currencyExposure(NDF, CURVES);
+    final double df1 = CURVES.getCurve(CURVE_NAMES[3]).getDiscountFactor(NDF.getPaymentTime());
+    final double df2 = CURVES.getCurve(CURVE_NAMES[1]).getDiscountFactor(NDF.getPaymentTime());
+    final double ce1 = -NOMINAL_USD * df1 * FX_RATE;
+    final double ce2 = NOMINAL_USD * df2;
     assertEquals("Currency exposure - non-deliverable forward", ce1, ce.getAmount(KRW), TOLERANCE_PV);
     assertEquals("Currency exposure - non-deliverable forward", ce2, ce.getAmount(USD), TOLERANCE_PV);
-    InstrumentDerivative instrument = NDF;
-    MultipleCurrencyAmount cei = METHOD_NDF.currencyExposure(instrument, CURVES);
+    final InstrumentDerivative instrument = NDF;
+    final MultipleCurrencyAmount cei = METHOD_NDF.currencyExposure(instrument, CURVES);
     assertEquals("Currency exposure - non-deliverable forward", cei.getAmount(KRW), ce.getAmount(KRW), TOLERANCE_PV);
     assertEquals("Currency exposure - non-deliverable forward", cei.getAmount(USD), ce.getAmount(USD), TOLERANCE_PV);
   }
@@ -86,8 +86,8 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
    * Checks that the NDF currency exposure is the same as the standard FX forward currency exposure.
    */
   public void currencyExposureVsForex() {
-    MultipleCurrencyAmount ceNDF = METHOD_NDF.currencyExposure(NDF, CURVES);
-    MultipleCurrencyAmount ceFX = METHOD_FX.currencyExposure(FOREX, CURVES);
+    final MultipleCurrencyAmount ceNDF = METHOD_NDF.currencyExposure(NDF, CURVES);
+    final MultipleCurrencyAmount ceFX = METHOD_FX.currencyExposure(FOREX, CURVES);
     assertEquals("Currency exposure - non-deliverable forward", ceFX, ceNDF);
   }
 
@@ -96,8 +96,8 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
    * Checks that the NDF present value calculator is coherent with present value method.
    */
   public void currencyExposureMethodVsCalculator() {
-    MultipleCurrencyAmount ceMethod = METHOD_NDF.currencyExposure(NDF, CURVESFX);
-    MultipleCurrencyAmount ceCalculator = CE_FX.visit(NDF, CURVESFX);
+    final MultipleCurrencyAmount ceMethod = METHOD_NDF.currencyExposure(NDF, CURVESFX);
+    final MultipleCurrencyAmount ceCalculator = NDF.accept(CE_FX, CURVESFX);
     assertEquals("Currency exposure - non-deliverable forward", ceMethod, ceCalculator);
   }
 
@@ -106,12 +106,12 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
    * Tests the present value.
    */
   public void presentValue() {
-    MultipleCurrencyAmount ce = METHOD_NDF.currencyExposure(NDF, CURVES);
-    MultipleCurrencyAmount pv = METHOD_NDF.presentValue(NDF, CURVESFX);
-    double pvExpected = ce.getAmount(KRW) * FX_MATRIX.getFxRate(KRW, USD) + ce.getAmount(USD);
+    final MultipleCurrencyAmount ce = METHOD_NDF.currencyExposure(NDF, CURVES);
+    final MultipleCurrencyAmount pv = METHOD_NDF.presentValue(NDF, CURVESFX);
+    final double pvExpected = ce.getAmount(KRW) * FX_MATRIX.getFxRate(KRW, USD) + ce.getAmount(USD);
     assertEquals("Present value - non-deliverable forward", pvExpected, pv.getAmount(USD), 1.0E-2);
-    InstrumentDerivative instrument = NDF;
-    MultipleCurrencyAmount pvi = METHOD_NDF.presentValue(instrument, CURVESFX);
+    final InstrumentDerivative instrument = NDF;
+    final MultipleCurrencyAmount pvi = METHOD_NDF.presentValue(instrument, CURVESFX);
     assertEquals("Currency exposure - non-deliverable forward", pvi.getAmount(USD), pv.getAmount(USD), TOLERANCE_PV);
   }
 
@@ -120,8 +120,8 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
    * Checks that the NDF present value is coherent with the standard FX forward present value.
    */
   public void presentValueVsForex() {
-    MultipleCurrencyAmount pvNDF = METHOD_NDF.presentValue(NDF, CURVESFX);
-    MultipleCurrencyAmount pvFX = METHOD_FX.presentValue(FOREX, CURVES);
+    final MultipleCurrencyAmount pvNDF = METHOD_NDF.presentValue(NDF, CURVESFX);
+    final MultipleCurrencyAmount pvFX = METHOD_FX.presentValue(FOREX, CURVES);
     assertEquals("Present value - non-deliverable forward", pvFX.getAmount(USD) + pvFX.getAmount(KRW) * FX_MATRIX.getFxRate(KRW, USD), pvNDF.getAmount(USD), TOLERANCE_PV);
   }
 
@@ -130,8 +130,8 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
    * Checks that the NDF present value calculator is coherent with present value method.
    */
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD_NDF.presentValue(NDF, CURVESFX);
-    MultipleCurrencyAmount pvCalculator = PVC_FX.visit(NDF, CURVESFX);
+    final MultipleCurrencyAmount pvMethod = METHOD_NDF.presentValue(NDF, CURVESFX);
+    final MultipleCurrencyAmount pvCalculator = NDF.accept(PVC_FX, CURVESFX);
     assertEquals("Present value - non-deliverable forward", pvMethod, pvCalculator);
   }
 
@@ -140,8 +140,8 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
    * Checks that the NDF forward rate is coherent with the standard FX forward present value.
    */
   public void forwardRateVsForex() {
-    double fwdNDF = METHOD_NDF.forwardForexRate(NDF, CURVESFX);
-    double fwdFX = METHOD_FX.forwardForexRate(FOREX, CURVESFX);
+    final double fwdNDF = METHOD_NDF.forwardForexRate(NDF, CURVESFX);
+    final double fwdFX = METHOD_FX.forwardForexRate(FOREX, CURVESFX);
     assertEquals("Forward rate - non-deliverable forward", fwdNDF, fwdFX, TOLERANCE_PV);
   }
 
@@ -150,9 +150,9 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
    * Tests the forward Forex rate through the method and through the calculator.
    */
   public void forwardRateMethodVsCalculator() {
-    double fwdMethod = METHOD_NDF.forwardForexRate(NDF, CURVESFX);
-    ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
-    double fwdCalculator = FWDC.visit(NDF, CURVESFX);
+    final double fwdMethod = METHOD_NDF.forwardForexRate(NDF, CURVESFX);
+    final ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
+    final double fwdCalculator = NDF.accept(FWDC, CURVESFX);
     assertEquals("Forex: forward rate", fwdMethod, fwdCalculator, 1.0E-10);
   }
 
@@ -161,8 +161,8 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
    * Tests the present value curve sensitivity using the Forex instrument curve sensitivity as reference.
    */
   public void presentValueCurveSensitivity() {
-    MultipleCurrencyInterestRateCurveSensitivity pvcsNDF = METHOD_NDF.presentValueCurveSensitivity(NDF, CURVESFX);
-    MultipleCurrencyInterestRateCurveSensitivity pvcsFX = METHOD_FX.presentValueCurveSensitivity(FOREX, CURVES);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsNDF = METHOD_NDF.presentValueCurveSensitivity(NDF, CURVESFX);
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsFX = METHOD_FX.presentValueCurveSensitivity(FOREX, CURVES);
     assertTrue("Present value curve sensitivity - non-deliverable forward",
         InterestRateCurveSensitivityUtils.compare(pvcsFX.getSensitivity(USD).getSensitivities().get(CURVE_NAMES[1]), pvcsNDF.getSensitivity(USD).getSensitivities().get(CURVE_NAMES[1]), TOLERANCE_PV));
     // The NDF sensitivity with respect to curve1 is in currency2; the FX sensitivity with respect to curve1 is in currency1; both sensitivity are in line with their respective PV.
@@ -172,8 +172,8 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
             InterestRateCurveSensitivityUtils.multiplySensitivity(pvcsFX.getSensitivity(KRW).getSensitivities().get(CURVE_NAMES[3]), FX_MATRIX.getFxRate(KRW, USD)), pvcsNDF.getSensitivity(USD)
                 .getSensitivities().get(CURVE_NAMES[3]), TOLERANCE_PV));
 
-    InstrumentDerivative instrument = NDF;
-    MultipleCurrencyInterestRateCurveSensitivity pvcsi = METHOD_NDF.presentValueCurveSensitivity(instrument, CURVESFX);
+    final InstrumentDerivative instrument = NDF;
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsi = METHOD_NDF.presentValueCurveSensitivity(instrument, CURVESFX);
     AssertSensivityObjects.assertEquals("ForexNonDeliverableForwardDiscountingMethod: presentValueCurveSensitivity", pvcsNDF, pvcsi, TOLERANCE_PV);
   }
 

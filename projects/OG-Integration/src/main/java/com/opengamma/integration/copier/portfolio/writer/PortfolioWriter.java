@@ -16,7 +16,13 @@ import com.opengamma.util.tuple.ObjectsPair;
  */
 public interface PortfolioWriter {
 
-//  ManageableSecurity writeSecurity(ManageableSecurity security);
+  /**
+   * Adds a key-value pair to the set of portfolio attributes.
+   * 
+   * @param key  the key to add, not null
+   * @param value  the value to add, not null
+   */
+  void addAttribute(String key, String value);
   
   ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities);
     

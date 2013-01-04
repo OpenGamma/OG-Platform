@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.batch.BatchMaster;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -60,6 +61,11 @@ public class ToolContext extends DirectBean implements Closeable {
   @PropertyDefinition(set = "manual")
   private Object _contextManager;
 
+  /**
+   * The batch master.
+   */
+  @PropertyDefinition
+  private BatchMaster _batchMaster;
   /**
    * The config master.
    */
@@ -229,6 +235,8 @@ public class ToolContext extends DirectBean implements Closeable {
     switch (propertyName.hashCode()) {
       case 295862014:  // contextManager
         return getContextManager();
+      case -252634564:  // batchMaster
+        return getBatchMaster();
       case 10395716:  // configMaster
         return getConfigMaster();
       case -652001691:  // exchangeMaster
@@ -282,6 +290,9 @@ public class ToolContext extends DirectBean implements Closeable {
     switch (propertyName.hashCode()) {
       case 295862014:  // contextManager
         setContextManager((Object) newValue);
+        return;
+      case -252634564:  // batchMaster
+        setBatchMaster((BatchMaster) newValue);
         return;
       case 10395716:  // configMaster
         setConfigMaster((ConfigMaster) newValue);
@@ -361,6 +372,7 @@ public class ToolContext extends DirectBean implements Closeable {
     if (obj != null && obj.getClass() == this.getClass()) {
       ToolContext other = (ToolContext) obj;
       return JodaBeanUtils.equal(getContextManager(), other.getContextManager()) &&
+          JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
           JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
           JodaBeanUtils.equal(getExchangeMaster(), other.getExchangeMaster()) &&
           JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
@@ -391,6 +403,7 @@ public class ToolContext extends DirectBean implements Closeable {
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getContextManager());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
@@ -433,6 +446,31 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   public final Property<Object> contextManager() {
     return metaBean().contextManager().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the batch master.
+   * @return the value of the property
+   */
+  public BatchMaster getBatchMaster() {
+    return _batchMaster;
+  }
+
+  /**
+   * Sets the batch master.
+   * @param batchMaster  the new value of the property
+   */
+  public void setBatchMaster(BatchMaster batchMaster) {
+    this._batchMaster = batchMaster;
+  }
+
+  /**
+   * Gets the the {@code batchMaster} property.
+   * @return the property, not null
+   */
+  public final Property<BatchMaster> batchMaster() {
+    return metaBean().batchMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -1001,6 +1039,11 @@ public class ToolContext extends DirectBean implements Closeable {
     private final MetaProperty<Object> _contextManager = DirectMetaProperty.ofReadWrite(
         this, "contextManager", ToolContext.class, Object.class);
     /**
+     * The meta-property for the {@code batchMaster} property.
+     */
+    private final MetaProperty<BatchMaster> _batchMaster = DirectMetaProperty.ofReadWrite(
+        this, "batchMaster", ToolContext.class, BatchMaster.class);
+    /**
      * The meta-property for the {@code configMaster} property.
      */
     private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(
@@ -1116,6 +1159,7 @@ public class ToolContext extends DirectBean implements Closeable {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "contextManager",
+        "batchMaster",
         "configMaster",
         "exchangeMaster",
         "holidayMaster",
@@ -1150,6 +1194,8 @@ public class ToolContext extends DirectBean implements Closeable {
       switch (propertyName.hashCode()) {
         case 295862014:  // contextManager
           return _contextManager;
+        case -252634564:  // batchMaster
+          return _batchMaster;
         case 10395716:  // configMaster
           return _configMaster;
         case -652001691:  // exchangeMaster
@@ -1220,6 +1266,14 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<Object> contextManager() {
       return _contextManager;
+    }
+
+    /**
+     * The meta-property for the {@code batchMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BatchMaster> batchMaster() {
+      return _batchMaster;
     }
 
     /**

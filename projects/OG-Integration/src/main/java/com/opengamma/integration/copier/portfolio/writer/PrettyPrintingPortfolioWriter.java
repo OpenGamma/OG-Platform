@@ -38,6 +38,11 @@ public class PrettyPrintingPortfolioWriter implements PortfolioWriter {
   }
 
   @Override
+  public void addAttribute(String key, String value) {
+    // Not supported
+  }
+  
+  @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
     
     ArgumentChecker.notNull(position, "position");

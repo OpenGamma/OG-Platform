@@ -13,6 +13,9 @@ import static org.testng.Assert.assertTrue;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import net.sf.ehcache.CacheManager;
+
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
@@ -32,11 +35,19 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
- * Tests the {@link ExecutionPlanCache} class.
+ * Test.
  */
 @Test
 public class ExecutionPlanCacheTest {
 
+  private CacheManager _cacheManager;
+
+  @AfterMethod
+  public void tearDown() {
+    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   public void testDependencyNodeKey_same() {
     final DependencyNode a = new DependencyNode(new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "A")));
     a.setFunction(new MockFunction("Foo", new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "A"))));
@@ -211,8 +222,10 @@ public class ExecutionPlanCacheTest {
     };
   }
 
+  //-------------------------------------------------------------------------
   public void testCache_identity() {
-    final ExecutionPlanCache cache = new ExecutionPlanCache(EHCacheUtils.createCacheManager());
+    _cacheManager = new CacheManager();
+    final ExecutionPlanCache cache = new ExecutionPlanCache(_cacheManager);
     final DependencyGraph graph = createDependencyGraph();
     final ExecutionPlan plan = createExecutionPlan();
     cache.cachePlan(graph, 0, plan);
@@ -226,7 +239,8 @@ public class ExecutionPlanCacheTest {
   }
 
   public void testCache_key() {
-    final ExecutionPlanCache cache = new ExecutionPlanCache(EHCacheUtils.createCacheManager());
+    _cacheManager = new CacheManager();
+    final ExecutionPlanCache cache = new ExecutionPlanCache(_cacheManager);
     final ExecutionPlan plan = createExecutionPlan();
     cache.cachePlan(createDependencyGraph(), 0, plan);
     final ExecutionPlan cached = cache.getCachedPlan(createDependencyGraph(), 0);
@@ -234,7 +248,8 @@ public class ExecutionPlanCacheTest {
   }
 
   public void testCache_identity_invalid() {
-    final ExecutionPlanCache cache = new ExecutionPlanCache(EHCacheUtils.createCacheManager());
+    _cacheManager = new CacheManager();
+    final ExecutionPlanCache cache = new ExecutionPlanCache(_cacheManager);
     final DependencyGraph graph = createDependencyGraph();
     final ExecutionPlan plan = createExecutionPlan();
     cache.cachePlan(graph, 0, plan);

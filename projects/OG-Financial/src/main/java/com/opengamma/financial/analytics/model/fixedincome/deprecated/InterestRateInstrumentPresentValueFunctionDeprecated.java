@@ -33,7 +33,7 @@ public class InterestRateInstrumentPresentValueFunctionDeprecated extends Intere
   @Override
   public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle, final FinancialSecurity security,
       final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod, final String currency) {
-    Double presentValue = CALCULATOR.visit(derivative, bundle);
+    Double presentValue = derivative.accept(CALCULATOR, bundle);
     if (security instanceof BondSecurity) {
       final BondSecurity bondSec = (BondSecurity) security;
       presentValue *= bondSec.getParAmount();

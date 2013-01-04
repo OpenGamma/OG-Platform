@@ -76,24 +76,24 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
   public CurrencyAmount presentValue(final CapFloorIbor cap, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(cap);
     Validate.notNull(sabrData);
-    EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
-    double forward = PRC.visit(cap, sabrData);
-    double df = sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
-    double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
+    final double forward = cap.accept(PRC, sabrData);
+    final double df = sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
+    final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
     double price;
     if (cap.getStrike() <= _cutOffStrike) { // No extrapolation
-      double volatility = sabrData.getSABRParameter().getVolatility(cap.getFixingTime(), maturity, cap.getStrike(), forward);
-      BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
-      Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(option);
+      final double volatility = sabrData.getSABRParameter().getVolatility(cap.getFixingTime(), maturity, cap.getStrike(), forward);
+      final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
+      final Function1D<BlackFunctionData, Double> func = BLACK_FUNCTION.getPriceFunction(option);
       price = func.evaluate(dataBlack) * cap.getNotional() * cap.getPaymentYearFraction();
     } else { // With extrapolation
       SABRExtrapolationRightFunction sabrExtrapolation;
-      DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
-      double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
-      double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
-      double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
-      double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
-      SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
+      final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+      final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
+      final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
+      final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
+      final double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
+      final SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
       sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
       price = df * sabrExtrapolation.price(option) * cap.getNotional() * cap.getPaymentYearFraction();
     }
@@ -116,12 +116,12 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
   public InterestRateCurveSensitivity presentValueSensitivity(final CapFloorIbor cap, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(cap);
     Validate.notNull(sabrData);
-    EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
-    double forward = PRC.visit(cap, sabrData);
-    InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(cap, sabrData));
-    double df = sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
-    double dfDr = -cap.getPaymentTime() * df;
-    double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
+    final double forward = cap.accept(PRC, sabrData);
+    final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(cap.accept(PRSC, sabrData));
+    final double df = sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
+    final double dfDr = -cap.getPaymentTime() * df;
+    final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
     InterestRateCurveSensitivity result;
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
     list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
@@ -131,19 +131,19 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
     double bsPrice;
     double bsDforward;
     if (cap.getStrike() <= _cutOffStrike) { // No extrapolation
-      double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.getStrike(), forward);
-      BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
-      double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+      final double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.getStrike(), forward);
+      final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
+      final double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
       bsPrice = bsAdjoint[0];
       bsDforward = df * (bsAdjoint[1] + bsAdjoint[2] * volatilityAdjoint[1]);
     } else { // With extrapolation
-      DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
-      double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
-      double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
-      double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
-      double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
-      SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
-      SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
+      final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+      final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
+      final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
+      final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
+      final double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
+      final SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
+      final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
       bsPrice = sabrExtrapolation.price(option);
       bsDforward = sabrExtrapolation.priceDerivativeForward(option);
     }
@@ -163,29 +163,29 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
     Validate.notNull(cap);
     Validate.notNull(sabrData);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike(), cap.getFixingTime(), cap.isCap());
-    final double forward = PRC.visit(cap, sabrData);
+    final double forward = cap.accept(PRC, sabrData);
     final double df = sabrData.getCurve(cap.getFundingCurveName()).getDiscountFactor(cap.getPaymentTime());
     final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
-    double[] bsDsabr = new double[4];
+    final double[] bsDsabr = new double[4];
     if (cap.getStrike() <= _cutOffStrike) { // No extrapolation
-      double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.getStrike(), forward);
-      BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
-      double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+      final double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.getStrike(), forward);
+      final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
+      final double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
       bsDsabr[0] = bsAdjoint[2] * volatilityAdjoint[3];
       bsDsabr[1] = bsAdjoint[2] * volatilityAdjoint[4];
       bsDsabr[2] = bsAdjoint[2] * volatilityAdjoint[5];
       bsDsabr[3] = bsAdjoint[2] * volatilityAdjoint[6];
     } else { // With extrapolation
-      DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
-      double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
-      double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
-      double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
-      double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
-      SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
-      SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
+      final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+      final double alpha = sabrData.getSABRParameter().getAlpha(expiryMaturity);
+      final double beta = sabrData.getSABRParameter().getBeta(expiryMaturity);
+      final double rho = sabrData.getSABRParameter().getRho(expiryMaturity);
+      final double nu = sabrData.getSABRParameter().getNu(expiryMaturity);
+      final SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
+      final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, _cutOffStrike, cap.getFixingTime(), _mu);
       sabrExtrapolation.priceAdjointSABR(option, bsDsabr);
     }
-    PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
+    final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
     sensi.addAlpha(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[0]);
     sensi.addBeta(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[1]);

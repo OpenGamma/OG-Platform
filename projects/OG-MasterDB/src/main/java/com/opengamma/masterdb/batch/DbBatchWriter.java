@@ -10,8 +10,6 @@ import static com.google.common.collect.Maps.newConcurrentMap;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.util.db.HibernateDbUtils.eqOrIsNull;
-import static com.opengamma.util.functional.Functional.any;
-import static com.opengamma.util.functional.Functional.map;
 import static com.opengamma.util.functional.Functional.newArray;
 
 import java.io.Serializable;
@@ -67,10 +65,12 @@ import com.opengamma.batch.domain.RiskValueSpecification;
 import com.opengamma.batch.domain.StatusEntry;
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ExecutionLogWithContext;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
@@ -86,7 +86,6 @@ import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.functional.Function1;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -404,7 +403,6 @@ public class DbBatchWriter extends AbstractDbMaster {
   }
 
   protected void populateComputationTargets(Collection<ComputationTargetSpecification> computationTargetSpecifications) {
-
     Map<Map<String, Object>, Collection<ComputationTargetSpecification>> computationTargetsData = newHashMapWithDefaultCollection();
     for (ComputationTargetSpecification targetSpecification : computationTargetSpecifications) {
       Map<String, Object> attribs = newHashMap();
@@ -783,134 +781,99 @@ public class DbBatchWriter extends AbstractDbMaster {
     }
     return marketData;
   }
-
+  
+  @SuppressWarnings("unchecked")
+  public void addComputedValuesToMarketDataInTransaction(ObjectId marketDataId, Set<ComputedValue> values) {
+    if (values == null || values.isEmpty()) {
+      return;
+    }
+    Set<MarketDataValue> marketDataValues = newHashSet();
+    for (ComputedValue value : values) {
+      final ResultConverter<Object> resultConverter;
+      try {
+        resultConverter = (ResultConverter<Object>) _resultConverterCache.getConverter(value.getValue());
+      } catch (IllegalArgumentException e) {
+        s_logger.error("No converter for market data value of type " + value.getValue().getClass() + " for " + value.getSpecification());
+        continue;
+      }
+      Map<String, Double> valueAsDoublesMap = resultConverter.convert(value.getSpecification().getValueName(), value.getValue());
+      for (Map.Entry<String, Double> valueEntry : valueAsDoublesMap.entrySet()) {
+        final String doubleValueName = valueEntry.getKey();
+        final Double doubleValue = valueEntry.getValue();
+        marketDataValues.add(new MarketDataValue(value.getSpecification().getTargetSpecification(), doubleValue, doubleValueName));
+      }
+    }
+    addValuesToMarketDataInTransaction(marketDataId, marketDataValues);
+  }
+  
   public void addValuesToMarketDataInTransaction(ObjectId marketDataId, Set<MarketDataValue> values) {
-    s_logger.info("Adding {} values to market data {}", values.size(), marketDataId);
-
+    if (values == null || values.isEmpty()) {
+      return;
+    }
+    s_logger.info("Adding {} market data values to {}", values.size(), marketDataId);
+    
     MarketData marketData = getMarketDataInTransaction(marketDataId);
-
     if (marketData == null) {
       throw new IllegalArgumentException("Market data " + marketDataId + " cannot be found");
     }
     
-    if (values.size() > 0) {
+    List<DbMapSqlParameterSource> marketDataValuesInserts = newArrayList();
 
-      List<DbMapSqlParameterSource> marketDataValuesInserts = newArrayList();
-
-
-      Collection<ComputationTargetSpecification> computationTargetSpecifications = newArrayList();
-
-      for (MarketDataValue value : values) {
-        ComputationTargetSpecification targetSpecification = value.getComputationTargetSpecification();
-        computationTargetSpecifications.add(targetSpecification);
-      }
-      populateComputationTargets(computationTargetSpecifications);
-
-      Collection<Long> ids = newArrayList();
-
-      for (MarketDataValue value : values) {
-        ComputationTargetSpecification targetSpecification = value.getComputationTargetSpecification();
-
-        final long id = nextId(RSK_SEQUENCE_NAME);
-        ids.add(id);
-        final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource()
-          .addValue("id", id)
-          .addValue("snapshot_id", marketData.getId())
-          .addValue("computation_target_id", _computationTargets.get(targetSpecification))
-          .addValue("name", value.getName())
-          .addValue("value", value.getValue());
-
-        marketDataValuesInserts.add(insertArgs);
-      }
-
-      getJdbcTemplate().batchUpdate(
-        getElSqlBundle().getSql("InsertMarketDataValue"),
-        marketDataValuesInserts.toArray(new DbMapSqlParameterSource[marketDataValuesInserts.size()])
-      );
-
-      //List<Map<String, Object>> marketDataValuesToBeCopied = getJdbcTemplate().queryForList(getElSqlBundle().getSql("SelectMarketDataValuesToBeCopied"));
-
-      getJdbcTemplate().update(getElSqlBundle().getSql("CopyMarketDataValue").replace("INSERTION_IDS", StringUtils.join(ids, ", ")));
-
-      getJdbcTemplate().update("DELETE FROM rsk_live_data_snapshot_entry_insertion WHERE id in (INSERTION_IDS)".replace("INSERTION_IDS", StringUtils.join(ids, ", ")));
+    Collection<ComputationTargetSpecification> computationTargetSpecifications = newHashSet();
+    for (MarketDataValue value : values) {
+      ComputationTargetSpecification targetSpecification = value.getComputationTargetSpecification();
+      computationTargetSpecifications.add(targetSpecification);
     }
+    populateComputationTargets(computationTargetSpecifications);
+
+    Collection<Long> ids = newArrayList();
+
+    for (MarketDataValue value : values) {
+      final ComputationTargetSpecification targetSpec = value.getComputationTargetSpecification();
+      final long id = nextId(RSK_SEQUENCE_NAME);
+      ids.add(id);
+      final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource()
+        .addValue("id", id)
+        .addValue("snapshot_id", marketData.getId())
+        .addValue("computation_target_id", _computationTargets.get(targetSpec))
+        .addValue("name", value.getName())
+        .addValue("value", value.getValue());
+      marketDataValuesInserts.add(insertArgs);          
+    }
+
+    getJdbcTemplate().batchUpdate(
+      getElSqlBundle().getSql("InsertMarketDataValue"),
+      marketDataValuesInserts.toArray(new DbMapSqlParameterSource[marketDataValuesInserts.size()])
+    );
+
+    getJdbcTemplate().update(getElSqlBundle().getSql("CopyMarketDataValue").replace("INSERTION_IDS", StringUtils.join(ids, ", ")));
+    getJdbcTemplate().update("DELETE FROM rsk_live_data_snapshot_entry_insertion WHERE id in (INSERTION_IDS)".replace("INSERTION_IDS", StringUtils.join(ids, ", ")));
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unchecked")
   public void addJobResultsInTransaction(ObjectId runId, ViewComputationResultModel resultModel) {
-
     ArgumentChecker.notNull(runId, "runId");
     ArgumentChecker.notNull(resultModel, "resultModel");
+    
     final Long riskRunId = extractOid(runId);
-
-    RiskRun run = _riskRunsByIds.get(riskRunId);
+    ArgumentChecker.notNull(riskRunId, "riskRunId");
 
     Map<ComputeFailureKey, ComputeFailure> computeFailureCache = _computeFailureCacheByRunId.get(riskRunId);
     Map<Pair<Long, Long>, StatusEntry> statusCache = _statusCacheByRunId.get(riskRunId);
 
-    // STAGE 1. Populate error information in the cache.
     Map<ValueSpecification, BatchResultWriterFailure> errorCache = populateErrorCache(computeFailureCache, resultModel.getAllResults());
+    
+    RiskRun run = _riskRunsByIds.get(riskRunId);
+    if (run.getSnapshotMode().equals(SnapshotMode.WRITE_THROUGH)) {
+      addComputedValuesToMarketDataInTransaction(run.getMarketData().getObjectId(), resultModel.getAllMarketData());
+    }
 
     for (String calcConfigName : resultModel.getCalculationConfigurationNames()) {
-
-
-      // STAGE 2. Work out which targets:
-      // 1) succeeded and should be written into rsk_value (because ALL items for that target succeeded)
-      // 2) failed and should be written into rsk_failure (because AT LEAST ONE item for that target failed)
-
-
       ViewCalculationResultModel viewCalculationResultModel = resultModel.getCalculationResult(calcConfigName);
-
-      Set<ComputationTargetSpecification> successfulTargets = newHashSet();
-      Set<ComputationTargetSpecification> failedTargets = newHashSet();
-
-      viewCalculationResultModel.getAllTargets();
-
-      for (ComputationTargetSpecification targetSpecification : viewCalculationResultModel.getAllTargets()) {
-
-        Collection<ComputedValueResult> values = viewCalculationResultModel.getAllValues(targetSpecification);
-
-        if (failedTargets.contains(targetSpecification) || any(values, new Function1<ComputedValueResult, Boolean>() {
-          @Override
-          /**
-           * Predicate checking for failed computation values or values for which there is no converter
-           */
-          public Boolean execute(ComputedValueResult result) {
-            if (result.getInvocationResult() != InvocationResult.SUCCESS) {
-              s_logger.error("The calculation of {} has failed, {}:{} ", newArray(result.getSpecification(), result.getInvocationResult(), result.getExecutionLog().getExceptionMessage()));
-              return true;
-            } else {
-              Object value = result.getValue();
-              try {
-                _resultConverterCache.getConverter(value);
-              } catch (IllegalArgumentException e) {
-                s_logger.error("Cannot insert value of type " + value.getClass() + " for " + result.getSpecification(), e);
-                // REVIEW jonathan 2012-11-06 -- this is not part of the calculation result and may be replacing
-                // details of a genuine exception that occurred during execution. There should be another mechanism to
-                // return this information if it is needed.
-                /*
-                result.setInvocationResult(InvocationResult.FUNCTION_THREW_EXCEPTION);
-                result.setExceptionClass("IllegalArgumentException");
-                result.setExceptionMsg(e.getMessage());
-                StringBuilderWriter sbw = new StringBuilderWriter();
-                e.printStackTrace(new PrintWriter(sbw));
-                result.setStackTrace(sbw.toString());
-                */
-                return true;
-              }
-              return false;
-            }
-          }
-        })) {
-          successfulTargets.remove(targetSpecification);
-          failedTargets.add(targetSpecification);
-        } else {
-          successfulTargets.add(targetSpecification);
-        }
-      }
-
-      // STAGE 3. Based on the results of stage 2, work out
-      // SQL statements to write risk into rsk_value and rsk_failure (& rsk_failure_reason)
+      
+      final Set<ComputationTargetSpecification> successfulTargets = newHashSet();
+      final Set<ComputationTargetSpecification> failedTargets = newHashSet();
 
       List<DbMapSqlParameterSource> successes = newArrayList();
       List<DbMapSqlParameterSource> failures = newArrayList();
@@ -919,93 +882,57 @@ public class DbBatchWriter extends AbstractDbMaster {
       Instant evalInstant = Instant.now();
 
       Long calcConfId = _calculationConfigurations.get(calcConfigName);
+      ArgumentChecker.notNull(calcConfId, "calcConfId");
 
-      for (final ComputationTargetSpecification compTargetSpec : viewCalculationResultModel.getAllTargets()) {
-
-        if (successfulTargets.contains(compTargetSpec)) {
-
-          // make sure the values are not already in db, don't want to insert twice
-          StatusEntry.Status status = getStatus(statusCache, calcConfigName, compTargetSpec);
-          if (status == StatusEntry.Status.SUCCESS) {
-            continue;
+      for (final ComputationTargetSpecification targetSpec : viewCalculationResultModel.getAllTargets()) {
+        boolean specFailures = false;
+        for (final ComputedValueResult computedValue : viewCalculationResultModel.getAllValues(targetSpec)) {
+          ResultConverter<Object> resultConverter  = null;
+          if (!(computedValue.getValue() instanceof MissingInput)) {
+            try {
+              resultConverter = (ResultConverter<Object>) _resultConverterCache.getConverter(computedValue.getValue());
+            } catch (IllegalArgumentException e) {
+              s_logger.error("No converter for value of type " + computedValue.getValue().getClass() + " for " + computedValue.getSpecification());
+            }            
           }
+          
+          final Long computationTargetId = _computationTargets.get(targetSpec);
+          ArgumentChecker.notNull(computationTargetId, "computationTargetId");
+          
+          final ValueSpecification specification = computedValue.getSpecification();
+          Long valueSpecificationId = _riskValueSpecifications.get(specification);
+          ArgumentChecker.notNull(valueSpecificationId, "valueSpecificationId");
+          
+          Long functionUniqueId = getFunctionUniqueIdInTransaction(specification.getFunctionUniqueId()).getId();
+          Long computeNodeId = getOrCreateComputeNode(computedValue.getComputeNodeId()).getId();
 
-          for (final ComputedValueResult computedValue : viewCalculationResultModel.getAllValues(compTargetSpec)) {
-
-            @SuppressWarnings("unchecked")
-            ResultConverter<Object> resultConverter = (ResultConverter<Object>) _resultConverterCache.getConverter(computedValue.getValue());
-            Map<String, Double> valuesAsDoubles = resultConverter.convert(computedValue.getSpecification().getValueName(), computedValue.getValue());
-
-            final Long computationTargetId = _computationTargets.get(compTargetSpec);
-
-            for (Map.Entry<String, Double> riskValueEntry : valuesAsDoubles.entrySet()) {
-
-              String riskValueName = riskValueEntry.getKey();
-              Double riskValue = riskValueEntry.getValue();
-
-              ValueSpecification specification = computedValue.getSpecification();
-
-              Long valueSpecificationId = _riskValueSpecifications.get(specification);
-              Long functionUniqueId = getFunctionUniqueIdInTransaction(specification.getFunctionUniqueId()).getId();
-              Long computeNodeId = getOrCreateComputeNode(computedValue.getComputeNodeId()).getId();
-
-              ArgumentChecker.notNull(calcConfId, "calcConfId");
-              ArgumentChecker.notNull(valueSpecificationId, "valueSpecificationId");
-              ArgumentChecker.notNull(functionUniqueId, "functionUniqueId");
-              ArgumentChecker.notNull(computationTargetId, "computationTargetId");
-              ArgumentChecker.notNull(riskRunId, "riskRunId");
-              ArgumentChecker.notNull(computeNodeId, "computeNodeId");
-
+          ArgumentChecker.notNull(functionUniqueId, "functionUniqueId");
+          ArgumentChecker.notNull(computeNodeId, "computeNodeId");
+          
+          if (resultConverter != null && computedValue.getInvocationResult() == InvocationResult.SUCCESS) {
+            Map<String, Double> valueAsDoublesMap = resultConverter.convert(computedValue.getSpecification().getValueName(), computedValue.getValue());
+            for (Map.Entry<String, Double> valueEntry : valueAsDoublesMap.entrySet()) {
+              final String doubleValueName = valueEntry.getKey();
+              final Double doubleValue = valueEntry.getValue();
               final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource();
               final long successId = nextId(RSK_SEQUENCE_NAME);
               insertArgs.addValue("id", successId);
               insertArgs.addValue("calculation_configuration_id", calcConfId);
-              insertArgs.addValue("name", riskValueName);
+              insertArgs.addValue("name", doubleValueName);
               insertArgs.addValue("value_specification_id", valueSpecificationId);
               insertArgs.addValue("function_unique_id", functionUniqueId);
               insertArgs.addValue("computation_target_id", computationTargetId);
               insertArgs.addValue("run_id", riskRunId);
-              insertArgs.addValue("value", riskValue);
+              insertArgs.addValue("value", doubleValue);
               insertArgs.addTimestamp("eval_instant", evalInstant);
               insertArgs.addValue("compute_node_id", computeNodeId);
               successes.add(insertArgs);
-
-
-              // writhe through market data
-              if (run.getSnapshotMode().equals(SnapshotMode.WRITE_THROUGH)) {
-                addValuesToMarketDataInTransaction(run.getMarketData().getObjectId(),
-                  map(new HashSet<MarketDataValue>(), valuesAsDoubles.entrySet(), new Function1<Map.Entry<String, Double>, MarketDataValue>() {
-                    @Override
-                    public MarketDataValue execute(Map.Entry<String, Double> valueEntry) {
-                      return new MarketDataValue(compTargetSpec, valueEntry.getValue(), valueEntry.getKey());
-                    }
-                  })
-                );
-              }
             }
-          }
-
-          // the check below ensures that
-          // if there is a partial failure (some successes, some failures) for a target,
-          // only the failures will be written out in the database
-        } else if (failedTargets.contains(compTargetSpec)) {
-
-          Long computationTargetId = _computationTargets.get(compTargetSpec);
-
-          for (ComputedValueResult computedValue : viewCalculationResultModel.getAllValues(compTargetSpec)) {
-            ValueSpecification specification = computedValue.getSpecification();
-
-            Long valueSpecificationId = _riskValueSpecifications.get(specification);
-            Long functionUniqueId = getFunctionUniqueIdInTransaction(specification.getFunctionUniqueId()).getId();
-            Long computeNodeId = getOrCreateComputeNode(computedValue.getComputeNodeId()).getId();
-
-            ArgumentChecker.notNull(calcConfId, "calcConfId");
-            ArgumentChecker.notNull(valueSpecificationId, "valueSpecificationId");
-            ArgumentChecker.notNull(functionUniqueId, "functionUniqueId");
-            ArgumentChecker.notNull(computationTargetId, "computationTargetId");
-            ArgumentChecker.notNull(riskRunId, "riskRunId");
-            ArgumentChecker.notNull(computeNodeId, "computeNodeId");
-
+          } else {
+            s_logger.error("Writing failure for {} with invocation result {}, {} ",
+                newArray(computedValue.getSpecification(), computedValue.getInvocationResult(), computedValue.getAggregatedExecutionLog()));
+            specFailures = true;
+            
             final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource();
             final long failureId = nextId(RSK_SEQUENCE_NAME);
             insertArgs.addValue("id", failureId);
@@ -1019,46 +946,28 @@ public class DbBatchWriter extends AbstractDbMaster {
             insertArgs.addValue("compute_node_id", computeNodeId);
             failures.add(insertArgs);
 
-            switch (computedValue.getInvocationResult()) {
-
-              case MISSING_INPUTS:
-              case FUNCTION_THREW_EXCEPTION:
-
-                BatchResultWriterFailure cachedFailure = errorCache.get(specification);
-                if (cachedFailure != null) {
-                  for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
-                    ArgumentChecker.notNull(computeFailureId, "computeFailureId");
-                    final DbMapSqlParameterSource failureReasonsInsertArgs = new DbMapSqlParameterSource();
-                    final long failureReasonId = nextId(RSK_SEQUENCE_NAME);
-                    failureReasonsInsertArgs.addValue("id", failureReasonId);
-                    failureReasonsInsertArgs.addValue("rsk_failure_id", failureId);
-                    failureReasonsInsertArgs.addValue("compute_failure_id", computeFailureId);
-                    failureReasons.add(failureReasonsInsertArgs);
-                  }
-                }
-
-                break;
-
-              case SUCCESS:
-
-                // maybe this output succeeded, but some other outputs for the same target failed.
-                s_logger.debug("Not adding any failure reasons for partial failures / unsupported outputs for now");
-                break;
-
-              default:
-                throw new RuntimeException("Should not getId here");
-            }
-
+            BatchResultWriterFailure cachedFailure = errorCache.get(specification);
+            if (cachedFailure != null) {
+              for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
+                ArgumentChecker.notNull(computeFailureId, "computeFailureId");
+                final DbMapSqlParameterSource failureReasonsInsertArgs = new DbMapSqlParameterSource();
+                final long failureReasonId = nextId(RSK_SEQUENCE_NAME);
+                failureReasonsInsertArgs.addValue("id", failureReasonId);
+                failureReasonsInsertArgs.addValue("rsk_failure_id", failureId);
+                failureReasonsInsertArgs.addValue("compute_failure_id", computeFailureId);
+                failureReasons.add(failureReasonsInsertArgs);
+              }
+            }       
           }
-
+        }
+        StatusEntry.Status status = getStatus(statusCache, calcConfigName, targetSpec);
+        if (specFailures || status == StatusEntry.Status.FAILURE) {
+          successfulTargets.remove(targetSpec);
+          failedTargets.add(targetSpec);
         } else {
-          // probably a PRIMITIVE target. See targetOutputMode == ResultOutputMode.NONE check above.
-          s_logger.debug("Not writing anything for target {}", compTargetSpec);
+          successfulTargets.add(targetSpec);
         }
       }
-
-
-      // STAGE 4. Actually execute the statements worked out in stage 3.
 
       if (successes.isEmpty()
         && failures.isEmpty()
@@ -1073,15 +982,16 @@ public class DbBatchWriter extends AbstractDbMaster {
       getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertRiskFailure"), failures.toArray(new DbMapSqlParameterSource[failures.size()]));
       getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertRiskFailureReason"), failureReasons.toArray(new DbMapSqlParameterSource[failureReasons.size()]));
 
-      upsertStatusEntries(statusCache, calcConfigName, StatusEntry.Status.SUCCESS, successfulTargets);
-      upsertStatusEntries(statusCache, calcConfigName, StatusEntry.Status.FAILURE, failedTargets);
-
+      updateStatusEntries(statusCache, calcConfigName, StatusEntry.Status.SUCCESS, successfulTargets);
+      updateStatusEntries(statusCache, calcConfigName, StatusEntry.Status.FAILURE, failedTargets);
     }
   }
 
   /**
    * STAGE 1. Populate error information in the cache.
-   * This is done for all items and will populate table rsk_compute_failure. 
+   * This is done for all items and will populate table rsk_compute_failure.
+   * 
+   * @return the error cache, not null
    */
   protected Map<ValueSpecification, BatchResultWriterFailure> populateErrorCache(Map<ComputeFailureKey, ComputeFailure> computeFailureCache, Collection<ViewResultEntry> results) {
     Map<ValueSpecification, BatchResultWriterFailure> errorCache = Maps.newHashMap();
@@ -1091,7 +1001,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     return errorCache;
   }
 
-  protected void upsertStatusEntries(
+  protected void updateStatusEntries(
     Map<Pair<Long, Long>, StatusEntry> statusCache,
     String calcConfName,
     StatusEntry.Status status,
@@ -1260,11 +1170,11 @@ public class DbBatchWriter extends AbstractDbMaster {
       throw new IllegalArgumentException("Please give a failed item");
     }
 
-    ComputeFailureKey computeFailureKey = new ComputeFailureKey(
-      item.getComputedValue().getSpecification().getFunctionUniqueId(),
-      item.getComputedValue().getExecutionLog().getExceptionClass(),
-      item.getComputedValue().getExecutionLog().getExceptionMessage(),
-      item.getComputedValue().getExecutionLog().getExceptionStackTrace());
+    ExecutionLogWithContext rootLog = item.getComputedValue().getAggregatedExecutionLog().getRootLog();
+    String exceptionClass = rootLog != null ? rootLog.getExecutionLog().getExceptionClass() : null;
+    String exceptionMessage = rootLog != null ? rootLog.getExecutionLog().getExceptionMessage() : null;
+    String exceptionStackTrace = rootLog != null ? rootLog.getExecutionLog().getExceptionStackTrace() : null;
+    ComputeFailureKey computeFailureKey = new ComputeFailureKey(item.getComputedValue().getSpecification().getFunctionUniqueId(), exceptionClass, exceptionMessage, exceptionStackTrace);
     return getComputeFailureFromDb(computeFailureCache, computeFailureKey);
   }
 
@@ -1273,32 +1183,25 @@ public class DbBatchWriter extends AbstractDbMaster {
     if (computeFailure != null) {
       return computeFailure;
     }
-
-    try {
-      computeFailure = saveComputeFailure(computeFailureCache, computeFailureKey);
-      return computeFailure;
-
-    } catch (DataAccessException e) {
-      // maybe the row was already there
-      s_logger.debug("Failed to save compute failure", e);
-    }
-
     try {
       int id = getJdbcTemplate().queryForInt(getElSqlBundle().getSql("SelectComputeFailureId"), computeFailureKey.toSqlParameterSource());
-
       computeFailure = new ComputeFailure();
       computeFailure.setId(id);
       computeFailure.setFunctionId(computeFailureKey.getFunctionId());
       computeFailure.setExceptionClass(computeFailureKey.getExceptionClass());
       computeFailure.setExceptionMsg(computeFailureKey.getExceptionMsg());
       computeFailure.setStackTrace(computeFailureKey.getStackTrace());
-
       computeFailureCache.put(computeFailureKey, computeFailure);
       return computeFailure;
-
     } catch (IncorrectResultSizeDataAccessException e) {
-      s_logger.error("Cannot getId {} from db", computeFailureKey);
-      throw new RuntimeException("Cannot getId " + computeFailureKey + " from db", e);
+      // Not seen a failure like this before - create and write to database
+      try {
+        computeFailure = saveComputeFailure(computeFailureCache, computeFailureKey);
+        return computeFailure;
+      } catch (DataAccessException e2) {
+        s_logger.error("Failed to save compute failure", e2);
+        throw new RuntimeException("Failed to save compute failure", e2);
+      }
     }
   }
 

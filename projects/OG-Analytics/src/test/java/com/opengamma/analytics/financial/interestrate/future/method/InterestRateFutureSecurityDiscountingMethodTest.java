@@ -93,7 +93,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    */
   public void priceMethodVsCalculator() {
     final double priceMethod = METHOD.price(ERU2, CURVES);
-    final double priceCalculator = PRICE_CALCULATOR.visit(ERU2, CURVES);
+    final double priceCalculator = ERU2.accept(PRICE_CALCULATOR, CURVES);
     assertEquals("Bond future security Discounting: Method vs calculator", priceMethod, priceCalculator, 1.0E-10);
   }
 
@@ -115,7 +115,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   public void parRateMethodVsCalculator() {
     final double rateMethod = METHOD.parRate(ERU2, CURVES);
     final ParRateCalculator calculator = ParRateCalculator.getInstance();
-    final double rateCalculator = calculator.visit(ERU2, CURVES);
+    final double rateCalculator = ERU2.accept(calculator, CURVES);
     assertEquals("Future price from curves", rateMethod, rateCalculator, 1.0E-10);
   }
 
@@ -124,10 +124,10 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    * Test the par spread.
    */
   public void parSpread() {
-    final double parSpread = ParSpreadMarketQuoteCalculator.getInstance().visit(ERU2, CURVES);
-    InterestRateFuture futures0 = new InterestRateFuture(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE + parSpread, NOTIONAL, FUTURE_FACTOR,
+    final double parSpread = ERU2.accept(ParSpreadMarketQuoteCalculator.getInstance(), CURVES);
+    final InterestRateFuture futures0 = new InterestRateFuture(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE + parSpread, NOTIONAL, FUTURE_FACTOR,
         QUANTITY, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
-    CurrencyAmount pv0 = METHOD.presentValue(futures0, CURVES);
+    final CurrencyAmount pv0 = METHOD.presentValue(futures0, CURVES);
     assertEquals("Future par spread", pv0.getAmount(), 0, TOLERANCE_PV);
   }
 

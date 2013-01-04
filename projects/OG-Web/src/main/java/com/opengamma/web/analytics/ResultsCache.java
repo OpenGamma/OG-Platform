@@ -18,14 +18,13 @@ import org.apache.commons.collections.buffer.CircularFifoBuffer;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * <p>Cache of results from a running view process. This is intended for use with view clients where the first
@@ -52,7 +51,7 @@ import com.opengamma.util.tuple.Pair;
   private final Map<ResultKey, CacheItem> _results = Maps.newHashMap();
 
   /** ID that's incremented each time results are received, used for keeping track of which items were updated. */
-  private long _lastUpdateId = 0;
+  private long _lastUpdateId;
 
   /** Duration of the last calculation cycle. */
   private Duration _lastCalculationDuration = Duration.ZERO;
@@ -67,8 +66,7 @@ import com.opengamma.util.tuple.Pair;
     _lastCalculationDuration = results.getCalculationDuration();
     final List<ViewResultEntry> allResults = results.getAllResults();
     for (final ViewResultEntry result : allResults) {
-      final ComputedValue computedValue = result.getComputedValue();
-      put(result.getCalculationConfiguration(), computedValue.getSpecification(), computedValue.getValue());
+      put(result.getCalculationConfiguration(), result.getComputedValue());
     }
   }
 
@@ -78,46 +76,29 @@ import com.opengamma.util.tuple.Pair;
    * @param results The results
    * @param duration Duration of the calculation cycle that produced the results
    */
-  /* package */ void put(final String calcConfigName, final List<Pair<ValueSpecification, Object>> results, final Duration duration) {
+  /* package */ void put(final String calcConfigName, final Map<ValueSpecification, ComputedValueResult> results, final Duration duration) {
     _lastUpdateId++;
     _lastCalculationDuration = duration;
-    for (final Pair<ValueSpecification, Object> result : results) {
-      final ValueSpecification spec = result.getFirst();
-      final Object value = result.getSecond();
-      put(calcConfigName, spec, value);
+    for (final ComputedValueResult result : results.values()) {
+      put(calcConfigName, result);
     }
   }
 
   /**
    * Puts a single value into the cache.
    * @param calcConfigName The name of the calculation configuration used to calculate the results
-   * @param spec The value's specification
-   * @param value The value
+   * @param result The result value and associated data
    */
-  private void put(final String calcConfigName, final ValueSpecification spec, final Object value) {
+  private void put(final String calcConfigName, final ComputedValueResult result) {
+    final ValueSpecification spec = result.getSpecification();
+    final Object value = result.getValue();
     final ResultKey key = new ResultKey(calcConfigName, spec);
     final CacheItem cacheResult = _results.get(key);
     if (cacheResult == null) {
-      // don't create an item for an error value
-      if (value instanceof MissingInput) {
-        return;
-      }
-      final CacheItem newResult = CacheItem.forValue(value, _lastUpdateId);
-      _results.put(key, newResult);
+      _results.put(key, new CacheItem(value, result.getAggregatedExecutionLog(), _lastUpdateId));
     } else {
-      cacheResult.setLatestValue(value, _lastUpdateId);
+      cacheResult.setLatestValue(value, result.getAggregatedExecutionLog(), _lastUpdateId);
     }
-  }
-
-  /**
-   * Returns the history for a value and calculation configuration.
-   * @param calcConfigName The calculation configuration name
-   * @param valueSpec The value specification
-   * @return The item's history or null if no history is stored for the item's type or no value has ever been received
-   * for the item
-   */
-  /* package */ Collection<Object> getHistory(final String calcConfigName, final ValueSpecification valueSpec) {
-    return getResult(calcConfigName, valueSpec, null).getHistory();
   }
 
   /**
@@ -134,7 +115,7 @@ import com.opengamma.util.tuple.Pair;
     if (item != null) {
       // flag whether this result was updated by the last set of results that were put into the cache
       final boolean updatedByLastResults = (item.getLastUpdateId() == _lastUpdateId);
-      return new Result(item.getValue(), item.getHistory(), updatedByLastResults);
+      return new Result(item.getValue(), item.getHistory(), item.getAggregatedExecutionLog(), updatedByLastResults);
     } else {
       if (s_historyTypes.contains(columnType)) {
         return s_emptyResultWithHistory;
@@ -147,7 +128,7 @@ import com.opengamma.util.tuple.Pair;
   /**
    * @return Duration of the last calculation cycle
    */
-  public Duration getLastCalculationDuration() {
+  /* package */ Duration getLastCalculationDuration() {
     return _lastCalculationDuration;
   }
 
@@ -157,7 +138,7 @@ import com.opengamma.util.tuple.Pair;
    * @param type The type, possibly null
    * @return The history, possibly null
    */
-  public Collection<Object> getEmptyHistory(final Class<?> type) {
+  /* package */ Collection<Object> emptyHistory(final Class<?> type) {
     if (s_historyTypes.contains(type)) {
       return Collections.emptyList();
     } else {
@@ -169,15 +150,17 @@ import com.opengamma.util.tuple.Pair;
    * An item from the cache including its history and a flag indicating whether it was updated by the most recent
    * calculation cycle. Instances of this class are intended for users of the cache.
    */
-  /* package */ static class Result {
+  /* package */ static final class Result {
 
     private final Object _value;
     private final Collection<Object> _history;
     private final boolean _updated;
+    private final AggregatedExecutionLog _aggregatedExecutionLog;
 
-    private Result(final Object value, final Collection<Object> history, final boolean updated) {
+    private Result(final Object value, final Collection<Object> history, final AggregatedExecutionLog aggregatedExecutionLog, final boolean updated) {
       _value = value;
       _history = history;
+      _aggregatedExecutionLog = aggregatedExecutionLog;
       _updated = updated;
     }
 
@@ -207,62 +190,62 @@ import com.opengamma.util.tuple.Pair;
      * @return A result with no value and no history, for value requirements that never have history
      */
     private static Result empty() {
-      return new Result(null, null, false);
+      return new Result(null, null, null, false);
     }
 
     /**
      * @return A result with no value and empty history, for value requirements that can have history
      */
     private static Result emptyWithHistory() {
-      return new Result(null, Collections.emptyList(), false);
+      return new Result(null, Collections.emptyList(), null, false);
+    }
+
+    /* package */ AggregatedExecutionLog getAggregatedExecutionLog() {
+      return _aggregatedExecutionLog;
     }
   }
 
   /**
    * An item stored in the cache, this is an internal implementation detail.
    */
-  private static final class CacheItem {
+  private final static class CacheItem {
 
-    private final Collection<Object> _history;
-
+    private Collection<Object> _history;
     private Object _latestValue;
     private long _lastUpdateId = -1;
+    private AggregatedExecutionLog _aggregatedExecutionLog;
 
-    private CacheItem(final Collection<Object> history) {
-      _history = history;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static CacheItem forValue(final Object value, final long lastUpdateId) {
-      ArgumentChecker.notNull(value, "value");
-      CircularFifoBuffer history;
-      if (s_historyTypes.contains(value.getClass())) {
-        history = new CircularFifoBuffer(MAX_HISTORY_SIZE);
-      } else {
-        history = null;
-      }
-      final CacheItem result = new CacheItem(history);
-      result.setLatestValue(value, lastUpdateId);
-      return result;
-    }
-
-    private Object getValue() {
-      return _latestValue;
+    private CacheItem(final Object value, final AggregatedExecutionLog executionLog, final long lastUpdateId) {
+      setLatestValue(value, executionLog, lastUpdateId);
     }
 
     /**
      * Sets the latest value and the ID of the update that calculated it.
      * @param latestValue The value
+     * @param executionLog The execution log associated generated when calculating the value
      * @param lastUpdateId ID of the set of results that calculated it
      */
-    private void setLatestValue(final Object latestValue, final long lastUpdateId) {
+    @SuppressWarnings("unchecked")
+    private void setLatestValue(final Object latestValue, final AggregatedExecutionLog executionLog, final long lastUpdateId) {
+      ArgumentChecker.notNull(latestValue, "latestValue");
       _latestValue = latestValue;
       _lastUpdateId = lastUpdateId;
+      _aggregatedExecutionLog = executionLog;
+      // this can happen if the first value is an error and then real values arrive. this is possible if market
+      // data subscriptions take time to set up. in that case the history will initially be null (because error
+      // sentinel types aren't in s_historyTypes) and then when a valid value arrives the type can be checked and
+      // history created if required
+      if (_history == null && s_historyTypes.contains(latestValue.getClass())) {
+        _history = new CircularFifoBuffer(MAX_HISTORY_SIZE);
+      }
       if (_history != null) {
         _history.add(latestValue);
       }
     }
 
+    private Object getValue() {
+      return _latestValue;
+    }
 
     /* package */ Collection<Object> getHistory() {
       if (_history != null) {
@@ -280,17 +263,8 @@ import com.opengamma.util.tuple.Pair;
       return _lastUpdateId;
     }
 
-    @Override
-    public String toString() {
-      final StringBuilder sb = new StringBuilder("Result(");
-      sb.append(getLastUpdateId());
-      sb.append(", ");
-      if (getValue() != null) {
-        sb.append(getValue().toString());
-      } else {
-        sb.append("NULL");
-      }
-      return sb.append(")").toString();
+    private AggregatedExecutionLog getAggregatedExecutionLog() {
+      return _aggregatedExecutionLog;
     }
 
   }
@@ -298,7 +272,7 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Immutable key for items in the cache, this is in implelemtation detail.
    */
-  private static class ResultKey {
+  private static final class ResultKey {
 
     private final String _calcConfigName;
     private final ValueSpecification _valueSpec;

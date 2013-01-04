@@ -84,7 +84,7 @@ public class CommodityFutureOptionSecurity extends FinancialSecurity {
   private OptionType _optionType;
 
   CommodityFutureOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public CommodityFutureOptionSecurity(String tradingExchange, String settlementExchange, Expiry expiry, ExerciseType exerciseType, ExternalId underlyingIdentifier,

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model;
@@ -25,7 +25,7 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class VegaMatrixHelper {
   private static final Tenor[] EMPTY_TENOR_ARRAY = new Tenor[0];
@@ -132,7 +132,7 @@ public class VegaMatrixHelper {
     return new DoubleLabelledMatrix3D(xKeys, xLabels, yKeys, yLabels, zKeys, zLabels, values);
   }
 
-  private static String getFXVolatilityFormattedExpiry(final double expiry) {
+  public static String getFXVolatilityFormattedExpiry(final double expiry) {
     if (expiry < 1. / 54) {
       final int days = (int) Math.ceil((365 * expiry));
       return days + "D";

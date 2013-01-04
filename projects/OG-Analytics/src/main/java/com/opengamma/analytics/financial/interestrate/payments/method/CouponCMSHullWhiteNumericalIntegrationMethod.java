@@ -78,7 +78,7 @@ public final class CouponCMSHullWhiteNumericalIntegrationMethod implements Prici
       dfFixed[loopcf] = hwData.getCurve(swap.getFixedLeg().getNthPayment(loopcf).getFundingCurveName()).getDiscountFactor(swap.getFixedLeg().getNthPayment(loopcf).getPaymentTime());
       discountedCashFlowFixed[loopcf] = dfFixed[loopcf] * swap.getFixedLeg().getNthPayment(loopcf).getPaymentYearFraction() * swap.getFixedLeg().getNthPayment(loopcf).getNotional();
     }
-    final AnnuityPaymentFixed cfeIbor = CFEC.visit(swap.getSecondLeg(), hwData);
+    final AnnuityPaymentFixed cfeIbor = swap.getSecondLeg().accept(CFEC, hwData);
     final double[] alphaIbor = new double[cfeIbor.getNumberOfPayments()];
     final double[] dfIbor = new double[cfeIbor.getNumberOfPayments()];
     final double[] discountedCashFlowIbor = new double[cfeIbor.getNumberOfPayments()];

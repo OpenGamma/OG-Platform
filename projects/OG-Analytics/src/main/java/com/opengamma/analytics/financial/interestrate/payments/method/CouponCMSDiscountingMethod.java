@@ -83,12 +83,11 @@ public final class CouponCMSDiscountingMethod implements PricingMethod {
     final double paymentTime = cmsCoupon.getPaymentTime();
     final double paymentDiscountFactor = fundingCurve.getDiscountFactor(paymentTime);
     final ParRateCurveSensitivityCalculator parRateSensCal = ParRateCurveSensitivityCalculator.getInstance();
-    final InterestRateCurveSensitivity swapRateSens = new InterestRateCurveSensitivity(parRateSensCal.visit(cmsCoupon.getUnderlyingSwap(), curves));
+    final InterestRateCurveSensitivity swapRateSens = new InterestRateCurveSensitivity(cmsCoupon.getUnderlyingSwap().accept(parRateSensCal, curves));
     final InterestRateCurveSensitivity payDFSens = new InterestRateCurveSensitivity(PresentValueCurveSensitivityCalculator.discountFactorSensitivity(fundingCurveName, fundingCurve, paymentTime));
     InterestRateCurveSensitivity result = swapRateSens.multipliedBy(paymentDiscountFactor);
     result = result.plus(payDFSens.multipliedBy(swapRate));
     result = result.multipliedBy(cmsCoupon.getNotional() * cmsCoupon.getPaymentYearFraction());
     return result;
   }
-
 }

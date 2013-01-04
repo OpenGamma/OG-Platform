@@ -37,8 +37,8 @@ public final class BondCapitalIndexedTransactionDiscountingMethod implements Pri
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final BondCapitalIndexedTransaction<?> bond, final MarketDiscountBundle market) {
-    final MultipleCurrencyAmount pvBond = PVIC.visit(bond.getBondTransaction(), market);
-    MultipleCurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(
+    final MultipleCurrencyAmount pvBond = bond.getBondTransaction().accept(PVIC, market);
+    final MultipleCurrencyAmount pvSettlement = bond.getBondTransaction().getSettlement().accept(PVIC, market).multipliedBy(
         bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.multipliedBy(bond.getQuantity()).plus(pvSettlement);
   }
@@ -59,8 +59,8 @@ public final class BondCapitalIndexedTransactionDiscountingMethod implements Pri
   public MultipleCurrencyAmount presentValueFromCleanPriceReal(final BondCapitalIndexedTransaction<Coupon> bond, final MarketDiscountBundle market, final double cleanPriceReal) {
     Validate.notNull(bond, "Coupon");
     Validate.notNull(market, "Market");
-    MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValueFromCleanPriceReal(bond.getBondTransaction(), market, cleanPriceReal);
-    MultipleCurrencyAmount pvSettlement = PVIC.visit(bond.getBondTransaction().getSettlement(), market).multipliedBy(
+    final MultipleCurrencyAmount pvBond = METHOD_SECURITY.presentValueFromCleanPriceReal(bond.getBondTransaction(), market, cleanPriceReal);
+    final MultipleCurrencyAmount pvSettlement = bond.getBondTransaction().getSettlement().accept(PVIC, market).multipliedBy(
         bond.getQuantity() * bond.getBondTransaction().getCoupon().getNthPayment(0).getNotional());
     return pvBond.plus(pvSettlement);
   }

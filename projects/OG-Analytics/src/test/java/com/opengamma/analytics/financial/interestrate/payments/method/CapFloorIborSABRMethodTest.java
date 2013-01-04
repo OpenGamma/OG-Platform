@@ -88,7 +88,7 @@ public class CapFloorIborSABRMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final CapFloorIbor CAP_LONG = (CapFloorIbor) CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CouponIbor COUPON_IBOR = (CouponIbor) COUPON_IBOR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CouponFixed COUPON_STRIKE = COUPON_STRIKE_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -105,7 +105,7 @@ public class CapFloorIborSABRMethodTest {
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double methodPrice = METHOD.presentValue(CAP_LONG, sabrBundle).getAmount();
     final double df = curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getPaymentTime());
-    final double forward = PRC.visit(CAP_LONG, curves);
+    final double forward = CAP_LONG.accept(PRC, curves);
     final double maturity = CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime();
     final double volatility = sabrParameter.getVolatility(CAP_LONG.getFixingTime(), maturity, STRIKE, forward);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
@@ -125,7 +125,7 @@ public class CapFloorIborSABRMethodTest {
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double expectedPv = METHOD.presentValue(CAP_LONG, sabrBundle).getAmount();
     final PresentValueSABRCalculator pvc = PresentValueSABRCalculator.getInstance();
-    final double pv = pvc.visit(CAP_LONG, sabrBundle);
+    final double pv = CAP_LONG.accept(pvc, sabrBundle);
     assertEquals("Cap/floor SABR pricing: method and calculator", expectedPv, pv, 1E-2);
   }
 
@@ -141,8 +141,8 @@ public class CapFloorIborSABRMethodTest {
     final double priceCapShort = METHOD.presentValue(CAP_SHORT, sabrBundle).getAmount();
     assertEquals("Cap/floor - SABR pricing: long/short parity", -priceCapLong, priceCapShort, 1E-2);
     final double priceFloorShort = METHOD.presentValue(FLOOR_SHORT, sabrBundle).getAmount();
-    final double priceIbor = PVC.visit(COUPON_IBOR, curves);
-    final double priceStrike = PVC.visit(COUPON_STRIKE, curves);
+    final double priceIbor = COUPON_IBOR.accept(PVC, curves);
+    final double priceStrike = COUPON_STRIKE.accept(PVC, curves);
     assertEquals("Cap/floor - SABR pricing: cap/floor parity", priceIbor - priceStrike, priceCapLong + priceFloorShort, 1E-2);
   }
 
@@ -167,7 +167,7 @@ public class CapFloorIborSABRMethodTest {
     pvsCapLong = pvsCapLong.cleaned();
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
+    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName };
     final CapFloorIbor capBumpedForward = (CapFloorIbor) CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
     final Set<Double> timeForwardSet = new TreeSet<Double>();
@@ -200,7 +200,7 @@ public class CapFloorIborSABRMethodTest {
       assertEquals("Sensitivity to forward curve: Node " + i, resFwd[i], pair.getSecond(), deltaTolerance);
     }
     // 2. Funding curve sensitivity
-    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME};
+    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME };
     final CapFloorIbor capBumpedFunding = (CapFloorIbor) CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
     final int nbPayDate = 1;
     final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
@@ -274,7 +274,7 @@ public class CapFloorIborSABRMethodTest {
   public void presentValueSABRSensitivityMethodVsCalculator() {
     final PresentValueSABRSensitivityDataBundle pvssMethod = METHOD.presentValueSABRSensitivity(CAP_LONG, SABR_BUNDLE);
     final PresentValueSABRSensitivitySABRCalculator calculator = PresentValueSABRSensitivitySABRCalculator.getInstance();
-    final PresentValueSABRSensitivityDataBundle pvssCalculator = calculator.visit(CAP_LONG, SABR_BUNDLE);
+    final PresentValueSABRSensitivityDataBundle pvssCalculator = CAP_LONG.accept(calculator, SABR_BUNDLE);
     assertEquals("Cap/floor SABR: Present value SABR sensitivity: method vs calculator", pvssMethod, pvssCalculator);
   }
 }

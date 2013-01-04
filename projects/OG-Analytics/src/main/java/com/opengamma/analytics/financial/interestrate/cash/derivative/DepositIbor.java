@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -59,7 +60,7 @@ public class DepositIbor extends Cash {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -69,7 +70,7 @@ public class DepositIbor extends Cash {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DepositIbor other = (DepositIbor) obj;
+    final DepositIbor other = (DepositIbor) obj;
     if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }
@@ -78,11 +79,13 @@ public class DepositIbor extends Cash {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitDepositIbor(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitDepositIbor(this);
   }
 

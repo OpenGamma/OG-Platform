@@ -41,7 +41,7 @@ public class FXOptionBlackVegaFunction extends FXOptionBlackSingleValuedFunction
   protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     if (data instanceof SmileDeltaTermStructureDataBundle) {
-      final PresentValueForexBlackVolatilitySensitivity result = CALCULATOR.visit(forex, data);
+      final PresentValueForexBlackVolatilitySensitivity result = forex.accept(CALCULATOR, data);
       final CurrencyAmount vegaValue = result.toSingleValue();
       return Collections.singleton(new ComputedValue(spec, vegaValue.getAmount()));
     }

@@ -175,15 +175,6 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   }
 
   /**
-   * Gets the cache manager.
-   * 
-   * @return the cache manager, not null
-   */
-  public CacheManager getDataCacheManager() {
-    return _dataCache.getCacheManager();
-  }
-  
-  /**
    * Gets the id cache manager.
    * 
    * @return the id cache manager, not null

@@ -5,8 +5,6 @@
  */
 package com.opengamma.analytics.financial.model.finitedifference;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.CEVFunctionData;
@@ -14,33 +12,51 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.C
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class MarkovChainApprox {
-
+  /** The first volatility */
   private final double _vol1;
+  /** The second volatility */
   private final double _vol2;
+  /** The first volatility squared */
   private final double _nu1;
+  /** The second volatility squared */
   private final double _nu2;
+  /** The first jump parameter */
   private final double _lambda12;
+  /** The second jump parameter */
   private final double _lambda21;
+  /** The sum of the jump parameters */
   private final double _lambda;
+  /** The ratio of the second jump parameter and the total */
   private final double _theta;
+  /** The probability of being in the first state */
   private final double _probState1;
+  /** The time to expiry */
   private final double _t;
-  //private final Integrator1D<Double, Double> _integrator = new RungeKuttaIntegrator1D();
-  //private final BlackPriceFunction _black = new BlackPriceFunction();
+  /** The weights */
   private final double[] _weights;
+  /** The volatilities */
   private final double[] _vols;
 
+  /**
+   * @param vol1 The first volatility, >= 0
+   * @param vol2 The second volatility, >= 0
+   * @param lambda12 The first jump parameter, >= 0
+   * @param lambda21 The second jump parameter, >= 0
+   * @param probState1 The probability of being in the first state, 0 <= probState1 <= 1
+   * @param expiry The time to expiry
+   */
   public MarkovChainApprox(final double vol1, final double vol2, final double lambda12, final double lambda21, final double probState1, final double expiry) {
-    Validate.isTrue(vol1 >= 0);
-    Validate.isTrue(vol2 >= 0);
-    Validate.isTrue(lambda12 >= 0);
-    Validate.isTrue(lambda21 >= 0);
-    Validate.isTrue(probState1 >= 0 && probState1 <= 1.0);
+    ArgumentChecker.isTrue(vol1 >= 0, "The first volatility must be greater than or equal to 0; have {}", vol1);
+    ArgumentChecker.isTrue(vol2 >= 0, "The second volatility must be greater than or equal to 0; have {}", vol2);
+    ArgumentChecker.isTrue(lambda12 >= 0, "The first jump parameter must be greater than or equal to 0; have {}", lambda12);
+    ArgumentChecker.isTrue(lambda21 >= 0, "The second jump parameter must be greater than or equal to 0; have {}", lambda21);
+    ArgumentChecker.isTrue(probState1 >= 0 && probState1 <= 1.0, "The probability of being in the first state must be >= 0 and <= 1");
     _vol1 = vol1;
     _vol2 = vol2;
     _nu1 = vol1 * vol1;
@@ -70,12 +86,19 @@ public class MarkovChainApprox {
       delta2 = delta1 + skewOverVar;
     }
     w = delta2 / (delta1 + delta2);
-    Validate.isTrue(w >= 0.0 && w <= 1.0, "weight not physical");
+    ArgumentChecker.isTrue(w >= 0.0 && w <= 1.0, "weight not physical");
 
     _weights = new double[] {wMin, wMax, w * (1 - wMin - wMax), (1 - w) * (1 - wMin - wMax)};
     _vols = new double[] {_vol1, _vol2, Math.sqrt(modM1 - delta1), Math.sqrt(modM1 + delta2)};
   }
 
+  /**
+   * Calculates the price using the Black formula
+   * @param forward The forward price
+   * @param df The discount factor
+   * @param strike The strike 
+   * @return The price
+   */
   public double price(final double forward, final double df, final double strike) {
 
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _t, true);
@@ -91,6 +114,14 @@ public class MarkovChainApprox {
     return sum;
   }
 
+  /**
+   * Calculates the price using the CEV formula
+   * @param forward The forward price
+   * @param df The discount factor
+   * @param strike The strike
+   * @param beta The beta
+   * @return The price
+   */
   public double priceCEV(final double forward, final double df, final double strike, final double beta) {
 
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, _t, true);
@@ -107,7 +138,7 @@ public class MarkovChainApprox {
   }
 
   private double getModMoment(final int n, final double a, final double b, final double mu, final double moment) {
-    Validate.isTrue(n > 0);
+    ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
     final double denom = 1 - a - b;
     if (n == 1) {
       return (moment - a * _nu1 - b * _nu2) / denom;
@@ -115,19 +146,23 @@ public class MarkovChainApprox {
     return (moment - a * Math.pow(_nu1 - mu, n) - b * Math.pow(_nu2 - mu, n)) / denom;
   }
 
+  /**
+   * Gets the first three moments at expiry
+   * @param expiry The expiry
+   * @return An array whose elements are {first moment, second moment, third moment}
+   */
   public double[] getMoments(final double expiry) {
     final double m1 = getM1(expiry);
     final double m2 = getM2(expiry);
     final double m3 = getM3(expiry);
 
-    //System.out.println("cal m1: " + m1 + " m2: " + m2 + " m3: " + m3);
     return new double[] {m1, m2, m3};
   }
 
   /**
    * The mean variance (sigma^2*t) of the markov chain
    * @param t
-   * @return
+   * @return The mean variance
    */
   private double getM1(final double t) {
     return _vol2 * _vol2 - (_vol2 * _vol2 - _vol1 * _vol1) * getI1(t);
@@ -176,11 +211,6 @@ public class MarkovChainApprox {
     final double temp2 = (2 * a * b * p - 2 * b * p - 2 * a2 * b + 2 * a * b) / t + (4 * a * p - 2 * p - 6 * a2 + 4 * a) / t2;
     return (temp1 + temp2 * Math.exp(-b * t)) / b2;
 
-    //    double a = _theta;
-    //    double b = _theta * (_probState1 - _theta);
-    //    double c = (_probState1 - _theta) * (1 - _theta);
-    //    double d = _theta * (1 - _theta);
-    //    return (b + d) * t / _lambda + a * t * t / 2 + (c - b - d) / _lambda / _lambda + Math.exp(-_lambda * t) * (-c * t * _lambda - c + b + d) / _lambda / _lambda;
   }
 
   private double getI3(final double t) {

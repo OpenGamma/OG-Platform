@@ -40,9 +40,9 @@ public class FXOptionBlackPresentValueFunction extends FXOptionBlackSingleValued
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final MultipleCurrencyAmount result;
     if (data instanceof YieldCurveWithBlackForexTermStructureBundle) {
-      result = FLAT_CALCULATOR.visit(forex, data);
+      result = forex.accept(FLAT_CALCULATOR, data);
     } else {
-      result = SMILE_CALCULATOR.visit(forex, data);
+      result = forex.accept(SMILE_CALCULATOR, data);
     }
     ArgumentChecker.isTrue(result.size() == 1, "result size must be one; have {}", result.size());
     final CurrencyAmount ca = result.getCurrencyAmounts()[0];

@@ -409,7 +409,7 @@ public class ConvectionDiffusionPDESolverTestCase {
   public void testAmericanPrice(final ConvectionDiffusionPDESolver solver, final int timeSteps, final int priceSteps, final double lowerMoneyness, final double upperMoneyness, final boolean print) {
 
     final AmericanVanillaOptionDefinition option = new AmericanVanillaOptionDefinition(FORWARD, new Expiry(DateUtils.getDateOffsetWithYearFraction(DATE, T)), false);
-    final AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> model = new BjerksundStenslandModel();
+    final BjerksundStenslandModel model = new BjerksundStenslandModel();
     final Function1D<StandardOptionDataBundle, Double> pFunc = model.getPricingFunction(option);
 
     final PDEGrid1D grid = new PDEGrid1D(timeSteps + 1, priceSteps + 1, T, LOWER.getLevel(), UPPER.getLevel());

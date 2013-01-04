@@ -130,7 +130,7 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
           if (securityType != null) {
             result.put(identifierBundle, securityType);
           } else {
-            s_logger.warn("unknown security type of {} for {}", bbgSecurityType, identifierBundle);
+            s_logger.warn("Jim:unknown security type of {} for {}", bbgSecurityType, identifierBundle);
           }
         }
       }

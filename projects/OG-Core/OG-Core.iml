@@ -33,7 +33,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="OG-Util" exported="" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Core-default">
         <CLASSES>
           <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring/jars/spring-transaction-3.0.4.jar!/" />

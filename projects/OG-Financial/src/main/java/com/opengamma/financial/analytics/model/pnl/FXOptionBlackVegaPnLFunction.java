@@ -43,6 +43,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.BloombergFXSpotRateIdentifierVisitor;
@@ -156,7 +157,7 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
     final String currencyBase = currencyPair.getBase().getCode(); // The base currency
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(FXOptionBlackFunction.PUT_CURVE)
         .withAny(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
         .withAny(FXOptionBlackFunction.CALL_CURVE)
@@ -227,16 +228,16 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     final String currencyBase = currencyPair.getBase().getCode(); // The base currency
     final ValueRequirement vegaMatrixRequirement = new ValueRequirement(ValueRequirementNames.VEGA_QUOTE_MATRIX, ComputationTargetSpecification.of(security),
         ValueProperties.builder()
-            .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
-            .with(FXOptionBlackFunction.PUT_CURVE, Iterables.getOnlyElement(putCurveNames))
-            .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, Iterables.getOnlyElement(putCurveCalculationConfigs))
-            .with(FXOptionBlackFunction.CALL_CURVE, Iterables.getOnlyElement(callCurveNames))
-            .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, Iterables.getOnlyElement(callCurveCalculationConfigs))
-            .with(ValuePropertyNames.SURFACE, surfaceName)
-            .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, Iterables.getOnlyElement(interpolatorNames))
-            .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, Iterables.getOnlyElement(leftExtrapolatorNames))
-            .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, Iterables.getOnlyElement(rightExtrapolatorNames))
-            .with(ValuePropertyNames.CURRENCY, vegaResultCurrency).get());
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
+        .with(FXOptionBlackFunction.PUT_CURVE, Iterables.getOnlyElement(putCurveNames))
+        .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, Iterables.getOnlyElement(putCurveCalculationConfigs))
+        .with(FXOptionBlackFunction.CALL_CURVE, Iterables.getOnlyElement(callCurveNames))
+        .with(FXOptionBlackFunction.CALL_CURVE_CALC_CONFIG, Iterables.getOnlyElement(callCurveCalculationConfigs))
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(InterpolatedDataProperties.X_INTERPOLATOR_NAME, Iterables.getOnlyElement(interpolatorNames))
+        .with(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME, Iterables.getOnlyElement(leftExtrapolatorNames))
+        .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, Iterables.getOnlyElement(rightExtrapolatorNames))
+        .with(ValuePropertyNames.CURRENCY, vegaResultCurrency).get());
     final ValueRequirement surfaceHTSRequirement = getVolatilitySurfaceHTSRequirement(currencies, surfaceName, samplingPeriod);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(vegaMatrixRequirement);
@@ -342,7 +343,7 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     final String scheduleCalculator = desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
     final String samplingFunction = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(FXOptionBlackFunction.PUT_CURVE, putCurveName)
         .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveConfig)
         .with(FXOptionBlackFunction.CALL_CURVE, callCurveName)

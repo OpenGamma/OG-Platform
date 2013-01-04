@@ -95,7 +95,7 @@ public class CouponCMSSABRReplicationMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES);
@@ -114,8 +114,8 @@ public class CouponCMSSABRReplicationMethodTest {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    final double priceReceiver = PVC_SABR.visit(CMS_COUPON_RECEIVER, sabrBundle);
-    final double pricePayer = PVC_SABR.visit(CMS_COUPON_PAYER, sabrBundle);
+    final double priceReceiver = CMS_COUPON_RECEIVER.accept(PVC_SABR, sabrBundle);
+    final double pricePayer = CMS_COUPON_PAYER.accept(PVC_SABR, sabrBundle);
     assertEquals("Payer/receiver", priceReceiver, -pricePayer);
   }
 
@@ -125,7 +125,7 @@ public class CouponCMSSABRReplicationMethodTest {
    */
   public void presentValueSABRReplicationMethodVsCalculator() {
     final double pvMethod = METHOD.presentValue(CMS_COUPON_PAYER, SABR_BUNDLE).getAmount();
-    final double pvCalculator = PVC_SABR.visit(CMS_COUPON_PAYER, SABR_BUNDLE);
+    final double pvCalculator = CMS_COUPON_PAYER.accept(PVC_SABR, SABR_BUNDLE);
     assertEquals("Coupon CMS SABR: method and calculator", pvMethod, pvCalculator);
   }
 
@@ -148,7 +148,7 @@ public class CouponCMSSABRReplicationMethodTest {
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final InterestRateCurveSensitivity pvsMethod = METHOD.presentValueCurveSensitivity(CMS_COUPON_PAYER, sabrBundle);
-    final Map<String, List<DoublesPair>> pvsCalculator = PVCSC_SABR.visit(CMS_COUPON_PAYER, sabrBundle);
+    final Map<String, List<DoublesPair>> pvsCalculator = CMS_COUPON_PAYER.accept(PVCSC_SABR, sabrBundle);
     assertEquals("Coupon CMS SABR: method and calculator", pvsMethod.getSensitivities(), pvsCalculator);
   }
 
@@ -169,7 +169,7 @@ public class CouponCMSSABRReplicationMethodTest {
     final double pv = METHOD.presentValue(CMS_COUPON_RECEIVER, sabrBundle).getAmount();
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};
+    final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName };
     final CouponCMS cmsBumpedForward = (CouponCMS) CMS_COUPON_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
     final Set<Double> timeForwardSet = new TreeSet<Double>();
@@ -197,14 +197,14 @@ public class CouponCMSSABRReplicationMethodTest {
       curvesBumpedForward.addAll(curves);
       curvesBumpedForward.setCurve("Bumped Curve", bumpedCurveForward);
       final SABRInterestRateDataBundle sabrBundleBumped = new SABRInterestRateDataBundle(sabrParameter, curvesBumpedForward);
-      final double bumpedpv = PVC_SABR.visit(cmsBumpedForward, sabrBundleBumped);
+      final double bumpedpv = cmsBumpedForward.accept(PVC_SABR, sabrBundleBumped);
       final double res = (bumpedpv - pv) / deltaShift;
       final DoublesPair pair = tempForward.get(i);
       assertEquals("Node " + i, nodeTimesForward[i + 1], pair.getFirst(), 1E-8);
       assertEquals("Node " + i, res, pair.getSecond(), deltaTolerance);
     }
     // 2. Funding curve sensitivity
-    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME};
+    final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME };
     final CouponCMS cmsBumpedFunding = (CouponCMS) CMS_COUPON_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
     final int nbPayDate = CMS_COUPON_RECEIVER_DEFINITION.getUnderlyingSwap().getIborLeg().getPayments().length;
     final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
@@ -280,7 +280,7 @@ public class CouponCMSSABRReplicationMethodTest {
    */
   public void presentValueSABRReplicationSABRSensitivityMethodVsCalculator() {
     final PresentValueSABRSensitivityDataBundle pvssMethod = METHOD.presentValueSABRSensitivity(CMS_COUPON_RECEIVER, SABR_BUNDLE);
-    final PresentValueSABRSensitivityDataBundle pvssCalculator = PVSSC_SABR.visit(CMS_COUPON_RECEIVER, SABR_BUNDLE);
+    final PresentValueSABRSensitivityDataBundle pvssCalculator = CMS_COUPON_RECEIVER.accept(PVSSC_SABR, SABR_BUNDLE);
     assertEquals("CMS cap/floor SABR: Present value SABR sensitivity: method vs calculator", pvssMethod, pvssCalculator);
   }
 
@@ -293,9 +293,9 @@ public class CouponCMSSABRReplicationMethodTest {
     final int nbTest = 1000;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      PVC_SABR.visit(CMS_COUPON_RECEIVER, SABR_BUNDLE);
-      PVCSC_SABR.visit(CMS_COUPON_RECEIVER, SABR_BUNDLE);
-      PVSSC_SABR.visit(CMS_COUPON_RECEIVER, SABR_BUNDLE);
+      CMS_COUPON_RECEIVER.accept(PVC_SABR, SABR_BUNDLE);
+      CMS_COUPON_RECEIVER.accept(PVCSC_SABR, SABR_BUNDLE);
+      CMS_COUPON_RECEIVER.accept(PVSSC_SABR, SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS swap by replication (price+delta+vega): " + (endTime - startTime) + " ms");

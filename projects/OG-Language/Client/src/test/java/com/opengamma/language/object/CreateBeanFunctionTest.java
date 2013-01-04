@@ -42,13 +42,11 @@ public class CreateBeanFunctionTest {
     double payAmount = 1000000d;
     Currency receiveCurrency = Currency.DKK;
     double receiveAmount = 8000000d;
-    ExternalId underlyingId = ExternalId.of("Tst", "underlying");
     ZonedDateTime forwardDate = ZonedDateTime.now();
     ExternalIdBundle idBundle = ExternalIdBundle.of(ExternalId.of("Tst", "id"));
     String name = "securityName";
-    String securityType = "securityType";
     Map<String, String> attributes = Collections.singletonMap("Foo", "Bar");
-    Object[] parameters = {uniqueId, idBundle, name, securityType, attributes, payCurrency, payAmount, receiveCurrency, receiveAmount, forwardDate, regionId };
+    Object[] parameters = {uniqueId, idBundle, name, attributes, payCurrency, payAmount, receiveCurrency, receiveAmount, forwardDate, regionId };
     MetaFunction metaFunction = function.getMetaFunction();
     assertNotNull(metaFunction);
     assertEquals(testFunctionName, metaFunction.getName());
@@ -59,7 +57,7 @@ public class CreateBeanFunctionTest {
     FXForwardSecurity security = (FXForwardSecurity) bean;
     assertEquals(idBundle, security.getExternalIdBundle());
     assertEquals(name, security.getName());
-    assertEquals(securityType, security.getSecurityType());
+    assertEquals(FXForwardSecurity.SECURITY_TYPE, security.getSecurityType());
     assertEquals(attributes, security.getAttributes());
     assertEquals(payCurrency, security.getPayCurrency());
     assertEquals(payAmount, security.getPayAmount(), MAX_DELTA);

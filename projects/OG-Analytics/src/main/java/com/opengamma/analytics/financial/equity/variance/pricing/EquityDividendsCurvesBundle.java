@@ -7,19 +7,28 @@ package com.opengamma.analytics.financial.equity.variance.pricing;
 
 import static com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils.getLowerBoundIndex;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Contains forward, interest rate and dividend information.
  */
 public class EquityDividendsCurvesBundle {
-
+  /** The forward curve function */
   private final Function1D<Double, Double> _f;
+  /** The growth factor curve function */
   private final Function1D<Double, Double> _r;
+  /** The growth factor discounted cash dividends curve function */
   private final Function1D<Double, Double> _d;
 
+  /**
+   * @param spot The spot, greater than zero
+   * @param discountCurve The discount curve, not null
+   * @param dividends The dividends, not null
+   */
   public EquityDividendsCurvesBundle(final double spot, final YieldAndDiscountCurve discountCurve, final AffineDividends dividends) {
 
     ArgumentChecker.isTrue(spot > 0, "Negative spot. S_0 = {}", spot);
@@ -32,8 +41,7 @@ public class EquityDividendsCurvesBundle {
   }
 
   /**
-   * Gets the forward curve
-   * .
+   * Gets the forward curve.
    * @return the forward curve
    */
   public Function1D<Double, Double> getF() {
@@ -41,16 +49,16 @@ public class EquityDividendsCurvesBundle {
   }
 
   /**
-   * Gets the Growth Factor Curve
-   * @return the Growth Factor Curve
+   * Gets the growth factor curve
+   * @return the growth factor curve
    */
   public Function1D<Double, Double> getR() {
     return _r;
   }
 
   /**
-   * Gets the Growth Factor Discounted Cash Dividends Curve
-   * @return the Growth Factor Discounted Cash Dividends Curve
+   * Gets the growth factor discounted cash dividends curve
+   * @return the growth factor discounted cash dividends curve
    */
   public Function1D<Double, Double> getD() {
     return _d;
@@ -68,16 +76,16 @@ public class EquityDividendsCurvesBundle {
   /**
    * Gets the Growth Factor value
    * @param t time
-   * @return the Growth Factor value
+   * @return the growth factor value
    */
   public double getR(final double t) {
     return _r.evaluate(t);
   }
 
   /**
-   * Gets the Growth Factor Discounted Cash Dividends value
-  * @param t time
-   * @return the Growth Factor Discounted Cash Dividends value
+   * Gets the growth factor discounted cash dividends value
+   * @param t time
+   * @return the growth factor discounted cash dividends value
    */
   public double getD(final double t) {
     return _d.evaluate(t);
@@ -87,9 +95,9 @@ public class EquityDividendsCurvesBundle {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((_d == null) ? 0 : _d.hashCode());
-    result = prime * result + ((_f == null) ? 0 : _f.hashCode());
-    result = prime * result + ((_r == null) ? 0 : _r.hashCode());
+    result = prime * result + _d.hashCode();
+    result = prime * result + _f.hashCode();
+    result = prime * result + _r.hashCode();
     return result;
   }
 
@@ -105,25 +113,13 @@ public class EquityDividendsCurvesBundle {
       return false;
     }
     EquityDividendsCurvesBundle other = (EquityDividendsCurvesBundle) obj;
-    if (_d == null) {
-      if (other._d != null) {
-        return false;
-      }
-    } else if (!_d.equals(other._d)) {
+    if (!ObjectUtils.equals(_d, other._d)) {
       return false;
     }
-    if (_f == null) {
-      if (other._f != null) {
-        return false;
-      }
-    } else if (!_f.equals(other._f)) {
+    if (!ObjectUtils.equals(_f, other._f)) {
       return false;
     }
-    if (_r == null) {
-      if (other._r != null) {
-        return false;
-      }
-    } else if (!_r.equals(other._r)) {
+    if (!ObjectUtils.equals(_r, other._r)) {
       return false;
     }
     return true;
@@ -156,8 +152,8 @@ public class EquityDividendsCurvesBundle {
           return spot * growthFactorCurve.evaluate(t);
         }
         int index = getLowerBoundIndex(dividends.getTau(), t);
-        double sum = accum[index];
-        return growthFactorCurve.evaluate(t) * (spot - sum);
+        double total = accum[index];
+        return growthFactorCurve.evaluate(t) * (spot - total);
       }
     };
 
@@ -193,8 +189,8 @@ public class EquityDividendsCurvesBundle {
           return growthFactorCurve.evaluate(t) * accum[0];
         }
         int index = getLowerBoundIndex(dividends.getTau(), t) + 1;
-        double sum = accum[index];
-        return growthFactorCurve.evaluate(t) * sum;
+        double total = accum[index];
+        return growthFactorCurve.evaluate(t) * total;
       }
     };
 
@@ -226,8 +222,8 @@ public class EquityDividendsCurvesBundle {
           return 1.0 / discCurve.getDiscountFactor(t);
         }
         int index = getLowerBoundIndex(dividends.getTau(), t);
-        double prod = accum[index];
-        return prod / discCurve.getDiscountFactor(t);
+        double total = accum[index];
+        return total / discCurve.getDiscountFactor(t);
       }
     };
   }

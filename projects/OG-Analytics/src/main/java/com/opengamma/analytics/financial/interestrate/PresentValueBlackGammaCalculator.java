@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * Calculator of the value gamma, second order derivative of present value with respect to the futures rate, 
  * for InterestRateFutureOptions in the Black world.
  */
-public class PresentValueBlackGammaCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public class PresentValueBlackGammaCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The unique instance of the calculator.

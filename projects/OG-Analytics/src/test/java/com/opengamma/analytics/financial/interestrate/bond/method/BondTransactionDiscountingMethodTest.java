@@ -51,8 +51,8 @@ public class BondTransactionDiscountingMethodTest {
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String REPO_CURVE_NAME = "Repo";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME, FORWARD_CURVE_NAME};
-  private static final String[] COUPON_IBOR_CURVE_NAME = new String[] {CREDIT_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME, FORWARD_CURVE_NAME };
+  private static final String[] COUPON_IBOR_CURVE_NAME = new String[] {CREDIT_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurvesBond1();
   // to derivatives: first coupon
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
@@ -124,7 +124,7 @@ public class BondTransactionDiscountingMethodTest {
   private static final double BOND_SETTLEMENT_TIME_FRN = ACT_ACT.getDayCountFraction(REFERENCE_DATE, BOND_SETTLEMENT_DATE_FRN);
   private static final double QUANTITY_FRN = 100000000; //100m
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {BOND_DESCRIPTION_DEFINITION_FRN.getCoupons().getNthPayment(0)
-      .getFixingDate()}, new double[] {FIRST_FIXING});
+      .getFixingDate() }, new double[] {FIRST_FIXING });
   private static final AnnuityPaymentFixed NOMINAL_TR_1_FRN = (AnnuityPaymentFixed) BOND_DESCRIPTION_DEFINITION_FRN.getNominal().toDerivative(REFERENCE_DATE, CURVES_NAME)
       .trimBefore(BOND_SETTLEMENT_TIME_FRN);
   private static final Annuity<? extends Payment> COUPON_TR_1_FRN = BOND_DESCRIPTION_DEFINITION_FRN.getCoupons().toDerivative(REFERENCE_DATE, FIXING_TS, COUPON_IBOR_CURVE_NAME)
@@ -141,16 +141,16 @@ public class BondTransactionDiscountingMethodTest {
   @Test
   public void testPVFixedBondSettlePast() {
     final double pv = method.presentValue(BOND_TRANSACTION_FIXED_1, CURVES);
-    final double pvNominal = PVC.visit(NOMINAL_TR_FIXED_1, CURVES);
-    final double pvCoupon = PVC.visit(COUPON_TR_FIXED_1, CURVES);
+    final double pvNominal = NOMINAL_TR_FIXED_1.accept(PVC, CURVES);
+    final double pvCoupon = COUPON_TR_FIXED_1.accept(PVC, CURVES);
     assertEquals("Fixed bond present value", (pvNominal + pvCoupon) * QUANTITY_FIXED, pv);
   }
 
   @Test
   public void testPVFixedBondSettleToday() {
     final double pv = method.presentValue(BOND_TRANSACTION_FIXED_2, CURVES);
-    final double pvNominal = PVC.visit(NOMINAL_TR_FIXED_2, CURVES);
-    final double pvCoupon = PVC.visit(COUPON_TR_FIXED_2, CURVES);
+    final double pvNominal = NOMINAL_TR_FIXED_2.accept(PVC, CURVES);
+    final double pvCoupon = COUPON_TR_FIXED_2.accept(PVC, CURVES);
     final double pvSettlement = BOND_SETTLEMENT_FIXED_2.getAmount();
     assertEquals("Fixed bond present value", (pvNominal + pvCoupon) * QUANTITY_FIXED + pvSettlement, pv);
   }
@@ -158,18 +158,18 @@ public class BondTransactionDiscountingMethodTest {
   @Test
   public void testPVFixedBondSettleFuture() {
     final double pv = method.presentValue(BOND_TRANSACTION_FIXED_3, CURVES);
-    final double pvNominal = PVC.visit(NOMINAL_TR_FIXED_3, CURVES);
-    final double pvCoupon = PVC.visit(COUPON_TR_FIXED_3, CURVES);
-    final double pvSettlement = PVC.visit(BOND_SETTLEMENT_FIXED_3, CURVES);
+    final double pvNominal = NOMINAL_TR_FIXED_3.accept(PVC, CURVES);
+    final double pvCoupon = COUPON_TR_FIXED_3.accept(PVC, CURVES);
+    final double pvSettlement = BOND_SETTLEMENT_FIXED_3.accept(PVC, CURVES);
     assertEquals("Fixed bond present value", (pvNominal + pvCoupon) * QUANTITY_FIXED + pvSettlement, pv);
   }
 
   @Test
   public void testPVSFixedBond() {
     final InterestRateCurveSensitivity pvs = method.presentValueSensitivity(BOND_TRANSACTION_FIXED_3, CURVES);
-    final InterestRateCurveSensitivity pvsNominal = new InterestRateCurveSensitivity(PVSC.visit(NOMINAL_TR_FIXED_3, CURVES));
-    final InterestRateCurveSensitivity pvsCoupon = new InterestRateCurveSensitivity(PVSC.visit(COUPON_TR_FIXED_3, CURVES));
-    final InterestRateCurveSensitivity pvsSettlement = new InterestRateCurveSensitivity(PVSC.visit(BOND_SETTLEMENT_FIXED_3, CURVES));
+    final InterestRateCurveSensitivity pvsNominal = new InterestRateCurveSensitivity(NOMINAL_TR_FIXED_3.accept(PVSC, CURVES));
+    final InterestRateCurveSensitivity pvsCoupon = new InterestRateCurveSensitivity(COUPON_TR_FIXED_3.accept(PVSC, CURVES));
+    final InterestRateCurveSensitivity pvsSettlement = new InterestRateCurveSensitivity(BOND_SETTLEMENT_FIXED_3.accept(PVSC, CURVES));
     final InterestRateCurveSensitivity expectedPvs = pvsNominal.plus(pvsCoupon).multipliedBy(QUANTITY_FRN).plus(pvsSettlement).cleaned();
     assertEquals("Fixed bond present value sensitivity", expectedPvs, pvs.cleaned());
   }
@@ -178,10 +178,10 @@ public class BondTransactionDiscountingMethodTest {
   //FIXME change the test and the pv method with correct accrual interests mechanism.
   public void testFixedBondMethodCalculator() {
     final double pvMethod = method.presentValue(BOND_TRANSACTION_FIXED_3, CURVES);
-    final double pvCalculator = PVC.visit(BOND_TRANSACTION_FIXED_3, CURVES);
+    final double pvCalculator = BOND_TRANSACTION_FIXED_3.accept(PVC, CURVES);
     assertEquals("Fixed bond present value: Method vs Calculator", pvMethod, pvCalculator);
     final InterestRateCurveSensitivity pvsMethod = method.presentValueSensitivity(BOND_TRANSACTION_FIXED_3, CURVES);
-    final InterestRateCurveSensitivity pvsCalculator = new InterestRateCurveSensitivity(PVSC.visit(BOND_TRANSACTION_FIXED_3, CURVES));
+    final InterestRateCurveSensitivity pvsCalculator = new InterestRateCurveSensitivity(BOND_TRANSACTION_FIXED_3.accept(PVSC, CURVES));
     assertEquals("Fixed bond present value sensitivity: Method vs Calculator", pvsMethod, pvsCalculator);
   }
 
@@ -189,9 +189,9 @@ public class BondTransactionDiscountingMethodTest {
   //FIXME change the test and the pv method with correct accrual interests mechanism.
   public void testPVIborBond() {
     final double pv = method.presentValue(BOND_TRANSACTION_FRN, CURVES);
-    final double pvNominal = PVC.visit(NOMINAL_TR_1_FRN, CURVES);
-    final double pvCoupon = PVC.visit(COUPON_TR_1_FRN, CURVES);
-    final double pvSettlement = PVC.visit(BOND_SETTLEMENT_FRN, CURVES);
+    final double pvNominal = NOMINAL_TR_1_FRN.accept(PVC, CURVES);
+    final double pvCoupon = COUPON_TR_1_FRN.accept(PVC, CURVES);
+    final double pvSettlement = BOND_SETTLEMENT_FRN.accept(PVC, CURVES);
     assertEquals("FRN present value", (pvNominal + pvCoupon) * QUANTITY_FRN + pvSettlement, pv);
   }
 
@@ -199,9 +199,9 @@ public class BondTransactionDiscountingMethodTest {
   //FIXME change the test and the pv method with correct accrual interests mechanism.
   public void testPVSIborBond() {
     final InterestRateCurveSensitivity pvs = method.presentValueSensitivity(BOND_TRANSACTION_FRN, CURVES);
-    final InterestRateCurveSensitivity pvsNominal = new InterestRateCurveSensitivity(PVSC.visit(NOMINAL_TR_1_FRN, CURVES));
-    final InterestRateCurveSensitivity pvsCoupon = new InterestRateCurveSensitivity(PVSC.visit(COUPON_TR_1_FRN, CURVES));
-    final InterestRateCurveSensitivity pvsSettlement = new InterestRateCurveSensitivity(PVSC.visit(BOND_SETTLEMENT_FRN, CURVES));
+    final InterestRateCurveSensitivity pvsNominal = new InterestRateCurveSensitivity(NOMINAL_TR_1_FRN.accept(PVSC, CURVES));
+    final InterestRateCurveSensitivity pvsCoupon = new InterestRateCurveSensitivity(COUPON_TR_1_FRN.accept(PVSC, CURVES));
+    final InterestRateCurveSensitivity pvsSettlement = new InterestRateCurveSensitivity(BOND_SETTLEMENT_FRN.accept(PVSC, CURVES));
     final InterestRateCurveSensitivity expectedPvs = pvsNominal.plus(pvsCoupon).multipliedBy(QUANTITY_FRN).plus(pvsSettlement).cleaned();
     assertEquals("FRN present value sensitivity", expectedPvs, pvs.cleaned());
   }

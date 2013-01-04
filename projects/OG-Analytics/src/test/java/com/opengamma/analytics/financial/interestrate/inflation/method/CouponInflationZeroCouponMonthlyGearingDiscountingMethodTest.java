@@ -65,10 +65,10 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethodTest {
    * Tests the present value.
    */
   public void presentValueNoNotional() {
-    MultipleCurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_NO, MARKET);
-    double df = MARKET.getCurve(ZERO_COUPON_NO.getCurrency()).getDiscountFactor(ZERO_COUPON_NO.getPaymentTime());
-    double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_NO.getReferenceEndTime());
-    double pvExpected = FACTOR * (finalIndex / INDEX_1MAY_2008 - 1) * df * NOTIONAL;
+    final MultipleCurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_NO, MARKET);
+    final double df = MARKET.getCurve(ZERO_COUPON_NO.getCurrency()).getDiscountFactor(ZERO_COUPON_NO.getPaymentTime());
+    final double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_NO.getReferenceEndTime());
+    final double pvExpected = FACTOR * (finalIndex / INDEX_1MAY_2008 - 1) * df * NOTIONAL;
     assertEquals("Zero-coupon inflation: Present value", pvExpected, pv.getAmount(ZERO_COUPON_NO.getCurrency()), 1.0E-2);
   }
 
@@ -77,8 +77,8 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethodTest {
    * Tests the present value: Method vs Calculator.
    */
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD.presentValue(ZERO_COUPON_NO, MARKET);
-    MultipleCurrencyAmount pvCalculator = PVIC.visit(ZERO_COUPON_NO, MARKET);
+    final MultipleCurrencyAmount pvMethod = METHOD.presentValue(ZERO_COUPON_NO, MARKET);
+    final MultipleCurrencyAmount pvCalculator = ZERO_COUPON_NO.accept(PVIC, MARKET);
     assertEquals("Zero-coupon inflation: Present value", pvMethod, pvCalculator);
   }
 
@@ -87,10 +87,10 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethodTest {
    * Tests the present value.
    */
   public void presentValueWithNotional() {
-    MultipleCurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_WITH, MARKET);
-    double df = MARKET.getCurve(ZERO_COUPON_WITH.getCurrency()).getDiscountFactor(ZERO_COUPON_WITH.getPaymentTime());
-    double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_WITH.getReferenceEndTime());
-    double pvExpected = FACTOR * (finalIndex / INDEX_1MAY_2008) * df * NOTIONAL;
+    final MultipleCurrencyAmount pv = METHOD.presentValue(ZERO_COUPON_WITH, MARKET);
+    final double df = MARKET.getCurve(ZERO_COUPON_WITH.getCurrency()).getDiscountFactor(ZERO_COUPON_WITH.getPaymentTime());
+    final double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_WITH.getReferenceEndTime());
+    final double pvExpected = FACTOR * (finalIndex / INDEX_1MAY_2008) * df * NOTIONAL;
     assertEquals("Zero-coupon inflation: Present value", pvExpected, pv.getAmount(ZERO_COUPON_WITH.getCurrency()), 1.0E-2);
   }
 
@@ -105,7 +105,7 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethodTest {
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-6;
     // 2. Discounting curve sensitivity
-    final double[] nodeTimesDisc = new double[] {ZERO_COUPON_NO.getPaymentTime()};
+    final double[] nodeTimesDisc = new double[] {ZERO_COUPON_NO.getPaymentTime() };
     final double[] sensiDisc = SensitivityFiniteDifferenceMarket
         .curveSensitivity(ZERO_COUPON_NO, MARKET, ZERO_COUPON_NO.getCurrency(), nodeTimesDisc, deltaShift, METHOD, FiniteDifferenceType.CENTRAL);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiDisc.length);
@@ -116,7 +116,7 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethodTest {
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDisc[loopnode], deltaTolerancePrice);
     }
     // 3. Price index curve sensitivity
-    final double[] nodeTimesPrice = new double[] {ZERO_COUPON_NO.getReferenceEndTime()};
+    final double[] nodeTimesPrice = new double[] {ZERO_COUPON_NO.getReferenceEndTime() };
     final double[] sensiPrice = SensitivityFiniteDifferenceMarket.curveSensitivity(ZERO_COUPON_NO, MARKET, ZERO_COUPON_NO.getPriceIndex(), nodeTimesPrice, deltaShift, METHOD,
         FiniteDifferenceType.CENTRAL);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiPrice.length);
@@ -139,7 +139,7 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethodTest {
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-6;
     // 2. Discounting curve sensitivity
-    final double[] nodeTimesDisc = new double[] {ZERO_COUPON_WITH.getPaymentTime()};
+    final double[] nodeTimesDisc = new double[] {ZERO_COUPON_WITH.getPaymentTime() };
     final double[] sensiDisc = SensitivityFiniteDifferenceMarket.curveSensitivity(ZERO_COUPON_WITH, MARKET, ZERO_COUPON_WITH.getCurrency(), nodeTimesDisc, deltaShift, METHOD,
         FiniteDifferenceType.CENTRAL);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiDisc.length);
@@ -150,7 +150,7 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethodTest {
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDisc[loopnode], deltaTolerancePrice);
     }
     // 3. Price index curve sensitivity
-    final double[] nodeTimesPrice = new double[] {ZERO_COUPON_WITH.getReferenceEndTime()};
+    final double[] nodeTimesPrice = new double[] {ZERO_COUPON_WITH.getReferenceEndTime() };
     final double[] sensiPrice = SensitivityFiniteDifferenceMarket.curveSensitivity(ZERO_COUPON_WITH, MARKET, ZERO_COUPON_WITH.getPriceIndex(), nodeTimesPrice, deltaShift, METHOD,
         FiniteDifferenceType.CENTRAL);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiPrice.length);

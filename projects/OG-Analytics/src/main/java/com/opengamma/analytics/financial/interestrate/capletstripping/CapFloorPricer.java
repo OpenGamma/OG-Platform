@@ -38,14 +38,14 @@ public class CapFloorPricer {
     Validate.notNull(cap, "null cap");
     Validate.notNull(ycb, "null yield curves");
     _k = cap.getStrike();
-    CapFloorIbor[] caplets = cap.getPayments();
+    final CapFloorIbor[] caplets = cap.getPayments();
     _n = caplets.length;
     _fwds = new double[_n];
     _t = new double[_n];
     _df = new double[_n];
-    YieldAndDiscountCurve discountCurve = ycb.getCurve(cap.getDiscountCurve());
+    final YieldAndDiscountCurve discountCurve = ycb.getCurve(cap.getDiscountCurve());
     for (int i = 0; i < _n; i++) {
-      _fwds[i] = PRC.visit(caplets[i], ycb);
+      _fwds[i] = caplets[i].accept(PRC, ycb);
       _t[i] = caplets[i].getFixingPeriodStartTime();
       _df[i] = discountCurve.getDiscountFactor(caplets[i].getPaymentTime()); //Vol is at fixing time, discounting from payment
     }
@@ -57,28 +57,27 @@ public class CapFloorPricer {
    * @param volModel VolatilityModel1D  which gives a Black vol for a particular forward/strike/expiry
    * @return The cap (floor) price 
    */
-  public double price(VolatilityModel1D volModel) {
+  public double price(final VolatilityModel1D volModel) {
     double sum = 0;
     for (int i = 0; i < _n; i++) {
-      double vol = volModel.getVolatility(_fwds[i], _k, _t[i]);
+      final double vol = volModel.getVolatility(_fwds[i], _k, _t[i]);
       sum += _df[i] * BlackFormulaRepository.price(_fwds[i], _k, _t[i], vol, true); //TODO assuming cap, payment year fraction?????
     }
     return sum;
   }
 
- 
-  public double vega(VolatilityModel1D volModel) {
+  public double vega(final VolatilityModel1D volModel) {
     double sum = 0;
-    double vol = impliedVol(volModel);
+    final double vol = impliedVol(volModel);
     for (int i = 0; i < _n; i++) {
       sum += _df[i] * BlackFormulaRepository.vega(_fwds[i], _k, _t[i], vol); //TODO assuming cap, payment year fraction?????
     }
     return sum;
   }
 
-  public double impliedVol(VolatilityModel1D volModel) {
+  public double impliedVol(final VolatilityModel1D volModel) {
     final double price = price(volModel);
-    SimpleOptionData[] data = new SimpleOptionData[_n];
+    final SimpleOptionData[] data = new SimpleOptionData[_n];
     for (int i = 0; i < _n; i++) {
       data[i] = new SimpleOptionData(_fwds[i], _k, _t[i], _df[i], true); //TODO this should be in the constructor 
     }
@@ -124,7 +123,5 @@ public class CapFloorPricer {
   protected int getNumberCaplets() {
     return _n;
   }
-  
-  
 
 }

@@ -26,7 +26,7 @@ public class SABRCMSSpreadNoExtrapolationPVCurveSensitivityFunctionDeprecated ex
 
   @Override
   protected Object getResult(final InstrumentDerivative derivative, final SABRInterestRateDataBundle data, final ValueRequirement desiredValue) {
-    return CALCULATOR.visit(derivative, data);
+    return derivative.accept(CALCULATOR, data);
   }
 
 }

@@ -42,6 +42,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
+import com.opengamma.util.tuple.Pair;
 import com.sun.jersey.api.client.ClientResponse;
 
 /**
@@ -380,10 +381,10 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   
   //-------------------------------------------------------------------------
   @Override
-  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<ValueSpecification> resultSpecifications) {
+  public void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<Pair<String, ValueSpecification>> targets) {
     SetMinimumLogModeRequest request = new SetMinimumLogModeRequest();
     request.setMinimumLogMode(minimumLogMode);
-    request.setResultSpecifications(resultSpecifications);
+    request.setTargets(targets);
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_SET_MINIMUM_LOG_MODE);
     getClient().accessFudge(uri).post(request);
   }

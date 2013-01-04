@@ -39,7 +39,7 @@ public class FXOptionBlackImpliedVolatilityFunction extends FXOptionBlackMultiVa
   protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     if (data instanceof SmileDeltaTermStructureDataBundle) {
-      final Double result = CALCULATOR.visit(forex, data);
+      final Double result = forex.accept(CALCULATOR, data);
       return Collections.singleton(new ComputedValue(spec, result));
     }
     throw new OpenGammaRuntimeException("Can only calculated implied volatility for surfaces with smiles");

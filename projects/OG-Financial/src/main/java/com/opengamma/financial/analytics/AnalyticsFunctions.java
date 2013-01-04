@@ -93,10 +93,13 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(AttributesFunction.class));
     functions.add(functionConfiguration(CurrencyPairsFunction.class));
     functions.add(functionConfiguration(DV01Function.class));
+    functions.add(functionConfiguration(NotionalFunction.class));
     functions.add(functionConfiguration(PortfolioNodeWeightFunction.class));
     functions.add(functionConfiguration(PositionWeightFunction.class));
+    addUnitScalingFunction(functions, ValueRequirementNames.ATTRIBUTES);
     addUnitScalingFunction(functions, ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);
     addUnitScalingFunction(functions, ValueRequirementNames.BOND_TENOR);
@@ -169,6 +172,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.MODIFIED_DURATION);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NET_BASIS);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NETTED_FIXED_CASH_FLOWS);
+    addUnitScalingFunction(functions, ValueRequirementNames.NOTIONAL);
     addUnitScalingFunction(functions, ValueRequirementNames.PHI);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY);

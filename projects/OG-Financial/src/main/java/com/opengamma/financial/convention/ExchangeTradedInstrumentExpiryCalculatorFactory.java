@@ -18,6 +18,8 @@ public class ExchangeTradedInstrumentExpiryCalculatorFactory {
     s_instances.put(BondFutureOptionExpiryCalculator.NAME, BondFutureOptionExpiryCalculator.getInstance());
     s_instances.put(IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.getInstance());
     s_instances.put(IMMFutureAndFutureOptionMonthlyExpiryCalculator.NAME, IMMFutureAndFutureOptionMonthlyExpiryCalculator.getInstance());
+    s_instances.put(SoybeanFutureExpiryCalculator.NAME, SoybeanFutureExpiryCalculator.getInstance());
+    s_instances.put(SoybeanFutureOptionExpiryCalculator.NAME, SoybeanFutureOptionExpiryCalculator.getInstance());
   }
 
   public static ExchangeTradedInstrumentExpiryCalculator getCalculator(final String name) {

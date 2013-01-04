@@ -60,7 +60,7 @@ public class SetSnapshotGlobalValueFunction extends AbstractFunctionInvoker impl
   }
 
   public static ManageableMarketDataSnapshot invoke(final ManageableMarketDataSnapshot snapshot, final String valueName, final ExternalId identifier, final Double overrideValue,
-      final Double marketValue, MarketDataValueType type) {
+      final Double marketValue, final MarketDataValueType type) {
     if (snapshot.getGlobalValues() == null) {
       snapshot.setGlobalValues(UnstructuredMarketDataSnapshotUtil.create());
     }

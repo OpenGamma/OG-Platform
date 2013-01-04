@@ -29,11 +29,43 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 
 /**
- * Compiles Portfolio requirements into the dependency graphs.
+ * Resolves the specified portfolio's securities and adds value requirements (targets) to the graph builder in the
+ * compilation context, thus triggering the compilation of the dependency graphs. The identification of value
+ * requirements is done through a parallel traversal on the portfolio nodes using PortfolioCompilerTraversalCallback,
+ * which actually produces the value requirements and adds them to the graph builder.
  */
 public final class PortfolioCompiler {
 
   private PortfolioCompiler() {
+  }
+
+  /**
+   * Resolves the securities in the portfolio at the latest version-correction.
+   *
+   * @param portfolio  the portfolio to resolve, not null
+   * @param executorService  the threading service, not null
+   * @param securitySource  the security source, not null
+   * @return the resolved portfolio, not null
+   */
+  public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService,
+                                           final SecuritySource securitySource) {
+    return resolvePortfolio(portfolio, executorService, securitySource, VersionCorrection.LATEST);
+  }
+
+  /**
+   * Resolves the securities in the portfolio at the given version-correction.
+   *
+   * @param portfolio  the portfolio to resolve, not null
+   * @param executorService  the threading service, not null
+   * @param securitySource  the security source, not null
+   * @param versionCorrection  the version-correction for security resolution, not null
+   * @return the resolved portfolio, not null
+   */
+  public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService,
+                                           final SecuritySource securitySource, final VersionCorrection versionCorrection) {
+    final Portfolio cloned = new SimplePortfolio(portfolio);
+    new SecurityLinkResolver(executorService, securitySource, versionCorrection).resolveSecurities(cloned.getRootNode());
+    return cloned;
   }
 
   // --------------------------------------------------------------------------
@@ -76,6 +108,7 @@ public final class PortfolioCompiler {
       PortfolioNodeTraverser.parallel(traversalCallback, compilationContext.getServices().getExecutorService()).traverse(portfolio.getRootNode());
 
       // TODO: Use a heuristic to decide whether to let the graph builds run in parallel, or sequentially. We will force sequential builds for the time being.
+      // Wait for the current config's dependency graph to be built before moving to the next view calc config
       try {
         builder.waitForDependencyGraphBuild();
       } catch (final InterruptedException e) {
@@ -133,7 +166,8 @@ public final class PortfolioCompiler {
   private static Portfolio getPortfolio(final ViewCompilationContext compilationContext) {
     final UniqueId portfolioId = compilationContext.getViewDefinition().getPortfolioId();
     if (portfolioId == null) {
-      throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName() + "' contains required portfolio outputs, but it does not reference a portfolio.");
+      throw new OpenGammaRuntimeException("The view definition '" + compilationContext.getViewDefinition().getName()
+          + "' contains required portfolio outputs, but it does not reference a portfolio.");
     }
     final ComputationTargetResolver resolver = compilationContext.getServices().getFunctionCompilationContext().getRawComputationTargetResolver();
     final ComputationTargetResolver.AtVersionCorrection versioned = resolver.atVersionCorrection(compilationContext.getResolverVersionCorrection());
@@ -146,33 +180,6 @@ public final class PortfolioCompiler {
       throw new OpenGammaRuntimeException("Unable to resolve '" + specification + "' for view '" + compilationContext.getViewDefinition().getName() + "'");
     }
     return target.getValue(ComputationTargetType.PORTFOLIO);
-  }
-
-  /**
-   * Resolves the securities in the portfolio at the latest version-correction.
-   *
-   * @param portfolio  the portfolio to resolve, not null
-   * @param executorService  the threading service, not null
-   * @param securitySource  the security source, not null
-   * @return the resolved portfolio, not null
-   */
-  public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource) {
-    return resolvePortfolio(portfolio, executorService, securitySource, VersionCorrection.LATEST);
-  }
-
-  /**
-   * Resolves the securities in the portfolio at the given version-correction.
-   *
-   * @param portfolio  the portfolio to resolve, not null
-   * @param executorService  the threading service, not null
-   * @param securitySource  the security source, not null
-   * @param versionCorrection  the version-correction for security resolution, not null
-   * @return the resolved portfolio, not null
-   */
-  public static Portfolio resolvePortfolio(final Portfolio portfolio, final ExecutorService executorService, final SecuritySource securitySource, final VersionCorrection versionCorrection) {
-    final Portfolio cloned = new SimplePortfolio(portfolio);
-    new SecurityLinkResolver(executorService, securitySource, versionCorrection).resolveSecurities(cloned.getRootNode());
-    return cloned;
   }
 
 }

@@ -14,8 +14,8 @@ import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterUnderlyingSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.function.Function1D;
@@ -61,7 +61,7 @@ public class CurveBuildingFunction {
    * @param toleranceRel The relative tolerance for the root finder.
    * @param stepMaximum The maximum number of step for the root finder.
    */
-  public CurveBuildingFunction(double toleranceAbs, double toleranceRel, int stepMaximum) {
+  public CurveBuildingFunction(final double toleranceAbs, final double toleranceRel, final int stepMaximum) {
     _toleranceAbs = toleranceAbs;
     _toleranceRel = toleranceRel;
     _stepMaximum = stepMaximum;
@@ -79,8 +79,9 @@ public class CurveBuildingFunction {
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return The new curves and the calibrated parameters.
    */
-  public Pair<YieldCurveBundle, Double[]> makeUnit(InstrumentDerivative[] instruments, double[] initGuess, LinkedHashMap<String, GeneratorYDCurve> curveGenerators, YieldCurveBundle knownData,
-      final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator) {
+  public Pair<YieldCurveBundle, Double[]> makeUnit(final InstrumentDerivative[] instruments, final double[] initGuess, final LinkedHashMap<String, GeneratorYDCurve> curveGenerators,
+      final YieldCurveBundle knownData,
+      final InstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator, final InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator) {
     final MultipleYieldCurveFinderGeneratorDataBundle data = new MultipleYieldCurveFinderGeneratorDataBundle(instruments, knownData, curveGenerators);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderGeneratorFunction(calculator, data);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderGeneratorJacobian(new ParameterUnderlyingSensitivityCalculator(sensitivityCalculator), data);
@@ -102,17 +103,18 @@ public class CurveBuildingFunction {
    * The Jacobian matrix is the transition matrix between the curve parameters and the par spread.
    * TODO: Currently only for the ParSpreadMarketQuoteCalculator.
    */
-  public DoubleMatrix2D[] makeCurveMatrix(InstrumentDerivative[] instruments, LinkedHashMap<String, GeneratorYDCurve> curveGenerators, int startBlock, int[] nbParameters, Double[] parameters,
-      YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator) {
+  public DoubleMatrix2D[] makeCurveMatrix(final InstrumentDerivative[] instruments, final LinkedHashMap<String, GeneratorYDCurve> curveGenerators, final int startBlock, final int[] nbParameters,
+      final Double[] parameters,
+      final YieldCurveBundle knownData, final InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator) {
     final MultipleYieldCurveFinderGeneratorDataBundle data = new MultipleYieldCurveFinderGeneratorDataBundle(instruments, knownData, curveGenerators);
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderGeneratorJacobian(new ParameterUnderlyingSensitivityCalculator(sensitivityCalculator), data);
     final DoubleMatrix2D jacobian = jacobianCalculator.evaluate(new DoubleMatrix1D(parameters));
     final DoubleMatrix2D inverseJacobian = MATRIX_ALGEBRA.getInverse(jacobian);
-    double[][] matrixTotal = inverseJacobian.getData();
-    DoubleMatrix2D[] result = new DoubleMatrix2D[nbParameters.length];
+    final double[][] matrixTotal = inverseJacobian.getData();
+    final DoubleMatrix2D[] result = new DoubleMatrix2D[nbParameters.length];
     int startCurve = 0;
     for (int loopmat = 0; loopmat < nbParameters.length; loopmat++) {
-      double[][] matrixCurve = new double[nbParameters[loopmat]][matrixTotal.length];
+      final double[][] matrixCurve = new double[nbParameters[loopmat]][matrixTotal.length];
       for (int loopparam = 0; loopparam < nbParameters[loopmat]; loopparam++) {
         matrixCurve[loopparam] = matrixTotal[startBlock + startCurve + loopparam].clone();
       }
@@ -133,22 +135,23 @@ public class CurveBuildingFunction {
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return A pair with the calibrated yield curve bundle (including the known data) and the CurveBuildingBlckBundle with the relevant inverse Jacobian Matrix.
    */
-  public Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final InstrumentDerivative[][][] instruments, GeneratorYDCurve[][] curveGenerators, String[][] curveNames,
-      double[][] parametersGuess, YieldCurveBundle knownData, final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
-      final AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator) {
-    int nbUnits = curveGenerators.length;
-    YieldCurveBundle knownSoFarData = knownData.copy();
-    List<InstrumentDerivative> instrumentsSoFar = new ArrayList<InstrumentDerivative>();
-    LinkedHashMap<String, GeneratorYDCurve> generatorsSoFar = new LinkedHashMap<String, GeneratorYDCurve>();
-    LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundleSoFar = new LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>>();
-    List<Double> parametersSoFar = new ArrayList<Double>();
-    LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<String, Pair<Integer, Integer>>();
+  public Pair<YieldCurveBundle, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final InstrumentDerivative[][][] instruments, final GeneratorYDCurve[][] curveGenerators,
+      final String[][] curveNames,
+      final double[][] parametersGuess, final YieldCurveBundle knownData, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator,
+      final InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator) {
+    final int nbUnits = curveGenerators.length;
+    final YieldCurveBundle knownSoFarData = knownData.copy();
+    final List<InstrumentDerivative> instrumentsSoFar = new ArrayList<InstrumentDerivative>();
+    final LinkedHashMap<String, GeneratorYDCurve> generatorsSoFar = new LinkedHashMap<String, GeneratorYDCurve>();
+    final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundleSoFar = new LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>>();
+    final List<Double> parametersSoFar = new ArrayList<Double>();
+    final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<String, Pair<Integer, Integer>>();
     int startUnit = 0;
     for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
-      int nbCurve = curveGenerators[loopunit].length;
-      int[] startCurve = new int[nbCurve]; // First parameter index of the curve in the unit. 
-      LinkedHashMap<String, GeneratorYDCurve> gen = new LinkedHashMap<String, GeneratorYDCurve>();
-      int[] nbIns = new int[curveGenerators[loopunit].length];
+      final int nbCurve = curveGenerators[loopunit].length;
+      final int[] startCurve = new int[nbCurve]; // First parameter index of the curve in the unit. 
+      final LinkedHashMap<String, GeneratorYDCurve> gen = new LinkedHashMap<String, GeneratorYDCurve>();
+      final int[] nbIns = new int[curveGenerators[loopunit].length];
       int nbInsUnit = 0; // Number of instruments in the unit.
       for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
         startCurve[loopcurve] = nbInsUnit;
@@ -156,20 +159,20 @@ public class CurveBuildingFunction {
         nbInsUnit += nbIns[loopcurve];
         instrumentsSoFar.addAll(Arrays.asList(instruments[loopunit][loopcurve]));
       }
-      InstrumentDerivative[] instrumentsUnit = new InstrumentDerivative[nbInsUnit];
-      InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[0]);
+      final InstrumentDerivative[] instrumentsUnit = new InstrumentDerivative[nbInsUnit];
+      final InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[0]);
       for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
         System.arraycopy(instruments[loopunit][loopcurve], 0, instrumentsUnit, startCurve[loopcurve], nbIns[loopcurve]);
       }
       for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-        GeneratorYDCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
+        final GeneratorYDCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
         gen.put(curveNames[loopunit][loopcurve], tmp);
         generatorsSoFar.put(curveNames[loopunit][loopcurve], tmp);
         unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<Integer, Integer>(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
       }
-      Pair<YieldCurveBundle, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], gen, knownSoFarData, calculator, sensitivityCalculator);
+      final Pair<YieldCurveBundle, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], gen, knownSoFarData, calculator, sensitivityCalculator);
       parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));
-      DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, generatorsSoFar, startUnit, nbIns, parametersSoFar.toArray(new Double[0]), knownData, sensitivityCalculator);
+      final DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, generatorsSoFar, startUnit, nbIns, parametersSoFar.toArray(new Double[0]), knownData, sensitivityCalculator);
       for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
         unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<CurveBuildingBlock, DoubleMatrix2D>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
       }

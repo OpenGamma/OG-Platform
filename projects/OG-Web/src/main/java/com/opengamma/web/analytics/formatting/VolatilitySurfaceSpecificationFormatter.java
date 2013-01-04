@@ -21,6 +21,6 @@ public class VolatilitySurfaceSpecificationFormatter extends AbstractFormatter<V
 
   @Override
   public DataType getDataType() {
-    return DataType.PRIMITIVE;
+    return DataType.STRING;
   }
 }

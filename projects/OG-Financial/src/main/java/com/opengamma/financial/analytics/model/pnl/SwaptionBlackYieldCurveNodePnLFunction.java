@@ -54,8 +54,8 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
@@ -174,7 +174,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Position position = target.getPosition();
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode())
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(ValuePropertyNames.CURVE)
@@ -197,7 +197,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
     }
     final Position position = target.getPosition();
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode())
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .with(ValuePropertyNames.CURVE, curveNames)
@@ -216,7 +216,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
 
   private ValueProperties getResultProperties(final ValueRequirement desiredValue, final String currency) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.CURVE, desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE))
         .with(ValuePropertyNames.SURFACE, desiredValue.getConstraint(ValuePropertyNames.SURFACE))
@@ -314,7 +314,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
   private ValueRequirement getYCNSRequirement(final String currencyString, final String curveCalculationConfig, final String curveName, final String surfaceName,
       final ComputationTarget target) {
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(ValuePropertyNames.CURRENCY, currencyString)
         .with(ValuePropertyNames.CURVE_CURRENCY, currencyString)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)

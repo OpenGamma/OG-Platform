@@ -80,7 +80,6 @@ public class DelegatingConfigSource
     final Map<String, ConfigSource> delegates = getDelegates();
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(configName, "configName");
-    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     for (final ConfigSource configSource : delegates.values()) {
       final ConfigItem<R> config = configSource.get(clazz, configName, versionCorrection);
       if (config != null) {

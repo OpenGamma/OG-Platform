@@ -54,8 +54,11 @@
 			the call to resolve is not mandatory, retrieve makes an implicit call
 			if we don't
 		-->
+    <condition property="ivy.useSymlinks" value="false" else="true">
+      <os family="windows" />
+    </condition>
 		<ivy:resolve file="${ivy.file}" log="quiet" />
-		<ivy:retrieve symlink="true"
+		<ivy:retrieve symlink="${ivy.useSymlinks}"
 			pattern="${lib.dir}/[type]/[organization]/[module]/[artifact]-[revision].[ext]" />
 		<manifestclasspath property="lib.path.mf" maxParentLevels="254" jarfile="${lib.path.jar.file}">
 			<classpath refid="lib.path.id" />

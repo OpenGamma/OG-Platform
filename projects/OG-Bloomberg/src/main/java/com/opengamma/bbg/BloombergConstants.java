@@ -180,6 +180,7 @@ public final class BloombergConstants {
 
   //Bloomberg agriculture future types
   public static final String BBG_WHEAT = "Wheat";
+  public static final String BBG_SOY = "Soy";
 
   //Bloomberg index future type
   public static final String BLOOMBERG_EQUITY_INDEX_TYPE = "Equity Index";
@@ -207,6 +208,7 @@ public final class BloombergConstants {
   public static final String BLOOMBERG_SINGLE_STOCK_FUTURE_SECURITY_TYPE = "SINGLE STOCK FUTURE";
   public static final String BLOOMBERG_PHYSICAL_COMMODITY_FUTURE_TYPE = "Physical commodity future.";
   public static final String BLOOMBERG_FINANCIAL_COMMODITY_FUTURE_TYPE = "Financial commodity future.";
+  public static final String BLOOMBERG_PHYSICAL_COMMODITY_FUTURE_OPTION_TYPE = "Physical commodity option.";
 
   public static final Name RESPONSE_ERROR = new Name("responseError");
   public static final Name SECURITY_DATA = new Name("securityData");

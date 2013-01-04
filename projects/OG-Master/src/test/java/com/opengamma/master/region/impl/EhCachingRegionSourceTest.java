@@ -18,6 +18,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.time.Instant;
 import javax.time.calendar.TimeZone;
 
+import net.sf.ehcache.CacheManager;
+
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -39,32 +41,34 @@ import com.opengamma.util.money.Currency;
 /**
  * Test EHCachingRegionSource
  */
-@Test(singleThreaded = true)
+@Test
 public class EhCachingRegionSourceTest {
-  
+
   private static final ObjectId OID = ObjectId.of("A", "B");
   private static final UniqueId UID = UniqueId.of("A", "B", "V");
   private static final ExternalId ID = ExternalId.of("C", "D");
   private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of(ID);
   private static final Instant NOW = Instant.now();
   private static final VersionCorrection VC = VersionCorrection.of(NOW.minusSeconds(2), NOW.minusSeconds(1));
-    
+  private static final ManageableRegion  TEST_REGION = getTestRegion();
+
   private EHCachingRegionSource _cachingRegionSource;
   private TestRegionSource _underlying;
-    
-  private static final ManageableRegion  TEST_REGION = getTestRegion();
+  private CacheManager _cacheManager;
 
   @BeforeMethod
   public void setUp() {
+    _cacheManager = new CacheManager();
     _underlying = new TestRegionSource(TEST_REGION);
-    _cachingRegionSource = new EHCachingRegionSource(_underlying, EHCacheUtils.createCacheManager());
+    _cachingRegionSource = new EHCachingRegionSource(_underlying, _cacheManager);
   }
-  
+
   @AfterMethod
-  public void cleanUp() throws Exception {
-    _cachingRegionSource.shutdown();
+  public void tearDown() {
+    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
   }
-  
+
+  //-------------------------------------------------------------------------
   @Test
   public void test_getRegion_uniqueId() {
     assertEquals(0, _underlying.getCount().get());

@@ -75,7 +75,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
   // To derivative
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final CapFloorIbor CAP_LONG = (CapFloorIbor) CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CouponIbor COUPON_IBOR = (CouponIbor) COUPON_IBOR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CouponFixed COUPON_STRIKE = COUPON_STRIKE_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -102,7 +102,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
   public void persentValueSABRExtrapolation() {
     final CapFloorIbor capStandard = new CapFloorIbor(CUR, CAP_LONG.getFixingPeriodEndTime(), FUNDING_CURVE_NAME, CAP_LONG.getPaymentYearFraction(), NOTIONAL, CAP_LONG.getFixingTime(), INDEX,
         CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingYearFraction(), FORWARD_CURVE_NAME, STRIKE, IS_CAP);
-    final double priceStandard = PVC.visit(capStandard, SABR_BUNDLE);
+    final double priceStandard = capStandard.accept(PVC, SABR_BUNDLE);
     final double beta = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodStartTime())
         / CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodEndTime()) * CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodEndTime())
         / CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodStartTime());
@@ -128,7 +128,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
    * Compare the present value by replication to a value without adjustment.
    */
   public void presentValueSABRNoAdjustment() {
-    final double forward = PRC.visit(CAP_LONG, CURVES);
+    final double forward = CAP_LONG.accept(PRC, CURVES);
     final CurrencyAmount priceIbor = METHOD_SABREXTRA_COUPON_IA.presentValue(COUPON_IBOR, SABR_BUNDLE);
     assertTrue("Coupon IA - SABR pricing: coupon = cap with strike eps", priceIbor.getAmount() > forward * NOTIONAL * CAP_LONG.getPaymentYearFraction()
         * CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getPaymentTime()));
@@ -148,7 +148,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
     final CurrencyAmount priceCap0 = METHOD_SABREXTRA_CAP_IA.presentValue(cap0, SABR_BUNDLE);
     assertEquals("Coupon IA - SABR pricing: coupon = cap with strike 0", priceCap0.getAmount(), priceIbor.getAmount(), 1E-2);
     final CurrencyAmount priceFloorShort = METHOD_SABREXTRA_CAP_IA.presentValue(FLOOR_SHORT, SABR_BUNDLE);
-    final double priceStrike = PVC.visit(COUPON_STRIKE, CURVES);
+    final double priceStrike = COUPON_STRIKE.accept(PVC, CURVES);
     assertEquals("Cap/floor IA - SABR pricing: cap/floor parity", priceIbor.getAmount() - priceStrike, priceCapLong.getAmount() + priceFloorShort.getAmount(), 2.0E+4);
     //TODO: check further the difference (numerical?)
   }

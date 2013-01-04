@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.volatility.local;
@@ -31,7 +31,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public abstract class LocalVolatilityPDEFunction extends AbstractFunction.NonCompiledInvoker {
   /** The name of this local volatility calculation method */
@@ -64,8 +64,8 @@ public abstract class LocalVolatilityPDEFunction extends AbstractFunction.NonCom
   protected abstract ValueProperties getResultProperties(final ValueRequirement desiredValue);
 
   protected ValueRequirement getVolatilitySurfaceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties properties = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(ValueProperties.builder().get(), getInstrumentType(), _blackSmileInterpolatorName,
-        LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS).get();
+    final ValueProperties properties = LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(ValueProperties.builder().get(), getInstrumentType(), _blackSmileInterpolatorName,
+        LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS, desiredValue).get();
     return new ValueRequirement(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, getVolatilitySurfaceAndForwardCurveTarget(target), properties);
   }
 
@@ -80,7 +80,8 @@ public abstract class LocalVolatilityPDEFunction extends AbstractFunction.NonCom
 
   protected ValueRequirement getDiscountingCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, desiredValue.getConstraint(PROPERTY_DISCOUNTING_CURVE_NAME)).get();
+        .with(ValuePropertyNames.CURVE, desiredValue.getConstraint(PROPERTY_DISCOUNTING_CURVE_NAME))
+        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG)).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, getDiscountingCurveTarget(target), properties);
   }
 

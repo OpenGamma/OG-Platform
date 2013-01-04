@@ -53,7 +53,7 @@ public class CashFlowEquivalentCalculatorTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final SwapFixedCoupon<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Calculator
@@ -65,8 +65,8 @@ public class CashFlowEquivalentCalculatorTest {
    * Tests the cash-flow equivalent of a fixed coupon.
    */
   public void fixedCoupon() {
-    CouponFixed cpn = SWAP.getFixedLeg().getNthPayment(0);
-    AnnuityPaymentFixed cfe = CFEC.visit(cpn, CURVES);
+    final CouponFixed cpn = SWAP.getFixedLeg().getNthPayment(0);
+    final AnnuityPaymentFixed cfe = cpn.accept(CFEC, CURVES);
     assertEquals("Fixed coupon: Number of flows", 1, cfe.getNumberOfPayments());
     assertEquals("Fixed coupon: Time", cpn.getPaymentTime(), cfe.getNthPayment(0).getPaymentTime(), 1E-5);
     assertEquals("Fixed coupon: Amount", cpn.getAmount(), cfe.getNthPayment(0).getAmount(), 1E-2);
@@ -77,19 +77,20 @@ public class CashFlowEquivalentCalculatorTest {
    * Tests the cash flow equivalent of a Ibor coupon.
    */
   public void iborCoupon() {
-    int cpnIndex = 17; // To have payment different from end fixing.
-    Payment cpn = SWAP.getSecondLeg().getNthPayment(cpnIndex);
-    CouponIbor cpnIbor = (CouponIbor) cpn;
-    AnnuityPaymentFixed cfe = CFEC.visit(cpn, CURVES);
+    final int cpnIndex = 17; // To have payment different from end fixing.
+    final Payment cpn = SWAP.getSecondLeg().getNthPayment(cpnIndex);
+    final CouponIbor cpnIbor = (CouponIbor) cpn;
+    final AnnuityPaymentFixed cfe = cpn.accept(CFEC, CURVES);
     assertEquals("Fixed coupon: Number of flows", 2, cfe.getNumberOfPayments());
     assertEquals("Fixed coupon: Time", cpn.getPaymentTime(), cfe.getNthPayment(1).getPaymentTime(), 1E-5);
     assertEquals("Fixed coupon: Amount", -NOTIONAL * (FIXED_IS_PAYER ? 1.0 : -1.0) * cpnIbor.getPaymentYearFraction() / cpnIbor.getFixingAccrualFactor(), cfe.getNthPayment(1).getAmount(), 1E-2);
     assertEquals("Fixed coupon: Time", cpnIbor.getFixingPeriodStartTime(), cfe.getNthPayment(0).getPaymentTime(), 1E-5);
-    double beta = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(cpnIbor.getFixingPeriodStartTime()) / CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(cpnIbor.getFixingPeriodEndTime())
+    final double beta = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(cpnIbor.getFixingPeriodStartTime()) /
+        CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(cpnIbor.getFixingPeriodEndTime())
         * CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(cpnIbor.getPaymentTime()) / CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(cpnIbor.getFixingPeriodStartTime());
     assertEquals("Fixed coupon: Amount", beta * NOTIONAL * (FIXED_IS_PAYER ? 1.0 : -1.0) * cpnIbor.getPaymentYearFraction() / cpnIbor.getFixingAccrualFactor(), cfe.getNthPayment(0).getAmount(), 1E-4);
-    double pvCpn = PVC.visit(cpn, CURVES);
-    double pvCfe = PVC.visit(cfe, CURVES);
+    final double pvCpn = cpn.accept(PVC, CURVES);
+    final double pvCfe = cfe.accept(PVC, CURVES);
     assertEquals("Cash flow equivalent - Swap: present value", pvCpn, pvCfe, 1E-5);
   }
 
@@ -98,15 +99,15 @@ public class CashFlowEquivalentCalculatorTest {
    * Tests the cash-flow equivalent of a fixed leg.
    */
   public void fixedLeg() {
-    AnnuityCouponFixed leg = SWAP.getFixedLeg();
-    AnnuityPaymentFixed cfe = CFEC.visit(leg, CURVES);
+    final AnnuityCouponFixed leg = SWAP.getFixedLeg();
+    final AnnuityPaymentFixed cfe = leg.accept(CFEC, CURVES);
     assertEquals("Fixed coupon: Number of flows", FIXED_PAYMENT_PAYMENT_BY_YEAR * SWAP_TENOR_YEAR, cfe.getNumberOfPayments());
     for (int loopcf = 0; loopcf < leg.getNumberOfPayments(); loopcf++) {
       assertEquals("Fixed leg: Time", leg.getNthPayment(loopcf).getPaymentTime(), cfe.getNthPayment(loopcf).getPaymentTime(), 1E-5);
       assertEquals("Fixed leg: Amount", leg.getNthPayment(loopcf).getAmount(), cfe.getNthPayment(loopcf).getAmount(), 1E-2);
     }
-    double pvLeg = PVC.visit(leg, CURVES);
-    double pvCfe = PVC.visit(cfe, CURVES);
+    final double pvLeg = leg.accept(PVC, CURVES);
+    final double pvCfe = cfe.accept(PVC, CURVES);
     assertEquals("Cash flow equivalent - Swap: present value", pvLeg, pvCfe, 1E-5);
   }
 
@@ -115,9 +116,9 @@ public class CashFlowEquivalentCalculatorTest {
    * Tests the cash-flow equivalent of a Ibor leg.
    */
   public void iborLeg() {
-    Annuity<Coupon> leg = SWAP.getSecondLeg();
+    final Annuity<Coupon> leg = SWAP.getSecondLeg();
     CouponIbor cpnIbor = (CouponIbor) SWAP.getSecondLeg().getNthPayment(0);
-    AnnuityPaymentFixed cfe = CFEC.visit(leg, CURVES);
+    final AnnuityPaymentFixed cfe = leg.accept(CFEC, CURVES);
     assertEquals("Ibor leg: Number of flows", FIXED_PAYMENT_PAYMENT_BY_YEAR * SWAP_TENOR_YEAR * 2 + 1, cfe.getNumberOfPayments());
     assertEquals("Ibor leg: Time", cpnIbor.getFixingPeriodStartTime(), cfe.getNthPayment(0).getPaymentTime(), 1E-5);
     double beta = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(cpnIbor.getFixingPeriodStartTime()) / CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(cpnIbor.getFixingPeriodEndTime())
@@ -136,8 +137,8 @@ public class CashFlowEquivalentCalculatorTest {
     }
     assertEquals("Ibor leg: Amount", -1 * NOTIONAL * (FIXED_IS_PAYER ? 1.0 : -1.0), cfe.getNthPayment(leg.getNumberOfPayments()).getAmount(), 1E-4);
     assertEquals("Ibor leg: Time", leg.getNthPayment(leg.getNumberOfPayments() - 1).getPaymentTime(), cfe.getNthPayment(leg.getNumberOfPayments()).getPaymentTime(), 1E-5);
-    double pvLeg = PVC.visit(leg, CURVES);
-    double pvCfe = PVC.visit(cfe, CURVES);
+    final double pvLeg = leg.accept(PVC, CURVES);
+    final double pvCfe = cfe.accept(PVC, CURVES);
     assertEquals("Cash flow equivalent - Swap: present value", pvLeg, pvCfe, 1E-5);
   }
 
@@ -146,9 +147,9 @@ public class CashFlowEquivalentCalculatorTest {
    * Tests the cash-flow equivalent of a fixed-Ibor swap.
    */
   public void swapFixedIbor() {
-    Annuity<Coupon> leg = SWAP.getSecondLeg();
+    final Annuity<Coupon> leg = SWAP.getSecondLeg();
     CouponIbor cpnIbor = (CouponIbor) SWAP.getSecondLeg().getNthPayment(0);
-    AnnuityPaymentFixed cfe = CFEC.visit(SWAP, CURVES);
+    final AnnuityPaymentFixed cfe = SWAP.accept(CFEC, CURVES);
     assertEquals("Swap: Number of flows", FIXED_PAYMENT_PAYMENT_BY_YEAR * SWAP_TENOR_YEAR * 2 + 1, cfe.getNumberOfPayments());
     assertEquals("Swap: Time", cpnIbor.getFixingPeriodStartTime(), cfe.getNthPayment(0).getPaymentTime(), 1E-5);
     double beta = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(cpnIbor.getFixingPeriodStartTime()) / CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(cpnIbor.getFixingPeriodEndTime())
@@ -178,8 +179,8 @@ public class CashFlowEquivalentCalculatorTest {
     assertEquals("Swap: Amount", (-1 * NOTIONAL * (FIXED_IS_PAYER ? 1.0 : -1.0)) + SWAP.getFixedLeg().getNthPayment(SWAP.getFixedLeg().getNumberOfPayments() - 1).getAmount(),
         cfe.getNthPayment(leg.getNumberOfPayments()).getAmount(), 1E-4);
     assertEquals("Swap: Time", leg.getNthPayment(leg.getNumberOfPayments() - 1).getPaymentTime(), cfe.getNthPayment(leg.getNumberOfPayments()).getPaymentTime(), 1E-5);
-    double pvSwap = PVC.visit(SWAP, CURVES);
-    double pvCfe = PVC.visit(cfe, CURVES);
+    final double pvSwap = SWAP.accept(PVC, CURVES);
+    final double pvCfe = cfe.accept(PVC, CURVES);
     assertEquals("Cash flow equivalent - Swap: present value", pvSwap, pvCfe, 1E-5);
   }
 

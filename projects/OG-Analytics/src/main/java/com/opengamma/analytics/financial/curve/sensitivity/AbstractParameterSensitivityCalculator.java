@@ -37,7 +37,7 @@ public abstract class AbstractParameterSensitivityCalculator {
    * The constructor from a curve sensitivity calculator.
    * @param curveSensitivityCalculator The calculator.
    */
-  public AbstractParameterSensitivityCalculator(InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> curveSensitivityCalculator) {
+  public AbstractParameterSensitivityCalculator(final InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> curveSensitivityCalculator) {
     ArgumentChecker.notNull(curveSensitivityCalculator, "Sensitivity calculator");
     _curveSensitivityCalculator = curveSensitivityCalculator;
   }
@@ -55,7 +55,7 @@ public abstract class AbstractParameterSensitivityCalculator {
     Validate.notNull(instrument, "null InterestRateDerivative");
     Validate.notNull(fixedCurves, "null set of fixed curves.");
     Validate.notNull(bundle, "null bundle");
-    InterestRateCurveSensitivity sensitivity = _curveSensitivityCalculator.visit(instrument, bundle);
+    InterestRateCurveSensitivity sensitivity = instrument.accept(_curveSensitivityCalculator, bundle);
     sensitivity = sensitivity.cleaned(); // TODO: for testing purposes mainly. Could be removed after the tests.
     return pointToParameterSensitivity(sensitivity, fixedCurves, bundle);
   }
@@ -110,7 +110,7 @@ public abstract class AbstractParameterSensitivityCalculator {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -120,7 +120,7 @@ public abstract class AbstractParameterSensitivityCalculator {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    AbstractParameterSensitivityCalculator other = (AbstractParameterSensitivityCalculator) obj;
+    final AbstractParameterSensitivityCalculator other = (AbstractParameterSensitivityCalculator) obj;
     return ObjectUtils.equals(_curveSensitivityCalculator, other._curveSensitivityCalculator);
   }
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.user.rest;
@@ -58,8 +58,8 @@ public class RemoteClient {
       return notImplemented("securityMaster");
     }
 
-    public URI getViewDefinitionRepository() {
-      return notImplemented("viewDefinitionRepository");
+    public URI getConfigMaster() {
+      return notImplemented("configMaster");
     }
 
     public URI getInterpolatedYieldCurveDefinitionMaster() {
@@ -88,7 +88,7 @@ public class RemoteClient {
     private URI _portfolioMaster;
     private URI _positionMaster;
     private URI _securityMaster;
-    private URI _viewDefinitionRepository;
+    private URI _configMaster;
     private URI _interpolatedYieldCurveDefinitionMaster;
     private URI _heartbeat;
     private URI _marketDataSnapshotMaster;
@@ -121,13 +121,13 @@ public class RemoteClient {
       return (_securityMaster != null) ? _securityMaster : super.getSecurityMaster();
     }
 
-    public void setViewDefinitionRepositoryUri(final URI viewDefinitionRepository) {
-      _viewDefinitionRepository = viewDefinitionRepository;
+    public void setConfigMasterUri(final URI configMaster) {
+      _configMaster = configMaster;
     }
 
     @Override
-    public URI getViewDefinitionRepository() {
-      return (_viewDefinitionRepository != null) ? _viewDefinitionRepository : super.getViewDefinitionRepository();
+    public URI getConfigMaster() {
+      return (_configMaster != null) ? _configMaster : super.getConfigMaster();
     }
 
     public void setInterpolatedYieldCurveDefinitionMaster(final URI interpolatedYieldCurveDefinitionMaster) {
@@ -175,7 +175,7 @@ public class RemoteClient {
     private final String _userName;
     private final String _clientName;
 
-    public BaseUriTargetProvider(URI baseUri, String userName, String clientName) {
+    public BaseUriTargetProvider(final URI baseUri, final String userName, final String clientName) {
       ArgumentChecker.notNull(baseUri, "baseUri");
       _baseUri = baseUri;
       _userName = userName;
@@ -198,7 +198,7 @@ public class RemoteClient {
     }
 
     @Override
-    public URI getViewDefinitionRepository() {
+    public URI getConfigMaster() {
       return DataFinancialClientResource.uriConfigMaster(_baseUri, _userName, _clientName);
     }
 
@@ -230,7 +230,7 @@ public class RemoteClient {
   // TODO [PLAT-637] We're using the in memory job as a hack
   private static ConventionBundleMaster s_conventionBundleMaster;
 
-  public RemoteClient(String clientId, FudgeContext fudgeContext, TargetProvider uriProvider) {
+  public RemoteClient(final String clientId, final FudgeContext fudgeContext, final TargetProvider uriProvider) {
     _clientId = clientId;
     _targetProvider = uriProvider;
   }
@@ -262,7 +262,7 @@ public class RemoteClient {
 
   public ConfigMaster getConfigMaster() {
     if (_configMaster == null) {
-      _configMaster = new RemoteConfigMaster(_targetProvider.getViewDefinitionRepository());
+      _configMaster = new RemoteConfigMaster(_targetProvider.getConfigMaster());
     }
     return _configMaster;
   }
@@ -301,7 +301,7 @@ public class RemoteClient {
   /**
    * Creates a heartbeat sender. If nothing has happened for a timeout duration, that would result in messages being sent to the server,
    * the heartbeat signal should be sent as a keep-alive.
-   * 
+   *
    * @return a runnable sender. Each invocation of {@link Runnable#run} will send a heartbeat signal
    */
   public Runnable createHeartbeatSender() {
@@ -326,12 +326,12 @@ public class RemoteClient {
    * @param userName  the username
    * @return  a {@link RemoteClient} instance for the new client
    */
-  public static RemoteClient forNewClient(FudgeContext fudgeContext, URI baseUserManagerUri, String userName) {
-    String clientName = GUIDGenerator.generate().toString();
+  public static RemoteClient forNewClient(final FudgeContext fudgeContext, final URI baseUserManagerUri, final String userName) {
+    final String clientName = GUIDGenerator.generate().toString();
     return forClient(fudgeContext, baseUserManagerUri, userName, clientName);
   }
 
-  public static RemoteClient forClient(FudgeContext fudgeContext, URI baseUserManagerUri, String userName, String clientName) {
+  public static RemoteClient forClient(final FudgeContext fudgeContext, final URI baseUserManagerUri, final String userName, final String clientName) {
     return new RemoteClient(clientName, fudgeContext, new BaseUriTargetProvider(baseUserManagerUri, userName, clientName));
   }
 

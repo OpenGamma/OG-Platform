@@ -9,14 +9,14 @@ import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarri
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Calculator of the vanna (2nd order cross sensitivity to spot and implied volatility for Forex derivatives in the Black (Garman-Kohlhagen) world.
  */
-public class VannaValueBlackForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, CurrencyAmount> {
+public class VannaValueBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, CurrencyAmount> {
 
   /**
    * The unique instance of the calculator.

@@ -25,17 +25,25 @@ public final class SpecificRequirementsCompiler {
    * 
    * @param compilationContext  the context of the view definition compilation
    */
-  public static void execute(ViewCompilationContext compilationContext) {
-    ResultModelDefinition resultModelDefinition = compilationContext.getViewDefinition().getResultModelDefinition();
-    for (ViewCalculationConfiguration calcConfig : compilationContext.getViewDefinition().getAllCalculationConfigurations()) {
+  public static void execute(final ViewCompilationContext compilationContext) {
+    final ResultModelDefinition resultModelDefinition = compilationContext.getViewDefinition().getResultModelDefinition();
+
+    // Scan through the view definition's calc configs, adding all specific requirements to the relevant graph builder
+    for (final ViewCalculationConfiguration calcConfig : compilationContext.getViewDefinition().getAllCalculationConfigurations()) {
+
+      // Retrieve the current calc config's dep graph builder
       final DependencyGraphBuilder builder = compilationContext.getBuilder(calcConfig.getName());
-      for (ValueRequirement requirement : calcConfig.getSpecificRequirements()) {
-        ComputationTargetReference targetReference = requirement.getTargetReference();
+
+      // Scan through the current calc config's specific requirements
+      for (final ValueRequirement requirement : calcConfig.getSpecificRequirements()) {
+        final ComputationTargetReference targetReference = requirement.getTargetReference();
         if (resultModelDefinition.getOutputMode(targetReference.getType()) == ResultOutputMode.NONE) {
           // We're not including this in the results, so no point it being a terminal output. It will be added
           // automatically if it is needed for some other terminal output.
           continue;
         }
+
+        // Add the specific requirement to the current calc config's dep graph builder
         builder.addTarget(requirement);
       }
     }

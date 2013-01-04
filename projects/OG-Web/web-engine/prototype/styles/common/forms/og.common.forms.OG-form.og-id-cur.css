@@ -7,7 +7,7 @@
   width: 70%;
 }
 
-.OG-form .og-id-cur label input,
+.OG-form .og-id-cur label input[type=text],
 .OG-form .og-id-cur label select {
   width: 100%;
   max-width: 500px;

@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.interestrate.market.calculator;
 
-import com.opengamma.analytics.financial.interestrate.AbstractInstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
@@ -24,7 +24,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculator of the present value as a multiple currency amount.
  */
-public final class PresentValueMarketCalculator extends AbstractInstrumentDerivativeVisitor<IMarketBundle, MultipleCurrencyAmount> {
+public final class PresentValueMarketCalculator extends InstrumentDerivativeVisitorAdapter<IMarketBundle, MultipleCurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
@@ -75,9 +75,9 @@ public final class PresentValueMarketCalculator extends AbstractInstrumentDeriva
   public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final IMarketBundle market) {
     ArgumentChecker.notNull(annuity, "Annuity");
     ArgumentChecker.notNull(market, "Market");
-    MultipleCurrencyAmount pv = visit(annuity.getNthPayment(0), market);
+    MultipleCurrencyAmount pv = annuity.getNthPayment(0).accept(this, market);
     for (int loopp = 1; loopp < annuity.getNumberOfPayments(); loopp++) {
-      pv = pv.plus(visit(annuity.getNthPayment(loopp), market));
+      pv = pv.plus(annuity.getNthPayment(loopp).accept(this, market));
     }
     return pv;
   }
@@ -91,8 +91,8 @@ public final class PresentValueMarketCalculator extends AbstractInstrumentDeriva
 
   @Override
   public MultipleCurrencyAmount visitSwap(final Swap<?, ?> swap, final IMarketBundle market) {
-    final MultipleCurrencyAmount pv1 = visit(swap.getFirstLeg(), market);
-    final MultipleCurrencyAmount pv2 = visit(swap.getSecondLeg(), market);
+    final MultipleCurrencyAmount pv1 = swap.getFirstLeg().accept(this, market);
+    final MultipleCurrencyAmount pv2 = swap.getSecondLeg().accept(this, market);
     return pv1.plus(pv2);
   }
 

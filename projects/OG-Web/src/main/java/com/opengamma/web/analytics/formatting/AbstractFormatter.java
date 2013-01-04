@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
  * Abstract {@link TypeFormatter} that implements {@link #getDataTypeForValue} by delegating to {@link #getDataType()}.
  * @param <T> Type of object formatted by the formatter
  */
-public abstract class AbstractFormatter<T> implements TypeFormatter<T> {
+/* package */ abstract class AbstractFormatter<T> implements TypeFormatter<T> {
 
   private final Class<T> _type;
   private final Map<Format, Formatter<T>> _formatters = Maps.newHashMap();
@@ -49,6 +49,7 @@ public abstract class AbstractFormatter<T> implements TypeFormatter<T> {
 
   /**
    * Returns the same format type as {@link #getDataType()}.
+   * 
    * @param value The value
    * @return The format type returned by {@link #getDataType()}
    */
@@ -56,9 +57,13 @@ public abstract class AbstractFormatter<T> implements TypeFormatter<T> {
   public DataType getDataTypeForValue(T value) {
     return getDataType();
   }
-  
-  static abstract class Formatter<T> {
-    
+
+  //-------------------------------------------------------------------------
+  /**
+   * A formatter element.
+   * @param <T>  the formatter type
+   */
+  abstract static class Formatter<T> {
     private final Format _format;
 
     Formatter(Format format) {

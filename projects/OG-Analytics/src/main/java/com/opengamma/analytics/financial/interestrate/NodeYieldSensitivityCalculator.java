@@ -53,7 +53,7 @@ public abstract class NodeYieldSensitivityCalculator {
       }
       allCurves.addAll(fixedCurves);
     }
-    final Map<String, List<DoublesPair>> sensitivityMap = calculator.visit(derivative, allCurves);
+    final Map<String, List<DoublesPair>> sensitivityMap = derivative.accept(calculator, allCurves);
     return curveToNodeSensitivities(sensitivityMap, interpolatedCurves);
   }
 

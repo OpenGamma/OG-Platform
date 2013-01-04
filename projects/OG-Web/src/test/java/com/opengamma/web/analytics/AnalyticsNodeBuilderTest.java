@@ -43,6 +43,14 @@ public class AnalyticsNodeBuilderTest {
 
   @Test
   public void subNodesAndPositions() {
+    /*
+    0  root
+    1   |_pos
+    2   |_pos
+    3   |_child1
+    4      |_pos
+    5      |_pos
+    */
     SimplePortfolioNode portfolioChild = new SimplePortfolioNode();
     portfolioChild.addPosition(new SimplePosition());
     portfolioChild.addPosition(new SimplePosition());
@@ -56,8 +64,8 @@ public class AnalyticsNodeBuilderTest {
     assertEquals(5, root.getEndRow());
     assertEquals(1, root.getChildren().size());
     AnalyticsNode child = root.getChildren().get(0);
-    assertEquals(1, child.getStartRow());
-    assertEquals(3, child.getEndRow());
+    assertEquals(3, child.getStartRow());
+    assertEquals(5, child.getEndRow());
     assertTrue(child.getChildren().isEmpty());
   }
 
@@ -65,16 +73,16 @@ public class AnalyticsNodeBuilderTest {
   public void deeplyNested() {
     /*
     0  root
-    1   |_child1
-    2   |  |_child2
-    3   |  | |_child3
-    4   |  | | |_pos
-    5   |  | | |_pos
-    6   |  | |_pos
-    7   |  | |_pos
-    8   |  |_pos
-    9   |  |_pos
-    10  |_pos
+    1   |_pos
+    2   |_child1
+    3      |_pos
+    4      |_pos
+    5      |_child2
+    6        |_pos
+    7        |_pos
+    8        |_child3
+    9          |_pos
+    10         |_pos
     */
     SimplePortfolioNode portfolioRoot = new SimplePortfolioNode();
     portfolioRoot.addPosition(new SimplePosition());
@@ -96,16 +104,16 @@ public class AnalyticsNodeBuilderTest {
     assertEquals(10, root.getEndRow());
     assertEquals(1, root.getChildren().size());
     AnalyticsNode child1 = root.getChildren().get(0);
-    assertEquals(1, child1.getStartRow());
-    assertEquals(9, child1.getEndRow());
+    assertEquals(2, child1.getStartRow());
+    assertEquals(10, child1.getEndRow());
     assertEquals(1, child1.getChildren().size());
     AnalyticsNode child2 = child1.getChildren().get(0);
-    assertEquals(2, child2.getStartRow());
-    assertEquals(7, child2.getEndRow());
+    assertEquals(5, child2.getStartRow());
+    assertEquals(10, child2.getEndRow());
     assertEquals(1, child2.getChildren().size());
     AnalyticsNode child3 = child2.getChildren().get(0);
-    assertEquals(3, child3.getStartRow());
-    assertEquals(5, child3.getEndRow());
+    assertEquals(8, child3.getStartRow());
+    assertEquals(10, child3.getEndRow());
     assertTrue(child3.getChildren().isEmpty());
   }
 

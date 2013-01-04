@@ -5,7 +5,7 @@
  */
 package com.opengamma.core.user;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.time.calendar.TimeZone;
 
@@ -59,12 +59,12 @@ public interface OGUser extends UniqueIdentifiable, ExternalBundleIdentifiable {
    * 
    * @return the entitlements for the user in order of processing, not null
    */
-  List<String> getEntitlements();
+  Set<String> getEntitlements();
 
   /**
    * Gets the display user name, used to identify the user in a GUI.
    * 
-   * @return the display user name, not null
+   * @return the display user name, may be null
    */
   String getName();
 
@@ -78,7 +78,7 @@ public interface OGUser extends UniqueIdentifiable, ExternalBundleIdentifiable {
   /**
    * The primary email address associated with the account.
    * 
-   * @return the primary email address, not null
+   * @return the primary email address, may be null
    */
   String getEmailAddress();
 

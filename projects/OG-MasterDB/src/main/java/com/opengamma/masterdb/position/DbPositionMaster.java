@@ -10,6 +10,7 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.google.common.base.Objects;
@@ -212,6 +214,12 @@ public class DbPositionMaster
   @Override
   protected PositionDocument insert(final PositionDocument document) {
     ArgumentChecker.notNull(document.getPosition(), "document.position");
+    ArgumentChecker.notNull(document.getPosition().getQuantity(), "document.position.quantity");
+    for (ManageableTrade trade : document.getPosition().getTrades()) {
+      ArgumentChecker.notNull(trade.getQuantity(), "position.trade.quantity");
+      ArgumentChecker.notNull(trade.getCounterpartyExternalId(), "position.trade.counterpartyexternalid");
+      ArgumentChecker.notNull(trade.getTradeDate(), "position.trade.tradedate");
+    }
 
     final long positionId = nextId("pos_master_seq");
     final long positionOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : positionId);
@@ -226,9 +234,13 @@ public class DbPositionMaster
         .addTimestampNullFuture("ver_to_instant", document.getVersionToInstant())
         .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
         .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
-        .addValue("quantity", position.getQuantity())
-        .addValue("provider_scheme", (position.getProviderId() != null ? position.getProviderId().getScheme().getName() : null))
-        .addValue("provider_value", (position.getProviderId() != null ? position.getProviderId().getValue() : null));
+        .addValue("quantity", position.getQuantity(), Types.DECIMAL)
+        .addValue("provider_scheme",
+            position.getProviderId() != null ? position.getProviderId().getScheme().getName() : null,
+            Types.VARCHAR)
+        .addValue("provider_value",
+            position.getProviderId() != null ? position.getProviderId().getValue() : null,
+            Types.VARCHAR);
     
     // the arguments for inserting into the pos_attribute table
     final List<DbMapSqlParameterSource> posAttrList = Lists.newArrayList();
@@ -272,16 +284,26 @@ public class DbPositionMaster
           .addValue("quantity", trade.getQuantity())
           .addDate("trade_date", trade.getTradeDate())
           .addTimeAllowNull("trade_time", trade.getTradeTime() != null ? trade.getTradeTime().toLocalTime() : null)
-          .addValue("zone_offset", (trade.getTradeTime() != null ? trade.getTradeTime().getOffset().getAmountSeconds() : null))
+          .addValue("zone_offset",
+              trade.getTradeTime() != null ? trade.getTradeTime().getOffset().getAmountSeconds() : null,
+              Types.INTEGER)
           .addValue("cparty_scheme", counterpartyId.getScheme().getName())
           .addValue("cparty_value", counterpartyId.getValue())
-          .addValue("provider_scheme", (position.getProviderId() != null ? position.getProviderId().getScheme().getName() : null))
-          .addValue("provider_value", (position.getProviderId() != null ? position.getProviderId().getValue() : null))
-          .addValue("premium_value", (trade.getPremium() != null ? trade.getPremium() : null))
-          .addValue("premium_currency", (trade.getPremiumCurrency() != null ? trade.getPremiumCurrency().getCode() : null))
+          .addValue("provider_scheme",
+              position.getProviderId() != null ? position.getProviderId().getScheme().getName() : null,
+              Types.VARCHAR)
+          .addValue("provider_value",
+              position.getProviderId() != null ? position.getProviderId().getValue() : null,
+              Types.VARCHAR)
+          .addValue("premium_value", trade.getPremium(), Types.DOUBLE)
+          .addValue("premium_currency",
+              trade.getPremiumCurrency() != null ? trade.getPremiumCurrency().getCode() : null,
+              Types.VARCHAR)
           .addDateAllowNull("premium_date", trade.getPremiumDate())
           .addTimeAllowNull("premium_time", (trade.getPremiumTime() != null ? trade.getPremiumTime().toLocalTime() : null))
-          .addValue("premium_zone_offset", (trade.getPremiumTime() != null ? trade.getPremiumTime().getOffset().getAmountSeconds() : null));
+          .addValue("premium_zone_offset",
+              trade.getPremiumTime() != null ? trade.getPremiumTime().getOffset().getAmountSeconds() : null,
+              Types.INTEGER);
       tradeList.add(tradeArgs);
       
       // trade attributes
@@ -401,6 +423,18 @@ public class DbPositionMaster
       throw new DataNotFoundException("Trade not found: " + uniqueId);
     }
     return docs.get(0).getPosition().getTrades().get(0); // SQL loads desired trade as only trade
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public AbstractHistoryResult<PositionDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    PositionHistoryRequest historyRequest = new PositionHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return history(historyRequest);
   }
 
   //-------------------------------------------------------------------------
@@ -537,14 +571,4 @@ public class DbPositionMaster
     }
   }
 
-  @Override
-  public AbstractHistoryResult<PositionDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
-    PositionHistoryRequest historyRequest = new PositionHistoryRequest();
-    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
-    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
-    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
-    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
-    historyRequest.setObjectId(request.getObjectId());
-    return history(historyRequest);
-  }
 }

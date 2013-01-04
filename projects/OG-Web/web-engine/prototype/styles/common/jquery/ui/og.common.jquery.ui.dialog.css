@@ -60,7 +60,7 @@
 }
 
 .ui-dialog .ui-dialog-titlebar {
-    padding: 8px 10px 8px 20px;
+  padding: 8px 10px 8px 20px;
 }
 
 .ui-dialog .ui-dialog-content > div {
@@ -81,7 +81,7 @@
 }
 
 .ui-dialog-content label,
-.ui-dialog-content input,
+.ui-dialog-content input[type='text'],
 .ui-dialog-content select,
 .ui-dialog-content textarea {
   width: 96%;

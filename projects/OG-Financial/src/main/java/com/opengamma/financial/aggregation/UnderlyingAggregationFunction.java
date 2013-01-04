@@ -173,7 +173,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   
   private FinancialSecurityVisitor<String> _swaptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     public String visitSwaptionSecurity(SwaptionSecurity security) {
-      SwapSecurity underlying = (SwapSecurity) _secSource.get(ExternalIdBundle.of(security.getUnderlyingId()));
+      SwapSecurity underlying = (SwapSecurity) _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
       String name = underlying.getName();
       return (name != null && name.length() > 0) ? name : NOT_APPLICABLE;
     }    

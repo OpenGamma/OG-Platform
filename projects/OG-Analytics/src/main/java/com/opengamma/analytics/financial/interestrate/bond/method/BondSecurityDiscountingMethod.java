@@ -79,8 +79,8 @@ public final class BondSecurityDiscountingMethod {
    * @return The present value.
    */
   public double presentValue(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
-    final double pvNominal = PVC.visit(bond.getNominal(), curves);
-    final double pvCoupon = PVC.visit(bond.getCoupon(), curves);
+    final double pvNominal = bond.getNominal().accept(PVC, curves);
+    final double pvCoupon = bond.getCoupon().accept(PVC, curves);
     return pvNominal + pvCoupon;
   }
 
@@ -108,22 +108,22 @@ public final class BondSecurityDiscountingMethod {
    * @return The present value.
    */
   public double presentValueFromZSpread(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double zSpread) {
-    String discountingCurveName = bond.getDiscountingCurveName();
-    YieldCurveBundle curvesWithZ = new YieldCurveBundle();
+    final String discountingCurveName = bond.getDiscountingCurveName();
+    final YieldCurveBundle curvesWithZ = new YieldCurveBundle();
     curvesWithZ.addAll(curves);
-    YieldAndDiscountCurve shiftedDiscounting = curves.getCurve(discountingCurveName).withParallelShift(zSpread);
+    final YieldAndDiscountCurve shiftedDiscounting = curves.getCurve(discountingCurveName).withParallelShift(zSpread);
     curvesWithZ.replaceCurve(discountingCurveName, shiftedDiscounting);
-    double result = presentValue(bond, curvesWithZ);
+    final double result = presentValue(bond, curvesWithZ);
     return result;
   }
 
   public double presentValueZSpreadSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double zSpread) {
-    String discountingCurveName = bond.getDiscountingCurveName();
-    YieldCurveBundle curvesWithZ = new YieldCurveBundle();
+    final String discountingCurveName = bond.getDiscountingCurveName();
+    final YieldCurveBundle curvesWithZ = new YieldCurveBundle();
     curvesWithZ.addAll(curves);
-    YieldAndDiscountCurve shiftedDiscounting = curves.getCurve(discountingCurveName).withParallelShift(zSpread);
+    final YieldAndDiscountCurve shiftedDiscounting = curves.getCurve(discountingCurveName).withParallelShift(zSpread);
     curvesWithZ.replaceCurve(discountingCurveName, shiftedDiscounting);
-    StringValue parallelSensi = presentValueParallelCurveSensitivity(bond, curvesWithZ);
+    final StringValue parallelSensi = presentValueParallelCurveSensitivity(bond, curvesWithZ);
     return parallelSensi.getMap().get(discountingCurveName);
 
   }
@@ -387,8 +387,8 @@ public final class BondSecurityDiscountingMethod {
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     final double nominal = bond.getNominal().getNthPayment(bond.getNominal().getNumberOfPayments() - 1).getAmount();
     if ((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) && (nbCoupon == 1)) {
-      double timeToPay = bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear();
-      double disc = (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
+      final double timeToPay = bond.getAccrualFactorToNextCoupon() / bond.getCouponPerYear();
+      final double disc = (1.0 + bond.getAccrualFactorToNextCoupon() * yield / bond.getCouponPerYear());
       return 2 * timeToPay * timeToPay / (disc * disc);
     }
     if ((bond.getYieldConvention().equals(SimpleYieldConvention.US_STREET)) || (bond.getYieldConvention().equals(SimpleYieldConvention.UK_BUMP_DMO_METHOD))) {
@@ -462,7 +462,7 @@ public final class BondSecurityDiscountingMethod {
    * @return The z-spread sensitivity.
    */
   public double presentValueZSpreadSensitivityFromCurvesAndPV(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves, final double pv) {
-    double zSpread = zSpreadFromCurvesAndPV(bond, curves, pv);
+    final double zSpread = zSpreadFromCurvesAndPV(bond, curves, pv);
     return presentValueZSpreadSensitivity(bond, curves, zSpread);
   }
 
@@ -495,8 +495,8 @@ public final class BondSecurityDiscountingMethod {
    * @return The present value curve sensitivity.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
-    final InterestRateCurveSensitivity pvcsNominal = new InterestRateCurveSensitivity(PVCSC.visit(bond.getNominal(), curves));
-    final InterestRateCurveSensitivity pvcsCoupon = new InterestRateCurveSensitivity(PVCSC.visit(bond.getCoupon(), curves));
+    final InterestRateCurveSensitivity pvcsNominal = new InterestRateCurveSensitivity(bond.getNominal().accept(PVCSC, curves));
+    final InterestRateCurveSensitivity pvcsCoupon = new InterestRateCurveSensitivity(bond.getCoupon().accept(PVCSC, curves));
     return pvcsNominal.plus(pvcsCoupon);
   }
 
@@ -507,8 +507,8 @@ public final class BondSecurityDiscountingMethod {
    * @return The present value curve sensitivity.
    */
   public StringValue presentValueParallelCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
-    StringValue pvpcsNominal = PVPCSC.visit(bond.getNominal(), curves);
-    StringValue pvpcsCoupon = PVPCSC.visit(bond.getCoupon(), curves);
+    final StringValue pvpcsNominal = bond.getNominal().accept(PVPCSC, curves);
+    final StringValue pvpcsCoupon = bond.getCoupon().accept(PVPCSC, curves);
     return StringValue.plus(pvpcsNominal, pvpcsCoupon);
   }
 }

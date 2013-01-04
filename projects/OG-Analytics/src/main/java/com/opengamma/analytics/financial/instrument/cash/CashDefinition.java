@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a cash deposit. 
+ * Class describing a cash deposit.
  */
 public class CashDefinition implements InstrumentDefinition<Cash> {
 
@@ -271,11 +271,13 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCashDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCashDefinition(this);
   }
 

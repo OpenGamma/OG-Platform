@@ -62,10 +62,10 @@ public class DeliverableSwapFuturesSecurityHullWhiteMethodTest {
 
   @Test
   public void price() {
-    AnnuityPaymentFixed cfe = CFEC.visit(SWAP_FUTURES_SECURITY.getUnderlyingSwap(), CURVES);
-    int nbCfe = cfe.getNumberOfPayments();
-    double[] adj = new double[nbCfe];
-    double[] df = new double[nbCfe];
+    final AnnuityPaymentFixed cfe = SWAP_FUTURES_SECURITY.getUnderlyingSwap().accept(CFEC, CURVES);
+    final int nbCfe = cfe.getNumberOfPayments();
+    final double[] adj = new double[nbCfe];
+    final double[] df = new double[nbCfe];
     for (int loopcf = 0; loopcf < nbCfe; loopcf++) {
       df[loopcf] = CURVES.getCurve(CURVES_NAMES[0]).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
       adj[loopcf] = MODEL.futureConvexityFactor(PARAMETERS_HW, SWAP_FUTURES_SECURITY.getLastTradingTime(), cfe.getNthPayment(loopcf).getPaymentTime(), SWAP_FUTURES_SECURITY.getDeliveryTime());
@@ -75,7 +75,7 @@ public class DeliverableSwapFuturesSecurityHullWhiteMethodTest {
     for (int loopcf = 0; loopcf < nbCfe; loopcf++) {
       priceExpected += (cfe.getNthPayment(loopcf).getAmount() * df[loopcf] * adj[loopcf]) / df[0];
     }
-    double priceComputed = METHOD_SWAP_FUT_HW.price(SWAP_FUTURES_SECURITY, BUNDLE_HW);
+    final double priceComputed = METHOD_SWAP_FUT_HW.price(SWAP_FUTURES_SECURITY, BUNDLE_HW);
     assertEquals("DeliverableSwapFuturesSecurityDefinition: price", priceExpected, priceComputed, TOLERANCE_PRICE);
   }
 

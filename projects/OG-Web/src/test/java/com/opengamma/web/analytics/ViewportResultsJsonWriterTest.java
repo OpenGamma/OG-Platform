@@ -32,7 +32,7 @@ public class ViewportResultsJsonWriterTest {
   private final ComputationTargetSpecification _target = new ComputationTargetSpecification(ComputationTargetType.POSITION, UniqueId.of("foo", "bar"));
   private final ValueRequirement _valueReq = new ValueRequirement("valueName", _target);
   private final ValueSpecification _valueSpec = new ValueSpecification(_valueReq.getValueName(), _target, ValueProperties.builder().with(ValuePropertyNames.FUNCTION, "fnName").get());
-  private final ViewportDefinition _viewportDefinition = ViewportDefinition.create(0, ImmutableList.of(0), ImmutableList.of(0), ImmutableList.<GridCell>of(), TypeFormatter.Format.CELL);
+  private final ViewportDefinition _viewportDefinition = ViewportDefinition.create(0, ImmutableList.of(0), ImmutableList.of(0), ImmutableList.<GridCell>of(), TypeFormatter.Format.CELL, false);
   private static final Duration DURATION = Duration.ofMillis(1234);
   private final ViewportResultsJsonWriter _writer = new ViewportResultsJsonWriter(new ResultsFormatter());
 
@@ -42,7 +42,7 @@ public class ViewportResultsJsonWriterTest {
   }
 
   private List<ViewportResults.Cell> createResults(final Object value, final List<Object> history) {
-    return ImmutableList.of(ViewportResults.valueCell(value, _valueSpec, history, 0));
+    return ImmutableList.of(ViewportResults.valueCell(value, _valueSpec, history, null, 0));
   }
 
   @Test
@@ -77,7 +77,7 @@ public class ViewportResultsJsonWriterTest {
     final List<ViewportResults.Cell> results = createResults(null, null);
     final ViewportResults viewportResults = new ViewportResults(results, _viewportDefinition, createColumns(null), DURATION);
     final String json = _writer.getJson(viewportResults);
-    final String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"\",\"t\":\"PRIMITIVE\"}]}";
+    final String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"\",\"t\":\"STRING\"}]}";
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
   }
 
@@ -118,4 +118,6 @@ public class ViewportResultsJsonWriterTest {
     final String expectedJson = "{\"version\":0, \"calculationDuration\":\"1,234\", \"data\":[{\"v\":\"3.0\",\"h\":[1,null,3]}]}";
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
   }
+
+  // TODO tests for log output
 }

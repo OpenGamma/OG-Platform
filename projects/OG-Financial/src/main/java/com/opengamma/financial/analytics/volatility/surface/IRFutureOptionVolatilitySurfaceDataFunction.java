@@ -53,6 +53,7 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(IRFutureOptionVolatilitySurfaceDataFunction.class);
 
   @Override

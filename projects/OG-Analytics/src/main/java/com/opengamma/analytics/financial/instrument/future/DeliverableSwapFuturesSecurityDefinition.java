@@ -118,11 +118,13 @@ public class DeliverableSwapFuturesSecurityDefinition implements InstrumentDefin
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitDeliverableSwapFuturesSecurityDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitDeliverableSwapFuturesSecurityDefinition(this);
   }
 

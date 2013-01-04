@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +24,12 @@ import org.testng.annotations.Test;
 import com.opengamma.core.user.OGUser;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.UserDocument;
-import com.opengamma.master.user.impl.MasterUserSource;
+import com.opengamma.master.user.UserSearchRequest;
+import com.opengamma.master.user.UserSearchResult;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
 
@@ -62,6 +65,7 @@ public class DbUserMasterTest extends DbTest {
     DbMasterTestUtils.closeAfterSuite();
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void test_basics() throws Exception {
     assertNotNull(_userMaster);
@@ -70,6 +74,7 @@ public class DbUserMasterTest extends DbTest {
     assertNotNull(_userMaster.getTimeSource());
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void test_example() throws Exception {
     ManageableOGUser user = new ManageableOGUser("Test");
@@ -111,6 +116,7 @@ public class DbUserMasterTest extends DbTest {
     assertEquals(added, loaded);
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void test_multiple_users() throws Exception {
     UserDocument doc1 = addUser("user-1", "pw-1", ExternalIdBundle.of(ExternalId.of("A", "1"), ExternalId.of("B", "1")), "E-1", "E-2");
@@ -119,30 +125,42 @@ public class DbUserMasterTest extends DbTest {
     UserDocument doc4 = addUser("user-4", "pw-1", ExternalIdBundle.of(ExternalId.of("A", "4"), ExternalId.of("B", "2")), "E-2", "E-3");
     UserDocument doc5 = addUser("user-5", "pw-1", ExternalIdBundle.of(ExternalId.of("A", "5"), ExternalId.of("B", "2")), "E-4", "E-5");
     UserDocument doc6 = addUser("user-6", "pw-1", ExternalIdBundle.of(ExternalId.of("A", "5"), ExternalId.of("B", "2")), "E-4", "E-5", "E-6", "E-7", "E-8");
+
+    UserDocument user = _userMaster.get(UniqueId.of("DbUsr", "1006"));
+    System.out.println(user);
     
-    MasterUserSource source = new MasterUserSource(_userMaster);
+    Collection<? extends OGUser> users = findUsers(ExternalIdBundle.of(ExternalId.of("A", "1")), VersionCorrection.LATEST);
+    assertNotNull(users);
+    assertEquals(1, users.size());
+    assertEquals(doc1.getUniqueId(), users.iterator().next().getUniqueId());
     
-    Collection<? extends OGUser> docs = source.getUsers(ExternalIdBundle.of(ExternalId.of("A", "1")), VersionCorrection.LATEST);
-    assertNotNull(docs);
-    assertEquals(1, docs.size());
-    assertEquals(doc1.getUniqueId(), docs.iterator().next().getUniqueId());
+    users = findUsers(ExternalIdBundle.of(ExternalId.of("A", "5")), VersionCorrection.LATEST);
+    assertNotNull(users);
+    assertEquals(2, users.size());
+    assertTrue("Docs was " + users, users.contains(doc5.getUser()));
+    assertTrue("Docs was " + users, users.contains(doc6.getUser()));
     
-    docs = source.getUsers(ExternalIdBundle.of(ExternalId.of("A", "5")), VersionCorrection.LATEST);
-    assertNotNull(docs);
-    assertEquals(2, docs.size());
-    assertTrue("Docs was " + docs, docs.contains(doc5.getUser()));
-    assertTrue("Docs was " + docs, docs.contains(doc6.getUser()));
+    users = findUsers(ExternalIdBundle.of(ExternalId.of("A", "5"), ExternalId.of("B", "2")), VersionCorrection.LATEST);
+    user = _userMaster.get(UniqueId.of("DbUsr", "1006"));
+    System.out.println(user);
+    assertNotNull(users);
+    assertEquals(3, users.size());
+    assertTrue("Docs was " + users, users.contains(doc4.getUser()));
+    assertTrue("Docs was " + users, users.contains(doc5.getUser()));
+    assertTrue("Docs was " + users + doc6, users.contains(doc6.getUser()));
     
-    docs = source.getUsers(ExternalIdBundle.of(ExternalId.of("A", "5"), ExternalId.of("B", "2")), VersionCorrection.LATEST);
-    assertNotNull(docs);
-    assertEquals(3, docs.size());
-    assertTrue("Docs was " + docs, docs.contains(doc4.getUser()));
-    assertTrue("Docs was " + docs, docs.contains(doc5.getUser()));
-    assertTrue("Docs was " + docs, docs.contains(doc6.getUser()));
-    
-    OGUser found = source.getUser("user-2", VersionCorrection.LATEST);
-    assertNotNull(found);
-    assertEquals(doc2.getUser(), found);
+    UserSearchRequest searchRequest = new UserSearchRequest();
+    searchRequest.setUserId("user-2");
+    searchRequest.setVersionCorrection(VersionCorrection.LATEST);
+    UserSearchResult result = _userMaster.search(searchRequest);
+    assertEquals(1, result.getDocuments().size());
+    assertEquals(result.getFirstUser(), doc2.getUser());
+  }
+
+  private List<ManageableOGUser> findUsers(ExternalIdBundle bundle, VersionCorrection vc) {
+    UserSearchRequest searchRequest = new UserSearchRequest(bundle);
+    searchRequest.setVersionCorrection(vc);
+    return _userMaster.search(searchRequest).getUsers();
   }
 
   protected UserDocument addUser(String userId, String passwordHash, ExternalIdBundle idBundle, String... entitlements) {
@@ -155,6 +173,12 @@ public class DbUserMasterTest extends DbTest {
     UserDocument addDoc = new UserDocument(user);
     UserDocument added = _userMaster.add(addDoc);
     return added;
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_toString() {
+    assertEquals("DbUserMaster[DbUsr]", _userMaster.toString());
   }
 
 }

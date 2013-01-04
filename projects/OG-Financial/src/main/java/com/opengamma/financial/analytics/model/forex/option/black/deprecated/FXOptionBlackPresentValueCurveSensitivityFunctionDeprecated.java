@@ -32,7 +32,7 @@ public class FXOptionBlackPresentValueCurveSensitivityFunctionDeprecated extends
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
-    final MultipleCurrencyInterestRateCurveSensitivity result = CALCULATOR.visit(fxOption, data);
+    final MultipleCurrencyInterestRateCurveSensitivity result = fxOption.accept(CALCULATOR, data);
     ArgumentChecker.isTrue(result.getCurrencies().size() == 1, "Only one currency");
     return Collections.singleton(new ComputedValue(spec, result));
   }

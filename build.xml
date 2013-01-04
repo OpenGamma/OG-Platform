@@ -419,34 +419,34 @@
     <mkdir dir="${docs.dir}/javadoc-public" />
     <mkdir dir="${docs.dir}/temp-src" />
     <copy toDir="${docs.dir}/temp-src">
-      <fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html">
+      <fileset dir="${projects.dir}/OG-Engine/src/main/java" includes="**/*.java **/package.html">
         <contains text="@PublicAPI" casesensitive="yes"/>
       </fileset>
-      <fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html">
+      <fileset dir="${projects.dir}/OG-Engine/src/main/java" includes="**/*.java **/package.html">
         <contains text="@PublicSPI" casesensitive="yes"/>
       </fileset>
-      <fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html">
+      <fileset dir="${projects.dir}/OG-Util/src/main/java" includes="**/*.java **/package.html">
         <contains text="@PublicAPI" casesensitive="yes"/>
       </fileset>
-      <fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html">
+      <fileset dir="${projects.dir}/OG-Util/src/main/java" includes="**/*.java **/package.html">
         <contains text="@PublicSPI" casesensitive="yes"/>
       </fileset>
-      <fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html">
+      <fileset dir="${projects.dir}/OG-Core/src/main/java" includes="**/*.java **/package.html">
         <contains text="@PublicAPI" casesensitive="yes"/>
       </fileset>
-      <fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html">
+      <fileset dir="${projects.dir}/OG-Core/src/main/java" includes="**/*.java **/package.html">
         <contains text="@PublicSPI" casesensitive="yes"/>
       </fileset>
-      <fileset dir="${projects.dir}/OG-Provider/src" includes="**/*.java **/package.html">
+      <fileset dir="${projects.dir}/OG-Provider/src/main/java" includes="**/*.java **/package.html">
         <contains text="@PublicAPI" casesensitive="yes"/>
       </fileset>
-      <fileset dir="${projects.dir}/OG-Provider/src" includes="**/*.java **/package.html">
+      <fileset dir="${projects.dir}/OG-Provider/src/main/java" includes="**/*.java **/package.html">
         <contains text="@PublicSPI" casesensitive="yes"/>
       </fileset>
-      <fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html">
+      <fileset dir="${projects.dir}/OG-Master/src/main/java" includes="**/*.java **/package.html">
         <contains text="@PublicAPI" casesensitive="yes"/>
       </fileset>
-      <fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html">
+      <fileset dir="${projects.dir}/OG-Master/src/main/java" includes="**/*.java **/package.html">
         <contains text="@PublicSPI" casesensitive="yes"/>
       </fileset>
     </copy>
@@ -507,24 +507,24 @@
     <mkdir dir="${docs.dir}/javadoc-all" />
     <mkdir dir="${docs.dir}/temp-src" />
     <copy toDir="${docs.dir}/temp-src">
-      <fileset dir="${projects.dir}/OG-Analytics/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Bloomberg/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-BloombergExample/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Component/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Provider/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Examples/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Financial/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Integration/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Language/Client/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-LiveData/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-MasterDB/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Maths/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Security/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Web/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Analytics/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Bloomberg/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-BloombergExample/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Component/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Core/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Provider/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Engine/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Examples/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Financial/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Integration/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Language/Client/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-LiveData/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Master/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-MasterDB/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Maths/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Security/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Util/src/main/java" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Web/src/main/java" includes="**/*.java **/package.html"/>
     </copy>
     <javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-all"
       classpathref="lib.path.id" author="false" windowtitle="${javadoc-all.windowtitle}"

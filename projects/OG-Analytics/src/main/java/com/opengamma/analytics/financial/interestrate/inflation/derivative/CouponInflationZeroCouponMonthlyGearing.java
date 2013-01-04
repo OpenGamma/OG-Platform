@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.market.description.IMarketBundle;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -56,8 +57,9 @@ public class CouponInflationZeroCouponMonthlyGearing extends CouponInflation imp
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @param factor The multiplicative factor.
    */
-  public CouponInflationZeroCouponMonthlyGearing(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, IndexPrice priceIndex,
-      double indexStartValue, double referenceEndTime, double fixingEndTime, boolean payNotional, double factor) {
+  public CouponInflationZeroCouponMonthlyGearing(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional,
+      final IndexPrice priceIndex,
+      final double indexStartValue, final double referenceEndTime, final double fixingEndTime, final boolean payNotional, final double factor) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;
@@ -99,7 +101,7 @@ public class CouponInflationZeroCouponMonthlyGearing extends CouponInflation imp
   }
 
   @Override
-  public CouponInflationZeroCouponMonthlyGearing withNotional(double notional) {
+  public CouponInflationZeroCouponMonthlyGearing withNotional(final double notional) {
     return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue,
         _referenceEndTime, _fixingEndTime, _payNotional, _factor);
   }
@@ -110,18 +112,20 @@ public class CouponInflationZeroCouponMonthlyGearing extends CouponInflation imp
   }
 
   @Override
-  public double estimatedIndex(IMarketBundle market) {
-    double estimatedIndex = market.getPriceIndex(getPriceIndex(), _referenceEndTime);
+  public double estimatedIndex(final IMarketBundle market) {
+    final double estimatedIndex = market.getPriceIndex(getPriceIndex(), _referenceEndTime);
     return estimatedIndex;
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponInflationZeroCouponMonthlyGearing(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponInflationZeroCouponMonthlyGearing(this);
   }
 
@@ -146,7 +150,7 @@ public class CouponInflationZeroCouponMonthlyGearing extends CouponInflation imp
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -156,7 +160,7 @@ public class CouponInflationZeroCouponMonthlyGearing extends CouponInflation imp
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponInflationZeroCouponMonthlyGearing other = (CouponInflationZeroCouponMonthlyGearing) obj;
+    final CouponInflationZeroCouponMonthlyGearing other = (CouponInflationZeroCouponMonthlyGearing) obj;
     if (Double.doubleToLongBits(_fixingEndTime) != Double.doubleToLongBits(other._fixingEndTime)) {
       return false;
     }

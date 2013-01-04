@@ -27,7 +27,7 @@ public class InterestRateFuturePresentValueFunction extends InterestRateFutureFu
 
   @Override
   protected Set<ComputedValue> getResults(final InstrumentDerivative irFuture, final YieldCurveBundle data, final ValueSpecification spec) {
-    final double presentValue = CALCULATOR.visit(irFuture, data);
+    final double presentValue = irFuture.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, presentValue));
   }
 }

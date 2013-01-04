@@ -108,7 +108,34 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    * Spain Government Bonds
    */
   public static final YieldConvention SPAIN_GOVERNMENT_BONDS = new SimpleYieldConvention("SPAIN:GOVT BONDS");
-  
+  /**
+   * Greek Government Bonds
+   */
+  public static final YieldConvention GREEK_GOVERNMENT_BONDS = new SimpleYieldConvention("GREEK GOVT BNDS");
+  /**
+   * Finland Government Bonds
+   */
+  public static final YieldConvention FINLAND_GOVERNMENT_BONDS = new SimpleYieldConvention("FINLAND GOVT BONDS");
+  /**
+   * Austria ISMA Method
+   */
+  public static final YieldConvention AUSTRIA_ISMA_METHOD = new SimpleYieldConvention("AUSTRIA:ISMA METHD");
+  /**
+   * Italy Treasury Bonds
+   */
+  public static final YieldConvention ITALY_TREASURY_BONDS = new SimpleYieldConvention("ITALY:TRSY BONDS");
+  /** 
+   * Spainish T-bills
+   */
+  public static final YieldConvention SPANISH_T_BILLS = new SimpleYieldConvention("SPANISH T-BILLS");
+  /**
+   * Portugal Domestic Settlement
+   */
+  public static final YieldConvention PORTUGAL_DOMESTIC_SETTLE = new SimpleYieldConvention("PORTUGAL-DOM. SETL");
+  /**
+   * Italy Treasury Bill
+   */
+  public static final YieldConvention ITALY_TREASURY_BILL = new SimpleYieldConvention("ITALY:TRSY BILL");
   
   /**
    * The convention name.

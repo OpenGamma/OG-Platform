@@ -97,7 +97,7 @@ public class CapFloorCMSSpreadSecurity extends FinancialSecurity {
   private boolean _cap;
 
   CapFloorCMSSpreadSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public CapFloorCMSSpreadSecurity(ZonedDateTime startDate, ZonedDateTime maturityDate, double notional, ExternalId longIdentifier,

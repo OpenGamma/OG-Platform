@@ -32,7 +32,7 @@ public class FXForwardPresentValueFunctionDeprecated extends FXForwardMultiValue
 
   @Override
   protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ValueSpecification spec) {
-    final MultipleCurrencyAmount result = CALCULATOR.visit(fxForward, data);
+    final MultipleCurrencyAmount result = fxForward.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(result)));
   }
 

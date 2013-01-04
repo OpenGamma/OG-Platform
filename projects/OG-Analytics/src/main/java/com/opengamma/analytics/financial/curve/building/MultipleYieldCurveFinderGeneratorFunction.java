@@ -31,7 +31,7 @@ public class MultipleYieldCurveFinderGeneratorFunction extends Function1D<Double
    * @param calculator The instrument value calculator.
    * @param data The data required for curve building.
    */
-  public MultipleYieldCurveFinderGeneratorFunction(InstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator, MultipleYieldCurveFinderGeneratorDataBundle data) {
+  public MultipleYieldCurveFinderGeneratorFunction(final InstrumentDerivativeVisitor<YieldCurveBundle, Double> calculator, final MultipleYieldCurveFinderGeneratorDataBundle data) {
     ArgumentChecker.notNull(calculator, "Calculator");
     ArgumentChecker.notNull(data, "Data");
     _calculator = calculator;
@@ -39,13 +39,13 @@ public class MultipleYieldCurveFinderGeneratorFunction extends Function1D<Double
   }
 
   @Override
-  public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+  public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
     final YieldCurveBundle bundle = _data.getKnownData().copy();
-    YieldCurveBundle newCurves = _data.getBuildingFunction().evaluate(x);
+    final YieldCurveBundle newCurves = _data.getBuildingFunction().evaluate(x);
     bundle.addAll(newCurves);
     final double[] res = new double[_data.getNumberOfInstruments()];
     for (int i = 0; i < _data.getNumberOfInstruments(); i++) {
-      res[i] = _calculator.visit(_data.getInstrument(i), bundle);
+      res[i] = _data.getInstrument(i).accept(_calculator, bundle);
     }
     return new DoubleMatrix1D(res);
   }

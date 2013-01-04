@@ -141,7 +141,7 @@ public class VolatilitySurfaceInterpolator {
   }
 
   /**
-   * Given a set of smiles in the moneyness dimension, produce surface function that additionally intepolates in expiry. <p>
+   * Given a set of smiles in the moneyness dimension, produce surface function that additionally interpolates in expiry. <p>
    * Access to the individual parts of getVolatilitySurface() permits user to bump vols without having to recalibrate each independent smile
    * @param smileFunctions Array of Function1D's, one per expiry, that return volatility given strike 
    * @param marketData The mark data - contains the forwards, expiries, and strikes and (market) implied volatilities at each expiry, not null

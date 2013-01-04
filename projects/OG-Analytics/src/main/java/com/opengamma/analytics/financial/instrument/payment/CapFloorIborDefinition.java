@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -239,12 +240,14 @@ public class CapFloorIborDefinition extends CouponFloatingDefinition implements 
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCapFloorIborDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCapFloorIborDefinition(this);
   }
 

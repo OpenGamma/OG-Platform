@@ -30,7 +30,7 @@ public class FXDigitalCallSpreadBlackCurrencyExposureFunctionDeprecated extends 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final double spread, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final CurrencyExposureCallSpreadBlackForexCalculator calculator = new CurrencyExposureCallSpreadBlackForexCalculator(spread);
-    final MultipleCurrencyAmount result = calculator.visit(fxDigital, data);
+    final MultipleCurrencyAmount result = fxDigital.accept(calculator, data);
     return Collections.singleton(new ComputedValue(spec, result));
   }
 }

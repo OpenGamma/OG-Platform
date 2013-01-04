@@ -10,6 +10,14 @@ package com.opengamma.analytics.financial.credit;
  */
 public enum SpreadBumpType {
   /**
+   * Same as ADDITIVE_BUCKETED
+   */
+  ADDITIVE,
+  /**
+   * Same as MULTIPLICATIVE_BUCKETED
+   */
+  MULTIPLICATIVE,
+  /**
    * s(t,T) -> s(t,T) + ds i.e. each point on the curve is shifted by an equal amount ds
    */
   ADDITIVE_PARALLEL,

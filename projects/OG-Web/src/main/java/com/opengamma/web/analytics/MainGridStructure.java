@@ -96,7 +96,8 @@ import com.opengamma.util.tuple.Pair;
    * @return Pair of value spec and calculation config name.
    * TODO need to specify this using a stable target ID to cope with dynamic reaggregation
    */
-  /* package */ Pair<String, ValueSpecification> getTargetForCell(int rowIndex, int colIndex) {
+  @Override
+  public Pair<String, ValueSpecification> getTargetForCell(int rowIndex, int colIndex) {
     if (rowIndex < 0 || rowIndex >= getRowCount() || colIndex < 0 || colIndex >= getColumnCount()) {
       throw new IllegalArgumentException("Cell is outside grid bounds: row=" + rowIndex + ", col=" + colIndex +
                                              ", rowCount=" + getRowCount() + ", colCount=" + getColumnCount());

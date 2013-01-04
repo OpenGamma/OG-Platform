@@ -15,6 +15,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunction;
@@ -42,7 +43,7 @@ public class FXOptionBlackPnLSeriesCurrencyConversionFunction extends PnlSeriesC
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(FXOptionBlackFunction.PUT_CURVE)
         .withAny(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
         .withAny(FXOptionBlackFunction.CALL_CURVE)

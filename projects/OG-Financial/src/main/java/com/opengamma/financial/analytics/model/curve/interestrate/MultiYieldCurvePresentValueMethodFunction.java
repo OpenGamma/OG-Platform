@@ -152,7 +152,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
             derivatives.add(derivative);
             initialRatesGuess.add(marketValue);
           }
-          nodeTimes.add(LAST_TIME_CALCULATOR.visit(derivative));
+          nodeTimes.add(derivative.accept(LAST_TIME_CALCULATOR));
           marketValues.add(0.0);
           nInstruments++;
         }
@@ -195,7 +195,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
     i = 0;
     final double[] couponSensitivities = new double[derivatives.size()];
     for (final InstrumentDerivative derivative : derivatives) {
-      couponSensitivities[i++] = PV_COUPON_SENSITIVITY_CALCULATOR.visit(derivative, curveBundle);
+      couponSensitivities[i++] = derivative.accept(PV_COUPON_SENSITIVITY_CALCULATOR, curveBundle);
     }
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, targetSpec, properties), new DoubleMatrix1D(couponSensitivities)));
     return results;

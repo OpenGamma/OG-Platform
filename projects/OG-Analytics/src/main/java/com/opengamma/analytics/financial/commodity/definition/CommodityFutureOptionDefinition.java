@@ -5,14 +5,14 @@
  */
 package com.opengamma.analytics.financial.commodity.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.ArgumentChecker;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.ObjectUtils;
 
 /**
  * Abstract commodity future option definition.

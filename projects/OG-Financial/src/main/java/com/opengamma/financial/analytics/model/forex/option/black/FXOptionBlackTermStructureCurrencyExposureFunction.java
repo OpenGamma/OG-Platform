@@ -33,7 +33,7 @@ public class FXOptionBlackTermStructureCurrencyExposureFunction extends FXOption
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative forex, final YieldCurveWithBlackForexTermStructureBundle data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
-    final MultipleCurrencyAmount result = CALCULATOR.visit(forex, data);
+    final MultipleCurrencyAmount result = forex.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, result));
   }
 }

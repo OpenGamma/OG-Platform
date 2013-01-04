@@ -11,6 +11,8 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -195,6 +197,28 @@ public final class Converters {
       StubType.valueOf(name);
     } catch (IllegalArgumentException e) {
       throw new OpenGammaRuntimeException("Bad value for stub type (" + name + ")");
+    }
+  }
+  
+  public static DebtSeniority debtSeniorityBeanToDebtSeniority(final DebtSeniorityBean bean) {
+    if (bean == null) {
+      return null;
+    }
+    try {
+      return DebtSeniority.valueOf(bean.getName());
+    } catch (IllegalArgumentException e) {
+      throw new OpenGammaRuntimeException("Bad value for DebtSeniority type (" + bean.getName() + ")");
+    }
+  }
+  
+  public static RestructuringClause restructuringClauseBeanToRestructuringClause(final RestructuringClauseBean bean) {
+    if (bean == null) {
+      return null;
+    }
+    try {
+      return RestructuringClause.valueOf(bean.getName());
+    } catch (IllegalArgumentException e) {
+      throw new OpenGammaRuntimeException("Bad value for RestructuringClause type (" + bean.getName() + ")");
     }
   }
 

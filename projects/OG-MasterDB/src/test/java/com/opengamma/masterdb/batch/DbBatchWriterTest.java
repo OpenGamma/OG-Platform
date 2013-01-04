@@ -51,7 +51,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.ViewCycleMetadata;
@@ -100,12 +100,12 @@ public class DbBatchWriterTest extends DbTest {
     final Instant _valuationTime = Instant.parse("2011-12-14T14:20:17.143Z");
 
     _cycleMetadataStub = new ViewCycleMetadata() {
-      
+
       @Override
       public UniqueId getViewCycleId() {
         return UniqueId.of("viewcycle", "viewcycle", "viewcycle");
       }
-      
+
       @Override
       public Collection<String> getAllCalculationConfigurationNames() {
         return newArrayList(calculationConfigName);
@@ -149,12 +149,12 @@ public class DbBatchWriterTest extends DbTest {
 
   }
 
-  //-------------------------------------------------------------------------  
+  //-------------------------------------------------------------------------
 
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void addValuesToNonexistentSnapshot() {
-    _batchMaster.addValuesToMarketData(ObjectId.of("nonexistent", "nonexistent"), Collections.<MarketDataValue>emptySet());
+    _batchMaster.addValuesToMarketData(ObjectId.of("nonexistent", "nonexistent"), ImmutableSet.of(new MarketDataValue()));
   }
 
   @Test
@@ -174,8 +174,8 @@ public class DbBatchWriterTest extends DbTest {
 
 
     final Map<ComputationTargetSpecification, Long> compTargetSpecIdx = new HashMap<ComputationTargetSpecification, Long>();
-    final Map<Long, ComputationTargetSpecification> reversedCompTargetSpecIdx = new HashMap<Long, ComputationTargetSpecification>();    
-    
+    final Map<Long, ComputationTargetSpecification> reversedCompTargetSpecIdx = new HashMap<Long, ComputationTargetSpecification>();
+
 
     _batchMaster.getDbConnector().getTransactionTemplate().execute(new TransactionCallback<Void>() {
       @Override
@@ -262,7 +262,7 @@ public class DbBatchWriterTest extends DbTest {
   @Test
   public void createThenGetRiskRun() {
     final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
-    
+
     _batchMaster.createMarketData(marketDataUid);
 
     final RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
@@ -302,7 +302,7 @@ public class DbBatchWriterTest extends DbTest {
   @Test
   public void startAndEndBatch() {
     final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
-        
+
     _batchMaster.createMarketData(marketDataUid);
 
     final RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
@@ -327,7 +327,7 @@ public class DbBatchWriterTest extends DbTest {
   @Test
   public void startBatchTwice() {
     final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
-            
+
     _batchMaster.createMarketData(marketDataUid);
 
     final RiskRun run1 = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
@@ -420,12 +420,12 @@ public class DbBatchWriterTest extends DbTest {
       public Void doInTransaction(final TransactionStatus status) {
         HbComputationTargetSpecification security = _batchWriter.getOrCreateComputationTargetInTransaction(
           new ComputationTargetSpecification(ComputationTargetType.SECURITY, uniqueId));
-        assertEquals(ComputationTargetType.SECURITY, security.getType());        
+        assertEquals(ComputationTargetType.SECURITY, security.getType());
 
         final com.opengamma.engine.ComputationTarget target = new com.opengamma.engine.ComputationTarget(ComputationTargetType.SECURITY, mockSecurity);
 
         security = _batchWriter.getOrCreateComputationTargetInTransaction(target.toSpecification());
-        assertEquals(ComputationTargetType.SECURITY, security.getType());        
+        assertEquals(ComputationTargetType.SECURITY, security.getType());
         return null;
       }
     });
@@ -494,8 +494,8 @@ public class DbBatchWriterTest extends DbTest {
   @Test(expectedExceptions = DataNotFoundException.class)
   public void delete() {
 
-    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();                
-    _batchMaster.createMarketData(marketDataUid);            
+    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
+    _batchMaster.createMarketData(marketDataUid);
     final RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
 
     assertNotNull(_batchWriter.getRiskRun(run.getObjectId()));
@@ -512,16 +512,16 @@ public class DbBatchWriterTest extends DbTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void addJobResultsWithoutExistingComputeNodeId() {
     final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
-            
-    _batchMaster.createMarketData(marketDataUid);    
-    
+
+    _batchMaster.createMarketData(marketDataUid);
+
     final RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
-    
+
     final InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
     final ComputationTargetSpecification computationTargetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Sec", "APPL"));
     final ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "asd").get();
     final ValueSpecification valueSpec = new ValueSpecification("value", computationTargetSpec, properties);
-    final ComputedValueResult cvr = new ComputedValueResult(valueSpec, 1000.0, ExecutionLog.EMPTY, null, null, InvocationResult.SUCCESS);
+    final ComputedValueResult cvr = new ComputedValueResult(valueSpec, 1000.0, AggregatedExecutionLog.EMPTY, null, null, InvocationResult.SUCCESS);
     //cvr.setRequirements(newHashSet(_requirement));
     result.addValue("config_1", cvr);
     _batchMaster.addJobResults(run.getObjectId(), result);
@@ -529,11 +529,11 @@ public class DbBatchWriterTest extends DbTest {
 
   @Test
   public void addJobResults() {
-    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();                
-    _batchMaster.createMarketData(marketDataUid);            
+    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
+    _batchMaster.createMarketData(marketDataUid);
     final RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
     final InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
-    final ComputedValueResult cvr = new ComputedValueResult(_specification, 1000.0, ExecutionLog.EMPTY, "someComputeNode", null, InvocationResult.SUCCESS);
+    final ComputedValueResult cvr = new ComputedValueResult(_specification, 1000.0, AggregatedExecutionLog.EMPTY, "someComputeNode", null, InvocationResult.SUCCESS);
     //cvr.setRequirements(newHashSet(_requirement));
     result.addValue("config_1", cvr);
     _batchMaster.addJobResults(run.getObjectId(), result);

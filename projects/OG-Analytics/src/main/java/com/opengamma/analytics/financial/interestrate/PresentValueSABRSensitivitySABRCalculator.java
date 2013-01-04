@@ -33,7 +33,7 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
 /**
  * Present value sensitivity to SABR parameters calculator for interest rate instruments using SABR volatility formula.
  */
-public final class PresentValueSABRSensitivitySABRCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, PresentValueSABRSensitivityDataBundle> {
+public final class PresentValueSABRSensitivitySABRCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, PresentValueSABRSensitivityDataBundle> {
 
   /**
    * The unique instance of the SABR sensitivity calculator.
@@ -58,13 +58,6 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
    * Methods.
    */
   public static final CapFloorIborSABRMethod METHOD_IBOR_CAP = CapFloorIborSABRMethod.getInstance();
-
-  @Override
-  public PresentValueSABRSensitivityDataBundle visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
-    return derivative.accept(this, curves);
-  }
 
   @Override
   public PresentValueSABRSensitivityDataBundle visitCapFloorIbor(final CapFloorIbor cap, final YieldCurveBundle curves) {
@@ -160,7 +153,7 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
     Validate.notNull(annuity);
     PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
     for (final Payment p : annuity.getPayments()) {
-      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, visit(p, curves));
+      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, p.accept(this, curves));
     }
     return pvss;
   }
@@ -179,10 +172,10 @@ public final class PresentValueSABRSensitivitySABRCalculator extends AbstractIns
     Validate.notNull(swap);
     PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
     for (final Payment p : swap.getFirstLeg().getPayments()) {
-      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, visit(p, curves));
+      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, p.accept(this, curves));
     }
     for (final Payment p : swap.getSecondLeg().getPayments()) {
-      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, visit(p, curves));
+      pvss = PresentValueSABRSensitivityDataBundle.plus(pvss, p.accept(this, curves));
     }
     return pvss;
   }

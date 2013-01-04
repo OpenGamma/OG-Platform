@@ -14,14 +14,14 @@ import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandardAndPoors;
-import com.opengamma.analytics.financial.credit.obligormodel.Region;
-import com.opengamma.analytics.financial.credit.obligormodel.Sector;
-import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.obligor.CreditRating;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingStandardAndPoors;
+import com.opengamma.analytics.financial.credit.obligor.Region;
+import com.opengamma.analytics.financial.credit.obligor.Sector;
+import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -180,8 +180,8 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
 
   // --------------------------------------------------------------------------------------------------------------------------------------------------
 
-  // Construct a CDS contract 
-  private static final LegacyCreditDefaultSwapDefinition cds = new LegacyCreditDefaultSwapDefinition(
+  // Construct a CDS contract
+  private static final LegacyVanillaCreditDefaultSwapDefinition cds = new LegacyVanillaCreditDefaultSwapDefinition(
       buySellProtection,
       protectionBuyer,
       protectionSeller,
@@ -193,7 +193,6 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       startDate,
       effectiveDate,
       maturityDate,
-      valuationDate,
       stubType,
       couponFrequency,
       daycountFractionConvention,
@@ -204,7 +203,6 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
       notional,
       recoveryRate,
       includeAccruedPremium,
-      priceType,
       protectionStart,
       parSpread);
 
@@ -217,11 +215,11 @@ public class GenerateCreditDefaultSwapPremiumLegScheduleTest {
     final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
 
     // Call the schedule generation method for the CDS contract
-    ZonedDateTime[] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
+    final ZonedDateTime[] schedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
 
     if (outputResults) {
-      for (int i = 0; i < schedule.length; i++) {
-        System.out.println(schedule[i]);
+      for (final ZonedDateTime element : schedule) {
+        System.out.println(element);
       }
     }
 

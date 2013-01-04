@@ -7,7 +7,6 @@ package com.opengamma.core.config.impl;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.Collections;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -19,13 +18,17 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeSerializer;
+
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.exchange.impl.SimpleExchange;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ReflectionUtils;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
@@ -62,63 +65,82 @@ public class DataConfigSourceResource extends AbstractDataResource {
     return _exgSource;
   }
 
+  @SuppressWarnings("unchecked")
+  private FudgeMsg configItemCollectionResult(final Collection<?> items) {
+    final FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
+    final MutableFudgeMsg msg = serializer.newMessage();
+    for (final ConfigItem<?> item : (Collection<ConfigItem<?>>) items) {
+      serializer.addToMessageWithClassHeaders(msg, null, null, item, ConfigItem.class);
+    }
+    return msg;
+  }
+
+  private FudgeMsg configItemSingletonResult(final ConfigItem<?> item) {
+    final FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
+    final MutableFudgeMsg msg = serializer.newMessage();
+    serializer.addToMessageWithClassHeaders(msg, null, null, item, ConfigItem.class);
+    return msg;
+  }
+
+  private FudgeMsg configItemResult(final ConfigItem<?> item) {
+    final FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
+    return FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(item), item.getClass(), ConfigItem.class);
+  }
+
   //-------------------------------------------------------------------------
   @GET
-  public Response getHateaos(@Context UriInfo uriInfo) {
+  public Response getHateaos(@Context final UriInfo uriInfo) {
     return hateoasResponse(uriInfo);
   }
 
   @GET
   @Path("configs")
   public Response search(
-    @QueryParam("type") String typeStr,
-    @QueryParam("versionAsOf") String versionAsOf,
-    @QueryParam("correctedTo") String correctedTo,
-    @QueryParam("name") String name) {
+    @QueryParam("type") final String typeStr,
+    @QueryParam("versionAsOf") final String versionAsOf,
+    @QueryParam("correctedTo") final String correctedTo,
+    @QueryParam("name") final String name) {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     if (name == null) {
-      Collection<?> result = getConfigSource().getAll(type, vc);
-      return responseOkFudge(result);
+      return responseOkFudge(configItemCollectionResult(getConfigSource().getAll(type, vc)));
     } else {
-      Collection<?> result = Collections.singleton(getConfigSource().get(type, name, vc));
-      return responseOkFudge(result);
+      return responseOkFudge(configItemSingletonResult(getConfigSource().get(type, name, vc)));
     }
   }
 
   @GET
   @Path("configs/{uid}")
   public Response get(
-    @PathParam("uid") String uidStr) {
+    @PathParam("uid") final String uidStr) {
     final UniqueId uid = UniqueId.parse(uidStr);
-    SimpleExchange result = getConfigSource().getConfig(SimpleExchange.class, uid);
-    return responseOkFudge(result);
+    final ConfigItem<?> result = getConfigSource().get(uid);
+    return responseOkFudge(configItemResult(result));
   }
 
   /**
    * Builds a URI.
    *
    * @param baseUri  the base URI, not null
-   * @param uniqueId  the unique identifier, may be null   
+   * @param uniqueId  the unique identifier, may be null
    * @return the URI, not null
    */
-  public static URI uriGet(URI baseUri, UniqueId uniqueId) {
+  public static URI uriGet(final URI baseUri, final UniqueId uniqueId) {
     ArgumentChecker.notNull(baseUri, "baseUri");
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs/{uid}");
+    final UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs/{uid}");
     return bld.build(uniqueId);
   }
 
   @GET
   @Path("configs/{oid}/{versionCorrection}")
   public Response getByOidVersionCorrection(
-    @PathParam("oid") String idStr,
-    @PathParam("versionCorrection") String versionCorrectionStr) {
-
+    @PathParam("oid") final String idStr,
+    @PathParam("versionCorrection") final String versionCorrectionStr) {
     final ObjectId objectId = ObjectId.parse(idStr);
     final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
-    SimpleExchange exchange = getConfigSource().getConfig(SimpleExchange.class, objectId, versionCorrection);
-    return responseOkFudge(exchange);
+    final ConfigItem<?> result = getConfigSource().get(objectId, versionCorrection);
+    return responseOkFudge(configItemResult(result));
   }
 
 
@@ -130,10 +152,10 @@ public class DataConfigSourceResource extends AbstractDataResource {
    * @param versionCorrection  the version-correction, null means latest
    * @return the URI, not null
    */
-  public static URI uriGet(URI baseUri, ObjectId objectId, VersionCorrection versionCorrection) {
+  public static URI uriGet(final URI baseUri, final ObjectId objectId, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(baseUri, "baseUri");
     ArgumentChecker.notNull(objectId, "objectId");
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs/{oid}/{versionCorrection}");
+    final UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs/{oid}/{versionCorrection}");
     versionCorrection = versionCorrection != null ? versionCorrection : VersionCorrection.LATEST;
     return bld.build(objectId, versionCorrection);
   }
@@ -141,18 +163,12 @@ public class DataConfigSourceResource extends AbstractDataResource {
   @GET
   @Path("configSearches/single")
   public Response searchSingle(
-    @QueryParam("type") String typeStr,
-    @QueryParam("versionCorrection") String versionCorrectionStr,
-    @QueryParam("name") String name) {
+    @QueryParam("type") final String typeStr,
+    @QueryParam("versionCorrection") final String versionCorrectionStr,
+    @QueryParam("name") final String name) {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
-    if (versionCorrectionStr != null) {
-      final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
-      ConfigItem<?> result = getConfigSource().get(type, name, versionCorrection);
-      return responseOkFudge(result);
-    } else {
-      ConfigItem<?> result = getConfigSource().get(type, name, VersionCorrection.LATEST);
-      return responseOkFudge(result);
-    }
+    final VersionCorrection versionCorrection = (versionCorrectionStr != null) ? VersionCorrection.parse(versionCorrectionStr) : VersionCorrection.LATEST;
+    return responseOkFudge(configItemResult(getConfigSource().get(type, name, versionCorrection)));
   }
 
   /**
@@ -164,14 +180,13 @@ public class DataConfigSourceResource extends AbstractDataResource {
    * @param type  the config type, may be null
    * @return the URI, not null
    */
-  public static URI uriSearchSingle(URI baseUri, String name, VersionCorrection versionCorrection, Class<?> type) {
+  public static URI uriSearchSingle(final URI baseUri, final String name, final VersionCorrection versionCorrection, final Class<?> type) {
     ArgumentChecker.notNull(baseUri, "baseUri");
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(type, "type");
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configSearches/single");
+    final UriBuilder bld = UriBuilder.fromUri(baseUri).path("configSearches/single");
     bld.queryParam("name", name);
     bld.queryParam("type", type.getName());
-
     if (versionCorrection != null) {
       bld.queryParam("versionCorrection", versionCorrection.toString());
     } else {
@@ -183,17 +198,11 @@ public class DataConfigSourceResource extends AbstractDataResource {
   @GET
   @Path("configSearches")
   public Response search(
-    @QueryParam("type") String typeStr,
-    @QueryParam("versionCorrection") String versionCorrectionStr) {
+    @QueryParam("type") final String typeStr,
+    @QueryParam("versionCorrection") final String versionCorrectionStr) {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
-    if (versionCorrectionStr != null) {
-      final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
-      Collection<? extends ConfigItem<?>> result = getConfigSource().getAll(type, versionCorrection);
-      return responseOkFudge(result);
-    } else {
-      Collection<? extends ConfigItem<?>> result = getConfigSource().getAll(type, VersionCorrection.LATEST);
-      return responseOkFudge(result);
-    }
+    final VersionCorrection versionCorrection = (versionCorrectionStr != null) ? VersionCorrection.parse(versionCorrectionStr) : VersionCorrection.LATEST;
+    return responseOkFudge(configItemCollectionResult(getConfigSource().getAll(type, versionCorrection)));
   }
 
   /**
@@ -205,12 +214,11 @@ public class DataConfigSourceResource extends AbstractDataResource {
    *
    * @return the URI, not null
    */
-  public static URI uriSearch(URI baseUri, Class<?> type, VersionCorrection versionCorrection) {
+  public static URI uriSearch(final URI baseUri, final Class<?> type, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(baseUri, "baseUri");
     ArgumentChecker.notNull(type, "type");
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configSearches");
+    final UriBuilder bld = UriBuilder.fromUri(baseUri).path("configSearches");
     bld.queryParam("type", type.getName());
-
     if (versionCorrection != null) {
       bld.queryParam("versionCorrection", versionCorrection.toString());
     } else {
@@ -223,22 +231,16 @@ public class DataConfigSourceResource extends AbstractDataResource {
   @PUT
   @Path("put")
   public Response put(
-    @QueryParam("type") String typeStr,
-    @QueryParam("versionCorrection") String versionCorrectionStr) {
+    @QueryParam("type") final String typeStr,
+    @QueryParam("versionCorrection") final String versionCorrectionStr) {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
-    if (versionCorrectionStr != null) {
-      final VersionCorrection versionCorrection = VersionCorrection.parse(versionCorrectionStr);
-      Collection<? extends ConfigItem<?>> result = getConfigSource().getAll(type, versionCorrection);
-      return responseOkFudge(result);
-    } else {
-      Collection<? extends ConfigItem<?>> result = getConfigSource().getAll(type, VersionCorrection.LATEST);
-      return responseOkFudge(result);
-    }
+    final VersionCorrection versionCorrection = (versionCorrectionStr != null) ? VersionCorrection.parse(versionCorrectionStr) : VersionCorrection.LATEST;
+    return responseOkFudge(configItemCollectionResult(getConfigSource().getAll(type, versionCorrection)));
   }
 
-  public static <T> URI uriPut(URI baseUri) {
+  public static <T> URI uriPut(final URI baseUri) {
     ArgumentChecker.notNull(baseUri, "baseUri");
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("put");
+    final UriBuilder bld = UriBuilder.fromUri(baseUri).path("put");
     return bld.build();
   }
 

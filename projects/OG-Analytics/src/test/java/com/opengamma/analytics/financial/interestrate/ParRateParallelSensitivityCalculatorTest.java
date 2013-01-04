@@ -61,7 +61,6 @@ public class ParRateParallelSensitivityCalculatorTest {
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
 
   static {
     CURVES = new YieldCurveBundle();
@@ -122,7 +121,7 @@ public class ParRateParallelSensitivityCalculatorTest {
     for (int i = 0; i < n; i++) {
       coupons[i] = new CouponFixed(CUR, tau * (i + 1), FUNDING_CURVE_NAME, yearFrac, initialCoupon + i * ramp);
     }
-    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FUNDING_CURVE_NAME)});
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FUNDING_CURVE_NAME) });
     final BondFixedSecurity bond = new BondFixedSecurity(nominal, new AnnuityCouponFixed(coupons), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FUNDING_CURVE_NAME, "S");
     doTest(bond, CURVES);
   }
@@ -204,10 +203,10 @@ public class ParRateParallelSensitivityCalculatorTest {
       final YieldCurveBundle newCurves = new YieldCurveBundle();
       newCurves.addAll(curves);
       newCurves.replaceCurve(name, upCurve);
-      final double upRate = PRC.visit(ird, newCurves);
+      final double upRate = ird.accept(PRC, newCurves);
       final YieldAndDiscountCurve downCurve = curve.withParallelShift(-EPS);
       newCurves.replaceCurve(name, downCurve);
-      final double downRate = PRC.visit(ird, newCurves);
+      final double downRate = ird.accept(PRC, newCurves);
 
       final double res = (upRate - downRate) / 2 / EPS;
       result.put(name, res);

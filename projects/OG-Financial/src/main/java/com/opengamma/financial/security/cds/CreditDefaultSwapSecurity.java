@@ -18,6 +18,8 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.analytics.financial.credit.DebtSeniority;
+import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -34,11 +36,6 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
-
-  /**
-   * The security type
-   */
-  public static final String SECURITY_TYPE = "CREDIT_DEFAULT_SWAP";
 
   /**
    * Has the protection been bought. If false, protection has been sold.
@@ -68,13 +65,13 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * The debt seniority.
    */
   @PropertyDefinition(validate = "notNull")
-  private String _debtSeniority;
+  private DebtSeniority _debtSeniority;
 
   /**
    * The restructuring clause.
    */
   @PropertyDefinition(validate = "notNull")
-  private String _restructuringClause;
+  private RestructuringClause _restructuringClause;
 
   /**
    * The region id.
@@ -166,16 +163,17 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private boolean _protectionStart;
 
-  CreditDefaultSwapSecurity() { // For Fudge builder
+  CreditDefaultSwapSecurity(String securityType) { // For Fudge builder
+    super(securityType);
   }
 
   public CreditDefaultSwapSecurity(final boolean isBuy, final ExternalId protectionSeller, final ExternalId protectionBuyer, final ExternalId referenceEntity, //CSIGNORE
-      final String debtSeniority, final String restructuringClause, final ExternalId regionId, final ZonedDateTime startDate,
+      final DebtSeniority debtSeniority, final RestructuringClause restructuringClause, final ExternalId regionId, final ZonedDateTime startDate,
       final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final Frequency couponFrequency, final DayCount dayCount,
       final BusinessDayConvention businessDayConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate,
       final boolean adjustMaturityDate, final InterestRateNotional notional, final double recoveryRate, final boolean includeAccruedPremium,
-      final boolean protectionStart) {
-    super(SECURITY_TYPE);
+      final boolean protectionStart, final String securityType) {
+    super(securityType);
     setBuy(isBuy);
     setProtectionSeller(protectionSeller);
     setProtectionBuyer(protectionBuyer);
@@ -282,10 +280,10 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
         setReferenceEntity((ExternalId) newValue);
         return;
       case 1737168171:  // debtSeniority
-        setDebtSeniority((String) newValue);
+        setDebtSeniority((DebtSeniority) newValue);
         return;
       case -1774904020:  // restructuringClause
-        setRestructuringClause((String) newValue);
+        setRestructuringClause((RestructuringClause) newValue);
         return;
       case -690339025:  // regionId
         setRegionId((ExternalId) newValue);
@@ -531,7 +529,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Gets the debt seniority.
    * @return the value of the property, not null
    */
-  public String getDebtSeniority() {
+  public DebtSeniority getDebtSeniority() {
     return _debtSeniority;
   }
 
@@ -539,7 +537,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the debt seniority.
    * @param debtSeniority  the new value of the property, not null
    */
-  public void setDebtSeniority(String debtSeniority) {
+  public void setDebtSeniority(DebtSeniority debtSeniority) {
     JodaBeanUtils.notNull(debtSeniority, "debtSeniority");
     this._debtSeniority = debtSeniority;
   }
@@ -548,7 +546,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Gets the the {@code debtSeniority} property.
    * @return the property, not null
    */
-  public final Property<String> debtSeniority() {
+  public final Property<DebtSeniority> debtSeniority() {
     return metaBean().debtSeniority().createProperty(this);
   }
 
@@ -557,7 +555,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Gets the restructuring clause.
    * @return the value of the property, not null
    */
-  public String getRestructuringClause() {
+  public RestructuringClause getRestructuringClause() {
     return _restructuringClause;
   }
 
@@ -565,7 +563,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Sets the restructuring clause.
    * @param restructuringClause  the new value of the property, not null
    */
-  public void setRestructuringClause(String restructuringClause) {
+  public void setRestructuringClause(RestructuringClause restructuringClause) {
     JodaBeanUtils.notNull(restructuringClause, "restructuringClause");
     this._restructuringClause = restructuringClause;
   }
@@ -574,7 +572,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
    * Gets the the {@code restructuringClause} property.
    * @return the property, not null
    */
-  public final Property<String> restructuringClause() {
+  public final Property<RestructuringClause> restructuringClause() {
     return metaBean().restructuringClause().createProperty(this);
   }
 
@@ -1001,13 +999,13 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
     /**
      * The meta-property for the {@code debtSeniority} property.
      */
-    private final MetaProperty<String> _debtSeniority = DirectMetaProperty.ofReadWrite(
-        this, "debtSeniority", CreditDefaultSwapSecurity.class, String.class);
+    private final MetaProperty<DebtSeniority> _debtSeniority = DirectMetaProperty.ofReadWrite(
+        this, "debtSeniority", CreditDefaultSwapSecurity.class, DebtSeniority.class);
     /**
      * The meta-property for the {@code restructuringClause} property.
      */
-    private final MetaProperty<String> _restructuringClause = DirectMetaProperty.ofReadWrite(
-        this, "restructuringClause", CreditDefaultSwapSecurity.class, String.class);
+    private final MetaProperty<RestructuringClause> _restructuringClause = DirectMetaProperty.ofReadWrite(
+        this, "restructuringClause", CreditDefaultSwapSecurity.class, RestructuringClause.class);
     /**
      * The meta-property for the {@code regionId} property.
      */
@@ -1217,7 +1215,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
      * The meta-property for the {@code debtSeniority} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> debtSeniority() {
+    public final MetaProperty<DebtSeniority> debtSeniority() {
       return _debtSeniority;
     }
 
@@ -1225,7 +1223,7 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
      * The meta-property for the {@code restructuringClause} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> restructuringClause() {
+    public final MetaProperty<RestructuringClause> restructuringClause() {
       return _restructuringClause;
     }
 

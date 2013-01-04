@@ -87,7 +87,7 @@ public class SwaptionSecurity extends FinancialSecurity {
   private ZonedDateTime _settlementDate;
 
   SwaptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong, Expiry expiry, boolean cashSettled, Currency currency) {

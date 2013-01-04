@@ -18,7 +18,7 @@ import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.InMemoryViewDeltaResultModel;
 import com.opengamma.engine.view.ViewCalculationResultModel;
@@ -138,7 +138,7 @@ public class ViewResultModelMergerTest {
   private ComputedValueResult getComputedValueResult(final String valueName, final Object value) {
     final UniqueId uniqueId = UniqueId.of("Scheme", valueName);
     return new ComputedValueResult(new ValueSpecification(valueName, ComputationTargetSpecification.of(uniqueId),
-        ValueProperties.with(ValuePropertyNames.FUNCTION, "FunctionId").get()), value, ExecutionLog.EMPTY);
+        ValueProperties.with(ValuePropertyNames.FUNCTION, "FunctionId").get()), value, AggregatedExecutionLog.EMPTY);
   }
 
   private void assertResultsEqual(final ViewResultModel expected, final ViewResultModel actual) {

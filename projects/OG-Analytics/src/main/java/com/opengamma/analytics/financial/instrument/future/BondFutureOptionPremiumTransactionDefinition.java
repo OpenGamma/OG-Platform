@@ -48,7 +48,8 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
    * @param premiumDate The transaction date.
    * @param premiumAmount The transaction premium amount.
    */
-  public BondFutureOptionPremiumTransactionDefinition(BondFutureOptionPremiumSecurityDefinition underlyingOption, int quantity, ZonedDateTime premiumDate, double premiumAmount) {
+  public BondFutureOptionPremiumTransactionDefinition(final BondFutureOptionPremiumSecurityDefinition underlyingOption, final int quantity,
+      final ZonedDateTime premiumDate, final double premiumAmount) {
     ArgumentChecker.notNull(underlyingOption, "underlying option");
     ArgumentChecker.notNull(premiumDate, "premium date");
     ArgumentChecker.isTrue(premiumAmount * quantity <= 0, "Premium amount should have the opposite sign as quantity.");
@@ -66,9 +67,10 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
    * @param tradePrice The transaction price.
    * @return The option.
    */
-  public static BondFutureOptionPremiumTransactionDefinition fromTradePrice(BondFutureOptionPremiumSecurityDefinition underlyingOption, int quantity, ZonedDateTime premiumDate, double tradePrice) {
+  public static BondFutureOptionPremiumTransactionDefinition fromTradePrice(final BondFutureOptionPremiumSecurityDefinition underlyingOption, final int quantity,
+      final ZonedDateTime premiumDate, final double tradePrice) {
     ArgumentChecker.notNull(underlyingOption, "underlying option");
-    double premiumAmount = tradePrice * underlyingOption.getUnderlyingFuture().getNotional() * quantity;
+    final double premiumAmount = tradePrice * underlyingOption.getUnderlyingFuture().getNotional() * quantity;
     return new BondFutureOptionPremiumTransactionDefinition(underlyingOption, quantity, premiumDate, premiumAmount);
   }
 
@@ -82,7 +84,7 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
 
   /**
    * Gets the quantity of the transaction. Can be positive or negative.
-   * @return The quantity of the transaction. 
+   * @return The quantity of the transaction.
    */
   public int getQuantity() {
     return _quantity;
@@ -113,7 +115,7 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
   }
 
   @Override
-  public BondFutureOptionPremiumTransaction toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public BondFutureOptionPremiumTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(yieldCurveNames, "Curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "At least two curves required: credit and discounting");
@@ -126,12 +128,14 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFutureOptionPremiumTransactionDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFutureOptionPremiumTransactionDefinition(this);
   }
 
@@ -149,7 +153,7 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -159,7 +163,7 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BondFutureOptionPremiumTransactionDefinition other = (BondFutureOptionPremiumTransactionDefinition) obj;
+    final BondFutureOptionPremiumTransactionDefinition other = (BondFutureOptionPremiumTransactionDefinition) obj;
     if (!ObjectUtils.equals(_premium, other._premium)) {
       return false;
     }

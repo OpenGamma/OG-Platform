@@ -83,7 +83,7 @@ public class BondFutureOptionSecurity extends FinancialSecurity {
   private OptionType _optionType;
 
   BondFutureOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public BondFutureOptionSecurity(String tradingExchange,

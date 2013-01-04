@@ -85,7 +85,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
   private static final CapFloorIbor CAP_LONG = (CapFloorIbor) CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CapFloorIbor CAP_HIGH_LONG = (CapFloorIbor) CAP_HIGH_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CouponIbor COUPON_IBOR = (CouponIbor) COUPON_IBOR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -107,16 +107,16 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void presentValueBelowCutOff() {
     final CurrencyAmount methodPrice = METHOD.presentValue(CAP_LONG, SABR_BUNDLE);
     final double df = CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getPaymentTime());
-    final double forward = PRC.visit(CAP_LONG, CURVES);
+    final double forward = CAP_LONG.accept(PRC, CURVES);
     final double maturity = CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime();
-    DoublesPair expiryMaturity = new DoublesPair(CAP_LONG.getFixingTime(), maturity);
-    double alpha = SABR_PARAMETERS.getAlpha(expiryMaturity);
-    double beta = SABR_PARAMETERS.getBeta(expiryMaturity);
-    double rho = SABR_PARAMETERS.getRho(expiryMaturity);
-    double nu = SABR_PARAMETERS.getNu(expiryMaturity);
-    SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
-    SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, CUT_OFF_STRIKE, CAP_LONG.getFixingTime(), MU);
-    EuropeanVanillaOption option = new EuropeanVanillaOption(CAP_LONG.getStrike(), CAP_LONG.getFixingTime(), CAP_LONG.isCap());
+    final DoublesPair expiryMaturity = new DoublesPair(CAP_LONG.getFixingTime(), maturity);
+    final double alpha = SABR_PARAMETERS.getAlpha(expiryMaturity);
+    final double beta = SABR_PARAMETERS.getBeta(expiryMaturity);
+    final double rho = SABR_PARAMETERS.getRho(expiryMaturity);
+    final double nu = SABR_PARAMETERS.getNu(expiryMaturity);
+    final SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
+    final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, CUT_OFF_STRIKE, CAP_LONG.getFixingTime(), MU);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(CAP_LONG.getStrike(), CAP_LONG.getFixingTime(), CAP_LONG.isCap());
     final double expectedPrice = sabrExtrapolation.price(option) * CAP_LONG.getNotional() * CAP_LONG.getPaymentYearFraction() * df;
     assertEquals("Cap/floor: SABR with extrapolation pricing", expectedPrice, methodPrice.getAmount(), 1E-2);
   }
@@ -128,16 +128,16 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void presentValueAboveCutOff() {
     CurrencyAmount methodPrice = METHOD.presentValue(CAP_HIGH_LONG, SABR_BUNDLE);
     final double df = CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_HIGH_LONG.getPaymentTime());
-    final double forward = PRC.visit(CAP_HIGH_LONG, CURVES);
+    final double forward = CAP_HIGH_LONG.accept(PRC, CURVES);
     final double maturity = CAP_HIGH_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime();
-    DoublesPair expiryMaturity = new DoublesPair(CAP_HIGH_LONG.getFixingTime(), maturity);
-    double alpha = SABR_PARAMETERS.getAlpha(expiryMaturity);
-    double beta = SABR_PARAMETERS.getBeta(expiryMaturity);
-    double rho = SABR_PARAMETERS.getRho(expiryMaturity);
-    double nu = SABR_PARAMETERS.getNu(expiryMaturity);
-    SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
-    SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, CUT_OFF_STRIKE, CAP_HIGH_LONG.getFixingTime(), MU);
-    EuropeanVanillaOption option = new EuropeanVanillaOption(CAP_HIGH_LONG.getStrike(), CAP_HIGH_LONG.getFixingTime(), CAP_HIGH_LONG.isCap());
+    final DoublesPair expiryMaturity = new DoublesPair(CAP_HIGH_LONG.getFixingTime(), maturity);
+    final double alpha = SABR_PARAMETERS.getAlpha(expiryMaturity);
+    final double beta = SABR_PARAMETERS.getBeta(expiryMaturity);
+    final double rho = SABR_PARAMETERS.getRho(expiryMaturity);
+    final double nu = SABR_PARAMETERS.getNu(expiryMaturity);
+    final SABRFormulaData sabrParam = new SABRFormulaData(alpha, beta, rho, nu);
+    final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, CUT_OFF_STRIKE, CAP_HIGH_LONG.getFixingTime(), MU);
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(CAP_HIGH_LONG.getStrike(), CAP_HIGH_LONG.getFixingTime(), CAP_HIGH_LONG.isCap());
     final double expectedPrice = sabrExtrapolation.price(option) * CAP_HIGH_LONG.getNotional() * CAP_HIGH_LONG.getPaymentYearFraction() * df;
     assertEquals("Cap/floor: SABR with extrapolation pricing", expectedPrice, methodPrice.getAmount(), 1E-2);
     methodPrice = METHOD.presentValue(CAP_HIGH_LONG, SABR_BUNDLE);
@@ -171,8 +171,8 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void presentValueCapFloorParityBelowCutOff() {
     final CurrencyAmount priceCap = METHOD.presentValue(CAP_LONG, SABR_BUNDLE);
     final CurrencyAmount priceFloor = METHOD.presentValue(FLOOR_SHORT, SABR_BUNDLE);
-    double priceCouponStrike = PVC.visit(COUPON_STRIKE, CURVES);
-    double priceCouponIbor = PVC.visit(COUPON_IBOR, CURVES);
+    final double priceCouponStrike = COUPON_STRIKE.accept(PVC, CURVES);
+    final double priceCouponIbor = COUPON_IBOR.accept(PVC, CURVES);
     assertEquals("Cap/floor: SABR with extrapolation pricing: cap/floor parity", priceCouponIbor - priceCouponStrike, priceCap.getAmount() + priceFloor.getAmount(), 1E-2);
   }
 
@@ -183,8 +183,8 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   public void presentValueCapFloorParityAboveCutOff() {
     final CurrencyAmount priceCap = METHOD.presentValue(CAP_HIGH_LONG, SABR_BUNDLE);
     final CurrencyAmount priceFloor = METHOD.presentValue(FLOOR_HIGH_SHORT, SABR_BUNDLE);
-    double priceCouponStrike = PVC.visit(COUPON_STRIKE_HIGH, CURVES);
-    double priceCouponIbor = PVC.visit(COUPON_IBOR, CURVES);
+    final double priceCouponStrike = COUPON_STRIKE_HIGH.accept(PVC, CURVES);
+    final double priceCouponIbor = COUPON_IBOR.accept(PVC, CURVES);
     assertEquals("Cap/floor: SABR with extrapolation pricing: cap/floor parity", priceCouponIbor - priceCouponStrike, priceCap.getAmount() + priceFloor.getAmount(), 1E-2);
   }
 
@@ -193,10 +193,10 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
    * Test the present value using the method with the direct formula with extrapolation.
    */
   public void presentValueMethodVsCalculator() {
-    SABRInterestRateDataBundle sabrExtraBundle = new SABRInterestRateDataBundle(SABR_PARAMETERS, CURVES);
-    CurrencyAmount pvMethod = METHOD.presentValue(CAP_LONG, SABR_BUNDLE);
-    PresentValueSABRExtrapolationCalculator pvc = new PresentValueSABRExtrapolationCalculator(CUT_OFF_STRIKE, MU);
-    double pvCalculator = pvc.visit(CAP_LONG, sabrExtraBundle);
+    final SABRInterestRateDataBundle sabrExtraBundle = new SABRInterestRateDataBundle(SABR_PARAMETERS, CURVES);
+    final CurrencyAmount pvMethod = METHOD.presentValue(CAP_LONG, SABR_BUNDLE);
+    final PresentValueSABRExtrapolationCalculator pvc = new PresentValueSABRExtrapolationCalculator(CUT_OFF_STRIKE, MU);
+    final double pvCalculator = CAP_LONG.accept(pvc, sabrExtraBundle);
     assertEquals("Cap/floor: SABR with extrapolation pricing - Method vs Calculator", pvMethod.getAmount(), pvCalculator, 1E-2);
   }
 
@@ -218,26 +218,26 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1.0E-7;
     pvsCapLong = pvsCapLong.cleaned();
-    String bumpedCurveName = "Bumped Curve";
+    final String bumpedCurveName = "Bumped Curve";
     // 1. Forward curve sensitivity
-    final String[] CurveNameBumpedForward = {FUNDING_CURVE_NAME, bumpedCurveName};
+    final String[] CurveNameBumpedForward = {FUNDING_CURVE_NAME, bumpedCurveName };
     final CapFloorIbor capBumpedForward = (CapFloorIbor) CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedForward);
-    double[] nodeTimesForward = new double[] {capBumpedForward.getFixingPeriodStartTime(), capBumpedForward.getFixingPeriodEndTime()};
-    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
+    final double[] nodeTimesForward = new double[] {capBumpedForward.getFixingPeriodStartTime(), capBumpedForward.getFixingPeriodEndTime() };
+    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
-    List<DoublesPair> sensiPvForward = pvsCapLong.getSensitivities().get(FORWARD_CURVE_NAME);
+    final List<DoublesPair> sensiPvForward = pvsCapLong.getSensitivities().get(FORWARD_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvForward.get(loopnode);
       assertEquals("Sensitivity cap/floor pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
       assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiForwardMethod[loopnode], deltaTolerancePrice);
     }
     // 2. Discounting curve sensitivity
-    final String[] CurveNameBumpedDisc = {bumpedCurveName, FORWARD_CURVE_NAME};
+    final String[] CurveNameBumpedDisc = {bumpedCurveName, FORWARD_CURVE_NAME };
     final CapFloorIbor capBumpedDisc = (CapFloorIbor) CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedDisc);
-    double[] nodeTimesDisc = new double[] {capBumpedDisc.getPaymentTime()};
-    double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, SABR_BUNDLE, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
+    final double[] nodeTimesDisc = new double[] {capBumpedDisc.getPaymentTime() };
+    final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, SABR_BUNDLE, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiDiscMethod.length);
-    List<DoublesPair> sensiPvDisc = pvsCapLong.getSensitivities().get(FUNDING_CURVE_NAME);
+    final List<DoublesPair> sensiPvDisc = pvsCapLong.getSensitivities().get(FUNDING_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvDisc.get(loopnode);
       assertEquals("Sensitivity cap/floor pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
@@ -263,26 +263,26 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1.0E-7;
     pvsCapLong = pvsCapLong.cleaned();
-    String bumpedCurveName = "Bumped Curve";
+    final String bumpedCurveName = "Bumped Curve";
     // 1. Forward curve sensitivity
-    final String[] CurveNameBumpedForward = {FUNDING_CURVE_NAME, bumpedCurveName};
+    final String[] CurveNameBumpedForward = {FUNDING_CURVE_NAME, bumpedCurveName };
     final CapFloorIbor capBumpedForward = (CapFloorIbor) CAP_HIGH_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedForward);
-    double[] nodeTimesForward = new double[] {capBumpedForward.getFixingPeriodStartTime(), capBumpedForward.getFixingPeriodEndTime()};
-    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
+    final double[] nodeTimesForward = new double[] {capBumpedForward.getFixingPeriodStartTime(), capBumpedForward.getFixingPeriodEndTime() };
+    final double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 2, sensiForwardMethod.length);
-    List<DoublesPair> sensiPvForward = pvsCapLong.getSensitivities().get(FORWARD_CURVE_NAME);
+    final List<DoublesPair> sensiPvForward = pvsCapLong.getSensitivities().get(FORWARD_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvForward.get(loopnode);
       assertEquals("Sensitivity cap/floor pv to forward curve: Node " + loopnode, nodeTimesForward[loopnode], pairPv.getFirst(), 1E-8);
       //      assertEquals("Sensitivity finite difference method: node sensitivity: Node " + loopnode, pairPv.second, sensiForwardMethod[loopnode], deltaTolerancePrice);
     }
     // 2. Discounting curve sensitivity
-    final String[] CurveNameBumpedDisc = {bumpedCurveName, FORWARD_CURVE_NAME};
+    final String[] CurveNameBumpedDisc = {bumpedCurveName, FORWARD_CURVE_NAME };
     final CapFloorIbor capBumpedDisc = (CapFloorIbor) CAP_HIGH_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CurveNameBumpedDisc);
-    double[] nodeTimesDisc = new double[] {capBumpedDisc.getPaymentTime()};
-    double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, SABR_BUNDLE, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
+    final double[] nodeTimesDisc = new double[] {capBumpedDisc.getPaymentTime() };
+    final double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, SABR_BUNDLE, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
     assertEquals("Sensitivity finite difference method: number of node", 1, sensiDiscMethod.length);
-    List<DoublesPair> sensiPvDisc = pvsCapLong.getSensitivities().get(FUNDING_CURVE_NAME);
+    final List<DoublesPair> sensiPvDisc = pvsCapLong.getSensitivities().get(FUNDING_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvDisc.get(loopnode);
       assertEquals("Sensitivity cap/floor pv to forward curve: Node " + loopnode, nodeTimesDisc[loopnode], pairPv.getFirst(), 1E-8);
@@ -295,9 +295,9 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
    * Test the present value using the method with the direct formula with extrapolation.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
-    SABRInterestRateDataBundle sabrExtraBundle = new SABRInterestRateDataBundle(SABR_PARAMETERS, CURVES);
-    InterestRateCurveSensitivity pvsMethod = METHOD.presentValueSensitivity(CAP_HIGH_LONG, SABR_BUNDLE);
-    InterestRateCurveSensitivity pvsCalculator = new InterestRateCurveSensitivity(PVSC.visit(CAP_HIGH_LONG, sabrExtraBundle));
+    final SABRInterestRateDataBundle sabrExtraBundle = new SABRInterestRateDataBundle(SABR_PARAMETERS, CURVES);
+    final InterestRateCurveSensitivity pvsMethod = METHOD.presentValueSensitivity(CAP_HIGH_LONG, SABR_BUNDLE);
+    final InterestRateCurveSensitivity pvsCalculator = new InterestRateCurveSensitivity(CAP_HIGH_LONG.accept(PVSC, sabrExtraBundle));
     assertEquals("Cap/floor: SABR with extrapolation pv curve sensitivity - Method vs Calculator", pvsMethod, pvsCalculator);
   }
 

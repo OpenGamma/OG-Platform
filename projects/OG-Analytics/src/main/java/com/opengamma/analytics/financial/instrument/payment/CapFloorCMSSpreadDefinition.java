@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.instrument.payment;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
@@ -20,12 +19,13 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Class describing a caplet/floorlet on CMS spread. The notional is positive for long the option and negative for short the option.
- * The pay-off of the instrument is a cap/floor on the difference between the first CMS rate and the second CMS rate. 
+ * The pay-off of the instrument is a cap/floor on the difference between the first CMS rate and the second CMS rate.
  * Both swaps underlying the CMS need to have the same settlement date.
  */
 public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implements CapFloor {
@@ -75,11 +75,11 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
       final double notional, final ZonedDateTime fixingDate, final SwapFixedIborDefinition underlyingSwap1, final IndexSwap cmsIndex1, final SwapFixedIborDefinition underlyingSwap2,
       final IndexSwap cmsIndex2, final double strike, final boolean isCap) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate);
-    Validate.notNull(underlyingSwap1, "underlying swap");
-    Validate.notNull(cmsIndex1, "CMS index");
-    Validate.notNull(underlyingSwap2, "underlying swap");
-    Validate.notNull(cmsIndex2, "CMS index");
-    Validate.isTrue(underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate() == underlyingSwap2.getFixedLeg().getNthPayment(0).getAccrualStartDate(), "Identic settlement date");
+    ArgumentChecker.notNull(underlyingSwap1, "underlying swap");
+    ArgumentChecker.notNull(cmsIndex1, "CMS index");
+    ArgumentChecker.notNull(underlyingSwap2, "underlying swap");
+    ArgumentChecker.notNull(cmsIndex2, "CMS index");
+    ArgumentChecker.isTrue(underlyingSwap1.getFixedLeg().getNthPayment(0).getAccrualStartDate() == underlyingSwap2.getFixedLeg().getNthPayment(0).getAccrualStartDate(), "Identic settlement date");
     _underlyingSwap1 = underlyingSwap1;
     _cmsIndex1 = cmsIndex1;
     _underlyingSwap2 = underlyingSwap2;
@@ -89,7 +89,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
   }
 
   /**
-   * Builder of a CMS spread cap/floor. The fixing date is computed from the start accrual date with the Ibor index spot lag (fixing in advance). 
+   * Builder of a CMS spread cap/floor. The fixing date is computed from the start accrual date with the Ibor index spot lag (fixing in advance).
    * The underlying swaps are computed from that date and the CMS indexes.
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.
@@ -104,10 +104,10 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
    */
   public static CapFloorCMSSpreadDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double accrualFactor,
       final double notional, final IndexSwap cmsIndex1, final IndexSwap cmsIndex2, final double strike, final boolean isCap) {
-    Validate.notNull(accrualStartDate, "Accrual start date.");
-    Validate.notNull(cmsIndex1, "CMS index");
-    Validate.notNull(cmsIndex2, "CMS index");
-    ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -cmsIndex1.getIborIndex().getSpotLag(), cmsIndex1.getIborIndex().getCalendar());
+    ArgumentChecker.notNull(accrualStartDate, "Accrual start date.");
+    ArgumentChecker.notNull(cmsIndex1, "CMS index");
+    ArgumentChecker.notNull(cmsIndex2, "CMS index");
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -cmsIndex1.getIborIndex().getSpotLag(), cmsIndex1.getIborIndex().getCalendar());
     // Implementation comment: the underlying swap is used for forward. The notional, rate and payer flag are irrelevant.
     final SwapFixedIborDefinition underlyingSwap1 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex1, 1.0, 1.0, true);
     final SwapFixedIborDefinition underlyingSwap2 = SwapFixedIborDefinition.from(accrualStartDate, cmsIndex2, 1.0, 1.0, true);
@@ -167,12 +167,14 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCapFloorCMSSpreadDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCapFloorCMSSpreadDefinition(this);
   }
 
@@ -226,12 +228,12 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
 
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    // First curve used for discounting. If two curves, the same forward is used for both swaps; 
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.isTrue(date.isBefore(getFixingDate()), "Do not have any fixing data but are asking for a derivative after the fixing date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    // First curve used for discounting. If two curves, the same forward is used for both swaps;
     // if more than two curves, the second is used for the forward of the first swap and the third for the forward of the second swap.
     final String fundingCurveName = yieldCurveNames[0];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
@@ -252,11 +254,11 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
 
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    // First curve used for discounting. If two curves, the same forward is used for both swaps; 
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    // First curve used for discounting. If two curves, the same forward is used for both swaps;
     // if more than two curves, the second is used for the forward of the first swap and the third for the forward of the second swap.
     final String fundingCurveName = yieldCurveNames[0];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());

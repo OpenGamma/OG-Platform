@@ -23,7 +23,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
  * Compute the spread to be added to the rate of the instrument for which the present value of the instrument is zero.
  * The "rate" can be a "rate" or a "yield" and will depend of each instrument.
  */
-public final class ParSpreadRateCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public final class ParSpreadRateCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -55,13 +55,6 @@ public final class ParSpreadRateCalculator extends AbstractInstrumentDerivativeV
   private static final InterestRateFutureDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureDiscountingMethod.getInstance();
 
   @Override
-  public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
-    return derivative.accept(this, curves);
-  }
-
-  @Override
   public Double visitCash(final Cash deposit, final YieldCurveBundle curves) {
     return METHOD_DEPOSIT.parSpread(deposit, curves);
   }
@@ -82,7 +75,7 @@ public final class ParSpreadRateCalculator extends AbstractInstrumentDerivativeV
   public Double visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
-    return -curves.getFxRates().convert(PVMCC.visit(swap, curves), swap.getFirstLeg().getCurrency()).getAmount() / PVBPC.visit(swap.getFirstLeg(), curves);
+    return -curves.getFxRates().convert(swap.accept(PVMCC, curves), swap.getFirstLeg().getCurrency()).getAmount() / swap.getFirstLeg().accept(PVBPC, curves);
   }
 
   @Override

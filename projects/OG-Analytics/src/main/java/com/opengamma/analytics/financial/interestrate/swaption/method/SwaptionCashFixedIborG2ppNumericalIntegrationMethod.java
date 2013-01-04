@@ -49,7 +49,7 @@ public class SwaptionCashFixedIborG2ppNumericalIntegrationMethod implements Pric
     final YieldAndDiscountCurve dsc = g2Data.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getDiscountCurve());
     final double notional = swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getNotional();
     final double strike = swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFixedRate();
-    final AnnuityPaymentFixed cfeIbor = CFEC.visit(swaption.getUnderlyingSwap().getSecondLeg(), g2Data);
+    final AnnuityPaymentFixed cfeIbor = swaption.getUnderlyingSwap().getSecondLeg().accept(CFEC, g2Data);
     final double theta = swaption.getTimeToExpiry();
     final double dft0 = dsc.getDiscountFactor(swaption.getSettlementTime());
     final int nbCfFixed = swaption.getUnderlyingSwap().getFixedLeg().getNumberOfPayments();

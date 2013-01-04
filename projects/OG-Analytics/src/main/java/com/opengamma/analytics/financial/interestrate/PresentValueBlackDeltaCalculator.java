@@ -13,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class PresentValueBlackDeltaCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> {
+public class PresentValueBlackDeltaCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
   private static final PresentValueBlackDeltaCalculator INSTANCE = new PresentValueBlackDeltaCalculator();
   private static final BondFutureOptionPremiumTransactionBlackSurfaceMethod PREMIUM_BOND_FUTURE_OPTION = BondFutureOptionPremiumTransactionBlackSurfaceMethod.getInstance();
 

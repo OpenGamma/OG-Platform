@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.fudgemsg;
@@ -22,27 +22,21 @@ import com.opengamma.util.money.Currency;
  */
 @FudgeBuilderFor(SyntheticIdentifierCurveInstrumentProvider.class)
 public class SyntheticIdentifierCurveInstrumentProviderFudgeBuilder implements FudgeBuilder<SyntheticIdentifierCurveInstrumentProvider> {
-  /**
-   * type used as a human readable subclass discriminator for mongo (which strips out type information).
-   * REVIEW: jim 13-Apr-2011 -- above comment obsolete as we're no using Mongo for config storage any more, this should be refactored at some point.
-   */
-  public static final String TYPE = "Synthetic";
+
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, SyntheticIdentifierCurveInstrumentProvider object) {
-    MutableFudgeMsg message = serializer.newMessage();
-    FudgeSerializer.addClassHeader(message, SyntheticIdentifierCurveInstrumentProvider.class);
-    message.add("type", TYPE); // so we can tell what type it is when mongo throws away the class header.
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SyntheticIdentifierCurveInstrumentProvider object) {
+    final MutableFudgeMsg message = serializer.newMessage();
     message.add("ccy", object.getCurrency().getCode());
     message.add("stripType", object.getType().name());
     message.add("scheme", object.getScheme().getName());
-    return message; 
+    return message;
   }
 
   @Override
-  public SyntheticIdentifierCurveInstrumentProvider buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    Currency ccy = Currency.of(message.getString("ccy"));
-    StripInstrumentType stripType = StripInstrumentType.valueOf(message.getString("stripType"));
-    ExternalScheme scheme = ExternalScheme.of(message.getString("scheme"));
+  public SyntheticIdentifierCurveInstrumentProvider buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    final Currency ccy = Currency.of(message.getString("ccy"));
+    final StripInstrumentType stripType = StripInstrumentType.valueOf(message.getString("stripType"));
+    final ExternalScheme scheme = ExternalScheme.of(message.getString("scheme"));
     return new SyntheticIdentifierCurveInstrumentProvider(ccy, stripType, scheme);
   }
 

@@ -14,6 +14,8 @@ import javax.time.Instant;
 import javax.time.TimeSource;
 
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -41,6 +43,7 @@ import com.opengamma.util.time.DateUtils;
 public class DbConnector implements Connector {
 
   private static final long NOW_CACHE_TTL = 500000000;
+  private static final Logger s_logger = LoggerFactory.getLogger(DbConnector.class);
 
   static {
     DateUtils.initTimeZone();
@@ -308,6 +311,7 @@ public class DbConnector implements Connector {
           if (retry == _retries) {
             throw ex;
           }
+          s_logger.warn("Execution failure on attempt " + retry + " of " + _retries, ex);
         } catch (DataAccessException ex) {
           throw fixSQLExceptionCause(ex);
         }

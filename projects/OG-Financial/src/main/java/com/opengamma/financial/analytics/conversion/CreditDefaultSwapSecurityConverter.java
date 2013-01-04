@@ -10,23 +10,19 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyFixedRecoveryCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.LegacyRecoveryLockCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.StandardCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.StandardFixedRecoveryCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.StandardRecoveryLockCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRating;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingFitch;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingMoodys;
-import com.opengamma.analytics.financial.credit.obligormodel.CreditRatingStandardAndPoors;
-import com.opengamma.analytics.financial.credit.obligormodel.Region;
-import com.opengamma.analytics.financial.credit.obligormodel.Sector;
-import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.obligor.CreditRating;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
+import com.opengamma.analytics.financial.credit.obligor.CreditRatingStandardAndPoors;
+import com.opengamma.analytics.financial.credit.obligor.Region;
+import com.opengamma.analytics.financial.credit.obligor.Sector;
+import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
@@ -36,26 +32,22 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
-import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
-import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
-import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 
 /**
  *
  */
-public class CreditDefaultSwapSecurityConverter {
+public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitorAdapter<CreditDefaultSwapDefinition> {
   private static final Obligor DUMMY_OBLIGOR = new Obligor(
-      "",
-      "",
-      "",
+      "Dummy",
+      "Dummy",
+      "Dummy",
       CreditRating.A,
       CreditRating.A,
       CreditRatingMoodys.A,
@@ -65,8 +57,6 @@ public class CreditDefaultSwapSecurityConverter {
       Sector.BASICMATERIALS,
       Region.NORTHAMERICA,
       "CA");
-  private static final DebtSeniority DUMMY_SENIORITY = DebtSeniority.SENIOR;
-  private static final RestructuringClause DUMMY_CLAUSE = RestructuringClause.NORE;
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
 
@@ -77,10 +67,9 @@ public class CreditDefaultSwapSecurityConverter {
     _regionSource = regionSource;
   }
 
-  public StandardCreditDefaultSwapDefinition visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security, final ZonedDateTime valuationDate, final PriceType priceType) {
+  @Override
+  public StandardVanillaCreditDefaultSwapDefinition visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
     ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(valuationDate, "valuation date");
-    ArgumentChecker.notNull(priceType, "price type");
     final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
     final ExternalId regionId = security.getRegionId();
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
@@ -95,6 +84,8 @@ public class CreditDefaultSwapSecurityConverter {
     final boolean adjustMaturityDate = security.isAdjustMaturityDate();
     final InterestRateNotional notional = security.getNotional();
     final Currency currency = notional.getCurrency();
+    final DebtSeniority debtSeniority = security.getDebtSeniority();
+    final RestructuringClause restructuringClause = security.getRestructuringClause();
     final double amount = notional.getAmount();
     final double recoveryRate = security.getRecoveryRate();
     final boolean includeAccruedPremium = security.isIncludeAccruedPremium();
@@ -103,18 +94,18 @@ public class CreditDefaultSwapSecurityConverter {
     final StandardCDSCoupon premiumLegCoupon = getCoupon(security.getCoupon());
     final double upFrontAmount = security.getUpfrontAmount().getAmount();
     final StubType stubType = security.getStubType().toAnalyticsType();
-    final int cashSettlementDate = DateUtils.getDaysBetween(effectiveDate, security.getSettlementDate());
-    return new StandardCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
-        DUMMY_SENIORITY, DUMMY_CLAUSE, calendar, startDate, effectiveDate, maturityDate, valuationDate, stubType, couponFrequency,
+    final ZonedDateTime cashSettlementDate = security.getCashSettlementDate();
+    final boolean adjustCashSettlementDate = security.isAdjustCashSettlementDate();
+    return new StandardVanillaCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
+        debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency,
         dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, amount,
-        recoveryRate, includeAccruedPremium, priceType, protectionStart, quotedSpread, premiumLegCoupon, upFrontAmount, cashSettlementDate);
+        recoveryRate, includeAccruedPremium, protectionStart, quotedSpread, premiumLegCoupon, upFrontAmount, cashSettlementDate,
+        adjustCashSettlementDate);
   }
 
-  public StandardFixedRecoveryCreditDefaultSwapDefinition visitStandardFixedRecoveryStandardCDS(final StandardFixedRecoveryCDSSecurity security, final ZonedDateTime valuationDate,
-      final PriceType priceType) {
+  @Override
+  public LegacyVanillaCreditDefaultSwapDefinition visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
     ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(valuationDate, "valuation date");
-    ArgumentChecker.notNull(priceType, "price type");
     final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
     final ExternalId regionId = security.getRegionId();
     final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
@@ -129,142 +120,20 @@ public class CreditDefaultSwapSecurityConverter {
     final boolean adjustMaturityDate = security.isAdjustMaturityDate();
     final InterestRateNotional notional = security.getNotional();
     final Currency currency = notional.getCurrency();
-    final double amount = notional.getAmount();
-    final double recoveryRate = security.getRecoveryRate();
-    final boolean includeAccruedPremium = security.isIncludeAccruedPremium();
-    final boolean protectionStart = security.isProtectionStart();
-    final double quotedSpread = security.getQuotedSpread();
-    final double upfrontAmount = security.getUpfrontAmount().getAmount();
-    final StubType stubType = security.getStubType().toAnalyticsType();
-    return new StandardFixedRecoveryCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
-        DUMMY_SENIORITY, DUMMY_CLAUSE, calendar, startDate, effectiveDate, maturityDate, valuationDate, stubType, couponFrequency,
-        dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, amount, recoveryRate,
-        includeAccruedPremium, priceType, protectionStart, quotedSpread, upfrontAmount);
-  }
-
-  public StandardRecoveryLockCreditDefaultSwapDefinition visitStandardRecoveryLockCreditDefaultSwapDefinition(final StandardRecoveryLockCDSSecurity security,
-      final ZonedDateTime valuationDate, final PriceType priceType) {
-    ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(valuationDate, "valuation date");
-    ArgumentChecker.notNull(priceType, "price type");
-    final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
-    final ExternalId regionId = security.getRegionId();
-    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
-    final ZonedDateTime startDate = security.getStartDate();
-    final ZonedDateTime effectiveDate = security.getEffectiveDate();
-    final ZonedDateTime maturityDate = security.getMaturityDate();
-    final PeriodFrequency couponFrequency = getPeriodFrequency(security.getCouponFrequency());
-    final DayCount dayCount = security.getDayCount();
-    final BusinessDayConvention businessDayConvention = security.getBusinessDayConvention();
-    final boolean immAdjustMaturityDate = security.isImmAdjustMaturityDate();
-    final boolean adjustEffectiveDate = security.isAdjustEffectiveDate();
-    final boolean adjustMaturityDate = security.isAdjustMaturityDate();
-    final InterestRateNotional notional = security.getNotional();
-    final Currency currency = notional.getCurrency();
-    final double amount = notional.getAmount();
-    final double recoveryRate = security.getRecoveryRate();
-    final boolean includeAccruedPremium = security.isIncludeAccruedPremium();
-    final boolean protectionStart = security.isProtectionStart();
-    final double quotedSpread = security.getQuotedSpread();
-    final double upfrontAmount = security.getUpfrontAmount().getAmount();
-    final StubType stubType = security.getStubType().toAnalyticsType();
-    return new StandardRecoveryLockCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
-        DUMMY_SENIORITY, DUMMY_CLAUSE, calendar, startDate, effectiveDate, maturityDate, valuationDate, stubType, couponFrequency,
-        dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, amount, recoveryRate,
-        includeAccruedPremium, priceType, protectionStart, quotedSpread, upfrontAmount);
-  }
-
-  public LegacyCreditDefaultSwapDefinition visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security, final ZonedDateTime valuationDate, final PriceType priceType) {
-    ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(valuationDate, "valuation date");
-    ArgumentChecker.notNull(priceType, "price type");
-    final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
-    final ExternalId regionId = security.getRegionId();
-    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
-    final ZonedDateTime startDate = security.getStartDate();
-    final ZonedDateTime effectiveDate = security.getEffectiveDate();
-    final ZonedDateTime maturityDate = security.getMaturityDate();
-    final PeriodFrequency couponFrequency = getPeriodFrequency(security.getCouponFrequency());
-    final DayCount dayCount = security.getDayCount();
-    final BusinessDayConvention businessDayConvention = security.getBusinessDayConvention();
-    final boolean immAdjustMaturityDate = security.isImmAdjustMaturityDate();
-    final boolean adjustEffectiveDate = security.isAdjustEffectiveDate();
-    final boolean adjustMaturityDate = security.isAdjustMaturityDate();
-    final InterestRateNotional notional = security.getNotional();
-    final Currency currency = notional.getCurrency();
+    final DebtSeniority debtSeniority = security.getDebtSeniority();
+    final RestructuringClause restructuringClause = security.getRestructuringClause();
     final double amount = notional.getAmount();
     final double recoveryRate = security.getRecoveryRate();
     final boolean includeAccruedPremium = security.isIncludeAccruedPremium();
     final boolean protectionStart = security.isProtectionStart();
     final StubType stubType = security.getStubType().toAnalyticsType();
     final double parSpread = security.getParSpread();
-    return new LegacyCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
-        DUMMY_SENIORITY, DUMMY_CLAUSE, calendar, startDate, effectiveDate, maturityDate, valuationDate, stubType,
+    return new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
+        debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
         couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
-        amount, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
+        amount, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
   }
 
-  public LegacyFixedRecoveryCreditDefaultSwapDefinition visitLegacyFixedRecoveryStandardCDS(final LegacyFixedRecoveryCDSSecurity security, final ZonedDateTime valuationDate,
-      final PriceType priceType) {
-    ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(valuationDate, "valuation date");
-    ArgumentChecker.notNull(priceType, "price type");
-    final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
-    final ExternalId regionId = security.getRegionId();
-    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
-    final ZonedDateTime startDate = security.getStartDate();
-    final ZonedDateTime effectiveDate = security.getEffectiveDate();
-    final ZonedDateTime maturityDate = security.getMaturityDate();
-    final PeriodFrequency couponFrequency = getPeriodFrequency(security.getCouponFrequency());
-    final DayCount dayCount = security.getDayCount();
-    final BusinessDayConvention businessDayConvention = security.getBusinessDayConvention();
-    final boolean immAdjustMaturityDate = security.isImmAdjustMaturityDate();
-    final boolean adjustEffectiveDate = security.isAdjustEffectiveDate();
-    final boolean adjustMaturityDate = security.isAdjustMaturityDate();
-    final InterestRateNotional notional = security.getNotional();
-    final Currency currency = notional.getCurrency();
-    final double amount = notional.getAmount();
-    final double recoveryRate = security.getRecoveryRate();
-    final boolean includeAccruedPremium = security.isIncludeAccruedPremium();
-    final boolean protectionStart = security.isProtectionStart();
-    final StubType stubType = null; //TODO
-    final double parSpread = security.getParSpread();
-    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
-        DUMMY_SENIORITY, DUMMY_CLAUSE, calendar, startDate, effectiveDate, maturityDate, valuationDate, stubType,
-        couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
-        amount, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
-  }
-
-  public LegacyRecoveryLockCreditDefaultSwapDefinition visitLegacyRecoveryLockCreditDefaultSwapDefinition(final LegacyRecoveryLockCDSSecurity security,
-      final ZonedDateTime valuationDate, final PriceType priceType) {
-    ArgumentChecker.notNull(security, "security");
-    ArgumentChecker.notNull(valuationDate, "valuation date");
-    ArgumentChecker.notNull(priceType, "price type");
-    final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
-    final ExternalId regionId = security.getRegionId();
-    final Calendar calendar = new HolidaySourceCalendarAdapter(_holidaySource, _regionSource.getHighestLevelRegion(regionId));
-    final ZonedDateTime startDate = security.getStartDate();
-    final ZonedDateTime effectiveDate = security.getEffectiveDate();
-    final ZonedDateTime maturityDate = security.getMaturityDate();
-    final PeriodFrequency couponFrequency = getPeriodFrequency(security.getCouponFrequency());
-    final DayCount dayCount = security.getDayCount();
-    final BusinessDayConvention businessDayConvention = security.getBusinessDayConvention();
-    final boolean immAdjustMaturityDate = security.isImmAdjustMaturityDate();
-    final boolean adjustEffectiveDate = security.isAdjustEffectiveDate();
-    final boolean adjustMaturityDate = security.isAdjustMaturityDate();
-    final InterestRateNotional notional = security.getNotional();
-    final Currency currency = notional.getCurrency();
-    final double amount = notional.getAmount();
-    final double recoveryRate = security.getRecoveryRate();
-    final boolean includeAccruedPremium = security.isIncludeAccruedPremium();
-    final boolean protectionStart = security.isProtectionStart();
-    final StubType stubType = security.getStubType().toAnalyticsType();
-    final double parSpread = security.getParSpread();
-    return new LegacyRecoveryLockCreditDefaultSwapDefinition(buySellProtection, DUMMY_OBLIGOR, DUMMY_OBLIGOR, DUMMY_OBLIGOR, currency,
-        DUMMY_SENIORITY, DUMMY_CLAUSE, calendar, startDate, effectiveDate, maturityDate, valuationDate, stubType,
-        couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate,
-        amount, recoveryRate, includeAccruedPremium, priceType, protectionStart, parSpread);
-  }
   private PeriodFrequency getPeriodFrequency(final Frequency frequency) {
     if (frequency instanceof PeriodFrequency) {
       return (PeriodFrequency) frequency;

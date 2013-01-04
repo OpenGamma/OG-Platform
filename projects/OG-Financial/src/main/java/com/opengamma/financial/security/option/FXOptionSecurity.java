@@ -81,7 +81,7 @@ public class FXOptionSecurity extends FinancialSecurity {
   private ExerciseType _exerciseType;
 
   FXOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public FXOptionSecurity(Currency putCurrency, Currency callCurrency, double putAmount, double callAmount, Expiry expiry,

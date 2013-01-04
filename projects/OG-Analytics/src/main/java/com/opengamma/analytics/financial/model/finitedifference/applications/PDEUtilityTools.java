@@ -20,6 +20,7 @@ import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -268,6 +269,42 @@ public class PDEUtilityTools {
    * @param x The x values
    * @param y The y values
    */
+
+  /**
+   * Prints out the values of the function f(x,y) where x takes the values x_1 to x_N and y takes the values y_1 to y_M, along with the x and y values, with x as the top row and
+   * y as the left column. This format can be used by the Excel 3D surface plotter. 
+   * @param name Optional name for the output
+   * @param data The data 
+   * @param x x-values
+   * @param y y-values
+   * @param out output
+   */
+  public static void printSurface(final String name, final double[][] data, final double[] x, final double[] y, final PrintStream out) {
+    ArgumentChecker.notNull(data, "null data");
+    ArgumentChecker.notNull(x, "null x");
+    ArgumentChecker.notNull(y, "null y");
+    ArgumentChecker.notNull(out, "null printStream");
+    final int n = data.length;
+    final int m = data[0].length;
+    ArgumentChecker.isTrue(n == y.length, "Size of data is {} {}, but length of y is {}", n, m, y.length);
+    ArgumentChecker.isTrue(m == x.length, "Size of data is {} {}, but length of x is {}", n, m, x.length);
+
+    out.println(name);
+    for (int j = 0; j < m; j++) {
+      out.print("\t" + x[j]);
+    }
+    out.print("\n");
+    for (int i = 0; i < n; i++) {
+      out.print(y[i]);
+      for (int j = 0; j < m; j++) {
+        out.print("\t" + data[i][j]);
+      }
+      out.print("\n");
+    }
+    out.print("\n");
+  }
+
+  /** This form takes vectors of x (typically expiry) and y (typically strike) */
   public static void printSurface(final String name, final Surface<Double, Double, Double> surface, final double[] x, final double[] y) {
     Validate.isTrue(x.length > 0, "The x-array was empty");
     Validate.isTrue(y.length > 0, "The y-array was empty");

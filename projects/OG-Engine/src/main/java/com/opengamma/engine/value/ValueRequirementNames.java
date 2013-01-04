@@ -580,6 +580,10 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE_DRIFTLESS_DELTA = "ValueDriftlessTheta";
   /**
+   * The amount by which the value of a portfolio would change due to dual delta.
+   */
+  public static final String VALUE_DUAL_DELTA = "ValueDualDelta";
+  /**
    * The amount by which the value of a portfolio would change due to dVannadVol.
    */
   public static final String VALUE_DVANNA_DVOL = "ValuedVanna_dVol";
@@ -810,6 +814,14 @@ public final class ValueRequirementNames {
    * The return series of the underlying of a security (usually an option).
    */
   public static final String UNDERLYING_RETURN_SERIES = "Underlying Return Series";
+  /**
+   * The notional of a security
+   */
+  public static final String NOTIONAL = "Notional";
+  /**
+   * The attributes of a security
+   */
+  public static final String ATTRIBUTES = "Attributes";
 
   ///// Value At Risk
 
