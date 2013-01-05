@@ -41,7 +41,7 @@ import com.opengamma.id.ExternalId;
 /**
  * Calculates the bucketed vega of an equity index or equity option using the Black formula.
  */
-public class EquityOptionBlackVegaMatrixFunction  extends EquityOptionBlackFunction {
+public class EquityOptionBlackVegaMatrixFunction extends EquityOptionBlackFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionBlackVegaMatrixFunction.class);
   /** The Black present value calculator */
@@ -130,8 +130,8 @@ public class EquityOptionBlackVegaMatrixFunction  extends EquityOptionBlackFunct
   @Override
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     return super.createValueProperties(target)
-      .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
-      .with(ValuePropertyNames.UNDERLYING_TICKER); //TODO do we need this given that the target is the security?
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
+        .with(ValuePropertyNames.UNDERLYING_TICKER); //TODO do we need this given that the target is the security?
   }
 
   @Override
@@ -147,4 +147,3 @@ public class EquityOptionBlackVegaMatrixFunction  extends EquityOptionBlackFunct
   }
 
 }
-
