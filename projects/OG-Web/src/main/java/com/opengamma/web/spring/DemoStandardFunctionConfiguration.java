@@ -368,10 +368,7 @@ import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
-import com.opengamma.financial.property.AttributableDefaultPropertyFunction;
-import com.opengamma.financial.property.CalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
-import com.opengamma.financial.property.PositionDefaultPropertyFunction;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues;
@@ -406,18 +403,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
   }
 
-  protected static void addDefaultPropertyFunctions(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(CalcConfigDefaultPropertyFunction.Generic.class));
-    functionConfigs.add(functionConfiguration(CalcConfigDefaultPropertyFunction.Specific.class));
-    functionConfigs.add(functionConfiguration(PositionDefaultPropertyFunction.class));
-    functionConfigs.add(functionConfiguration(AttributableDefaultPropertyFunction.class));
-  }
-
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
     addCurrencyConversionFunctions(functionConfigs);
-    addDefaultPropertyFunctions(functionConfigs);
 
     // options
     functionConfigs.add(functionConfiguration(BlackScholesMertonModelFunction.class));
