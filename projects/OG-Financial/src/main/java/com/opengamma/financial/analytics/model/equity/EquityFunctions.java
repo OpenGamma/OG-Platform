@@ -14,6 +14,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
+import com.opengamma.financial.analytics.model.equity.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioTheoryFunctions;
 
 /**
@@ -38,9 +39,8 @@ public class EquityFunctions extends AbstractRepositoryConfigurationBean {
     return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
   }
 
-  protected RepositoryConfigurationSource indexOptionFunctionConfiguration() {
-    // TODO
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+  protected RepositoryConfigurationSource optionFunctionConfiguration() {
+    return OptionFunctions.DEFAULT;
   }
 
   protected RepositoryConfigurationSource portfolioTheoryFunctionConfiguration() {
@@ -54,7 +54,7 @@ public class EquityFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), futuresFunctionConfiguration(), indexOptionFunctionConfiguration(), portfolioTheoryFunctionConfiguration(),
+    return new CombiningRepositoryConfigurationSource(super.createObject(), futuresFunctionConfiguration(), optionFunctionConfiguration(), portfolioTheoryFunctionConfiguration(),
         varianceSwapFunctionConfiguration());
   }
 
