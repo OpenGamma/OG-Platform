@@ -28,7 +28,6 @@ import org.joda.beans.MetaBean;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -112,8 +111,7 @@ public class BlotterResource {
       CapFloorSecurity.meta(),
       EquityVarianceSwapSecurity.meta(),
       FXBarrierOptionSecurity.meta(),
-      NonDeliverableFXOptionSecurity.meta(),
-      ManageableTrade.meta());
+      NonDeliverableFXOptionSecurity.meta());
   private final NewOtcTradeBuilder _newTradeBuilder;
 
   private static final Map<Class<?>, Class<?>> s_underlyingSecurityTypes = ImmutableMap.<Class<?>, Class<?>>of(
@@ -152,6 +150,9 @@ public class BlotterResource {
         s_otherTypeNames.add(typeName);
       }
     }
+    // TODO use constants for these
+    s_otherTypeNames.add("OtcTrade");
+    s_otherTypeNames.add("FungibleTrade");
     Collections.sort(s_otherTypeNames);
     Collections.sort(s_securityTypeNames);
   }
@@ -205,14 +206,16 @@ public class BlotterResource {
   @Produces(MediaType.TEXT_HTML)
   @Path("types/{typeName}")
   public String getStructure(@PathParam("typeName") String typeName) {
-    MetaBean metaBean = s_metaBeansByTypeName.get(typeName);
-    if (metaBean == null) {
-      throw new DataNotFoundException("Unknown type name " + typeName);
-    }
     Map<String, Object> beanData;
-    if (typeName.equals("ManageableTrade")) {
-      beanData = manageableTradeStructure();
+    if (typeName.equals("OtcTrade")) {
+      beanData = OtcTradeBuilder.tradeStructure();
+    } else if (typeName.equals("FungibleTrade")) {
+      beanData = FungibleTradeBuilder.tradeStructure();
     } else {
+      MetaBean metaBean = s_metaBeansByTypeName.get(typeName);
+      if (metaBean == null) {
+        throw new DataNotFoundException("Unknown type name " + typeName);
+      }
       BeanStructureBuilder structureBuilder = new BeanStructureBuilder(s_metaBeans,
                                                                        s_underlyingSecurityTypes,
                                                                        s_endpoints);
@@ -274,7 +277,7 @@ public class BlotterResource {
     if (position == null) {
       throw new DataNotFoundException("No position found with trade ID " + tradeId);
     }
-    // TODO this should never fail but there's a bug in position searching ATM
+    // TODO this should never fail but there's a bug in position searching
     ManageableTrade trade = position.getTrade(tradeId);
     if (trade == null) {
       throw new DataNotFoundException("No trade with ID " + tradeId + " found on position " + position.getUniqueId() +
@@ -356,52 +359,4 @@ public class BlotterResource {
 
   // TODO create fungible trade - identifier and quantity
 
-  // TODO different versions for OTC / non OTC
-  // the horror... make this go away
-  private static Map<String, Object> manageableTradeStructure() {
-    Map<String, Object> structure = Maps.newHashMap();
-    List<Map<String, Object>> properties = Lists.newArrayList();
-    properties.add(property("uniqueId", true, true, typeInfo("string", "UniqueId")));
-    // don't need quantity for OTCs, always 1
-    //properties.add(property("quantity", true, false, typeInfo("number", "")));
-    properties.add(property("counterparty", false, false, typeInfo("string", "")));
-    properties.add(property("tradeDate", true, false, typeInfo("string", "LocalDate")));
-    properties.add(property("tradeTime", true, false, typeInfo("string", "OffsetTime")));
-    // TODO which premium fields are relevant for OTCs?
-    properties.add(property("premium", true, false, typeInfo("number", "")));
-    properties.add(property("premiumCurrency", true, false, typeInfo("string", "Currency")));
-    properties.add(property("premiumDate", true, false, typeInfo("string", "LocalDate")));
-    properties.add(property("premiumTime", true, false, typeInfo("string", "OffsetTime")));
-    properties.add(attributesProperty());
-    structure.put("type", "ManageableTrade");
-    structure.put("properties", properties);
-    structure.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
-    return structure;
-  }
-
-  private static Map<String, Object> property(String name,
-                                              boolean optional,
-                                              boolean readOnly,
-                                              Map<String, Object> typeInfo) {
-    return ImmutableMap.<String, Object>of("name", name,
-                                           "type", "single",
-                                           "optional", optional,
-                                           "readOnly", readOnly,
-                                           "types", ImmutableList.of(typeInfo));
-  }
-
-  private static Map<String, Object> attributesProperty() {
-    Map<String, Object> map = Maps.newHashMap();
-    map.put("name", "attributes");
-    map.put("type", "map");
-    map.put("optional", true); // can't be null but have a default value so client doesn't need to specify
-    map.put("readOnly", false);
-    map.put("types", ImmutableList.of(typeInfo("string", "")));
-    map.put("valueTypes", ImmutableList.of(typeInfo("string", "")));
-    return map;
-  }
-
-  private static Map<String, Object> typeInfo(String expectedType, String actualType) {
-    return ImmutableMap.<String, Object>of("beanType", false, "expectedType", expectedType, "actualType", actualType);
-  }
 }

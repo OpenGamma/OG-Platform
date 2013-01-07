@@ -68,6 +68,7 @@ import com.opengamma.util.ArgumentChecker;
     ManageableTrade originalTrade = getPositionMaster().getTrade(_tradeId);
     UniqueId positionId = originalTrade.getParentPositionId();
     ManageablePosition position = getPositionMaster().get(positionId).getPosition();
+    // for OTCs there's always 1 trade per position, remove the existing trade because it's being replaced
     position.setTrades(Collections.<ManageableTrade>emptyList());
     return position;
   }
