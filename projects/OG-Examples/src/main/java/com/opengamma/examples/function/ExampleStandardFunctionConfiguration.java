@@ -36,7 +36,6 @@ import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.FinancialFunctions;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromYieldFunction;
@@ -58,10 +57,6 @@ import com.opengamma.financial.analytics.model.bond.BondZSpreadFromMarketCleanPr
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
-import com.opengamma.financial.analytics.model.cds.ISDAApproxCDSPriceFlatSpreadFunction;
-import com.opengamma.financial.analytics.model.cds.ISDAApproxCDSPriceHazardCurveFunction;
-import com.opengamma.financial.analytics.model.cds.ISDAApproxDiscountCurveFunction;
-import com.opengamma.financial.analytics.model.cds.ISDAApproxFlatSpreadFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldForwardFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldFuturesYCNSFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldPV01FuturesFunction;
@@ -83,7 +78,6 @@ import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRati
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRatioDefaultPropertiesPositionFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRatioPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRatioPositionFunction;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.StandardEquityModelFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskAlphaDefaultPropertiesPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskAlphaDefaultPropertiesPositionFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskAlphaPortfolioNodeFunction;
@@ -131,13 +125,10 @@ import com.opengamma.financial.analytics.model.future.InterestRateFuturePresentV
 import com.opengamma.financial.analytics.model.future.InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
 import com.opengamma.financial.analytics.model.pnl.EquityPnLDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.pnl.EquityPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.ExternallyProvidedSensitivityPnLDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.ExternallyProvidedSensitivityPnLFunction;
-import com.opengamma.financial.analytics.model.pnl.PortfolioExchangeTradedDailyPnLFunction;
-import com.opengamma.financial.analytics.model.pnl.PortfolioExchangeTradedPnLFunction;
+import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.pnl.PositionExchangeTradedDailyPnLFunction;
-import com.opengamma.financial.analytics.model.pnl.PositionExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.SecurityPriceSeriesDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.SecurityPriceSeriesFunction;
 import com.opengamma.financial.analytics.model.pnl.SimpleFXFuturePnLDefaultPropertiesFunction;
@@ -148,7 +139,6 @@ import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedDailyPnLFu
 import com.opengamma.financial.analytics.model.pnl.TradeExchangeTradedPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.ValueGreekSensitivityPnLDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.ValueGreekSensitivityPnLFunction;
-import com.opengamma.financial.analytics.model.pnl.YieldCurveNodePnLFunctionDeprecated;
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodeSensitivityPnLDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationPVCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCMSSpreadNoExtrapolationPVCurveSensitivityFunctionDeprecated;
@@ -210,7 +200,6 @@ import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeas
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
-import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -246,24 +235,42 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
   }
 
+  private static void addPnLCalculators(final List<FunctionConfiguration> functionConfigs) {
+    final String defaultCurveCalculationMethod = PRESENT_VALUE_STRING;
+    final String defaultReturnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
+    final String defaultSamplingPeriodName = "P2Y";
+    final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
+    final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
+    functionConfigs.add(functionConfiguration(TradeExchangeTradedPnLFunction.class, DEFAULT_CONFIG_NAME, HTS_PRICE_FIELD, COST_OF_CARRY_FIELD));
+    functionConfigs.add(functionConfiguration(TradeExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, HTS_PRICE_FIELD, COST_OF_CARRY_FIELD));
+    functionConfigs.add(functionConfiguration(PositionExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, HTS_PRICE_FIELD, COST_OF_CARRY_FIELD));
+    functionConfigs.add(functionConfiguration(SecurityPriceSeriesFunction.class, DEFAULT_CONFIG_NAME, MarketDataRequirementNames.MARKET_VALUE));
+    functionConfigs.add(functionConfiguration(SecurityPriceSeriesDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
+    functionConfigs.add(functionConfiguration(EquityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName, defaultReturnCalculatorName));
+    functionConfigs.add(functionConfiguration(SimpleFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(SimpleFuturePnLDefaultPropertiesFunction.class, SECONDARY, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
+    functionConfigs.add(functionConfiguration(SimpleFXFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(SimpleFXFuturePnLDefaultPropertiesFunction.class, SECONDARY, SECONDARY,
+        defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
+    functionConfigs.add(functionConfiguration(YieldCurveNodeSensitivityPnLDefaultsDeprecated.class, SECONDARY, SECONDARY, defaultCurveCalculationMethod, defaultSamplingPeriodName,
+        defaultScheduleName, defaultSamplingCalculatorName, "AUD", USD, "CAD", "DKK", "EUR", "GBP", "JPY", "NZD", "CHF"));
+    functionConfigs.add(functionConfiguration(ValueGreekSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(ValueGreekSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName,
+        defaultReturnCalculatorName));
+    functionConfigs.addAll(PNLFunctions.deprecated().getRepositoryConfiguration().getFunctions());
+  }
+
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
     addCurrencyConversionFunctions(functionConfigs);
-
-    // equity and portfolio
-    functionConfigs.add(functionConfiguration(PositionExchangeTradedPnLFunction.class));
-    functionConfigs.add(functionConfiguration(PortfolioExchangeTradedPnLFunction.class));
-    functionConfigs.add(functionConfiguration(PortfolioExchangeTradedDailyPnLFunction.Impl.class));
-    functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, ValueRequirementNames.DAILY_PNL, PortfolioExchangeTradedDailyPnLFunction.Impl.AGGREGATION_STYLE_FULL));
-
     addPnLCalculators(functionConfigs);
+
     addVaRCalculators(functionConfigs);
     addPortfolioAnalysisCalculators(functionConfigs);
     addFixedIncomeInstrumentCalculators(functionConfigs);
     addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);
 
-    functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
     functionConfigs.add(functionConfiguration(SimpleFuturePresentValueFunctionDeprecated.class, SECONDARY));
     functionConfigs.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, SECONDARY, SECONDARY));
     addBondCalculators(functionConfigs);
@@ -277,11 +284,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     addEquityDerivativesCalculators(functionConfigs);
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, SECONDARY));
-
-    functionConfigs.add(functionConfiguration(ISDAApproxCDSPriceFlatSpreadFunction.class));
-    functionConfigs.add(functionConfiguration(ISDAApproxCDSPriceHazardCurveFunction.class));
-    functionConfigs.add(functionConfiguration(ISDAApproxFlatSpreadFunction.class));
-    functionConfigs.add(functionConfiguration(ISDAApproxDiscountCurveFunction.class));
 
     functionConfigs.addAll(FinancialFunctions.DEFAULT.getRepositoryConfiguration().getFunctions());
 
@@ -304,32 +306,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
       }
     }
     return repoConfig;
-  }
-
-  private static void addPnLCalculators(final List<FunctionConfiguration> functionConfigs) {
-    final String defaultCurveCalculationMethod = PRESENT_VALUE_STRING;
-    final String defaultReturnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
-    final String defaultSamplingPeriodName = "P2Y";
-    final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
-    final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
-    functionConfigs.add(functionConfiguration(TradeExchangeTradedPnLFunction.class, DEFAULT_CONFIG_NAME, HTS_PRICE_FIELD, COST_OF_CARRY_FIELD));
-    functionConfigs.add(functionConfiguration(TradeExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, HTS_PRICE_FIELD, COST_OF_CARRY_FIELD));
-    functionConfigs.add(functionConfiguration(PositionExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, HTS_PRICE_FIELD, COST_OF_CARRY_FIELD));
-    functionConfigs.add(functionConfiguration(SecurityPriceSeriesFunction.class, DEFAULT_CONFIG_NAME, MarketDataRequirementNames.MARKET_VALUE));
-    functionConfigs.add(functionConfiguration(SecurityPriceSeriesDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
-    functionConfigs.add(functionConfiguration(EquityPnLFunction.class));
-    functionConfigs.add(functionConfiguration(EquityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName, defaultReturnCalculatorName));
-    functionConfigs.add(functionConfiguration(SimpleFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(SimpleFuturePnLDefaultPropertiesFunction.class, SECONDARY, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
-    functionConfigs.add(functionConfiguration(SimpleFXFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(SimpleFXFuturePnLDefaultPropertiesFunction.class, SECONDARY, SECONDARY,
-        defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
-    functionConfigs.add(functionConfiguration(YieldCurveNodePnLFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(YieldCurveNodeSensitivityPnLDefaultsDeprecated.class, SECONDARY, SECONDARY, defaultCurveCalculationMethod, defaultSamplingPeriodName,
-        defaultScheduleName, defaultSamplingCalculatorName, "AUD", USD, "CAD", "DKK", "EUR", "GBP", "JPY", "NZD", "CHF"));
-    functionConfigs.add(functionConfiguration(ValueGreekSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(ValueGreekSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName,
-        defaultReturnCalculatorName));
   }
 
   private static void addVaRCalculators(final List<FunctionConfiguration> functionConfigs) {
