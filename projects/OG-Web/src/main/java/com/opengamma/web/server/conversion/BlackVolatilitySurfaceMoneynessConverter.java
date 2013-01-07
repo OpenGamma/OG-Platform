@@ -85,13 +85,13 @@ public class BlackVolatilitySurfaceMoneynessConverter implements ResultConverter
         for (int i = 0; i < 20; i++) {
           double t = expiries[i];
           xLabels[i] = LABEL_FORMAT.format(t);
-          double m = .5;
+          double m = .1;
           for (int j = 0; j < 20; j++) {
-            m += 0.05;
             if (i == 0) {
               yLabels[j] = LABEL_FORMAT.format(m);
             }
             surface[j][i] = 100 * functional.getZValue(t, m);
+            m += 0.1;
           }
           
         }
