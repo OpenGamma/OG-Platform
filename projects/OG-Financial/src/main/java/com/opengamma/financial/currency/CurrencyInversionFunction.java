@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.currency;
@@ -19,71 +19,52 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Produces the reciprocal of a currency conversion rate.
+ * <p>
+ * This should only be put in the repository when there are functions that will map the conversion requirements directly to market data tickers. Do not use with {@link CurrencyMatrixSourcingFunction}.
  */
 public class CurrencyInversionFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final Pattern s_validate = Pattern.compile("[A-Z]{3}_[A-Z]{3}");
 
-  private String _rateLookupIdentifierScheme = CurrencyConversionFunction.DEFAULT_LOOKUP_IDENTIFIER_SCHEME;
-  private String _rateLookupValueName = CurrencyConversionFunction.DEFAULT_LOOKUP_VALUE_NAME;
-
-  public void setRateLookupValueName(final String rateLookupValueName) {
-    ArgumentChecker.notNull(rateLookupValueName, "rateLookupValueName");
-    _rateLookupValueName = rateLookupValueName;
-  }
-
-  public String getRateLookupValueName() {
-    return _rateLookupValueName;
-  }
-
-  public void setRateLookupIdentifierScheme(final String rateLookupIdentifierScheme) {
-    ArgumentChecker.notNull(rateLookupIdentifierScheme, "rateLookupIdentifierScheme");
-    _rateLookupIdentifierScheme = rateLookupIdentifierScheme;
-  }
-
-  public String getRateLookupIdentifierScheme() {
-    return _rateLookupIdentifierScheme;
-  }
-
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    Object rate = inputs.getValue(getRateLookupValueName());
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final Object rate = inputs.getValue(CurrencyConversionFunction.RATE_LOOKUP_VALUE_NAME);
     if (rate == null) {
       throw new IllegalArgumentException("input not provided");
     }
     if (!(rate instanceof Double)) {
       throw new IllegalArgumentException("input is not a double");
     }
-    final double inverse = 1 / (double) (Double) rate;
+    final double inverse = 1 / (Double) rate;
     return Collections.singleton(new ComputedValue(createResultValueSpecification(target), inverse));
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    if (!getRateLookupIdentifierScheme().equals(target.getUniqueId().getScheme())) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (!CurrencyConversionFunction.RATE_LOOKUP_SCHEME.equals(target.getUniqueId().getScheme())) {
       return false;
     }
     return s_validate.matcher(target.getUniqueId().getValue()).matches();
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final int underscore = target.getUniqueId().getValue().indexOf('_');
     final String numerator = target.getUniqueId().getValue().substring(0, underscore);
     final String denominator = target.getUniqueId().getValue().substring(underscore + 1);
-    return Collections.singleton(new ValueRequirement(getRateLookupValueName(), ComputationTargetType.PRIMITIVE, UniqueId.of(getRateLookupIdentifierScheme(), denominator + "_" + numerator)));
+    return Collections.singleton(new ValueRequirement(CurrencyConversionFunction.RATE_LOOKUP_VALUE_NAME, ComputationTargetType.PRIMITIVE, UniqueId.of(CurrencyConversionFunction.RATE_LOOKUP_SCHEME,
+        denominator + "_" + numerator)));
   }
 
   private ValueSpecification createResultValueSpecification(final ComputationTarget target) {
-    return new ValueSpecification(getRateLookupValueName(), target.toSpecification(), createValueProperties().get());
+    return new ValueSpecification(CurrencyConversionFunction.RATE_LOOKUP_VALUE_NAME, target.toSpecification(), createValueProperties().get());
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(createResultValueSpecification(target));
   }
 

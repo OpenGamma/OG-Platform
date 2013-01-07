@@ -220,11 +220,8 @@ import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeas
 import com.opengamma.financial.analytics.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
-import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
-import com.opengamma.financial.currency.DefaultCurrencyFunction;
-import com.opengamma.financial.currency.FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction;
 import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 import com.opengamma.financial.property.AttributableDefaultPropertyFunction;
 import com.opengamma.financial.property.CalcConfigDefaultPropertyFunction;
@@ -265,22 +262,8 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(ValueFunction.class));
   }
 
-  protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
-    functionConfigs.add(functionConfiguration(CurrencyConversionFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(DefaultCurrencyFunction.Permissive.class, requirementName));
-  }
-
   protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.FAIR_VALUE);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PV01);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.DAILY_PNL);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_DELTA);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_GAMMA);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.VALUE_SPEED);
-    addCurrencyConversionFunctions(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
-    functionConfigs.add(functionConfiguration(FixedIncomeInstrumentPnLSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
   }
 
   protected static void addLateAggregationFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -309,6 +292,9 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
     addValueFunctions(functionConfigs);
+    addLateAggregationFunctions(functionConfigs);
+    addDataShiftingFunctions(functionConfigs);
+    addDefaultPropertyFunctions(functionConfigs);
 
     // options
     functionConfigs.add(functionConfiguration(BlackScholesMertonModelFunction.class));
@@ -341,9 +327,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     addEquityDerivativesCalculators(functionConfigs);
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
     addCurrencyConversionFunctions(functionConfigs);
-    addLateAggregationFunctions(functionConfigs);
-    addDataShiftingFunctions(functionConfigs);
-    addDefaultPropertyFunctions(functionConfigs);
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, SECONDARY));
 
     functionConfigs.add(functionConfiguration(ISDAApproxCDSPriceFlatSpreadFunction.class));

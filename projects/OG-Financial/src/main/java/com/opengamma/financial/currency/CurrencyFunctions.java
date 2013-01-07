@@ -22,9 +22,18 @@ public class CurrencyFunctions extends AbstractRepositoryConfigurationBean {
    */
   public static final RepositoryConfigurationSource DEFAULT = (new CurrencyFunctions()).getObjectCreating();
 
-  public static void addCurrencyConversionFunction(final List<FunctionConfiguration> functions, final String requirementName) {
-    functions.add(functionConfiguration(CurrencyConversionFunction.class, requirementName));
+  protected void addDefaultCurrencyFunction(final List<FunctionConfiguration> functions, final String requirementName) {
     functions.add(functionConfiguration(DefaultCurrencyFunction.Permissive.class, requirementName));
+  }
+
+  public void addCurrencyConversionFunction(final List<FunctionConfiguration> functions, final String requirementName) {
+    functions.add(functionConfiguration(CurrencyConversionFunction.class, requirementName));
+    addDefaultCurrencyFunction(functions, requirementName);
+  }
+
+  public void addCurrencySeriesConversionFunction(final List<FunctionConfiguration> functions, final String requirementName) {
+    functions.add(functionConfiguration(CurrencySeriesConversionFunction.class, requirementName));
+    addDefaultCurrencyFunction(functions, requirementName);
   }
 
   @Override
@@ -32,6 +41,7 @@ public class CurrencyFunctions extends AbstractRepositoryConfigurationBean {
     addCurrencyConversionFunction(functions, ValueRequirementNames.DAILY_PNL);
     addCurrencyConversionFunction(functions, ValueRequirementNames.DV01);
     addCurrencyConversionFunction(functions, ValueRequirementNames.FAIR_VALUE);
+    addCurrencySeriesConversionFunction(functions, ValueRequirementNames.PNL_SERIES);
     addCurrencyConversionFunction(functions, ValueRequirementNames.PRESENT_VALUE);
     //TODO PRESENT_VALUE_CURVE_SENSITIVITY
     addCurrencyConversionFunction(functions, ValueRequirementNames.PV01);

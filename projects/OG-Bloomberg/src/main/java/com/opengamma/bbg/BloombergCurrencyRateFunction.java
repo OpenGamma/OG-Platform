@@ -38,59 +38,12 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
    */
   private static final String REFERENCE_CURRENCY_ISO = "USD";
 
-  /**
-   * The rate lookup scheme.
-   */
-  private String _rateLookupIdentifierScheme = CurrencyConversionFunction.DEFAULT_LOOKUP_IDENTIFIER_SCHEME;
-  /**
-   * The rate lookup value name.
-   */
-  private String _rateLookupValueName = CurrencyConversionFunction.DEFAULT_LOOKUP_VALUE_NAME;
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the rate lookup scheme.
-   * 
-   * @return the scheme
-   */
-  public String getRateLookupIdentifierScheme() {
-    return _rateLookupIdentifierScheme;
-  }
-
-  /**
-   * Sets the rate lookup scheme.
-   * 
-   * @param rateLookupIdentifierScheme the scheme
-   */
-  public void setRateLookupIdentifierScheme(final String rateLookupIdentifierScheme) {
-    _rateLookupIdentifierScheme = rateLookupIdentifierScheme;
-  }
-
-  /**
-   * Sets the rate lookup value name.
-   * 
-   * @return the value name
-   */
-  public String getRateLookupValueName() {
-    return _rateLookupValueName;
-  }
-
-  /**
-   * Sets the rate lookup value name.
-   * 
-   * @param rateLookupValueName the value name
-   */
-  public void setRateLookupValueName(final String rateLookupValueName) {
-    _rateLookupValueName = rateLookupValueName;
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getUniqueId() == null) {
       return false;
     }
-    if (getRateLookupIdentifierScheme().equals(target.getUniqueId().getScheme()) == false) {
+    if (CurrencyConversionFunction.RATE_LOOKUP_SCHEME.equals(target.getUniqueId().getScheme()) == false) {
       return false;
     }
     if (s_validate.matcher(target.getUniqueId().getValue()).matches() == false) {
@@ -101,8 +54,8 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
-      ComputationTarget target, Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Object value = inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     if (value == null) {
       throw new IllegalArgumentException(MarketDataRequirementNames.MARKET_VALUE + " for " + target + " not available");
@@ -115,13 +68,13 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target,
-      ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target,
+      final ValueRequirement desiredValue) {
     return Collections.singleton(createLiveDataRequirement(target));
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(createResultValueSpecification(target));
   }
 
@@ -138,7 +91,7 @@ public class BloombergCurrencyRateFunction extends AbstractFunction.NonCompiledI
   }
 
   private ValueSpecification createResultValueSpecification(final ComputationTarget target) {
-    return new ValueSpecification(getRateLookupValueName(), target.toSpecification(), createValueProperties().get());
+    return new ValueSpecification(CurrencyConversionFunction.RATE_LOOKUP_VALUE_NAME, target.toSpecification(), createValueProperties().get());
   }
 
   private static Pair<String, String> parse(final ComputationTarget target) {

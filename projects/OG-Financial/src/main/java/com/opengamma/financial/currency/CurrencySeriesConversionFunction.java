@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.time.calendar.LocalDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,24 +29,19 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * Converts a value from one currency to another, preserving all other properties.
+ * Converts a series of values from one currency to another, preserving all other properties.
  */
-public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvoker {
+public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompiledInvoker {
 
   /**
-   * The value name this function will request the conversion rate with.
+   * The value name this function will request the conversion rates with.
    */
-  public static final String RATE_LOOKUP_VALUE_NAME = "CurrencyConversion";
-
-  /**
-   * The scheme used to construct the target for the conversion rate.
-   */
-  public static final String RATE_LOOKUP_SCHEME = "CurrencyPair";
+  public static final String RATE_LOOKUP_VALUE_NAME = "CurrencySeriesConversion";
 
   private static final String CURRENCY_INJECTION_PROPERTY = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Currency";
 
@@ -53,12 +50,12 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   private final Set<String> _valueNames;
   private boolean _allowViewDefaultCurrency; // = false;
 
-  public CurrencyConversionFunction(final String valueName) {
+  public CurrencySeriesConversionFunction(final String valueName) {
     ArgumentChecker.notNull(valueName, "valueName");
     _valueNames = Collections.singleton(valueName);
   }
 
-  public CurrencyConversionFunction(final String... valueNames) {
+  public CurrencySeriesConversionFunction(final String... valueNames) {
     ArgumentChecker.notEmpty(valueNames, "valueNames");
     _valueNames = new HashSet<String>(Arrays.asList(valueNames));
   }
@@ -85,58 +82,63 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
         ValuePropertyNames.CURRENCY, forceCurrency).withOptional(CURRENCY_INJECTION_PROPERTY).get());
   }
 
-  /**
-   * Divides the value by the conversion rate. Override this in a subclass for anything more elaborate - e.g. if
-   * the value is in "somethings per currency unit foo" so needs multiplying by the rate instead.
-   *
-   * @param value input value to convert
-   * @param conversionRate conversion rate to use
-   * @return the converted value
-   */
-  protected double convertDouble(final double value, final double conversionRate) {
+  protected DoubleTimeSeries<LocalDate> convertDouble(final double value, final DoubleTimeSeries<LocalDate> conversionRates) {
+    return conversionRates.divide(value).reciprocal();
+  }
+
+  protected Double convertDouble(final double value, final double conversionRate) {
     return value / conversionRate;
   }
 
-  protected double[] convertDoubleArray(final double[] values, final double conversionRate) {
-    final double[] newValues = new double[values.length];
-    for (int i = 0; i < values.length; i++) {
-      newValues[i] = convertDouble(values[i], conversionRate);
-    }
-    return newValues;
+  protected DoubleTimeSeries<LocalDate> convertTimeSeries(final DoubleTimeSeries<LocalDate> values, final DoubleTimeSeries<LocalDate> conversionRates) {
+    return values.divide(conversionRates);
   }
 
-  protected DoubleLabelledMatrix1D convertDoubleLabelledMatrix1D(final DoubleLabelledMatrix1D value, final double conversionRate) {
-    return new DoubleLabelledMatrix1D(value.getKeys(), value.getLabels(), convertDoubleArray(value.getValues(), conversionRate));
+  protected DoubleTimeSeries<LocalDate> convertTimeSeries(final DoubleTimeSeries<LocalDate> values, final double conversionRate) {
+    return values.divide(conversionRate);
   }
 
-  /**
-   * Delegates off to the other convert methods depending on the type of value.
-   *
-   * @param inputValue input value to convert
-   * @param desiredValue requested value requirement
-   * @param conversionRate conversion rate to use
-   * @return the converted value
-   */
-  protected Object convertValue(final ComputedValue inputValue, final ValueRequirement desiredValue, final double conversionRate) {
+  @SuppressWarnings("unchecked")
+  protected Object convertValue(final ComputedValue inputValue, final ValueRequirement desiredValue, final DoubleTimeSeries<LocalDate> conversionRates) {
     final Object value = inputValue.getValue();
     if (value instanceof Double) {
-      return convertDouble((Double) value, conversionRate);
-    } else if (value instanceof DoubleLabelledMatrix1D) {
-      return convertDoubleLabelledMatrix1D((DoubleLabelledMatrix1D) value, conversionRate);
+      return convertDouble((Double) value, conversionRates);
+    } else if (value instanceof DoubleTimeSeries) {
+      // TODO: Note the unchecked cast. We'll either get a zero intersection and empty result if the rates aren't the same type or a class cast exception.
+      return convertTimeSeries((DoubleTimeSeries) value, conversionRates);
     } else {
       s_logger.error("Can't convert object with type {} to {}", inputValue.getValue().getClass(), desiredValue);
       return null;
     }
   }
 
+  @SuppressWarnings("unchecked")
+  protected Object convertValue(final ComputedValue inputValue, final ValueRequirement desiredValue, final Double conversionRate) {
+    final Object value = inputValue.getValue();
+    if (value instanceof Double) {
+      return convertDouble((Double) value, conversionRate);
+    } else if (value instanceof DoubleTimeSeries) {
+      return convertTimeSeries((DoubleTimeSeries) value, conversionRate);
+    } else {
+      s_logger.error("Can't convert object with type {} to {}", inputValue.getValue().getClass(), desiredValue);
+      return null;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     ComputedValue inputValue = null;
-    double exchangeRate = 0;
+    DoubleTimeSeries<LocalDate> exchangeRates = null;
+    Double exchangeRate = null;
     for (final ComputedValue input : inputs.getAllValues()) {
       if (RATE_LOOKUP_VALUE_NAME.equals(input.getSpecification().getValueName())) {
         if (input.getValue() instanceof Double) {
+          // Note: The rate might be a DOUBLE if the matrix being used has a hard coded constant in it. Improbable for a time-series conversion, but possible.
           exchangeRate = (Double) input.getValue();
+        } else if (input.getValue() instanceof DoubleTimeSeries) {
+          // TODO: Note the unchecked cast. We'll either get a zero intersection and empty result if the values aren't the same type or a class cast exception.
+          exchangeRates = (DoubleTimeSeries) input.getValue();
         } else {
           return null;
         }
@@ -155,7 +157,14 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
       return Collections.singleton(inputValue);
     } else {
       s_logger.debug("Converting from {} to {}", inputCurrency, outputCurrency);
-      final Object converted = convertValue(inputValue, desiredValue, exchangeRate);
+      final Object converted;
+      if (exchangeRates != null) {
+        converted = convertValue(inputValue, desiredValue, exchangeRates);
+      } else if (exchangeRate != null) {
+        converted = convertValue(inputValue, desiredValue, exchangeRate);
+      } else {
+        return null;
+      }
       if (converted != null) {
         return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), converted));
       } else {
@@ -227,7 +236,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   private ValueRequirement getCurrencyConversion(final String fromCurrency, final String toCurrency) {
-    return new ValueRequirement(RATE_LOOKUP_VALUE_NAME, ComputationTargetSpecification.of(UniqueId.of(RATE_LOOKUP_SCHEME, fromCurrency + "_" + toCurrency)));
+    return new ValueRequirement(RATE_LOOKUP_VALUE_NAME, ComputationTargetSpecification.of(UniqueId.of(CurrencyConversionFunction.RATE_LOOKUP_SCHEME, fromCurrency + "_" + toCurrency)));
   }
 
   @Override
