@@ -104,7 +104,6 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
    * The meta-bean for {@code SecuritySearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static SecuritySearchResult.Meta meta() {
     return SecuritySearchResult.Meta.INSTANCE;
   }

@@ -69,7 +69,6 @@ public class FieldMappingHistoricalTimeSeriesResolverFactoryBean extends SpringF
    * The meta-bean for {@code FieldMappingHistoricalTimeSeriesResolverFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static FieldMappingHistoricalTimeSeriesResolverFactoryBean.Meta meta() {
     return FieldMappingHistoricalTimeSeriesResolverFactoryBean.Meta.INSTANCE;
   }

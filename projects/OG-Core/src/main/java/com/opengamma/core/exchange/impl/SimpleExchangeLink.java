@@ -131,7 +131,6 @@ public class SimpleExchangeLink extends AbstractLink<Exchange>
    * The meta-bean for {@code SimpleExchangeLink}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static SimpleExchangeLink.Meta meta() {
     return SimpleExchangeLink.Meta.INSTANCE;
   }

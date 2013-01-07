@@ -54,7 +54,6 @@ public class DbHolidayMasterFactoryBean extends AbstractDbMasterFactoryBean<DbHo
    * The meta-bean for {@code DbHolidayMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbHolidayMasterFactoryBean.Meta meta() {
     return DbHolidayMasterFactoryBean.Meta.INSTANCE;
   }
