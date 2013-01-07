@@ -130,8 +130,6 @@ import com.opengamma.financial.analytics.model.future.InterestRateFuturePV01Func
 import com.opengamma.financial.analytics.model.future.InterestRateFuturePresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
-import com.opengamma.financial.analytics.model.option.BlackScholesMertonModelFunction;
-import com.opengamma.financial.analytics.model.option.BlackScholesModelCostOfCarryFunction;
 import com.opengamma.financial.analytics.model.pnl.EquityPnLDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.EquityPnLFunction;
 import com.opengamma.financial.analytics.model.pnl.ExternallyProvidedSensitivityPnLDefaultPropertiesFunction;
@@ -255,9 +253,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     addCurrencyConversionFunctions(functionConfigs);
 
     // options
-    functionConfigs.add(functionConfiguration(BlackScholesMertonModelFunction.class));
     functionConfigs.add(functionConfiguration(BlackScholesMertonImpliedVolatilitySurfaceFunction.class));
-    functionConfigs.add(functionConfiguration(BlackScholesModelCostOfCarryFunction.class));
 
     // equity and portfolio
     functionConfigs.add(functionConfiguration(PositionExchangeTradedPnLFunction.class));
