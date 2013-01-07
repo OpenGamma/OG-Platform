@@ -17,7 +17,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwapDefinition;
 import com.opengamma.analytics.financial.equity.variance.pricing.AffineDividends;
-import com.opengamma.analytics.financial.equity.variance.pricing.EquityVarianceSwapPricer;
+import com.opengamma.analytics.financial.equity.variance.pricing.EquityVarianceSwapStaticReplicationPricer;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -75,7 +75,7 @@ public class EquityVarianceSwapPureImpliedVolPVFunction extends EquityVarianceSw
     final SmileSurfaceDataBundle volatilities = getData(inputs);
     final DoubleTimeSeries<LocalDate> underlyingTS = ((HistoricalTimeSeries) tsObject).getTimeSeries();
     final EquityVarianceSwap swap = definition.toDerivative(now, underlyingTS);
-    final EquityVarianceSwapPricer pricer = EquityVarianceSwapPricer.builder().create(); //TODO don't just use defaults
+    final EquityVarianceSwapStaticReplicationPricer pricer = EquityVarianceSwapStaticReplicationPricer.builder().create(); //TODO don't just use defaults
     final double pv = pricer.priceFromImpliedVols(swap, spot, yieldCurve, dividends, volatilities);
     final ValueProperties properties = desiredValue.getConstraints().copy()
         .withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
@@ -98,4 +98,3 @@ public class EquityVarianceSwapPureImpliedVolPVFunction extends EquityVarianceSw
     return PURE_IMPLIED_VOLATILITY;
   }
 }
-

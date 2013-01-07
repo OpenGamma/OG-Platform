@@ -89,7 +89,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     final InstrumentDefinition<EquityIndexOption> defn = security.accept(_converter);
     final EquityIndexOption derivative = defn.toDerivative(now);
     if (derivative.getTimeToSettlement() < 0.0) {
-      throw new OpenGammaRuntimeException("Equity option " + security.toString() + ", has already settled.");
+      throw new OpenGammaRuntimeException("Equity option has already settled; " + security.toString());
     }
 
     // 2. Build up the market data bundle
@@ -206,7 +206,9 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
     // 1. Spot Index Requirement
     final ValueRequirement spotReq = getSpotRequirement(underlyingId, tsSource);
-
+    if (spotReq == null) {
+      return null;
+    }
     // 2. Funding Curve Requirement
     // Funding curve
     final String fundingCurveName = getFundingCurveName(desiredValue);
@@ -236,6 +238,9 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     final String smileInterpolator = interpolators.iterator().next();
 
     final ValueRequirement volReq = getVolatilitySurfaceRequirement(tsSource, security, volSurfaceName, smileInterpolator, curveConfigName, fundingCurveName, underlyingId);
+    if (volReq == null) {
+      return null;
+    }
     // Return the set
     return Sets.newHashSet(fundingReq, spotReq, volReq);
   }
@@ -288,6 +293,9 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
       final String surfaceName, final String smileInterpolator, final String curveConfig, final String fundingCurveName, final ExternalId underlyingBuid) {
     // Targets for equity vol surfaces are the underlying tickers
     final String bbgTicker = getBloombergTicker(tsSource, underlyingBuid);
+    if (bbgTicker == null) {
+      return null;
+    }
     final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker); // FIXME: WEAK Tickers mean stale data. Also, this should NOT be hardcoded
 
     // Set Forward Curve Currency Property
@@ -314,11 +322,13 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   // TODO: handle other data sources
   protected String getBloombergTicker(final HistoricalTimeSeriesSource tsSource, final ExternalId underlyingBuid) {
     if (tsSource == null || underlyingBuid == null) {
-      throw new OpenGammaRuntimeException("Unable to find option underlyer's ticker from the ExternalIdBundle");
+      s_logger.error("Unable to find option underlyer's ticker from the ExternalIdBundle");
+      return null;
     }
     final HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries("PX_LAST", ExternalIdBundle.of(underlyingBuid), null, null, true, null, true, 1);
     if (historicalTimeSeries == null) {
-      throw new OpenGammaRuntimeException("We require a time series for " + underlyingBuid);
+      s_logger.error("Require a time series for " + underlyingBuid);
+      return null;
     }
     final ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
     final String bbgTicker = (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER)).getValue();
@@ -327,6 +337,10 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   private ValueRequirement getSpotRequirement(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource) {
     final String bbgTicker = getBloombergTicker(tsSource, underlyingId);
+    if (bbgTicker == null) {
+      s_logger.error("Could not get ticker of underlying with id " + underlyingId);
+      return null;
+    }
 //    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);  // FIXME: Using WEAK Ticker gives stale data,
     final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.getName(), bbgTicker); //FIXME: NOT using WEAK Ticker means the spot may be out of line with VolSurface
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, newId);

@@ -85,24 +85,27 @@ import com.opengamma.util.ArgumentChecker;
     return savedTrade.getUniqueId();
   }
 
-  // TODO is a sink the right thing here? it's designed for the visitor and traverser
-  // we want to put specific property values into something without caring what they are and without
-  // reference to the meta bean or meta properties
-  // sink is designed for the case where the bean metadata drives the process
-  // in this case we're referring to hard-coded properties (not metaproperties) of an instance
+  // TODO move these to a separate class that only extracts data, also handles securities and underlyings
   /**
    * Extracts trade data and populates a data sink.
    * @param trade The trade
    * @param sink The sink that should be populated with the trade data
    */
-  /* package */ void extractTradeData(ManageableTrade trade, BeanDataSink<?> sink) {
+  /* package */ static void extractTradeData(ManageableTrade trade, BeanDataSink<?> sink) {
     sink.setBeanData(trade.metaBean(), trade);
-    // TODO helper method for simple properties
-    sink.setValue(trade.uniqueId().name(), trade.uniqueId().metaProperty().getString(trade));
+    extractPropertyData(trade.uniqueId(), sink);
+    extractPropertyData(trade.tradeDate(), sink);
+    extractPropertyData(trade.tradeTime(), sink);
+    extractPropertyData(trade.premium(), sink);
+    extractPropertyData(trade.premiumCurrency(), sink);
+    extractPropertyData(trade.premiumDate(), sink);
+    extractPropertyData(trade.premiumTime(), sink);
+    sink.setMapValues(trade.attributes().name(), trade.getAttributes());
+    sink.setValue(COUNTERPARTY, trade.getCounterpartyExternalId().getValue());
   }
 
-  private void extractPropertyData(Property<?> property, BeanDataSink<?> sink) {
-
+  private static void extractPropertyData(Property<?> property, BeanDataSink<?> sink) {
+    sink.setValue(property.name(), property.metaProperty().getString(property.bean()));
   }
 
   /**
