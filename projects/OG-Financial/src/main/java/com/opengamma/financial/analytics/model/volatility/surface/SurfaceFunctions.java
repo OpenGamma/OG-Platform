@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.volatility.surface;
+package com.opengamma.financial.analytics.model.volatility.surface;
 
 import java.util.List;
 
@@ -23,8 +23,9 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(DefaultVolatilitySurfaceShiftFunction.class));
-    functions.add(functionConfiguration(VolatilitySurfaceShiftFunction.class));
+    functions.add(functionConfiguration(BlackScholesMertonImpliedVolatilitySurfaceFunction.class));
+    functions.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class));
+    functions.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction.class));
   }
 
 }

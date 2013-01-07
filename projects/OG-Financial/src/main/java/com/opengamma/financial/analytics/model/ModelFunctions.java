@@ -18,6 +18,7 @@ import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
 import com.opengamma.financial.analytics.model.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.swaption.SwaptionFunctions;
+import com.opengamma.financial.analytics.model.volatility.VolatilityFunctions;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
@@ -121,8 +122,7 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource volatilityFunctionConfiguration() {
-    // TODO
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+    return VolatilityFunctions.DEFAULT;
   }
 
   @Override

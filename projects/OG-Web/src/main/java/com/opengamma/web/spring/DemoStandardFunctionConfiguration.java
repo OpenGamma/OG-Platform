@@ -336,10 +336,7 @@ import com.opengamma.financial.analytics.model.volatility.local.defaultpropertie
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.FXPDECurveDefaults;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.ForwardPDEDefaults;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.model.volatility.surface.HestonFourierIRFutureSurfaceFittingFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRIRFutureOptionNLSSDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceMixedLogNormalInterpolatorFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceSABRInterpolatorFunction;
@@ -405,9 +402,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
     addCurrencyConversionFunctions(functionConfigs);
-
-    // options
-    functionConfigs.add(functionConfiguration(BlackScholesMertonImpliedVolatilitySurfaceFunction.class));
 
     // equity and portfolio
     functionConfigs.add(functionConfiguration(PositionExchangeTradedPnLFunction.class));
@@ -805,12 +799,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(IRFutureOptionSABRDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
         "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
         "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES));
-    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction.class));
     functionConfigs.add(functionConfiguration(SABRIRFutureOptionNLSSDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
         LINEAR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "false", "true", "false", "false",
         "0.05", "1.0", "0.07", "0.0", "0.001"));
 
-    functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonDefaults.class,
         "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE",
