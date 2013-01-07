@@ -33,6 +33,7 @@ public class HorizonFunctions extends AbstractRepositoryConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(InterestRateFutureOptionConstantSpreadThetaFunction.class));
+    functions.add(functionConfiguration(SwaptionConstantSpreadThetaFunction.class));
     // TODO: add functions from package
   }
 

@@ -60,20 +60,9 @@ import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRat
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioDefaultPropertiesPositionFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioPositionFunction;
+import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPV01Function;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateCurveSensitivityFunction;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateFunction;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateParallelCurveSensitivityFunction;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPresentValueFunction;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentDefaultCurveNameFunctionDeprecated;
-import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentPV01FunctionDeprecated;
-import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentParRateCurveSensitivityFunctionDeprecated;
-import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentParRateFunctionDeprecated;
-import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentParRateParallelCurveSensitivityFunctionDeprecated;
-import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentPresentValueFunctionDeprecated;
-import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentYieldCurveNodeSensitivitiesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.forex.forward.ForwardFunctions;
@@ -162,6 +151,12 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
   }
 
+  private static void addDeprecatedFixedIncomeInstrumentCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.addAll(FixedIncomeFunctions.deprecated().getRepositoryConfiguration().getFunctions());
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunctionDeprecated.class, "ParRate", SECONDARY, SECONDARY, "AUD", "CAD", "CHF", "DKK", "EUR",
+        "GBP", "JPY", "NZD", USD));
+  }
+
   private static void addDeprecatedSABRCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.addAll(SABRCubeFunctions.deprecated().getRepositoryConfiguration().getFunctions());
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "USD", "BLOOMBERG"));
@@ -171,6 +166,15 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
         "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", USD));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaDefaultsDeprecated.class, SECONDARY, SECONDARY, SECONDARY, "NonLinearLeastSquares", PAR_RATE_STRING,
         "0.07", "10.0", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", USD));
+  }
+
+  private static void addFixedIncomeInstrumentDefaults(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultPropertiesFunction.class, PriorityClass.ABOVE_NORMAL.name(), "false",
+        "USD", "DefaultTwoCurveUSDConfig",
+        "GBP", "DefaultTwoCurveGBPConfig",
+        "EUR", "DefaultTwoCurveEURConfig",
+        "JPY", "DefaultTwoCurveJPYConfig",
+        "CHF", "DefaultTwoCurveCHFConfig"));
   }
 
   private static void addForexForwardCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -280,7 +284,9 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
 
     addBondCalculators(functionConfigs);
     addCurrencyConversionFunctions(functionConfigs);
+    addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);
     addDeprecatedSABRCalculators(functionConfigs);
+    addFixedIncomeInstrumentDefaults(functionConfigs);
     addForexForwardCalculators(functionConfigs);
     addForexOptionCalculators(functionConfigs);
     addInterestRateFutureCalculators(functionConfigs);
@@ -289,8 +295,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     addVaRCalculators(functionConfigs);
 
     addPortfolioAnalysisCalculators(functionConfigs);
-    addFixedIncomeInstrumentCalculators(functionConfigs);
-    addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);
     functionConfigs.add(functionConfiguration(SimpleFuturePresentValueFunctionDeprecated.class, SECONDARY));
     functionConfigs.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, SECONDARY, SECONDARY));
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
@@ -317,32 +321,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
       }
     }
     return repoConfig;
-  }
-
-  private static void addDeprecatedFixedIncomeInstrumentCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentPresentValueFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateCurveSensitivityFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentPV01FunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunctionDeprecated.class, "ParRate", SECONDARY, SECONDARY, "AUD", "CAD", "CHF", "DKK", "EUR",
-        "GBP", "JPY", "NZD", USD));
-  }
-
-  private static void addFixedIncomeInstrumentCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateCurveSensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentPV01Function.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultPropertiesFunction.class, PriorityClass.ABOVE_NORMAL.name(), "false",
-        "USD", "DefaultTwoCurveUSDConfig",
-        "GBP", "DefaultTwoCurveGBPConfig",
-        "EUR", "DefaultTwoCurveEURConfig",
-        "JPY", "DefaultTwoCurveJPYConfig",
-        "CHF", "DefaultTwoCurveCHFConfig"));
   }
 
   private static void addPortfolioAnalysisCalculators(final List<FunctionConfiguration> functionConfigs) {

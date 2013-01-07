@@ -87,12 +87,6 @@ import com.opengamma.financial.analytics.model.equity.varianceswap.EquityForward
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationDefaults;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPV01Function;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateCurveSensitivityFunction;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateFunction;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateParallelCurveSensitivityFunction;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPresentValueFunction;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardDefaults;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackCurveDefaults;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackSurfaceDefaults;
@@ -100,7 +94,6 @@ import com.opengamma.financial.analytics.model.forex.option.black.FXOneLookBarri
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaults;
 import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackDefaults;
 import com.opengamma.financial.analytics.model.horizon.SwaptionBlackThetaDefaults;
-import com.opengamma.financial.analytics.model.horizon.SwaptionConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRDefaults;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackDefaults;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionHestonDefaults;
@@ -129,11 +122,6 @@ import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedS
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurvePV01Function;
 import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackImpliedVolatilityFunction;
-import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackPV01Function;
-import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackPresentValueFunction;
-import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackVolatilitySensitivityFunction;
-import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.var.NormalHistoricalVaRDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults;
@@ -185,6 +173,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
       return new StaticFunctionConfiguration(clazz.getName());
     }
     return new ParameterizedFunctionConfiguration(clazz.getName(), Arrays.asList(args));
+  }
+
+  private static void addBlackDefaults(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(SwaptionBlackDefaultPropertiesFunction.class, PriorityClass.NORMAL.name(), "EUR", "DefaultTwoCurveEURConfig", "DEFAULT"));
+    functionConfigs.add(functionConfiguration(SwaptionBlackThetaDefaults.class, PriorityClass.NORMAL.name(), "1", "EUR", "DefaultTwoCurveEURConfig", "DEFAULT"));
   }
 
   private static void addBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
@@ -329,6 +322,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     equityVarianceSwapDefaultsWithPriority.add(PriorityClass.NORMAL.name());
     equityVarianceSwapDefaultsWithPriority.addAll(equityVarianceSwapDefaults);
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityVarianceSwapDefaults.class.getName(), equityVarianceSwapDefaultsWithPriority));
+  }
+
+  private static void addFixedIncomeInstrumentDefaults(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultPropertiesFunction.class, PriorityClass.BELOW_NORMAL.name(), "false",
+        "EUR", "DefaultTwoCurveEURConfig",
+        "USD", "DefaultTwoCurveUSDConfig",
+        "CHF", "DefaultTwoCurveCHFConfig",
+        "JPY", "DefaultTwoCurveJPYConfig",
+        "GBP", "DefaultTwoCurveGBPConfig"));
   }
 
   private static void addForexForwardCalculators(final List<FunctionConfiguration> functionConfigs) {
@@ -508,6 +510,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
+    addBlackDefaults(functionConfigs);
     addBlackVolatilitySurfaceDefaults(functionConfigs);
     addBondCalculators(functionConfigs);
     addBondFutureOptionCalculators(functionConfigs);
@@ -521,6 +524,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addEquityOptionCalculators(functionConfigs);
     addEquityPureVolatilitySurfaceDefaults(functionConfigs);
     addEquityVarianceSwapCalculators(functionConfigs);
+    addFixedIncomeInstrumentDefaults(functionConfigs);
     addForexForwardCalculators(functionConfigs);
     addForexOptionCalculators(functionConfigs);
     addFXBarrierOptionCalculators(functionConfigs);
@@ -534,8 +538,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addVaRCalculators(functionConfigs);
 
     addPortfolioAnalysisCalculators(functionConfigs);
-    addFixedIncomeInstrumentCalculators(functionConfigs);
-    addBlackCalculators(functionConfigs);
     addCDSCalculators(functionConfigs);
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
     addCashFlowFunctions(functionConfigs);
@@ -563,32 +565,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
       }
     }
     return repoConfig;
-  }
-
-  private static void addBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(SwaptionBlackPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(SwaptionBlackVolatilitySensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(SwaptionBlackPV01Function.class));
-    functionConfigs.add(functionConfiguration(SwaptionBlackYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(SwaptionBlackImpliedVolatilityFunction.class));
-    functionConfigs.add(functionConfiguration(SwaptionConstantSpreadThetaFunction.class));
-    functionConfigs.add(functionConfiguration(SwaptionBlackDefaultPropertiesFunction.class, PriorityClass.NORMAL.name(), "EUR", "DefaultTwoCurveEURConfig", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(SwaptionBlackThetaDefaults.class, PriorityClass.NORMAL.name(), "1", "EUR", "DefaultTwoCurveEURConfig", "DEFAULT"));
-  }
-
-  private static void addFixedIncomeInstrumentCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateCurveSensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentPV01Function.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultPropertiesFunction.class, PriorityClass.BELOW_NORMAL.name(), "false",
-        "EUR", "DefaultTwoCurveEURConfig",
-        "USD", "DefaultTwoCurveUSDConfig",
-        "CHF", "DefaultTwoCurveCHFConfig",
-        "JPY", "DefaultTwoCurveJPYConfig",
-        "GBP", "DefaultTwoCurveGBPConfig"));
   }
 
   private static void addCDSCalculators(final List<FunctionConfiguration> functionConfigs) {
