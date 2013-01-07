@@ -38,9 +38,6 @@ import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.FinancialFunctions;
-import com.opengamma.financial.aggregation.BottomPositionValues;
-import com.opengamma.financial.aggregation.SortedPositionValues;
-import com.opengamma.financial.aggregation.TopPositionValues;
 import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveMarketDataShiftFunction;
 import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveShiftFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataShiftFunction;
@@ -218,8 +215,6 @@ import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults;
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
@@ -261,15 +256,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
   }
 
-  protected static void addLateAggregationFunctions(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(BottomPositionValues.class));
-    functionConfigs.add(functionConfiguration(SortedPositionValues.class));
-    functionConfigs.add(functionConfiguration(TopPositionValues.class));
-  }
-
   protected static void addDataShiftingFunctions(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(VolatilitySurfaceShiftFunction.class));
-    functionConfigs.add(functionConfiguration(DefaultVolatilitySurfaceShiftFunction.class));
     functionConfigs.add(functionConfiguration(YieldCurveShiftFunction.class));
     functionConfigs.add(functionConfiguration(DefaultYieldCurveShiftFunction.class));
     functionConfigs.add(functionConfiguration(YieldCurveMarketDataShiftFunction.class));
@@ -287,7 +274,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
     addCurrencyConversionFunctions(functionConfigs);
-    addLateAggregationFunctions(functionConfigs);
     addDataShiftingFunctions(functionConfigs);
     addDefaultPropertyFunctions(functionConfigs);
 

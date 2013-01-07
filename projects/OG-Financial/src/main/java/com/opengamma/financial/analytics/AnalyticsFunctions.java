@@ -18,6 +18,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
+import com.opengamma.financial.analytics.volatility.VolatilityFunctions;
 import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 
 /**
@@ -251,10 +252,14 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     return TimeSeriesFunctions.DEFAULT;
   }
 
+  protected RepositoryConfigurationSource volatilityFunctionConfiguration() {
+    return VolatilityFunctions.DEFAULT;
+  }
+
   @Override
   protected RepositoryConfigurationSource createObject() {
     return new CombiningRepositoryConfigurationSource(super.createObject(), cashFlowFunctionConfiguration(), irCurveFunctionConfiguration(),
-        modelFunctionConfiguration(), timeSeriesFunctionConfiguration());
+        modelFunctionConfiguration(), timeSeriesFunctionConfiguration(), volatilityFunctionConfiguration());
   }
 
 }
