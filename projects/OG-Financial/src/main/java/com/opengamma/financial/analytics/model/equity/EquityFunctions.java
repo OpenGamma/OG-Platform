@@ -16,6 +16,7 @@ import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.equity.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioTheoryFunctions;
+import com.opengamma.financial.analytics.model.equity.varianceswap.VarianceSwapFunctions;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -48,8 +49,7 @@ public class EquityFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource varianceSwapFunctionConfiguration() {
-    // TODO
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+    return VarianceSwapFunctions.DEFAULT;
   }
 
   @Override

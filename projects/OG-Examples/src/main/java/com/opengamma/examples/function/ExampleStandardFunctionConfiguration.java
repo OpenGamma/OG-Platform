@@ -57,13 +57,6 @@ import com.opengamma.financial.analytics.model.bond.BondZSpreadFromMarketCleanPr
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldForwardFuturesFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldFuturesYCNSFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldPV01FuturesFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldPresentValueFuturesFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldSpotFuturesFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldValueDeltaFuturesFunction;
-import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldValueRhoFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaDefaultPropertiesPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaDefaultPropertiesPositionFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaModelPortfolioNodeFunction;
@@ -86,10 +79,6 @@ import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRat
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioDefaultPropertiesPositionFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioPositionFunction;
-import com.opengamma.financial.analytics.model.equity.varianceswap.EquityForwardFromSpotAndYieldCurveFunction;
-import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationPresentValueFunction;
-import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationVegaFunction;
-import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationYCNSFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPV01Function;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentParRateCurveSensitivityFunction;
@@ -292,7 +281,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     addForexForwardCalculators(functionConfigs);
     addInterestRateFutureCalculators(functionConfigs);
     addInterestRateFutureOptionCalculators(functionConfigs);
-    addEquityDerivativesCalculators(functionConfigs);
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, SECONDARY));
 
@@ -317,20 +305,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
       }
     }
     return repoConfig;
-  }
-
-  private static void addEquityDerivativesCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(new StaticFunctionConfiguration(EquityDividendYieldForwardFuturesFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(EquityDividendYieldPresentValueFuturesFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(EquityDividendYieldPV01FuturesFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(EquityDividendYieldSpotFuturesFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(EquityDividendYieldValueDeltaFuturesFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(EquityDividendYieldValueRhoFuturesFunction.class.getName()));
-    functionConfigs.add(functionConfiguration(EquityDividendYieldFuturesYCNSFunction.class));
-    functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationYCNSFunction.class));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapStaticReplicationVegaFunction.class));
   }
 
   private static void addBondFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
