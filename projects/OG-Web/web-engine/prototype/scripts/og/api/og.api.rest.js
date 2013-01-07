@@ -660,6 +660,7 @@ $.register_module({
                         structure: {
                             root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}',
                             get: function (config) {
+                                config = config || {};
                                 var root = this.root, method = root.split('/'), data = {}, meta;
                                 meta = check({
                                     bundle: {method: root + '#get', config: config},
@@ -674,6 +675,7 @@ $.register_module({
                             del: not_available_del
                         },
                         put: function (config) {
+                            config = config || {};
                             var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
                                 fields = ['view_id', 'grid_type', 'row', 'col'],
                             meta = check({
