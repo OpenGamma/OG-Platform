@@ -5,25 +5,30 @@
  */
 package com.opengamma.financial.analytics.model.equity;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Utility class for equity index option, equity barrier options and equity options.
+ * Utility class for equity index options, equity barrier options, equity options and equity variance swaps.
  */
 public final class EquitySecurityUtils {
-
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(EquitySecurityUtils.class);
   private EquitySecurityUtils() {
   }
 
   /**
-   * Gets the underlying index or equity name from a security. At the moment, only securities with a BUID or Bloomberg ticker
-   * are handled.
+   * Gets the underlying index or equity name from a security. At the moment, only securities with a Bloomberg ticker or
+   * BUID (if the security is an equity index option) are handled.
    * For a Bloomberg ticker, the suffix is stripped (SPX Index -> SPX). For a BUID, the last three letters are assumed to be
    * the name.
    * @param security The security, not null
@@ -32,23 +37,26 @@ public final class EquitySecurityUtils {
   public static String getIndexOrEquityName(final Security security) {
     ArgumentChecker.notNull(security, "security");
     final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
-    String equity;
     final String value = underlyingId.getValue();
     final ExternalScheme scheme = underlyingId.getScheme();
     if (scheme.equals(ExternalSchemes.BLOOMBERG_BUID) || scheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK)) {
-      final int length = value.length();
-      equity = value.substring(length - 3, length).toUpperCase(); //TODO fix this
+      if (security instanceof EquityIndexOptionSecurity) {
+        final int length = value.length();
+        return value.substring(length - 3, length).toUpperCase(); //TODO fix this
+      }
+      s_logger.error("Can only use BUIDs for equity index options; have {}", security);
+      return null;
     } else if (scheme.equals(ExternalSchemes.BLOOMBERG_TICKER) || scheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK)) {
-      equity = value.split(" ")[0];
-    } else {
-      throw new IllegalArgumentException("Cannot handle scheme of type " + scheme);
+      final int lastSpace = value.lastIndexOf(" ");
+      return value.substring(0, lastSpace);
     }
-    return equity;
+    s_logger.info("Cannot handle scheme of type {}", scheme);
+    return null;
   }
 
   /**
-   * Gets the underlying index or equity name from a unique id. At the moment, only securities with a BUID or Bloomberg ticker
-   * are handled.
+   * Gets the underlying index or equity name from a unique id. At the moment, only securities with a Bloomberg ticker or
+   * BUID (if the security is an equity index option) are handled.
    * For a Bloomberg ticker, the suffix is stripped (SPX Index -> SPX). For a BUID, the last three letters are assumed to be
    * the name.
    * @param uniqueId The unique id, not null
@@ -63,9 +71,25 @@ public final class EquitySecurityUtils {
       return value.substring(length - 3, length).toUpperCase(); //TODO fix this
     }
     if (scheme.equals(ExternalSchemes.BLOOMBERG_TICKER.getName()) || scheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
-      return value.split(" ")[0];
+      final int lastSpace = value.lastIndexOf(" ");
+      return value.substring(0, lastSpace);
     }
+    s_logger.info("Cannot handle scheme of type {}", scheme);
     return null;
   }
 
+  /**
+   * Removes the postfix if the uid is a Bloomberg ticker.
+   * @param uid The unique id, not null
+   * @return The ticker without postfix
+   */
+  public static String getTrimmedTarget(final UniqueId uid) {
+    ArgumentChecker.notNull(uid, "unique id");
+    final String value = uid.getValue();
+    if (uid.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER.getName()) || uid.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
+      final int lastSpace = value.lastIndexOf(" ");
+      return value.substring(0, lastSpace);
+    }
+    return value;
+  }
 }

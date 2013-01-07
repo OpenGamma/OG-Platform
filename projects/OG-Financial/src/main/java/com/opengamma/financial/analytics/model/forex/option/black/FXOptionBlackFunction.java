@@ -51,8 +51,6 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  *
  */
 public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
-  /** The name of the calculation method */
-  public static final String BLACK_METHOD = "BlackMethod";
   /** Property name for the put curve */
   public static final String PUT_CURVE = "PutCurve";
   /** Property name for the call curve */

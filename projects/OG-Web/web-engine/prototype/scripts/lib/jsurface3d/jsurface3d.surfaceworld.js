@@ -4,6 +4,7 @@
  */
 (function () {
     if (!window.JSurface3D) throw new Error('JSurface3D.SurfaceWorld requires JSurface3D');
+    var last_vertex;
     /**
      * Implements any valid hover interaction with the surface.
      * Adds vertex_sphere, lines (tubes), active axis labels
@@ -16,7 +17,9 @@
     var hover = function (js3d, vertex, index, object) {
         var hover_buffer = js3d.buffers.hover, hover_group = js3d.groups.hover, matlib = js3d.matlib,
             vertex_sphere = js3d.vertex_sphere, settings = js3d.settings;
+        if (vertex === last_vertex) return;
         if (hover_group) js3d.groups.surface_top.remove(hover_group), hover_buffer.clear();
+        last_vertex = vertex;
         hover_group = hover_buffer.add(new THREE.Object3D());
         hover_group.name = 'Hover Group';
         vertex_sphere.position.copy(vertex);
@@ -159,8 +162,8 @@
      */
     var intersects_mesh = function (js3d, event, meshes) {
         var mouse = {x: 0, y: 0}, vector, ray;
-        mouse.x = ((event.clientX - js3d.sel_offset.left) / js3d.width) * 2 - 1;
-        mouse.y = -((event.clientY - js3d.sel_offset.top) / js3d.height) * 2 + 1;
+        mouse.x = ((event.pageX - js3d.sel_offset.left) / js3d.width) * 2 - 1;
+        mouse.y = -((event.pageY - js3d.sel_offset.top) / js3d.height) * 2 + 1;
         vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
         js3d.projector.unprojectVector(vector, js3d.camera);
         ray = new THREE.Ray(js3d.camera.position, vector.subSelf(js3d.camera.position).normalize());
@@ -315,8 +318,8 @@
                 /**
                  * original mouse x & y
                  */
-                mouse_x = event.clientX;
-                mouse_y = event.clientY;
+                mouse_x = event.pageX;
+                mouse_y = event.pageY;
                 /**
                  * Trigger custom events
                  */
@@ -331,7 +334,7 @@
             });
             $selector.on('mousedown.surface.interactive', function (event) {
                 event.preventDefault();
-                mousedown = true, sx = event.clientX, sy = event.clientY;
+                mousedown = true, sx = event.pageX, sy = event.pageY;
                 if (hit_handle) $selector.trigger('slice_handle_click');
                 $(document).on('mouseup.surface.interactive', function () {
                     rotation_enabled = true;
@@ -366,6 +369,7 @@
             $selector.on('surface_out', function () {
                 if (groups.hover) {
                     groups.surface_top.remove(groups.hover);
+                    last_vertex = null;
                     js3d.buffers.hover.clear();
                 }
                 js3d.vertex_sphere.visible = false;

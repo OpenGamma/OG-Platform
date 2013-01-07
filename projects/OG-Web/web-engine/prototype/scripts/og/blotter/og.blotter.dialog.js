@@ -7,7 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function () {
-            var dialog = this, form_block = '.OG-blotter-form-block', form;
+            var dialog = this, form_block = '.OG-blotter-form-block', form_wrapper;
             dialog.load = function () {
                 og.api.text({module: 'og.blotter.forms.blocks.form_types_tash'}).pipe(function (template){
                     var $selector = $(template)
@@ -19,14 +19,14 @@ $.register_module({
                             else return acc[val];
                             }, window);
                         if(inner) {
-                            form = new inner();
-                            $('.ui-dialog-title').html(form.title);
+                            form_wrapper = new inner();
+                            $('.ui-dialog-title').html(form_wrapper.title);
                         }
                     });
                     og.common.util.ui.dialog({
                         type: 'input', title: 'Add New Trade', width: 530, height: 700, custom: $selector,
                         buttons: {
-                            'Create': function () {$(this).dialog('close');},
+                            'Create': function () {form_wrapper.submit(); $(this).dialog('close');},
                             'Cancel': function () {$(this).dialog('close');}
                         }
                     });

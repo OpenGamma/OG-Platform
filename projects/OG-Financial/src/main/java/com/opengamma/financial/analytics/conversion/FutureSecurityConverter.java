@@ -16,13 +16,17 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinit
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
+import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -32,13 +36,20 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinitionWithData<?, Double>>
   implements FinancialSecurityVisitorWithData<Double, InstrumentDefinitionWithData<?, Double>> {
+  private final InterestRateFutureSecurityConverter _irFutureConverter;
+  private final BondFutureSecurityConverter _bondFutureConverter;
+
+  public FutureSecurityConverter(final InterestRateFutureSecurityConverter irFutureConverter, final BondFutureSecurityConverter bondFutureConverter) {
+    _irFutureConverter = irFutureConverter;
+    _bondFutureConverter = bondFutureConverter;
+  }
 
   @Override
   public InstrumentDefinitionWithData<?, Double> visit(final FutureSecurity future, final Double referencePrice) {
     final FinancialSecurityVisitor<InstrumentDefinitionWithData<?, Double>> visitor = new FinancialSecurityVisitorAdapter<InstrumentDefinitionWithData<?, Double>>() {
 
       @Override
-      public AgricultureFutureDefinition visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
+      public InstrumentDefinitionWithData<?, Double> visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
         ArgumentChecker.notNull(security, "security");
         final ZonedDateTime expiry = security.getExpiry().getExpiry();
         final Set<ExternalId> externalIds = security.getExternalIdBundle().getExternalIds();
@@ -85,6 +96,20 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
         return new EquityFutureDefinition(expiry, expiry, referencePrice, security.getCurrency(), security.getUnitAmount());
       }
 
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+        final InterestRateFutureDefinition securityDefinition = (InterestRateFutureDefinition) security.accept(_irFutureConverter);
+        return new InterestRateFutureDefinition(securityDefinition.getLastTradingDate(), referencePrice, securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(),
+            securityDefinition.getNotional(), securityDefinition.getPaymentAccrualFactor(), 1, securityDefinition.getName());
+      }
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public InstrumentDefinitionWithData<?, Double> visitBondFutureSecurity(final BondFutureSecurity security) {
+        return (BondFutureDefinition) security.accept(_bondFutureConverter);
+      }
+
     };
     return future.accept(visitor);
   }
@@ -109,10 +134,18 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
     return visit(security, 0.);
   }
 
-
   @Override
   public InstrumentDefinitionWithData<?, Double> visitEquityFutureSecurity(final EquityFutureSecurity security) {
     return visit(security, 0.);
   }
 
+  @Override
+  public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    return (InterestRateFutureDefinition) security.accept(_irFutureConverter);
+  }
+
+  @Override
+  public InstrumentDefinitionWithData<?, Double> visitBondFutureSecurity(final BondFutureSecurity security) {
+    return (BondFutureDefinition) security.accept(_bondFutureConverter);
+  }
 }

@@ -81,7 +81,16 @@ import com.opengamma.util.OpenGammaClock;
   @Override
   public void visitBean(MetaBean metaBean) {
     _beanData.clear();
-    _beanData.put("type", metaBean.beanType().getSimpleName());
+    String typeName = metaBean.beanType().getSimpleName();
+    _beanData.put("type", typeName);
+    Map<String, Object> typeProperty = Maps.newHashMap();
+    typeProperty.put("name", "type");
+    typeProperty.put("type", PropertyType.SINGLE.name().toLowerCase());
+    typeProperty.put("types", ImmutableList.of(typeInfo("string", null, null, false)));
+    typeProperty.put("optional", false);
+    typeProperty.put("readOnly", false);
+    typeProperty.put("value", typeName);
+    _propertyData.add(typeProperty);
     Class<?> underlyingType = _underlyingSecurityTypes.get(metaBean.beanType());
     if (underlyingType != null) {
       _beanData.put("underlyingTypes", typesFor(underlyingType));
@@ -153,10 +162,6 @@ import com.opengamma.util.OpenGammaClock;
     }
   }
 
-  ///* package */ static List<Map<String, Object>> typesFor(Class<?> type, BeanHierarchy beanHierarchy, ) {
-  //
-  //}
-
   /* package */ List<Map<String, Object>> typesFor(Class<?> type) {
     String typeName = s_types.get(type);
     if (typeName != null) {
@@ -187,9 +192,7 @@ import com.opengamma.util.OpenGammaClock;
                                                     PropertyType propertyType) {
     Map<String, Object> result = Maps.newHashMap();
     // TODO this is *really* dirty and not supposed to be anything else. fix or remove
-    boolean readOnly = property.readWrite() == PropertyReadWrite.READ_ONLY ||
-        property.name().equals("uniqueId") ||
-        property.name().equals("name");
+    boolean readOnly = property.readWrite() == PropertyReadWrite.READ_ONLY || property.name().equals("uniqueId");
 
     // TODO this is obviously a poor choice of names
     result.put("type", propertyType.name().toLowerCase());

@@ -21,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Definition of a Legacy collateralised vanilla CDS i.e. with the features of CDS contracts prior to the Big Bang in 2009
  */
 public class LegacyCollateralisedVanillaCreditDefaultSwapDefinition extends LegacyVanillaCreditDefaultSwapDefinition {
 

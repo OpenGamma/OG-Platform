@@ -19,21 +19,30 @@ $.register_module({
                 }, extras);
             },
             check_radio : function (name, value){
-                $('input:radio[name= '+ name +']').filter('[value='+ value + ']').attr('checked', true);
+                $('input:radio[name="'+ name +'"]').filter('[value='+ value + ']').attr('checked', true);
             },
             set_select : function (name, value){
-                $('select[name='+ name +']').val(value);
+                $('select[name="'+ name +'"]').val(value);
             },
             check_checkbox : function (name, value){
-                $('input:checkbox[name= '+ name +']').attr('checked', value); 
+                $('input:checkbox[name= "'+ name +'"]').attr('checked', value); 
             },
             add_datetimepicker : function (name){
-                $('input[name= '+ name +']').datetimepicker({
-                    firstDay: 1, showTimezone: true, dateFormat: 'yy-mm-dd', timeFormat: 'hh:mm ttz'
+                $('input[name="'+ name +'"]').datetimepicker({
+                    dateFormat: 'yy-mm-dd',separator: 'T',firstDay: 1, showTimezone: true, timeFormat: 'hh:mm:ss',
+                    timeSuffix: '+00:00[UTC]'
                 });
             },
             set_datetime : function (name, value){
-                $('input[name= '+ name +']').datetimepicker('setDate', value);
+                $('input[name="'+ name +'"]').datetimepicker('setDate', value);
+            },
+            get_attributes : function (){
+                var attributes = {};
+                $('.og-attributes-add-list li').each(function (i, elm) {
+                    var arr = $(elm).text().split(' = ');
+                    attributes[arr[0]] = arr[1];
+                });
+                return attributes;
             },
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
             FAKE_DROPDOWN : [
@@ -85,12 +94,12 @@ $.register_module({
                 
             },
             FAKE_FX_FORWARD : {
-                recieveCurrency: "USD",
+                receiveCurrency: "USD",
                 payCurrency: "EEK",
-                recieveAmount: "2.30",
+                receiveAmount: "2.30",
                 payAmount: "3.02",
                 attributes:  FAKE_ATTRIBUTES,
-                forwardDate:"22-12-2012"
+                forwardDate:"2012-12-22"
             },
             FAKE_CAP_FLOOR : {
                 currency: "TOP",
@@ -168,6 +177,17 @@ $.register_module({
                 businessDayConvention: "None",
                 rate: "0.144",
                 notional: "35"
+            },
+            FAKE_TRADE: {
+                tradeDate: "2013-01-04",
+                premiumCurrency: null,
+                tradeTime: "00:00Z",
+                premium: null,
+                premiumTime: null,
+                attributes: {},
+                premiumDate: null,
+                type: "ManageableTrade",
+                counterparty: 'ABC Counterparty'
             }
         };
     }

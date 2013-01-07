@@ -52,9 +52,6 @@ public abstract class CreditDefaultSwapDefinition {
   // TODO : Add a CSA agreement?
   // TODO : Should we also include a CentralCounterParty object in order to track exchange traded contracts?
 
-  // TODO : Need to make this an abstract class !!!!!!
-  // TODO : Remove builder methods
-
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Member variables (all private and final) of the CDS contract (defines what a CDS is)
@@ -336,114 +333,6 @@ public abstract class CreditDefaultSwapDefinition {
   public double getProtectionOffset() {
     return _protectionOffset;
   }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
-  // Builder method to allow the maturity of a CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public CreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
-
-    ArgumentChecker.notNull(maturityDate, "maturity date");
-    ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
-
-    final CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        maturityDate,
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart());
-
-    return modifiedCDS;
-  }
-  */
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
-  // Builder method to allow the premium leg coupon of a CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public CreditDefaultSwapDefinition withSpread(final double parSpread) {
-
-    final CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart());
-
-    return modifiedCDS;
-  }
-  */
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
-  // Builder method to allow the recovery rate of a CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public CreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
-
-    final CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        recoveryRate,
-        getIncludeAccruedPremium(),
-        getProtectionStart());
-
-    return modifiedCDS;
-  }
-  */
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

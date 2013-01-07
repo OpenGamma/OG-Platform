@@ -139,6 +139,7 @@
     <fragment>/styles/lib/jquery/ui/jquery.ui.datepicker.css</fragment>
     <fragment>/styles/lib/jquery/ui/jquery.ui.resizable.css</fragment>
     <fragment>/styles/lib/jquery/ui/jquery.ui.sliders.css</fragment>
+    <fragment>/styles/lib/jquery/jquery.awesome_contextmenu.css</fragment>
     <fragment>/styles/lib/jquery/jquery-layout-default.css</fragment>
     <fragment>/styles/lib/jquery/jquery-layout-admin.css</fragment>
   </bundle>
@@ -247,6 +248,7 @@
     <fragment>/scripts/lib/og.standalone.data.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.layout.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.awesometable.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery.awesome_contextmenu.js</fragment>
     <fragment>/scripts/lib/three/three.js</fragment>
     <fragment>/scripts/lib/three/detector.js</fragment>
     <fragment>/scripts/lib/four/four.buffer.js</fragment>

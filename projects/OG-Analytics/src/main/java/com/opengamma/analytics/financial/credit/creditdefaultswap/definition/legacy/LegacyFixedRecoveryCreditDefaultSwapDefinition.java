@@ -26,7 +26,6 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCredit
   //----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Check hashCode and equals methods (fix these)
-  // TODO : Remove the builder method code
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -91,57 +90,6 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCredit
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
-  // Builder method to allow the maturity of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public LegacyVanillaCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
-
-    ArgumentChecker.notNull(maturityDate, "maturity date");
-    ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
-
-    final LegacyVanillaCreditDefaultSwapDefinition modifiedCDS = new LegacyVanillaCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
-        getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), maturityDate, getStubType(), getCouponFrequency(),
-        getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), _parSpread);
-
-    return modifiedCDS;
-  }
-  */
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
-  // Builder method to allow the premium leg coupon of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public LegacyVanillaCreditDefaultSwapDefinition withSpread(final double parSpread) {
-
-    final LegacyVanillaCreditDefaultSwapDefinition modifiedCDS = new LegacyVanillaCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
-        getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(),
-        getStubType(), getCouponFrequency(), getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(),
-        getAdjustMaturityDate(), getNotional(), getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), parSpread);
-
-    return modifiedCDS;
-  }
-  */
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
-  // Builder method to allow the recovery rate of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public LegacyVanillaCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
-
-    final LegacyVanillaCreditDefaultSwapDefinition modifiedCDS = new LegacyVanillaCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
-        getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getStubType(), getCouponFrequency(),
-        getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        recoveryRate, getIncludeAccruedPremium(), getProtectionStart(), _parSpread);
-
-    return modifiedCDS;
-  }
-  */
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

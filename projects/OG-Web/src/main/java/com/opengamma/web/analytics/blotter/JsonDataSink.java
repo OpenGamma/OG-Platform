@@ -27,17 +27,17 @@ import com.google.common.collect.Maps;
   }
 
   @Override
-  public void setValue(String propertyName, Object value) {
+  public void setValue(String propertyName, String value) {
     _json.put(propertyName, value);
   }
 
   @Override
-  public void setCollectionValues(String propertyName, Collection<?> values) {
+  public void setCollectionValues(String propertyName, Collection<String> values) {
     _json.put(propertyName, values);
   }
 
   @Override
-  public void setMapValues(String propertyName, Map<?, ?> values) {
+  public void setMapValues(String propertyName, Map<String, String> values) {
     _json.put(propertyName, values);
   }
 

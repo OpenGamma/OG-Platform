@@ -70,7 +70,7 @@ $.register_module({
                 return value.v.data.join(line);
             }
         };
-        var constructor = function (grid) {
+        var Clipboard = function (grid) {
             var clipboard = this;
             clipboard.data = clipboard.selection = null;
             clipboard.dataman = new og.analytics.Data(grid.source, {label: 'clipboard', parent: grid.dataman})
@@ -104,17 +104,17 @@ $.register_module({
             return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|');
         };
         var select = function (text) {textarea.val(text).focus().select();};
-        constructor.prototype.clear = function () {
+        Clipboard.prototype.clear = function () {
             var clipboard = this;
             if (clipboard.selection) clipboard.dataman.viewport(clipboard.selection = clipboard.data = null);
         };
-        constructor.prototype.has = function (selection) {
+        Clipboard.prototype.has = function (selection) {
             var clipboard = this, grid = clipboard.grid,
                 expanded = selection.rows.length === 1 && selection.cols.length === 1;
             clipboard.viewport(selection);
             return !!selection && !!(clipboard.data || (clipboard.data = grid.range(selection, expanded)));
         };
-        constructor.prototype.select = function () {
+        Clipboard.prototype.select = function () {
             var clipboard = this, data = clipboard.data, selection = clipboard.selection,
                 single = selection.rows.length === 1 && selection.cols.length === 1;
             if (!data || !data.length) return og.dev.warn(module.name + ': no data to select'), select('');
@@ -123,7 +123,7 @@ $.register_module({
             }).join(line);
             select(data.formatted);
         };
-        constructor.prototype.viewport = function (selection) {
+        Clipboard.prototype.viewport = function (selection) {
             var clipboard = this, grid = clipboard.grid, grid_data, data_viewport = clipboard.dataman.meta.viewport,
                 expanded = selection && selection.rows.length === 1 && selection.cols.length === 1,
                 format = expanded ? 'EXPANDED' : 'CELL';
@@ -140,6 +140,6 @@ $.register_module({
             node = (textarea = $('<textarea />').appendTo('body')
                 .css({position: 'absolute', top: '-500px', left: '-500px', width: '100px', height: '100px'}))[0];
         });
-        return constructor;
+        return Clipboard;
     }
 });

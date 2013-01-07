@@ -23,6 +23,9 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class CommodityFutureOptionBlackForwardGammaFunction extends CommodityFutureOptionBlackFunction {
 
+  /**
+   * Default constructor
+   */
   public CommodityFutureOptionBlackForwardGammaFunction() {
     super(ValueRequirementNames.FORWARD_GAMMA);
   }
@@ -32,7 +35,7 @@ public class CommodityFutureOptionBlackForwardGammaFunction extends CommodityFut
       final ComputationTarget target) {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final double forwardGamma = derivative.accept(CommodityFutureOptionBlackForwardGammaCalculator.getInstance(), market);
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName()[0], target.toSpecification(), createResultProperties(desiredValue.getConstraints()));
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementNames()[0], target.toSpecification(), createResultProperties(desiredValue.getConstraints()));
     return Collections.singleton(new ComputedValue(spec, forwardGamma));
   }
 

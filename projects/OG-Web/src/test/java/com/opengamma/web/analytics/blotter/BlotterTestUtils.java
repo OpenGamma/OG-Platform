@@ -31,6 +31,7 @@ import com.opengamma.util.money.Currency;
  *
  */
 /* package */ class BlotterTestUtils {
+
   /* package */ static final FXForwardSecurity FX_FORWARD;
   /* package */ static final BeanDataSource FX_FORWARD_DATA_SOURCE;
   /* package */ static final SwapSecurity SWAP;

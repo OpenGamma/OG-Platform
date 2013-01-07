@@ -42,6 +42,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.BloombergFXSpotRateIdentifierVisitor;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
@@ -105,7 +106,7 @@ public class FXOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompiledI
     result = result.multiply(position.getQuantity().doubleValue() * delta);
     final Currency currencyBase = currencyPair.getBase(); // The base currency
     final ValueProperties resultProperties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(FXOptionBlackFunction.PUT_CURVE, putCurveName)
         .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveConfig)
         .with(FXOptionBlackFunction.CALL_CURVE, callCurveName)
@@ -146,7 +147,7 @@ public class FXOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompiledI
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
     final Currency currencyBase = currencyPair.getBase(); // The base currency
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(FXOptionBlackFunction.PUT_CURVE)
         .withAny(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG)
         .withAny(FXOptionBlackFunction.CALL_CURVE)
@@ -206,7 +207,7 @@ public class FXOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompiledI
     final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
     final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(
         ValueRequirementNames.FX_CURRENCY_EXPOSURE, security, ValueProperties.builder()
-            .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+            .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
             .with(FXOptionBlackFunction.PUT_CURVE, putCurveNames.iterator().next())
             .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveCalculationConfigs.iterator().next())
             .with(FXOptionBlackFunction.CALL_CURVE, callCurveNames.iterator().next())
