@@ -7,7 +7,10 @@ package com.opengamma.web.analytics.blotter;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
@@ -16,6 +19,10 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
@@ -28,6 +35,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.OpenGammaClock;
 
 /**
  *
@@ -54,6 +62,7 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ UniqueId buildAndSaveTrade(BeanDataSource tradeData,
                                            BeanDataSource securityData,
                                            BeanDataSource underlyingData) {
+    // TODO check the type name is OtcTrade
     ObjectId securityId = buildSecurity(securityData, underlyingData).getObjectId();
     ManageableTrade.Meta meta = ManageableTrade.meta();
     BeanBuilder<? extends ManageableTrade> tradeBuilder =
@@ -191,5 +200,51 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ PositionMaster getPositionMaster() {
     return _positionMaster;
+  }
+
+  // TODO different versions for OTC / non OTC
+  // the horror... make this go away TODO move to the TradeBuilers? they create the trades
+  static Map<String, Object> tradeStructure() {
+    Map<String, Object> structure = Maps.newHashMap();
+    List<Map<String, Object>> properties = Lists.newArrayList();
+    properties.add(property("uniqueId", true, true, typeInfo("string", "UniqueId")));
+    properties.add(property("counterparty", false, false, typeInfo("string", "")));
+    properties.add(property("tradeDate", true, false, typeInfo("string", "LocalDate")));
+    properties.add(property("tradeTime", true, false, typeInfo("string", "OffsetTime")));
+    properties.add(property("premium", true, false, typeInfo("number", "")));
+    properties.add(property("premiumCurrency", true, false, typeInfo("string", "Currency")));
+    properties.add(property("premiumDate", true, false, typeInfo("string", "LocalDate")));
+    properties.add(property("premiumTime", true, false, typeInfo("string", "OffsetTime")));
+    properties.add(attributesProperty());
+    structure.put("type", "OtcTrade"); // TODO different type name for OTC and fungible
+    structure.put("properties", properties);
+    structure.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
+    return structure;
+  }
+
+  private static Map<String, Object> property(String name,
+                                              boolean optional,
+                                              boolean readOnly,
+                                              Map<String, Object> typeInfo) {
+    return ImmutableMap.<String, Object>of("name", name,
+                                           "type", "single",
+                                           "optional", optional,
+                                           "readOnly", readOnly,
+                                           "types", ImmutableList.of(typeInfo));
+  }
+
+  private static Map<String, Object> attributesProperty() {
+    Map<String, Object> map = Maps.newHashMap();
+    map.put("name", "attributes");
+    map.put("type", "map");
+    map.put("optional", true); // can't be null but have a default value so client doesn't need to specify
+    map.put("readOnly", false);
+    map.put("types", ImmutableList.of(typeInfo("string", "")));
+    map.put("valueTypes", ImmutableList.of(typeInfo("string", "")));
+    return map;
+  }
+
+  private static Map<String, Object> typeInfo(String expectedType, String actualType) {
+    return ImmutableMap.<String, Object>of("beanType", false, "expectedType", expectedType, "actualType", actualType);
   }
 }
