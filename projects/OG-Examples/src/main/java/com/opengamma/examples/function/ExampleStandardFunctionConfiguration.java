@@ -227,7 +227,6 @@ import com.opengamma.financial.property.AttributableDefaultPropertyFunction;
 import com.opengamma.financial.property.CalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.financial.property.PositionDefaultPropertyFunction;
-import com.opengamma.financial.value.ValueFunction;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
@@ -256,10 +255,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     } else {
       return new ParameterizedFunctionConfiguration(clazz.getName(), Arrays.asList(args));
     }
-  }
-
-  protected static void addValueFunctions(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(ValueFunction.class));
   }
 
   protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -291,7 +286,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
-    addValueFunctions(functionConfigs);
+    addCurrencyConversionFunctions(functionConfigs);
     addLateAggregationFunctions(functionConfigs);
     addDataShiftingFunctions(functionConfigs);
     addDefaultPropertyFunctions(functionConfigs);
@@ -326,7 +321,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     addInterestRateFutureOptionCalculators(functionConfigs);
     addEquityDerivativesCalculators(functionConfigs);
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
-    addCurrencyConversionFunctions(functionConfigs);
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, SECONDARY));
 
     functionConfigs.add(functionConfiguration(ISDAApproxCDSPriceFlatSpreadFunction.class));

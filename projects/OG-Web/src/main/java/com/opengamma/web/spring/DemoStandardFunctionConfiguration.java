@@ -381,8 +381,6 @@ import com.opengamma.financial.property.AttributableDefaultPropertyFunction;
 import com.opengamma.financial.property.CalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.financial.property.PositionDefaultPropertyFunction;
-import com.opengamma.financial.value.ForwardPriceRenamingFunction;
-import com.opengamma.financial.value.ValueFunction;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues;
@@ -409,11 +407,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
       return new StaticFunctionConfiguration(clazz.getName());
     }
     return new ParameterizedFunctionConfiguration(clazz.getName(), Arrays.asList(args));
-  }
-
-  protected static void addValueFunctions(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(ValueFunction.class));
-    functionConfigs.add(functionConfiguration(ForwardPriceRenamingFunction.class));
   }
 
   protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -447,7 +440,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
-    addValueFunctions(functionConfigs);
     addCurrencyConversionFunctions(functionConfigs);
     addLateAggregationFunctions(functionConfigs);
     addDataShiftingFunctions(functionConfigs);
