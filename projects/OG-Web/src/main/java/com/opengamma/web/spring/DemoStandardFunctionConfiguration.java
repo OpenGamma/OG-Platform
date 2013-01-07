@@ -174,14 +174,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         GeneralBlackVolatilityInterpolationDefaults.getSplineInterpolationDefaults()));
   }
 
-  private static void addBondCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addBondDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
         "USD", "Discounting", "DefaultTwoCurveUSDConfig", "Discounting", "DefaultTwoCurveUSDConfig",
         "EUR", "Discounting", "DefaultTwoCurveEURConfig", "Discounting", "DefaultTwoCurveEURConfig",
         "GBP", "Discounting", "DefaultTwoCurveGBPConfig", "Discounting", "DefaultTwoCurveGBPConfig"));
   }
 
-  private static void addBondFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addBondFutureOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(BondFutureOptionDefaults.class, PriorityClass.NORMAL.name(),
         "USD", "DefaultTwoCurveUSDConfig", "BBG"));
   }
@@ -203,7 +203,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         TargetSpecificBlackVolatilitySurfaceDefaults.getAllCommodityDefaults()));
   }
 
-  private static void addCommodityFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addCommodityFutureOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityFutureOptionBlackDefaults.class.getName(),
         Arrays.asList("USD", "Discounting", "DefaultTwoCurveUSDConfig", "BBG_S ", "Spline")));
   }
@@ -214,11 +214,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
   }
 
-  private static void addEquityBarrierOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addEquityBarrierOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(EquityVanillaBarrierOptionDefaults.class, "0.0", "0.001"));
   }
 
-  private static void addEquityDividendYieldFuturesFunctions(final List<FunctionConfiguration> functionConfigs) {
+  private static void addEquityDividendYieldFuturesDefaults(final List<FunctionConfiguration> functionConfigs) {
     final List<String> equityFutureDefaults = EquityInstrumentDefaultValues.builder()
         .useDiscountingCurveCurrency()
         .useDiscountingCurveCalculationConfigNames()
@@ -230,7 +230,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityDividendYieldPricingDefaults.class.getName(), equityFutureDefaultsWithPriority));
   }
 
-  private static void addEquityForwardFunctions(final List<FunctionConfiguration> functionConfigs) {
+  private static void addEquityForwardDefaults(final List<FunctionConfiguration> functionConfigs) {
     final List<String> equityForwardDefaults = EquityInstrumentDefaultValues.builder()
         .useEquityName()
         .useDiscountingCurveNames()
@@ -266,7 +266,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceTradeDefaults.class.getName(), defaults));
   }
 
-  private static void addEquityOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addEquityOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
     final List<String> equityIndexOptionDefaults = EquityInstrumentDefaultValues.builder()
         .useEquityName()
         .useForwardCurveCalculationConfigNames()
@@ -291,7 +291,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(PureBlackVolatilitySurfaceDefaults.class.getName(), defaults));
   }
 
-  private static void addEquityVarianceSwapCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addEquityVarianceSwapDefaults(final List<FunctionConfiguration> functionConfigs) {
     final List<String> equityVarianceSwapStaticReplicationDefaults = EquityInstrumentDefaultValues.builder()
         .useEquityName()
         .useDiscountingCurveNames()
@@ -335,7 +335,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "GBP", "DefaultTwoCurveGBPConfig"));
   }
 
-  private static void addForexForwardCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addForexForwardDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(FXForwardDefaults.class, PriorityClass.NORMAL.name(),
         "USD", "DefaultTwoCurveUSDConfig", "Discounting",
         "EUR", "DefaultTwoCurveEURConfig", "Discounting",
@@ -344,7 +344,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "CAD", "DefaultTwoCurveCADConfig", "Discounting"));
   }
 
-  private static void addForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addForexOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(FXOptionBlackCurveDefaults.class, PriorityClass.NORMAL.name(),
         "USD", "DefaultTwoCurveUSDConfig", "Discounting",
         "EUR", "DefaultTwoCurveEURConfig", "Discounting",
@@ -377,7 +377,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "EUR", "JPY", "TULLETT"));
   }
 
-  private static void addFXBarrierOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addFXBarrierOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
     final String overhedge = "0.0";
     final String relativeStrikeSmoothing = "0.001";
     functionConfigs.add(functionConfiguration(FXOneLookBarrierOptionBlackDefaultPropertiesFunction.class, overhedge, relativeStrikeSmoothing));
@@ -398,7 +398,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         Arrays.asList("EURUSD", "DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)));
   }
 
-  private static void addInterestRateFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addInterestRateFutureDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFutureDefaults.class, PriorityClass.NORMAL.name(),
         "USD", "DefaultTwoCurveUSDConfig",
         "EUR", "DefaultTwoCurveEURConfig",
@@ -406,7 +406,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "RUB", "DefaultCashCurveRUBConfig"));
   }
 
-  private static void addInterestRateFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addInterestRateFutureOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, PriorityClass.NORMAL.name(),
         "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE"));
     functionConfigs.add(functionConfiguration(IRFutureOptionSABRDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
@@ -420,7 +420,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_PRICE"));
   }
 
-  private static void addLocalVolatilityPDEFunctions(final List<FunctionConfiguration> functionConfigs) {
+  private static void addLocalVolatilityPDEDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(ForwardPDEDefaults.class,
         "0.5", "100", "100", "5.0", "0.05", "1.5", "1.0", Interpolator1DFactory.DOUBLE_QUADRATIC));
     functionConfigs.add(functionConfiguration(BackwardPDEDefaults.class,
@@ -436,30 +436,46 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addPnLCalculators(final List<FunctionConfiguration> functionConfigs) {
-    final String defaultReturnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
-    final String defaultSamplingPeriodName = "P2Y";
-    final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
-    final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
     functionConfigs.add(functionConfiguration(TradeExchangeTradedPnLFunction.class, DEFAULT_CONFIG_NAME, "PX_LAST", "COST_OF_CARRY"));
     functionConfigs.add(functionConfiguration(TradeExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, "PX_LAST", "COST_OF_CARRY"));
     functionConfigs.add(functionConfiguration(PositionExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, "PX_LAST", "COST_OF_CARRY"));
     functionConfigs.add(functionConfiguration(SecurityPriceSeriesFunction.class, DEFAULT_CONFIG_NAME, MarketDataRequirementNames.MARKET_VALUE));
-    functionConfigs.add(functionConfiguration(SecurityPriceSeriesDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName,
-        defaultSamplingCalculatorName));
-    functionConfigs.add(functionConfiguration(EquityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName,
-        defaultReturnCalculatorName));
     functionConfigs.add(functionConfiguration(SimpleFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(SimpleFXFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(ValueGreekSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
+  }
+
+  private static void addPnLDefaults(final List<FunctionConfiguration> functionConfigs) {
+    final String defaultReturnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
+    final String defaultSamplingPeriodName = "P2Y";
+    final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
+    final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
     functionConfigs.add(functionConfiguration(SimpleFuturePnLDefaultPropertiesFunction.class, "FUNDING", defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingCalculatorName));
-    functionConfigs.add(functionConfiguration(SimpleFXFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(SimpleFXFuturePnLDefaultPropertiesFunction.class, "FUNDING", "FUNDING", defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingCalculatorName));
-    functionConfigs.add(functionConfiguration(ValueGreekSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(ValueGreekSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingCalculatorName, defaultReturnCalculatorName));
+    functionConfigs.add(functionConfiguration(EquityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName,
+        defaultReturnCalculatorName));
+    functionConfigs.add(functionConfiguration(SecurityPriceSeriesDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName,
+        defaultSamplingCalculatorName));
   }
 
   private static void addPortfolioAnalysisCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(CAPMBetaModelPositionFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(CAPMBetaModelPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(CAPMFromRegressionModelFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(SharpeRatioPositionFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(SharpeRatioPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(TreynorRatioPositionFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(TreynorRatioPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(JensenAlphaFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(TotalRiskAlphaPositionFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(TotalRiskAlphaPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
+  }
+
+  private static void addPortfolioAnalysisDefaults(final List<FunctionConfiguration> functionConfigs) {
     final String defaultReturnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT;
     final String defaultSamplingPeriodName = "P2Y";
     final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
@@ -468,45 +484,34 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     final String defaultCovarianceCalculatorName = StatisticsCalculatorFactory.SAMPLE_COVARIANCE;
     final String defaultVarianceCalculatorName = StatisticsCalculatorFactory.SAMPLE_VARIANCE;
     final String defaultExcessReturnCalculatorName = StatisticsCalculatorFactory.MEAN;
-
     functionConfigs.add(functionConfiguration(CAPMBetaDefaultPropertiesPortfolioNodeFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingFunctionName, defaultReturnCalculatorName, defaultCovarianceCalculatorName, defaultVarianceCalculatorName));
     functionConfigs.add(functionConfiguration(CAPMBetaDefaultPropertiesPositionFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingFunctionName, defaultReturnCalculatorName, defaultCovarianceCalculatorName, defaultVarianceCalculatorName));
-    functionConfigs.add(functionConfiguration(CAPMBetaModelPositionFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(CAPMBetaModelPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(CAPMFromRegressionDefaultPropertiesPortfolioNodeFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingFunctionName, defaultReturnCalculatorName));
     functionConfigs.add(functionConfiguration(CAPMFromRegressionDefaultPropertiesPositionFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingFunctionName, defaultReturnCalculatorName));
-    functionConfigs.add(functionConfiguration(CAPMFromRegressionModelFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(SharpeRatioDefaultPropertiesPortfolioNodeFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingFunctionName, defaultReturnCalculatorName, defaultStdDevCalculatorName, defaultExcessReturnCalculatorName));
     functionConfigs.add(functionConfiguration(SharpeRatioDefaultPropertiesPositionFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingFunctionName, defaultReturnCalculatorName, defaultStdDevCalculatorName, defaultExcessReturnCalculatorName));
-    functionConfigs.add(functionConfiguration(SharpeRatioPositionFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(SharpeRatioPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(TreynorRatioDefaultPropertiesPortfolioNodeFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingFunctionName, defaultReturnCalculatorName, defaultStdDevCalculatorName, defaultExcessReturnCalculatorName, defaultCovarianceCalculatorName,
         defaultVarianceCalculatorName));
     functionConfigs.add(functionConfiguration(TreynorRatioDefaultPropertiesPositionFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingFunctionName, defaultReturnCalculatorName, defaultStdDevCalculatorName, defaultExcessReturnCalculatorName, defaultCovarianceCalculatorName,
         defaultVarianceCalculatorName));
-    functionConfigs.add(functionConfiguration(TreynorRatioPositionFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(TreynorRatioPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(JensenAlphaDefaultPropertiesPortfolioNodeFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingFunctionName, defaultReturnCalculatorName, defaultStdDevCalculatorName, defaultExcessReturnCalculatorName, defaultCovarianceCalculatorName,
         defaultVarianceCalculatorName));
     functionConfigs.add(functionConfiguration(JensenAlphaDefaultPropertiesPositionFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingFunctionName, defaultReturnCalculatorName, defaultStdDevCalculatorName, defaultExcessReturnCalculatorName, defaultCovarianceCalculatorName,
         defaultVarianceCalculatorName));
-    functionConfigs.add(functionConfiguration(JensenAlphaFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(TotalRiskAlphaDefaultPropertiesPortfolioNodeFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingFunctionName, defaultReturnCalculatorName, defaultStdDevCalculatorName, defaultExcessReturnCalculatorName));
     functionConfigs.add(functionConfiguration(TotalRiskAlphaDefaultPropertiesPositionFunction.class, defaultSamplingPeriodName, defaultScheduleName,
         defaultSamplingFunctionName, defaultReturnCalculatorName, defaultStdDevCalculatorName, defaultExcessReturnCalculatorName));
-    functionConfigs.add(functionConfiguration(TotalRiskAlphaPositionFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(TotalRiskAlphaPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
   }
 
   private static void addSABRDefaults(final List<FunctionConfiguration> functionConfigs) {
@@ -541,7 +546,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
             "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
   }
 
-  private static void addVaRCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addVaRDefaults(final List<FunctionConfiguration> functionConfigs) {
     final String defaultSamplingPeriodName = "P2Y";
     final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
     final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
@@ -564,33 +569,35 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     addBlackDefaults(functionConfigs);
     addBlackVolatilitySurfaceDefaults(functionConfigs);
-    addBondCalculators(functionConfigs);
-    addBondFutureOptionCalculators(functionConfigs);
+    addBondDefaults(functionConfigs);
+    addBondFutureOptionDefaults(functionConfigs);
     addCDSDefaults(functionConfigs);
     addCommodityBlackVolatilitySurfaceDefaults(functionConfigs);
-    addCommodityFutureOptionCalculators(functionConfigs);
+    addCommodityFutureOptionDefaults(functionConfigs);
     addCurrencyConversionFunctions(functionConfigs);
-    addEquityBarrierOptionCalculators(functionConfigs);
-    addEquityDividendYieldFuturesFunctions(functionConfigs);
-    addEquityForwardFunctions(functionConfigs);
+    addEquityBarrierOptionDefaults(functionConfigs);
+    addEquityDividendYieldFuturesDefaults(functionConfigs);
+    addEquityForwardDefaults(functionConfigs);
     addEquityIndexOptionBlackVolatilitySurfaceDefaults(functionConfigs);
-    addEquityOptionCalculators(functionConfigs);
+    addEquityOptionDefaults(functionConfigs);
     addEquityPureVolatilitySurfaceDefaults(functionConfigs);
-    addEquityVarianceSwapCalculators(functionConfigs);
+    addEquityVarianceSwapDefaults(functionConfigs);
     addExternallyProvidedSensitivitiesDefaults(functionConfigs);
     addFixedIncomeInstrumentDefaults(functionConfigs);
-    addForexForwardCalculators(functionConfigs);
-    addForexOptionCalculators(functionConfigs);
-    addFXBarrierOptionCalculators(functionConfigs);
+    addForexForwardDefaults(functionConfigs);
+    addForexOptionDefaults(functionConfigs);
+    addFXBarrierOptionDefaults(functionConfigs);
     addFXOptionBlackVolatilitySurfaceDefaults(functionConfigs);
-    addInterestRateFutureCalculators(functionConfigs);
-    addInterestRateFutureOptionCalculators(functionConfigs);
-    addLocalVolatilityPDEFunctions(functionConfigs);
+    addInterestRateFutureDefaults(functionConfigs);
+    addInterestRateFutureOptionDefaults(functionConfigs);
+    addLocalVolatilityPDEDefaults(functionConfigs);
     addLocalVolatilitySurfaceDefaults(functionConfigs);
     addPnLCalculators(functionConfigs);
+    addPnLDefaults(functionConfigs);
     addPortfolioAnalysisCalculators(functionConfigs);
+    addPortfolioAnalysisDefaults(functionConfigs);
     addSABRDefaults(functionConfigs);
-    addVaRCalculators(functionConfigs);
+    addVaRDefaults(functionConfigs);
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
 

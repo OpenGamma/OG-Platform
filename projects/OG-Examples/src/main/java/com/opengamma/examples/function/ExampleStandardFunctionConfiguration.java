@@ -37,6 +37,7 @@ import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.financial.FinancialFunctions;
+import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.model.bond.BondDefaultCurveNamesFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaDefaultPropertiesPortfolioNodeFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaDefaultPropertiesPositionFunction;
@@ -103,6 +104,7 @@ import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -134,7 +136,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     }
   }
 
-  private static void addBondCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addBondDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
         "USD", "Discounting", "DefaultTwoCurveUSDConfig", "Discounting", "DefaultTwoCurveUSDConfig",
         "EUR", "Discounting", "DefaultTwoCurveEURConfig", "Discounting", "DefaultTwoCurveEURConfig",
@@ -142,17 +144,24 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   }
 
   protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(CurrencyPairsDefaults.class, CurrencyPairs.DEFAULT_CURRENCY_PAIRS));
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
   }
 
   private static void addDeprecatedFixedIncomeInstrumentCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.addAll(FixedIncomeFunctions.deprecated().getRepositoryConfiguration().getFunctions());
+  }
+
+  private static void addDeprecatedFixedIncomeInstrumentDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunctionDeprecated.class, "ParRate", SECONDARY, SECONDARY, "AUD", "CAD", "CHF", "DKK", "EUR",
         "GBP", "JPY", "NZD", USD));
   }
 
   private static void addDeprecatedSABRCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.addAll(SABRCubeFunctions.deprecated().getRepositoryConfiguration().getFunctions());
+  }
+
+  private static void addDeprecatedSABRDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "USD", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaultsDeprecated.class, SECONDARY, SECONDARY, SECONDARY, "NonLinearLeastSquares", PAR_RATE_STRING, "USD"));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaultsDeprecated.class, SECONDARY, SECONDARY, SECONDARY, "NonLinearLeastSquares", PAR_RATE_STRING, "0.07", "10.0", "USD"));
@@ -162,11 +171,14 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
         "0.07", "10.0", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", USD));
   }
 
+  private static void addExternallyProvidedSensitivitiesCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
+  }
+
   private static void addExternallyProvidedSensitivitiesDefaults(final List<FunctionConfiguration> functionConfigs) {
     final String defaultSamplingPeriodName = "P2Y";
     final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
     final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesDefaultPropertiesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
         "USD", "DefaultTwoCurveUSDConfig",
@@ -187,6 +199,9 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
 
   private static void addForexForwardCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.addAll(ForwardFunctions.deprecated().getRepositoryConfiguration().getFunctions());
+  }
+
+  private static void addForexForwardDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
         PAR_RATE_STRING, "USD", "EUR"));
     functionConfigs.add(functionConfiguration(FXForwardDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "SECONDARY", "SECONDARY",
@@ -224,6 +239,9 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   private static void addForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(ExampleForexSpotRateMarketDataFunction.class));
     functionConfigs.addAll(BlackFunctions.deprecated().getRepositoryConfiguration().getFunctions());
+  }
+
+  private static void addForexOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(FXOptionBlackDefaultsDeprecated.class, SECONDARY, SECONDARY, PAR_RATE_STRING, SECONDARY,
         SECONDARY, PAR_RATE_STRING, SECONDARY, "DoubleQuadratic", "LinearExtrapolator", "LinearExtrapolator", "USD", "EUR"));
     functionConfigs.add(functionConfiguration(FXOptionBlackDefaultsDeprecated.class, SECONDARY, SECONDARY, PAR_RATE_STRING, SECONDARY,
@@ -232,35 +250,54 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
 
   private static void addInterestRateFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.addAll(FutureFunctions.deprecated().getRepositoryConfiguration().getFunctions());
+  }
+
+  private static void addInterestRateFutureDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunctionDeprecated.class, SECONDARY, SECONDARY, PAR_RATE_STRING, USD, "EUR"));
   }
 
   private static void addPnLCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(TradeExchangeTradedPnLFunction.class, DEFAULT_CONFIG_NAME, HTS_PRICE_FIELD, COST_OF_CARRY_FIELD));
+    functionConfigs.add(functionConfiguration(TradeExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, HTS_PRICE_FIELD, COST_OF_CARRY_FIELD));
+    functionConfigs.add(functionConfiguration(PositionExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, HTS_PRICE_FIELD, COST_OF_CARRY_FIELD));
+    functionConfigs.add(functionConfiguration(SecurityPriceSeriesFunction.class, DEFAULT_CONFIG_NAME, MarketDataRequirementNames.MARKET_VALUE));
+    functionConfigs.add(functionConfiguration(SimpleFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(SimpleFXFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(ValueGreekSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.addAll(PNLFunctions.deprecated().getRepositoryConfiguration().getFunctions());
+  }
+
+  private static void addPnLDefaults(final List<FunctionConfiguration> functionConfigs) {
     final String defaultCurveCalculationMethod = PRESENT_VALUE_STRING;
     final String defaultReturnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
     final String defaultSamplingPeriodName = "P2Y";
     final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
     final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
-    functionConfigs.add(functionConfiguration(TradeExchangeTradedPnLFunction.class, DEFAULT_CONFIG_NAME, HTS_PRICE_FIELD, COST_OF_CARRY_FIELD));
-    functionConfigs.add(functionConfiguration(TradeExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, HTS_PRICE_FIELD, COST_OF_CARRY_FIELD));
-    functionConfigs.add(functionConfiguration(PositionExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, HTS_PRICE_FIELD, COST_OF_CARRY_FIELD));
-    functionConfigs.add(functionConfiguration(SecurityPriceSeriesFunction.class, DEFAULT_CONFIG_NAME, MarketDataRequirementNames.MARKET_VALUE));
     functionConfigs.add(functionConfiguration(SecurityPriceSeriesDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
     functionConfigs.add(functionConfiguration(EquityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName, defaultReturnCalculatorName));
-    functionConfigs.add(functionConfiguration(SimpleFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(SimpleFuturePnLDefaultPropertiesFunction.class, SECONDARY, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
-    functionConfigs.add(functionConfiguration(SimpleFXFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(SimpleFXFuturePnLDefaultPropertiesFunction.class, SECONDARY, SECONDARY,
         defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
     functionConfigs.add(functionConfiguration(YieldCurveNodeSensitivityPnLDefaultsDeprecated.class, SECONDARY, SECONDARY, defaultCurveCalculationMethod, defaultSamplingPeriodName,
         defaultScheduleName, defaultSamplingCalculatorName, "AUD", USD, "CAD", "DKK", "EUR", "GBP", "JPY", "NZD", "CHF"));
-    functionConfigs.add(functionConfiguration(ValueGreekSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(ValueGreekSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName,
         defaultReturnCalculatorName));
-    functionConfigs.addAll(PNLFunctions.deprecated().getRepositoryConfiguration().getFunctions());
   }
 
   private static void addPortfolioAnalysisCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(CAPMBetaModelPositionFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(CAPMBetaModelPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(CAPMFromRegressionModelFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(SharpeRatioPositionFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(SharpeRatioPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(TreynorRatioPositionFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(TreynorRatioPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(JensenAlphaFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(TotalRiskAlphaPositionFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(TotalRiskAlphaPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
+  }
+
+  private static void addPortfolioAnalysisDefaults(final List<FunctionConfiguration> functionConfigs) {
     final String returnCalculator = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT;
     final String samplingPeriod = "P2Y";
     final String schedule = ScheduleCalculatorFactory.DAILY;
@@ -269,7 +306,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     final String covarianceCalculator = StatisticsCalculatorFactory.SAMPLE_COVARIANCE;
     final String varianceCalculator = StatisticsCalculatorFactory.SAMPLE_VARIANCE;
     final String excessReturnCalculator = StatisticsCalculatorFactory.MEAN;
-
     functionConfigs.add(functionConfiguration(CAPMBetaDefaultPropertiesPortfolioNodeFunction.class, samplingPeriod, schedule, samplingFunction,
         returnCalculator, covarianceCalculator, varianceCalculator));
     functionConfigs.add(functionConfiguration(CAPMBetaDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
@@ -278,36 +314,26 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
         returnCalculator, covarianceCalculator, varianceCalculator));
     functionConfigs.add(functionConfiguration(CAPMBetaDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
         returnCalculator, covarianceCalculator, varianceCalculator));
-    functionConfigs.add(functionConfiguration(CAPMBetaModelPositionFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(CAPMBetaModelPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(CAPMFromRegressionDefaultPropertiesPortfolioNodeFunction.class, samplingPeriod, schedule, samplingFunction,
         returnCalculator));
     functionConfigs.add(functionConfiguration(CAPMFromRegressionDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
         returnCalculator));
-    functionConfigs.add(functionConfiguration(CAPMFromRegressionModelFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(SharpeRatioDefaultPropertiesPortfolioNodeFunction.class, samplingPeriod, schedule, samplingFunction,
         returnCalculator, stdDevCalculator, excessReturnCalculator));
     functionConfigs.add(functionConfiguration(SharpeRatioDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
         returnCalculator, stdDevCalculator, excessReturnCalculator));
-    functionConfigs.add(functionConfiguration(SharpeRatioPositionFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(SharpeRatioPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(TreynorRatioDefaultPropertiesPortfolioNodeFunction.class, samplingPeriod, schedule, samplingFunction,
         returnCalculator, stdDevCalculator, excessReturnCalculator, covarianceCalculator, varianceCalculator));
     functionConfigs.add(functionConfiguration(TreynorRatioDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
         returnCalculator, stdDevCalculator, excessReturnCalculator, covarianceCalculator, varianceCalculator));
-    functionConfigs.add(functionConfiguration(TreynorRatioPositionFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(TreynorRatioPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(JensenAlphaDefaultPropertiesPortfolioNodeFunction.class, samplingPeriod, schedule, samplingFunction,
         returnCalculator, stdDevCalculator, excessReturnCalculator, covarianceCalculator, varianceCalculator));
     functionConfigs.add(functionConfiguration(JensenAlphaDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
         returnCalculator, stdDevCalculator, excessReturnCalculator, covarianceCalculator, varianceCalculator));
-    functionConfigs.add(functionConfiguration(JensenAlphaFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(TotalRiskAlphaDefaultPropertiesPortfolioNodeFunction.class, samplingPeriod, schedule, samplingFunction,
         returnCalculator, stdDevCalculator, excessReturnCalculator));
     functionConfigs.add(functionConfiguration(TotalRiskAlphaDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
         returnCalculator, stdDevCalculator, excessReturnCalculator));
-    functionConfigs.add(functionConfiguration(TotalRiskAlphaPositionFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(TotalRiskAlphaPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
   }
 
   private static void addSABRDefaults(final List<FunctionConfiguration> functionConfigs) {
@@ -325,7 +351,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
         USD, "DefaultTwoCurveUSDConfig", SECONDARY));
   }
 
-  private static void addVaRCalculators(final List<FunctionConfiguration> functionConfigs) {
+  private static void addVaRDefaults(final List<FunctionConfiguration> functionConfigs) {
     final String defaultSamplingPeriodName = "P2Y";
     final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
     final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
@@ -340,20 +366,27 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
-    addBondCalculators(functionConfigs);
+    addBondDefaults(functionConfigs);
     addCurrencyConversionFunctions(functionConfigs);
     addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);
+    addDeprecatedFixedIncomeInstrumentDefaults(functionConfigs);
     addDeprecatedSABRCalculators(functionConfigs);
+    addDeprecatedSABRDefaults(functionConfigs);
+    addExternallyProvidedSensitivitiesCalculators(functionConfigs);
     addExternallyProvidedSensitivitiesDefaults(functionConfigs);
     addFixedIncomeInstrumentDefaults(functionConfigs);
     addForexForwardCalculators(functionConfigs);
+    addForexForwardDefaults(functionConfigs);
     addForexOptionCalculators(functionConfigs);
+    addForexOptionDefaults(functionConfigs);
     addInterestRateFutureCalculators(functionConfigs);
+    addInterestRateFutureDefaults(functionConfigs);
     addPnLCalculators(functionConfigs);
+    addPnLDefaults(functionConfigs);
     addPortfolioAnalysisCalculators(functionConfigs);
+    addPortfolioAnalysisDefaults(functionConfigs);
     addSABRDefaults(functionConfigs);
-    addVaRCalculators(functionConfigs);
-
+    addVaRDefaults(functionConfigs);
     functionConfigs.add(functionConfiguration(SimpleFuturePresentValueFunctionDeprecated.class, SECONDARY));
     functionConfigs.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, SECONDARY, SECONDARY));
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, SECONDARY));
