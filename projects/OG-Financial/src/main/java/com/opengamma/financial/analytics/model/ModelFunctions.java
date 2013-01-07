@@ -18,6 +18,7 @@ import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.cds.CDSFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
+import com.opengamma.financial.analytics.model.forex.ForexFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
@@ -67,8 +68,7 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource forexFunctionConfiguration() {
-    // TODO
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+    return ForexFunctions.DEFAULT;
   }
 
   protected RepositoryConfigurationSource futureFunctionConfiguration() {

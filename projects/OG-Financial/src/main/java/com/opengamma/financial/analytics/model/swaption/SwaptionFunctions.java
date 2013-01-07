@@ -24,6 +24,10 @@ public class SwaptionFunctions extends AbstractRepositoryConfigurationBean {
    */
   public static final RepositoryConfigurationSource DEFAULT = (new SwaptionFunctions()).getObjectCreating();
 
+  public static RepositoryConfigurationSource deprecated() {
+    return DeprecatedFunctions.DEFAULT;
+  }
+
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     // Nothing in this package, just the sub-packages
@@ -33,13 +37,9 @@ public class SwaptionFunctions extends AbstractRepositoryConfigurationBean {
     return BlackFunctions.DEFAULT;
   }
 
-  protected RepositoryConfigurationSource deprecatedFunctionConfiguration() {
-    return DeprecatedFunctions.DEFAULT;
-  }
-
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), blackFunctionConfiguration(), deprecatedFunctionConfiguration());
+    return new CombiningRepositoryConfigurationSource(super.createObject(), blackFunctionConfiguration());
   }
 
 }
