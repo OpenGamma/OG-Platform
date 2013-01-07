@@ -176,27 +176,32 @@ public abstract class SABRYCNSFunctionDeprecated extends AbstractFunction.NonCom
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
     if (curveNames == null || curveNames.size() != 1) {
-      s_logger.error("Must ask for a single named curve");
+      s_logger.debug("Must ask for a single named curve");
       return null;
     }
     final Set<String> forwardCurveNames = constraints.getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
+      s_logger.debug("Must ask for a single forward curve name");
       return null;
     }
     final Set<String> fundingCurveNames = constraints.getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     if (fundingCurveNames == null || fundingCurveNames.size() != 1) {
+      s_logger.debug("Must ask for a single funding curve name");
       return null;
     }
     final Set<String> cubeNames = constraints.getValues(ValuePropertyNames.CUBE);
     if (cubeNames == null || cubeNames.size() != 1) {
+      s_logger.debug("Must ask for a single cube name");
       return null;
     }
     final Set<String> curveCalculationMethods = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
+      s_logger.debug("Must ask for a single curve calculation method");
       return null;
     }
     final Set<String> fittingMethods = constraints.getValues(SmileFittingProperties.PROPERTY_FITTING_METHOD);
     if (fittingMethods == null || fittingMethods.size() != 1) {
+      s_logger.debug("Must ask for a single fitting method");
       return null;
     }
     final String forwardCurveName = forwardCurveNames.iterator().next();

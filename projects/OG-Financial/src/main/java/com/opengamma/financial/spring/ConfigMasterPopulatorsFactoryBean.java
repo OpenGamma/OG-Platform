@@ -99,7 +99,8 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
       new YieldCurveConfigPopulator(cm);
     }
     if (isCurrencyMatrix()) {
-      new CurrencyMatrixConfigPopulator(cm);
+      // TODO: [PLAT-2379] This won't work if the currency pair conventions aren't already loaded
+      CurrencyMatrixConfigPopulator.populateCurrencyMatrixConfigMaster(cm);
     }
     if (isSwaptionVolatilitySurface()) {
       new SwaptionVolatilitySurfaceConfigPopulator(cm);

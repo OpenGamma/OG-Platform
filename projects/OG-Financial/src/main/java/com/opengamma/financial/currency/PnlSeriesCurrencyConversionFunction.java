@@ -33,12 +33,10 @@ import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixCross;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixFixed;
 import com.opengamma.financial.currency.CurrencyMatrixValue.CurrencyMatrixValueRequirement;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-import com.opengamma.util.tuple.Pair;
 
 // TODO jonathan 2012-02-01 -- added this for immediate demo needs. Need to revisit and fully implement.
 
@@ -76,7 +74,7 @@ public abstract class PnlSeriesCurrencyConversionFunction extends AbstractFuncti
     setCurrencyMatrix(matrix);
     if (matrix != null) {
       if (matrix.getUniqueId() != null) {
-        context.getFunctionReinitializer().reinitializeFunction(this, Pair.of(matrix.getUniqueId().getObjectId(), VersionCorrection.LATEST));
+        context.getFunctionReinitializer().reinitializeFunction(this, matrix.getUniqueId().getObjectId());
       }
     }
   }

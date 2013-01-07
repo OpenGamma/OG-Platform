@@ -943,7 +943,7 @@ public final class ValueRequirementNames {
    */
   public static final String CLEAN_PRICE = "Clean Price";
   /**
-   * The conversion factor of a bond in the deliverable basket of a bond future (Note spelling mistake. To be fixed.).
+   * The conversion factor of a bond in the deliverable basket of a bond future (note spelling mistake - to be fixed).
    */
   public static final String CONVERTION_FACTOR = "Convertion Factor";
   /**

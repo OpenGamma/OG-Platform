@@ -89,7 +89,7 @@ public class SABRRightExtrapolationYCNSFunction extends SABRYCNSFunction {
   }
 
   @Override
-  protected ValueProperties getResultProperties(final Currency currency) {
+  protected ValueProperties.Builder createValueProperties(final Currency currency) {
     return createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
@@ -100,11 +100,11 @@ public class SABRRightExtrapolationYCNSFunction extends SABRYCNSFunction {
         .withAny(SmileFittingProperties.PROPERTY_FITTING_METHOD)
         .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
         .withAny(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE)
-        .withAny(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER).get();
+        .withAny(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER);
   }
 
   @Override
-  protected ValueProperties getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
@@ -122,7 +122,7 @@ public class SABRRightExtrapolationYCNSFunction extends SABRYCNSFunction {
         .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod)
         .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
         .with(SABRRightExtrapolationFunction.PROPERTY_CUTOFF_STRIKE, cutoff)
-        .with(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER, mu).get();
+        .with(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER, mu);
   }
 
   @Override

@@ -115,9 +115,9 @@ public class ComputationTargetResults {
    */
   public List<ValueSpecification> getMaximalResults(final ComputationTarget target) {
     final Set<ValueSpecification> result = new LinkedHashSet<ValueSpecification>();
-    for (ResolutionRule rule : getRules()) {
+    for (final ResolutionRule rule : getRules()) {
       if (rule.getFunction().getFunction().getTargetType() == target.getType()) {
-        Set<ValueSpecification> results = rule.getResults(target, getContext());
+        final Set<ValueSpecification> results = rule.getResults(target, getContext());
         if (results != null) {
           result.addAll(results);
         }
@@ -140,7 +140,7 @@ public class ComputationTargetResults {
    */
   public List<ValueSpecification> getPartialResults(final ComputationTarget target) {
     final Set<ValueSpecification> result = new LinkedHashSet<ValueSpecification>();
-    for (ResolutionRule rule : getRules()) {
+    for (final ResolutionRule rule : getRules()) {
       final CompiledFunctionDefinition function = rule.getFunction().getFunction();
       if (function.getTargetType() != target.getType()) {
         continue;
@@ -151,7 +151,7 @@ public class ComputationTargetResults {
         if (results == null) {
           continue;
         }
-      } catch (Throwable t) {
+      } catch (final Throwable t) {
         s_logger.warn("Couldn't call getResults on {} - {}", rule, t);
         s_logger.debug("Caught exception", t);
         continue;
@@ -159,7 +159,7 @@ public class ComputationTargetResults {
       //CSOFF
       resultsLoop:
       //CSON
-      for (ValueSpecification spec : results) {
+      for (final ValueSpecification spec : results) {
         if (!spec.getProperties().getProperties().isEmpty()) {
           result.add(spec);
           continue resultsLoop;
@@ -194,7 +194,7 @@ public class ComputationTargetResults {
       return null;
     }
     s_logger.debug("Partially resolving {}", requirement);
-    for (ResolutionRule rule : getRules()) {
+    for (final ResolutionRule rule : getRules()) {
       final CompiledFunctionDefinition function = rule.getParameterizedFunction().getFunction();
       if (function.getTargetType() != target.getType()) {
         continue;
@@ -205,7 +205,7 @@ public class ComputationTargetResults {
         if (result == null) {
           continue;
         }
-      } catch (Throwable t) {
+      } catch (final Throwable t) {
         s_logger.warn("Couldn't call getResult on {} - {}", rule, t);
         s_logger.debug("Caught exception", t);
         continue;
@@ -246,14 +246,14 @@ public class ComputationTargetResults {
       if (reqs == null) {
         return null;
       }
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       s_logger.warn("Couldn't call getRequirements on {} - {}", function, t);
       s_logger.debug("Caught exception", t);
       return null;
     }
     s_logger.debug("Need partial resolution of {} to continue", reqs);
     final Map<ValueSpecification, ValueRequirement> resolved = Maps.newHashMapWithExpectedSize(reqs.size());
-    for (ValueRequirement req : reqs) {
+    for (final ValueRequirement req : reqs) {
       final ValueSpecification resolvedReq = resolvePartialRequirement(req, visited);
       if (resolvedReq == null) {
         return null;
@@ -266,12 +266,12 @@ public class ComputationTargetResults {
       if ((lateResults == null) || lateResults.isEmpty()) {
         return null;
       }
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       s_logger.warn("Couldn't call getResults on {} - {}", function, t);
       s_logger.debug("Caught exception", t);
       return null;
     }
-    for (ValueSpecification lateSpec : lateResults) {
+    for (final ValueSpecification lateSpec : lateResults) {
       if (!lateSpec.getProperties().getProperties().isEmpty()) {
         s_logger.debug("Deep resolution of {} to {}", specification, lateSpec);
         return lateSpec;

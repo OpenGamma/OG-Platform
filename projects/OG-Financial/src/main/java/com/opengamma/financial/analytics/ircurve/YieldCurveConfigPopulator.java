@@ -26,8 +26,9 @@ public class YieldCurveConfigPopulator {
   }
 
   public YieldCurveConfigPopulator(final ConfigMaster cfgMaster, final boolean syntheticOnly) {
-    populateSyntheticCurveConfigMaster(cfgMaster);
-    if (!syntheticOnly) {
+    if (syntheticOnly) {
+      populateSyntheticCurveConfigMaster(cfgMaster);
+    } else {
       populateCurveConfigMaster(cfgMaster);
     }
   }
@@ -55,20 +56,6 @@ public class YieldCurveConfigPopulator {
   }
 
   public static void populateCurveDefinitionConfigMaster(final ConfigMaster configMaster, final boolean syntheticOnly) {
-    final Map<String, Map<Currency, YieldCurveDefinition>> standardCurveDefinitions = CurveDefinitionAndSpecifications.buildOldCurveDefinitions();
-    for (final Map.Entry<String, Map<Currency, YieldCurveDefinition>> entry : standardCurveDefinitions.entrySet()) {
-      final String curveName = entry.getKey();
-      final Map<Currency, YieldCurveDefinition> definitions = entry.getValue();
-      for (final Map.Entry<Currency, YieldCurveDefinition> currencyEntry : definitions.entrySet()) {
-        final Currency ccy = currencyEntry.getKey();
-        final YieldCurveDefinition definition = currencyEntry.getValue();
-        final ConfigItem<YieldCurveDefinition> item = ConfigItem.of(definition);
-        item.setName(curveName + "_" + ccy.getCode());
-        ConfigMasterUtils.storeByName(configMaster, item);
-        dumpDefinition(definition);
-      }
-    }
-
     if (syntheticOnly) {
       final Map<String, Map<Currency, YieldCurveDefinition>> newCurveDefinitions = CurveDefinitionAndSpecifications.buildNewCurveDefinitions();
       for (final Map.Entry<String, Map<Currency, YieldCurveDefinition>> entry : newCurveDefinitions.entrySet()) {
@@ -120,6 +107,33 @@ public class YieldCurveConfigPopulator {
       item.setName("Single_" + ccy.getCode());
       ConfigMasterUtils.storeByName(configMaster, item);
       dumpDefinition(audSingle);
+    } else {
+      final Map<String, Map<Currency, YieldCurveDefinition>> newCurveDefinitions = CurveDefinitionAndSpecifications.buildNewBbgCurveDefinitions();
+      for (final Map.Entry<String, Map<Currency, YieldCurveDefinition>> entry : newCurveDefinitions.entrySet()) {
+        final String curveName = entry.getKey();
+        final Map<Currency, YieldCurveDefinition> definitions = entry.getValue();
+        for (final Map.Entry<Currency, YieldCurveDefinition> currencyEntry : definitions.entrySet()) {
+          final Currency ccy = currencyEntry.getKey();
+          final YieldCurveDefinition definition = currencyEntry.getValue();
+          final ConfigItem<YieldCurveDefinition> item = ConfigItem.of(definition);
+          item.setName(curveName + "_" + ccy.getCode());
+          ConfigMasterUtils.storeByName(configMaster, item);
+          dumpDefinition(definition);
+        }
+      }
+      final Map<String, Map<Currency, YieldCurveDefinition>> standardCurveDefinitions = CurveDefinitionAndSpecifications.buildOldCurveDefinitions();
+      for (final Map.Entry<String, Map<Currency, YieldCurveDefinition>> entry : standardCurveDefinitions.entrySet()) {
+        final String curveName = entry.getKey();
+        final Map<Currency, YieldCurveDefinition> definitions = entry.getValue();
+        for (final Map.Entry<Currency, YieldCurveDefinition> currencyEntry : definitions.entrySet()) {
+          final Currency ccy = currencyEntry.getKey();
+          final YieldCurveDefinition definition = currencyEntry.getValue();
+          final ConfigItem<YieldCurveDefinition> item = ConfigItem.of(definition);
+          item.setName(curveName + "_" + ccy.getCode());
+          ConfigMasterUtils.storeByName(configMaster, item);
+          dumpDefinition(definition);
+        }
+      }
     }
   }
 

@@ -1,9 +1,14 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.examples.historical.normalization;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +24,26 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 /**
  * Normalizer for synthetic data used in the example server.
  */
-public class SyntheticMarketDataNormalizer implements HistoricalTimeSeriesAdjuster {
+public class SyntheticHistoricalDataNormalizer implements HistoricalTimeSeriesAdjuster {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(SyntheticMarketDataNormalizer.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(SyntheticHistoricalDataNormalizer.class);
+
+  private static final Integer HUNDRED = 100;
+  private static final Integer ONE = 1;
+
+  private static final Pattern s_rates = Pattern.compile("[A-Z]{3}(CASH|SWAP|LIBOR|EURIBOR|OIS_SWAP|FRA|BB|BASIS_SWAP_.*)P[0-9]+[DMY]");
+
+  private final ConcurrentMap<String, Integer> _factors = new ConcurrentHashMap<String, Integer>();
+
+  public SyntheticHistoricalDataNormalizer() {
+    // Overnight rates (don't match the regex pattern looked for)
+    _factors.put("USDFF", HUNDRED);
+    _factors.put("EONIA", HUNDRED);
+    _factors.put("SONIO", HUNDRED);
+    _factors.put("TONAR", HUNDRED);
+    _factors.put("TOISTOIS", HUNDRED);
+    _factors.put("AUDON", HUNDRED);
+  }
 
   private int getFactor(final ExternalIdBundle securityIdBundle) {
     final String ticker = securityIdBundle.getValue(ExternalSchemes.OG_SYNTHETIC_TICKER);
@@ -29,33 +51,37 @@ public class SyntheticMarketDataNormalizer implements HistoricalTimeSeriesAdjust
       s_logger.warn("Unable to classify security - no synthetic ticker found in {}", securityIdBundle);
       return 1;
     }
-    int factor = 0;
-    if (ticker.length() > 7) {
-      final String type = ticker.substring(3, 7);
-      if ("CASH".equals(type) || "SWAP".equals(type) || "LIBO".equals(type)) {
-        factor = 100;
-      }
+    final Integer factor = _factors.get(ticker);
+    if (factor != null) {
+      return factor.intValue();
     }
-    if (factor == 0) {
-      s_logger.debug("Unable to classify security - synthetic ticker {} unrecognised", ticker);
-      return 1;
+    final Matcher matcher = s_rates.matcher(ticker);
+    if (matcher.matches()) {
+      s_logger.info("Using 100 for ticker {}", ticker);
+      _factors.putIfAbsent(ticker, HUNDRED);
+      return 100;
     }
-    return factor;
+    s_logger.info("Assuming 1 for ticker {}", ticker);
+    _factors.putIfAbsent(ticker, ONE);
+    return 1;
   }
 
   @Override
   public HistoricalTimeSeries adjust(final ExternalIdBundle securityIdBundle, final HistoricalTimeSeries timeSeries) {
-    int factor = getFactor(securityIdBundle);
+    final int factor = getFactor(securityIdBundle);
     if (factor == 1) {
       s_logger.debug("Returning raw timeseries");
       return timeSeries;
+    }
+    if (s_logger.isDebugEnabled()) {
+      s_logger.debug("Dividing timeseries by {}", factor);
     }
     return new SimpleHistoricalTimeSeries(timeSeries.getUniqueId(), (LocalDateDoubleTimeSeries) timeSeries.getTimeSeries().divide(factor));
   }
 
   @Override
   public HistoricalTimeSeriesAdjustment getAdjustment(final ExternalIdBundle securityIdBundle) {
-    int factor = getFactor(securityIdBundle);
+    final int factor = getFactor(securityIdBundle);
     if (factor == 1) {
       return HistoricalTimeSeriesAdjustment.NoOp.INSTANCE;
     }

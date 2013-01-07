@@ -71,7 +71,7 @@ public class SABRNoExtrapolationYCNSFunction extends SABRYCNSFunction {
   }
 
   @Override
-  protected ValueProperties getResultProperties(final Currency currency) {
+  protected ValueProperties.Builder createValueProperties(final Currency currency) {
     return createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
@@ -80,11 +80,11 @@ public class SABRNoExtrapolationYCNSFunction extends SABRYCNSFunction {
         .withAny(ValuePropertyNames.CUBE)
         .withAny(SmileFittingProperties.PROPERTY_FITTING_METHOD)
         .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_NO_EXTRAPOLATION).get();
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_NO_EXTRAPOLATION);
   }
 
   @Override
-  protected ValueProperties getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
@@ -98,7 +98,7 @@ public class SABRNoExtrapolationYCNSFunction extends SABRYCNSFunction {
         .with(ValuePropertyNames.CUBE, cubeName)
         .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod)
         .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_NO_EXTRAPOLATION).get();
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_NO_EXTRAPOLATION);
   }
 
   @Override

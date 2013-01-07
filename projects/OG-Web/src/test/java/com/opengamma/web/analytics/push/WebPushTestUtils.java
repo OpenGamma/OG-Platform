@@ -39,42 +39,47 @@ import com.opengamma.util.tuple.Pair;
 
 public class WebPushTestUtils {
 
-  private static final int minPort = 55000;
-  private static final int maxPort = 60000;
+  /**
+   * The port to use, or {@code 0} if none has been agreed yet.
+   */
   private int _port;
-  private String URL_BASE;
+
+  private String _urlBase;
 
   public WebPushTestUtils() {
-    this(minPort + (int)(Math.random() * ((maxPort - minPort) + 1)));
   }
 
-  public WebPushTestUtils(int port) {
+  public WebPushTestUtils(final int port) {
+    setPort(port);
+  }
+
+  private void setPort(final int port) {
     _port = port;
-    URL_BASE = "http://localhost:" + port;
+    _urlBase = "http://localhost:" + port;
   }
 
-  /* package */ URL url(String path) throws MalformedURLException {
-    return new URL(URL_BASE + path);
+  /* package */ URL url(final String path) throws MalformedURLException {
+    return new URL(_urlBase + path);
   }
 
-  /* package */ public String readFromPath(String path) throws IOException {
+  /* package */ public String readFromPath(final String path) throws IOException {
     return readFromPath(path, null);
   }
-  /* package */ public String readFromPath(String path, String clientId) throws IOException {
+  /* package */ public String readFromPath(final String path, final String clientId) throws IOException {
     return readFromPath(path, clientId, "GET");
   }
 
   /* package */
   public String handshake() throws IOException {
-    String json = readFromPath("/handshake");
+    final String json = readFromPath("/handshake");
     try {
       return new JSONObject(json).getString("clientId");
-    } catch (JSONException e) {
+    } catch (final JSONException e) {
       throw new IllegalArgumentException("Failed to create JSON from handshake response: " + json, e);
     }
   }
 
-  /* package */ String readFromPath(String path, String clientId, String requestMethod) throws IOException {
+  /* package */ String readFromPath(final String path, final String clientId, final String requestMethod) throws IOException {
     String fullPath;
     if (clientId != null) {
       fullPath = path + "?clientId=" + clientId;
@@ -85,9 +90,9 @@ public class WebPushTestUtils {
     HttpURLConnection connection = null;
     StringBuilder builder;
     try {
-      char[] chars = new char[512];
+      final char[] chars = new char[512];
       builder = new StringBuilder();
-      URL url = url(fullPath);
+      final URL url = url(fullPath);
       connection = (HttpURLConnection) url.openConnection();
       connection.setRequestMethod(requestMethod);
       reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -106,18 +111,18 @@ public class WebPushTestUtils {
     return builder.toString();
   }
 
-  public HttpURLConnection connectToPath(String path) throws IOException {
-    URL url = url(path);
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+  public HttpURLConnection connectToPath(final String path) throws IOException {
+    final URL url = url(path);
+    final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setRequestMethod("GET");
     return connection;
   }
 
-  public static String readAndClose(HttpURLConnection connection) throws IOException {
+  public static String readAndClose(final HttpURLConnection connection) throws IOException {
     BufferedReader reader = null;
     StringBuilder builder;
     try {
-      char[] chars = new char[512];
+      final char[] chars = new char[512];
       builder = new StringBuilder();
       reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
       int bytesRead;
@@ -140,29 +145,31 @@ public class WebPushTestUtils {
    * @return The server and the Spring context
    * @param springXml The location of the Spring XML config file
    */
-  public Pair<Server, WebApplicationContext> createJettyServer(String springXml) throws Exception {
-    SelectChannelConnector connector = new SelectChannelConnector();
-    connector.setPort(_port);
-    WebAppContext context = new WebAppContext();
+  public Pair<Server, WebApplicationContext> createJettyServer(final String springXml) throws Exception {
+    final WebAppContext context = new WebAppContext();
     context.setContextPath("/");
     context.setResourceBase("build/classes");
     context.setDescriptor("web-push/WEB-INF/web.xml");
-    Map<String, String> params = new HashMap<String, String>();
+    final Map<String, String> params = new HashMap<String, String>();
     params.put("contextConfigLocation", springXml);
     context.setInitParams(params);
     context.addEventListener(new ContextLoaderListener());
-    Server server = new Server();
-    server.addConnector(connector);
+    final Server server = new Server();
     server.setHandler(context);
+    final SelectChannelConnector connector = new SelectChannelConnector();
+    connector.setPort(_port);
+    server.addConnector(connector);
     server.start();
-    
-    Context servletContext = context.getServletContext();
-    WebApplicationContext springContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
-    Map<String, ConnectionManager> cmMap = springContext.getBeansOfType(ConnectionManager.class);
+    if (_port == 0) {
+      setPort(connector.getLocalPort());
+    }
+    final Context servletContext = context.getServletContext();
+    final WebApplicationContext springContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+    final Map<String, ConnectionManager> cmMap = springContext.getBeansOfType(ConnectionManager.class);
     if (cmMap.size() == 1) {
       WebPushServletContextUtils.setConnectionManager(servletContext, cmMap.values().iterator().next());
     }
-    Map<String, LongPollingConnectionManager> lpcmMap = springContext.getBeansOfType(LongPollingConnectionManager.class);
+    final Map<String, LongPollingConnectionManager> lpcmMap = springContext.getBeansOfType(LongPollingConnectionManager.class);
     if (lpcmMap.size() == 1) {
       WebPushServletContextUtils.setLongPollingConnectionManager(servletContext, lpcmMap.values().iterator().next());
     }
@@ -175,12 +182,12 @@ public class WebPushTestUtils {
    * @param json {@code {updates: [url1, url2, ...]}}
    * @param urls URLs that must be present in the JSON
    */
-  static void checkJsonResults(String json, String... urls) throws JSONException {
-    List<String> expectedList = Arrays.asList(urls);
-    JSONArray results = new JSONObject(json).getJSONArray(LongPollingUpdateListener.UPDATES);
+  static void checkJsonResults(final String json, final String... urls) throws JSONException {
+    final List<String> expectedList = Arrays.asList(urls);
+    final JSONArray results = new JSONObject(json).getJSONArray(LongPollingUpdateListener.UPDATES);
     assertEquals("Wrong number of results.  expected: " + expectedList + ", actual: " + results, expectedList.size(), results.length());
     for (int i = 0; i < results.length(); i++) {
-      String result = results.getString(i);
+      final String result = results.getString(i);
       assertTrue("Unexpected result: " + result, expectedList.contains(result));
     }
   }
@@ -188,13 +195,13 @@ public class WebPushTestUtils {
   /**
    * @return The URL of the viewport relative to the root
    */
-  public String createViewport(String clientId, String viewportDefJson) throws IOException, JSONException {
+  public String createViewport(final String clientId, final String viewportDefJson) throws IOException, JSONException {
     String viewportJson;
     BufferedReader reader = null;
     BufferedWriter writer = null;
     try {
-      URL url = new URL("http://localhost:" + _port + "/jax/viewports?clientId=" + clientId);
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+      final URL url = new URL("http://localhost:" + _port + "/jax/viewports?clientId=" + clientId);
+      final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
       connection.setDoOutput(true);
       connection.setRequestMethod("POST");
       connection.setRequestProperty("CONTENT-TYPE", MediaType.APPLICATION_JSON);

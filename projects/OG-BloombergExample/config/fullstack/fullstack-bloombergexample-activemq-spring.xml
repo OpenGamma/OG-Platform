@@ -103,6 +103,11 @@
 
     </broker>
 
+    <bean id="mainActiveMQJmsConfiguration" class="com.opengamma.transport.jms.ActiveMQJmsConfiguration">
+      <property name="brokerPort" value="${activemq.port}" />
+      <property name="timeout" value="3000" />
+    </bean>
+
     <!-- 
         Enable web consoles, REST and Ajax APIs and demos
         It also includes Camel (with its web console), see ${ACTIVEMQ_HOME}/conf/camel.xml for more info

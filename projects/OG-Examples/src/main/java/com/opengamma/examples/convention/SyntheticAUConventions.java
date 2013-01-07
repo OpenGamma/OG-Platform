@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.examples.convention;
@@ -26,7 +26,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * 
+ *
  */
 public class SyntheticAUConventions {
 
@@ -59,9 +59,9 @@ public class SyntheticAUConventions {
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP11M")), "AUDCASHP11M", act365, modified, Period.ofMonths(1), 2, false, au);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDCASHP12M")), "AUDCASHP12M", act365, modified, Period.ofMonths(12), 2, false, au);
 
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDLIBORP3M")), "AUD LIBOR 3m", act365, following, Period.ofMonths(3), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDLIBORP6M")), "AUD LIBOR 6m", act365, following, Period.ofMonths(6), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDLIBORP12M")), "AUD LIBOR 12m", act365, following, Period.ofMonths(12), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDLIBORP3M"), simpleNameSecurityId("AUD LIBOR 3m")), "AUD LIBOR 3m", act365, following, Period.ofMonths(3), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDLIBORP6M"), simpleNameSecurityId("AUD LIBOR 6m")), "AUD LIBOR 6m", act365, following, Period.ofMonths(6), 2, false, au);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDLIBORP12M"), simpleNameSecurityId("AUD LIBOR 12m")), "AUD LIBOR 12m", act365, following, Period.ofMonths(12), 2, false, au);
     utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("AUDON"), simpleNameSecurityId("RBA OVERNIGHT CASH RATE")),
         "RBA OVERNIGHT CASH RATE", act365, following, Period.ofDays(1), 0, false, au, overnightPublicationLag);
 

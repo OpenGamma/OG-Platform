@@ -57,16 +57,16 @@ public class ViewsFunction extends AbstractFunctionInvoker implements PublishedF
   public static Map<UniqueId, String> invoke(final ConfigSource configSource, final String viewName) {
     final Map<UniqueId, String> entries = newHashMap();
     if (viewName == null) {
-      Collection<ConfigItem<ViewDefinition>> entries2 = configSource.getAll(ViewDefinition.class, VersionCorrection.LATEST);
-      for (ConfigItem<ViewDefinition> viewDefinitionConfigItem : entries2) {
+      final Collection<ConfigItem<ViewDefinition>> entries2 = configSource.getAll(ViewDefinition.class, VersionCorrection.LATEST);
+      for (final ConfigItem<ViewDefinition> viewDefinitionConfigItem : entries2) {
         entries.put(viewDefinitionConfigItem.getUniqueId(), viewDefinitionConfigItem.getName());
       }
     } else {
       // TODO: the "viewName" could take wild-cards
-      final ConfigItem<ViewDefinition> viewDefinitionItem = configSource.get(ViewDefinition.class, viewName, VersionCorrection.LATEST);
-      if (viewDefinitionItem != null) {
+      final Collection<ConfigItem<ViewDefinition>> viewDefinitionItems = configSource.get(ViewDefinition.class, viewName, VersionCorrection.LATEST);
+      for (final ConfigItem<ViewDefinition> viewDefinitionItem : viewDefinitionItems) {
         entries.putAll(Collections.singletonMap(viewDefinitionItem.getUniqueId(), viewDefinitionItem.getName()));
-      } 
+      }
     }
     return entries;
   }

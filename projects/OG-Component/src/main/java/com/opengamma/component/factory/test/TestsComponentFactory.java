@@ -12,7 +12,10 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.ComponentInfo;
@@ -42,49 +45,64 @@ import com.opengamma.master.security.impl.InMemorySecurityMaster;
 @BeanDefinition
 public class TestsComponentFactory extends AbstractComponentFactory {
 
+  @PropertyDefinition
+  private boolean _enableSecurities;
+
+  @PropertyDefinition
+  private boolean _enableSnapshots;
+
+  @PropertyDefinition
+  private boolean _enableYieldCurves;
+
   //-------------------------------------------------------------------------
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    initSecurities(repo);
-    initSnapshots(repo);
-    initYieldCurves(repo);
+  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+    if (isEnableSecurities()) {
+      initSecurities(repo);
+    }
+    if (isEnableSnapshots()) {
+      initSnapshots(repo);
+    }
+    if (isEnableYieldCurves()) {
+      initYieldCurves(repo);
+    }
   }
 
-  protected void initSecurities(ComponentRepository repo) {
-    SecurityMaster master = new InMemorySecurityMaster();
-    MasterFinancialSecuritySource source = new MasterFinancialSecuritySource(master);
-    
-    ComponentInfo infoMaster = new ComponentInfo(SecurityMaster.class, "test");
+  protected void initSecurities(final ComponentRepository repo) {
+    final SecurityMaster master = new InMemorySecurityMaster();
+    final MasterFinancialSecuritySource source = new MasterFinancialSecuritySource(master);
+
+    final ComponentInfo infoMaster = new ComponentInfo(SecurityMaster.class, "test");
     repo.registerComponent(infoMaster, master);
     repo.getRestComponents().publish(infoMaster, new DataSecurityMasterResource(master));
-    
-    ComponentInfo infoSource = new ComponentInfo(SecuritySource.class, "test");
+
+    final ComponentInfo infoSource = new ComponentInfo(SecuritySource.class, "test");
     repo.registerComponent(infoSource, source);
     repo.getRestComponents().publish(infoSource, new DataSecuritySourceResource(source));
   }
 
-  protected void initSnapshots(ComponentRepository repo) {
-    MarketDataSnapshotMaster master = new InMemorySnapshotMaster();
-    MarketDataSnapshotSource source = new MasterSnapshotSource(master);
-    
-    ComponentInfo infoMaster = new ComponentInfo(MarketDataSnapshotMaster.class, "test");
+  protected void initSnapshots(final ComponentRepository repo) {
+    final MarketDataSnapshotMaster master = new InMemorySnapshotMaster();
+    final MarketDataSnapshotSource source = new MasterSnapshotSource(master);
+
+    final ComponentInfo infoMaster = new ComponentInfo(MarketDataSnapshotMaster.class, "test");
     repo.registerComponent(infoMaster, master);
     repo.getRestComponents().publish(infoMaster, new DataMarketDataSnapshotMasterResource(master));
-    
-    ComponentInfo infoSource = new ComponentInfo(MarketDataSnapshotSource.class, "test");
+
+    final ComponentInfo infoSource = new ComponentInfo(MarketDataSnapshotSource.class, "test");
     repo.registerComponent(infoSource, source);
     repo.getRestComponents().publish(infoSource, new DataMarketDataSnapshotSourceResource(source));
   }
 
-  protected void initYieldCurves(ComponentRepository repo) {
-    InMemoryInterpolatedYieldCurveDefinitionMaster masterAndSource = new InMemoryInterpolatedYieldCurveDefinitionMaster();
+  protected void initYieldCurves(final ComponentRepository repo) {
+    final InMemoryInterpolatedYieldCurveDefinitionMaster masterAndSource = new InMemoryInterpolatedYieldCurveDefinitionMaster();
     masterAndSource.setUniqueIdScheme("TestCurves");
-    
-    ComponentInfo infoMaster = new ComponentInfo(InterpolatedYieldCurveDefinitionMaster.class, "test");
+
+    final ComponentInfo infoMaster = new ComponentInfo(InterpolatedYieldCurveDefinitionMaster.class, "test");
     repo.registerComponent(infoMaster, masterAndSource);
     repo.getRestComponents().publish(infoMaster, new DataInterpolatedYieldCurveDefinitionMasterResource(masterAndSource));
-    
-    ComponentInfo infoSource = new ComponentInfo(InterpolatedYieldCurveDefinitionSource.class, "test");
+
+    final ComponentInfo infoSource = new ComponentInfo(InterpolatedYieldCurveDefinitionSource.class, "test");
     repo.registerComponent(infoSource, masterAndSource);
     repo.getRestComponents().publish(infoSource, new DataInterpolatedYieldCurveDefinitionSourceResource(masterAndSource));
   }
@@ -109,11 +127,30 @@ public class TestsComponentFactory extends AbstractComponentFactory {
 
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 1339404737:  // enableSecurities
+        return isEnableSecurities();
+      case -1983160084:  // enableSnapshots
+        return isEnableSnapshots();
+      case 1436798414:  // enableYieldCurves
+        return isEnableYieldCurves();
+    }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 1339404737:  // enableSecurities
+        setEnableSecurities((Boolean) newValue);
+        return;
+      case -1983160084:  // enableSnapshots
+        setEnableSnapshots((Boolean) newValue);
+        return;
+      case 1436798414:  // enableYieldCurves
+        setEnableYieldCurves((Boolean) newValue);
+        return;
+    }
     super.propertySet(propertyName, newValue, quiet);
   }
 
@@ -123,7 +160,11 @@ public class TestsComponentFactory extends AbstractComponentFactory {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      return super.equals(obj);
+      TestsComponentFactory other = (TestsComponentFactory) obj;
+      return JodaBeanUtils.equal(isEnableSecurities(), other.isEnableSecurities()) &&
+          JodaBeanUtils.equal(isEnableSnapshots(), other.isEnableSnapshots()) &&
+          JodaBeanUtils.equal(isEnableYieldCurves(), other.isEnableYieldCurves()) &&
+          super.equals(obj);
     }
     return false;
   }
@@ -131,7 +172,85 @@ public class TestsComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableSecurities());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableSnapshots());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isEnableYieldCurves());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the enableSecurities.
+   * @return the value of the property
+   */
+  public boolean isEnableSecurities() {
+    return _enableSecurities;
+  }
+
+  /**
+   * Sets the enableSecurities.
+   * @param enableSecurities  the new value of the property
+   */
+  public void setEnableSecurities(boolean enableSecurities) {
+    this._enableSecurities = enableSecurities;
+  }
+
+  /**
+   * Gets the the {@code enableSecurities} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> enableSecurities() {
+    return metaBean().enableSecurities().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the enableSnapshots.
+   * @return the value of the property
+   */
+  public boolean isEnableSnapshots() {
+    return _enableSnapshots;
+  }
+
+  /**
+   * Sets the enableSnapshots.
+   * @param enableSnapshots  the new value of the property
+   */
+  public void setEnableSnapshots(boolean enableSnapshots) {
+    this._enableSnapshots = enableSnapshots;
+  }
+
+  /**
+   * Gets the the {@code enableSnapshots} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> enableSnapshots() {
+    return metaBean().enableSnapshots().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the enableYieldCurves.
+   * @return the value of the property
+   */
+  public boolean isEnableYieldCurves() {
+    return _enableYieldCurves;
+  }
+
+  /**
+   * Sets the enableYieldCurves.
+   * @param enableYieldCurves  the new value of the property
+   */
+  public void setEnableYieldCurves(boolean enableYieldCurves) {
+    this._enableYieldCurves = enableYieldCurves;
+  }
+
+  /**
+   * Gets the the {@code enableYieldCurves} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> enableYieldCurves() {
+    return metaBean().enableYieldCurves().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -145,15 +264,46 @@ public class TestsComponentFactory extends AbstractComponentFactory {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code enableSecurities} property.
+     */
+    private final MetaProperty<Boolean> _enableSecurities = DirectMetaProperty.ofReadWrite(
+        this, "enableSecurities", TestsComponentFactory.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code enableSnapshots} property.
+     */
+    private final MetaProperty<Boolean> _enableSnapshots = DirectMetaProperty.ofReadWrite(
+        this, "enableSnapshots", TestsComponentFactory.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code enableYieldCurves} property.
+     */
+    private final MetaProperty<Boolean> _enableYieldCurves = DirectMetaProperty.ofReadWrite(
+        this, "enableYieldCurves", TestsComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "enableSecurities",
+        "enableSnapshots",
+        "enableYieldCurves");
 
     /**
      * Restricted constructor.
      */
     protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 1339404737:  // enableSecurities
+          return _enableSecurities;
+        case -1983160084:  // enableSnapshots
+          return _enableSnapshots;
+        case 1436798414:  // enableYieldCurves
+          return _enableYieldCurves;
+      }
+      return super.metaPropertyGet(propertyName);
     }
 
     @Override
@@ -172,6 +322,30 @@ public class TestsComponentFactory extends AbstractComponentFactory {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code enableSecurities} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> enableSecurities() {
+      return _enableSecurities;
+    }
+
+    /**
+     * The meta-property for the {@code enableSnapshots} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> enableSnapshots() {
+      return _enableSnapshots;
+    }
+
+    /**
+     * The meta-property for the {@code enableYieldCurves} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> enableYieldCurves() {
+      return _enableYieldCurves;
+    }
+
   }
 
   ///CLOVER:ON

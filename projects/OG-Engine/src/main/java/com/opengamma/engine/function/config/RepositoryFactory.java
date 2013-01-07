@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function.config;
@@ -24,25 +24,26 @@ import com.opengamma.util.ReflectionUtils;
  * provided in a Fudge-encoded stream.
  */
 public class RepositoryFactory {
+
   private static final Logger s_logger = LoggerFactory.getLogger(RepositoryFactory.class);
 
   /**
    * Constructs a repository from the configuration.
-   * 
+   *
    * @param configuration  the configuration, not null
    * @return the repository, not null
    */
-  public static InMemoryFunctionRepository constructRepository(RepositoryConfiguration configuration) {
-    InMemoryFunctionRepository repository = new InMemoryFunctionRepository();
+  public static InMemoryFunctionRepository constructRepository(final RepositoryConfiguration configuration) {
+    final InMemoryFunctionRepository repository = new InMemoryFunctionRepository();
     repository.addFunction(new NoOpFunction());
     if (configuration.getFunctions() != null) {
-      for (FunctionConfiguration functionConfig : configuration.getFunctions()) {
+      for (final FunctionConfiguration functionConfig : configuration.getFunctions()) {
         if (functionConfig instanceof ParameterizedFunctionConfiguration) {
           addParameterizedFunctionConfiguration(repository, (ParameterizedFunctionConfiguration) functionConfig);
         } else if (functionConfig instanceof StaticFunctionConfiguration) {
           addStaticFunctionConfiguration(repository, (StaticFunctionConfiguration) functionConfig);
         } else {
-          s_logger.warn("Unhandled function configuration {}, ignoring", functionConfig);
+          s_logger.error("Unhandled function configuration {}, ignoring", functionConfig);
         }
       }
     }
@@ -50,28 +51,28 @@ public class RepositoryFactory {
   }
 
   //-------------------------------------------------------------------------
-  protected static void addParameterizedFunctionConfiguration(InMemoryFunctionRepository repository, ParameterizedFunctionConfiguration functionConfig) {
+  protected static void addParameterizedFunctionConfiguration(final InMemoryFunctionRepository repository, final ParameterizedFunctionConfiguration functionConfig) {
     try {
-      Class<?> definitionClass = ReflectionUtils.loadClass(functionConfig.getDefinitionClassName());
-      AbstractFunction functionDefinition = createParameterizedFunction(definitionClass, functionConfig.getParameter());
+      final Class<?> definitionClass = ReflectionUtils.loadClass(functionConfig.getDefinitionClassName());
+      final AbstractFunction functionDefinition = createParameterizedFunction(definitionClass, functionConfig.getParameter());
       repository.addFunction(functionDefinition);
-      
-    } catch (RuntimeException ex) {
-      throw new OpenGammaRuntimeException("Unable to add parameterized function: " + functionConfig, ex);
+    } catch (final RuntimeException ex) {
+      s_logger.error("Unable to add function definition {}, ignoring", functionConfig);
+      s_logger.info("Caught exception", ex);
     }
   }
 
-  protected static AbstractFunction createParameterizedFunction(Class<?> definitionClass, List<String> parameterList) {
+  protected static AbstractFunction createParameterizedFunction(final Class<?> definitionClass, final List<String> parameterList) {
     try {
     constructors:
-      for (Constructor<?> constructor : definitionClass.getConstructors()) {
+      for (final Constructor<?> constructor : definitionClass.getConstructors()) {
         final Class<?>[] parameters = constructor.getParameterTypes();
         final Object[] args = new Object[parameters.length];
         int used = 0;
         for (int i = 0; i < parameters.length; i++) {
           if (parameters[i] == String.class) {
             if (i < parameterList.size()) {
-              args[i] = (String) parameterList.get(i);
+              args[i] = parameterList.get(i);
               used++;
             } else {
               continue constructors;
@@ -99,35 +100,32 @@ public class RepositoryFactory {
         return (AbstractFunction) constructor.newInstance(args);
       }
       throw new NoSuchMethodException("No suitable constructor found: " + definitionClass + ": " + parameterList);
-      
-    } catch (RuntimeException ex) {
+
+    } catch (final RuntimeException ex) {
       throw ex;
-    } catch (Exception ex) {
-      s_logger.error("Exception creating parameterized function", ex);
+    } catch (final Exception ex) {
       throw new OpenGammaRuntimeException("Unable to create static function: " + definitionClass + ": " + parameterList, ex);
     }
   }
 
   //-------------------------------------------------------------------------
-  protected static void addStaticFunctionConfiguration(InMemoryFunctionRepository repository, StaticFunctionConfiguration functionConfig) {
+  protected static void addStaticFunctionConfiguration(final InMemoryFunctionRepository repository, final StaticFunctionConfiguration functionConfig) {
     try {
-      Class<?> definitionClass = ReflectionUtils.loadClass(functionConfig.getDefinitionClassName());
-      AbstractFunction functionDefinition = createStaticFunction(definitionClass);
+      final Class<?> definitionClass = ReflectionUtils.loadClass(functionConfig.getDefinitionClassName());
+      final AbstractFunction functionDefinition = createStaticFunction(definitionClass);
       repository.addFunction(functionDefinition);
-      
-    } catch (RuntimeException ex) {
-      throw new OpenGammaRuntimeException("Unable to add static function: " + functionConfig, ex);
+    } catch (final RuntimeException ex) {
+      s_logger.error("Unable to add function definition {}, ignoring", functionConfig);
+      s_logger.info("Caught exception", ex);
     }
   }
 
-  protected static AbstractFunction createStaticFunction(Class<?> definitionClass) {
+  protected static AbstractFunction createStaticFunction(final Class<?> definitionClass) {
     try {
       return (AbstractFunction) definitionClass.newInstance();
-      
-    } catch (RuntimeException ex) {
+    } catch (final RuntimeException ex) {
       throw ex;
-    } catch (Exception ex) {
-      s_logger.error("Exception creating static function", ex);
+    } catch (final Exception ex) {
       throw new OpenGammaRuntimeException("Unable to create static function: " + definitionClass, ex);
     }
   }

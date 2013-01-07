@@ -81,7 +81,7 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Utility class for constructing parameters to random (but reasonable) securities.
- * 
+ *
  * @param <T> the security type, or a common super type if multiple types are being produced
  */
 public abstract class SecurityGenerator<T extends ManageableSecurity> {
@@ -123,8 +123,6 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private Function2<Currency, Currency, ExternalId> _spotRateIdentifier;
 
   private Currency[] _currencies;
-
-
 
   public Random getRandom() {
     return _random;
@@ -178,7 +176,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return _configMaster;
   }
 
-  public void setConfigMaster(ConfigMaster configMaster) {
+  public void setConfigMaster(final ConfigMaster configMaster) {
     _configMaster = configMaster;
   }
 
@@ -197,11 +195,11 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   public void setHistoricalSource(final HistoricalTimeSeriesSource historicalSource) {
     _historicalSource = historicalSource;
   }
-  
+
   public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
     return _htsMaster;
   }
-  
+
   public void setHistoricalTimeSeriesMaster(final HistoricalTimeSeriesMaster htsMaster) {
     _htsMaster = htsMaster;
   }
@@ -229,7 +227,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   public void setSecurityMaster(final SecurityMaster securityMaster) {
     _securityMaster = securityMaster;
   }
-  
+
   public String getCurrencyCurveName() {
     return _currencyCurveName;
   }
@@ -239,7 +237,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   }
 
   protected CurveSpecificationBuilderConfiguration getCurrencyCurveConfig(final Currency currency) {
-    CurveSpecificationBuilderConfiguration config = getConfigSource().getConfig(CurveSpecificationBuilderConfiguration.class, getCurrencyCurveName() + "_" + currency.getCode(), null);
+    final CurveSpecificationBuilderConfiguration config = getConfigSource().getSingle(CurveSpecificationBuilderConfiguration.class, getCurrencyCurveName() + "_" + currency.getCode(), null);
     return config;
   }
 
@@ -260,6 +258,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     OpenGammaExecutionContext.setConventionBundleSource(context, getConventionSource());
     OpenGammaExecutionContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, getHistoricalSource());
+    OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
     return context;
   }
 
@@ -272,8 +271,9 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     OpenGammaCompilationContext.setRegionSource(context, getRegionSource());
     OpenGammaCompilationContext.setConventionBundleSource(context, getConventionSource());
     OpenGammaCompilationContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
-    OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(getConfigSource()), 
+    OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(getConfigSource()),
         getHistoricalTimeSeriesMaster()));
+    OpenGammaCompilationContext.setConfigSource(context, getConfigSource());
     return context;
   }
 
@@ -282,17 +282,17 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     function.init(compContext);
     return function.compile(compContext, execContext.getValuationTime());
   }
-  
+
   private ComputedValue execute(final FunctionExecutionContext context, final CompiledFunctionDefinition function, final ComputationTarget target, final ValueRequirement output,
       final ComputedValue... inputs) {
     final FunctionInputsImpl functionInputs = new FunctionInputsImpl();
-    for (ComputedValue input : inputs) {
+    for (final ComputedValue input : inputs) {
       functionInputs.addValue(input);
     }
     Set<ComputedValue> result;
     try {
       result = function.getFunctionInvoker().execute(context, functionInputs, target, Collections.singleton(output));
-    } catch (AsynchronousExecution ex) {
+    } catch (final AsynchronousExecution ex) {
       result = AsynchronousOperation.getResult(ex);
     }
     return result.iterator().next();
@@ -310,7 +310,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     s_logger.debug("Resolving {}", requirements);
     final ComputedValue[] values = new ComputedValue[requirements.size()];
     int i = 0;
-    for (ValueRequirement requirement : requirements) {
+    for (final ValueRequirement requirement : requirements) {
       final ComputedValue value = findMarketData(requirement);
       if (value == null) {
         s_logger.debug("Couldn't resolve {}", requirement);
@@ -390,10 +390,10 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
         new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), ValueProperties.with(ValuePropertyNames.CURVE, getCurrencyCurveName()).get()),
         payCurve,
         receiveCurve,
-        new ComputedValue(ValueSpecification.of(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE,
+        new ComputedValue(ValueSpecification.of(ValueRequirementNames.SPOT_RATE, ComputationTargetType.PRIMITIVE,
             UniqueId.of(spotRateIdentifier.getScheme().getName(), spotRateIdentifier.getValue()),
             ValueProperties.with(ValuePropertyNames.FUNCTION, "SPOT").get()), spotRate.getSecond())).getValue();
-    double rate = fxForwardCurve.getForward((double) Period.between(spotRate.getFirst(), date).getDays() / YEAR_LENGTH);
+    double rate = fxForwardCurve.getForward(Period.between(spotRate.getFirst(), date).getDays() / YEAR_LENGTH);
     if (!FXUtils.isInBaseQuoteOrder(currencies.getFirst(), currencies.getSecond())) {
       rate = 1 / rate;
     }
@@ -412,8 +412,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   public static Currency[] getDefaultCurrencies() {
     return new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF };
   }
-  
-  public void setCurrencies(Currency[] currencies) {
+
+  public void setCurrencies(final Currency[] currencies) {
     _currencies = currencies;
   }
 
@@ -440,7 +440,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   /**
    * Returns the date unchanged if this is a working day, otherwise advances the date.
-   * 
+   *
    * @param zdt the date to consider
    * @param currency the currency identifying the holiday zone
    * @return the original or adjusted date
@@ -456,7 +456,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   protected ZonedDateTime nextWorkingDay(ZonedDateTime zdt, final Currency... currencies) {
     ArgumentChecker.isTrue(currencies.length > 0, "currencies");
     do {
-      for (Currency currency : currencies) {
+      for (final Currency currency : currencies) {
         if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
           zdt = zdt.plusDays(1);
           continue;
@@ -468,7 +468,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   /**
    * Returns the date unchanged if this is a working day, otherwise retreats the date.
-   * 
+   *
    * @param zdt the date to consider
    * @param currency the currency identifying the holiday zone
    * @return the original or adjusted date
@@ -484,7 +484,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   protected ZonedDateTime previousWorkingDay(ZonedDateTime zdt, final Currency... currencies) {
     ArgumentChecker.isTrue(currencies.length > 0, "currencies");
     do {
-      for (Currency currency : currencies) {
+      for (final Currency currency : currencies) {
         if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
           zdt = zdt.minusDays(1);
           continue;
@@ -496,14 +496,14 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   /**
    * Creates a new random, but reasonable, security.
-   * 
+   *
    * @return the new security, or null if no security can be generated
    */
   public abstract T createSecurity();
 
   /**
    * Creates a new random, but reasonable, trade.
-   * 
+   *
    * @param quantityGenerator the supplied quantity generator
    * @param securityPersister the supplied security persister
    * @param counterPartyGenerator the supplied counter party generator
@@ -511,10 +511,10 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
    */
   public ManageableTrade createSecurityTrade(final QuantityGenerator quantityGenerator, final SecurityPersister securityPersister, final NameGenerator counterPartyGenerator) {
     ManageableTrade trade = null;
-    T security = createSecurity();
+    final T security = createSecurity();
     if (security != null) {
-      ZonedDateTime tradeDate = previousWorkingDay(ZonedDateTime.now().minusDays(getRandom(30)), getRandomCurrency());
-      trade = new ManageableTrade(quantityGenerator.createQuantity(), securityPersister.storeSecurity(security), tradeDate.toLocalDate(), tradeDate.toOffsetTime(), 
+      final ZonedDateTime tradeDate = previousWorkingDay(ZonedDateTime.now().minusDays(getRandom(30)), getRandomCurrency());
+      trade = new ManageableTrade(quantityGenerator.createQuantity(), securityPersister.storeSecurity(security), tradeDate.toLocalDate(), tradeDate.toOffsetTime(),
           ExternalId.of(Counterparty.DEFAULT_SCHEME, counterPartyGenerator.createName()));
     }
     return trade;
