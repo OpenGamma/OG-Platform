@@ -21,6 +21,7 @@ import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
 import com.opengamma.financial.analytics.model.forex.ForexFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
+import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
 import com.opengamma.financial.analytics.model.horizon.HorizonFunctions;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.option.OptionFunctions;
@@ -78,6 +79,10 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
     return FutureFunctions.DEFAULT;
   }
 
+  protected RepositoryConfigurationSource futureOptionFunctionConfiguration() {
+    return FutureOptionFunctions.DEFAULT;
+  }
+
   protected RepositoryConfigurationSource horizonFunctionConfiguration() {
     return HorizonFunctions.DEFAULT;
   }
@@ -129,9 +134,9 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
   protected RepositoryConfigurationSource createObject() {
     return new CombiningRepositoryConfigurationSource(super.createObject(), bondFunctionConfiguration(), bondFutureOptionFunctionConfiguration(), cdsFunctionConfiguration(),
         curveFunctionConfiguration(), equityFunctionConfiguration(), fixedIncomeFunctionConfiguration(), forexFunctionConfiguration(), futureFunctionConfiguration(),
-        horizonFunctionConfiguration(), irFutureOptionFunctionConfiguration(), optionFunctionConfiguration(), pnlFunctionConfiguration(), riskFactorFunctionConfiguration(),
-        sabrCubeFunctionConfiguration(), sensitivitiesFunctionConfiguration(), simpleInstrumentFunctionConfiguration(), swaptionFunctionConfiguration(), varFunctionConfiguration(),
-        volatilityFunctionConfiguration());
+        futureOptionFunctionConfiguration(), horizonFunctionConfiguration(), irFutureOptionFunctionConfiguration(), optionFunctionConfiguration(), pnlFunctionConfiguration(),
+        riskFactorFunctionConfiguration(), sabrCubeFunctionConfiguration(), sensitivitiesFunctionConfiguration(), simpleInstrumentFunctionConfiguration(), swaptionFunctionConfiguration(),
+        varFunctionConfiguration(), volatilityFunctionConfiguration());
   }
 
 }

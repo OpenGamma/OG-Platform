@@ -14,6 +14,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
+import com.opengamma.financial.analytics.model.volatility.local.LocalFunctions;
 import com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions;
 
 /**
@@ -37,8 +38,7 @@ public class VolatilityFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource localFunctionConfiguration() {
-    // TODO
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+    return LocalFunctions.DEFAULT;
   }
 
   protected RepositoryConfigurationSource surfaceFunctionConfiguration() {

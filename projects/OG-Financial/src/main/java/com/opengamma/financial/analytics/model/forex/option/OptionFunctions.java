@@ -15,6 +15,7 @@ import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions;
+import com.opengamma.financial.analytics.model.forex.option.localvol.LocalVolFunctions;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -42,8 +43,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource localVolFunctionConfiguration() {
-    // TODO
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+    return LocalVolFunctions.DEFAULT;
   }
 
   protected RepositoryConfigurationSource vannaVolgaFunctionConfiguration() {

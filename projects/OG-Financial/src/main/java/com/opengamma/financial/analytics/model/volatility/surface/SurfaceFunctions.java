@@ -8,8 +8,10 @@ package com.opengamma.financial.analytics.model.volatility.surface;
 import java.util.List;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackFunctions;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
@@ -26,6 +28,15 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(BlackScholesMertonImpliedVolatilitySurfaceFunction.class));
     functions.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class));
     functions.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction.class));
+  }
+
+  protected RepositoryConfigurationSource blackFunctionConfiguration() {
+    return BlackFunctions.DEFAULT;
+  }
+
+  @Override
+  protected RepositoryConfigurationSource createObject() {
+    return new CombiningRepositoryConfigurationSource(super.createObject(), blackFunctionConfiguration());
   }
 
 }
