@@ -5,15 +5,13 @@
  */
 package com.opengamma.financial.analytics.model.volatility;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
+import com.opengamma.financial.analytics.model.volatility.cube.CubeFunctions;
 import com.opengamma.financial.analytics.model.volatility.local.LocalFunctions;
 import com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions;
 
@@ -33,8 +31,7 @@ public class VolatilityFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource cubeFunctionConfiguration() {
-    // TODO
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+    return CubeFunctions.DEFAULT;
   }
 
   protected RepositoryConfigurationSource localFunctionConfiguration() {
