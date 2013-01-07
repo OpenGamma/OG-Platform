@@ -33,7 +33,7 @@ public class ExampleRepositoryConfigurationSourceComponentFactory extends Reposi
   protected List<RepositoryConfigurationSource> initSources() {
     final List<RepositoryConfigurationSource> sources = new ArrayList<RepositoryConfigurationSource>();
 
-    final RepositoryConfigurationSource standardFunctionSource = ExampleStandardFunctionConfiguration.constructRepositoryConfigurationSource();
+    final RepositoryConfigurationSource standardFunctionSource = new ExampleStandardFunctionConfiguration().getObjectCreating();
     sources.add(standardFunctionSource);
 
     final ExampleCurveFunctionConfiguration curveFunctionConfig = new ExampleCurveFunctionConfiguration();

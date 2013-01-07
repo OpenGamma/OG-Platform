@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.examples.function;
 
-import static com.opengamma.web.spring.DemoStandardFunctionConfiguration.functionConfiguration;
-
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
+import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
@@ -41,10 +41,21 @@ import com.opengamma.util.SingletonFactoryBean;
 
 /**
  * Creates function repository configuration for curve supplying functions.
- * 
+ *
  * Note [PLAT-1094] - the functions should really be built by scanning the curves and currencies available.
  */
 public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<RepositoryConfigurationSource> {
+
+  // TODO: Either change to use AbstractRepositoryConfigurationSource, or merge with existing configuration providers
+  protected static <F extends FunctionDefinition> FunctionConfiguration functionConfiguration(final Class<F> clazz, final String... args) {
+    if (Modifier.isAbstract(clazz.getModifiers())) {
+      throw new IllegalStateException("Attempting to register an abstract class - " + clazz);
+    }
+    if (args.length == 0) {
+      return new StaticFunctionConfiguration(clazz.getName());
+    }
+    return new ParameterizedFunctionConfiguration(clazz.getName(), Arrays.asList(args));
+  }
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleCurveFunctionConfiguration.class);

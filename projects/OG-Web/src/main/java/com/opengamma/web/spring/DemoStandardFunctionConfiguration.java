@@ -11,18 +11,9 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.L
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
 
-import java.io.OutputStreamWriter;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFormatter;
-import org.fudgemsg.wire.FudgeMsgWriter;
-import org.fudgemsg.wire.xml.FudgeXMLSettings;
-import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
@@ -30,13 +21,11 @@ import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalc
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
+import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
-import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.financial.FinancialFunctions;
 import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.model.bond.BondDefaultCurveNamesFunction;
@@ -117,8 +106,6 @@ import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
-import com.opengamma.util.SingletonFactoryBean;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues;
 import com.opengamma.web.spring.defaults.GeneralBlackVolatilityInterpolationDefaults;
 import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
@@ -129,21 +116,7 @@ import com.opengamma.web.spring.defaults.TargetSpecificBlackVolatilitySurfaceDef
  * <p>
  * This should be replaced by something that loads the functions from the configuration database
  */
-public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<RepositoryConfigurationSource> {
-
-  // TODO: Change to inherit from AbstractRepositoryConfigurationBean
-
-  private static final boolean OUTPUT_REPO_CONFIGURATION = false;
-
-  public static <F extends FunctionDefinition> FunctionConfiguration functionConfiguration(final Class<F> clazz, final String... args) {
-    if (Modifier.isAbstract(clazz.getModifiers())) {
-      throw new IllegalStateException("Attempting to register an abstract class - " + clazz);
-    }
-    if (args.length == 0) {
-      return new StaticFunctionConfiguration(clazz.getName());
-    }
-    return new ParameterizedFunctionConfiguration(clazz.getName(), Arrays.asList(args));
-  }
+public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigurationBean {
 
   private static void addBlackDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(SwaptionBlackDefaultPropertiesFunction.class, PriorityClass.NORMAL.name(), "EUR", "DefaultTwoCurveEURConfig", "DEFAULT"));
@@ -526,73 +499,56 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         PriorityClass.NORMAL.name()));
   }
 
-  public static RepositoryConfiguration constructRepositoryConfiguration() {
-    final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
-
-    addBlackDefaults(functionConfigs);
-    addBlackVolatilitySurfaceDefaults(functionConfigs);
-    addBondDefaults(functionConfigs);
-    addBondFutureOptionDefaults(functionConfigs);
-    addCDSDefaults(functionConfigs);
-    addCommodityBlackVolatilitySurfaceDefaults(functionConfigs);
-    addCommodityFutureOptionDefaults(functionConfigs);
-    addCurrencyConversionFunctions(functionConfigs);
-    addEquityBarrierOptionDefaults(functionConfigs);
-    addEquityDividendYieldFuturesDefaults(functionConfigs);
-    addEquityForwardDefaults(functionConfigs);
-    addEquityIndexOptionBlackVolatilitySurfaceDefaults(functionConfigs);
-    addEquityOptionDefaults(functionConfigs);
-    addEquityPureVolatilitySurfaceDefaults(functionConfigs);
-    addEquityVarianceSwapDefaults(functionConfigs);
-    addExternallyProvidedSensitivitiesDefaults(functionConfigs);
-    addFixedIncomeInstrumentDefaults(functionConfigs);
-    addForexForwardDefaults(functionConfigs);
-    addForexOptionDefaults(functionConfigs);
-    addFXBarrierOptionDefaults(functionConfigs);
-    addFXOptionBlackVolatilitySurfaceDefaults(functionConfigs);
-    addInterestRateFutureDefaults(functionConfigs);
-    addInterestRateFutureOptionDefaults(functionConfigs);
-    addLocalVolatilityPDEDefaults(functionConfigs);
-    addLocalVolatilitySurfaceDefaults(functionConfigs);
-    functionConfigs.addAll(PNLFunctions.calculators(DEFAULT_CONFIG_NAME, "PX_LAST", "COST_OF_CARRY", MarketDataRequirementNames.MARKET_VALUE).getRepositoryConfiguration().getFunctions());
-    addPnLDefaults(functionConfigs);
-    functionConfigs.addAll(PortfolioTheoryFunctions.calculators(DEFAULT_CONFIG_NAME).getRepositoryConfiguration().getFunctions());
-    addPortfolioAnalysisDefaults(functionConfigs);
-    addSABRDefaults(functionConfigs);
-    addVaRDefaults(functionConfigs);
-    functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
-    functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
-
-    functionConfigs.addAll(FinancialFunctions.DEFAULT.getRepositoryConfiguration().getFunctions());
-
-    final RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
-
-    if (OUTPUT_REPO_CONFIGURATION) {
-      final FudgeMsg msg = OpenGammaFudgeContext.getInstance().toFudgeMsg(repoConfig).getMessage();
-      FudgeMsgFormatter.outputToSystemOut(msg);
-      try {
-        final FudgeXMLSettings xmlSettings = new FudgeXMLSettings();
-        xmlSettings.setEnvelopeElementName(null);
-        final FudgeMsgWriter msgWriter = new FudgeMsgWriter(new FudgeXMLStreamWriter(FudgeContext.GLOBAL_DEFAULT, new OutputStreamWriter(System.out), xmlSettings));
-        msgWriter.setDefaultMessageProcessingDirectives(0);
-        msgWriter.setDefaultMessageVersion(0);
-        msgWriter.setDefaultTaxonomyId(0);
-        msgWriter.writeMessage(msg);
-        msgWriter.flush();
-      } catch (final Exception e) {
-        // Just swallow it.
-      }
-    }
-    return repoConfig;
+  @Override
+  protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    addBlackDefaults(functions);
+    addBlackVolatilitySurfaceDefaults(functions);
+    addBondDefaults(functions);
+    addBondFutureOptionDefaults(functions);
+    addCDSDefaults(functions);
+    addCommodityBlackVolatilitySurfaceDefaults(functions);
+    addCommodityFutureOptionDefaults(functions);
+    addCurrencyConversionFunctions(functions);
+    addEquityBarrierOptionDefaults(functions);
+    addEquityDividendYieldFuturesDefaults(functions);
+    addEquityForwardDefaults(functions);
+    addEquityIndexOptionBlackVolatilitySurfaceDefaults(functions);
+    addEquityOptionDefaults(functions);
+    addEquityPureVolatilitySurfaceDefaults(functions);
+    addEquityVarianceSwapDefaults(functions);
+    addExternallyProvidedSensitivitiesDefaults(functions);
+    addFixedIncomeInstrumentDefaults(functions);
+    addForexForwardDefaults(functions);
+    addForexOptionDefaults(functions);
+    addFXBarrierOptionDefaults(functions);
+    addFXOptionBlackVolatilitySurfaceDefaults(functions);
+    addInterestRateFutureDefaults(functions);
+    addInterestRateFutureOptionDefaults(functions);
+    addLocalVolatilityPDEDefaults(functions);
+    addLocalVolatilitySurfaceDefaults(functions);
+    addPnLDefaults(functions);
+    addPortfolioAnalysisDefaults(functions);
+    addSABRDefaults(functions);
+    addVaRDefaults(functions);
+    functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
+    functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
   }
 
-  public static RepositoryConfigurationSource constructRepositoryConfigurationSource() {
-    return new SimpleRepositoryConfigurationSource(constructRepositoryConfiguration());
+  protected RepositoryConfigurationSource financialFunctions() {
+    return FinancialFunctions.DEFAULT;
+  }
+
+  protected RepositoryConfigurationSource pnlFunctions() {
+    return PNLFunctions.calculators(DEFAULT_CONFIG_NAME, "PX_LAST", "COST_OF_CARRY", MarketDataRequirementNames.MARKET_VALUE);
+  }
+
+  protected RepositoryConfigurationSource portfolioTheoryFunctions() {
+    return PortfolioTheoryFunctions.calculators(DEFAULT_CONFIG_NAME);
   }
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return constructRepositoryConfigurationSource();
+    return new CombiningRepositoryConfigurationSource(super.createObject(), financialFunctions(), pnlFunctions(), portfolioTheoryFunctions());
   }
 
 }

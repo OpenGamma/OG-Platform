@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.web.spring;
 
-import static com.opengamma.web.spring.DemoStandardFunctionConfiguration.functionConfiguration;
-
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
@@ -60,10 +60,21 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Creates function repository configuration for curve supplying functions.
- * 
+ *
  * Note [PLAT-1094] - the functions should really be built by scanning the curves and currencies available.
  */
 public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<RepositoryConfigurationSource> {
+
+  // TODO: Either change to use AbstractRepositoryConfigurationSource, or merge with existing configuration providers
+  protected static <F extends FunctionDefinition> FunctionConfiguration functionConfiguration(final Class<F> clazz, final String... args) {
+    if (Modifier.isAbstract(clazz.getModifiers())) {
+      throw new IllegalStateException("Attempting to register an abstract class - " + clazz);
+    }
+    if (args.length == 0) {
+      return new StaticFunctionConfiguration(clazz.getName());
+    }
+    return new ParameterizedFunctionConfiguration(clazz.getName(), Arrays.asList(args));
+  }
 
   private static final Logger s_logger = LoggerFactory.getLogger(DemoCurveFunctionConfiguration.class);
 
@@ -160,14 +171,14 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
         Arrays.asList(
             "USD", "DefaultTwoCurveUSDConfig", "Discounting",
             "EUR", "DefaultTwoCurveEURConfig", "Discounting",
-            "CHF", "DefaultTwoCurveCHFConfig", "Discounting")));    
+            "CHF", "DefaultTwoCurveCHFConfig", "Discounting")));
     configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurvesSecurityDefaults.class.getName(),
         Arrays.asList(
             "USD", "DefaultTwoCurveUSDConfig", "Discounting",
             "EUR", "DefaultTwoCurveEURConfig", "Discounting",
             "CHF", "DefaultTwoCurveCHFConfig", "Discounting")));
   }
-  
+
   private void addForwardCurveFunction(final List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(ForwardSwapCurveMarketDataFunction.class.getName()));
     configs.add(new StaticFunctionConfiguration(ForwardSwapCurveFromMarketQuotesFunction.class.getName()));

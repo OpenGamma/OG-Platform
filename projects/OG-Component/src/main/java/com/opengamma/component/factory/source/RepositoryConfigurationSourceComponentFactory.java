@@ -63,14 +63,14 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
 
   //-------------------------------------------------------------------------
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    RepositoryConfigurationSource source = initSource();
-    
-    ComponentInfo info = new ComponentInfo(RepositoryConfigurationSource.class, getClassifier());
+  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+    final RepositoryConfigurationSource source = initSource();
+
+    final ComponentInfo info = new ComponentInfo(RepositoryConfigurationSource.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteRepositoryConfigurationSource.class);
     repo.registerComponent(info, source);
-    
+
     if (isPublishRest()) {
       repo.getRestComponents().publish(info, new DataRepositoryConfigurationSourceResource(source));
     }
@@ -80,35 +80,35 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
    * Initializes the source.
    * <p>
    * Calls {@link #initSources()} and combines the result using {@link CombiningRepositoryConfigurationSource}.
-   * 
+   *
    * @return the list of base sources to be combined, not null
    */
   protected RepositoryConfigurationSource initSource() {
-    List<RepositoryConfigurationSource> underlying = initSources();
-    RepositoryConfigurationSource[] array = (RepositoryConfigurationSource[]) underlying.toArray(new RepositoryConfigurationSource[underlying.size()]);
+    final List<RepositoryConfigurationSource> underlying = initSources();
+    final RepositoryConfigurationSource[] array = underlying.toArray(new RepositoryConfigurationSource[underlying.size()]);
     return new CombiningRepositoryConfigurationSource(array);
   }
 
   /**
    * Initializes the list of sources to be combined.
-   * 
+   *
    * @return the list of base sources to be combined, not null
    */
   protected List<RepositoryConfigurationSource> initSources() {
-    List<RepositoryConfigurationSource> sources = new ArrayList<RepositoryConfigurationSource>();
-    
-    RepositoryConfigurationSource source1 = DemoStandardFunctionConfiguration.constructRepositoryConfigurationSource();
+    final List<RepositoryConfigurationSource> sources = new ArrayList<RepositoryConfigurationSource>();
+
+    final RepositoryConfigurationSource source1 = new DemoStandardFunctionConfiguration().getObjectCreating();
     sources.add(source1);
-    
-    DemoCurveFunctionConfiguration source2Factory = new DemoCurveFunctionConfiguration();
+
+    final DemoCurveFunctionConfiguration source2Factory = new DemoCurveFunctionConfiguration();
     source2Factory.setConfigMaster(getConfigMaster());
     source2Factory.setConventionBundleSource(getConventionBundleSource());
-    RepositoryConfigurationSource source2 = source2Factory.constructRepositoryConfigurationSource();
+    final RepositoryConfigurationSource source2 = source2Factory.constructRepositoryConfigurationSource();
     sources.add(source2);
-    
-    DemoSurfaceFunctionConfiguration source3Factory = new DemoSurfaceFunctionConfiguration();
+
+    final DemoSurfaceFunctionConfiguration source3Factory = new DemoSurfaceFunctionConfiguration();
     source3Factory.setConfigMaster(getConfigMaster());
-    RepositoryConfigurationSource source3 = source3Factory.constructRepositoryConfigurationSource();
+    final RepositoryConfigurationSource source3 = source3Factory.constructRepositoryConfigurationSource();
     sources.add(source3);
     return sources;
   }
@@ -132,7 +132,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
@@ -147,7 +147,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
@@ -174,12 +174,12 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      RepositoryConfigurationSourceComponentFactory other = (RepositoryConfigurationSourceComponentFactory) obj;
+      final RepositoryConfigurationSourceComponentFactory other = (RepositoryConfigurationSourceComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
@@ -212,7 +212,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
    * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(String classifier) {
+  public void setClassifier(final String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -238,7 +238,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
    * Sets the flag determining whether the component should be published by REST (default true).
    * @param publishRest  the new value of the property
    */
-  public void setPublishRest(boolean publishRest) {
+  public void setPublishRest(final boolean publishRest) {
     this._publishRest = publishRest;
   }
 
@@ -263,7 +263,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
    * Sets the config master.
    * @param configMaster  the new value of the property, not null
    */
-  public void setConfigMaster(ConfigMaster configMaster) {
+  public void setConfigMaster(final ConfigMaster configMaster) {
     JodaBeanUtils.notNull(configMaster, "configMaster");
     this._configMaster = configMaster;
   }
@@ -289,7 +289,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
    * Sets the convention bundle source.
    * @param conventionBundleSource  the new value of the property, not null
    */
-  public void setConventionBundleSource(ConventionBundleSource conventionBundleSource) {
+  public void setConventionBundleSource(final ConventionBundleSource conventionBundleSource) {
     JodaBeanUtils.notNull(conventionBundleSource, "conventionBundleSource");
     this._conventionBundleSource = conventionBundleSource;
   }
@@ -349,7 +349,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
