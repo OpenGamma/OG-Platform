@@ -5,16 +5,14 @@
  */
 package com.opengamma.financial.analytics;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.cashflow.CashFlowFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
 import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
@@ -236,8 +234,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource cashFlowFunctionConfiguration() {
-    // TODO:
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+    return CashFlowFunctions.DEFAULT;
   }
 
   protected RepositoryConfigurationSource irCurveFunctionConfiguration() {

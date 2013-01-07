@@ -95,13 +95,7 @@ import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRi
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationVegaDefaults;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationVegaDefaultsDeprecated;
-import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSecurityMarkFunction;
-import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesCreditFactorsFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesNonYieldCurveFunction;
-import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveCS01Function;
-import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurvePV01Function;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.var.NormalHistoricalVaRDefaultPropertiesFunction;
@@ -166,6 +160,20 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
         "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", USD));
     functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaDefaultsDeprecated.class, SECONDARY, SECONDARY, SECONDARY, "NonLinearLeastSquares", PAR_RATE_STRING,
         "0.07", "10.0", "Linear", "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator", USD));
+  }
+
+  private static void addExternallyProvidedSensitivitiesDefaults(final List<FunctionConfiguration> functionConfigs) {
+    final String defaultSamplingPeriodName = "P2Y";
+    final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
+    final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
+    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
+    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
+    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesDefaultPropertiesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
+        "USD", "DefaultTwoCurveUSDConfig",
+        "GBP", "DefaultTwoCurveGBPConfig",
+        "EUR", "DefaultTwoCurveEURConfig",
+        "JPY", "DefaultTwoCurveJPYConfig",
+        "CHF", "DefaultTwoCurveCHFConfig"));
   }
 
   private static void addFixedIncomeInstrumentDefaults(final List<FunctionConfiguration> functionConfigs) {
@@ -252,77 +260,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.addAll(PNLFunctions.deprecated().getRepositoryConfiguration().getFunctions());
   }
 
-  private static void addSABRDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, USD, SECONDARY));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, PriorityClass.ABOVE_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
-        USD, "DefaultTwoCurveUSDConfig", SECONDARY));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, PriorityClass.ABOVE_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
-        "0.07", "10.0",
-        USD, "DefaultTwoCurveUSDConfig", SECONDARY));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, PriorityClass.ABOVE_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
-        LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR,
-        USD, "DefaultTwoCurveUSDConfig", SECONDARY));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaDefaults.class, PriorityClass.ABOVE_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
-        "0.07", "10.0", LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR,
-        USD, "DefaultTwoCurveUSDConfig", SECONDARY));
-  }
-
-  private static void addVaRCalculators(final List<FunctionConfiguration> functionConfigs) {
-    final String defaultSamplingPeriodName = "P2Y";
-    final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
-    final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
-    final String defaultMeanCalculatorName = StatisticsCalculatorFactory.MEAN;
-    final String defaultStdDevCalculatorName = StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION;
-    final String defaultConfidenceLevelName = "0.99";
-    final String defaultHorizonName = "1";
-    functionConfigs.add(functionConfiguration(NormalHistoricalVaRDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName,
-        defaultMeanCalculatorName, defaultStdDevCalculatorName, defaultConfidenceLevelName, defaultHorizonName, PriorityClass.ABOVE_NORMAL.name()));
-  }
-
-  public static RepositoryConfiguration constructRepositoryConfiguration() {
-    final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
-
-    addBondCalculators(functionConfigs);
-    addCurrencyConversionFunctions(functionConfigs);
-    addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);
-    addDeprecatedSABRCalculators(functionConfigs);
-    addFixedIncomeInstrumentDefaults(functionConfigs);
-    addForexForwardCalculators(functionConfigs);
-    addForexOptionCalculators(functionConfigs);
-    addInterestRateFutureCalculators(functionConfigs);
-    addPnLCalculators(functionConfigs);
-    addSABRDefaults(functionConfigs);
-    addVaRCalculators(functionConfigs);
-
-    addPortfolioAnalysisCalculators(functionConfigs);
-    functionConfigs.add(functionConfiguration(SimpleFuturePresentValueFunctionDeprecated.class, SECONDARY));
-    functionConfigs.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, SECONDARY, SECONDARY));
-    addExternallyProvidedSensitivitiesFunctions(functionConfigs);
-    functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, SECONDARY));
-
-    functionConfigs.addAll(FinancialFunctions.DEFAULT.getRepositoryConfiguration().getFunctions());
-
-    final RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
-
-    if (OUTPUT_REPO_CONFIGURATION) {
-      final FudgeMsg msg = OpenGammaFudgeContext.getInstance().toFudgeMsg(repoConfig).getMessage();
-      FudgeMsgFormatter.outputToSystemOut(msg);
-      try {
-        final FudgeXMLSettings xmlSettings = new FudgeXMLSettings();
-        xmlSettings.setEnvelopeElementName(null);
-        final FudgeMsgWriter msgWriter = new FudgeMsgWriter(new FudgeXMLStreamWriter(FudgeContext.GLOBAL_DEFAULT, new OutputStreamWriter(System.out), xmlSettings));
-        msgWriter.setDefaultMessageProcessingDirectives(0);
-        msgWriter.setDefaultMessageVersion(0);
-        msgWriter.setDefaultTaxonomyId(0);
-        msgWriter.writeMessage(msg);
-        msgWriter.flush();
-      } catch (final Exception e) {
-        // Just swallow it.
-      }
-    }
-    return repoConfig;
-  }
-
   private static void addPortfolioAnalysisCalculators(final List<FunctionConfiguration> functionConfigs) {
     final String returnCalculator = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT;
     final String samplingPeriod = "P2Y";
@@ -373,28 +310,77 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(TotalRiskAlphaPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
   }
 
-  private static void addExternallyProvidedSensitivitiesFunctions(final List<FunctionConfiguration> functionConfigs) {
+  private static void addSABRDefaults(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, USD, SECONDARY));
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, PriorityClass.ABOVE_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
+        USD, "DefaultTwoCurveUSDConfig", SECONDARY));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, PriorityClass.ABOVE_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
+        "0.07", "10.0",
+        USD, "DefaultTwoCurveUSDConfig", SECONDARY));
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, PriorityClass.ABOVE_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
+        LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR,
+        USD, "DefaultTwoCurveUSDConfig", SECONDARY));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaDefaults.class, PriorityClass.ABOVE_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
+        "0.07", "10.0", LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR,
+        USD, "DefaultTwoCurveUSDConfig", SECONDARY));
+  }
+
+  private static void addVaRCalculators(final List<FunctionConfiguration> functionConfigs) {
     final String defaultSamplingPeriodName = "P2Y";
     final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
     final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesNonYieldCurveFunction.class));
-
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesCreditFactorsFunction.class));
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSecurityMarkFunction.class));
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurvePV01Function.class));
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesDefaultPropertiesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
-        "USD", "DefaultTwoCurveUSDConfig",
-        "GBP", "DefaultTwoCurveGBPConfig",
-        "EUR", "DefaultTwoCurveEURConfig",
-        "JPY", "DefaultTwoCurveJPYConfig",
-        "CHF", "DefaultTwoCurveCHFConfig"));
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurveCS01Function.class));
+    final String defaultMeanCalculatorName = StatisticsCalculatorFactory.MEAN;
+    final String defaultStdDevCalculatorName = StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION;
+    final String defaultConfidenceLevelName = "0.99";
+    final String defaultHorizonName = "1";
+    functionConfigs.add(functionConfiguration(NormalHistoricalVaRDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName,
+        defaultMeanCalculatorName, defaultStdDevCalculatorName, defaultConfidenceLevelName, defaultHorizonName, PriorityClass.ABOVE_NORMAL.name()));
   }
 
-  //-------------------------------------------------------------------------
+  public static RepositoryConfiguration constructRepositoryConfiguration() {
+    final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
+
+    addBondCalculators(functionConfigs);
+    addCurrencyConversionFunctions(functionConfigs);
+    addDeprecatedFixedIncomeInstrumentCalculators(functionConfigs);
+    addDeprecatedSABRCalculators(functionConfigs);
+    addExternallyProvidedSensitivitiesDefaults(functionConfigs);
+    addFixedIncomeInstrumentDefaults(functionConfigs);
+    addForexForwardCalculators(functionConfigs);
+    addForexOptionCalculators(functionConfigs);
+    addInterestRateFutureCalculators(functionConfigs);
+    addPnLCalculators(functionConfigs);
+    addPortfolioAnalysisCalculators(functionConfigs);
+    addSABRDefaults(functionConfigs);
+    addVaRCalculators(functionConfigs);
+
+    functionConfigs.add(functionConfiguration(SimpleFuturePresentValueFunctionDeprecated.class, SECONDARY));
+    functionConfigs.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, SECONDARY, SECONDARY));
+    functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, SECONDARY));
+
+    functionConfigs.addAll(FinancialFunctions.DEFAULT.getRepositoryConfiguration().getFunctions());
+
+    final RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
+
+    if (OUTPUT_REPO_CONFIGURATION) {
+      final FudgeMsg msg = OpenGammaFudgeContext.getInstance().toFudgeMsg(repoConfig).getMessage();
+      FudgeMsgFormatter.outputToSystemOut(msg);
+      try {
+        final FudgeXMLSettings xmlSettings = new FudgeXMLSettings();
+        xmlSettings.setEnvelopeElementName(null);
+        final FudgeMsgWriter msgWriter = new FudgeMsgWriter(new FudgeXMLStreamWriter(FudgeContext.GLOBAL_DEFAULT, new OutputStreamWriter(System.out), xmlSettings));
+        msgWriter.setDefaultMessageProcessingDirectives(0);
+        msgWriter.setDefaultMessageVersion(0);
+        msgWriter.setDefaultTaxonomyId(0);
+        msgWriter.writeMessage(msg);
+        msgWriter.flush();
+      } catch (final Exception e) {
+        // Just swallow it.
+      }
+    }
+    return repoConfig;
+  }
+
   public static RepositoryConfigurationSource constructRepositoryConfigurationSource() {
     return new SimpleRepositoryConfigurationSource(constructRepositoryConfiguration());
   }

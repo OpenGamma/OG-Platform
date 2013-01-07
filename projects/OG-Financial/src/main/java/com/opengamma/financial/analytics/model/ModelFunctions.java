@@ -17,6 +17,7 @@ import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.cds.CDSFunctions;
+import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
 import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
@@ -28,6 +29,7 @@ import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunc
 import com.opengamma.financial.analytics.model.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
+import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleInstrumentFunctions;
 import com.opengamma.financial.analytics.model.swaption.SwaptionFunctions;
 import com.opengamma.financial.analytics.model.var.VaRFunctions;
@@ -58,6 +60,10 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
 
   protected RepositoryConfigurationSource cdsFunctionConfiguration() {
     return CDSFunctions.DEFAULT;
+  }
+
+  protected RepositoryConfigurationSource creditFunctionConfiguration() {
+    return CreditFunctions.DEFAULT;
   }
 
   protected RepositoryConfigurationSource curveFunctionConfiguration() {
@@ -110,8 +116,7 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource sensitivitiesFunctionConfiguration() {
-    // TODO
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+    return SensitivitiesFunctions.DEFAULT;
   }
 
   protected RepositoryConfigurationSource simpleInstrumentFunctionConfiguration() {
@@ -133,7 +138,7 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
   @Override
   protected RepositoryConfigurationSource createObject() {
     return new CombiningRepositoryConfigurationSource(super.createObject(), bondFunctionConfiguration(), bondFutureOptionFunctionConfiguration(), cdsFunctionConfiguration(),
-        curveFunctionConfiguration(), equityFunctionConfiguration(), fixedIncomeFunctionConfiguration(), forexFunctionConfiguration(), futureFunctionConfiguration(),
+        creditFunctionConfiguration(), curveFunctionConfiguration(), equityFunctionConfiguration(), fixedIncomeFunctionConfiguration(), forexFunctionConfiguration(), futureFunctionConfiguration(),
         futureOptionFunctionConfiguration(), horizonFunctionConfiguration(), irFutureOptionFunctionConfiguration(), optionFunctionConfiguration(), pnlFunctionConfiguration(),
         riskFactorFunctionConfiguration(), sabrCubeFunctionConfiguration(), sensitivitiesFunctionConfiguration(), simpleInstrumentFunctionConfiguration(), swaptionFunctionConfiguration(),
         varFunctionConfiguration(), volatilityFunctionConfiguration());
