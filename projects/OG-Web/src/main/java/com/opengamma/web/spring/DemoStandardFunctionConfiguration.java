@@ -124,15 +124,6 @@ import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLoc
 import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLocalVolatilityForwardPDEImpliedVolatilityFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLocalVolatilityForwardPDEPipsPresentValueFunction;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaults;
-import com.opengamma.financial.analytics.model.future.InterestRateFuturePV01Function;
-import com.opengamma.financial.analytics.model.future.InterestRateFuturePresentValueFunction;
-import com.opengamma.financial.analytics.model.future.InterestRateFutureYieldCurveNodeSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.future.MarkToMarketForwardFuturesFunction;
-import com.opengamma.financial.analytics.model.future.MarkToMarketPV01FuturesFunction;
-import com.opengamma.financial.analytics.model.future.MarkToMarketPresentValueFuturesFunction;
-import com.opengamma.financial.analytics.model.future.MarkToMarketSpotFuturesFunction;
-import com.opengamma.financial.analytics.model.future.MarkToMarketValueDeltaFuturesFunction;
-import com.opengamma.financial.analytics.model.future.MarkToMarketValueRhoFuturesFunction;
 import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBAWGreeksFunction;
 import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBAWPVFunction;
 import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBjerksundStenslandGreeksFunction;
@@ -208,10 +199,6 @@ import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedS
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveCS01Function;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurvePV01Function;
-import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePV01Function;
-import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunction;
-import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePriceDeltaFunction;
-import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFutureRhoFunction;
 import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackImpliedVolatilityFunction;
 import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackPV01Function;
@@ -422,6 +409,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(FXOneLookBarrierOptionBlackDefaultPropertiesFunction.class, overhedge, relativeStrikeSmoothing));
   }
 
+  private static void addInterestRateFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(InterestRateFutureDefaults.class, PriorityClass.NORMAL.name(),
+        "USD", "DefaultTwoCurveUSDConfig",
+        "EUR", "DefaultTwoCurveEURConfig",
+        "CHF", "DefaultTwoCurveCHFConfig",
+        "RUB", "DefaultCashCurveRUBConfig"));
+  }
+
   private static void addPnLCalculators(final List<FunctionConfiguration> functionConfigs) {
     final String defaultReturnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
     final String defaultSamplingPeriodName = "P2Y";
@@ -477,6 +472,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addForexForwardCalculators(functionConfigs);
     addForexOptionCalculators(functionConfigs);
     addFXBarrierOptionCalculators(functionConfigs);
+    addInterestRateFutureCalculators(functionConfigs);
     addPnLCalculators(functionConfigs);
     addVaRCalculators(functionConfigs);
     addEquityVarianceSwapCalculators(functionConfigs);
@@ -484,8 +480,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addPortfolioAnalysisCalculators(functionConfigs);
     addFixedIncomeInstrumentCalculators(functionConfigs);
     addSABRCalculators(functionConfigs);
-    addInterestRateFutureCalculators(functionConfigs);
-    addGeneralFutureCalculators(functionConfigs);
     addInterestRateFutureOptionCalculators(functionConfigs);
     addBondFutureOptionBlackCalculators(functionConfigs);
     addCommodityFutureOptionCalculators(functionConfigs);
@@ -526,31 +520,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     }
     return repoConfig;
   }
-
-  private static void addGeneralFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(SimpleFuturePresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(SimpleFuturePriceDeltaFunction.class));
-    functionConfigs.add(functionConfiguration(SimpleFuturePV01Function.class));
-    functionConfigs.add(functionConfiguration(SimpleFutureRhoFunction.class));
-    functionConfigs.add(functionConfiguration(MarkToMarketForwardFuturesFunction.class));
-    functionConfigs.add(functionConfiguration(MarkToMarketPV01FuturesFunction.class));
-    functionConfigs.add(functionConfiguration(MarkToMarketPresentValueFuturesFunction.class));
-    functionConfigs.add(functionConfiguration(MarkToMarketSpotFuturesFunction.class));
-    functionConfigs.add(functionConfiguration(MarkToMarketValueDeltaFuturesFunction.class));
-    functionConfigs.add(functionConfiguration(MarkToMarketValueRhoFuturesFunction.class));
-  }
-
-  private static void addInterestRateFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateFuturePresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFuturePV01Function.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureDefaults.class, PriorityClass.NORMAL.name(),
-        "USD", "DefaultTwoCurveUSDConfig",
-        "EUR", "DefaultTwoCurveEURConfig",
-        "CHF", "DefaultTwoCurveCHFConfig",
-        "RUB", "DefaultCashCurveRUBConfig"));
-  }
-
 
   private static void addInterestRateFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionMarketUnderlyingPriceFunction.class));

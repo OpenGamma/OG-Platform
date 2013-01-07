@@ -22,6 +22,7 @@ import com.opengamma.financial.analytics.model.forex.ForexFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
+import com.opengamma.financial.analytics.model.simpleinstrument.SimpleInstrumentFunctions;
 import com.opengamma.financial.analytics.model.swaption.SwaptionFunctions;
 import com.opengamma.financial.analytics.model.var.VaRFunctions;
 import com.opengamma.financial.analytics.model.volatility.VolatilityFunctions;
@@ -109,8 +110,7 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource simpleInstrumentFunctionConfiguration() {
-    // TODO
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+    return SimpleInstrumentFunctions.DEFAULT;
   }
 
   protected RepositoryConfigurationSource swaptionFunctionConfiguration() {

@@ -78,10 +78,8 @@ import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForward
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.forex.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions;
+import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunctionDeprecated;
-import com.opengamma.financial.analytics.model.future.InterestRateFuturePV01FunctionDeprecated;
-import com.opengamma.financial.analytics.model.future.InterestRateFuturePresentValueFunctionDeprecated;
-import com.opengamma.financial.analytics.model.future.InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
 import com.opengamma.financial.analytics.model.pnl.EquityPnLDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.ExternallyProvidedSensitivityPnLDefaultPropertiesFunction;
@@ -245,6 +243,11 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
         SECONDARY, PAR_RATE_STRING, SECONDARY, "DoubleQuadratic", "LinearExtrapolator", "LinearExtrapolator", "EUR", "USD"));
   }
 
+  private static void addInterestRateFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.addAll(FutureFunctions.deprecated().getRepositoryConfiguration().getFunctions());
+    functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunctionDeprecated.class, SECONDARY, SECONDARY, PAR_RATE_STRING, USD, "EUR"));
+  }
+
   private static void addPnLCalculators(final List<FunctionConfiguration> functionConfigs) {
     final String defaultCurveCalculationMethod = PRESENT_VALUE_STRING;
     final String defaultReturnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
@@ -289,6 +292,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     addCurrencyConversionFunctions(functionConfigs);
     addForexForwardCalculators(functionConfigs);
     addForexOptionCalculators(functionConfigs);
+    addInterestRateFutureCalculators(functionConfigs);
     addPnLCalculators(functionConfigs);
     addVaRCalculators(functionConfigs);
 
@@ -299,7 +303,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, SECONDARY, SECONDARY));
     addSABRCalculators(functionConfigs);
     addDeprecatedSABRCalculators(functionConfigs);
-    addInterestRateFutureCalculators(functionConfigs);
     addInterestRateFutureOptionCalculators(functionConfigs);
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
     functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, SECONDARY));
@@ -325,13 +328,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
       }
     }
     return repoConfig;
-  }
-
-  private static void addInterestRateFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateFuturePresentValueFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(InterestRateFuturePV01FunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunctionDeprecated.class, SECONDARY, SECONDARY, PAR_RATE_STRING, USD, "EUR"));
   }
 
   private static void addInterestRateFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
