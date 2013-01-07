@@ -33,6 +33,18 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
     return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(functions));
   }
 
+  public static RepositoryConfigurationSource calculators(final String htsResolutionKey, final String mark2marketField, final String costOfCarryField, final String valueFieldName) {
+    final List<FunctionConfiguration> functions = new ArrayList<FunctionConfiguration>();
+    functions.add(functionConfiguration(TradeExchangeTradedPnLFunction.class, htsResolutionKey, mark2marketField, costOfCarryField));
+    functions.add(functionConfiguration(TradeExchangeTradedDailyPnLFunction.class, htsResolutionKey, mark2marketField, costOfCarryField));
+    functions.add(functionConfiguration(PositionExchangeTradedDailyPnLFunction.class, htsResolutionKey, mark2marketField, costOfCarryField));
+    functions.add(functionConfiguration(SecurityPriceSeriesFunction.class, htsResolutionKey, valueFieldName));
+    functions.add(functionConfiguration(SimpleFuturePnLFunction.class, htsResolutionKey));
+    functions.add(functionConfiguration(SimpleFXFuturePnLFunction.class, htsResolutionKey));
+    functions.add(functionConfiguration(ValueGreekSensitivityPnLFunction.class, htsResolutionKey));
+    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(functions));
+  }
+
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(EquityPnLFunction.class));
@@ -40,6 +52,6 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(PortfolioExchangeTradedPnLFunction.class));
     functions.add(functionConfiguration(PositionExchangeTradedPnLFunction.class));
     functions.add(functionConfiguration(AggregationDefaultPropertyFunction.class, ValueRequirementNames.DAILY_PNL, MissingInputsFunction.AGGREGATION_STYLE_FULL));
-    // TODO: Other functions from this package
   }
+
 }
