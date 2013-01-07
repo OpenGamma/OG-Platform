@@ -15,6 +15,7 @@ import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
 import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
@@ -240,8 +241,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource irCurveFunctionConfiguration() {
-    // TODO:
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(Collections.<FunctionConfiguration>emptyList()));
+    return IRCurveFunctions.DEFAULT;
   }
 
   protected RepositoryConfigurationSource modelFunctionConfiguration() {

@@ -38,10 +38,6 @@ import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.FinancialFunctions;
-import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveMarketDataShiftFunction;
-import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveShiftFunction;
-import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataShiftFunction;
-import com.opengamma.financial.analytics.ircurve.YieldCurveShiftFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondCouponPaymentDiaryFunction;
@@ -256,13 +252,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
   }
 
-  protected static void addDataShiftingFunctions(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(YieldCurveShiftFunction.class));
-    functionConfigs.add(functionConfiguration(DefaultYieldCurveShiftFunction.class));
-    functionConfigs.add(functionConfiguration(YieldCurveMarketDataShiftFunction.class));
-    functionConfigs.add(functionConfiguration(DefaultYieldCurveMarketDataShiftFunction.class));
-  }
-
   protected static void addDefaultPropertyFunctions(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(CalcConfigDefaultPropertyFunction.Generic.class));
     functionConfigs.add(functionConfiguration(CalcConfigDefaultPropertyFunction.Specific.class));
@@ -274,7 +263,6 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
     addCurrencyConversionFunctions(functionConfigs);
-    addDataShiftingFunctions(functionConfigs);
     addDefaultPropertyFunctions(functionConfigs);
 
     // options
