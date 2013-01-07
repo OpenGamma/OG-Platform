@@ -92,7 +92,7 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
    */
   public ManageablePosition getSinglePosition() {
     if (getDocuments().size() != 1) {
-      throw new OpenGammaRuntimeException("Expecting zero or single resulting match, and was " + getDocuments().size());
+      throw new OpenGammaRuntimeException("Expecting single resulting match, and was " + getDocuments().size());
     } else {
       return getDocuments().get(0).getPosition();
     }
