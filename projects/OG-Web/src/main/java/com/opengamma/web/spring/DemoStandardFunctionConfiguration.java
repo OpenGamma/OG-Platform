@@ -44,26 +44,7 @@ import com.opengamma.financial.analytics.cashflow.FixedReceiveCashFlowFunction;
 import com.opengamma.financial.analytics.cashflow.FloatingPayCashFlowFunction;
 import com.opengamma.financial.analytics.cashflow.FloatingReceiveCashFlowFunction;
 import com.opengamma.financial.analytics.cashflow.NettedFixedCashFlowFunction;
-import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromCurvesFunction;
-import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromYieldFunction;
-import com.opengamma.financial.analytics.model.bond.BondCouponPaymentDiaryFunction;
 import com.opengamma.financial.analytics.model.bond.BondDefaultCurveNamesFunction;
-import com.opengamma.financial.analytics.model.bond.BondDirtyPriceFromCurvesFunction;
-import com.opengamma.financial.analytics.model.bond.BondDirtyPriceFromYieldFunction;
-import com.opengamma.financial.analytics.model.bond.BondMacaulayDurationFromCurvesFunction;
-import com.opengamma.financial.analytics.model.bond.BondMacaulayDurationFromYieldFunction;
-import com.opengamma.financial.analytics.model.bond.BondMarketCleanPriceFunction;
-import com.opengamma.financial.analytics.model.bond.BondMarketDirtyPriceFunction;
-import com.opengamma.financial.analytics.model.bond.BondMarketYieldFunction;
-import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromCurvesFunction;
-import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromYieldFunction;
-import com.opengamma.financial.analytics.model.bond.BondTenorFunction;
-import com.opengamma.financial.analytics.model.bond.BondYieldFromCurvesFunction;
-import com.opengamma.financial.analytics.model.bond.BondZSpreadFromCurveCleanPriceFunction;
-import com.opengamma.financial.analytics.model.bond.BondZSpreadFromMarketCleanPriceFunction;
-import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction;
-import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction;
-import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackDeltaFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackFromFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackGammaFunction;
@@ -173,8 +154,6 @@ import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLoc
 import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLocalVolatilityForwardPDEImpliedVolatilityFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLocalVolatilityForwardPDEPipsPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.option.vannavolga.FXOptionVannaVolgaPresentValueFunction;
-import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
-import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaults;
 import com.opengamma.financial.analytics.model.future.InterestRateFuturePV01Function;
 import com.opengamma.financial.analytics.model.future.InterestRateFuturePresentValueFunction;
@@ -341,7 +320,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     return new ParameterizedFunctionConfiguration(clazz.getName(), Arrays.asList(args));
   }
 
-  protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
+  private static void addBondCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
+        "USD", "Discounting", "DefaultTwoCurveUSDConfig", "Discounting", "DefaultTwoCurveUSDConfig",
+        "EUR", "Discounting", "DefaultTwoCurveEURConfig", "Discounting", "DefaultTwoCurveEURConfig",
+        "GBP", "Discounting", "DefaultTwoCurveGBPConfig", "Discounting", "DefaultTwoCurveGBPConfig"));
+  }
+
+  private static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(CurrencyPairsDefaults.class, CurrencyPairs.DEFAULT_CURRENCY_PAIRS));
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
@@ -471,6 +457,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
+    addBondCalculators(functionConfigs);
     addCurrencyConversionFunctions(functionConfigs);
     addEquityBarrierOptionCalculators(functionConfigs);
     addEquityDividendYieldFuturesFunctions(functionConfigs);
@@ -482,8 +469,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
     addPortfolioAnalysisCalculators(functionConfigs);
     addFixedIncomeInstrumentCalculators(functionConfigs);
-    addBondCalculators(functionConfigs);
-    addBondFutureCalculators(functionConfigs);
     addSABRCalculators(functionConfigs);
     addForexOptionCalculators(functionConfigs);
     addFXBarrierOptionCalculators(functionConfigs);
@@ -529,37 +514,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
       }
     }
     return repoConfig;
-  }
-
-  private static void addBondFutureCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class));
-    functionConfigs.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class));
-  }
-
-  private static void addBondCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(BondCouponPaymentDiaryFunction.class));
-    functionConfigs.add(functionConfiguration(BondTenorFunction.class));
-    functionConfigs.add(functionConfiguration(BondMarketCleanPriceFunction.class));
-    functionConfigs.add(functionConfiguration(BondMarketDirtyPriceFunction.class));
-    functionConfigs.add(functionConfiguration(BondMarketYieldFunction.class));
-    functionConfigs.add(functionConfiguration(BondYieldFromCurvesFunction.class));
-    functionConfigs.add(functionConfiguration(BondCleanPriceFromCurvesFunction.class));
-    functionConfigs.add(functionConfiguration(BondDirtyPriceFromCurvesFunction.class));
-    functionConfigs.add(functionConfiguration(BondMacaulayDurationFromCurvesFunction.class));
-    functionConfigs.add(functionConfiguration(BondModifiedDurationFromCurvesFunction.class));
-    functionConfigs.add(functionConfiguration(BondCleanPriceFromYieldFunction.class));
-    functionConfigs.add(functionConfiguration(BondDirtyPriceFromYieldFunction.class));
-    functionConfigs.add(functionConfiguration(BondMacaulayDurationFromYieldFunction.class));
-    functionConfigs.add(functionConfiguration(BondModifiedDurationFromYieldFunction.class));
-    functionConfigs.add(functionConfiguration(BondZSpreadFromCurveCleanPriceFunction.class));
-    functionConfigs.add(functionConfiguration(BondZSpreadFromMarketCleanPriceFunction.class));
-    functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction.class));
-    functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction.class));
-    functionConfigs.add(functionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class));
-    functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
-        "USD", "Discounting", "DefaultTwoCurveUSDConfig", "Discounting", "DefaultTwoCurveUSDConfig",
-        "EUR", "Discounting", "DefaultTwoCurveEURConfig", "Discounting", "DefaultTwoCurveEURConfig",
-        "GBP", "Discounting", "DefaultTwoCurveGBPConfig", "Discounting", "DefaultTwoCurveGBPConfig"));
   }
 
   private static void addForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
