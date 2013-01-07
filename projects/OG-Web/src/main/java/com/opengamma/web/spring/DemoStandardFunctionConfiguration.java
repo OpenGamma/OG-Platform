@@ -45,13 +45,6 @@ import com.opengamma.financial.analytics.cashflow.FloatingPayCashFlowFunction;
 import com.opengamma.financial.analytics.cashflow.FloatingReceiveCashFlowFunction;
 import com.opengamma.financial.analytics.cashflow.NettedFixedCashFlowFunction;
 import com.opengamma.financial.analytics.model.bond.BondDefaultCurveNamesFunction;
-import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackDeltaFunction;
-import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackFromFuturePresentValueFunction;
-import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackGammaFunction;
-import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackPV01Function;
-import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackPresentValueFunction;
-import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackVegaFunction;
-import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionBlackYCNSFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionDefaults;
 import com.opengamma.financial.analytics.model.credit.ISDALegacyCDSHazardCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.ISDALegacyCDSHazardCurveFunction;
@@ -124,35 +117,12 @@ import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLoc
 import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLocalVolatilityForwardPDEImpliedVolatilityFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLocalVolatilityForwardPDEPipsPresentValueFunction;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaults;
-import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBAWGreeksFunction;
-import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBAWPVFunction;
-import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBjerksundStenslandGreeksFunction;
 import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackDefaults;
-import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackDeltaFunction;
-import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackForwardDeltaFunction;
-import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackForwardGammaFunction;
-import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackGammaFunction;
-import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackPVFunction;
-import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackThetaFunction;
-import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackVegaFunction;
-import com.opengamma.financial.analytics.model.horizon.InterestRateFutureOptionConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.horizon.SwaptionBlackThetaDefaults;
 import com.opengamma.financial.analytics.model.horizon.SwaptionConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRDefaults;
-import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRPresentValueFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRYCNSFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackDefaults;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackGammaFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackImpliedVolatilityFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackPV01Function;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackPresentValueFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackPriceFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackVolatilitySensitivityFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionHestonDefaults;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionHestonPresentValueFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionMarketUnderlyingPriceFunction;
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
 import com.opengamma.financial.analytics.model.pnl.EquityPnLDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.PositionExchangeTradedDailyPnLFunction;
@@ -275,6 +245,16 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "USD", "Discounting", "DefaultTwoCurveUSDConfig", "Discounting", "DefaultTwoCurveUSDConfig",
         "EUR", "Discounting", "DefaultTwoCurveEURConfig", "Discounting", "DefaultTwoCurveEURConfig",
         "GBP", "Discounting", "DefaultTwoCurveGBPConfig", "Discounting", "DefaultTwoCurveGBPConfig"));
+  }
+
+  private static void addBondFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(BondFutureOptionDefaults.class, PriorityClass.NORMAL.name(),
+        "USD", "DefaultTwoCurveUSDConfig", "BBG"));
+  }
+
+  private static void addCommodityFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityFutureOptionBlackDefaults.class.getName(),
+        Arrays.asList("USD", "Discounting", "DefaultTwoCurveUSDConfig", "BBG_S ", "Spline")));
   }
 
   private static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -417,6 +397,20 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         "RUB", "DefaultCashCurveRUBConfig"));
   }
 
+  private static void addInterestRateFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, PriorityClass.NORMAL.name(),
+        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE"));
+    functionConfigs.add(functionConfiguration(IRFutureOptionSABRDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
+        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
+        "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES));
+    functionConfigs.add(functionConfiguration(SABRIRFutureOptionNLSSDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
+        LINEAR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "false", "true", "false", "false",
+        "0.05", "1.0", "0.07", "0.0", "0.001"));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonDefaults.class,
+        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE",
+        "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_PRICE"));
+  }
+
   private static void addPnLCalculators(final List<FunctionConfiguration> functionConfigs) {
     final String defaultReturnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
     final String defaultSamplingPeriodName = "P2Y";
@@ -449,7 +443,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     final String defaultStdDevCalculatorName = StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION;
     final String defaultConfidenceLevelName = "0.99";
     final String defaultHorizonName = "1";
-
     //   functionConfigs.add(functionConfiguration(OptionPositionParametricVaRFunction.class, DEFAULT_CONFIG_NAME));
     //functionConfigs.add(functionConfiguration(OptionPortfolioParametricVaRFunction.class, DEFAULT_CONFIG_NAME, startDate, defaultReturnCalculatorName,
     //  defaultScheduleName, defaultSamplingCalculatorName, "0.99", "1", ValueRequirementNames.VALUE_DELTA));
@@ -464,6 +457,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
     addBondCalculators(functionConfigs);
+    addBondFutureOptionCalculators(functionConfigs);
+    addCommodityFutureOptionCalculators(functionConfigs);
     addCurrencyConversionFunctions(functionConfigs);
     addEquityBarrierOptionCalculators(functionConfigs);
     addEquityDividendYieldFuturesFunctions(functionConfigs);
@@ -473,6 +468,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addForexOptionCalculators(functionConfigs);
     addFXBarrierOptionCalculators(functionConfigs);
     addInterestRateFutureCalculators(functionConfigs);
+    addInterestRateFutureOptionCalculators(functionConfigs);
     addPnLCalculators(functionConfigs);
     addVaRCalculators(functionConfigs);
     addEquityVarianceSwapCalculators(functionConfigs);
@@ -480,9 +476,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addPortfolioAnalysisCalculators(functionConfigs);
     addFixedIncomeInstrumentCalculators(functionConfigs);
     addSABRCalculators(functionConfigs);
-    addInterestRateFutureOptionCalculators(functionConfigs);
-    addBondFutureOptionBlackCalculators(functionConfigs);
-    addCommodityFutureOptionCalculators(functionConfigs);
     addBlackCalculators(functionConfigs);
     addLocalVolatilityPDEFunctions(functionConfigs);
     addLocalVolatilityPDEGridFunctions(functionConfigs);
@@ -519,64 +512,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
       }
     }
     return repoConfig;
-  }
-
-  private static void addInterestRateFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionMarketUnderlyingPriceFunction.class));
-
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackVolatilitySensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackImpliedVolatilityFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPV01Function.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackGammaFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackPriceFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionConstantSpreadThetaFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionBlackDefaults.class, PriorityClass.NORMAL.name(),
-        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE"));
-
-    functionConfigs.add(functionConfiguration(IRFutureOptionSABRPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(IRFutureOptionSABRSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(IRFutureOptionSABRYCNSFunction.class));
-    functionConfigs.add(functionConfiguration(IRFutureOptionSABRDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
-        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
-        "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_PRICE", SmileFittingProperties.NON_LINEAR_LEAST_SQUARES));
-    functionConfigs.add(functionConfiguration(SABRIRFutureOptionNLSSDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
-        LINEAR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "false", "true", "false", "false",
-        "0.05", "1.0", "0.07", "0.0", "0.001"));
-
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonDefaults.class,
-        "USD", "DefaultTwoCurveUSDConfig", "DEFAULT_PRICE",
-        "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_PRICE"));
-  }
-
-  private static void addBondFutureOptionBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(BondFutureOptionBlackPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(BondFutureOptionBlackDeltaFunction.class));
-    functionConfigs.add(functionConfiguration(BondFutureOptionBlackGammaFunction.class));
-    functionConfigs.add(functionConfiguration(BondFutureOptionBlackPV01Function.class));
-    functionConfigs.add(functionConfiguration(BondFutureOptionBlackYCNSFunction.class));
-    functionConfigs.add(functionConfiguration(BondFutureOptionBlackVegaFunction.class));
-    functionConfigs.add(functionConfiguration(BondFutureOptionBlackFromFuturePresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(BondFutureOptionDefaults.class, PriorityClass.NORMAL.name(),
-        "USD", "DefaultTwoCurveUSDConfig", "BBG"));
-  }
-
-  private static void addCommodityFutureOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackDeltaFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackForwardDeltaFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackForwardGammaFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackGammaFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackPVFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackThetaFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBlackVegaFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBAWPVFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBAWGreeksFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBjerksundStenslandGreeksFunction.class.getName()));
-
-    functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityFutureOptionBlackDefaults.class.getName(),
-        Arrays.asList("USD", "Discounting", "DefaultTwoCurveUSDConfig", "BBG_S ", "Spline")));
   }
 
   private static void addLocalVolatilityPDEFunctions(final List<FunctionConfiguration> functionConfigs) {
