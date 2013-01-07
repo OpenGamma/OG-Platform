@@ -359,7 +359,7 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.equity_variance_swap.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.swaption.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fx_barrier_option.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fx_forward.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxforwardsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fx_option.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.non_del_fx_option.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond.js</fragment>
