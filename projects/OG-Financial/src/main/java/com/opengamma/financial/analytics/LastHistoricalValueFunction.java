@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics;
@@ -86,7 +86,7 @@ public class LastHistoricalValueFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final HistoricalTimeSeries hts = (HistoricalTimeSeries) inputs.getAllValues().iterator().next();
+    final HistoricalTimeSeries hts = (HistoricalTimeSeries) inputs.getAllValues().iterator().next().getValue();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints()), hts.getTimeSeries()
         .getLatestValue()));

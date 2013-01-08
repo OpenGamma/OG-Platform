@@ -161,13 +161,11 @@ public class Tutorial1Security extends ManageableSecurity {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code Tutorial1Security}.
-   *
    * @return the meta-bean, not null
    */
   public static Tutorial1Security.Meta meta() {
     return Tutorial1Security.Meta.INSTANCE;
   }
-
   static {
     JodaBeanUtils.registerMetaBean(Tutorial1Security.Meta.INSTANCE);
   }
@@ -178,23 +176,23 @@ public class Tutorial1Security extends ManageableSecurity {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 575402001: // currency
+      case 575402001:  // currency
         return getCurrency();
-      case -1770633379: // underlying
+      case -1770633379:  // underlying
         return getUnderlying();
     }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 575402001: // currency
+      case 575402001:  // currency
         setCurrency((Currency) newValue);
         return;
-      case -1770633379: // underlying
+      case -1770633379:  // underlying
         setUnderlying((ExternalId) newValue);
         return;
     }
@@ -209,12 +207,12 @@ public class Tutorial1Security extends ManageableSecurity {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final Tutorial1Security other = (Tutorial1Security) obj;
+      Tutorial1Security other = (Tutorial1Security) obj;
       return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getUnderlying(), other.getUnderlying()) &&
           super.equals(obj);
@@ -233,7 +231,6 @@ public class Tutorial1Security extends ManageableSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the currency the security is in.
-   *
    * @return the value of the property, not null
    */
   public Currency getCurrency() {
@@ -242,17 +239,15 @@ public class Tutorial1Security extends ManageableSecurity {
 
   /**
    * Sets the currency the security is in.
-   *
-   * @param currency the new value of the property, not null
+   * @param currency  the new value of the property, not null
    */
-  public void setCurrency(final Currency currency) {
+  public void setCurrency(Currency currency) {
     JodaBeanUtils.notNull(currency, "currency");
     this._currency = currency;
   }
 
   /**
    * Gets the the {@code currency} property.
-   *
    * @return the property, not null
    */
   public final Property<Currency> currency() {
@@ -262,7 +257,6 @@ public class Tutorial1Security extends ManageableSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets an identifier to the underlying or component security.
-   *
    * @return the value of the property, not null
    */
   public ExternalId getUnderlying() {
@@ -271,17 +265,15 @@ public class Tutorial1Security extends ManageableSecurity {
 
   /**
    * Sets an identifier to the underlying or component security.
-   *
-   * @param underlying the new value of the property, not null
+   * @param underlying  the new value of the property, not null
    */
-  public void setUnderlying(final ExternalId underlying) {
+  public void setUnderlying(ExternalId underlying) {
     JodaBeanUtils.notNull(underlying, "underlying");
     this._underlying = underlying;
   }
 
   /**
    * Gets the the {@code underlying} property.
-   *
    * @return the property, not null
    */
   public final Property<ExternalId> underlying() {
@@ -312,7 +304,7 @@ public class Tutorial1Security extends ManageableSecurity {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "currency",
         "underlying");
 
@@ -323,11 +315,11 @@ public class Tutorial1Security extends ManageableSecurity {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 575402001: // currency
+        case 575402001:  // currency
           return _currency;
-        case -1770633379: // underlying
+        case -1770633379:  // underlying
           return _underlying;
       }
       return super.metaPropertyGet(propertyName);
@@ -351,7 +343,6 @@ public class Tutorial1Security extends ManageableSecurity {
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code currency} property.
-     *
      * @return the meta-property, not null
      */
     public final MetaProperty<Currency> currency() {
@@ -360,7 +351,6 @@ public class Tutorial1Security extends ManageableSecurity {
 
     /**
      * The meta-property for the {@code underlying} property.
-     *
      * @return the meta-property, not null
      */
     public final MetaProperty<ExternalId> underlying() {

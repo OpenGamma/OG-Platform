@@ -37,7 +37,7 @@ be incorrect.
       
         * Or install the plug-ins manually
 
-            i. IvyDE (required)                       http://ant.apache.org/ivy/ivyde/download.cgi
+            i. IvyDE (required)                       http://ant.apache.org/dist/ant/ivyde/updatesite
            ii. Eclipse-CS (optional, but recommended) http://eclipse-cs.sourceforge.net/downloads.html
           iii. TestNG (optional, but recommended)     http://testng.org/doc/download.html
 

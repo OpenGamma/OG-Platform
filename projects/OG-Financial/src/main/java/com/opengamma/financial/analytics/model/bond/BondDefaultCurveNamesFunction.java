@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -18,6 +19,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -25,15 +27,22 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class BondDefaultCurveNamesFunction extends DefaultPropertyFunction {
-  private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.CLEAN_PRICE,
-    ValueRequirementNames.DIRTY_PRICE,
-    ValueRequirementNames.MACAULAY_DURATION,
-    ValueRequirementNames.MODIFIED_DURATION,
-    ValueRequirementNames.YTM,
-    ValueRequirementNames.Z_SPREAD,
-    ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY
+
+  private static final String[] s_bondValueNames = new String[] {
+      ValueRequirementNames.CLEAN_PRICE,
+      ValueRequirementNames.DIRTY_PRICE,
+      ValueRequirementNames.MACAULAY_DURATION,
+      ValueRequirementNames.MODIFIED_DURATION,
+      ValueRequirementNames.YTM,
+      ValueRequirementNames.Z_SPREAD,
+      ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY
   };
+
+  private static final String[] s_bondFutureValueNames = new String[] {
+      ValueRequirementNames.GROSS_BASIS,
+      ValueRequirementNames.NET_BASIS
+  };
+
   private final PriorityClass _priority;
   private final Map<String, Pair<String, String>> _currencyAndRiskFreeCurveNames;
   private final Map<String, Pair<String, String>> _currencyAndCreditCurveNames;
@@ -60,20 +69,30 @@ public class BondDefaultCurveNamesFunction extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof BondSecurity)) {
+    if (!(target.getSecurity() instanceof BondSecurity) && !(target.getSecurity() instanceof BondFutureSecurity)) {
       return false;
     }
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     return _currencyAndCreditCurveNames.containsKey(currency);
   }
 
+  private static void addProperties(final PropertyDefaults defaults, final String[] values) {
+    for (final String value : values) {
+      defaults.addValuePropertyName(value, BondFunction.PROPERTY_CREDIT_CURVE);
+      defaults.addValuePropertyName(value, BondFunction.PROPERTY_RISK_FREE_CURVE);
+      defaults.addValuePropertyName(value, BondFunction.PROPERTY_CREDIT_CURVE_CONFIG);
+      defaults.addValuePropertyName(value, BondFunction.PROPERTY_RISK_FREE_CURVE_CONFIG);
+    }
+  }
+
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    for (final String valueName : s_valueNames) {
-      defaults.addValuePropertyName(valueName, BondFunction.PROPERTY_CREDIT_CURVE);
-      defaults.addValuePropertyName(valueName, BondFunction.PROPERTY_RISK_FREE_CURVE);
-      defaults.addValuePropertyName(valueName, BondFunction.PROPERTY_CREDIT_CURVE_CONFIG);
-      defaults.addValuePropertyName(valueName, BondFunction.PROPERTY_RISK_FREE_CURVE_CONFIG);
+    final Security target = defaults.getTarget().getSecurity();
+    if (target instanceof BondSecurity) {
+      addProperties(defaults, s_bondValueNames);
+    } else {
+      assert target instanceof BondFutureSecurity;
+      addProperties(defaults, s_bondFutureValueNames);
     }
   }
 
@@ -94,7 +113,6 @@ public class BondDefaultCurveNamesFunction extends DefaultPropertyFunction {
     }
     return null;
   }
-
 
   @Override
   public PriorityClass getPriority() {

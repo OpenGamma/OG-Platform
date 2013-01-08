@@ -276,6 +276,7 @@
 			<fileset dir="${lib.dir}/jar/org.apache.ant/ant" includes="*.jar" />
 			<pathelement path="${classes.dir}" />
 			<pathelement path="${tests.classes.dir}" />
+			<pathelement path="${tests.resources.dir}" />
 			<pathelement path="${config.dir}" />
 			<pathelement path="${clover.jar.file}" />
 			<pathelement path="${test.properties.dir}" />
@@ -288,6 +289,7 @@
 			<fileset dir="${lib.dir}/jar/org.apache.ant/ant" includes="*.jar" />
 			<pathelement path="${classes.dir}" />
 			<pathelement path="${tests.classes.dir}" />
+			<pathelement path="${tests.resources.dir}" />
 			<pathelement path="${config.dir}" />
 			<pathelement path="${clover.jar.file}" />
 			<pathelement path="${test.properties.dir}" />

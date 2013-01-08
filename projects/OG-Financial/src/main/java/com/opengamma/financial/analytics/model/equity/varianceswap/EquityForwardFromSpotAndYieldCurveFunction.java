@@ -30,7 +30,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
 
 /**
  *
@@ -126,10 +125,8 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+        .withAny(ValuePropertyNames.CURVE)
         .with(FORWARD_CALCULATION_METHOD, FORWARD_FROM_SPOT_AND_YIELD_CURVE).get();
-    final ExternalId id = security.getSpotUnderlyingId();
-    final ValueRequirement requirement = new ValueRequirement(ValueRequirementNames.FORWARD, ComputationTargetType.PRIMITIVE, UniqueId.of(id.getScheme().getName(),
-        id.getValue()));
-    return new ValueSpecification(requirement, properties);
+    return ValueSpecification.of(ValueRequirementNames.FORWARD, ComputationTargetType.SECURITY, security.getUniqueId(), properties);
   }
 }

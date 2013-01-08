@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.language.view;
@@ -32,25 +32,25 @@ public class ViewIdFunction extends AbstractFunctionInvoker implements Published
    * Default instance.
    */
   public static final ViewIdFunction INSTANCE = new ViewIdFunction();
-  
+
   private final MetaFunction _meta;
-  
+
   private static List<MetaParameter> parameters() {
     final MetaParameter name = new MetaParameter("name", JavaTypeInfo.builder(String.class).get());
     return ImmutableList.of(name);
   }
-  
+
   protected ViewIdFunction() {
     this(new DefinitionAnnotater(ViewIdFunction.class));
   }
-  
+
   private ViewIdFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
     _meta = info.annotate(new MetaFunction(Categories.VIEW, "ViewId", getParameters(), this));
   }
-  
-  public UniqueId invoke(ConfigSource configSource, String viewDefinitionName) {
-    ViewDefinition definition = configSource.getConfig(ViewDefinition.class, viewDefinitionName, VersionCorrection.LATEST);
+
+  public UniqueId invoke(final ConfigSource configSource, final String viewDefinitionName) {
+    final ViewDefinition definition = configSource.getSingle(ViewDefinition.class, viewDefinitionName, VersionCorrection.LATEST);
     if (definition == null) {
       throw new InvokeInvalidArgumentException(1, "No view definition found with name '" + viewDefinitionName + "'");
     }
@@ -58,7 +58,7 @@ public class ViewIdFunction extends AbstractFunctionInvoker implements Published
   }
 
   @Override
-  protected Object invokeImpl(SessionContext sessionContext, Object[] parameters) throws AsynchronousExecution {
+  protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) throws AsynchronousExecution {
     final ConfigSource configSource = sessionContext.getGlobalContext().getViewProcessor().getConfigSource();
     final String viewDefinitionName = (String) parameters[0];
     return invoke(configSource, viewDefinitionName);
@@ -67,6 +67,6 @@ public class ViewIdFunction extends AbstractFunctionInvoker implements Published
   @Override
   public MetaFunction getMetaFunction() {
     return _meta;
-  }  
-  
+  }
+
 }

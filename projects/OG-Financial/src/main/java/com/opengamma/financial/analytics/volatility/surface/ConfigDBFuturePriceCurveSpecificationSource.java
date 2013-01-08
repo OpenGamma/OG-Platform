@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.surface;
@@ -11,7 +11,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.VersionCorrection;
 
 /**
- * 
+ *
  */
 public class ConfigDBFuturePriceCurveSpecificationSource implements FuturePriceCurveSpecificationSource {
   private final ConfigSource _configSource;
@@ -32,6 +32,6 @@ public class ConfigDBFuturePriceCurveSpecificationSource implements FuturePriceC
 
   @Override
   public FuturePriceCurveSpecification getSpecification(final String name, final String instrumentType, final VersionCorrection versionCorrection) {
-    return _configSource.getConfig(FuturePriceCurveSpecification.class, name, versionCorrection);
+    return _configSource.getSingle(FuturePriceCurveSpecification.class, name, versionCorrection);
   }
 }

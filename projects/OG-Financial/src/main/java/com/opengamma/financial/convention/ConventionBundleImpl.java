@@ -577,8 +577,24 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   @Override
-  public int getSettlementDays() {
+  public Integer getSettlementDays() {
     return _settlementDays;
+  }
+
+  // REVIEW: 2012-11-26 Andrew -- The getBondSettlementDays method puts behavior into what should be just a data object. I've exposed the cutofftenor
+  // field so that this subclass of the bundle can be serialized. Any other subclasses will cause an error as it will not be possible to represent
+  // their behavior.
+
+  public Tenor getCutoffTenor() {
+    return _cutoffTenor;
+  }
+
+  public int getShortSettlementDays() {
+    return _shortSettlementDays;
+  }
+
+  public int getLongSettlementDays() {
+    return _longSettlementDays;
   }
 
   @Override

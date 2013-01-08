@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -173,4 +174,15 @@ public class YieldCurveFunctionUtils {
     }
     return null;
   }
+
+  public static Set<String> intersection(final Set<String> as, final String[] bs) {
+    final Set<String> i = Sets.newHashSetWithExpectedSize(as.size());
+    for (final String b : bs) {
+      if (as.contains(b)) {
+        i.add(b);
+      }
+    }
+    return i;
+  }
+
 }

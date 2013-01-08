@@ -127,6 +127,7 @@ import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRa
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentParRateParallelCurveSensitivityFunctionDeprecated;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentPresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentYieldCurveNodeSensitivitiesFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.FXSpotRateMarketDataFunction;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.forex.forward.deprecated.FXForwardCurrencyExposureFunctionDeprecated;
@@ -694,7 +695,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   }
 
   private static void addForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(ExampleForexSpotRateMarketDataFunction.class));
+    functionConfigs.add(functionConfiguration(FXSpotRateMarketDataFunction.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackPresentValueFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackCurrencyExposureFunctionDeprecated.class));
     functionConfigs.add(functionConfiguration(FXOptionBlackVegaFunctionDeprecated.class));
