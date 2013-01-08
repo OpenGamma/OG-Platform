@@ -12,14 +12,18 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 
 /**
- * Function repository configuration source for the functions contained in this package and sub-packages.
+ * Function repository configuration source for the functions contained in this package.
  */
 public class CashFlowFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
+   * 
+   * @return the configuration source exposing functions from this package
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new CashFlowFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new CashFlowFunctions().getObjectCreating();
+  }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {

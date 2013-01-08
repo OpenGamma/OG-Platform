@@ -18,8 +18,12 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
+   *
+   * @return the configuration source exposing functions from this package
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new OptionFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new OptionFunctions().getObjectCreating();
+  }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {

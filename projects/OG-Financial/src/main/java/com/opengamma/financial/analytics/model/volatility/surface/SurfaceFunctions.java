@@ -19,9 +19,13 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.BlackFun
 public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
-   * Default instance of a repository configuration source exposing the functions from this package.
+   * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
+   * 
+   * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new SurfaceFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new SurfaceFunctions().getObjectCreating();
+  }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
@@ -31,7 +35,7 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource blackFunctionConfiguration() {
-    return BlackFunctions.DEFAULT;
+    return BlackFunctions.instance();
   }
 
   @Override

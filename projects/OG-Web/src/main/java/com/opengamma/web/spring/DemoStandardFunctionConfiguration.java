@@ -9,7 +9,6 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.D
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
-import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +18,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
+import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
@@ -26,17 +26,22 @@ import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSour
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.FinancialFunctions;
 import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.model.bond.BondDefaultCurveNamesFunction;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionDefaults;
 import com.opengamma.financial.analytics.model.credit.ISDALegacyCDSHazardCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.ISDALegacyVanillaCDSDefaults;
 import com.opengamma.financial.analytics.model.credit.ISDAYieldCurveDefaults;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromMarketQuotesDefaults;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesPrimitiveDefaults;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesSecurityDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurvePrimitiveDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveSecurityDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveTradeDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.curve.forward.InterpolatedForwardCurveDefaults;
+import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveDefaults;
+import com.opengamma.financial.analytics.model.curve.interestrate.YieldCurveDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveDefaults;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldPricingDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionDefaults;
@@ -84,6 +89,7 @@ import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackDefau
 import com.opengamma.financial.analytics.model.var.NormalHistoricalVaRDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.cube.defaults.SABRNonLinearSwaptionVolatilityCubeFittingDefaults;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.BackwardPDEDefaults;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.FXPDECurveDefaults;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.ForwardPDEDefaults;
@@ -106,6 +112,7 @@ import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
+import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues;
 import com.opengamma.web.spring.defaults.GeneralBlackVolatilityInterpolationDefaults;
 import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
@@ -117,6 +124,47 @@ import com.opengamma.web.spring.defaults.TargetSpecificBlackVolatilitySurfaceDef
  * This should be replaced by something that loads the functions from the configuration database
  */
 public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigurationBean {
+
+  private String _htsResolutionKey = HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
+  private String _mark2MarketField = "PX_LAST";
+  private String _costOfCarryField = "COST_OF_CARRY";
+  private String _valueFieldName = MarketDataRequirementNames.MARKET_VALUE;
+
+  public void setHtsResolutionKey(final String htsResolutionKey) {
+    _htsResolutionKey = htsResolutionKey;
+  }
+
+  public String getHtsResolutionKey() {
+    return _htsResolutionKey;
+  }
+
+  public void setMark2MarketField(final String mark2MarketField) {
+    _mark2MarketField = mark2MarketField;
+  }
+
+  public String getMark2MarketField() {
+    return _mark2MarketField;
+  }
+
+  public void setCostOfCarryField(final String costOfCarryField) {
+    _costOfCarryField = costOfCarryField;
+  }
+
+  public String getCostOfCarryField() {
+    return _costOfCarryField;
+  }
+
+  public void setValueFieldName(final String valueFieldName) {
+    _valueFieldName = valueFieldName;
+  }
+
+  public String getValueFieldName() {
+    return _valueFieldName;
+  }
+
+  public static RepositoryConfigurationSource instance() {
+    return new DemoStandardFunctionConfiguration().getObjectCreating();
+  }
 
   private static void addBlackDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(SwaptionBlackDefaultPropertiesFunction.class, PriorityClass.NORMAL.name(), "EUR", "DefaultTwoCurveEURConfig", "DEFAULT"));
@@ -335,10 +383,31 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
         "EUR", "JPY", "TULLETT"));
   }
 
+  private static void addForwardCurveDefaults(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(FXForwardCurveFromMarketQuotesDefaults.class,
+        "DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator"));
+    functions.add(functionConfiguration(FXForwardCurveFromYieldCurvesPrimitiveDefaults.class,
+            "USD", "DefaultTwoCurveUSDConfig", "Discounting",
+            "EUR", "DefaultTwoCurveEURConfig", "Discounting",
+            "CHF", "DefaultTwoCurveCHFConfig", "Discounting"));
+    functions.add(functionConfiguration(FXForwardCurveFromYieldCurvesSecurityDefaults.class,
+            "USD", "DefaultTwoCurveUSDConfig", "Discounting",
+            "EUR", "DefaultTwoCurveEURConfig", "Discounting",
+            "CHF", "DefaultTwoCurveCHFConfig", "Discounting"));
+    functions.add(functionConfiguration(InterpolatedForwardCurveDefaults.class, "DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator"));
+  }
+
   private static void addFXBarrierOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
     final String overhedge = "0.0";
     final String relativeStrikeSmoothing = "0.001";
     functionConfigs.add(functionConfiguration(FXOneLookBarrierOptionBlackDefaultPropertiesFunction.class, overhedge, relativeStrikeSmoothing));
+  }
+
+  private static void addFXImpliedYieldCurveDefaults(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(FXImpliedYieldCurveDefaults.class, "0.0001", "0.0001", "1000",
+        DecompositionFactory.SV_COLT_NAME, "false", "DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator", "ARS", "AUD",
+        "BRL", "CAD", "CHF", "CLP", "CNY", "CZK", "EGP", "EUR", "GBP", "HKD", "HUF", "IDR", "ILS", "INR", "JPY", "KRW", "MXN",
+        "MYR", "NOK", "NZD", "PHP", "PLN", "SEK", "SGD", "TRY", "TWD", "ZAR"));
   }
 
   private static void addFXOptionBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
@@ -450,24 +519,26 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
   }
 
   private static void addSABRDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "USD", "BLOOMBERG"));
-    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "EUR", "BLOOMBERG"));
-    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "GBP", "BLOOMBERG"));
-    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "AUD", "BLOOMBERG"));
     functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, PriorityClass.BELOW_NORMAL.name(),
         SmileFittingProperties.NON_LINEAR_LEAST_SQUARES,
         "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG",
         "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG",
         "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG",
         "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, PriorityClass.BELOW_NORMAL.name(),
-        SmileFittingProperties.NON_LINEAR_LEAST_SQUARES, "0.07", "10.0",
+    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, PriorityClass.BELOW_NORMAL.name(),
+        SmileFittingProperties.NON_LINEAR_LEAST_SQUARES, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR,
         "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG",
         "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG",
         "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG",
         "GBP", "DefaultTwoCurveGBPConfig", "BLOOMBERG"));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, PriorityClass.BELOW_NORMAL.name(),
-        SmileFittingProperties.NON_LINEAR_LEAST_SQUARES, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR,
+    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "USD", "BLOOMBERG"));
+    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "EUR", "BLOOMBERG"));
+    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "GBP", "BLOOMBERG"));
+    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "AUD", "BLOOMBERG"));
+    functionConfigs.add(functionConfiguration(SABRNonLinearSwaptionVolatilityCubeFittingDefaults.class, "0.05", "0.5", "0.7", "0.3", "false", "true", "false", "false", "0.001", "Linear",
+        "FlatExtrapolator", "Linear", "FlatExtrapolator", "ForwardSwapQuotes", "DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator"));
+    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, PriorityClass.BELOW_NORMAL.name(),
+        SmileFittingProperties.NON_LINEAR_LEAST_SQUARES, "0.07", "10.0",
         "USD", "DefaultTwoCurveUSDConfig", "BLOOMBERG",
         "EUR", "DefaultTwoCurveEURConfig", "BLOOMBERG",
         "AUD", "DefaultTwoCurveAUDConfig", "BLOOMBERG",
@@ -499,6 +570,11 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
         PriorityClass.NORMAL.name()));
   }
 
+  private static void addYieldCurveDefaults(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(YieldCurveDefaults.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false", "USD", "CHF", "CAD", "GBP", "AUD",
+        "EUR", "BRL", "HUF", "KRW", "MXN", "NZD", "JPY", "HKD", "CNY", "RUB", "ARS"));
+  }
+
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     addBlackDefaults(functions);
@@ -521,6 +597,8 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
     addForexForwardDefaults(functions);
     addForexOptionDefaults(functions);
     addFXBarrierOptionDefaults(functions);
+    addForwardCurveDefaults(functions);
+    addFXImpliedYieldCurveDefaults(functions);
     addFXOptionBlackVolatilitySurfaceDefaults(functions);
     addInterestRateFutureDefaults(functions);
     addInterestRateFutureOptionDefaults(functions);
@@ -530,25 +608,26 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
     addPortfolioAnalysisDefaults(functions);
     addSABRDefaults(functions);
     addVaRDefaults(functions);
+    addYieldCurveDefaults(functions);
     functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
     functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
   }
 
-  protected RepositoryConfigurationSource financialFunctions() {
-    return FinancialFunctions.DEFAULT;
-  }
-
   protected RepositoryConfigurationSource pnlFunctions() {
-    return PNLFunctions.calculators(DEFAULT_CONFIG_NAME, "PX_LAST", "COST_OF_CARRY", MarketDataRequirementNames.MARKET_VALUE);
+    return PNLFunctions.calculators(getHtsResolutionKey(), getMark2MarketField(), getCostOfCarryField(), getValueFieldName());
   }
 
   protected RepositoryConfigurationSource portfolioTheoryFunctions() {
-    return PortfolioTheoryFunctions.calculators(DEFAULT_CONFIG_NAME);
+    return PortfolioTheoryFunctions.calculators(getHtsResolutionKey());
+  }
+
+  protected RepositoryConfigurationSource bloombergVolatilityCubeFunctions() {
+    return BloombergVolatilityCubeFunctions.instance();
   }
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), financialFunctions(), pnlFunctions(), portfolioTheoryFunctions());
+    return new CombiningRepositoryConfigurationSource(super.createObject(), pnlFunctions(), portfolioTheoryFunctions(), bloombergVolatilityCubeFunctions());
   }
 
 }

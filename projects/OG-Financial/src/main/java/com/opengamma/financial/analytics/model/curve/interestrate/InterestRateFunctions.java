@@ -14,18 +14,25 @@ import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 /**
  * Function repository configuration source for the functions contained in this package.
  */
-public class InterestRateCurveFunctions extends AbstractRepositoryConfigurationBean {
+public class InterestRateFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
+   *
+   * @return the configuration source exposing functions from this package
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new InterestRateCurveFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new InterestRateFunctions().getObjectCreating();
+  }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(FXImpliedYieldCurveFunction.class));
     functions.add(functionConfiguration(InterpolatedYieldCurveFunction.class));
     functions.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING));
     functions.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    functions.add(functionConfiguration(MultiYieldCurveParRateMethodFunction.class));
+    functions.add(functionConfiguration(MultiYieldCurvePresentValueMethodFunction.class));
   }
 
 }

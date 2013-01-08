@@ -20,12 +20,16 @@ import com.opengamma.financial.analytics.model.swaption.deprecated.DeprecatedFun
 public class SwaptionFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
-   * Default instance of a repository configuration source exposing the functions from this package.
+   * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
+   * 
+   * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new SwaptionFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new SwaptionFunctions().getObjectCreating();
+  }
 
   public static RepositoryConfigurationSource deprecated() {
-    return DeprecatedFunctions.DEFAULT;
+    return new DeprecatedFunctions().getObjectCreating();
   }
 
   @Override
@@ -34,7 +38,7 @@ public class SwaptionFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource blackFunctionConfiguration() {
-    return BlackFunctions.DEFAULT;
+    return BlackFunctions.instance();
   }
 
   @Override

@@ -5,14 +5,11 @@
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -21,13 +18,27 @@ public class IRFutureOptionFunctions extends AbstractRepositoryConfigurationBean
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
+   *
+   * @return the configuration source exposing functions from this package
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new IRFutureOptionFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new IRFutureOptionFunctions().getObjectCreating();
+  }
 
   public static RepositoryConfigurationSource deprecated() {
-    final List<FunctionConfiguration> functions = new ArrayList<FunctionConfiguration>();
-    // TODO: add functions
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(functions));
+    return new Deprecated().getObjectCreating();
+  }
+
+  /**
+   * Function repository configuration source for the deprecated functions contained in this package.
+   */
+  public static class Deprecated extends AbstractRepositoryConfigurationBean {
+
+    @Override
+    protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+      // TODO: add functions
+    }
+
   }
 
   @Override

@@ -25,14 +25,14 @@ import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
  */
 public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
 
-  // TODO: This IS NOT complete by any means. It is here by means of example for how we can better register the functions. Each package exports a "DEFAULT" block
-  // of instances which require no configuration. Parent packages form the union of their child packages. An implementation should be able to use this main source
-  // to get the bulk of OG-Analytics support and then have a few custom "default property" functions configured for the local data sources.
-
   /**
-   * Default instance of a repository configuration source exposing the functions from this package.
+   * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
+   *
+   * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new AnalyticsFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new AnalyticsFunctions().getObjectCreating();
+  }
 
   /**
    * Adds an aggregation function for the given requirement name that produces the sum of the child position values.
@@ -234,23 +234,23 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource cashFlowFunctionConfiguration() {
-    return CashFlowFunctions.DEFAULT;
+    return CashFlowFunctions.instance();
   }
 
   protected RepositoryConfigurationSource irCurveFunctionConfiguration() {
-    return IRCurveFunctions.DEFAULT;
+    return IRCurveFunctions.instance();
   }
 
   protected RepositoryConfigurationSource modelFunctionConfiguration() {
-    return ModelFunctions.DEFAULT;
+    return ModelFunctions.instance();
   }
 
   protected RepositoryConfigurationSource timeSeriesFunctionConfiguration() {
-    return TimeSeriesFunctions.DEFAULT;
+    return TimeSeriesFunctions.instance();
   }
 
   protected RepositoryConfigurationSource volatilityFunctionConfiguration() {
-    return VolatilityFunctions.DEFAULT;
+    return VolatilityFunctions.instance();
   }
 
   @Override

@@ -19,14 +19,18 @@ import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioT
 import com.opengamma.financial.analytics.model.equity.varianceswap.VarianceSwapFunctions;
 
 /**
- * Function repository configuration source for the functions contained in this package.
+ * Function repository configuration source for the functions contained in this package and its sub-packages.
  */
 public class EquityFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
-   * Default instance of a repository configuration source exposing the functions from this package.
+   * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
+   * 
+   * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new EquityFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new EquityFunctions().getObjectCreating();
+  }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
@@ -41,15 +45,15 @@ public class EquityFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource optionFunctionConfiguration() {
-    return OptionFunctions.DEFAULT;
+    return OptionFunctions.instance();
   }
 
   protected RepositoryConfigurationSource portfolioTheoryFunctionConfiguration() {
-    return PortfolioTheoryFunctions.DEFAULT;
+    return PortfolioTheoryFunctions.instance();
   }
 
   protected RepositoryConfigurationSource varianceSwapFunctionConfiguration() {
-    return VarianceSwapFunctions.DEFAULT;
+    return VarianceSwapFunctions.instance();
   }
 
   @Override

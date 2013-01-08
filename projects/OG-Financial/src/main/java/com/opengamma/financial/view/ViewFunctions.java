@@ -18,8 +18,12 @@ public class ViewFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
+   *
+   * @return the configuration source exposing functions from this package
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new ViewFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new ViewFunctions().getObjectCreating();
+  }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {

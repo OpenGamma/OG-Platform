@@ -5,49 +5,60 @@
  */
 package com.opengamma.financial.analytics.model.sabrcube;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 
 /**
- * Function repository configuration source for the functions contained in this package and sub-packages.
+ * Function repository configuration source for the functions contained in this package.
  */
 public class SABRCubeFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
+   *
+   * @return the configuration source exposing functions from this package
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new SABRCubeFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new SABRCubeFunctions().getObjectCreating();
+  }
 
   public static RepositoryConfigurationSource deprecated() {
-    final List<FunctionConfiguration> functions = new ArrayList<FunctionConfiguration>();
-    functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVCurveSensitivityFunctionDeprecated.class));
-    functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueFunctionDeprecated.class));
-    functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated.Alpha.class));
-    functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated.Nu.class));
-    functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated.Rho.class));
-    functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationVegaFunctionDeprecated.class));
-    functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationYCNSFunctionDeprecated.class));
-    functions.add(functionConfiguration(SABRNoExtrapolationPVCurveSensitivityFunctionDeprecated.class));
-    functions.add(functionConfiguration(SABRNoExtrapolationPresentValueFunctionDeprecated.class));
-    functions.add(functionConfiguration(SABRNoExtrapolationPVSABRSensitivityFunctionDeprecated.Alpha.class));
-    functions.add(functionConfiguration(SABRNoExtrapolationPVSABRSensitivityFunctionDeprecated.Nu.class));
-    functions.add(functionConfiguration(SABRNoExtrapolationPVSABRSensitivityFunctionDeprecated.Rho.class));
-    functions.add(functionConfiguration(SABRNoExtrapolationVegaFunctionDeprecated.class));
-    functions.add(functionConfiguration(SABRNoExtrapolationYCNSFunctionDeprecated.class));
-    functions.add(functionConfiguration(SABRRightExtrapolationPVCurveSensitivityFunctionDeprecated.class));
-    functions.add(functionConfiguration(SABRRightExtrapolationPresentValueFunctionDeprecated.class));
-    functions.add(functionConfiguration(SABRRightExtrapolationPVSABRSensitivityFunctionDeprecated.Alpha.class));
-    functions.add(functionConfiguration(SABRRightExtrapolationPVSABRSensitivityFunctionDeprecated.Nu.class));
-    functions.add(functionConfiguration(SABRRightExtrapolationPVSABRSensitivityFunctionDeprecated.Rho.class));
-    functions.add(functionConfiguration(SABRRightExtrapolationVegaFunctionDeprecated.class));
-    functions.add(functionConfiguration(SABRRightExtrapolationYCNSFunctionDeprecated.class));
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(functions));
+    return new Deprecated().getObjectCreating();
+  }
+
+  /**
+   * Function repository configuration source for the deprecated functions contained in this package.
+   */
+  public static class Deprecated extends AbstractRepositoryConfigurationBean {
+
+    @Override
+    public void addAllConfigurations(final List<FunctionConfiguration> functions) {
+      functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVCurveSensitivityFunctionDeprecated.class));
+      functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPresentValueFunctionDeprecated.class));
+      functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated.Alpha.class));
+      functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated.Nu.class));
+      functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunctionDeprecated.Rho.class));
+      functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationVegaFunctionDeprecated.class));
+      functions.add(functionConfiguration(SABRCMSSpreadNoExtrapolationYCNSFunctionDeprecated.class));
+      functions.add(functionConfiguration(SABRNoExtrapolationPVCurveSensitivityFunctionDeprecated.class));
+      functions.add(functionConfiguration(SABRNoExtrapolationPresentValueFunctionDeprecated.class));
+      functions.add(functionConfiguration(SABRNoExtrapolationPVSABRSensitivityFunctionDeprecated.Alpha.class));
+      functions.add(functionConfiguration(SABRNoExtrapolationPVSABRSensitivityFunctionDeprecated.Nu.class));
+      functions.add(functionConfiguration(SABRNoExtrapolationPVSABRSensitivityFunctionDeprecated.Rho.class));
+      functions.add(functionConfiguration(SABRNoExtrapolationVegaFunctionDeprecated.class));
+      functions.add(functionConfiguration(SABRNoExtrapolationYCNSFunctionDeprecated.class));
+      functions.add(functionConfiguration(SABRRightExtrapolationPVCurveSensitivityFunctionDeprecated.class));
+      functions.add(functionConfiguration(SABRRightExtrapolationPresentValueFunctionDeprecated.class));
+      functions.add(functionConfiguration(SABRRightExtrapolationPVSABRSensitivityFunctionDeprecated.Alpha.class));
+      functions.add(functionConfiguration(SABRRightExtrapolationPVSABRSensitivityFunctionDeprecated.Nu.class));
+      functions.add(functionConfiguration(SABRRightExtrapolationPVSABRSensitivityFunctionDeprecated.Rho.class));
+      functions.add(functionConfiguration(SABRRightExtrapolationVegaFunctionDeprecated.class));
+      functions.add(functionConfiguration(SABRRightExtrapolationYCNSFunctionDeprecated.class));
+    }
+
   }
 
   @Override

@@ -5,14 +5,11 @@
  */
 package com.opengamma.financial.analytics.model.sensitivities;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.pnl.ExternallyProvidedSensitivityPnLFunction;
 
 /**
@@ -22,13 +19,39 @@ public class SensitivitiesFunctions extends AbstractRepositoryConfigurationBean 
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
+   *
+   * @return the configuration source exposing functions from this package
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new SensitivitiesFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new SensitivitiesFunctions().getObjectCreating();
+  }
 
   public static RepositoryConfigurationSource calculators(final String htsResolutionKey) {
-    final List<FunctionConfiguration> functions = new ArrayList<FunctionConfiguration>();
-    functions.add(functionConfiguration(ExternallyProvidedSensitivityPnLFunction.class, htsResolutionKey));
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(functions));
+    final Calculators factory = new Calculators();
+    factory.setHtsResolutionKey(htsResolutionKey);
+    return factory.getObjectCreating();
+  }
+
+  /**
+   * Function repository configuration source for the configurable functions contained in this package.
+   */
+  public static class Calculators extends AbstractRepositoryConfigurationBean {
+
+    private String _htsResolutionKey;
+
+    public void setHtsResolutionKey(final String htsResolutionKey) {
+      _htsResolutionKey = htsResolutionKey;
+    }
+
+    public String getHtsResolutionKey() {
+      return _htsResolutionKey;
+    }
+
+    @Override
+    protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+      functions.add(functionConfiguration(ExternallyProvidedSensitivityPnLFunction.class, getHtsResolutionKey()));
+    }
+
   }
 
   @Override

@@ -5,38 +5,61 @@
  */
 package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 
 /**
- * Function repository configuration source for the functions contained in this package and sub-packages.
+ * Function repository configuration source for the functions contained in this package.
  */
 public class PortfolioTheoryFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
+   *
+   * @return the configuration source exposing functions from this package
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new PortfolioTheoryFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new PortfolioTheoryFunctions().getObjectCreating();
+  }
 
   public static RepositoryConfigurationSource calculators(final String htsResolutionKey) {
-    final List<FunctionConfiguration> functions = new ArrayList<FunctionConfiguration>();
-    functions.add(functionConfiguration(CAPMBetaModelPositionFunction.class, htsResolutionKey));
-    functions.add(functionConfiguration(CAPMBetaModelPortfolioNodeFunction.class, htsResolutionKey));
-    functions.add(functionConfiguration(CAPMFromRegressionModelFunction.class, htsResolutionKey));
-    functions.add(functionConfiguration(SharpeRatioPositionFunction.class, htsResolutionKey));
-    functions.add(functionConfiguration(SharpeRatioPortfolioNodeFunction.class, htsResolutionKey));
-    functions.add(functionConfiguration(TreynorRatioPositionFunction.class, htsResolutionKey));
-    functions.add(functionConfiguration(TreynorRatioPortfolioNodeFunction.class, htsResolutionKey));
-    functions.add(functionConfiguration(JensenAlphaFunction.class, htsResolutionKey));
-    functions.add(functionConfiguration(TotalRiskAlphaPositionFunction.class, htsResolutionKey));
-    functions.add(functionConfiguration(TotalRiskAlphaPortfolioNodeFunction.class, htsResolutionKey));
-    return new SimpleRepositoryConfigurationSource(new RepositoryConfiguration(functions));
+    final Calculators factory = new Calculators();
+    factory.setHtsResolutionKey(htsResolutionKey);
+    return factory.getObjectCreating();
+  }
+
+  /**
+   * Function repository configuration source for the functions contained in this package.
+   */
+  public static class Calculators extends AbstractRepositoryConfigurationBean {
+
+    private String _htsResolutionKey;
+
+    public String getHtsResolutionKey() {
+      return _htsResolutionKey;
+    }
+
+    public void setHtsResolutionKey(final String htsResolutionKey) {
+      _htsResolutionKey = htsResolutionKey;
+    }
+
+    @Override
+    protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+      functions.add(functionConfiguration(CAPMBetaModelPositionFunction.class, getHtsResolutionKey()));
+      functions.add(functionConfiguration(CAPMBetaModelPortfolioNodeFunction.class, getHtsResolutionKey()));
+      functions.add(functionConfiguration(CAPMFromRegressionModelFunction.class, getHtsResolutionKey()));
+      functions.add(functionConfiguration(SharpeRatioPositionFunction.class, getHtsResolutionKey()));
+      functions.add(functionConfiguration(SharpeRatioPortfolioNodeFunction.class, getHtsResolutionKey()));
+      functions.add(functionConfiguration(TreynorRatioPositionFunction.class, getHtsResolutionKey()));
+      functions.add(functionConfiguration(TreynorRatioPortfolioNodeFunction.class, getHtsResolutionKey()));
+      functions.add(functionConfiguration(JensenAlphaFunction.class, getHtsResolutionKey()));
+      functions.add(functionConfiguration(TotalRiskAlphaPositionFunction.class, getHtsResolutionKey()));
+      functions.add(functionConfiguration(TotalRiskAlphaPortfolioNodeFunction.class, getHtsResolutionKey()));
+    }
+
   }
 
   @Override

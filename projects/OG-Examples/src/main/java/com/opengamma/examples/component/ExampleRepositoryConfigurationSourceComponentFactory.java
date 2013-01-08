@@ -5,7 +5,6 @@
  */
 package com.opengamma.examples.component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +18,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.factory.source.RepositoryConfigurationSourceComponentFactory;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.examples.function.ExampleCubeFunctionConfiguration;
-import com.opengamma.examples.function.ExampleCurveFunctionConfiguration;
 import com.opengamma.examples.function.ExampleStandardFunctionConfiguration;
 import com.opengamma.examples.function.ExampleSurfaceFunctionConfiguration;
+import com.opengamma.examples.tutorial.TutorialFunctions;
 
 /**
  * Component factory for the function configuration source.
@@ -30,29 +29,30 @@ import com.opengamma.examples.function.ExampleSurfaceFunctionConfiguration;
 public class ExampleRepositoryConfigurationSourceComponentFactory extends RepositoryConfigurationSourceComponentFactory {
 
   @Override
+  protected RepositoryConfigurationSource standardConfiguration() {
+    return ExampleStandardFunctionConfiguration.instance();
+  }
+
+  @Override
+  protected RepositoryConfigurationSource surfaceConfiguration() {
+    final ExampleSurfaceFunctionConfiguration factory = new ExampleSurfaceFunctionConfiguration();
+    factory.setConfigMaster(getConfigMaster());
+    return factory.constructRepositoryConfigurationSource();
+  }
+
+  protected RepositoryConfigurationSource cubeConfiguration() {
+    final ExampleCubeFunctionConfiguration factory = new ExampleCubeFunctionConfiguration();
+    return factory.constructRepositoryConfigurationSource();
+  }
+
+  protected RepositoryConfigurationSource tutorialConfiguration() {
+    return TutorialFunctions.instance();
+  }
+
+  @Override
   protected List<RepositoryConfigurationSource> initSources() {
-    final List<RepositoryConfigurationSource> sources = new ArrayList<RepositoryConfigurationSource>();
-
-    final RepositoryConfigurationSource standardFunctionSource = new ExampleStandardFunctionConfiguration().getObjectCreating();
-    sources.add(standardFunctionSource);
-
-    final ExampleCurveFunctionConfiguration curveFunctionConfig = new ExampleCurveFunctionConfiguration();
-    curveFunctionConfig.setConfigMaster(getConfigMaster());
-    curveFunctionConfig.setConventionBundleSource(getConventionBundleSource());
-    final RepositoryConfigurationSource curveFunctionSource = curveFunctionConfig.constructRepositoryConfigurationSource();
-    sources.add(curveFunctionSource);
-
-    final ExampleSurfaceFunctionConfiguration surfaceFunctionConfig = new ExampleSurfaceFunctionConfiguration();
-    surfaceFunctionConfig.setConfigMaster(getConfigMaster());
-    final RepositoryConfigurationSource surfaceFunctionSource = surfaceFunctionConfig.constructRepositoryConfigurationSource();
-    sources.add(surfaceFunctionSource);
-
-    final ExampleCubeFunctionConfiguration cubeFunctionConfig = new ExampleCubeFunctionConfiguration();
-    final RepositoryConfigurationSource cubeFunctionSource = cubeFunctionConfig.constructRepositoryConfigurationSource();
-    sources.add(cubeFunctionSource);
-
-    //sources.add(TutorialFunctions.DEFAULT);
-
+    final List<RepositoryConfigurationSource> sources = super.initSources();
+    // sources.add(tutorialConfiguration());
     return sources;
   }
 

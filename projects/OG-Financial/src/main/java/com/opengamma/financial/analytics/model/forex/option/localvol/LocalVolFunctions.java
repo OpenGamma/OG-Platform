@@ -20,8 +20,12 @@ public class LocalVolFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
+   * 
+   * @return the configuration source exposing functions from this package
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new LocalVolFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new LocalVolFunctions().getObjectCreating();
+  }
 
   protected void addPDEFunction(final List<FunctionConfiguration> functions, final Class<? extends FunctionDefinition> function) {
     functions.add(functionConfiguration(function, BlackVolatilitySurfacePropertyNamesAndValues.MIXED_LOG_NORMAL));

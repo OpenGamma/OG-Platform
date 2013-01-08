@@ -18,8 +18,12 @@ public class PropertyFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
+   *
+   * @return the configuration source exposing functions from this package
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new PropertyFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new PropertyFunctions().getObjectCreating();
+  }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {

@@ -21,9 +21,13 @@ import com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctio
 public class VolatilityFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
-   * Default instance of a repository configuration source exposing the functions from this package.
+   * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
+   * 
+   * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new VolatilityFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new VolatilityFunctions().getObjectCreating();
+  }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
@@ -31,15 +35,15 @@ public class VolatilityFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource cubeFunctionConfiguration() {
-    return CubeFunctions.DEFAULT;
+    return CubeFunctions.instance();
   }
 
   protected RepositoryConfigurationSource localFunctionConfiguration() {
-    return LocalFunctions.DEFAULT;
+    return LocalFunctions.instance();
   }
 
   protected RepositoryConfigurationSource surfaceFunctionConfiguration() {
-    return SurfaceFunctions.DEFAULT;
+    return SurfaceFunctions.instance();
   }
 
   @Override

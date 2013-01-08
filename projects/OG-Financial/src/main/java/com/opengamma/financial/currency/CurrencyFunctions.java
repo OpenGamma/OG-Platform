@@ -19,8 +19,12 @@ public class CurrencyFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
+   *
+   * @return the configuration source exposing functions from this package
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new CurrencyFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new CurrencyFunctions().getObjectCreating();
+  }
 
   protected void addDefaultCurrencyFunction(final List<FunctionConfiguration> functions, final String requirementName) {
     functions.add(functionConfiguration(DefaultCurrencyFunction.Permissive.class, requirementName));

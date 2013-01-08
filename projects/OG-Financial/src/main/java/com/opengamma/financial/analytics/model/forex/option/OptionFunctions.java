@@ -18,14 +18,18 @@ import com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions
 import com.opengamma.financial.analytics.model.forex.option.localvol.LocalVolFunctions;
 
 /**
- * Function repository configuration source for the functions contained in this package.
+ * Function repository configuration source for the functions contained in this package and its sub-packages.
  */
 public class OptionFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
-   * Default instance of a repository configuration source exposing the functions from this package.
+   * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
+   *
+   * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new OptionFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new OptionFunctions().getObjectCreating();
+  }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
@@ -34,7 +38,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource blackFunctionConfiguration() {
-    return BlackFunctions.DEFAULT;
+    return BlackFunctions.instance();
   }
 
   protected RepositoryConfigurationSource callSpreadBlackFunctionConfiguration() {
@@ -43,7 +47,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource localVolFunctionConfiguration() {
-    return LocalVolFunctions.DEFAULT;
+    return LocalVolFunctions.instance();
   }
 
   protected RepositoryConfigurationSource vannaVolgaFunctionConfiguration() {

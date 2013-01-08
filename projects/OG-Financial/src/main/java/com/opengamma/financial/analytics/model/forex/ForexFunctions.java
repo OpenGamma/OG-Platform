@@ -15,14 +15,18 @@ import com.opengamma.financial.analytics.model.forex.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.forex.option.OptionFunctions;
 
 /**
- * Function repository configuration source for the functions contained in this package.
+ * Function repository configuration source for the functions contained in this package and its sub-packages.
  */
 public class ForexFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
-   * Default instance of a repository configuration source exposing the functions from this package.
+   * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
+   * 
+   * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new ForexFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new ForexFunctions().getObjectCreating();
+  }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
@@ -30,11 +34,11 @@ public class ForexFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource forwardFunctionConfiguration() {
-    return ForwardFunctions.DEFAULT;
+    return ForwardFunctions.instance();
   }
 
   protected RepositoryConfigurationSource optionFunctionConfiguration() {
-    return OptionFunctions.DEFAULT;
+    return OptionFunctions.instance();
   }
 
   @Override

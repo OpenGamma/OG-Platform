@@ -21,9 +21,13 @@ import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 public class BlackFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
-   * Default instance of a repository configuration source exposing the functions from this package.
+   * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
+   * 
+   * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new BlackFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new BlackFunctions().getObjectCreating();
+  }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {

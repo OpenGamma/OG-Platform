@@ -24,9 +24,13 @@ import com.opengamma.financial.view.ViewFunctions;
 public class FinancialFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
-   * Default instance of a repository configuration source exposing the functions from this package.
+   * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
+   *
+   * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new FinancialFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new FinancialFunctions().getObjectCreating();
+  }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
@@ -34,27 +38,27 @@ public class FinancialFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource aggregationFunctionConfiguration() {
-    return AggregationFunctions.DEFAULT;
+    return AggregationFunctions.instance();
   }
 
   protected RepositoryConfigurationSource analyticsFunctionConfiguration() {
-    return AnalyticsFunctions.DEFAULT;
+    return AnalyticsFunctions.instance();
   }
 
   protected RepositoryConfigurationSource currencyFunctionConfiguration() {
-    return CurrencyFunctions.DEFAULT;
+    return CurrencyFunctions.instance();
   }
 
   protected RepositoryConfigurationSource propertyFunctionConfiguration() {
-    return PropertyFunctions.DEFAULT;
+    return PropertyFunctions.instance();
   }
 
   protected RepositoryConfigurationSource valueFunctionConfiguration() {
-    return ValueFunctions.DEFAULT;
+    return ValueFunctions.instance();
   }
 
   protected RepositoryConfigurationSource viewFunctionConfiguration() {
-    return ViewFunctions.DEFAULT;
+    return ViewFunctions.instance();
   }
 
   @Override

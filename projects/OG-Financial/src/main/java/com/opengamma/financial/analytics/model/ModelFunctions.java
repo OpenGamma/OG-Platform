@@ -17,6 +17,7 @@ import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.cds.CDSFunctions;
+import com.opengamma.financial.analytics.model.commodity.CommodityFunctions;
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
 import com.opengamma.financial.analytics.model.equity.EquityFunctions;
@@ -41,9 +42,13 @@ import com.opengamma.financial.analytics.model.volatility.VolatilityFunctions;
 public class ModelFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
-   * Default instance of a repository configuration source exposing the functions from this package.
+   * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
+   *
+   * @return the configuration source exposing functions from this package and its sub-packages
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new ModelFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new ModelFunctions().getObjectCreating();
+  }
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
@@ -51,59 +56,63 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource bondFunctionConfiguration() {
-    return BondFunctions.DEFAULT;
+    return BondFunctions.instance();
   }
 
   protected RepositoryConfigurationSource bondFutureOptionFunctionConfiguration() {
-    return BondFutureOptionFunctions.DEFAULT;
+    return BondFutureOptionFunctions.instance();
   }
 
   protected RepositoryConfigurationSource cdsFunctionConfiguration() {
-    return CDSFunctions.DEFAULT;
+    return CDSFunctions.instance();
+  }
+
+  protected RepositoryConfigurationSource commodityFunctionConfiguration() {
+    return CommodityFunctions.instance();
   }
 
   protected RepositoryConfigurationSource creditFunctionConfiguration() {
-    return CreditFunctions.DEFAULT;
+    return CreditFunctions.instance();
   }
 
   protected RepositoryConfigurationSource curveFunctionConfiguration() {
-    return CurveFunctions.DEFAULT;
+    return CurveFunctions.instance();
   }
 
   protected RepositoryConfigurationSource equityFunctionConfiguration() {
-    return EquityFunctions.DEFAULT;
+    return EquityFunctions.instance();
   }
 
   protected RepositoryConfigurationSource fixedIncomeFunctionConfiguration() {
-    return FixedIncomeFunctions.DEFAULT;
+    return FixedIncomeFunctions.instance();
   }
 
   protected RepositoryConfigurationSource forexFunctionConfiguration() {
-    return ForexFunctions.DEFAULT;
+    return ForexFunctions.instance();
   }
 
   protected RepositoryConfigurationSource futureFunctionConfiguration() {
-    return FutureFunctions.DEFAULT;
+    return FutureFunctions.instance();
   }
 
   protected RepositoryConfigurationSource futureOptionFunctionConfiguration() {
-    return FutureOptionFunctions.DEFAULT;
+    return FutureOptionFunctions.instance();
   }
 
   protected RepositoryConfigurationSource horizonFunctionConfiguration() {
-    return HorizonFunctions.DEFAULT;
+    return HorizonFunctions.instance();
   }
 
   protected RepositoryConfigurationSource irFutureOptionFunctionConfiguration() {
-    return IRFutureOptionFunctions.DEFAULT;
+    return IRFutureOptionFunctions.instance();
   }
 
   protected RepositoryConfigurationSource optionFunctionConfiguration() {
-    return OptionFunctions.DEFAULT;
+    return OptionFunctions.instance();
   }
 
   protected RepositoryConfigurationSource pnlFunctionConfiguration() {
-    return PNLFunctions.DEFAULT;
+    return PNLFunctions.instance();
   }
 
   protected RepositoryConfigurationSource riskFactorFunctionConfiguration() {
@@ -112,36 +121,36 @@ public class ModelFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   protected RepositoryConfigurationSource sabrCubeFunctionConfiguration() {
-    return SABRCubeFunctions.DEFAULT;
+    return SABRCubeFunctions.instance();
   }
 
   protected RepositoryConfigurationSource sensitivitiesFunctionConfiguration() {
-    return SensitivitiesFunctions.DEFAULT;
+    return SensitivitiesFunctions.instance();
   }
 
   protected RepositoryConfigurationSource simpleInstrumentFunctionConfiguration() {
-    return SimpleInstrumentFunctions.DEFAULT;
+    return SimpleInstrumentFunctions.instance();
   }
 
   protected RepositoryConfigurationSource swaptionFunctionConfiguration() {
-    return SwaptionFunctions.DEFAULT;
+    return SwaptionFunctions.instance();
   }
 
   protected RepositoryConfigurationSource varFunctionConfiguration() {
-    return VaRFunctions.DEFAULT;
+    return VaRFunctions.instance();
   }
 
   protected RepositoryConfigurationSource volatilityFunctionConfiguration() {
-    return VolatilityFunctions.DEFAULT;
+    return VolatilityFunctions.instance();
   }
 
   @Override
   protected RepositoryConfigurationSource createObject() {
     return new CombiningRepositoryConfigurationSource(super.createObject(), bondFunctionConfiguration(), bondFutureOptionFunctionConfiguration(), cdsFunctionConfiguration(),
-        creditFunctionConfiguration(), curveFunctionConfiguration(), equityFunctionConfiguration(), fixedIncomeFunctionConfiguration(), forexFunctionConfiguration(), futureFunctionConfiguration(),
-        futureOptionFunctionConfiguration(), horizonFunctionConfiguration(), irFutureOptionFunctionConfiguration(), optionFunctionConfiguration(), pnlFunctionConfiguration(),
-        riskFactorFunctionConfiguration(), sabrCubeFunctionConfiguration(), sensitivitiesFunctionConfiguration(), simpleInstrumentFunctionConfiguration(), swaptionFunctionConfiguration(),
-        varFunctionConfiguration(), volatilityFunctionConfiguration());
+        commodityFunctionConfiguration(), creditFunctionConfiguration(), curveFunctionConfiguration(), equityFunctionConfiguration(), fixedIncomeFunctionConfiguration(), forexFunctionConfiguration(),
+        futureFunctionConfiguration(), futureOptionFunctionConfiguration(), horizonFunctionConfiguration(), irFutureOptionFunctionConfiguration(), optionFunctionConfiguration(),
+        pnlFunctionConfiguration(), riskFactorFunctionConfiguration(), sabrCubeFunctionConfiguration(), sensitivitiesFunctionConfiguration(), simpleInstrumentFunctionConfiguration(),
+        swaptionFunctionConfiguration(), varFunctionConfiguration(), volatilityFunctionConfiguration());
   }
 
 }

@@ -26,11 +26,15 @@ public class BlackFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
+   * 
+   * @return the configuration source exposing functions from this package
    */
-  public static final RepositoryConfigurationSource DEFAULT = (new BlackFunctions()).getObjectCreating();
+  public static RepositoryConfigurationSource instance() {
+    return new BlackFunctions().getObjectCreating();
+  }
 
   public static RepositoryConfigurationSource deprecated() {
-    return DeprecatedFunctions.DEFAULT;
+    return new DeprecatedFunctions().getObjectCreating();
   }
 
   @Override
