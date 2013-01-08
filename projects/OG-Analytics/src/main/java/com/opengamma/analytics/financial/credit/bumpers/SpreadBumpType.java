@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.bumpers;
 
 /**
  * Enumerate the types of spread bumps that can be applied to a term structure of credit spreads

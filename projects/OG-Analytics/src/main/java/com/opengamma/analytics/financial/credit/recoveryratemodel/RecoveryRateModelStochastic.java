@@ -39,7 +39,8 @@ public class RecoveryRateModelStochastic {
 
     BetaDistributionImpl betaDistribution = new BetaDistributionImpl(_a, _b);
 
-    _recoveryRate = betaDistribution.density(_x);
+    // FIXME : Fix this
+    _recoveryRate = 0.0; //betaDistribution.inverseCumulativeProbability(_x);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
