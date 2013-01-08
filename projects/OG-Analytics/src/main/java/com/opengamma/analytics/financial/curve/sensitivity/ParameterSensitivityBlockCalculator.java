@@ -43,7 +43,8 @@ public class ParameterSensitivityBlockCalculator extends AbstractParameterSensit
    * @return The sensitivity.
    */
   @Override
-  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
+  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, 
+      final YieldCurveBundle bundle) {
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
     ArgumentChecker.notNull(fixedCurves, "Fixed Curves");
     ArgumentChecker.notNull(bundle, "Curve bundle");

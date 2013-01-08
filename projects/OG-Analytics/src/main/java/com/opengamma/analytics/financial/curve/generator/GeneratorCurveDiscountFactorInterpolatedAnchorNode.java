@@ -6,22 +6,22 @@
 package com.opengamma.analytics.financial.curve.generator;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.curve.DoublesCurveInterpolatedAnchor;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Store the details and generate the required curve. The curve is interpolated on the rate (continuously compounded).
+ * Store the details and generate the required curve. The curve is interpolated on the discount factor.
  * One extra node with value zero is added at the mid point between the first and second point. This extra anchor is required when two translation invariant curves descriptions
  * are added in a spread curve (two translations would create a singular system).
  */
-public class GeneratorCurveYieldInterpolatedAnchorNode extends GeneratorYDCurve {
+public class GeneratorCurveDiscountFactorInterpolatedAnchorNode extends GeneratorYDCurve {
 
   /**
-   * The nodes (times) on which the interpolated curves is constructed. Does not include the extra anchor node.
+   * The nodes (times) on which the interpolated curves is constructed.
    */
   private final double[] _nodePoints;
   /**
@@ -33,17 +33,17 @@ public class GeneratorCurveYieldInterpolatedAnchorNode extends GeneratorYDCurve 
    */
   private final Interpolator1D _interpolator;
   /**
-   * The number of points (or nodes), not including the extra anchor.
+   * The number of points (or nodes). Is the length of _nodePoints.
    */
   private final int _nbPoints;
 
   /**
    * Constructor.
-   * @param nodePoints The node points (X) used to define the interpolated curve. The extra anchor node (half way between first and second one) will be added.
+   * @param nodePoints The node points (X) used to define the interpolated curve. 
    * @param anchor The anchor with zero value.
    * @param interpolator The interpolator.
    */
-  public GeneratorCurveYieldInterpolatedAnchorNode(final double[] nodePoints, final double anchor, final Interpolator1D interpolator) {
+  public GeneratorCurveDiscountFactorInterpolatedAnchorNode(final double[] nodePoints, final double anchor, final Interpolator1D interpolator) {
     ArgumentChecker.notNull(nodePoints, "Node points");
     ArgumentChecker.notNull(interpolator, "Interpolator");
     _nbPoints = nodePoints.length;
@@ -60,7 +60,7 @@ public class GeneratorCurveYieldInterpolatedAnchorNode extends GeneratorYDCurve 
   @Override
   public YieldAndDiscountCurve generateCurve(String name, double[] x) {
     ArgumentChecker.isTrue(x.length == _nbPoints, "Incorrect dimension for the rates");
-    return new YieldCurve(name, DoublesCurveInterpolatedAnchor.from(_nodePoints, x, _anchor, _interpolator, name));
+    return new DiscountCurve(name, DoublesCurveInterpolatedAnchor.from(_nodePoints, x, _anchor, 1.0, _interpolator, name));
   }
 
   @Override
@@ -77,7 +77,10 @@ public class GeneratorCurveYieldInterpolatedAnchorNode extends GeneratorYDCurve 
   public double[] initialGuess(double[] rates) {
     ArgumentChecker.isTrue(rates.length == _nbPoints, "Rates of incorrect length.");
     double[] spread = new double[_nbPoints];
-    // implementation note: The "anchor" generator is used for spread. The initial guess is a spread of 0.
+    for (int loopg = 0; loopg < _nbPoints; loopg++) {
+      spread[loopg] = 1.0;
+    }
+    // Implementation note: The "anchor" generator is used for spread. The initial guess is a rate spread of 0, i.e. a discount factor of 1.
     return spread;
   }
 
