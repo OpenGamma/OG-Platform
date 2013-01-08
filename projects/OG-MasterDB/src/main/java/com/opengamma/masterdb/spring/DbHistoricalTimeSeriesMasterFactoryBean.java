@@ -54,7 +54,6 @@ public class DbHistoricalTimeSeriesMasterFactoryBean extends AbstractDbMasterFac
    * The meta-bean for {@code DbHistoricalTimeSeriesMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbHistoricalTimeSeriesMasterFactoryBean.Meta meta() {
     return DbHistoricalTimeSeriesMasterFactoryBean.Meta.INSTANCE;
   }

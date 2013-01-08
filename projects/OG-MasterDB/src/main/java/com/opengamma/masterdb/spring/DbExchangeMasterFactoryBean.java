@@ -54,7 +54,6 @@ public class DbExchangeMasterFactoryBean extends AbstractDbMasterFactoryBean<DbE
    * The meta-bean for {@code DbExchangeMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbExchangeMasterFactoryBean.Meta meta() {
     return DbExchangeMasterFactoryBean.Meta.INSTANCE;
   }

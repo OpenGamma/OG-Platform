@@ -60,7 +60,6 @@ public class BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends 
    * The meta-bean for {@code BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean.Meta meta() {
     return BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean.Meta.INSTANCE;
   }

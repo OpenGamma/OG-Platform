@@ -106,11 +106,20 @@ public class ConfigSearchResult<T> extends AbstractSearchResult<ConfigDocument> 
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ConfigSearchResult}.
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("rawtypes")
+  public static ConfigSearchResult.Meta meta() {
+    return ConfigSearchResult.Meta.INSTANCE;
+  }
+  /**
+   * The meta-bean for {@code ConfigSearchResult}.
    * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> ConfigSearchResult.Meta<R> meta() {
+  public static <R> ConfigSearchResult.Meta<R> metaConfigSearchResult(Class<R> cls) {
     return ConfigSearchResult.Meta.INSTANCE;
   }
   static {

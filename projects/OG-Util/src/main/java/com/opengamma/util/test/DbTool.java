@@ -648,7 +648,7 @@ public class DbTool extends Task {
   }
   
   public Map<String, Integer> getLatestVersions() {
-    Map<String, Integer> result = new HashMap<String, Integer>();
+    Map<String, Integer> result = new HashMap<>();
     for (String scriptDir : _dbScriptDirs) {
       File parentDirectory = new File(scriptDir, DATABASE_CREATE_FOLDER);
       for (File dialectDir : parentDirectory.listFiles()) {

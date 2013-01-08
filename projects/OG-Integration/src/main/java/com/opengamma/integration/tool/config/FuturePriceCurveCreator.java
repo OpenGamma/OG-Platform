@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -31,8 +31,6 @@ import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.bbg.util.BloombergTickerParserBondFutureOption;
 import com.opengamma.bbg.util.BloombergTickerParserCommodityFutureOption;
-import com.opengamma.bbg.util.BloombergTickerParserEQIndexOption;
-import com.opengamma.bbg.util.BloombergTickerParserEQVanillaOption;
 import com.opengamma.bbg.util.BloombergTickerParserFutureOption;
 import com.opengamma.bbg.util.BloombergTickerParserIRFutureOption;
 import com.opengamma.component.tool.AbstractTool;
@@ -40,16 +38,13 @@ import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.volatility.surface.BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider;
-import com.opengamma.financial.analytics.volatility.surface.BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider;
-import com.opengamma.financial.analytics.volatility.surface.BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider;
-import com.opengamma.financial.analytics.volatility.surface.BloombergFutureOptionVolatilitySurfaceInstrumentProvider;
-import com.opengamma.financial.analytics.volatility.surface.BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.surface.BloombergBondFuturePriceCurveInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.surface.BloombergCommodityFuturePriceCurveInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.surface.BloombergIRFuturePriceCurveInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
+import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
@@ -74,7 +69,6 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.config.ConfigDocument;
@@ -92,32 +86,30 @@ import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
- * Create volatility surfaces based on the instruments in security master.
+ * Create future price curve based on the instruments in security master.
  */
 @Scriptable
-public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContext> {
+public class FuturePriceCurveCreator extends AbstractTool<IntegrationToolContext> {
 
   /** the logger */
-  private static Logger s_logger = LoggerFactory.getLogger(VolatilitySurfaceCreator.class);
+  private static Logger s_logger = LoggerFactory.getLogger(FuturePriceCurveCreator.class);
 
   /** bbg surface prefix */
-  private static final String BBG_SURFACE_PREFIX = "BBG_";
+  private static final String BBG_PREFIX = "BBG_";
   /** for ir bonds when using price */
   private static final String PRICE = "PRICE_";
-  /** implied vol */
-  private static final String FIELD_NAME_VOL = MarketDataRequirementNames.IMPLIED_VOLATILITY;
   /** when getting price instead of vol */
   private static final String FIELD_NAME_PRICE = MarketDataRequirementNames.MARKET_VALUE;
   /** wildcard search symbol */
   private static final String WILDCARD_SEARCH = "*";
-  /** regexp to get strike from option ticker */
-  private static final String STRIKE_REGEXP = "[CP][ ]*((\\d)+(.\\d+)*)\\b";
 
   //Track surfaces we create so we dont recreate them when multiple securities need them
   /** vol definitions we have created */
-  private final Set<String> _volDefinitionNames = new HashSet<String>();
+  private final Set<String> _curveDefinitionNames = new HashSet<String>();
   /** vol specifications we have created */
-  private final Set<String> _volSpecificationNames = new HashSet<String>();
+  private final Set<String> _curveSpecificationNames = new HashSet<String>();
+  /** regexp to get strike from option ticker */
+  private static final String STRIKE_REGEXP = "[CP][ ]*((\\d)+(.\\d+)*)\\b";
 
   /**
    * Main method to run the tool.
@@ -125,7 +117,7 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
    * @param args  command line arguments
    */
   public static void main(String[] args) {  // CSIGNORE
-    new VolatilitySurfaceCreator().initAndRun(args, IntegrationToolContext.class);
+    new FuturePriceCurveCreator().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
 
@@ -142,20 +134,20 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
 
     // if skipping existing surfaces get the list now
     if (skipExisting) {
-      ConfigSearchRequest<VolatilitySurfaceDefinition<?, ?>> volDefinitionSearchRequest = new ConfigSearchRequest<VolatilitySurfaceDefinition<?, ?>>();
-      volDefinitionSearchRequest.setType(VolatilitySurfaceDefinition.class);
+      ConfigSearchRequest<FuturePriceCurveDefinition<?>> curveDefinitionSearchRequest = new ConfigSearchRequest<FuturePriceCurveDefinition<?>>();
+      curveDefinitionSearchRequest.setType(VolatilitySurfaceDefinition.class);
       // can't use name to restrict search as ticker symbol may not be same as underlying symbol (e.g. RUT vs RUY)
-      volDefinitionSearchRequest.setName(WILDCARD_SEARCH);
-      for (ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, volDefinitionSearchRequest)) {
-        _volDefinitionNames.add(doc.getName());
+      curveDefinitionSearchRequest.setName(WILDCARD_SEARCH);
+      for (ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, curveDefinitionSearchRequest)) {
+        _curveDefinitionNames.add(doc.getName());
       }
 
-      ConfigSearchRequest<VolatilitySurfaceSpecification> volSpecSearchRequest = new ConfigSearchRequest<VolatilitySurfaceSpecification>();
-      volSpecSearchRequest.setType(VolatilitySurfaceSpecification.class);
+      ConfigSearchRequest<FuturePriceCurveSpecification> curveSpecSearchRequest = new ConfigSearchRequest<FuturePriceCurveSpecification>();
+      curveSpecSearchRequest.setType(FuturePriceCurveSpecification.class);
       // can't use name to restrict search as ticker symbol may not be same as underlying symbol (e.g. RUT vs RUY)
-      volSpecSearchRequest.setName(WILDCARD_SEARCH);
-      for (ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, volSpecSearchRequest)) {
-        _volSpecificationNames.add(doc.getName());
+      curveSpecSearchRequest.setName(WILDCARD_SEARCH);
+      for (ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, curveSpecSearchRequest)) {
+        _curveSpecificationNames.add(doc.getName());
       }
     }
 
@@ -180,7 +172,7 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
     for (SecurityDocument doc : SecuritySearchIterator.iterable(securityMaster, securityRequest)) {
       FinancialSecurity security = (FinancialSecurity) doc.getSecurity();
       try {
-        security.accept(new VolSurfaceCreatorVisitor(configMaster, bbgRefData, _volSpecificationNames, _volDefinitionNames, dryRun));
+        security.accept(new FuturePriceCurveCreatorVisitor(configMaster, bbgRefData, _curveSpecificationNames, _curveDefinitionNames, dryRun));
       } catch (Exception ex) {
         s_logger.error("Error processing " + security.getName() + ": " + ex.getLocalizedMessage());
         continue;
@@ -189,34 +181,34 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
   }
 
   /**
-   * Visitor that creates surfaces for the security it visits
+   * Visitor that creates curves for the security it visits
    */
-  private class VolSurfaceCreatorVisitor extends FinancialSecurityVisitorAdapter<Object> {
+  private class FuturePriceCurveCreatorVisitor extends FinancialSecurityVisitorAdapter<Object> {
 
     /** the config master */
     private final ConfigMaster _configMaster;
     /** the reference data provider */
     private final ReferenceDataProvider _referenceDataProvider;
     /** known vol specifications */
-    private final Set<String> _knownVolSpecNames;
+    private final Set<String> _knownCurveSpecNames;
     /** known vol definitions */
-    private final Set<String> _knownVolDefNames;
+    private final Set<String> _knownCurveDefNames;
     /** skip write to database */
     private final boolean _dryRun;
 
     /**
      * @param configMaster the config master
      * @param referenceDataProvider the reference data provider
-     * @param knownVolSpecNames surface specifications to skip
-     * @param knownVolDefNames surface definitions to skip
+     * @param knownVolSpecNames curve specifications to skip
+     * @param knownVolDefNames curve definitions to skip
      * @param dryRun if true skip write to the database
      */
-    VolSurfaceCreatorVisitor(final ConfigMaster configMaster, final ReferenceDataProvider referenceDataProvider, final Set<String> knownVolSpecNames, final Set<String> knownVolDefNames,
+    FuturePriceCurveCreatorVisitor(final ConfigMaster configMaster, final ReferenceDataProvider referenceDataProvider, final Set<String> knownVolSpecNames, final Set<String> knownVolDefNames,
         final boolean dryRun) {
       _configMaster = configMaster;
       _referenceDataProvider = referenceDataProvider;
-      _knownVolSpecNames = knownVolSpecNames;
-      _knownVolDefNames = knownVolDefNames;
+      _knownCurveSpecNames = knownVolSpecNames;
+      _knownCurveDefNames = knownVolDefNames;
       _dryRun = dryRun;
     }
 
@@ -229,15 +221,14 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
       final BloombergTickerParserFutureOption tickerParser = new BloombergTickerParserBondFutureOption(ticker);
       //final String postfix = BloombergDataUtils.splitTickerAtMarketSector(ticker).getSecond();
       String underlyingOptChainTicker = getUnderlyingTicker(ticker, security.getUnderlyingId(), tickerParser.getTypeName());
-      final String name = BBG_SURFACE_PREFIX + tickerParser.getSymbol() + "_" + security.getCurrency().getCode() + "_" + InstrumentTypeProperties.BOND_FUTURE_OPTION;
-      if (!_knownVolSpecNames.contains(name)) {
-        s_logger.info("Creating VolatilitySurfaceSpecification \"{}\"", name);
-        final BloombergFutureOptionVolatilitySurfaceInstrumentProvider surfaceInstrumentProvider =
-            new BloombergBondFutureOptionVolatilitySurfaceInstrumentProvider(tickerParser.getSymbol(), tickerParser.getTypeName(), FIELD_NAME_VOL, getSpot(underlyingOptChainTicker),
-                security.getTradingExchange());
-        createVolatilitySpecification(security.getCurrency().getUniqueId(), name, surfaceInstrumentProvider);
+      final String name = BBG_PREFIX + tickerParser.getSymbol() + "_" + security.getCurrency().getCode() + "_" + InstrumentTypeProperties.BOND_FUTURE_PRICE;
+      if (!_knownCurveSpecNames.contains(name)) {
+        s_logger.info("Creating FuturePriceCurveSpecification \"{}\"", name);
+        final BloombergBondFuturePriceCurveInstrumentProvider curveInstrumentProvider =
+            new BloombergBondFuturePriceCurveInstrumentProvider(tickerParser.getSymbol(), tickerParser.getTypeName(), FIELD_NAME_PRICE);
+        createFuturePriceCurveSpecification(security.getCurrency(), name, curveInstrumentProvider);
       }
-      createvolatilityDefinition(underlyingOptChainTicker, name, security.getCurrency().getUniqueId());
+      createFuturePriceCurveDefinition(underlyingOptChainTicker, name, security.getCurrency());
       return null;
     }
 
@@ -250,55 +241,14 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
       final BloombergTickerParserFutureOption tickerParser = new BloombergTickerParserCommodityFutureOption(ticker);
       //      final String postfix = BloombergDataUtils.splitTickerAtMarketSector(ticker).getSecond();
       String underlyingOptChainTicker = getUnderlyingTicker(ticker, security.getUnderlyingId(), tickerParser.getTypeName());
-      final String name = BBG_SURFACE_PREFIX + tickerParser.getSymbol() + "_" + security.getCurrency().getCode() + "_" + InstrumentTypeProperties.COMMODITY_FUTURE_OPTION;
-      if (!_knownVolSpecNames.contains(name)) {
-        s_logger.info("Creating VolatilitySurfaceSpecification \"{}\"", name);
-        final BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider surfaceInstrumentProvider =
-            new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(tickerParser.getSymbol(), tickerParser.getSymbol(), FIELD_NAME_VOL, getSpot(underlyingOptChainTicker),
-                security.getTradingExchange());
-        createVolatilitySpecification(security.getCurrency().getUniqueId(), name, surfaceInstrumentProvider);
+      final String name = BBG_PREFIX + tickerParser.getSymbol() + "_" + security.getCurrency().getCode() + "_" + InstrumentTypeProperties.COMMODITY_FUTURE_PRICE;
+      if (!_knownCurveSpecNames.contains(name)) {
+        s_logger.info("Creating FuturePriceCurveSpecification \"{}\"", name);
+        final BloombergCommodityFuturePriceCurveInstrumentProvider curveInstrumentProvider =
+            new BloombergCommodityFuturePriceCurveInstrumentProvider(tickerParser.getSymbol(), tickerParser.getTypeName(), FIELD_NAME_PRICE, ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName());
+        createFuturePriceCurveSpecification(security.getCurrency(), name, curveInstrumentProvider);
       }
-      createvolatilityDefinition(underlyingOptChainTicker, name, security.getCurrency().getUniqueId());
-      return null;
-    }
-
-    @Override
-    public Object visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
-      if (TimeCalculator.getTimeBetween(OpenGammaClock.getInstance().zonedDateTime(), security.getExpiry().getExpiry()) < 0) {
-        return null;
-      }
-      final String ticker = security.getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER);
-      final BloombergTickerParserEQIndexOption tickerParser = new BloombergTickerParserEQIndexOption(ticker);
-      final String postfix = BloombergDataUtils.splitTickerAtMarketSector(ticker).getSecond();
-      String underlyingTicker = getUnderlyingTicker(ticker, security.getUnderlyingId(), postfix);
-      final String name = BBG_SURFACE_PREFIX + underlyingTicker + "_" + InstrumentTypeProperties.EQUITY_OPTION;
-      if (!_knownVolSpecNames.contains(name)) {
-        s_logger.info("Creating VolatilitySurfaceSpecification \"{}\"", name);
-        final BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider surfaceInstrumentProvider =
-            new BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider(tickerParser.getSymbol(), postfix, FIELD_NAME_VOL, getSpot(underlyingTicker), security.getExchange());
-        createVolatilitySpecification(UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), underlyingTicker), name, surfaceInstrumentProvider);
-      }
-      createvolatilityDefinition(underlyingTicker, name, UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), underlyingTicker));
-      return null;
-    }
-
-    @Override
-    public Object visitEquityOptionSecurity(final EquityOptionSecurity security) {
-      if (TimeCalculator.getTimeBetween(OpenGammaClock.getInstance().zonedDateTime(), security.getExpiry().getExpiry()) < 0) {
-        return null;
-      }
-      final String ticker = security.getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER);
-      final String postfix = BloombergDataUtils.splitTickerAtMarketSector(ticker).getSecond();
-      final String prefix = new BloombergTickerParserEQVanillaOption(ticker).getSymbol() + " " + security.getExchange();
-      String underlyingTicker = getUnderlyingTicker(ticker, security.getUnderlyingId(), postfix);
-      final String name = BBG_SURFACE_PREFIX + prefix + "_" + InstrumentTypeProperties.EQUITY_OPTION;
-      if (!_knownVolSpecNames.contains(name)) {
-        s_logger.info("Creating VolatilitySurfaceSpecification \"{}\"", name);
-        final BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider surfaceInstrumentProvider =
-            new BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider(prefix, postfix, FIELD_NAME_VOL, getSpot(underlyingTicker), security.getExchange());
-        createVolatilitySpecification(UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), underlyingTicker), name, surfaceInstrumentProvider);
-      }
-      createvolatilityDefinition(underlyingTicker, name, UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), underlyingTicker));
+      createFuturePriceCurveDefinition(underlyingOptChainTicker, name, security.getCurrency());
       return null;
     }
 
@@ -311,14 +261,24 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
       final BloombergTickerParserFutureOption tickerParser = new BloombergTickerParserIRFutureOption(ticker);
       //      final String postfix = BloombergDataUtils.splitTickerAtMarketSector(ticker).getSecond();
       String underlyingTicker = getUnderlyingTicker(ticker, security.getUnderlyingId(), tickerParser.getTypeName());
-      final String name = BBG_SURFACE_PREFIX + PRICE + tickerParser.getSymbol() + "_" + security.getCurrency().getCode() + "_" + InstrumentTypeProperties.IR_FUTURE_OPTION;
-      if (!_knownVolSpecNames.contains(name)) {
-        s_logger.info("Creating VolatilitySurfaceSpecification \"{}\"", name);
-        final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider surfaceInstrumentProvider =
-            new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(tickerParser.getSymbol(), tickerParser.getTypeName(), FIELD_NAME_PRICE, getSpot(underlyingTicker), security.getExchange());
-        createVolatilitySpecification(security.getCurrency().getUniqueId(), name, surfaceInstrumentProvider, SurfaceAndCubePropertyNames.PRICE_QUOTE);
+      final String name = BBG_PREFIX + PRICE + tickerParser.getSymbol() + "_" + security.getCurrency().getCode() + "_" + InstrumentTypeProperties.IR_FUTURE_PRICE;
+      if (!_knownCurveSpecNames.contains(name)) {
+        s_logger.info("Creating FuturePriceCurveSpecification \"{}\"", name);
+        final BloombergIRFuturePriceCurveInstrumentProvider curveInstrumentProvider = new BloombergIRFuturePriceCurveInstrumentProvider(tickerParser.getSymbol(), tickerParser.getTypeName(),
+            FIELD_NAME_PRICE);
+        createFuturePriceCurveSpecification(security.getCurrency(), name, curveInstrumentProvider);
       }
-      createvolatilityDefinition(underlyingTicker, name, security.getCurrency().getUniqueId());
+      createFuturePriceCurveDefinition(underlyingTicker, name, security.getCurrency());
+      return null;
+    }
+
+    @Override
+    public Object visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
+      return null;
+    }
+
+    @Override
+    public Object visitEquityOptionSecurity(final EquityOptionSecurity security) {
       return null;
     }
 
@@ -401,35 +361,27 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
       return null;
     }
 
-    private void createvolatilityDefinition(final String underlyingTicker, final String name, final UniqueId target) {
-      if (!_knownVolDefNames.contains(name)) {
-        s_logger.info("Creating VolatilitySurfaceDefinition \"{}\"", name);
+    private void createFuturePriceCurveDefinition(final String underlyingTicker, final String name, final UniqueIdentifiable target) {
+      if (!_knownCurveDefNames.contains(name)) {
+        s_logger.info("Creating FuturePriceCurveDefinition \"{}\"", name);
         final Set<ExternalId> options = BloombergDataUtils.getOptionChain(_referenceDataProvider, underlyingTicker);
         final ObjectsPair<ImmutableList<Double>, ImmutableList<Double>> axes = determineAxes(options);
-        final VolatilitySurfaceDefinition<Double, Double> volSurfaceDefinition =
-            new VolatilitySurfaceDefinition<Double, Double>(name, target,
-                axes.getFirst().toArray(new Double[0]), axes.getSecond().toArray(new Double[0]));
-        final ConfigItem<VolatilitySurfaceDefinition<Double, Double>> volDefinition = ConfigItem.of(volSurfaceDefinition, volSurfaceDefinition.getName(), VolatilitySurfaceDefinition.class);
+        final FuturePriceCurveDefinition<Double> futureCurveDefinition = new FuturePriceCurveDefinition<Double>(name, target, axes.getFirst().toArray(new Double[0]));
+        final ConfigItem<FuturePriceCurveDefinition<Double>> futureCurveDefinitionConfig = ConfigItem.of(futureCurveDefinition, futureCurveDefinition.getName(), FuturePriceCurveDefinition.class);
         if (!_dryRun) {
-          ConfigMasterUtils.storeByName(_configMaster, volDefinition);
+          ConfigMasterUtils.storeByName(_configMaster, futureCurveDefinitionConfig);
         }
-        _knownVolDefNames.add(name);
+        _knownCurveDefNames.add(name);
       }
     }
 
-    private void createVolatilitySpecification(final UniqueIdentifiable target, final String name, final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider, String quoteUnits) {
-      final VolatilitySurfaceSpecification volSurfaceSpec = new VolatilitySurfaceSpecification(name, target,
-          SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE, quoteUnits,
-          surfaceInstrumentProvider);
-      final ConfigItem<VolatilitySurfaceSpecification> volSpecConfig = ConfigItem.of(volSurfaceSpec, volSurfaceSpec.getName(), VolatilitySurfaceSpecification.class);
+    private void createFuturePriceCurveSpecification(final UniqueIdentifiable target, final String name, final FuturePriceCurveInstrumentProvider<?> curveInstrumentProvider) {
+      final FuturePriceCurveSpecification priceCurveSpec = new FuturePriceCurveSpecification(name, target, curveInstrumentProvider);
+      final ConfigItem<FuturePriceCurveSpecification> volSpecConfig = ConfigItem.of(priceCurveSpec, priceCurveSpec.getName(), FuturePriceCurveSpecification.class);
       if (!_dryRun) {
         ConfigMasterUtils.storeByName(_configMaster, volSpecConfig);
       }
-      _knownVolSpecNames.add(name);
-    }
-
-    private void createVolatilitySpecification(final UniqueIdentifiable target, final String name, final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
-      createVolatilitySpecification(target, name, surfaceInstrumentProvider, SurfaceAndCubePropertyNames.VOLATILITY_QUOTE);
+      _knownCurveSpecNames.add(name);
     }
 
     /**
@@ -456,8 +408,8 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
       int numX = options.size() / strikes.size();
       // Can get quite low numbers (OPT_CHAIN truncated?) so ensure a minimum
       //TODO: Check why numbers can be so low.
-      if (numX < 8) {
-        numX = 8;
+      if (numX < 12) {
+        numX = 12;
       }
       List<Double> xAxis = new ArrayList<Double>();
       for (int i = 1; i < numX + 1; i++) {
@@ -479,13 +431,6 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
         underlyingTicker = underlyingTicker + " " + postfix;
       }
       return underlyingTicker;
-    }
-
-    private double getSpot(final String ticker) {
-      //TODO: check if this is the correct field
-      return _referenceDataProvider.getReferenceData(Collections.singleton(ticker), Collections.singleton(BloombergConstants.BBG_FIELD_LAST_PRICE))
-          .get(ticker)
-          .getDouble(BloombergConstants.BBG_FIELD_LAST_PRICE).doubleValue();
     }
 
   }
@@ -531,6 +476,6 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
   protected void usage(Options options) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.setWidth(120);
-    formatter.printHelp("volatility-surface-creator.sh", options, true);
+    formatter.printHelp("future-price-curve-creator.sh", options, true);
   }
 }

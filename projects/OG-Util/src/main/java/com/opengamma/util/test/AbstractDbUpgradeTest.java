@@ -8,7 +8,6 @@ package com.opengamma.util.test;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +15,8 @@ import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -23,14 +24,14 @@ import com.opengamma.util.tuple.Triple;
  */
 public abstract class AbstractDbUpgradeTest extends DbTest {
 
-  private static final Map<String, Map<String, String>> s_targetSchema = new HashMap<String, Map<String, String>>();
+  private static final Map<String, Map<String, String>> s_targetSchema = Maps.newHashMap();
 
-  private final List<Triple<String, String, String>> _comparisons = new LinkedList<Triple<String, String, String>>();
+  private final List<Triple<String, String, String>> _comparisons = Lists.newLinkedList();
 
   protected Map<String, String> getVersionSchemas() {
     Map<String, String> versionSchema = s_targetSchema.get(getDatabaseType());
     if (versionSchema == null) {
-      versionSchema = new HashMap<String, String>();
+      versionSchema = new HashMap<>();
       s_targetSchema.put(getDatabaseType(), versionSchema);
     }
     return versionSchema;

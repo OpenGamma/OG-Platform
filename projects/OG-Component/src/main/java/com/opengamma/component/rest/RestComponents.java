@@ -469,7 +469,7 @@ public class RestComponents extends DirectBean {
     /**
      * The meta-property for the {@code baseUri} property.
      */
-    private final MetaProperty<URI> _baseUri = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<URI> _baseUri = DirectMetaProperty.ofReadOnly(
         this, "baseUri", RestComponents.class, URI.class);
     /**
      * The meta-property for the {@code localComponents} property.
