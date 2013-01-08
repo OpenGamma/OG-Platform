@@ -8,7 +8,7 @@
   <artifactId>og-parent</artifactId>
   <packaging>pom</packaging>
   <name>OG-Parent</name>
-  <version>1.2.1-SNAPSHOT</version>
+  <version>1.2.2-SNAPSHOT</version>
   <description>OpenGamma maven parent project</description>
   <url>http://developers.opengamma.com/</url>
 
@@ -258,7 +258,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>1.2.1</version>
+          <version>1.2.2-SNAPSHOT</version>
         </plugin>
         <plugin>
           <groupId>com.opengamma</groupId>
