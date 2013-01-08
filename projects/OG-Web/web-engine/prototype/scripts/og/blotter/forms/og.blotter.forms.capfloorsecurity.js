@@ -3,13 +3,13 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.blotter.forms.capfloorcmsspreadsecurity',
+    name: 'og.blotter.forms.capfloorsecurity',
     dependencies: [],
     obj: function () {
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data = config || {};
             if(config) {data = config;  data.id = config.trade.uniqueId;}
-            else {data = {security: {type: "CapFloorCMSSpreadSecurity", name: "CapFloorCMSSpreadSecurity ABC", 
+            else {data = {security: {type: "CapFloorSecurity", name: "CapFloorSecurity ABC", 
                 regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.manageable_trade};}
             constructor.load = function () {
                 constructor.title = 'Cap/Floor CMS Spread';
@@ -22,9 +22,9 @@ $.register_module({
                     new og.blotter.forms.blocks.Portfolio({form: form}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.cap_floor_tash',
-                        extras: {cms:true, start: data.security.startDate, maturity: data.security.maturityDate, 
-                            notional: data.security.notional,strike: data.security.strike, longId: data.security.longId, 
-                            shortId: data.security.shortId
+                        extras: {start: data.security.startDate, maturity: data.security.maturityDate, 
+                            notional: data.security.notional,strike: data.security.strike, 
+                            underlyingId: data.security.underlyingId
                         },
                         children: [
                             new form.Block({module:'og.views.forms.currency_tash',
@@ -49,6 +49,7 @@ $.register_module({
                     og.blotter.util.set_select("security.currency", data.security.currency);
                     og.blotter.util.check_radio("security.cap", data.security.cap);
                     og.blotter.util.check_radio("security.payer", data.security.payer);
+                    og.blotter.util.check_checkbox("security.ibor", data.security.ibor);
                 });
                 form.on('form:submit', function (result){
                     og.api.rest.blotter.trades.put(result.data).pipe(/*console.log*/);

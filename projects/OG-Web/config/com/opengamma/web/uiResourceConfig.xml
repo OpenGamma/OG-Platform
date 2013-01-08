@@ -365,7 +365,7 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond_future.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.trade.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.cap_floor.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorcmsspreadsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.forward_rate_agreement.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_cap_floor.js</fragment>
