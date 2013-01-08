@@ -13,6 +13,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);color: black;cursor: pointer;padding: 10px 13px;
         margin: 5px;">NEW TRADE</div>
        <div class="fxforward">Edit FX Forward - DbPos~164134</div>
+       <div class="capfloorcmsspread">Cap Floor CMS Spread - DbPos~164152</div>
   </div>
 </div>
 ${ogScript.print('og_common.js',false)}

@@ -5,23 +5,12 @@
 $.register_module({
     name: 'og.blotter.forms.fxforwardsecurity',
     dependencies: [],
-    obj: function () {   
+    obj: function () {
         return function (config) {
-            //config = og.blotter.util.FAKE_FX_FORWARD;
             var constructor = this, form, ui = og.common.util.ui, data = config || {};
-            if(config) {
-                data = config; 
-                data.id = config.trade.uniqueId;
-            }
-            else {
-                data = {security: {
-                            type: "FXForwardSecurity",
-                            name: "FXForwardSecurity ABC",
-                            regionId: "ABC~123",
-                            externalIdBundle: ""}, 
-                        trade: og.blotter.util.FAKE_TRADE};
-            }
-            console.log(data);
+            if(config) {data = config;  data.id = config.trade.uniqueId;}
+            else {data = {security: {type: "FXForwardSecurity", name: "FXForwardSecurity ABC", 
+                regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.manageable_trade};}
             constructor.load = function () {
                 constructor.title = 'FX Forward';
                 form = new og.common.util.ui.Form({
@@ -46,7 +35,7 @@ $.register_module({
                 form.dom();
                 form.on('form:load', function (){
                     og.blotter.util.add_datetimepicker("security.forwardDate");
-                    if(data.length) return;
+                    if(data.security.length) return;
                     og.blotter.util.set_select("security.receiveCurrency", data.security.receiveCurrency);
                     og.blotter.util.set_select("security.payCurrency", data.security.payCurrency);
                     og.blotter.util.set_datetime("security.forwardDate", data.security.forwardDate);

@@ -10,10 +10,10 @@
         Type
       </td>
       <td class="og-double-cell">
-        <div><span><label>Cap <input type="radio" name="cap" value="true">
-        </label><label>Floor <input type="radio" name="cap" value="false"></label>
-        </span><span><label>Buy<input type="radio" name="payer" value="false">
-        </label><label>Sell<input type="radio" name="payer" value="true"></label></span></div>
+        <div><span><label>Cap <input type="radio" name="security.cap" value="true">
+        </label><label>Floor <input type="radio" name="security.cap" value="false"></label>
+        </span><span><label>Buy<input type="radio" name="security.payer" value="false">
+        </label><label>Sell<input type="radio" name="security.payer" value="true"></label></span></div>
       </td>
     </tr>
     <tr>
@@ -23,7 +23,7 @@
         </label>
       </td>
       <td>
-        <input name="startDate" type="text" value="{{start}}"/>
+        <input name="security.startDate" type="text" value="{{start}}"/>
       </td>
     </tr>
     <tr>
@@ -33,7 +33,7 @@
         </label>
       </td>
       <td>
-        <input name="maturityDate" type="text" value="{{maturity}}"/>
+        <input name="security.maturityDate" type="text" value="{{maturity}}"/>
       </td>
     </tr>
     <tr>
@@ -43,7 +43,8 @@
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span>{{{item_0}}}</span><span><input name="notional" type="text" value="{{notional}}"/></span></div>
+        <div><span>{{{item_0}}}</span><span><input name="security.notional" type="text" value="{{notional}}"/></span>
+        </div>
       </td>
     </tr>
     <tr>
@@ -53,7 +54,7 @@
         </label>
       </td>
       <td>
-        <input name="strike" type="text" value="{{strike}}"/>
+        <input name="security.strike" type="text" value="{{strike}}"/>
       </td>
     </tr>
   </tbody>
@@ -72,12 +73,12 @@
       </td>
       {{#if cms}}
         <td class="og-double-cell">
-          <div><span><input name="longId" type="text" value="{{longId}}"/>
-          </span><span><input name="shortId" type="text" value="{{shortId}}"/></span></div>
+          <div><span><input name="security.longId" type="text" value="{{longId}}"/>
+          </span><span><input name="security.shortId" type="text" value="{{shortId}}"/></span></div>
         </td>
       {{else}}
         <td>
-          <input name="underlyingId" type="text" value="{{underlyingId}}"/>
+          <input name="security.underlyingId" type="text" value="{{underlyingId}}"/>
         </td>
     {{/if}}
     </tr>
