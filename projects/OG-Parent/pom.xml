@@ -8,7 +8,7 @@
   <artifactId>og-parent</artifactId>
   <packaging>pom</packaging>
   <name>OG-Parent</name>
-  <version>1.2.1-SNAPSHOT</version>
+  <version>1.2.1</version>
   <description>OpenGamma maven parent project</description>
   <url>http://developers.opengamma.com/</url>
 
