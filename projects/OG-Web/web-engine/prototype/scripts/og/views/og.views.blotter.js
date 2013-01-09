@@ -26,7 +26,7 @@ $.register_module({
                     });
                 });
                 $('.capfloor').click(function (){
-                    og.api.rest.blotter.trades.get({id:"DbPos~164162"}).pipe(function(data){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164182"}).pipe(function(data){
                         new og.blotter.Dialog(data);
                     });
                 });

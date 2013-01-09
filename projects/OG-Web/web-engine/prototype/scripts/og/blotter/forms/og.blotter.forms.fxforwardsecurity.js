@@ -7,8 +7,8 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, data = config || {};
-            if(config) {data = config;  data.id = config.trade.uniqueId;}
+            var constructor = this, form, ui = og.common.util.ui;
+            if(config) {data = config; data.id = config.trade.uniqueId;}
             else {data = {security: {type: "FXForwardSecurity", name: "FXForwardSecurity ABC", 
                 regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.manageable_trade};}
             constructor.load = function () {

@@ -14,7 +14,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
         margin: 5px;">NEW TRADE</div>
        <div class="fxforward">Edit FX Forward - DbPos~164134</div>
        <div class="capfloorcmsspread">Cap Floor CMS Spread - DbPos~164152</div>
-       <div class="capfloor">Cap Floor - DbPos~164162</div>
+       <div class="capfloor">Cap Floor - DbPos~164182</div>
        
   </div>
 </div>

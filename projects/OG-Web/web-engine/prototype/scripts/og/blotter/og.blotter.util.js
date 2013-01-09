@@ -55,7 +55,7 @@ $.register_module({
                 premiumTime: null,
                 attributes: {},
                 premiumDate: null,
-                type: "ManageableTrade",
+                type: "OtcTrade",
                 counterparty: 'ABC Counterparty'
             },
             /*Util fake data */
