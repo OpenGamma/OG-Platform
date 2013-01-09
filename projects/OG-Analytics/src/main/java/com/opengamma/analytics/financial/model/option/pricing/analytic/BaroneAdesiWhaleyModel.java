@@ -167,7 +167,7 @@ public class BaroneAdesiWhaleyModel {
    * Get the implied volatility according to the Barone-Adesi & Whaley approximation for the price of an American option quoted in the market.  It is the number that put into the
    * Barone-Adesi & Whaley approximation gives the market price. <b>This is not the same as the Black implied volatility</b> (which is only applicable to European options),
    * although it may be numerically close. <p>
-   * If the price indicates that the option should be excised immediately (price = s0-k for calls and k-s0 for puts), then implied volatility does not exist, and zero is returned
+   * If the price indicates that the option should be exercised immediately (price = s0-k for calls and k-s0 for puts), then implied volatility does not exist, and zero is returned
    * (with a warning)
    * @param price The market price of an American option
    * @param s0 The spot
@@ -180,13 +180,13 @@ public class BaroneAdesiWhaleyModel {
    */
   public double impliedVolatility(final double price, final double s0, final double k, final double r, final double b, final double t, final boolean isCall) {
 
-    ArgumentChecker.isTrue((isCall && price >= (s0 - k)) || (!isCall && price >= (k - s0)), "The price is less than the excised immediately price");
+    ArgumentChecker.isTrue((isCall && price >= (s0 - k)) || (!isCall && price >= (k - s0)), "The price is less than the exercised immediately price");
     ArgumentChecker.isTrue(s0 > 0.0, "spot must be greater than zero");
     ArgumentChecker.isTrue(k > 0.0, "strike must be greater than zero");
     ArgumentChecker.isTrue(t > 0.0, "t must be greater than zero");
 
     if ((isCall && price == (s0 - k)) || (!isCall && price == (k - s0))) {
-      s_logger.warn("The price indicates that this option should be excised immediately, therefore there is no implied volatility. Zero is returned.");
+      s_logger.warn("The price indicates that this option should be exercised immediately, therefore there is no implied volatility. Zero is returned.");
       return 0.0;
     }
     final Function1D<Double, double[]> func = getPriceAndVegaFunction(s0, k, r, b, t, isCall);
