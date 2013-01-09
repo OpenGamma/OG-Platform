@@ -45,7 +45,6 @@ import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYield
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurveParRateMethodFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.YieldCurveDefaults;
 import com.opengamma.financial.analytics.model.volatility.cube.RawSwaptionVolatilityCubeDataFunction;
-import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew;
 import com.opengamma.financial.analytics.model.volatility.cube.defaults.SABRNonLinearSwaptionVolatilityCubeFittingDefaults;
 import com.opengamma.financial.analytics.volatility.cube.BloombergSwaptionVolatilityCubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
@@ -195,10 +194,6 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
 
   private void addNewVolatilityCubeFunction(final List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(RawSwaptionVolatilityCubeDataFunction.class.getName()));
-    configs.add(new StaticFunctionConfiguration(SABRNonLinearSwaptionVolatilityCubeFittingFunctionNew.class.getName()));
-    final List<String> defaults = Arrays.asList("0.05", "0.5", "0.7", "0.3", "false", "true", "false", "false", "0.001", "Linear", "FlatExtrapolator", "Linear", "FlatExtrapolator",
-        "ForwardSwapQuotes", "DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator");
-    configs.add(new ParameterizedFunctionConfiguration(SABRNonLinearSwaptionVolatilityCubeFittingDefaults.class.getName(), defaults));
   }
 
   //-------------------------------------------------------------------------

@@ -17,14 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackCurrencyExposureFunctionDeprecated;
-import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPV01FunctionDeprecated;
-import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPresentValueCurveSensitivityFunctionDeprecated;
-import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPresentValueFunctionDeprecated;
-import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackVegaFunctionDeprecated;
-import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackVegaMatrixFunctionDeprecated;
-import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackVegaQuoteMatrixFunctionDeprecated;
-import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackYCNSFunctionDeprecated;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFormatter;
@@ -32,6 +24,7 @@ import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.xml.FudgeXMLSettings;
 import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 
+import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
@@ -126,6 +119,7 @@ import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYiel
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldSpotFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldValueDeltaFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldValueRhoFuturesFunction;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionBAWGreeksFunction;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionBAWPresentValueFunction;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionBlackFundingCurveSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionBlackImpliedVolFunction;
@@ -137,9 +131,10 @@ import com.opengamma.financial.analytics.model.equity.option.EquityOptionBlackSp
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionBlackVegaFunction;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionBlackVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionBlackVommaFunction;
-import com.opengamma.financial.analytics.model.equity.option.EquityOptionDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionForwardValueFunction;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpolatedBlackLognormalDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionSpotIndexFunction;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionSurfaceCalculationMethodDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityVanillaBarrierOptionDefaults;
 import com.opengamma.financial.analytics.model.equity.option.EquityVanillaBarrierOptionForwardValueFunction;
 import com.opengamma.financial.analytics.model.equity.option.EquityVanillaBarrierOptionFundingCurveSensitivitiesFunction;
@@ -227,6 +222,14 @@ import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackV
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaQuoteMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVommaFunction;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackYCNSFunction;
+import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackCurrencyExposureFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPV01FunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPresentValueCurveSensitivityFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackPresentValueFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackVegaFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackVegaMatrixFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackVegaQuoteMatrixFunctionDeprecated;
+import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackYCNSFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLocalVolatilityForwardPDEDualDeltaFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLocalVolatilityForwardPDEDualGammaFunction;
 import com.opengamma.financial.analytics.model.forex.option.localvol.FXOptionLocalVolatilityForwardPDEForwardDeltaFunction;
@@ -454,6 +457,7 @@ import com.opengamma.financial.value.SecurityValueFunction;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues;
+import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues.Builder;
 import com.opengamma.web.spring.defaults.GeneralBlackVolatilityInterpolationDefaults;
 import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
 import com.opengamma.web.spring.defaults.TargetSpecificBlackVolatilitySurfaceDefaults;
@@ -802,6 +806,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
     addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
+    addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_CARRY_RHO);
+    addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_CARRY_RHO);
+    addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_DUAL_DELTA);
+    addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_DUAL_DELTA);
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_PHI);
     addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_PHI);
 
@@ -930,17 +938,24 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityOptionBlackVommaFunction.class));
     functionConfigs.add(functionConfiguration(EquityOptionBlackRhoFunction.class));
     functionConfigs.add(functionConfiguration(EquityOptionBAWPresentValueFunction.class));
-    final List<String> equityIndexOptionDefaults = EquityInstrumentDefaultValues.builder()
+    functionConfigs.add(functionConfiguration(EquityOptionBAWGreeksFunction.class));
+    Builder equityOptionSurfaceCalculationMethodDefaults = EquityInstrumentDefaultValues.builder()
         .useEquityName()
-        .useForwardCurveCalculationConfigNames()
-        .useForwardCurveNames()
+        .useVolatilitySurfaceCalculationMethodNames();
+    final List<String> equityOptionSurfaceCalculationMethodDefaultsWithPriority = Lists.newArrayList(PriorityClass.NORMAL.name());
+    equityOptionSurfaceCalculationMethodDefaultsWithPriority.addAll(equityOptionSurfaceCalculationMethodDefaults.createDefaults());
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionSurfaceCalculationMethodDefaults.class.getName(), equityOptionSurfaceCalculationMethodDefaultsWithPriority));
+    Builder equityOptionBlackSurfaceInterpolationDefaults = EquityInstrumentDefaultValues.builder()
+        .useEquityName()
+        .useDiscountingCurveNames()
+        .useDiscountingCurveCalculationConfigNames()
         .useVolatilitySurfaceNames()
         .useInterpolationMethodNames()
-        .createDefaults();
-    final List<String> equityIndexOptionDefaultsWithPriority = new ArrayList<String>();
-    equityIndexOptionDefaultsWithPriority.add(PriorityClass.NORMAL.name());
-    equityIndexOptionDefaultsWithPriority.addAll(equityIndexOptionDefaults);
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionDefaults.class.getName(), equityIndexOptionDefaultsWithPriority));
+        .useForwardCurveNames()
+        .useForwardCurveCalculationMethodNames();
+    final List<String> equityOptionBlackSurfaceInterpolationDefaultsWithPriority = Lists.newArrayList(PriorityClass.NORMAL.name());
+    equityOptionBlackSurfaceInterpolationDefaultsWithPriority.addAll(equityOptionBlackSurfaceInterpolationDefaults.createDefaults());
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionInterpolatedBlackLognormalDefaults.class.getName(), equityOptionBlackSurfaceInterpolationDefaultsWithPriority));
   }
    
   private static void addEquityBarrierOptionCalculators(final List<FunctionConfiguration> functionConfigs) {

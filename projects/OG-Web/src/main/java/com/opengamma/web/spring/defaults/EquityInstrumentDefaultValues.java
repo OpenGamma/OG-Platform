@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 
 /**
  * 
@@ -24,7 +25,8 @@ public abstract class EquityInstrumentDefaultValues {
   private static final Map<String, String> FORWARD_CURVE_CALCULATION_CONFIG_NAMES = new HashMap<String, String>();
   private static final Map<String, String> FORWARD_CURVE_CALCULATION_METHOD_NAMES = new HashMap<String, String>();
   private static final Map<String, String> VOLATILITY_SURFACE_NAMES = new HashMap<String, String>();
-  private static final Map<String, String> INTERPOLATOR_NAMES = new HashMap<String, String>();
+  private static final Map<String, String> INTERPOLATOR_NAMES = new HashMap<String, String>(); //TODO should not need this eventually
+  private static final Map<String, String> VOLATILTY_SURFACE_CALCULATION_METHOD_NAMES = new HashMap<String, String>();
   
   static {
     EQUITY_NAMES.put("DJX", "USD");
@@ -32,7 +34,6 @@ public abstract class EquityInstrumentDefaultValues {
     EQUITY_NAMES.put("NDX", "USD");
     EQUITY_NAMES.put("RUY", "USD");
     EQUITY_NAMES.put("NKY", "JPY");
-    EQUITY_NAMES.put("AAPL", "USD");
     EQUITY_NAMES.put("AAPL US", "USD");
     DISCOUNTING_CURVE_NAMES.put("USD", "Discounting");
     DISCOUNTING_CURVE_NAMES.put("JPY", "Discounting");
@@ -49,15 +50,19 @@ public abstract class EquityInstrumentDefaultValues {
     VOLATILITY_SURFACE_NAMES.put("NDX", "BBG");
     VOLATILITY_SURFACE_NAMES.put("RUY", "BBG");
     VOLATILITY_SURFACE_NAMES.put("NKY", "BBG");
-    VOLATILITY_SURFACE_NAMES.put("AAPL", "BBG");
     VOLATILITY_SURFACE_NAMES.put("AAPL US", "BBG");
     INTERPOLATOR_NAMES.put("DJX", "Spline");
     INTERPOLATOR_NAMES.put("SPX", "Spline");
     INTERPOLATOR_NAMES.put("NDX", "Spline");
     INTERPOLATOR_NAMES.put("RUY", "Spline");
     INTERPOLATOR_NAMES.put("NKY", "Spline");
-    INTERPOLATOR_NAMES.put("AAPL", "Spline");
     INTERPOLATOR_NAMES.put("AAPL US", "Spline");
+    VOLATILTY_SURFACE_CALCULATION_METHOD_NAMES.put("DJX", BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL);
+    VOLATILTY_SURFACE_CALCULATION_METHOD_NAMES.put("SPX", BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL);
+    VOLATILTY_SURFACE_CALCULATION_METHOD_NAMES.put("NDX", BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL);
+    VOLATILTY_SURFACE_CALCULATION_METHOD_NAMES.put("RUY", BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL);
+    VOLATILTY_SURFACE_CALCULATION_METHOD_NAMES.put("NKY", BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL);
+    VOLATILTY_SURFACE_CALCULATION_METHOD_NAMES.put("AAPL US", BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL);
   }
 
   /**
@@ -77,11 +82,14 @@ public abstract class EquityInstrumentDefaultValues {
     
     Builder useForwardCurveCalculationMethodNames();
     
+    @Deprecated
     Builder useForwardCurveCalculationConfigNames();
     
     Builder useVolatilitySurfaceNames();
     
     Builder useInterpolationMethodNames();
+    
+    Builder useVolatilitySurfaceCalculationMethodNames();
     
     List<String> createDefaults();
   }
@@ -103,16 +111,17 @@ public abstract class EquityInstrumentDefaultValues {
     private final boolean _useForwardCurveCalculationConfigNames;
     private final boolean _useVolatilitySurfaceNames;
     private final boolean _useInterpolationMethodNames;
+    private final boolean _useVolatilitySurfaceCalculationMethodNames;
     private final List<Integer> _order;
     
     /* package */ MyBuilder() {
-      this(false, false, false, false, false, false, false, false, false, new ArrayList<Integer>());
+      this(false, false, false, false, false, false, false, false, false, false, new ArrayList<Integer>());
     }
     
     /* package */ MyBuilder(final boolean useEquityName, final boolean useDiscountingCurveNames, final boolean useDiscountingCurveCurrency,
         final boolean useDiscountingCurveCalculationConfigNames, final boolean useForwardCurveNames, final boolean useForwardCurveCalculationNames, 
         final boolean useForwardCurveCalculationConfigNames, final boolean useVolatilitySurfaceNames, final boolean useInterpolationMethodNames,
-        final List<Integer> order) {
+        final boolean useVolatilitySurfaceCalculationMethodNames, final List<Integer> order) {
       _useEquityName = useEquityName;
       _useDiscountingCurveNames = useDiscountingCurveNames;
       _useDiscountingCurveCurrency = useDiscountingCurveCurrency;
@@ -122,6 +131,7 @@ public abstract class EquityInstrumentDefaultValues {
       _useForwardCurveCalculationConfigNames = useForwardCurveCalculationConfigNames;
       _useVolatilitySurfaceNames = useVolatilitySurfaceNames;
       _useInterpolationMethodNames = useInterpolationMethodNames;
+      _useVolatilitySurfaceCalculationMethodNames = useVolatilitySurfaceCalculationMethodNames;
       _order = order;
     }
     
@@ -134,7 +144,7 @@ public abstract class EquityInstrumentDefaultValues {
       order.add(0);
       return new MyBuilder(true, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
           _useForwardCurveNames, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
-          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, _useVolatilitySurfaceCalculationMethodNames, order);
     }
     
     @Override
@@ -146,7 +156,7 @@ public abstract class EquityInstrumentDefaultValues {
       order.add(1);
       return new MyBuilder(_useEquityName, true, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
           _useForwardCurveNames, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
-          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, _useVolatilitySurfaceCalculationMethodNames, order);
     }
 
     @Override
@@ -158,7 +168,7 @@ public abstract class EquityInstrumentDefaultValues {
       order.add(2);
       return new MyBuilder(_useEquityName, _useDiscountingCurveNames, true, _useDiscountingCurveCalculationConfigNames, 
           _useForwardCurveNames, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
-          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, _useVolatilitySurfaceCalculationMethodNames, order);
     }
 
     @Override
@@ -170,7 +180,7 @@ public abstract class EquityInstrumentDefaultValues {
       order.add(3);
       return new MyBuilder(_useEquityName, _useDiscountingCurveNames, _useDiscountingCurveCurrency, true, 
           _useForwardCurveNames, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
-          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, _useVolatilitySurfaceCalculationMethodNames, order);
     }
 
     @Override
@@ -182,7 +192,7 @@ public abstract class EquityInstrumentDefaultValues {
       order.add(4);
       return new MyBuilder(_useEquityName, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
           true, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
-          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, _useVolatilitySurfaceCalculationMethodNames, order);
     }
 
     @Override
@@ -194,7 +204,7 @@ public abstract class EquityInstrumentDefaultValues {
       order.add(5);
       return new MyBuilder(_useEquityName, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
           _useForwardCurveNames, true, _useForwardCurveCalculationConfigNames, 
-          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, _useVolatilitySurfaceCalculationMethodNames, order);
     }
 
     @Override
@@ -206,7 +216,7 @@ public abstract class EquityInstrumentDefaultValues {
       order.add(6);
       return new MyBuilder(_useEquityName, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
           _useForwardCurveNames, _useForwardCurveCalculationMethodNames, true, 
-          _useVolatilitySurfaceNames, _useInterpolationMethodNames, order);
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, _useVolatilitySurfaceCalculationMethodNames, order);
     }
 
     @Override
@@ -218,7 +228,7 @@ public abstract class EquityInstrumentDefaultValues {
       order.add(7);
       return new MyBuilder(_useEquityName, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
           _useForwardCurveNames, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
-          true, _useInterpolationMethodNames, order);
+          true, _useInterpolationMethodNames, _useVolatilitySurfaceCalculationMethodNames, order);
     }
     
     @Override
@@ -230,9 +240,20 @@ public abstract class EquityInstrumentDefaultValues {
       order.add(8);
       return new MyBuilder(_useEquityName, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
           _useForwardCurveNames, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
-          _useVolatilitySurfaceNames, true, order);
+          _useVolatilitySurfaceNames, true, _useVolatilitySurfaceCalculationMethodNames, order);
     }
 
+    @Override
+    public Builder useVolatilitySurfaceCalculationMethodNames() {
+      if (_useVolatilitySurfaceCalculationMethodNames == true) {
+        return this;
+      }
+      List<Integer> order = new ArrayList<Integer>(_order);
+      order.add(9);
+      return new MyBuilder(_useEquityName, _useDiscountingCurveNames, _useDiscountingCurveCurrency, _useDiscountingCurveCalculationConfigNames, 
+          _useForwardCurveNames, _useForwardCurveCalculationMethodNames, _useForwardCurveCalculationConfigNames, 
+          _useVolatilitySurfaceNames, _useInterpolationMethodNames, true, order);
+    }
     @SuppressWarnings("synthetic-access")
     @Override
     public List<String> createDefaults() {
@@ -270,6 +291,9 @@ public abstract class EquityInstrumentDefaultValues {
               break;
             case 8:
               result.add(INTERPOLATOR_NAMES.get(indexName));
+              break;
+            case 9:
+              result.add(VOLATILTY_SURFACE_CALCULATION_METHOD_NAMES.get(indexName));
               break;
             default:
               throw new IllegalStateException();

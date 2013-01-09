@@ -39,7 +39,8 @@ import com.opengamma.util.money.Currency;
 public class CommodityForwardCurveFromFutureCurveFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String interpolatorName = desiredValue.getConstraint(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);
@@ -52,12 +53,12 @@ public class CommodityForwardCurveFromFutureCurveFunction extends AbstractFuncti
     }
     final NodalDoublesCurve futurePriceData = (NodalDoublesCurve) objectFuturePriceData;
 
-    Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
 
     final ForwardCurve curve = new ForwardCurve(InterpolatedDoublesCurve.from(futurePriceData.getXData(), futurePriceData.getYData(), interpolator));
 
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD)
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR, interpolatorName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, leftExtrapolatorName)
@@ -74,7 +75,7 @@ public class CommodityForwardCurveFromFutureCurveFunction extends AbstractFuncti
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.PRIMITIVE || target.getUniqueId() == null) {
       return false;
     }
@@ -82,9 +83,9 @@ public class CommodityForwardCurveFromFutureCurveFunction extends AbstractFuncti
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD)
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR)
         .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
@@ -94,7 +95,7 @@ public class CommodityForwardCurveFromFutureCurveFunction extends AbstractFuncti
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final ValueProperties constraints = desiredValue.getConstraints();
 
@@ -103,7 +104,7 @@ public class CommodityForwardCurveFromFutureCurveFunction extends AbstractFuncti
     if (curveNames == null || curveNames.size() != 1) {
       return null;
     }
-    String curveName = Iterables.getOnlyElement(curveNames);
+    final String curveName = Iterables.getOnlyElement(curveNames);
 
     // interpolator
     final Set<String> interpolatorNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);

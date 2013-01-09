@@ -31,7 +31,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  *
  */
-public class FutureOptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
+public class FutureOptionBlackDefaults extends DefaultPropertyFunction {
 
   private final Map<Currency, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
   private final String _volSurfaceName;
@@ -48,7 +48,7 @@ public class FutureOptionBlackDefaultPropertiesFunction extends DefaultPropertyF
    * @param smileInterpolator Name of the interpolation method for the smile (e.g. Spline)
    * @param currencyCurveConfigAndDiscountingCurveNames Choice of MultiCurveCalculationConfig. e.g. DefaultTwoCurveUSDConfig
    */
-  public FutureOptionBlackDefaultPropertiesFunction(final String priority, final String volSurface, final String smileInterpolator,
+  public FutureOptionBlackDefaults(final String priority, final String volSurface, final String smileInterpolator,
       final String... currencyCurveConfigAndDiscountingCurveNames) {
 
     super(ComputationTargetType.SECURITY, true);
@@ -82,7 +82,7 @@ public class FutureOptionBlackDefaultPropertiesFunction extends DefaultPropertyF
   }
 
   @Override
-  protected Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName) {
+  protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final Pair<String, String> pair = _currencyCurveConfigAndDiscountingCurveNames.get(ccy);
     if (ValuePropertyNames.CURVE.equals(propertyName)) {

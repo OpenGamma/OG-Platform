@@ -9,8 +9,8 @@ package com.opengamma.financial.analytics.model.volatility.surface.black;
  *
  */
 public class BlackVolatilitySurfacePropertyNamesAndValues {
-  /** The Black volatility surface method */
-  public static final String BLACK_SURFACE_METHOD = "BlackSurfaceMethod";
+  /** Property name indicating that an interpolated Black lognormal volatility surface was used*/
+  public static final String INTERPOLATED_BLACK_LOGNORMAL = "InterpolatedBlackLognormalSurface";
 
   // Properties and names for the time axis
   /** Property name for the time axis parameterization */
