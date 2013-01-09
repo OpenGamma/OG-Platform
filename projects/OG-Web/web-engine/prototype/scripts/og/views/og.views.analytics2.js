@@ -14,21 +14,20 @@ $.register_module({
             load: function (args) {
                 $('.OG-masthead .og-analytics-beta').addClass('og-active');
                 var new_page = false;
-                if (!form) form = new og.analytics.Form({selector:'.OG-layout-analytics-masthead .og-form'});
-                form.replay_query(og.analytics.url.last.main);
+                if (!form) form = new og.analytics.form2();
                 view.check_state({args: args, conditions: [
                     {new_page: function () {new_page = true; og.analytics.containers.initialize();}}
                 ]});
                 og.analytics.resize();
                 if (!new_page && !args.data && og.analytics.url.last.main) {
                     og.analytics.url.clear_main(), $(main_selector).html('');
-                    if (!og.analytics.url.last.main) form.reset_query();
-                }
+                    if (!og.analytics.url.last.main) form.fire('reset');
+                } else form.fire('replay', og.analytics.url.last.main);
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
                 og.analytics.url.process(args, function () {
-                    form.replay_query(og.analytics.url.last.main);
+                    form.fire('replay', og.analytics.url.last.main);
                 });
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
