@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionVegaCalculator;
+import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionBlackVegaCalculator;
 import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.EnergyFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
@@ -27,11 +27,11 @@ import com.opengamma.util.money.Currency;
  */
 public class CommodityFutureOptionVegaCalculatorTest extends CommodityFutureOptionTestDefaults {
 
-  private static final CommodityFutureOptionVegaCalculator PRICER = CommodityFutureOptionVegaCalculator.getInstance();
+  private static final CommodityFutureOptionBlackVegaCalculator PRICER = CommodityFutureOptionBlackVegaCalculator.getInstance();
 
   @Test
   public void testAgricultureFutureOption() {
-    final double answer = 68.19874678562851;
+    final double answer = 34.09937339281426;
 
     final AgricultureFutureDefinition definition = new AgricultureFutureDefinition(EXPIRY_DATE, AN_UNDERLYING, UNIT_AMOUNT, null, null, AMOUNT, "tonnes", SettlementType.CASH, 0, Currency.GBP,
         SETTLEMENT_DATE);
@@ -43,7 +43,7 @@ public class CommodityFutureOptionVegaCalculatorTest extends CommodityFutureOpti
 
   @Test
   public void testEnergyFutureOption() {
-    final double answer = 68.19874678562851;
+    final double answer = 34.09937339281426;
 
     final EnergyFutureDefinition definition = new EnergyFutureDefinition(EXPIRY_DATE, AN_UNDERLYING, UNIT_AMOUNT, null, null, AMOUNT, "tonnes", SettlementType.CASH, 0, Currency.GBP,
         SETTLEMENT_DATE);
@@ -55,7 +55,7 @@ public class CommodityFutureOptionVegaCalculatorTest extends CommodityFutureOpti
 
   @Test
   public void testMetalFutureOption() {
-    final double answer = 68.19874678562851;
+    final double answer = 34.09937339281426;
 
     final MetalFutureDefinition definition = new MetalFutureDefinition(EXPIRY_DATE, AN_UNDERLYING, UNIT_AMOUNT, null, null, AMOUNT, "tonnes", SettlementType.CASH, 0, Currency.GBP,
         SETTLEMENT_DATE);

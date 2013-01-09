@@ -8,8 +8,6 @@ $.register_module({
     dependencies: ['og.api.text'],
     obj: function () {
         var module = this, STALL = 500 /* 500ms */, api_text = og.api.text;
-        /** @private */
-        var set_template = function (name, html) {return !name || !html ? false : Handlebars.compile(html);};
         /**
          * creates a Block instance
          * @name Block
@@ -21,47 +19,41 @@ $.register_module({
          * @param {Function} config.generator function that will receive a handler into which it can send Block contents
          * whenever it is ready, useful for populating a block with async content (optional)
          * @param {Object} config.extras values plugged into the Handlerbars template (optional)
-         * @param {String} config.wrap simple Handlebars template with a blob named "html" used to wrap children
+         * @param {String} config.template simple Handlebars template, an HTML blob called "children"
          * @property {Array} children collection of children within a Block instance, each child is itself a Block
          */
         var Block = function (form, config) {
             var block = this, config = block.config = config || {};
             block.children = config.children || [];
             block.form = form;
-            if (block.template) return; // good to go if template is supplied by prototype
-            block.template = 'loading';
-            $.when(config.module ? api_text({module: config.module}) : void 0)
-                .then(function (result) {block.template = set_template(config.module, result);});
+            if (config.module) api_text({module: config.module, loading: function () {block.template = 'loading';}})
+                .pipe(function (html) {block.template = Handlebars.compile(html);});
+            else if (config.template) block.template = Handlebars.compile(config.template);
         };
         /**
          * generates the HTML for a Block instance and all of its children and calls a supplied handler with that string
          * @param {Function} handler the handler that receives the HTML string
+         * @param {Object} extras key/value pairs that will override the original config.extras
          * @type Block
          * @returns {Block} reference to current Block instance
          */
-        Block.prototype.html = function (handler) {
+        Block.prototype.html = function (handler, extras) {
             var block = this, template = block.template, total = block.children.length, done = 0, result = [],
                 generator = block.config.generator;
             /** @private */
             var internal_handler = function () {
-                handler(template ? template($.extend(
-                    result.reduce(function (acc, val, idx) {return acc['item_' + idx] = val, acc;}, {}),
-                    block.config.extras
-                )) : wrap(result.join('')));
-            };
-            /** @private */
-            var wrap = function (html) {
-                return block.config.wrap ? Handlebars.compile(block.config.wrap)({html: html}) : html;
+                var template_data = $.extend(
+                    result.reduce(function (acc, val, idx) {return acc['item_' + idx] = val, acc;}, {
+                        children: result.join('') // all children can be populated into a special field called children
+                    }), block.config.extras, extras || {}
+                );
+                return generator ? generator(handler, template, template_data) : handler(template(template_data));
             };
             if (block.config.content) return handler(block.config.content), block;
             if (template === 'loading') return setTimeout(function () {block.html(handler);}, STALL), block;
-            if (generator) return generator(handler, template), block;
             if (!total) return internal_handler(), block;
-            block.children.forEach(function (val, idx) {
-                if (val.html)
-                    return val.html(function (html) {(result[idx] = html), (total === ++done) && internal_handler();});
-                result[idx] = val;
-                if (total === ++done) internal_handler();
+            block.children.forEach(function (child, index) {
+                child.html(function (html) {(result[index] = html), (total === ++done) && internal_handler();});
             });
             return block;
         };
@@ -74,7 +66,7 @@ $.register_module({
             var block = this, form = block.form;
             if (form.events['form:load']) // mimic a form load event
                 form.events['form:load'].forEach(function (val) {if (val.origin === block) val.handler();});
-            block.children.forEach(function (child) {if (child.load) child.load();});
+            block.children.forEach(function (child) {child.load();});
             return block;
         };
         /**
@@ -98,10 +90,10 @@ $.register_module({
         /** @ignore */
         Block.prototype.process = function (data, errors) {
             var block = this, processor = block.config.processor;
-            block.children.forEach(function (child) {if (child.process) child.process(data, errors);});
+            block.children.forEach(function (child) {child.process(data, errors);});
             try {if (processor) processor(data);} catch (error) {errors.push(error);}
         };
-        Block.prototype.template = null;
+        Block.prototype.template = Handlebars.compile('{{{children}}}');
         return Block;
     }
 });

@@ -7,7 +7,6 @@ package com.opengamma.web.analytics;
 
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.util.tuple.Pair;
 
 
 /**
@@ -37,11 +36,8 @@ import com.opengamma.util.tuple.Pair;
    * @return The viewport
    */
   @Override
-  protected Pair<PrimitivesGridViewport, Boolean> createViewport(ViewportDefinition viewportDefinition, String callbackId) {
-    PrimitivesGridViewport viewport = new PrimitivesGridViewport(_gridStructure, callbackId);
-    String updatedCallbackId = viewport.update(viewportDefinition, _cycle, _cache);
-    boolean hasData = (updatedCallbackId != null);
-    return Pair.of(viewport, hasData);
+  protected PrimitivesGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
+    return new PrimitivesGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, _cache);
   }
 
   /**

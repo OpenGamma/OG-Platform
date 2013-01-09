@@ -4,18 +4,24 @@
  */
 $.register_module({
     name: 'og.views.blotter',
-    dependencies: [],
+    dependencies: ['og.analytics.Form', 'og.common.routes', 'og.common.masthead'],
     obj: function () {
-        var view, module = this, dialog, masthead = og.common.masthead, page_name = module.name.split('.').pop();
-        $(window).load(function () { 
-            $('.new_trade').click(function (){
-                new og.blotter.Dialog();
-            });
-        });
+        var module = this, masthead = og.common.masthead, page_name = module.name.split('.').pop(),
+            routes = og.common.routes, main_selector = '.OG-layout-analytics-center', view, form;
+        module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
-            init: function () {
-                masthead.menu.set_tab(page_name);    
-            } 
+            check_state: og.views.common.state.check.partial('/'),
+            load: function (args) {
+//                masthead.menu.set_tab(page_name);
+                if (!form) form = new og.analytics.Form({selector:'.OG-layout-blotter-masthead .og-form'});
+                $('.new_trade').css({display: 'inline-block'}).click(function (){new og.blotter.Dialog();});
+            },
+            load_item: function (args) {},
+            init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
+            rules: {
+                load: {route: '/', method: module.name + '.load'},
+                load_item: {route: '/:data', method: module.name + '.load_item'}
+            }
         };
     }
 });

@@ -19,5 +19,7 @@ public class ForwardCurveValuePropertyNames {
   public static final String PROPERTY_YIELD_CURVE_IMPLIED_METHOD = "YieldCurveImplied";
   /** Name indicating that the forward curve was constructed from market quotes */
   public static final String PROPERTY_MARKET_QUOTES_METHOD = "MarketQuotes";
+  /** Name indicating that the forward curve was constructed from a future curve*/
+  public static final String PROPERTY_FUTURE_PRICE_METHOD = "FuturePriceMethod";
 
 }

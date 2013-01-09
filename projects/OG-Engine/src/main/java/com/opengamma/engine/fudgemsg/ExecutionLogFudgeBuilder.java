@@ -16,6 +16,8 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
+import org.fudgemsg.types.IndicatorType;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.util.log.LogEvent;
@@ -27,6 +29,7 @@ import com.opengamma.util.log.LogLevel;
 @GenericFudgeBuilderFor(ExecutionLog.class)
 public class ExecutionLogFudgeBuilder implements FudgeBuilder<ExecutionLog> {
 
+  private static final String LOG_EVENTS_COLLECTED_FIELD_NAME = "logEventsCollected";
   private static final String LOG_EVENT_FIELD_NAME = "logEvent";
   private static final String LOG_LEVEL_FIELD_NAME = "logLevel";
   private static final String EXCEPTION_CLASS_FIELD_NAME = "exceptionClass";
@@ -37,6 +40,7 @@ public class ExecutionLogFudgeBuilder implements FudgeBuilder<ExecutionLog> {
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ExecutionLog object) {
     MutableFudgeMsg msg = serializer.newMessage();
     if (object.getEvents() != null) {
+      msg.add(LOG_EVENTS_COLLECTED_FIELD_NAME, null, FudgeWireType.INDICATOR, IndicatorType.INSTANCE);
       for (LogEvent event : object.getEvents()) {
         serializer.addToMessage(msg, LOG_EVENT_FIELD_NAME, null, event);
       }
@@ -60,9 +64,15 @@ public class ExecutionLogFudgeBuilder implements FudgeBuilder<ExecutionLog> {
 
   @Override
   public ExecutionLog buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    final List<LogEvent> events = new ArrayList<LogEvent>();
-    for (FudgeField eventField : message.getAllByName(LOG_EVENT_FIELD_NAME)) {
-      events.add(deserializer.fieldValueToObject(LogEvent.class, eventField));
+    final boolean logEventsCollected = message.hasField(LOG_EVENTS_COLLECTED_FIELD_NAME);
+    final List<LogEvent> events;
+    if (logEventsCollected) {
+      events = new ArrayList<LogEvent>();
+      for (FudgeField eventField : message.getAllByName(LOG_EVENT_FIELD_NAME)) {
+        events.add(deserializer.fieldValueToObject(LogEvent.class, eventField));
+      }
+    } else {
+      events = null;
     }
     final EnumSet<LogLevel> logLevels = EnumSet.noneOf(LogLevel.class);
     for (FudgeField levelField : message.getAllByName(LOG_LEVEL_FIELD_NAME)) {
@@ -102,6 +112,11 @@ public class ExecutionLogFudgeBuilder implements FudgeBuilder<ExecutionLog> {
       @Override
       public String getExceptionStackTrace() {
         return exceptionStackTrace;
+      }
+
+      @Override
+      public boolean isEmpty() {
+        return getLogLevels().isEmpty() && !hasException();
       }
       
     };

@@ -48,8 +48,8 @@ public abstract class StandardCDSSecurity extends CreditDefaultSwapSecurity {
   @PropertyDefinition(validate = "notNull")
   private InterestRateNotional _upfrontAmount;
 
-  StandardCDSSecurity() { // For Fudge builder
-    super();
+  StandardCDSSecurity(String securityType) { // For Fudge builder
+    super(securityType);
   }
 
   public StandardCDSSecurity(final boolean isBuy, final ExternalId protectionSeller, final ExternalId protectionBuyer, final ExternalId referenceEntity, //CSIGNORE

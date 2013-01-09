@@ -56,7 +56,7 @@ public class SimpleZeroDepositSecurity extends FinancialSecurity {
   private ExternalId _region;
 
   SimpleZeroDepositSecurity() {
-    super();
+    super(SECURITY_TYPE);
   }
 
   SimpleZeroDepositSecurity(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime maturityDate, final double rate, final ExternalId region) {

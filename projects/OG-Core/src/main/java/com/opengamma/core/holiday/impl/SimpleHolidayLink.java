@@ -115,7 +115,6 @@ public class SimpleHolidayLink extends AbstractLink<Holiday>
    * The meta-bean for {@code SimpleHolidayLink}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static SimpleHolidayLink.Meta meta() {
     return SimpleHolidayLink.Meta.INSTANCE;
   }

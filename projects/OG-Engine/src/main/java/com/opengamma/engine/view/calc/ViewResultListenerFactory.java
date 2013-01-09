@@ -8,13 +8,14 @@ package com.opengamma.engine.view.calc;
 import com.opengamma.engine.view.listener.ViewResultListener;
 
 /**
- * Factory producing sticky view clients. These clients do not detach themeselves from view processes.
- * The use case for this kind of clients is to use them as additional clients receiving all the results as the oryginalone,
- * which keeps processing results coming from view process even when the original view client detaches between computation cycels.
- * Useful for dumping all view process results on disk while not being attached by the invoking client.
- *
+ * Factory producing listeners to be attached to the results of a view process for a specific purpose.
  */
 public interface ViewResultListenerFactory {
 
+  /**
+   * Creates a new view result listener.
+   * 
+   * @return the view result listener, not null
+   */
   ViewResultListener createViewResultListener();
 }

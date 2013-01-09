@@ -33,6 +33,7 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -103,6 +104,8 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security);
 
   T visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity security);
+
+  T visitEquityIndexFutureOptionSecurity(EquityIndexFutureOptionSecurity security);
 
   T visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security);
 

@@ -105,7 +105,7 @@ public abstract class LocalVolatilityBackwardPDEFunction extends LocalVolatility
   @Override
   protected ValueProperties getResultProperties() {
     ValueProperties result = createValueProperties().get();
-    result = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(result, getInstrumentType(), getBlackSmileInterpolatorName(),
+    result = LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(result, getInstrumentType(), getBlackSmileInterpolatorName(),
         LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS).get();
     result = PDEFunctionUtils.addBackwardPDEProperties(result)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEFunction.CALCULATION_METHOD).get();
@@ -115,7 +115,7 @@ public abstract class LocalVolatilityBackwardPDEFunction extends LocalVolatility
   @Override
   protected ValueProperties getResultProperties(final ValueRequirement desiredValue) {
     ValueProperties result = createValueProperties().get();
-    result = LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(result, getInstrumentType(), getBlackSmileInterpolatorName(),
+    result = LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(result, getInstrumentType(), getBlackSmileInterpolatorName(),
         LocalVolatilitySurfacePropertyNamesAndValues.MONEYNESS, desiredValue).get();
     result = PDEFunctionUtils.addBackwardPDEProperties(result, desiredValue)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEFunction.CALCULATION_METHOD).get();

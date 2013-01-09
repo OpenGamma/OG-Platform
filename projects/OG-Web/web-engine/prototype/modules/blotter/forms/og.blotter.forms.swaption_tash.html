@@ -1,93 +1,63 @@
 <div class="OG-details-content OG-config OG-grid OG-form">
+{{{item_0}}}
 <section>
-    <table class="OG-table">
-      <colgroup>
-        <col style="width: 40%">              
-        <col style="width: 60%">              
-      </colgroup>
-      <thead>
-        <tr>
-          <th>
-            <span><em>Swaption</em></span>
-          </th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-          </td>
-          <td>
-            Long <input type="radio" name="name" value="long">
-            Short <input type="radio" name="name" value="short">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Settlement</span>
-            </label>
-          </td>
-          <td>
-            Cash <input type="radio" name="name" value="cash">
-            Swap <input type="radio" name="name" value="swap">
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Expiry</span>
-            </label>
-          </td>
-          <td>
-            <input name="" type="text" />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Currency</span>
-            </label>
-          </td>
-          <td>
-            <select></select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Premium</span>
-            </label>
-          </td>
-          <td>
-            <input name="" type="text" />
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Premium Currency</span>
-            </label>
-          </td>
-          <td>
-            <select></select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label>
-              <span>Premium Date</span>
-            </label>
-          </td>
-          <td>
-            <input name="" type="text" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
-  <div>{{{item_0}}}</div>
-  <div>{{{item_1}}}</div>
-  <div>{{{item_2}}}</div>
-  <div>{{{item_3}}}</div>
+  <table class="OG-table">
+    <colgroup>
+      <col style="width: 30%">              
+      <col style="width: 70%">              
+    </colgroup>
+    <tbody>
+      <tr>
+        <td>
+          <span>Settlement</span>
+        </td>
+        <td class="og-double-cell">
+          <div><span><label>Long <input type="radio" name="name1" value="long">
+          </label><label>Short <input type="radio" name="name1" value="short">
+          </label></span><span><label>Cash <input type="radio" name="name2" value="cash">
+          </label><label>Swap <input type="radio" name="name2" value="swap"></label></span></div>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Expiry</span>
+          </label>
+        </td>
+        <td>
+          <input name="" type="text" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Currency</span>
+          </label>
+        </td>
+        <td>
+          <select></select>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <label>
+            <span>Premium</span>
+          </label>
+        </td>
+        <td class="og-triple-cell">
+          <div><span><input name="" type="text" placeholder="Amount"/>
+          </span><span><select><option value="" selected disabled="disabled">Currency</option></select>
+          </span><span><input name="" type="text" placeholder="Date"/></span></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+{{{item_1}}}
+<section>
+  {{{item_2}}}
+  {{{item_3}}}
+  {{{item_4}}}
+</section>
+{{{item_5}}}
 </div>

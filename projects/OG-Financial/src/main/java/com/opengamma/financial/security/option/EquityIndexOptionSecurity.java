@@ -79,7 +79,7 @@ public class EquityIndexOptionSecurity extends FinancialSecurity {
   private String _exchange;
 
   EquityIndexOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public EquityIndexOptionSecurity(OptionType optionType, double strike, Currency currency, ExternalId underlyingId,

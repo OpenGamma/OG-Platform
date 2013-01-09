@@ -156,7 +156,7 @@ public final class EquityLoader extends SecurityLoader {
     if (gicsCode != null) {
       security.setGicsCode(gicsCode);
     }
-    security.addAttribute("preferred", Boolean.toString(isPreferred));
+    security.setPreferred(isPreferred);
     
     //set identifiers
     parseIdentifiers(fieldData, security);

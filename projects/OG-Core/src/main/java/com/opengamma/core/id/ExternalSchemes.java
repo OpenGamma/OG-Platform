@@ -87,6 +87,10 @@ public class ExternalSchemes {
    * Identification scheme for ICAP market data feed tickers.
    */
   public static final ExternalScheme ICAP = ExternalScheme.of("ICAP");
+  /**
+   * Identification scheme for GMI contracts.
+   */
+  public static final ExternalScheme GMI = ExternalScheme.of("GMI");
 
   //-------------------- SCHEMES FOR REGIONS ---------------------
 
@@ -361,6 +365,22 @@ public class ExternalSchemes {
       throw new IllegalArgumentException("Ticker is invalid: " + ticker);
     }
     return ExternalId.of(ICAP, ticker);
+  }
+  
+  /**
+   * Creates a GMI ticker.
+   * <p>
+   * This is the ticker used by GMI.
+   * 
+   * @param ticker The GMI ticker, not null
+   * @return The security identifier, not null
+   */
+  public static ExternalId gmiSecurityId(final String ticker) {
+    ArgumentChecker.notNull(ticker, "ticker");
+    if (ticker.length() == 0) {
+      throw new IllegalArgumentException("Ticker is invalid: " + ticker);
+    }
+    return ExternalId.of(GMI, ticker);
   }
   // -------------------------- METHODS FOR REGIONS ---------------------------
 

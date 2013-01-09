@@ -37,7 +37,7 @@ public class RawSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fud
 
   @Override
   public RawSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    RawSecurity object = new RawSecurity("", new byte[0]);
+    RawSecurity object = new RawSecurity(msg.getString(ManageableSecurityFudgeBuilder.SECURITY_TYPE_FIELD_NAME));
     RawSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }

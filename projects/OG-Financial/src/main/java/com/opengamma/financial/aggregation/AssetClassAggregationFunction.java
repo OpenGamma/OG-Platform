@@ -54,6 +54,7 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -103,14 +104,14 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String UNKNOWN = "Unknown Security Type";
   /* package */static final String NAME = "Asset Class";
   /* package */static final String CDS = "CDS"; // TODO: is this the correct abbreviation?
-
+  /* package */static final String EQUITY_INDEX_FUTURE_OPTIONS = "Equity Index Future Options";
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
   /* package */static final List<String> ALL_CATEGORIES = Arrays.asList(FX_OPTIONS, NONDELIVERABLE_FX_FORWARDS, FX_BARRIER_OPTIONS, FX_DIGITAL_OPTIONS,
     NONDELIVERABLE_FX_DIGITAL_OPTIONS, FX_FORWARDS, NONDELIVERABLE_FX_FORWARDS, BONDS, CASH, EQUITIES,
     FRAS, FUTURES, EQUITY_INDEX_OPTIONS, EQUITY_OPTIONS, EQUITY_BARRIER_OPTIONS,
     EQUITY_VARIANCE_SWAPS, SWAPTIONS, IRFUTURE_OPTIONS, EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS,
-    SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD,
+    SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS,
     UNKNOWN);
 
   private final boolean _includeEmptyCategories;
@@ -214,6 +215,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         public String visitEquityIndexDividendFutureOptionSecurity(
           final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
           return EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS;
+        }
+
+        @Override
+        public String visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity equityIndexFutureOptionSecurity) {
+          return EQUITY_INDEX_FUTURE_OPTIONS;
         }
 
         @Override

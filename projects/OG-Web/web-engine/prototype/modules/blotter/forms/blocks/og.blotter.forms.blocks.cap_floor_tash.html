@@ -1,0 +1,106 @@
+<section>
+<table class="OG-table">
+  <colgroup>
+    <col style="width: 30%">              
+    <col style="width: 70%">              
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        Type
+      </td>
+      <td class="og-double-cell">
+        <div><span><label>Cap <input type="radio" name="cap" value="true">
+        </label><label>Floor <input type="radio" name="cap" value="false"></label>
+        </span><span><label>Buy<input type="radio" name="payer" value="false">
+        </label><label>Sell<input type="radio" name="payer" value="true"></label></span></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Start Date</span>
+        </label>
+      </td>
+      <td>
+        <input name="startDate" type="text" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Maturity Date</span>
+        </label>
+      </td>
+      <td>
+        <input name="maturityDate" type="text" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Notional</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <div><span><select name="currency"></select></span><span><input name="notional" type="text" /></span></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Strike</span>
+        </label>
+      </td>
+      <td>
+        <input name="strike" type="text" />
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="OG-table">
+  <colgroup>
+    <col style="width: 30%">              
+    <col style="width: 70%">              
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <label>
+          <span>Index</span>
+        </label>
+      </td>
+      {{#if cms}}
+        <td class="og-double-cell">
+          <div><span><input name="longId" type="text" />
+          </span><span><input name="shortId" type="text" /></span></div>
+        </td>
+      {{else}}
+        <td>
+          <input name="underlyingId" type="text" />
+        </td>
+    {{/if}}
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Frequency</span>
+        </label>
+      </td>
+      <td>
+        <select name="frequency"></select>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Day Count</span>
+        </label>
+      </td>
+      <td>
+        <select name="dayCount"></select>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</section>

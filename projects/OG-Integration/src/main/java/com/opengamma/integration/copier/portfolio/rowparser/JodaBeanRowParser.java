@@ -81,6 +81,7 @@ public class JodaBeanRowParser extends RowParser {
     "com.opengamma.financial.security.bond",
     "com.opengamma.financial.security.capfloor",
     "com.opengamma.financial.security.cash",
+    "com.opengamma.financial.security.cds",
     "com.opengamma.financial.security.deposit",
     "com.opengamma.financial.security.equity",
     "com.opengamma.financial.security.forward",

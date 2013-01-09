@@ -59,6 +59,12 @@ public final class EmptyExecutionLog implements ExecutionLog {
   public String getExceptionStackTrace() {
     return null;
   }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean isEmpty() {
+    return true;
+  }
   
   //-------------------------------------------------------------------------
   @Override

@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionDeltaCalculator;
+import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionBlackDeltaCalculator;
 import com.opengamma.analytics.financial.commodity.definition.AgricultureFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.EnergyFutureDefinition;
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinition;
@@ -27,7 +27,7 @@ import com.opengamma.util.money.Currency;
  */
 public class CommodityFutureOptionDeltaCalculatorTest extends CommodityFutureOptionTestDefaults {
 
-  private static final CommodityFutureOptionDeltaCalculator PRICER = CommodityFutureOptionDeltaCalculator.getInstance();
+  private static final CommodityFutureOptionBlackDeltaCalculator PRICER = CommodityFutureOptionBlackDeltaCalculator.getInstance();
 
   @Test
   public void testAgricultureFutureOption() {

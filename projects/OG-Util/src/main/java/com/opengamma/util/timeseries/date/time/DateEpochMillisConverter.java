@@ -171,11 +171,6 @@ public class DateEpochMillisConverter implements DateTimeConverter<Date> {
   }
 
   @Override
-  public Pair<Date, Double> makePair(final Date dateTime, final Double value) {
-    return Pair.of(dateTime, value);
-  }
-
-  @Override
   public DoubleTimeSeries<Date> convertFromLong(final DoubleTimeSeries<Date> templateTS, final FastLongDoubleTimeSeries pldts) {
     final Calendar cal = _calendar.get();
     final Date[] dateTimes = new Date[pldts.size()];
@@ -250,4 +245,5 @@ public class DateEpochMillisConverter implements DateTimeConverter<Date> {
   public <T> Pair<Date, T> makePair(Date dateTime, T value) {
     return Pair.of(dateTime, value);
   }
+
 }

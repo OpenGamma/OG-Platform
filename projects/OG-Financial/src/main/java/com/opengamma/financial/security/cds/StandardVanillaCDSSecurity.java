@@ -61,7 +61,7 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
   private boolean _adjustCashSettlementDate;
 
   StandardVanillaCDSSecurity() { // for fudge
-    super();
+    super(SECURITY_TYPE);
   }
 
   public StandardVanillaCDSSecurity(final boolean isBuy, final ExternalId protectionSeller, final ExternalId protectionBuyer, final ExternalId referenceEntity, //CSIGNORE

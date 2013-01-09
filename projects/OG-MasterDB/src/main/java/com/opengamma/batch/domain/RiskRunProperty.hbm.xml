@@ -7,6 +7,7 @@
   <class name="com.opengamma.batch.domain.RiskRunProperty" table="rsk_run_property">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">rsk_hibernate_sequence</param>
       	<param name="optimizer">hilo</param>
       	<param name="increment_size">10000</param>
       </generator>

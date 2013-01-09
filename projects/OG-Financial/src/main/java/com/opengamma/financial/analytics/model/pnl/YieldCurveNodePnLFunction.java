@@ -70,6 +70,8 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.sensitivities.FactorExposureData;
+import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
@@ -189,6 +191,9 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     if (security instanceof InterestRateFutureSecurity || security instanceof IRFutureOptionSecurity) {
       return false;
     }
+    if (security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
+      return true;
+    }
     if (!(security instanceof FinancialSecurity)) {
       return false;
     }
@@ -277,7 +282,9 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
         curveNames.add(entry.getValue().getConstraint(ValuePropertyNames.CURVE));
       }
     }
-    assert !curveNames.isEmpty();
+    if (curveNames.isEmpty()) {
+      throw new OpenGammaRuntimeException("Curves names not specified in any of " + inputs);
+    }
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)

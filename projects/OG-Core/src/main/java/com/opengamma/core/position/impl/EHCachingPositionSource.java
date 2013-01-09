@@ -144,6 +144,7 @@ public class EHCachingPositionSource implements PositionSource {
     }
     if (uniqueId.isLatest()) {
       Portfolio portfolio = getUnderlying().getPortfolio(uniqueId);
+      _frontCache.putIfAbsent(uniqueId, portfolio);  // TODO jonathan 2012-12-06 -- cache latest unique ID for performance, but does this work with changes to the portfolio?
       f = _frontCache.putIfAbsent(portfolio.getUniqueId(), portfolio);
       if (f instanceof Portfolio) {
         return (Portfolio) f;

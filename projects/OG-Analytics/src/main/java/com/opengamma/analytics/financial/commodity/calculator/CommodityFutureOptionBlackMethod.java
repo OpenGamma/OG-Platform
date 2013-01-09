@@ -13,12 +13,15 @@ import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Pricing method for CommodityFuture Options with Black function.
+ * Black methods for commodity future option prices and greeks.
  */
 public final class CommodityFutureOptionBlackMethod {
-
+  /** A static instance of this class */
   private static final CommodityFutureOptionBlackMethod INSTANCE = new CommodityFutureOptionBlackMethod();
 
+  /**
+   * @return The static instance of this class
+   */
   public static CommodityFutureOptionBlackMethod getInstance() {
     return INSTANCE;
   }
@@ -34,12 +37,12 @@ public final class CommodityFutureOptionBlackMethod {
    * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
    * @return the <b>forward</b> price of an option using the Black formula. PV / ZeroBond(timeToSettlement)
    */
-  public double forwardPrice(CommodityFutureOption<?> derivative, StaticReplicationDataBundle marketData) {
+  public double forwardPrice(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(marketData, "marketData");
     final double expiry = derivative.getExpiry();
     final double strike = derivative.getStrike();
-    final double notional = derivative.getUnderlying().getUnitAmount();
+    final double notional = derivative.getUnderlying().getAmount();
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     final double fwdPrice = BlackFormulaRepository.price(forward, strike, expiry, blackVol, derivative.isCall());
@@ -51,7 +54,7 @@ public final class CommodityFutureOptionBlackMethod {
    * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
    * @return Current DiscountBond or ZeroBond price for payment at the settlement date
    */
-  public double discountToSettlement(CommodityFutureOption<?> derivative, StaticReplicationDataBundle marketData) {
+  public double discountToSettlement(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(marketData, "marketData");
     final double df = marketData.getDiscountCurve().getDiscountFactor(derivative.getUnderlying().getSettlement());
@@ -63,7 +66,7 @@ public final class CommodityFutureOptionBlackMethod {
    * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
    * @return the <b>forward</b> value of the index, ie the fair strike of a forward agreement paying the index value at maturity
    */
-  public double forwardIndexValue(CommodityFutureOption<?> derivative, StaticReplicationDataBundle marketData) {
+  public double forwardIndexValue(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(marketData, "marketData");
     final double expiry = derivative.getExpiry();
@@ -73,9 +76,9 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
-   * @return the <b>spot</b> value of the index, ie the current market value
+   * @return the <b>spot</b> value of the index, i.e. the current market value
    */
-  public double spotIndexValue(StaticReplicationDataBundle marketData) {
+  public double spotIndexValue(final StaticReplicationDataBundle marketData) {
     ArgumentChecker.notNull(marketData, "marketData");
     final double spot = marketData.getForwardCurve().getSpot();
     return spot;
@@ -86,7 +89,7 @@ public final class CommodityFutureOptionBlackMethod {
    * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
    * @return the present value of the option
    */
-  public double presentValue(CommodityFutureOption<?> derivative, StaticReplicationDataBundle marketData) {
+  public double presentValue(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(marketData, "marketData");
     final double fwdPrice = forwardPrice(derivative, marketData);
@@ -142,7 +145,7 @@ public final class CommodityFutureOptionBlackMethod {
   public double forwardDelta(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(marketData, "marketData");
-    final double notional = derivative.getUnderlying().getUnitAmount();
+    final double notional = derivative.getUnderlying().getAmount();
     final double undiscountDelta = notional * delta(derivative, marketData);
     return undiscountDelta;
   }
@@ -200,7 +203,7 @@ public final class CommodityFutureOptionBlackMethod {
   public double forwardGamma(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(marketData, "marketData");
-    final double notional = derivative.getUnderlying().getUnitAmount();
+    final double notional = derivative.getUnderlying().getAmount();
     final double forwardGamma = notional * gamma(derivative, marketData);
     return forwardGamma;
   }
@@ -248,7 +251,7 @@ public final class CommodityFutureOptionBlackMethod {
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     final double fwdVega = BlackFormulaRepository.vega(forward, strike, expiry, blackVol);
     final double df = discountToSettlement(derivative, marketData);
-    final double notional = derivative.getUnderlying().getUnitAmount();
+    final double notional = derivative.getUnderlying().getAmount();
     return df * fwdVega * notional;
   }
 
@@ -279,7 +282,7 @@ public final class CommodityFutureOptionBlackMethod {
     final double strike = derivative.getStrike();
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double notional = derivative.getUnderlying().getUnitAmount();
+    final double notional = derivative.getUnderlying().getAmount();
     final double forwardVomma = BlackFormulaRepository.vomma(forward, strike, expiry, blackVol);
     return notional * forwardVomma;
   }
@@ -325,7 +328,7 @@ public final class CommodityFutureOptionBlackMethod {
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     final double forwardVanna = BlackFormulaRepository.vanna(forward, strike, expiry, blackVol);
-    final double notional = derivative.getUnderlying().getUnitAmount();
+    final double notional = derivative.getUnderlying().getAmount();
     return notional * forwardVanna;
   }
 
@@ -388,7 +391,7 @@ public final class CommodityFutureOptionBlackMethod {
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double strike = derivative.getStrike();
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double notional = derivative.getUnderlying().getUnitAmount();
+    final double notional = derivative.getUnderlying().getAmount();
     final double forwardTheta = BlackFormulaRepository.theta(forward, strike, expiry, blackVol);
     return notional * forwardTheta;
   }

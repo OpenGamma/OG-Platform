@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.model.volatility.smile.function;
 
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.DOUBLE_QUADRATIC;
+import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+
 import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
@@ -25,17 +28,27 @@ import com.opengamma.lang.annotation.ExternalFunction;
  * 
  */
 public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonModelData> {
-
+  /** The FFT pricer */
   private static final FFTPricer FFT_PRICER = new FFTPricer();
-  private static final Interpolator1D DEFAULT_INTERPOLATOR1D = CombinedInterpolatorExtrapolatorFactory.getInterpolator("DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator");
+  /** The default interpolator */
+  private static final Interpolator1D DEFAULT_INTERPOLATOR1D = CombinedInterpolatorExtrapolatorFactory.getInterpolator(DOUBLE_QUADRATIC, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
+  /** The default limit of sigma */
   private static final double DEFAULT_LIMIT_SIGMA = 0.3;
+  /** The default limit of alpha */
   private static final double DEFAULT_ALPHA = -0.5;
 
+  /** The limit of sigma */
   private final double _limitSigma;
+  /** Alpha */
   private final double _alpha;
+  /** The limit tolerance */
   private final double _limitTolerance;
+  /** The interpolator */
   private final Interpolator1D _interpolator;
 
+  /**
+   * Default constructor setting sigma, alpha, the limit tolerance and the interpolator to the default values
+   */
   public HestonVolatilityFunction() {
     _limitSigma = DEFAULT_LIMIT_SIGMA;
     _alpha = DEFAULT_ALPHA;
@@ -45,7 +58,7 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
 
   /**
    * {@inheritDoc}
-   * Only use this for testing. If you have a set of options with the same expiry but different strikes, use {@link getVolatilitySetFunction}
+   * Only use this for testing. If you have a set of options with the same expiry but different strikes, use #getVolatilitySetFunction
    */
   @Override
   public Function1D<HestonModelData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
@@ -123,6 +136,18 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
     };
   }
 
+  /**
+   * Calculates the volatility given Heston model parameters, market data and option data
+   * @param forward The forward
+   * @param strike The strike
+   * @param timeToExpiry The time to expiry
+   * @param kappa kappa
+   * @param theta theta
+   * @param vol0 initial volatility
+   * @param omega omega
+   * @param rho rho
+   * @return The volatility
+   */
   @ExternalFunction
   public double getVolatility(final double forward, final double strike, final double timeToExpiry, final double kappa, final double theta, final double vol0, final double omega,
       final double rho) {
@@ -131,6 +156,18 @@ public class HestonVolatilityFunction extends VolatilityFunctionProvider<HestonM
     return func.evaluate(data);
   }
 
+  /**
+   * Calculates the volatility given Heston model parameters, market data and an array of strikes
+   * @param forward The forward
+   * @param strikes The strikes
+   * @param timeToExpiry The time to expiry
+   * @param kappa kappa
+   * @param theta theta
+   * @param vol0 initial volatility
+   * @param omega omega
+   * @param rho rho
+   * @return The volatility
+   */
   @ExternalFunction
   public double[] getVolatilitySet(final double forward, final double[] strikes, final double timeToExpiry, final double kappa, final double theta, final double vol0, final double omega,
       final double rho) {

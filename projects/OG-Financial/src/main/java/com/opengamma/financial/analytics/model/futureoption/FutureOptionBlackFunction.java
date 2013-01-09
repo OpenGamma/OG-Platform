@@ -21,11 +21,12 @@ import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
-import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -42,10 +43,12 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CommodityFutureOptionConverter;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
@@ -58,9 +61,6 @@ import com.opengamma.util.async.AsynchronousExecution;
  * Basic Black Futures Option
  */
 public abstract class FutureOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
-  /** The name of the calculation method */
-  public static final String BLACK_METHOD = "BlackMethod";
-
   private final String _valueRequirementName;     // Set in concrete classes
   private CommodityFutureOptionConverter _converter;  // Set in init() call, not constructor, as requires OpenGammaCompilationContext
   private static final Logger s_logger = LoggerFactory.getLogger(FutureOptionBlackFunction.class);
@@ -71,10 +71,16 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
   }
 
   @Override
-  /** Pass all conventions required to function to convert security to definition */
+  /**
+   * {@inheritDoc}
+   * Pass all conventions required to function to convert security to definition
+   */
   public void init(final FunctionCompilationContext context) {
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    _converter = new CommodityFutureOptionConverter(securitySource);
+    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    _converter = new CommodityFutureOptionConverter(securitySource, holidaySource, conventionSource, regionSource);
   }
 
   @Override
@@ -126,11 +132,6 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
     }
     final YieldCurve fundingCurve = (YieldCurve) fundingObject;
 
-    final ConstantDoublesSurface constVol = ConstantDoublesSurface.from(0.2); // FIXME HERE JUST FOR A MINUTE!! DO NOT ALLOW THIS TO BE COMMITTED;
-    final BlackVolatilitySurface<?> blackVolSurf = new BlackVolatilitySurfaceStrike(constVol); // FIXME HERE JUST FOR A MINUTE!! DO NOT ALLOW THIS TO BE COMMITTED;
-    final ForwardCurve forwardCurve = new ForwardCurve(spot); // FIXME HERE JUST FOR A MINUTE!! DO NOT ALLOW THIS TO BE COMMITTED
-
-/* // FIXME HERE JUST FOR A MINUTE!! DO NOT ALLOW THIS TO BE COMMITTED;
     // c. The Vol Surface
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String smileInterpolator = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
@@ -148,7 +149,6 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
     } else {
       forwardCurve = new ForwardCurve(spot, fundingCurve.getCurve()); // else build from spot and funding curve
     }
-*/
     final StaticReplicationDataBundle market = new StaticReplicationDataBundle(blackVolSurf, fundingCurve, forwardCurve);
     return market;
   }
@@ -172,7 +172,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
 
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
@@ -180,13 +180,13 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
   }
 
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, ValueRequirement desiredValue, FunctionExecutionContext executionContext) {
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue, final FunctionExecutionContext executionContext) {
     final String fundingCurveName = getFundingCurveName(desiredValue);
     final String curveConfigName = getCurveConfigName(desiredValue);
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String smileInterpolatorName = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
-    ValueProperties.Builder builder = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, FXOptionBlackFunction.BLACK_METHOD)
+    final ValueProperties.Builder builder = createValueProperties()
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(ValuePropertyNames.CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName)
         .with(ValuePropertyNames.SURFACE, volSurfaceName)
@@ -195,7 +195,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
     return builder;
   }
 
-  protected String getFundingCurveName(ValueRequirement desiredValue) {
+  protected String getFundingCurveName(final ValueRequirement desiredValue) {
     final Set<String> fundingCurves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
     if (fundingCurves == null || fundingCurves.size() != 1) {
       s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.CURVE);
@@ -205,7 +205,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
     return fundingCurveName;
   }
 
-  protected String getCurveConfigName(ValueRequirement desiredValue) {
+  protected String getCurveConfigName(final ValueRequirement desiredValue) {
     final Set<String> curveConfigNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     if (curveConfigNames == null || curveConfigNames.size() != 1) {
       s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.CURVE_CALCULATION_CONFIG);
@@ -215,8 +215,8 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
     return curveConfigName;
   }
 
-  protected ValueRequirement getDiscountCurveRequirement(String fundingCurveName, String curveCalculationConfigName, Security security) {
-    ValueProperties properties = ValueProperties.builder()
+  protected ValueRequirement getDiscountCurveRequirement(final String fundingCurveName, final String curveCalculationConfigName, final Security security) {
+    final ValueProperties properties = ValueProperties.builder()
       .with(ValuePropertyNames.CURVE, fundingCurveName)
       .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
       .get();
@@ -269,13 +269,13 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
         volSurfaceName, smileInterpolator, curveConfigName, fundingCurveName, underlyingId);
 
     // Return the set
-    return Sets.newHashSet(spotReq, fundingReq); // , volReq
+    return Sets.newHashSet(spotReq, fundingReq, volReq);
   }
 
   // TODO: REQUIRES A REWORK
   protected ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final Security security,
       final String surfaceName, final String smileInterpolator, final String curveConfig, final String fundingCurveName, final ExternalId underlyingBuid) {
-    String bbgTicker = getBloombergTicker(tsSource, underlyingBuid);
+    final String bbgTicker = getBloombergTicker(tsSource, underlyingBuid);
     final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);
 
     // Set Forward Curve Currency Property
@@ -299,20 +299,18 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
   protected String getBloombergTicker(final HistoricalTimeSeriesSource tsSource, final ExternalId underlyingBuid) {
     if (tsSource == null || underlyingBuid == null) {
       throw new OpenGammaRuntimeException("Unable to find option underlyer's ticker from the ExternalIdBundle");
-    } else {
-      final HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries("PX_LAST", ExternalIdBundle.of(underlyingBuid), null, null, true, null, true, 1);
-      if (historicalTimeSeries == null) {
-        throw new OpenGammaRuntimeException("We require a time series for " + underlyingBuid);
-      }
-      final ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
-      String bbgTicker = (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER)).getValue();
-      return bbgTicker;
     }
+    final HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries("PX_LAST", ExternalIdBundle.of(underlyingBuid), null, null, true, null, true, 1);
+    if (historicalTimeSeries == null) {
+      throw new OpenGammaRuntimeException("We require a time series for " + underlyingBuid);
+    }
+    final ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
+    final String bbgTicker = (idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER)).getValue();
+    return bbgTicker;
   }
 
   protected ValueRequirement getSpotRequirement(final ExternalId underlyingId) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, UniqueId.of(underlyingId.getScheme().getName(), underlyingId.getValue()));
-    // Alternatively, as in EquityFuturesFunction: ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlyingId());
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingId);
   }
 
   protected final String getValueRequirementName() {

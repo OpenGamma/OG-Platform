@@ -35,12 +35,6 @@
 {{#each columns}}
     {{prefix}} .OG-g .c{{index}} {left: {{left}}px; right: {{right}}px;}
 {{/each}}
-/* flot */
-{{id}} .OG-g .fl {position: absolute; top: 0; right: 0; left: 0; bottom: 0}
-/* sparkline */
-{{id}} .OG-g .sp {position: absolute; top: 3px; right: 18px;}
-/* flat sparkline */
-{{id}} .OG-g .fsp {position: absolute; top: 3px; right: 2px;}
 {{id}} .OG-g .node {width: 8px; height: 8px; display: inline-block}
 {{id}} .OG-g .node.collapse:before {
     background: url("/prototype/images/common/sprites/main-sprite-sheet.png") repeat scroll 0 -25px transparent;
@@ -57,6 +51,6 @@
     cursor: pointer;
     height: 9px;
     position: absolute;
-    top: 5px;
+    top: 6px;
     width: 9px;
 }

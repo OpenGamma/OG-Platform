@@ -163,7 +163,8 @@ public abstract class CreditDefaultSwapSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private boolean _protectionStart;
 
-  CreditDefaultSwapSecurity() { // For Fudge builder
+  CreditDefaultSwapSecurity(String securityType) { // For Fudge builder
+    super(securityType);
   }
 
   public CreditDefaultSwapSecurity(final boolean isBuy, final ExternalId protectionSeller, final ExternalId protectionBuyer, final ExternalId referenceEntity, //CSIGNORE

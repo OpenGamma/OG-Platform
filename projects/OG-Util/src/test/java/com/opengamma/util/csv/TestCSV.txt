@@ -1,4 +1,0 @@
-Name, JobTitle
-Kirk, CEO
-Jim, CTO
-Elaine, CQO

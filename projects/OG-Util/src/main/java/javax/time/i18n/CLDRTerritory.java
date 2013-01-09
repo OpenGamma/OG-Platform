@@ -61,14 +61,11 @@ public class CLDRTerritory extends Territory {
      */
     private static byte[] loadRawData() {
         String path = "org/joda/time/contrib/i18n/CLDRTerritoryData.dat";
-        InputStream baseStream = null;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-        try {
-            // open the file
-            baseStream = CLDRTerritory.class.getClassLoader().getResourceAsStream(path);
+        try (InputStream baseStream = CLDRTerritory.class.getClassLoader().getResourceAsStream(path)) {
             if (baseStream == null) {
                 throw new IOException("Resource not found " + path);
             }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
             byte[] bytes = new byte[1024];
             int result = 0;
             while (result != -1) {
@@ -79,14 +76,6 @@ public class CLDRTerritory extends Territory {
             
         } catch (IOException ex) {
             throw new IllegalArgumentException("Territory data could not be loaded: " + ex.getMessage());
-        } finally {
-            if (baseStream != null) {
-                try {
-                    baseStream.close();
-                } catch (IOException ex) {
-                    // ignore
-                }
-            }
         }
     }
 

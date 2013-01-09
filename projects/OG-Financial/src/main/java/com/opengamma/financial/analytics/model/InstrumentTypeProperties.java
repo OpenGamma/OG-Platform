@@ -28,6 +28,8 @@ public class InstrumentTypeProperties {
   public static final String BOND_FUTURE_OPTION = "BOND_FUTURE_OPTION";
   /** Property representing a curve for bond futures */
   public static final String BOND_FUTURE_PRICE = "BOND_FUTURE_PRICE";
+  /** Property representing a curve for commodity futures */
+  public static final String COMMODITY_FUTURE_PRICE = "COMMODITY_FUTURE_PRICE";
   /** Property representing a surface for commodity options */
   public static final String COMMODITY_FUTURE_OPTION = "COMMODITY_FUTURE_OPTION";
   /**

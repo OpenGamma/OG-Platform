@@ -5,13 +5,12 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.analytic.formula;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.model.option.definition.Barrier;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType;
 import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -24,8 +23,13 @@ public final class BlackBarrierPriceFunction {
    * The normal distribution implementation used in the pricing.
    */
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
+  /** Static instance */
   private static final BlackBarrierPriceFunction INSTANCE = new BlackBarrierPriceFunction();
 
+  /**
+   * Gets the static instance
+   * @return The instance
+   */
   public static BlackBarrierPriceFunction getInstance() {
     return INSTANCE;
   }
@@ -45,13 +49,13 @@ public final class BlackBarrierPriceFunction {
    * @return The price.
    */
   public double getPrice(final EuropeanVanillaOption option, final Barrier barrier, final double rebate, final double spot, final double costOfCarry, final double rate, final double sigma) {
-    Validate.notNull(option, "option");
-    Validate.notNull(barrier, "barrier");
+    ArgumentChecker.notNull(option, "option");
+    ArgumentChecker.notNull(barrier, "barrier");
     final boolean isKnockIn = (barrier.getKnockType() == KnockType.IN);
     final boolean isDown = (barrier.getBarrierType() == BarrierType.DOWN);
     final double h = barrier.getBarrierLevel();
-    Validate.isTrue(!(barrier.getBarrierType() == BarrierType.DOWN && spot < barrier.getBarrierLevel()), "The Data is not consistent with an alive barrier (DOWN and spot<barrier).");
-    Validate.isTrue(!(barrier.getBarrierType() == BarrierType.UP && spot > barrier.getBarrierLevel()), "The Data is not consistent with an alive barrier (UP and spot>barrier).");
+    ArgumentChecker.isTrue(!(barrier.getBarrierType() == BarrierType.DOWN && spot < barrier.getBarrierLevel()), "The Data is not consistent with an alive barrier (DOWN and spot<barrier).");
+    ArgumentChecker.isTrue(!(barrier.getBarrierType() == BarrierType.UP && spot > barrier.getBarrierLevel()), "The Data is not consistent with an alive barrier (UP and spot>barrier).");
     final boolean isCall = option.isCall();
     final double t = option.getTimeToExpiry();
     final double strike = option.getStrike();
@@ -88,18 +92,18 @@ public final class BlackBarrierPriceFunction {
         return strike > h ? xA + xE : xB - xC + xD + xE;
       }
       return strike > h ? xA - xB + xD + xE : xC + xE;
-    } else { // KnockOut
-      if (isDown) {
-        if (isCall) {
-          return strike > h ? xA - xC + xE : xB - xD + xE;
-        }
-        return strike > h ? xA - xB + xC - xD + xE : xE;
-      }
+    } 
+    // KnockOut
+    if (isDown) {
       if (isCall) {
-        return strike > h ? xE : xA - xB + xC - xD + xE;
+        return strike > h ? xA - xC + xE : xB - xD + xE;
       }
-      return strike > h ? xB - xD + xE : xA - xC + xE;
+      return strike > h ? xA - xB + xC - xD + xE : xE;
     }
+    if (isCall) {
+      return strike > h ? xE : xA - xB + xC - xD + xE;
+    }
+    return strike > h ? xB - xD + xE : xA - xC + xE;
   }
 
   /**
@@ -116,16 +120,16 @@ public final class BlackBarrierPriceFunction {
    */
   public double getPriceAdjoint(final EuropeanVanillaOption option, final Barrier barrier, final double rebate, final double spot, final double costOfCarry, final double rate, final double sigma,
       final double[] derivatives) {
-    Validate.notNull(option, "option");
-    Validate.notNull(barrier, "barrier");
+    ArgumentChecker.notNull(option, "option");
+    ArgumentChecker.notNull(barrier, "barrier");
     for (int loopder = 0; loopder < 5; loopder++) { // To clean the array.
       derivatives[loopder] = 0.0;
     }
     final boolean isKnockIn = (barrier.getKnockType() == KnockType.IN);
     final boolean isDown = (barrier.getBarrierType() == BarrierType.DOWN);
     final double h = barrier.getBarrierLevel();
-    Validate.isTrue(!(barrier.getBarrierType() == BarrierType.DOWN && spot < barrier.getBarrierLevel()), "The Data is not consistent with an alive barrier (DOWN and spot<barrier).");
-    Validate.isTrue(!(barrier.getBarrierType() == BarrierType.UP && spot > barrier.getBarrierLevel()), "The Data is not consistent with an alive barrier (UP and spot>barrier).");
+    ArgumentChecker.isTrue(!(barrier.getBarrierType() == BarrierType.DOWN && spot < barrier.getBarrierLevel()), "The Data is not consistent with an alive barrier (DOWN and spot<barrier).");
+    ArgumentChecker.isTrue(!(barrier.getBarrierType() == BarrierType.UP && spot > barrier.getBarrierLevel()), "The Data is not consistent with an alive barrier (UP and spot>barrier).");
     final boolean isCall = option.isCall();
     final double t = option.getTimeToExpiry();
     final double strike = option.getStrike();
@@ -364,17 +368,17 @@ public final class BlackBarrierPriceFunction {
 
   /**
    * 
-   * @param s
-   * @param k
-   * @param df1
-   * @param df2
-   * @param y
-   * @param sigmaT
-   * @param h
-   * @param mu
-   * @param phi
-   * @param eta
-   * @return
+   * @param s The spot
+   * @param k The strike
+   * @param df1 The first discount factor
+   * @param df2 The second discount factor
+   * @param y y
+   * @param sigmaT Volatility multiplied by time
+   * @param h h
+   * @param mu mu
+   * @param phi phi
+   * @param eta eta
+   * @return C
    */
   private double getC(final double s, final double k, final double df1, final double df2, final double y, final double sigmaT, final double h, final double mu, final double phi, final double eta) {
     return phi * (s * df1 * Math.pow(h / s, 2 * (mu + 1)) * NORMAL.getCDF(eta * y) - k * df2 * Math.pow(h / s, 2 * mu) * NORMAL.getCDF(eta * (y - sigmaT)));
@@ -393,7 +397,7 @@ public final class BlackBarrierPriceFunction {
    * @param phi
    * @param eta
    * @param derivatives Array used to return the derivatives. Will be changed during the call. The derivatives are [0] s, [1] k, [2] df1, [3] df2, [4] y, [5] sigmaT, [6] mu.
-   * @return
+   * @return C and its adjoints
    */
   private double getCAdjoint(final double s, final double k, final double df1, final double df2, final double y, final double sigmaT, final double h, final double mu, final double phi,
       final double eta, final double[] derivatives) {
@@ -432,7 +436,7 @@ public final class BlackBarrierPriceFunction {
    * @param h
    * @param mu
    * @param eta
-   * @return
+   * @return E
    */
   private double getE(final double s, final double rebate, final double df2, final double x, final double y, final double sigmaT, final double h, final double mu, final double eta) {
     return rebate * df2 * (NORMAL.getCDF(eta * (x - sigmaT)) - Math.pow(h / s, 2 * mu) * NORMAL.getCDF(eta * (y - sigmaT)));
@@ -450,7 +454,7 @@ public final class BlackBarrierPriceFunction {
    * @param mu
    * @param eta
    * @param derivatives Array used to return the derivatives. Will be changed during the call. The derivatives are [0] s, [1] df2, [2] x, [3] y, [4] sigmaT, [5] mu.
-   * @return
+   * @return E and its adjoints
    */
   private double getEAdjoint(final double s, final double rebate, final double df2, final double x, final double y, final double sigmaT, final double h, final double mu, final double eta,
       final double[] derivatives) {
@@ -490,7 +494,7 @@ public final class BlackBarrierPriceFunction {
    * @param lambda
    * @param eta
    * @param derivatives Array used to return the derivatives. Will be changed during the call. The derivatives are [0] s, [1] z, [2] sigmaT, [3] mu, [4] lambda.
-   * @return
+   * @return F and its adjoints
    */
   private double getFAdjoint(final double s, final double rebate, final double z, final double sigmaT, final double h, final double mu, final double lambda, final double eta,
       final double[] derivatives) {

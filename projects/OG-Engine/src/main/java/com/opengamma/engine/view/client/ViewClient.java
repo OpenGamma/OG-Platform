@@ -23,6 +23,7 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Represents a managed client of a specific view process in the context of a particular user. This is the unit of
@@ -324,15 +325,18 @@ public interface ViewClient extends UniqueIdentifiable {
    * If another view client connected to the same view process has already changed the level of logging for one or more
    * results then all view clients will see the maximum level requested.
    * <p>
+   * This has set-like behaviour; the last setting for a given result specification will apply regardless of the number
+   * of calls.
+   * <p>
    * Results which are not terminal outputs - that is, results which were not directly requested in the view definition
    * and are not present in the result model - may be referenced, but these can only be accessed using 
    * {@link ViewCycle#queryResults(com.opengamma.engine.view.calc.ComputationCycleQuery)}.
    * 
    * @param minimumLogMode  the minimum log mode to ensure, not null
-   * @param resultSpecifications  the result specifications affected, not null or empty
+   * @param targets  a set of calculation configuration name and value specification pairs, not null or empty
    * @throws IllegalStateException if the view client is not attached to a view process
    */
-  void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<ValueSpecification> resultSpecifications);
+  void setMinimumLogMode(ExecutionLogMode minimumLogMode, Set<Pair<String, ValueSpecification>> targets);
 
   //-------------------------------------------------------------------------
   /**

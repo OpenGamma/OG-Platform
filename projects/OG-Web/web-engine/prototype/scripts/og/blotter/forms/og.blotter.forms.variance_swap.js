@@ -7,10 +7,9 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function () {
-            var contructor = this;
-            contructor.load = function () {
-                var config = {}, dialog; 
-                config.title = 'Varience Swap';
+            var constructor = this;
+            constructor.load = function () {
+                constructor.title = 'Varience Swap';
                 var form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.variance_swap_tash',
                     data: {},
@@ -19,6 +18,7 @@ $.register_module({
                     extras:{}
                 });
                 form.children.push(
+                    new og.blotter.forms.blocks.Portfolio({form: form}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_quick_entry_tash',
                         extras: {}
@@ -32,15 +32,15 @@ $.register_module({
                         extras: {}
                     }) ,
                     new form.Block({
-                        module: 'og.blotter.forms.blocks.swap_details_floating_tash',
+                        module: 'og.blotter.forms.blocks.swap_var_details_floating_tash',
                         extras: {}
-                    })    
+                    }),
+                    new og.common.util.ui.Attributes({form: form})
                 );
-                $('.OG-blotter-form-title').html(config.title);
                 form.dom();
             }; 
-            contructor.load();
-            contructor.kill = function () {
+            constructor.load();
+            constructor.kill = function () {
             };
         };
     }

@@ -53,7 +53,6 @@ public class DbFunctionCostsMasterFactoryBean extends SpringFactoryBean<DbFuncti
    * The meta-bean for {@code DbFunctionCostsMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbFunctionCostsMasterFactoryBean.Meta meta() {
     return DbFunctionCostsMasterFactoryBean.Meta.INSTANCE;
   }

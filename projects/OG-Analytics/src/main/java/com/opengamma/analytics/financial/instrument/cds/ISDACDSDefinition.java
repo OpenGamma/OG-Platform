@@ -15,8 +15,8 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
-import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.util.ArgumentChecker;
 
@@ -25,29 +25,40 @@ import com.opengamma.util.ArgumentChecker;
  * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  * 
- * @see CDSSecurity
  * @see ISDACDSDerivative
  * @see InstrumentDefinition
  */
 public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative> {
+  /** The day count used by ISDA */
+  private static final DayCount ACT_365F = DayCountFactory.INSTANCE.getDayCount("Actual/365");
 
-  private static final DayCount ACT_365F = new ActualThreeSixtyFive();
-
+  /** The start date of the CDS */
   private final ZonedDateTime _startDate;
+  /** The maturity of the CDS */
   private final ZonedDateTime _maturity;
 
+  /** The premium */
   private final ISDACDSPremiumDefinition _premium;
 
+  /** The notional */
   private final double _notional;
+  /** The spread */
   private final double _spread;
+  /** The recovery rate */
   private final double _recoveryRate;
 
+  /** Should accrued interest be paid in the event of a default */
   private final boolean _accrualOnDefault;
+  /** Is the protection payment made on default or at maturity */ 
   private final boolean _payOnDefault;
+  /** Is the start date protected */
   private final boolean _protectStart;
 
+  /** The coupon frequency */
   private final Frequency _couponFrequency;
+  /** The convention */
   private final Convention _convention;
+  /** The stub type */
   private final StubType _stubType;
 
   /**
@@ -105,6 +116,13 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
     return toDerivative(pricingDate, stepinDate, settlementDate, yieldCurveNames);
   }
 
+  /**
+   * @param pricingDate The pricing date
+   * @param stepinDate The step-in date
+   * @param settlementDate The settlement date
+   * @param yieldCurveNames The yield curve names, not null
+   * @return The derivative form of a CDS
+   */
   public ISDACDSDerivative toDerivative(final ZonedDateTime pricingDate, final ZonedDateTime stepinDate, final ZonedDateTime settlementDate, final String... yieldCurveNames) {
 
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
@@ -147,6 +165,10 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
             :  ACT_365F.getDayCountFraction(date1, rebasedDate2);
   }
 
+  /**
+   * @param stepinDate The step-in date
+   * @return The accrued interest at this date
+   */
   public double accruedInterest(final ZonedDateTime stepinDate) {
 
     final int nCoupons = _premium.getNumberOfPayments();
@@ -186,50 +208,98 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
     return visitor.visitCDSDefinition(this);
   }
 
+  /**
+   * Gets the start date.
+   * @return The start date
+   */
   public ZonedDateTime getStartDate() {
     return _startDate;
   }
 
+  /**
+   * Gets the maturity date.
+   * @return The maturity date
+   */
   public ZonedDateTime getMaturity() {
     return _maturity;
   }
 
+  /**
+   * Gets the premium.
+   * @return The premium
+   */
   public ISDACDSPremiumDefinition getPremium() {
     return _premium;
   }
 
+  /**
+   * Gets the notional.
+   * @return The notional
+   */
   public double getNotional() {
     return _notional;
   }
 
+  /**
+   * Gets the spread.
+   * @return The spread
+   */
   public double getSpread() {
     return _spread;
   }
 
+  /**
+   * Gets the recovery rate.
+   * @return The recovery rate
+   */
   public double getRecoveryRate() {
     return _recoveryRate;
   }
 
+  /**
+   * Is accrued interest paid on default.
+   * @return true if the accrued interest should be paid on default
+   */
   public boolean isAccrualOnDefault() {
     return _accrualOnDefault;
   }
 
+  /**
+   * Is the payment made on the default or at maturity.
+   * @return true if the payment is made on the default date
+   */
   public boolean isPayOnDefault() {
     return _payOnDefault;
   }
 
+  /**
+   * Is the start date protected.
+   * @return true if the start date is protected.
+   */
   public boolean isProtectStart() {
     return _protectStart;
   }
 
+  /**
+   * Gets the coupon frequency.
+   * @return The coupon frequency
+   */
   public Frequency getCouponFrequency() {
     return _couponFrequency;
   }
 
+  /**
+   * Gets the convention
+   * @return The convention
+   */
   public Convention getConvention() {
     return _convention;
   }
 
+  /**
+   * Gets the stub type
+   * @return The stub type
+   */
   public StubType getStubType() {
     return _stubType;
   }

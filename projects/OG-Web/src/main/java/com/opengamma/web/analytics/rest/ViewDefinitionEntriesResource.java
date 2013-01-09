@@ -44,7 +44,7 @@ public class ViewDefinitionEntriesResource {
     Collection<ConfigItem<ViewDefinition>> viewDefs = _configSource.getAll(ViewDefinition.class, VersionCorrection.LATEST);
     List<Map<String, Object>> viewDefList = new ArrayList<Map<String, Object>>(viewDefs.size());
     for (ConfigItem<ViewDefinition> viewDef : viewDefs) {
-      viewDefList.add(ImmutableMap.<String, Object>of("id", viewDef.getUniqueId(), "name", viewDef.getName()));
+      viewDefList.add(ImmutableMap.<String, Object>of("id", viewDef.getObjectId(), "name", viewDef.getName()));
     }
     return new JSONArray(viewDefList).toString();
   }

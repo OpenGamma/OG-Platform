@@ -66,15 +66,13 @@ public class BuilderTestProxyFactory {
       try {
         final Process proc = processBuilder.start();
         try{
-          OutputStream outputStream = proc.getOutputStream();
-          try {
+          try (OutputStream outputStream = proc.getOutputStream()) {
             FudgeDataOutputStreamWriter fudgeDataOutputStreamWriter = new FudgeDataOutputStreamWriter(context, outputStream);
             FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(fudgeDataOutputStreamWriter);
             fudgeMsgWriter.writeMessage(orig);
             fudgeMsgWriter.flush();
             
-            InputStream inputStream = proc.getInputStream();
-            try {
+            try (InputStream inputStream = proc.getInputStream()) {
               FudgeDataInputStreamReader fudgeDataInputStreamReader = new FudgeDataInputStreamReader(context, inputStream);
               final FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(fudgeDataInputStreamReader);
               
@@ -106,11 +104,7 @@ public class BuilderTestProxyFactory {
                 throw new IOException("Exit code not expected: "+ret);
               }
               return retMsgFuture.get();
-            } finally {
-              inputStream.close();
             }
-          } finally {
-            outputStream.close();
           }
         } finally {
           proc.destroy();

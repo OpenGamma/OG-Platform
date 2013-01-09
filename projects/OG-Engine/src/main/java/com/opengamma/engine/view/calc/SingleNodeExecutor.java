@@ -71,7 +71,7 @@ public class SingleNodeExecutor implements DependencyGraphExecutor<ExecutionResu
     final Set<ValueSpecification> sharedValues = new HashSet<ValueSpecification>(graph.getTerminalOutputSpecifications());
     for (DependencyNode node : order) {
       final Set<ValueSpecification> inputs = node.getInputValues();
-      ExecutionLogMode logMode = logModeSource.getLogMode(node.getOutputValues());
+      ExecutionLogMode logMode = logModeSource.getLogMode(node);
       final CalculationJobItem jobItem = new CalculationJobItem(node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
           node.getComputationTarget(), inputs, node.getOutputValues(), logMode);
       items.add(jobItem);

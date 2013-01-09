@@ -49,9 +49,7 @@ public final class BloombergSecurityProvider extends AbstractSecurityProvider {
   @Override
   protected SecurityProviderGetResult doBulkGet(SecurityProviderGetRequest request) {
     Map<ExternalIdBundle, ManageableSecurity> map = _bloombergBulkSecurityLoader.loadSecurity(request.getExternalIdBundles());
-    SecurityProviderGetResult result = new SecurityProviderGetResult();
-    result.getResultMap().putAll(map);
-    return result;
+    return new SecurityProviderGetResult(map);
   }
 
   //-------------------------------------------------------------------------

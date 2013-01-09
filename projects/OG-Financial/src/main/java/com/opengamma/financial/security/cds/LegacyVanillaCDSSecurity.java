@@ -49,7 +49,7 @@ public class LegacyVanillaCDSSecurity extends LegacyCDSSecurity {
   private double _parSpread;
 
   LegacyVanillaCDSSecurity() { // For Fudge builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public LegacyVanillaCDSSecurity(final boolean isBuy, final ExternalId protectionSeller, final ExternalId protectionBuyer, final ExternalId referenceEntity, //CSIGNORE

@@ -110,7 +110,7 @@ public final class ExternalId
    */
   private ExternalId(ExternalScheme scheme, String value) {
     ArgumentChecker.notNull(scheme, "scheme");
-    ArgumentChecker.notEmpty(value, "standaloneId");
+    ArgumentChecker.notEmpty(value, "value");
     _scheme = scheme;
     _value = value;
   }

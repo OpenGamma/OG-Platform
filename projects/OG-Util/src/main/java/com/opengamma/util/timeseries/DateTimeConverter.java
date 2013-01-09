@@ -72,7 +72,5 @@ public interface DateTimeConverter<DATE_TYPE> {
 
   // Other
 
-  Pair<DATE_TYPE, Double> makePair(DATE_TYPE dateTime, Double value);
-  
   <T> Pair<DATE_TYPE, T> makePair(DATE_TYPE dateTime, T value);
 }

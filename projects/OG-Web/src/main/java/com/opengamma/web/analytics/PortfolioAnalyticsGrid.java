@@ -7,7 +7,6 @@ package com.opengamma.web.analytics;
 
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * A grid for displaying portfolio analytics data.
@@ -19,7 +18,7 @@ import com.opengamma.util.tuple.Pair;
    * @param gridId The grid ID, sent to listeners when the grid structure changes
    * @param targetResolver For looking up calculation targets using their specification
    * @param valueMappings Mappings between the requirements and outputs of the view
-   * @param viewportListener
+   * @param viewportListener Receives notification when any viewport changes
    */
   /* package */ PortfolioAnalyticsGrid(CompiledViewDefinition compiledViewDef,
                                        String gridId,
@@ -37,24 +36,25 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   *
    * @param viewportDefinition Defines the extent and properties of the viewport
    * @param callbackId ID that will be passed to listeners when the grid's data changes
    * @return The viewport
    */
   @Override
-  protected Pair<PortfolioGridViewport, Boolean> createViewport(ViewportDefinition viewportDefinition, String callbackId) {
-    PortfolioGridViewport viewport = new PortfolioGridViewport(_gridStructure, callbackId);
-    String updatedCallbackId = viewport.update(viewportDefinition, _cycle, _cache);
-    boolean hasData = (updatedCallbackId != null);
-    return Pair.of(viewport, hasData);
+  protected PortfolioGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
+    return new PortfolioGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, _cache);
   }
 
   /**
    * Factory method for creating a portfolio grid that doesn't contain any data.
+   *
    * @return An empty portfolio grid
    */
-  /* package */ static PortfolioAnalyticsGrid empty(String gridId) {
-    return new PortfolioAnalyticsGrid(PortfolioGridStructure.empty(), gridId, new DummyTargetResolver(), new NoOpViewportListener());
+  /* package */
+  static PortfolioAnalyticsGrid empty(String gridId) {
+    return new PortfolioAnalyticsGrid(PortfolioGridStructure.empty(),
+                                      gridId,
+                                      new DummyTargetResolver(),
+                                      new NoOpViewportListener());
   }
 }

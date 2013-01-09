@@ -7,32 +7,49 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function () {
-            var contructor = this;
-            contructor.load = function () {
-                var config = {}, dialog; 
-                config.title = 'Bond';
+            var constructor = this, bond = {}, ids = {}, security = {}, util = og.blotter.util, 
+            dropdown = '.og-blotter-security-select';
+            bond.selector = '.og-blocks-bond';
+            ids.selector = '.og-blocks-security_ids';
+            constructor.load = function () {
+                constructor.title = 'Bond';
                 var form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.bond_tash',
                     data: {},
                     type_map: {},
                     selector: '.OG-blotter-form-block',
-                    extras:{}
+                    extras: {}
                 });
                 form.children.push(
-                    new form.Block({
+                    new og.blotter.forms.blocks.Portfolio({form: form}),
+                    security.block = new form.Block({
                         module: 'og.blotter.forms.blocks.security_tash',
                         extras: {}
                     }),
-                     new form.Block({
+                    bond.block = new form.Block({
+                        module: 'og.blotter.forms.blocks.bond_tash',
+                        extras: {}
+                    }),                    
+                    ids.block = new form.Block({
                         module: 'og.blotter.forms.blocks.security_ids_tash',
                         extras: {}
-                    })
+                    }),
+                    new og.common.util.ui.Attributes({form: form})
                 );
                 form.dom();
-                $('.OG-blotter-form-title').html(config.title);
+                form.on('form:load', function () {
+                    var $select = $(dropdown);
+                    util.FAKE_DROPDOWN.forEach(function (datum) {
+                        $select.append(util.option({value: datum.value, name:datum.name}));
+                    });
+                });
+                security.block.on('change', dropdown, function (event) {
+                    util.update_block(ids, util.FAKE_IDS[event.target.value]);
+                    util.update_block(bond, util.FAKE_BOND[event.target.value]);
+                });
             }; 
-            contructor.load();
-            contructor.kill = function () {
+            constructor.load();
+            constructor.kill = function () {
             };
         };
     }

@@ -17,19 +17,15 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
@@ -64,9 +60,7 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
       ValueProperties properties = createValueProperties().get();
       properties = BlackVolatilitySurfacePropertyUtils.addBlackSurfaceProperties(properties, getInstrumentType()).get();
       properties = BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(properties).get();
-      properties = properties.copy()
-          .withAny(CURVE_CALCULATION_CONFIG)
-          .withAny(CURVE_CURRENCY).get();
+      properties = properties.copy().withAny(CURVE_CALCULATION_CONFIG).withAny(CURVE_CURRENCY).get();
       return properties;
     }
 
@@ -77,9 +71,7 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
       properties = BlackVolatilitySurfacePropertyUtils.addBlackSurfaceProperties(properties, getInstrumentType(), desiredValue).get();
       final String curveCurrency = desiredValue.getConstraint(CURVE_CURRENCY);
       final String curveCalculationConfig = desiredValue.getConstraint(CURVE_CALCULATION_CONFIG);
-      properties = properties.copy()
-          .with(CURVE_CURRENCY, curveCurrency)
-          .with(CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
+      properties = properties.copy().with(CURVE_CURRENCY, curveCurrency).with(CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
       return properties;
     }
 
@@ -109,9 +101,7 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
       ValueProperties properties = createValueProperties().get();
       properties = BlackVolatilitySurfacePropertyUtils.addBlackSurfaceProperties(properties, getInstrumentType()).get();
       properties = BlackVolatilitySurfacePropertyUtils.addSABRVolatilityInterpolatorProperties(properties).get();
-      properties = properties.copy()
-          .withAny(CURVE_CURRENCY)
-          .withAny(CURVE_CALCULATION_CONFIG).get();
+      properties = properties.copy().withAny(CURVE_CURRENCY).withAny(CURVE_CALCULATION_CONFIG).get();
       return properties;
     }
 
@@ -122,9 +112,7 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
       properties = BlackVolatilitySurfacePropertyUtils.addBlackSurfaceProperties(properties, getInstrumentType(), desiredValue).get();
       final String curveCurrency = desiredValue.getConstraint(CURVE_CURRENCY);
       final String curveCalculationConfig = desiredValue.getConstraint(CURVE_CALCULATION_CONFIG);
-      properties = properties.copy()
-          .with(CURVE_CURRENCY, curveCurrency)
-          .with(CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
+      properties = properties.copy().with(CURVE_CURRENCY, curveCurrency).with(CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
       return properties;
     }
   }
@@ -177,11 +165,8 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
     final String discountingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     final String curveCalculationConfig = desiredValue.getConstraint(CURVE_CALCULATION_CONFIG);
-    final ValueProperties properties = ValueProperties.builder()
-        .with(CURVE_CURRENCY, forwardCurveCcyName)
-        .with(ValuePropertyNames.CURVE, discountingCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
+    final ValueProperties properties = ValueProperties.builder().with(CURVE_CURRENCY, forwardCurveCcyName).with(ValuePropertyNames.CURVE, discountingCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
   }
 
@@ -203,19 +188,10 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
 
   @Override
   protected ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(SURFACE, surfaceName)
+    final ValueProperties properties = ValueProperties.builder().with(SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType()).get();
     final ValueRequirement volDataRequirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), properties);
     return volDataRequirement;
   }
 
-  protected HistoricalTimeSeriesSource getTimeSeriesSource(final FunctionExecutionContext context) {
-    return OpenGammaExecutionContext.getHistoricalTimeSeriesSource(context);
-  }
-
-  protected HistoricalTimeSeriesSource getTimeSeriesSource(final FunctionCompilationContext context) {
-    final HistoricalTimeSeriesSource tss = OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
-    return tss;
-  }
 }

@@ -580,6 +580,10 @@ public final class ValueRequirementNames {
    */
   public static final String VALUE_DRIFTLESS_DELTA = "ValueDriftlessTheta";
   /**
+   * The amount by which the value of a portfolio would change due to dual delta.
+   */
+  public static final String VALUE_DUAL_DELTA = "ValueDualDelta";
+  /**
    * The amount by which the value of a portfolio would change due to dVannadVol.
    */
   public static final String VALUE_DVANNA_DVOL = "ValuedVanna_dVol";
@@ -939,7 +943,7 @@ public final class ValueRequirementNames {
    */
   public static final String CLEAN_PRICE = "Clean Price";
   /**
-   * The conversion factor of a bond in the deliverable basket of a bond future (Note spelling mistake. To be fixed.).
+   * The conversion factor of a bond in the deliverable basket of a bond future (note spelling mistake - to be fixed).
    */
   public static final String CONVERTION_FACTOR = "Convertion Factor";
   /**

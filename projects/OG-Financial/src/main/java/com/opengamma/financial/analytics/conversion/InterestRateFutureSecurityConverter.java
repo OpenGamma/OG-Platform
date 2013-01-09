@@ -1,14 +1,12 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
 
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -21,22 +19,32 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Converts interest rate future securities into the definition form used by the analytics library
  */
-public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityVisitor<InstrumentDefinition<?>> {
+public class InterestRateFutureSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+  /** The holiday source */
   private final HolidaySource _holidaySource;
+  /** The convention bundle source */
   private final ConventionBundleSource _conventionSource;
+  /** The region source */
   private final RegionSource _regionSource;
 
+  /**
+   * @param holidaySource The holiday source, not null
+   * @param conventionSource The convention source, not null
+   * @param regionSource The region source, not null
+   */
   public InterestRateFutureSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource) {
-    Validate.notNull(holidaySource, "holiday source");
-    Validate.notNull(conventionSource, "convention source");
-    Validate.notNull(regionSource, "region source");
+    ArgumentChecker.notNull(holidaySource, "holiday source");
+    ArgumentChecker.notNull(conventionSource, "convention source");
+    ArgumentChecker.notNull(regionSource, "region source");
     _holidaySource = holidaySource;
     _conventionSource = conventionSource;
     _regionSource = regionSource;
@@ -44,7 +52,7 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
 
   @Override
   public InterestRateFutureDefinition visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-    Validate.notNull(security, "security");
+    ArgumentChecker.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
     final ConventionBundle iborConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IR_FUTURE"));

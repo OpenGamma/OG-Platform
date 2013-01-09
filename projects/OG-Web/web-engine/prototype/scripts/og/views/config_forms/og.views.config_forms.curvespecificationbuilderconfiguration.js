@@ -220,14 +220,14 @@ $.register_module({
             })($('<input type="hidden" />'));
             new_strip_item = function (val, idx) {
                 return new form.Block({
-                    wrap: '\
+                    template: '\
                         <li class="og-js-row">\
                           <div class="og-del og-js-rem"></div>\
                           <div class="og-strip">\
                             <div class="og-input">\
                                 <input value="' + val.tenor + '" class="og-js-tenor" type="text" />\
                             </div>\
-                            {{{html}}}\
+                            {{{children}}}\
                           </div>\
                         </li>',
                     children: field_names.map(function (field) {return format(val[field]);})
@@ -244,11 +244,11 @@ $.register_module({
             }, {});
             form.children = [
                 new form.Block({ // headers
-                    wrap: '<div class="og-a-list-header og-strip"><div>Tenor</div>{{{html}}}</div>',
+                    template: '<div class="og-a-list-header og-strip"><div>Tenor</div>{{{children}}}</div>',
                     children: field_names.map(function (val) {return '<div>' + val.replace(INSP, '') + '</div>';})
                 }),
                 new form.Block({ // content
-                    wrap: '<ul class="og-awesome-list og-js-strip">{{{html}}}</ul>',
+                    template: '<ul class="og-awesome-list og-js-strip">{{{chilren}}}</ul>',
                     children: tenors.map(function (tenor) {
                         return field_names.reduce(function (acc, val) {
                             return (acc[val] = transposed[val][tenor] || null), acc;

@@ -34,6 +34,7 @@
     <fragment>/styles/common/og.common.OG-lang.css</fragment>
     <fragment>/styles/common/og.common.OG-dialog-form.css</fragment>
     <fragment>/styles/common/og.common.OG-g.css</fragment>
+    <fragment>/styles/common/og.common.OG-grid-options.css</fragment>
     <fragment>/styles/common/og.common.OG-tab-overflow-panel.css</fragment>
   </bundle>
   <bundle id="common.util.css">
@@ -41,6 +42,7 @@
     <fragment>/styles/common/util/ui/og.common.util.ui.OG-message.css</fragment>
     <fragment>/styles/common/util/ui/og.common.util.ui.OG-warning-message.css</fragment>
     <fragment>/styles/common/util/ui/og.common.util.ui.OG-breadcrumb.css</fragment>
+    <fragment>/styles/common/util/ui/og.common.util.ui.OG-portfolio.css</fragment>
   </bundle>
   <bundle id="common.classes.css">
     <fragment>/styles/common/classes/og.common.classes.OG-table_style_01.css</fragment>
@@ -83,10 +85,18 @@
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-new-window-2.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-ellipsis.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-sparkline.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-dependency-graph.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-position.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-data.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-curve.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-log.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-histogram.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-timeseries.css</fragment>
+    <fragment>/styles/common/classes/og.common.classes.OG-icon.og-icon-surface.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-background.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-tooltip.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-dropbox.css</fragment>
-    <fragment>/styles/common/classes/og.common.classes.OG-multiselect.css</fragment>
     <fragment>/styles/common/classes/og.common.classes.OG-loader.css</fragment>
   </bundle>
   <bundle id="common.search.css">
@@ -152,6 +162,8 @@
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadgets-container.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-tabs-options.css</fragment>
     <fragment>/styles/analytics/og.analytics.gadget.OG-gadget-expanded-positions.css</fragment>
+    <fragment>/styles/analytics/og.analytics.gadget.OG-logger.css</fragment>
+    <fragment>/styles/analytics/og.analytics.OG-layout-blotter.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-layout-analytics.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-layout-gadget.css</fragment>
     <fragment>/styles/analytics/og.analytics.OG-analytics-resize.css</fragment>
@@ -287,6 +299,8 @@
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.autocombo.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.toolbar.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.tooltip.js</fragment>
+    <fragment>/scripts/og/common/util/ui/og.common.util.ui.attributes.js</fragment>
+    <fragment>/scripts/og/common/util/ui/og.common.util.ui.portfolio.js</fragment>
   </bundle>
   <bundle id="common.js">
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.timeseries.js</fragment>
@@ -302,7 +316,7 @@
     <fragment>/scripts/og/common/search_results/og.common.search.filter.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search_results.core.js</fragment>
   </bundle>
-  <bundle id="common_module.js">
+  <bundle id="gadgets.js">
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.manager.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.trades.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.positions.js</fragment>
@@ -311,13 +325,14 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.curve.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.data.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.log.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.surface.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.depgraph.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.securitiesidentifiers.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.gadgetscontainer.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.mapping.js</fragment>
   </bundle>
-  <bundle id="grid.js">
+  <bundle id="common_analytics.js">
     <fragment>/scripts/og/analytics/og.analytics.url.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.cell.js</fragment>
@@ -336,8 +351,8 @@
   </bundle>
   <bundle id="blotter.js">
     <fragment>/scripts/og/blotter/og.blotter.dialog.js</fragment>
-    <fragment>/scripts/og/views/og.views.blotter.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.vanilla_swap.js</fragment>
+    <fragment>/scripts/og/blotter/og.blotter.util.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.swap.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.variance_swap.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.swaption.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fx_barrier_option.js</fragment>
@@ -347,6 +362,17 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond_future.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.trade.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.cap_floor.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.cap_floor_cms_spread.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.forward_rate_agreement.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_cap_floor.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_equity_option.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_forward.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_fra.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_fx_option.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_ir_swap.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_swaption.js</fragment>
+    <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.portfolio.js</fragment>
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
@@ -355,7 +381,7 @@
     <fragment>/scripts/og/views/common/og.views.common.default_details.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.core.js</fragment>
   </bundle>
-  <bundle id="views_default.js">
+  <bundle id="views_admin.js">
     <!-- config blocks -->
     <fragment>/scripts/og/views/config_blocks/og.views.config_blocks.constraints.js</fragment>
     <fragment>/scripts/og/views/config_blocks/og.views.config_blocks.ruletransform.js</fragment>
@@ -394,50 +420,28 @@
     <bundle idref="util.js" />
     <bundle idref="util_ui.js" />
     <bundle idref="common.js" />
-    <bundle idref="common_module.js" />
+    <bundle idref="gadgets.js" />
     <bundle idref="views_common.js" />
   </bundle>
-  <bundle id="og_main.js">
-    <bundle idref="views_default.js" />
+  <bundle id="og_admin.js">
+    <bundle idref="views_admin.js" />
   </bundle>
   <bundle id="og_blotter.js">
+    <bundle idref="common_analytics.js" />
     <bundle idref="blotter.js" />
-    
+    <fragment>/scripts/og/views/og.views.blotter.js</fragment>
   </bundle>
   <bundle id="og_analytics.js">
-      <bundle idref="lib.js" />
-      <bundle idref="core.js" />
-      <fragment>/scripts/og/api/og.api.text.js</fragment>
-      <bundle idref="util.js" />
-      <bundle idref="util_ui.js" />
-      <bundle idref="common.js" />
-      <bundle idref="views_common.js" />
       <fragment>/scripts/og/views/og.views.analytics.js</fragment>
   </bundle>
   <bundle id="og_analytics2.js">
-      <bundle idref="lib.js" />
+      <bundle idref="common_analytics.js" />
       <fragment>/scripts/lib/fonts/helvetiker/helvetiker_regular.typeface.js</fragment>
-      <bundle idref="core.js" />
-      <bundle idref="api.js" />
-      <bundle idref="util.js" />
-      <bundle idref="util_ui.js" />
-      <bundle idref="common.js" />
-      <bundle idref="views_common.js" />
-      <bundle idref="common_module.js" />
-      <bundle idref="grid.js" />
       <fragment>/scripts/og/views/og.views.analytics2.js</fragment>
   </bundle>
   <bundle id="og_gadget.js">
-      <bundle idref="lib.js" />
+      <bundle idref="common_analytics.js" />
       <fragment>/scripts/lib/fonts/helvetiker/helvetiker_regular.typeface.js</fragment>
-      <bundle idref="core.js" />
-      <bundle idref="api.js" />
-      <bundle idref="util.js" />
-      <bundle idref="util_ui.js" />
-      <bundle idref="common.js" />
-      <bundle idref="views_common.js" />
-      <bundle idref="common_module.js" />
-      <bundle idref="grid.js" />
       <fragment>/scripts/og/views/og.views.gadget.js</fragment>
   </bundle>
 </uiResourceConfig>

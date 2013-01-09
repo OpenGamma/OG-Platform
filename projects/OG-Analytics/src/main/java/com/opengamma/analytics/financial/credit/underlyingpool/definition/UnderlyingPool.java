@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.credit.CreditSpreadTenors;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -25,6 +25,7 @@ public class UnderlyingPool {
 
   // TODO : Add the hashcode and equals methods
   // TODO : Add an arg checker to ensure no two obligors are the same
+  // TODO : Remove all dependencies on market data from this class - yield curves and credit spread term structures
 
   // NOTE : We input the individual obligor notionals as part of the underlying pool (the total pool notional is then calculated from this).
   // NOTE : e.g. suppose we have 100 names in the pool all equally weighted. If each obligor notional is $1mm then the total pool notional is $100mm
@@ -32,11 +33,20 @@ public class UnderlyingPool {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // The name of the pool e.g. "Pool_1"
+  private final String _poolName;
+
   // A vector of obligors constituting the underlying pool
   private final Obligor[] _obligors;
 
   // The number of obligors in the underlying pool (usually 125 for CDX and iTraxx - although defaults can reduce this)
   private final int _numberOfObligors;
+
+  // The number of obligors in the underlying pool marked as having not previously defaulted
+  private final int _numberOfNonDefaultedObligors;
+
+  // The number of obligors in the underlying pool marked as having previously defaulted
+  private final int _numberOfDefaultedObligors;
 
   // The currencies of the underlying obligors
   private final Currency[] _currency;
@@ -76,6 +86,7 @@ public class UnderlyingPool {
   // Ctor for the pool of obligor objects
 
   public UnderlyingPool(
+      final String poolName,
       final Obligor[] obligors,
       final Currency[] currency,
       final DebtSeniority[] debtSeniority,
@@ -92,6 +103,7 @@ public class UnderlyingPool {
 
     // Check the validity of the input arguments
 
+    ArgumentChecker.notNull(poolName, "Pool name");
     ArgumentChecker.notNull(obligors, "Obligors");
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(debtSeniority, "Debt Seniority");
@@ -138,9 +150,22 @@ public class UnderlyingPool {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
+    _poolName = poolName;
+
     _obligors = obligors;
 
     _numberOfObligors = obligors.length;
+
+    int numberOfDefaultedObligors = 0;
+
+    for (int i = 0; i < _numberOfObligors; i++) {
+      if (obligors[i].getHasDefaulted() == true) {
+        numberOfDefaultedObligors++;
+      }
+    }
+
+    _numberOfDefaultedObligors = numberOfDefaultedObligors;
+    _numberOfNonDefaultedObligors = _numberOfObligors - _numberOfDefaultedObligors;
 
     _currency = currency;
     _debtSeniority = debtSeniority;
@@ -160,12 +185,24 @@ public class UnderlyingPool {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  public String getPoolName() {
+    return _poolName;
+  }
+
   public Obligor[] getObligors() {
     return _obligors;
   }
 
   public int getNumberOfObligors() {
     return _numberOfObligors;
+  }
+
+  public int getNumberOfNonDefaultedObligors() {
+    return _numberOfNonDefaultedObligors;
+  }
+
+  public int getNumberOfDefaultedObligors() {
+    return _numberOfDefaultedObligors;
   }
 
   public Currency[] getCurrency() {

@@ -72,14 +72,10 @@ public final class ZipUtils {
     }
     
     s_logger.debug("Extracting: " + entry);
-    BufferedInputStream inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
-    BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile));
     
-    try {
+    try (BufferedInputStream inputStream = new BufferedInputStream(zipfile.getInputStream(entry));
+        BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(outputFile))) {
       IOUtils.copy(inputStream, outputStream);
-    } finally {
-      outputStream.close();
-      inputStream.close();
     }
   }
 

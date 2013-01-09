@@ -88,9 +88,15 @@ $.register_module({
         var not_available = function (method) {
             throw new Error(this.root + '#' + method + ' does not exist in the REST API');
         };
+        var not_available_del = not_available.partial('del');
+        var not_available_get = not_available.partial('get');
+        var not_available_put = not_available.partial('put');
         var not_implemented = function (method) {
             throw new Error(this.root + '#' + method + ' exists in the REST API, but does not have a JS version');
         };
+        var not_implemented_del = not_implemented.partial('del');
+        var not_implemented_get = not_implemented.partial('get');
+        var not_implemented_put = not_implemented.partial('put');
         var paginate = function (config) {
             var from = str(config.from), to = str(config.to);
             return from ? {'pgIdx': from, 'pgSze': to ? +to - +from : str(config.page_size) || PAGE_SIZE}
@@ -208,8 +214,8 @@ $.register_module({
             });
         };
         var simple_get = function (config) {
-            meta = check({bundle: {method: this.root + '#get', config: config || {}}});
-            return request([this.root], {data: {}, meta: meta});
+            var meta = check({bundle: {method: this.root + '#get', config: config || {}}});
+            return request(this.root.split('/'), {data: {}, meta: meta});
         };
         api = {
             abort: function (promise) {
@@ -223,9 +229,24 @@ $.register_module({
             aggregators: { // all requests that begin with /aggregators
                 root: 'aggregators',
                 get: simple_get,
-                put: not_available.partial('put'),
-                del: not_available.partial('del')
+                put: not_available_put,
+                del: not_available_del
             },
+            blotter: (function () { // all requests that begin with /blotter
+                var blotter = {  
+                    root: 'blotter',
+                    get: not_available_get, put: not_available_put, del: not_available_del // no requests to /blotter
+                };
+                [ // blotter/lookup/* endpoints
+                    'barrierdirections', 'barriertypes', 'businessdayconventions', 'daycountconventions',
+                    'exercisetypes', 'floatingratetypes', 'frequencies', 'longshort', 'samplingfrequencies'
+                ].forEach(function (key) {
+                    blotter[key] = {
+                        root: 'blotter/lookup/' + key, get: simple_get, put: not_available_put, del: not_available_del
+                    };
+                });
+                return blotter;
+            })(),
             clean: function () {
                 var id, current = routes.current(), request;
                 for (id in outstanding_requests) { // clean up outstanding requests
@@ -254,7 +275,7 @@ $.register_module({
                     data.content = JSON.stringify(config.content);
                     return request(method, {data: data, meta: meta});
                 },
-                del: not_available.partial('del')
+                del: not_available_del
             },
             configs: { // all requests that begin with /configs
                 root: 'configs',
@@ -311,8 +332,8 @@ $.register_module({
             exchanges: { // all requests that begin with /exchanges
                 root: 'exchanges',
                 get: default_get.partial(['name'], null),
-                put: not_implemented.partial('put'),
-                del: not_implemented.partial('del')
+                put: not_implemented_put,
+                del: not_implemented_del
             },
             fire: og.common.events.fire,
             handshake: { // all requests that begin with /handshake
@@ -324,27 +345,27 @@ $.register_module({
                     meta = check({bundle: {method: root + '#get', config: config}});
                     return request(null, {url: '/handshake', data: data, meta: meta});
                 },
-                put: not_available.partial('put'),
-                del: not_available.partial('del')
+                put: not_available_put,
+                del: not_available_del
             },
             holidays: { // all requests that begin with /holidays
                 root: 'holidays',
                 get: default_get.partial(['name', 'type', 'currency'], null),
-                put: not_implemented.partial('put'),
-                del: not_implemented.partial('del')
+                put: not_implemented_put,
+                del: not_implemented_del
             },
             id: null,
             livedatasources: { // all requests that begin with /livedatasources
                 root: 'livedatasources',
                 get: simple_get,
-                put: not_available.partial('put'),
-                del: not_available.partial('del')
+                put: not_available_put,
+                del: not_available_del
             },
             marketdatasnapshots: { // all requests that begin with /marketdatasnapshots
                 root: 'marketdatasnapshots',
                 get: default_get.partial([], null),
-                put: not_available.partial('put'),
-                del: not_available.partial('del')
+                put: not_available_put,
+                del: not_available_del
             },
             off: og.common.events.off,
             on: og.common.events.on,
@@ -354,7 +375,7 @@ $.register_module({
                     config = config || {};
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), node = str(config.node), version = str(config.version),
-                        name = str(config.name), name_search =  'name' in config, version_search = version === '*',
+                        name = str(config.name), name_search =  config.name, version_search = version === '*',
                         ids = config.ids, id_search = ids && $.isArray(ids) && ids.length,
                         nodes = config.nodes, node_search = nodes && $.isArray(nodes) && nodes.length,
                         search = !id || id_search || node_search || name_search || version_search;
@@ -454,8 +475,8 @@ $.register_module({
             regions: { // all requests that begin with /regions
                 root: 'regions',
                 get: default_get.partial(['name', 'classification'], null),
-                put: not_implemented.partial('put'),
-                del: not_implemented.partial('del')
+                put: not_implemented_put,
+                del: not_implemented_del
             },
             register: register,
             registrations: function () {return registrations;},
@@ -492,8 +513,8 @@ $.register_module({
                     fields.forEach(function (field) {if (config[field]) method.push(config[field], field);});
                     return request(method, {data: data, meta: meta});
                 },
-                put: not_implemented.partial('put'),
-                del: not_available.partial('del')
+                put: not_implemented_put,
+                del: not_available_del
             },
             timeseries: { // all requests that begin with /timeseries
                 root: 'timeseries',
@@ -540,8 +561,8 @@ $.register_module({
                     meta.timeout = 12500; meta.is_update = true; // back-end will timeout at 10s, so 12.5 should be fine
                     return request(null, {url: ['', root, api.id].join('/'), data: data, meta: meta});
                 },
-                put: not_available.partial('put'),
-                del: not_available.partial('del')
+                put: not_available_put,
+                del: not_available_del
             },
             valuerequirementnames: {
                 root: 'valuerequirementnames',
@@ -556,18 +577,18 @@ $.register_module({
                     if (meta_request) method.push('metaData');
                     return request(method, {data: data, meta: meta});
                 },
-                put: not_implemented.partial('put'),
-                del: not_implemented.partial('del')
+                put: not_implemented_put,
+                del: not_implemented_del
             },
             viewdefinitions: { // all requests that begin with /viewdefinitions
                 root: 'viewdefinitions',
                 get: default_get.partial([], null),
-                put: not_available.partial('put'),
-                del: not_available.partial('del')
+                put: not_available_put,
+                del: not_available_del
             },
             views: { // all requests that begin with /views
                 root: 'views',
-                get: not_available.partial('get'),
+                get: not_available_get,
                 put: function (config, promise) {
                     config = config || {};
                     var promise = promise || new Promise,
@@ -612,8 +633,8 @@ $.register_module({
                 grid: {
                     depgraphs: {
                         root: 'views/{{view_id}}/{{grid_type}}/depgraphs',
-                        del: not_implemented.partial('del'),
-                        get: not_available.partial('get'),
+                        del: not_implemented_del,
+                        get: not_available_get,
                         structure: {
                             root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}',
                             get: function (config) {
@@ -627,8 +648,8 @@ $.register_module({
                                 method[4] = config.graph_id;
                                 return request(method, {data: data, meta: meta});
                             },
-                            put: not_available.partial('put'),
-                            del: not_available.partial('del')
+                            put: not_available_put,
+                            del: not_available_del
                         },
                         put: function (config) {
                             var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
@@ -663,11 +684,14 @@ $.register_module({
                             put: function (config) {
                                 config = config || {};
                                 var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
-                                    fields = ['rows', 'cols', 'format', 'log'],
-                                    api_fields = ['rows', 'columns', 'format', 'enableLogging'];
+                                    fields = ['cells', 'rows', 'cols', 'format', 'log'],
+                                    api_fields = ['cells', 'rows', 'columns', 'format', 'enableLogging'];
                                 meta = check({
                                     bundle: {method: root + '#put', config: config},
-                                    required: [{all_of: ['view_id', 'graph_id', 'rows', 'cols', 'format']}]
+                                    required: [
+                                        {all_of: ['view_id', 'graph_id', 'format']},
+                                        {either: ['rows', 'cols'], or: ['cells']}
+                                    ]
                                 });
                                 meta.type = 'POST';
                                 fields.forEach(function (key, idx) {data[api_fields[idx]] = config[key];});
@@ -712,8 +736,8 @@ $.register_module({
                             method[2] = config.grid_type;
                             return request(method, {data: data, meta: meta});
                         },
-                        put: not_available.partial('put'),
-                        del: not_available.partial('del')
+                        put: not_available_put,
+                        del: not_available_del
                     },
                     viewports: {
                         root: 'views/{{view_id}}/{{grid_type}}/viewports',
@@ -732,11 +756,14 @@ $.register_module({
                         put: function (config) {
                             config = config || {};
                             var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
-                                fields = ['rows', 'cols', 'format', 'log'],
-                                api_fields = ['rows', 'columns', 'format', 'enableLogging'];
+                                fields = ['cells', 'rows', 'cols', 'format', 'log'],
+                                api_fields = ['cells', 'rows', 'columns', 'format', 'enableLogging'];
                             meta = check({
                                 bundle: {method: root + '#put', config: config},
-                                required: [{all_of: ['view_id', 'rows', 'cols', 'format']}]
+                                required: [
+                                    {all_of: ['view_id', 'format']},
+                                    {either: ['rows', 'cols'], or: ['cells']}
+                                ]
                             });
                             meta.type = 'POST';
                             fields.forEach(function (key, idx) {data[api_fields[idx]] = config[key];});

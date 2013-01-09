@@ -7,28 +7,28 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function () {
-            var contructor = this;
-            contructor.load = function () {
-                var config = {}, dialog; 
-                config.title = 'FX Forward';
+            var constructor = this;
+            constructor.load = function () {
+                constructor.title = 'FX Forward';
                 var form = new og.common.util.ui.Form({
-                    module: 'og.blotter.forms.fx_derivative_tash',
+                    module: 'og.blotter.forms.fx_option_tash',
                     data: {},
                     type_map: {},
                     selector: '.OG-blotter-form-block',
                     extras:{}
                 });
                 form.children.push(
+                    new og.blotter.forms.blocks.Portfolio({form: form}),
                     new form.Block({
-                        module: 'og.blotter.forms.blocks.derivative_value_tash',
+                        module: 'og.blotter.forms.blocks.fx_forward_tash',
                         extras: {}
-                    })
+                    }),                    
+                    new og.common.util.ui.Attributes({form: form})
                 );
                 form.dom();
-                $('.OG-blotter-form-title').html(config.title);
             }; 
-            contructor.load();
-            contructor.kill = function () {
+            constructor.load();
+            constructor.kill = function () {
             };
         };
     }

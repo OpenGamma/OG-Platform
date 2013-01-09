@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.credit.creditdefaultswapoption.definit
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -37,6 +37,7 @@ public class CreditDefaultSwapOptionDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Add equals and hashcode
+  // TODO : Need to be able to create a CDS optionwith any type of CDS as its underlying e.g. a muni, quanto, vanilla etc
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -80,7 +81,7 @@ public class CreditDefaultSwapOptionDefinition {
   private final CDSOptionExerciseType _optionExerciseType;
 
   // The underlying CDS referenced in the CDS swaption contract
-  private final LegacyCreditDefaultSwapDefinition _underlyingCDS;
+  private final LegacyVanillaCreditDefaultSwapDefinition _underlyingCDS;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -98,7 +99,7 @@ public class CreditDefaultSwapOptionDefinition {
       CDSOptionKnockoutType optionKnockoutType,
       CDSOptionType optionType,
       CDSOptionExerciseType optionExerciseType,
-      LegacyCreditDefaultSwapDefinition underlyingCDS) {
+      LegacyVanillaCreditDefaultSwapDefinition underlyingCDS) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -214,7 +215,7 @@ public class CreditDefaultSwapOptionDefinition {
     return _optionExerciseType;
   }
 
-  public LegacyCreditDefaultSwapDefinition getUnderlyingCDS() {
+  public LegacyVanillaCreditDefaultSwapDefinition getUnderlyingCDS() {
     return _underlyingCDS;
   }
 

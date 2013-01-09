@@ -121,6 +121,9 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
+    <copy todir="${classes.dir}" includeemptydirs="false" failonerror="false">
+      <fileset dir="${src.resources.dir}" />
+    </copy>
 	</target>
 
 	<!-- build Javadocs for the project -->
@@ -194,6 +197,9 @@
 				<exclude name="**/*.java" />
 			</fileset>
 		</copy>
+    <copy todir="${tests.classes.dir}" includeemptydirs="false" failonerror="false">
+      <fileset dir="${tests.resources.dir}" />
+    </copy>
 	</target>
 
 	<!-- ================================================================ -->

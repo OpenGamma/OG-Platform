@@ -18,15 +18,17 @@ import com.google.common.collect.Sets;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.examples.generator.SyntheticPortfolioGeneratorTool;
+import com.opengamma.examples.loader.ExampleCurrencyConfigurationLoader;
 import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
+import com.opengamma.examples.loader.ExampleExchangeLoader;
 import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
+import com.opengamma.examples.loader.ExampleHolidayLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.loader.ExampleViewsPopulator;
 import com.opengamma.examples.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 import com.opengamma.financial.generator.StaticNameGenerator;
@@ -52,7 +54,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   /**
    * The name of the multi-currency swap portfolio.
    */
-  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "Multi-currency Swap Portfolio";
+  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
   /**
    * The name of Cap/Floor portfolio
    */
@@ -84,7 +86,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool. No arguments are needed.
-   * 
+   *
    * @param args the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
@@ -92,6 +94,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     try {
       new ExampleDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, ToolContext.class);
     } catch (final Exception ex) {
+      s_logger.error("Caught exception", ex);
       ex.printStackTrace();
     }
   }
@@ -99,6 +102,9 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
+    loadExchanges();
+    loadHolidays();
+    loadCurrencyConfiguration();
     loadCurveAndSurfaceDefinitions();
     loadCurveCalculationConfigurations();
     loadDefaultVolatilityCubeDefinition();
@@ -141,6 +147,17 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
 
   }
 
+  private void loadCurrencyConfiguration() {
+    final Log log = new Log("Creating FX definitions");
+    try {
+      final ExampleCurrencyConfigurationLoader currencyLoader = new ExampleCurrencyConfigurationLoader();
+      currencyLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
   private void loadCurveAndSurfaceDefinitions() {
     final Log log = new Log("Creating curve and surface definitions");
     try {
@@ -170,7 +187,6 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       final ConfigMaster configMaster = toolContext.getConfigMaster();
       final ConfigItem<VolatilityCubeDefinition> item = ConfigItem.of(createDefaultVolatilityCubeDefinition(), "SECONDARY_USD", VolatilityCubeDefinition.class);
       ConfigMasterUtils.storeByName(configMaster, item);
-      VolatilityCubeConfigPopulator.populateVolatilityCubeConfigMaster(configMaster);
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);
@@ -330,6 +346,28 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     try {
       final ExampleViewsPopulator populator = new ExampleViewsPopulator();
       populator.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadExchanges() {
+    final Log log = new Log("Creating exchange data");
+    try {
+      final ExampleExchangeLoader loader = new ExampleExchangeLoader();
+      loader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadHolidays() {
+    final Log log = new Log("Creating holiday data");
+    try {
+      final ExampleHolidayLoader loader = new ExampleHolidayLoader();
+      loader.run(getToolContext());
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);

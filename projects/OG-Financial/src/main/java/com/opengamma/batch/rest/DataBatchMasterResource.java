@@ -96,9 +96,8 @@ public class DataBatchMasterResource extends AbstractDataResource {
     return responseOkFudge(result);
   }  
 
-  @GET
   @Path("run/{id}")
-  public DataBatchRunResource batchRuns(@QueryParam("id") final String runId) {
+  public DataBatchRunResource batchRuns(@PathParam("id") final String runId) {
     ObjectId id = ObjectId.parse(runId);
     return new DataBatchRunResource(id, getMaster());
   }

@@ -39,7 +39,7 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final Object interpolatorObject = inputs.getValue(getInterpolatorRequirement(target, desiredValue));
+    final Object interpolatorObject = inputs.getValue(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR);
     if (interpolatorObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface interpolator");
     }

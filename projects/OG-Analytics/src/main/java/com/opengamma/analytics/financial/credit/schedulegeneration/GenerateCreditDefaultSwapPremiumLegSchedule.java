@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.credit.schedulegeneration;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -418,7 +418,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to take an input 'date' and adjust it to a business day (if necessary) according to the specified adjustment convention
-  private ZonedDateTime businessDayAdjustDate(final ZonedDateTime date, final Calendar calendar, final BusinessDayConvention businessdayAdjustmentConvention) {
+  public ZonedDateTime businessDayAdjustDate(final ZonedDateTime date, final Calendar calendar, final BusinessDayConvention businessdayAdjustmentConvention) {
 
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(calendar, "Calendar");
@@ -450,8 +450,11 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to calculate the number of premium leg cashflows given the adjusted effective and maturity dates and the coupon frequency
-  private int calculateNumberOfPremiumLegCashflows(final ZonedDateTime adjustedEffectiveDate, final ZonedDateTime adjustedMaturityDate, final PeriodFrequency
-      couponFrequency, final StubType stubType) {
+  private int calculateNumberOfPremiumLegCashflows(
+      final ZonedDateTime adjustedEffectiveDate,
+      final ZonedDateTime adjustedMaturityDate,
+      final PeriodFrequency couponFrequency,
+      final StubType stubType) {
 
     // -------------------------------------------------------------------------------
 

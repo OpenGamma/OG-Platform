@@ -56,11 +56,20 @@ public abstract class AbstractHistoryResult<D extends AbstractDocument> extends 
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code AbstractHistoryResult}.
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("rawtypes")
+  public static AbstractHistoryResult.Meta meta() {
+    return AbstractHistoryResult.Meta.INSTANCE;
+  }
+  /**
+   * The meta-bean for {@code AbstractHistoryResult}.
    * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R extends AbstractDocument> AbstractHistoryResult.Meta<R> meta() {
+  public static <R extends AbstractDocument> AbstractHistoryResult.Meta<R> metaAbstractHistoryResult(Class<R> cls) {
     return AbstractHistoryResult.Meta.INSTANCE;
   }
   static {

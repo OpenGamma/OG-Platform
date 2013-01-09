@@ -13,5 +13,5 @@
     <appender-ref ref="STDOUT" />
     <appender-ref ref="BRIDGE" />
   </root>
-  
+
 </configuration>

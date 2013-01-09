@@ -67,30 +67,30 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   /**
    * Constructs an instance, including a reference portfolio.
    * 
-   * @param name  the name of the view definition
+   * @param name  the name of the view definition, not null
    * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
    *                    no portfolio reference is required
-   * @param userName  the name of the user who owns the view definition
+   * @param marketDataUser  the name of the user who owns the view definition, not null
    */
-  public ViewDefinition(String name, UniqueId portfolioId, String userName) {
-    this(null, name, portfolioId, userName);
+  public ViewDefinition(String name, UniqueId portfolioId, String marketDataUser) {
+    this(null, name, portfolioId, marketDataUser);
   }
 
   /**
    * Constructs an instance, without a reference portfolio.
    * 
-   * @param name  the name of the view definition
-   * @param userName  the name of the user who owns the view definition
+   * @param name  the name of the view definition, not null
+   * @param marketDataUser  the name of the user who owns the view definition, not null
    */
-  public ViewDefinition(String name, String userName) {
-    this(null, name, userName);
+  public ViewDefinition(String name, String marketDataUser) {
+    this(null, name, marketDataUser);
   }
 
   /**
    * Constructs an instance, without a reference portfolio.
    * 
-   * @param name  the name of the view definition
-   * @param marketDataUser  the user who owns the view definition
+   * @param name  the name of the view definition, not null
+   * @param marketDataUser  the user who owns the view definition, not null
    */
   public ViewDefinition(String name, UserPrincipal marketDataUser) {
     this(null, name, marketDataUser);
@@ -99,8 +99,8 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   /**
    * Constructs an instance, without a reference portfolio.
    * 
-   * @param name  the name of the view definition
-   * @param marketDataUser  the user who owns the view definition
+   * @param name  the name of the view definition, not null
+   * @param marketDataUser  the user who owns the view definition, not null
    * @param resultModelDefinition  configuration of the results from the view
    */
   public ViewDefinition(String name, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
@@ -110,10 +110,10 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
   /**
    * Constructs an instance
    * 
-   * @param name  the name of the view definition
+   * @param name  the name of the view definition, not null
    * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
    *                    no portfolio reference is required
-   * @param marketDataUser  the user who owns the view definition
+   * @param marketDataUser  the user who owns the view definition, not null
    */
 
   public ViewDefinition(String name, UniqueId portfolioId, UserPrincipal marketDataUser) {
@@ -138,32 +138,32 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Constructs an instance, including a reference portfolio.
    * 
    * @param uniqueId  the unique id of the view definition
-   * @param name  the name of the view definition
+   * @param name  the name of the view definition, not null
    * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
    *                    no portfolio reference is required
-   * @param userName  the name of the user who owns the view definition
+   * @param marketDataUser  the name of the user who owns the view definition, not null
    */
-  public ViewDefinition(UniqueId uniqueId, String name, UniqueId portfolioId, String userName) {
-    this(uniqueId, name, portfolioId, UserPrincipal.getLocalUser(userName), new ResultModelDefinition());
+  public ViewDefinition(UniqueId uniqueId, String name, UniqueId portfolioId, String marketDataUser) {
+    this(uniqueId, name, portfolioId, UserPrincipal.getLocalUser(marketDataUser), new ResultModelDefinition());
   }
 
   /**
    * Constructs an instance, without a reference portfolio.
    * 
    * @param uniqueId  the unique id of the view definition
-   * @param name  the name of the view definition
-   * @param userName  the name of the user who owns the view definition
+   * @param name  the name of the view definition, not null
+   * @param marketDataUser  the name of the user who owns the view definition, not null
    */
-  public ViewDefinition(UniqueId uniqueId, String name, String userName) {
-    this(uniqueId, name, UserPrincipal.getLocalUser(userName));
+  public ViewDefinition(UniqueId uniqueId, String name, String marketDataUser) {
+    this(uniqueId, name, UserPrincipal.getLocalUser(marketDataUser));
   }
 
   /**
    * Constructs an instance, without a reference portfolio.
    * 
    * @param uniqueId  the unique id of the view definition
-   * @param name  the name of the view definition
-   * @param marketDataUser  the user who owns the view definition
+   * @param name  the name of the view definition, not null
+   * @param marketDataUser  the user who owns the view definition, not null
    */
   public ViewDefinition(UniqueId uniqueId, String name, UserPrincipal marketDataUser) {
     this(uniqueId, name, null, marketDataUser);
@@ -173,8 +173,8 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Constructs an instance, without a reference portfolio.
    * 
    * @param uniqueId  the unique id of the view definition
-   * @param name  the name of the view definition
-   * @param marketDataUser  the user who owns the view definition
+   * @param name  the name of the view definition, not null
+   * @param marketDataUser  the user who owns the view definition, not null
    * @param resultModelDefinition  configuration of the results from the view
    */
   public ViewDefinition(UniqueId uniqueId, String name, UserPrincipal marketDataUser, ResultModelDefinition resultModelDefinition) {
@@ -185,10 +185,10 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * Constructs an instance
    * 
    * @param uniqueId  the unique id of the view definition
-   * @param name  the name of the view definition
+   * @param name  the name of the view definition, not null
    * @param portfolioId the unique identifier of the portfolio referenced by this view definition, null if
    *                    no portfolio reference is required
-   * @param marketDataUser  the user who owns the view definition
+   * @param marketDataUser  the user who owns the view definition, not null
    */
   public ViewDefinition(UniqueId uniqueId, String name, UniqueId portfolioId, UserPrincipal marketDataUser) {
     this(uniqueId, name, portfolioId, marketDataUser, new ResultModelDefinition());

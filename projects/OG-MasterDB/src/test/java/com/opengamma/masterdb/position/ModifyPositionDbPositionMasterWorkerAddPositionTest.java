@@ -16,6 +16,8 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.OffsetTime;
 
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ManageableExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
@@ -416,6 +418,70 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
     assertNotNull(fromDb.getUniqueId());
     
     assertEquals(added, fromDb);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingQuantityProperty() {
+    ManageablePosition position = new ManageablePosition();
+    PositionDocument doc = new PositionDocument(position);
+    PositionDocument added = _posMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addWithMinimalProperties() {
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(BigDecimal.ONE);
+    PositionDocument doc = new PositionDocument(position);
+    PositionDocument added = _posMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addTradeWithMissingTradeDateProperty() {
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(BigDecimal.ONE);
+    ManageableTrade trade = new ManageableTrade();
+    trade.setCounterpartyExternalId(ExternalId.of("ABC", "DEF"));
+    trade.setQuantity(BigDecimal.ONE);
+    position.addTrade(trade);
+    PositionDocument doc = new PositionDocument(position);
+    PositionDocument added = _posMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addTradeWithMissingCounterpartyExternalIdProperty() {
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(BigDecimal.ONE);
+    ManageableTrade trade = new ManageableTrade();
+    trade.setTradeDate(_now.toLocalDate());
+    trade.setQuantity(BigDecimal.ONE);
+    position.addTrade(trade);
+    PositionDocument doc = new PositionDocument(position);
+    PositionDocument added = _posMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addTradeWithMissingQuantityProperty() {
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(BigDecimal.ONE);
+    ManageableTrade trade = new ManageableTrade();
+    trade.setTradeDate(_now.toLocalDate());
+    trade.setCounterpartyExternalId(ExternalId.of("ABC", "DEF"));
+    position.addTrade(trade);
+    PositionDocument doc = new PositionDocument(position);
+    PositionDocument added = _posMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addTradeWithMinimalProperties() {
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(BigDecimal.ONE);
+    ManageableTrade trade = new ManageableTrade();
+    trade.setTradeDate(_now.toLocalDate());
+    trade.setCounterpartyExternalId(ExternalId.of("ABC", "DEF"));
+    trade.setQuantity(BigDecimal.ONE);
+    position.addTrade(trade);
+    PositionDocument doc = new PositionDocument(position);
+    PositionDocument added = _posMaster.add(doc);
   }
 
 }

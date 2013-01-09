@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve.calcconfig;
@@ -10,7 +10,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class ConfigDBCurveCalculationConfigSource implements CurveCalculationConfigSource {
   private final ConfigSource _configSource;
@@ -27,7 +27,7 @@ public class ConfigDBCurveCalculationConfigSource implements CurveCalculationCon
 
   @Override
   public MultiCurveCalculationConfig getConfig(final String name, final VersionCorrection versionCorrection) {
-    return _configSource.getConfig(MultiCurveCalculationConfig.class, name, versionCorrection);
+    return _configSource.getSingle(MultiCurveCalculationConfig.class, name, versionCorrection);
   }
 
 }

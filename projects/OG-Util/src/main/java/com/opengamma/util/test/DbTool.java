@@ -648,7 +648,7 @@ public class DbTool extends Task {
   }
   
   public Map<String, Integer> getLatestVersions() {
-    Map<String, Integer> result = new HashMap<String, Integer>();
+    Map<String, Integer> result = new HashMap<>();
     for (String scriptDir : _dbScriptDirs) {
       File parentDirectory = new File(scriptDir, DATABASE_CREATE_FOLDER);
       for (File dialectDir : parentDirectory.listFiles()) {
@@ -708,7 +708,7 @@ public class DbTool extends Task {
     for (int v = migrateFromVersion + 1; v <= targetVersion; v++) {
       final File migrateScript = dbScripts.get(v).getSecond();
       if (migrateScript == null || !migrateScript.exists()) {
-        throw new OpenGammaRuntimeException("The " + v + " create script is missing (" + migrateScript + ")");
+        throw new OpenGammaRuntimeException("The " + v + " migrate script is missing (" + migrateScript + ")");
       }
       s_logger.debug("Migrating DB from version {} to {}", (v - 1), v);
       s_logger.debug("Executing migrate script {}", dbScripts.get(v).getFirst());

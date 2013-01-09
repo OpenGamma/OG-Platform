@@ -8,7 +8,7 @@
   <artifactId>og-parent</artifactId>
   <packaging>pom</packaging>
   <name>OG-Parent</name>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>2.0.0-SNAPSHOT</version>
   <description>OpenGamma maven parent project</description>
   <url>http://developers.opengamma.com/</url>
 
@@ -46,22 +46,25 @@
   <!-- standard build setup -->
   <build>
     <resources>
-      <resource>
-        <targetPath>.</targetPath>
-        <directory>${project.build.sourceDirectory}</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.csv</include>
-          <include>**/*.dat</include>
-          <include>**/*.elsql</include>
-          <include>**/*.ftl</include>
-          <include>**/*.proto</include>
-          <include>**/*.txt</include>
-          <include>**/*.version</include>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
+		<resource>
+		<targetPath>.</targetPath>
+		<directory>${project.build.sourceDirectory}</directory>
+		<includes>
+		  <include>**/*.properties</include>
+		  <include>**/*.csv</include>
+		  <include>**/*.dat</include>
+		  <include>**/*.elsql</include>
+		  <include>**/*.ftl</include>
+		  <include>**/*.proto</include>
+		  <include>**/*.txt</include>
+		  <include>**/*.version</include>
+		  <include>**/*.xml</include>
+		</includes>
+	  </resource>
+  <resource>
+    <directory>src/main/resources</directory>
+  </resource>
+</resources>  
     <testResources>
       <testResource>
         <targetPath>.</targetPath>
@@ -105,9 +108,9 @@
         <configuration>
           <verbose>true</verbose>
           <fork>true</fork>
-          <compilerVersion>1.6</compilerVersion>
-          <source>1.6</source>
-          <target>1.6</target>
+          <compilerVersion>1.7</compilerVersion>
+          <source>1.7</source>
+          <target>1.7</target>
         </configuration>
       </plugin>
       <plugin>
@@ -232,9 +235,9 @@
                 </bannedDependencies>
                 <!-- ensure dependencies resolve to latest version -->
                 <requireUpperBoundDeps/>
-                <!-- need Java 6 or greater -->
+                <!-- need Java 7 or greater -->
                 <requireJavaVersion>
-                  <version>[1.6,)</version>
+                  <version>[1.7,)</version>
                 </requireJavaVersion>
               </rules>
               <fail>true</fail>
@@ -814,7 +817,7 @@
       <!--dependency>
         <groupId>com.microsoft</groupId>
         <artifactId>sqljdbc</artifactId>
-        <version>3.0</version>
+        <version>4.0</version>
       </dependency-->
       <dependency>
         <groupId>org.mongodb</groupId>

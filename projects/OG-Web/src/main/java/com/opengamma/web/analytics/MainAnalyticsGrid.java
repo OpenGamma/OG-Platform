@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
@@ -71,25 +69,16 @@ import com.opengamma.util.tuple.Pair;
     _cycle = cycle;
     List<String> updatedIds = Lists.newArrayList();
     for (MainGridViewport viewport : _viewports.values()) {
-      CollectionUtils.addIgnoreNull(updatedIds, viewport.updateResults(cache));
+      viewport.updateResults(cache);
+      if (viewport.getState() == Viewport.State.FRESH_DATA) {
+        updatedIds.add(viewport.getCallbackId());
+      }
     }
     for (DependencyGraphGrid grid : _depGraphs.values()) {
       updatedIds.addAll(grid.updateResults(cycle));
     }
     return updatedIds;
   }
-
-  /**
-   * Updates a viewport on the main grid, e.g. in response the the user scrolling the grid.
-   *
-   * @param viewportId ID of the viewport
-   * @param viewportDefinition Definition of the updated viewport
-   * @return The viewport's callback ID if it was updated or {@code null} if not
-   * @throws DataNotFoundException If no viewport exists with the specified ID
-   */
-  /* package */ /*String updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
-    return getViewport(viewportId).update(viewportDefinition, _cycle, _cache);
-  }*/
 
   // -------- dependency graph grids --------
 
@@ -100,8 +89,8 @@ import com.opengamma.util.tuple.Pair;
    * @param row Row index of the cell whose dependency graph is required
    * @param col Column index of the cell whose dependency graph is required
    * @param compiledViewDef Compiled view definition containing the full dependency graph
-* TODO a better way to specify which cell we want - target spec? stable row ID generated on the server?
-   * @param viewportListener
+   * @param viewportListener Receives notification when there are changes to a viewport
+   * TODO a better way to specify which cell we want - target spec? stable row ID generated on the server?
    */
   /* package */ void openDependencyGraph(int graphId,
                                          String gridId,

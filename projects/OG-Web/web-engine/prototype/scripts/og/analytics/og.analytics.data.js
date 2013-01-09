@@ -11,12 +11,11 @@ $.register_module({
             Object.keys(connections).forEach(function (key) {try {connections[key].kill();} catch (error) {}});
         });
         var Data = function (source, config, label) {
-            var data = this, api = og.api.rest.views, id = og.common.id('data'), meta,
+            var data = this, api = og.api.rest.views, meta, label = config.label ? config.label + '-' : '',
                 viewport = null, viewport_id, viewport_cache, prefix, view_id = config.view_id, viewport_version,
                 graph_id = config.graph_id, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets',
                 ROWS = 'rowCount', grid_type = null, depgraph = !!source.depgraph, loading_viewport_id = false,
-                fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'}, bypass_types = config.bypass,
-                label = config.label ? config.label + '-' : '';
+                fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'}, bypass_types = config.bypass;
             var data_handler = (function () {
                 var timeout = null, rate = 500, last = +new Date, current, delta;
                 var handler = function (result) {
@@ -41,7 +40,8 @@ $.register_module({
                 }) : (promise = viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id,
                         loading: function () {loading_viewport_id = true;},
-                        rows: viewport.rows, cols: viewport.cols, format: viewport.format, log: viewport.log
+                        rows: viewport.rows, cols: viewport.cols, cells: viewport.cells,
+                        format: viewport.format, log: viewport.log
                     })).pipe(function (result) {
                         loading_viewport_id = false;
                         if (result.error) return (data.prefix = module.name + ' (' + label + view_id + '-dead):\n'),
@@ -75,7 +75,19 @@ $.register_module({
                 try {api.put(put_options).pipe(view_handler);} // initial request params come from outside so try/catch
                 catch (error) {fire('fatal', data.prefix + error.message);}
             };
+            var nonsensical_viewport = function (viewport) {
+                return !(viewport.cells && viewport.cells.length) &&
+                    (!viewport.rows || !viewport.rows.length || !viewport.cols || !viewport.cols.length);
+            };
             var reconnect_handler = function () {initialize();};
+            var same_viewport = function (one, two) {
+                if ((!one || !two) && one !== two) return false; // if either viewport is null
+                if ((one.cells && two.rows) || (one.rows && two.cells)) return false;
+                if (one.cells && two.cells)
+                    return one.cells.join('|') === two.cells.join('|') && one.format === two.format;
+                return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|') &&
+                    one.format === two.format;
+            };
             var structure_handler = function (result) {
                 if (!grid_type || (depgraph && !graph_id)) return;
                 if (result.error) return fire('fatal', data.prefix + result.message);
@@ -86,11 +98,6 @@ $.register_module({
                 meta.columns.scroll = result.data[SETS].slice(1);
                 fire('meta', meta, {grid_type: grid_type, view_id: view_id, graph_id: graph_id, meta: result});
                 if (!subscribed) return data_setup();
-            };
-            var same_viewport = function (one, two) {
-                if ((!one || !two) && one !== two) return false; // if either viewport is null
-                return one.rows.join('|') === two.rows.join('|') && one.cols.join('|') === two.cols.join('|') &&
-                    one.format === two.format;
             };
             var structure_setup = function (update) {
                 var initial = !update;
@@ -138,7 +145,7 @@ $.register_module({
                 data.prefix = module.name + ' (' + label + view_id + '-dead' + '):\n';
                 view_id = graph_id = viewport_id = subscribed = null;
             };
-            data.id = id;
+            data.id = og.common.id('data');
             data.kill = function () {
                 data.disconnect.apply(data, Array.prototype.slice.call(arguments));
                 delete connections[data.id];
@@ -149,8 +156,7 @@ $.register_module({
             data.parent = config.parent;
             data.prefix = prefix = module.name + ' (' + label + 'undefined' + '):\n';
             data.reconnect = function (connection) {
-                view_id = connection.view_id; graph_id = connection.graph_id;
-                initialize();
+                (view_id = connection.view_id), (graph_id = connection.graph_id), initialize();
             };
             data.viewport = function (new_viewport) {
                 var promise, viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
@@ -161,7 +167,7 @@ $.register_module({
                     if (meta.viewport) (meta.viewport.cols = []), (meta.viewport.rows = []);
                     return data;
                 }
-                if (!new_viewport.rows.length || !new_viewport.cols.length)
+                if (nonsensical_viewport(new_viewport))
                     return og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport), data;
                 if (same_viewport(viewport_cache, new_viewport)) return data; // duplicate viewport, do nothing
                 viewport_cache = JSON.parse(JSON.stringify(data.meta.viewport = viewport = new_viewport));
@@ -169,8 +175,10 @@ $.register_module({
                 try { // viewport definitions come from outside, so try/catch
                     (promise = viewports.put({
                         view_id: view_id, grid_type: grid_type, graph_id: graph_id, viewport_id: viewport_id,
-                        rows: viewport.rows, cols: viewport.cols, format: viewport.format, log: viewport.log
-                    })).pipe(function (result) {if (result.error) return; else viewport_version = promise.id;});
+                        rows: viewport.rows, cols: viewport.cols, cells: viewport.cells,
+                        format: viewport.format, log: viewport.log
+                    })).pipe(function (result) {if (result.error) return;});
+                    viewport_version = promise.id;
                 } catch (error) {fire('fatal', data.prefix + error.message);}
                 return data;
             };

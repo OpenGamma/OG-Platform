@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.fudgemsg;
@@ -18,12 +18,13 @@ import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
 import com.opengamma.analytics.financial.greeks.PDEResultCollection;
 import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
-import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVolatilityPDEPresentValueResultCollection;
+import com.opengamma.financial.analytics.model.volatility.local.deprecated.ForexLocalVolatilityPDEPresentValueResultCollection;
 
 /**
- * 
+ * @deprecated Builds results from deprecated functions
  */
-/* package */final class PDEResultsFudgeBuilder {
+/* package */@Deprecated
+final class PDEResultsFudgeBuilder {
 
   private PDEResultsFudgeBuilder() {
   }
@@ -71,7 +72,7 @@ import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVo
   public static final class PDEResultCollectionFudgeBuilder extends AbstractFudgeBuilder<PDEResultCollection> {
     private static final String STRIKES_FIELD = "strikesField";
     private static final String GRID_IMPLIED_VOLS_FIELD = "impliedVolatilityField";
-    private static final String GRID_FOREX_PV_QUOTES_FIELD = "forexPVQuotesField"; //DEBUG trying to get a new number out 
+    private static final String GRID_FOREX_PV_QUOTES_FIELD = "forexPVQuotesField"; //DEBUG trying to get a new number out
     private static final String GRID_PRICE_FIELD = "gridPriceField";
     private static final String GRID_BLACK_PRICE_FIELD = "gridBlackPriceField";
     private static final String GRID_BLACK_DELTA_FIELD = "gridBlackDeltaField";
@@ -97,7 +98,7 @@ import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVo
         final double[] impliedVol = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_IMPLIED_VOLS_FIELD));
         result.put(PDEResultCollection.GRID_IMPLIED_VOL, impliedVol);
       }
-      //DEBUG trying to get a new number out 
+      //DEBUG trying to get a new number out
       if (message.getByName(GRID_FOREX_PV_QUOTES_FIELD) != null) {
         final double[] domesticAbsolute = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_FOREX_PV_QUOTES_FIELD));
         result.put(PDEResultCollection.GRID_DOMESTIC_PV_QUOTE, domesticAbsolute);
@@ -176,7 +177,7 @@ import com.opengamma.financial.analytics.model.volatility.local.old.ForexLocalVo
       if (object.contains(PDEResultCollection.GRID_IMPLIED_VOL)) {
         serializer.addToMessage(message, GRID_IMPLIED_VOLS_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_IMPLIED_VOL));
       }
-      //DEBUG trying to get a new number out 
+      //DEBUG trying to get a new number out
       if (object.contains(PDEResultCollection.GRID_DOMESTIC_PV_QUOTE)) {
         serializer.addToMessage(message, GRID_FOREX_PV_QUOTES_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_DOMESTIC_PV_QUOTE));
       }

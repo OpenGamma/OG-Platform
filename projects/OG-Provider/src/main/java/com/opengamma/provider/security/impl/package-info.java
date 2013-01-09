@@ -5,6 +5,6 @@
  */
 
 /**
- * Standard implementations of the security provider.
+ * Standard implementations of the security provider and enhancer.
  */
 package com.opengamma.provider.security.impl;

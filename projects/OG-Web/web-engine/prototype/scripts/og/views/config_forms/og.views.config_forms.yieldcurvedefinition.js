@@ -145,7 +145,8 @@ $.register_module({
                         });
                     }
                 }),
-                strips = new form.Block({wrap: '<ul class="og-awesome-list og-js-strips">{{{html}}}</ul>'}) // item_2
+                strips = new form // item_2
+                    .Block({template: '<ul class="og-awesome-list og-js-strips">{{{children}}}</ul>'})
             ];
             if ((master.strip = arr(master.strip)).length)
                 Array.prototype.push.apply(strips.children, master.strip.map(new_strip));

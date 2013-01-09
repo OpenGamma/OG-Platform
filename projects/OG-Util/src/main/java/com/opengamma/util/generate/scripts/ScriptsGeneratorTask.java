@@ -29,6 +29,7 @@ public class ScriptsGeneratorTask extends Task {
   private String _scriptDir;
 
   private ArrayList<FileSet> _filesets = newArrayList();
+  
 
   public String getProjectName() {
     return _projectName;

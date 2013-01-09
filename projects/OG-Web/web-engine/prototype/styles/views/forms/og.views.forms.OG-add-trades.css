@@ -21,11 +21,11 @@
 }
 
 .OG-add-trades .og-premium input {
-    width: 40%;
+    width: 40% !important;
 }
 
 .OG-add-trades .og-datetimepicker {
-    width: 80%;
+    width: 80% !important;
 }
 
 .OG-add-trades .og-inline-form {
@@ -51,7 +51,7 @@
     }
 
     .OG-add-trades .og-attributes input {
-        width: 40%;
+        width: 40% !important;
     }
 
     .OG-add-trades .OG-link-add {

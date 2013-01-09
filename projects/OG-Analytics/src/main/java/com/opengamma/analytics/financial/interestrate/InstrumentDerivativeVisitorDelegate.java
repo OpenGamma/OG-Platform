@@ -15,6 +15,10 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalForward;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFuture;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
+import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
+import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -71,6 +75,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -79,9 +84,13 @@ import com.opengamma.util.ArgumentChecker;
  * @param <RESULT_TYPE> The return type of the calculation
  */
 public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> implements InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
-  private final InstrumentDerivativeVisitor<? super DATA_TYPE, RESULT_TYPE> _delegate;
+  /** The delegate visitor */
+  private final InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> _delegate;
 
-  public InstrumentDerivativeVisitorDelegate(final InstrumentDerivativeVisitor<? super DATA_TYPE, RESULT_TYPE> delegate) {
+  /**
+   * @param delegate The delegate, not null
+   */
+  public InstrumentDerivativeVisitorDelegate(final InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> delegate) {
     ArgumentChecker.notNull(delegate, "delegate");
     _delegate = delegate;
   }
@@ -734,6 +743,56 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitEnergyFutureOption(final EnergyFutureOption future) {
     return _delegate.visitEnergyFutureOption(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityFuture(final EquityFuture future, final DATA_TYPE data) {
+    return _delegate.visitEquityFuture(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityFuture(final EquityFuture future) {
+    return _delegate.visitEquityFuture(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final DATA_TYPE data) {
+    return _delegate.visitEquityIndexDividendFuture(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexDividendFuture(final EquityIndexDividendFuture future) {
+    return _delegate.visitEquityIndexDividendFuture(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexOption(final EquityIndexOption option, final DATA_TYPE data) {
+    return _delegate.visitEquityIndexOption(option, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexOption(final EquityIndexOption option) {
+    return _delegate.visitEquityIndexOption(option);
+  }
+
+  @Override
+  public RESULT_TYPE visitVarianceSwap(final VarianceSwap varianceSwap) {
+    return _delegate.visitVarianceSwap(varianceSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitVarianceSwap(final VarianceSwap varianceSwap, final DATA_TYPE data) {
+    return _delegate.visitVarianceSwap(varianceSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap) {
+    return _delegate.visitEquityVarianceSwap(varianceSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap, final DATA_TYPE data) {
+    return _delegate.visitEquityVarianceSwap(varianceSwap, data);
   }
 
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.currency;
@@ -26,25 +26,15 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Converts a value from one currency to another, preserving all other properties.
  */
 public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvoker {
-
-  /**
-   * Default value for {@code _rateLookupValueName}.
-   */
-  public static final String DEFAULT_LOOKUP_VALUE_NAME = "CurrencyConversion";
-
-  /**
-   * Default value for {@code _rateLookupIdentifierScheme}.
-   */
-  public static final String DEFAULT_LOOKUP_IDENTIFIER_SCHEME = "CurrencyPair";
 
   private static final String DEFAULT_CURRENCY_INJECTION = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Currency";
 
@@ -53,8 +43,6 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   private final ComputationTargetType _targetType;
   private final Set<String> _valueNames;
   private boolean _allowViewDefaultCurrency; // = false;
-  private String _rateLookupValueName = DEFAULT_LOOKUP_VALUE_NAME;
-  private String _rateLookupIdentifierScheme = DEFAULT_LOOKUP_IDENTIFIER_SCHEME;
 
   public CurrencyConversionFunction(final ComputationTargetType targetType, final String valueName) {
     ArgumentChecker.notNull(targetType, "targetType");
@@ -68,24 +56,6 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     ArgumentChecker.notEmpty(valueNames, "valueNames");
     _targetType = targetType;
     _valueNames = new HashSet<String>(Arrays.asList(valueNames));
-  }
-
-  public void setRateLookupValueName(final String rateLookupValueName) {
-    ArgumentChecker.notNull(rateLookupValueName, "rateLookupValueName");
-    _rateLookupValueName = rateLookupValueName;
-  }
-
-  public String getRateLookupValueName() {
-    return _rateLookupValueName;
-  }
-
-  public void setRateLookupIdentifierScheme(final String rateLookupIdentifierScheme) {
-    ArgumentChecker.notNull(rateLookupIdentifierScheme, "rateLookupIdentifierScheme");
-    _rateLookupIdentifierScheme = rateLookupIdentifierScheme;
-  }
-
-  public String getRateLookupIdentifierScheme() {
-    return _rateLookupIdentifierScheme;
   }
 
   protected Set<String> getValueNames() {
@@ -113,7 +83,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   /**
    * Divides the value by the conversion rate. Override this in a subclass for anything more elaborate - e.g. if
    * the value is in "somethings per currency unit foo" so needs multiplying by the rate instead.
-   * 
+   *
    * @param value input value to convert
    * @param conversionRate conversion rate to use
    * @return the converted value
@@ -136,7 +106,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Delegates off to the other convert methods depending on the type of value.
-   * 
+   *
    * @param inputValue input value to convert
    * @param desiredValue requested value requirement
    * @param conversionRate conversion rate to use
@@ -159,7 +129,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     ComputedValue inputValue = null;
     double exchangeRate = 0;
     for (final ComputedValue input : inputs.getAllValues()) {
-      if (getRateLookupValueName().equals(input.getSpecification().getValueName())) {
+      if (ValueRequirementNames.SPOT_RATE.equals(input.getSpecification().getValueName())) {
         if (input.getValue() instanceof Double) {
           exchangeRate = (Double) input.getValue();
         } else {
@@ -254,8 +224,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   private ValueRequirement getCurrencyConversion(final String fromCurrency, final String toCurrency) {
-    return new ValueRequirement(getRateLookupValueName(), new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of(getRateLookupIdentifierScheme(), fromCurrency + "_"
-        + toCurrency)));
+    return CurrencyMatrixSourcingFunction.getConversionRequirement(fromCurrency, toCurrency);
   }
 
   @Override

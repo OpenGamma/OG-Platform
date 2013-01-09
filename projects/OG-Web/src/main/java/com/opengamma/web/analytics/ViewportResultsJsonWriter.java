@@ -19,8 +19,11 @@ import org.json.JSONObject;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLog;
+import com.opengamma.engine.view.ExecutionLogWithContext;
 import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.log.LogEvent;
 import com.opengamma.util.log.LogLevel;
@@ -34,15 +37,12 @@ import com.opengamma.web.server.conversion.DoubleValueOptionalDecimalPlaceFormat
  */
 public class ViewportResultsJsonWriter {
 
-  public static final String VERSION = "version";
-
+  private static final String VERSION = "version";
   private static final String VALUE = "v";
   private static final String HISTORY = "h";
   private static final String TYPE = "t";
   private static final String DATA = "data";
   private static final String ERROR = "error";
-  private static final String POSITION_ID = "positionId";
-  private static final String NODE_ID = "nodeId";
   private static final String CALCULATION_DURATION = "calculationDuration";
   private static final String LOG_LEVEL = "logLevel";
   private static final String LOG_OUTPUT = "logOutput";
@@ -52,6 +52,8 @@ public class ViewportResultsJsonWriter {
   private static final String EVENTS = "events";
   private static final String LEVEL = "level";
   private static final String MESSAGE = "message";
+  private static final String FUNCTION_NAME = "functionName";
+  private static final String TARGET = "target";
 
   private final ResultsFormatter _formatter;
   private final DoubleValueOptionalDecimalPlaceFormatter _durationFormatter = new DoubleValueOptionalDecimalPlaceFormatter();
@@ -60,20 +62,20 @@ public class ViewportResultsJsonWriter {
     _formatter = formatter;
   }
 
+  // TODO use a Freemarker template - will that perform well enough?
   public String getJson(ViewportResults viewportResults) {
     List<ViewportResults.Cell> viewportCells = viewportResults.getResults();
     List<Object> results = Lists.newArrayListWithCapacity(viewportCells.size());
     for (ViewportResults.Cell cell : viewportCells) {
-      Object formattedValue;
       Object cellValue = cell.getValue();
       ValueSpecification cellValueSpec = cell.getValueSpecification();
-      formattedValue = _formatter.format(cellValue, cellValueSpec, viewportResults.getFormat());
+      Object formattedValue = _formatter.format(cellValue, cellValueSpec, viewportResults.getFormat());
       Collection<Object> history = cell.getHistory();
       Class<?> columnType = viewportResults.getColumnType(cell.getColumn());
       DataType columnFormat = _formatter.getDataType(columnType);
       Map<String, Object> valueMap = Maps.newHashMap();
-      ExecutionLog executionLog = cell.getExecutionLog();
-      LogLevel logLevel = minLogLevel(executionLog);
+      AggregatedExecutionLog executionLog = cell.getExecutionLog();
+      LogLevel logLevel = maxLogLevel(executionLog);
 
       valueMap.put(VALUE, formattedValue);
       if (columnFormat == UNKNOWN) {
@@ -85,12 +87,6 @@ public class ViewportResultsJsonWriter {
       }
       if (cell.isError() || isError(formattedValue)) {
         valueMap.put(ERROR, true);
-      }
-      if (cell.getPositionId() != null) {
-        valueMap.put(POSITION_ID, cell.getPositionId());
-      }
-      if (cell.getNodeId() != null) {
-        valueMap.put(NODE_ID, cell.getNodeId());
       }
       if (logLevel != null) {
         valueMap.put(LOG_LEVEL, logLevel);
@@ -111,7 +107,7 @@ public class ViewportResultsJsonWriter {
     return value instanceof MissingInput;
   }
 
-  private static LogLevel minLogLevel(ExecutionLog log) {
+  private static LogLevel maxLogLevel(AggregatedExecutionLog log) {
     if (log == null) {
       return null;
     }
@@ -124,32 +120,31 @@ public class ViewportResultsJsonWriter {
     return logLevelList.get(logLevelList.size() - 1);
   }
 
-  private static boolean hasLogOutput(ExecutionLog log) {
-    if (log == null) {
-      return false;
-    }
-    if (log.hasException()) {
-      return true;
-    }
-    if (log.getEvents() != null && !log.getEvents().isEmpty()) {
-      return true;
-    }
-    return false;
+  private static boolean hasLogOutput(AggregatedExecutionLog aggregatedLog) {
+    return aggregatedLog != null && aggregatedLog.getLogs() != null && !aggregatedLog.getLogs().isEmpty();
   }
 
-  private static Map<String, Object> formatLogOutput(ExecutionLog log) {
-    Map<String, Object> output = Maps.newHashMap();
-    if (log.hasException()) {
-      output.put(EXCEPTION_CLASS, log.getExceptionClass());
-      output.put(EXCEPTION_MESSAGE, log.getExceptionMessage());
-      output.put(EXCEPTION_STACK_TRACE, log.getExceptionStackTrace());
-    }
-    if (log.getEvents() != null && !log.getEvents().isEmpty()) {
-      List<Map<String, Object>> events = Lists.newArrayList();
-      for (LogEvent logEvent : log.getEvents()) {
-        events.add(ImmutableMap.<String, Object>of(LEVEL, logEvent.getLevel(), MESSAGE, logEvent.getMessage()));
+  private static List<Map<String, Object>> formatLogOutput(AggregatedExecutionLog aggregatedLog) {
+    List<Map<String, Object>> output = Lists.newArrayList();
+    for (ExecutionLogWithContext logWithContext : aggregatedLog.getLogs()) {
+      Map<String, Object> logMap = Maps.newHashMap();
+      ComputationTargetSpecification target = logWithContext.getTargetSpecification();
+      logMap.put(FUNCTION_NAME, logWithContext.getFunctionName());
+      logMap.put(TARGET, target.getType() + " " + target.getUniqueId());
+      ExecutionLog log = logWithContext.getExecutionLog();
+      if (log.hasException()) {
+        logMap.put(EXCEPTION_CLASS, log.getExceptionClass());
+        logMap.put(EXCEPTION_MESSAGE, log.getExceptionMessage());
+        logMap.put(EXCEPTION_STACK_TRACE, log.getExceptionStackTrace());
       }
-      output.put(EVENTS, events);
+      List<Map<String, Object>> events = Lists.newArrayList();
+      logMap.put(EVENTS, events);
+      if (log.getEvents() != null) {
+        for (LogEvent logEvent : log.getEvents()) {
+          events.add(ImmutableMap.<String, Object>of(LEVEL, logEvent.getLevel(), MESSAGE, logEvent.getMessage()));
+        }
+      }
+      output.add(logMap);
     }
     return output;
   }

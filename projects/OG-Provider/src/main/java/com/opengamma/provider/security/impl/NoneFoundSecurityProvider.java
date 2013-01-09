@@ -5,6 +5,7 @@
  */
 package com.opengamma.provider.security.impl;
 
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.provider.security.SecurityProviderGetRequest;
 import com.opengamma.provider.security.SecurityProviderGetResult;
 
@@ -23,7 +24,11 @@ public class NoneFoundSecurityProvider extends AbstractSecurityProvider {
   //-------------------------------------------------------------------------
   @Override
   protected SecurityProviderGetResult doBulkGet(SecurityProviderGetRequest request) {
-    return new SecurityProviderGetResult();
+    SecurityProviderGetResult result = new SecurityProviderGetResult();
+    for (ExternalIdBundle bundle : request.getExternalIdBundles()) {
+      result.getResultMap().put(bundle, null);
+    }
+    return result;
   }
 
 }

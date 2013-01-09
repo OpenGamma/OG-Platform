@@ -79,7 +79,6 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
     final FuturePriceCurveInstrumentProvider<Object> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Object>) futurePriceCurveSpecification.getCurveInstrumentProvider();
     for (final Object x : futurePriceCurveDefinition.getXs()) {
       final ExternalId identifier = futurePriceCurveProvider.getInstrument(x, atInstant.toLocalDate());
-      System.err.println(identifier);
       result.add(new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier));
     }
     return result;

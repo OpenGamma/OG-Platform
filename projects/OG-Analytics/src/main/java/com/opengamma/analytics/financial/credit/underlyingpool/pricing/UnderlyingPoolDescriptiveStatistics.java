@@ -27,6 +27,44 @@ public class UnderlyingPoolDescriptiveStatistics {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Add ability to identify the obligor with the max/min spread etc?
+  // TODO : Add method to return the n tightest/widest spreads (and the associated obligors)
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate how many of the names in the underlying pool are marked as already defaulted
+  public int getUnderlyingPoolNumberOfDefaultedNames(final UnderlyingPool underlyingPool) {
+
+    ArgumentChecker.notNull(underlyingPool, "Underlying pool");
+
+    int numberOfDefaultedNames = 0;
+
+    int numberOfObligorsInPool = underlyingPool.getNumberOfObligors();
+
+    for (int i = 0; i < numberOfObligorsInPool; i++) {
+
+      if (underlyingPool.getObligors()[i].getHasDefaulted() == true) {
+        numberOfDefaultedNames++;
+      }
+    }
+
+    return numberOfDefaultedNames;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Calculate how many of the names in the underlying pool are marked as not already defaulted
+  public int getUnderlyingPoolNumberOfNonDefaultedNames(final UnderlyingPool underlyingPool) {
+
+    ArgumentChecker.notNull(underlyingPool, "Underlying pool");
+
+    int numberOfObligorsInPool = underlyingPool.getNumberOfObligors();
+
+    int numberOfDefaultedNames = getUnderlyingPoolNumberOfDefaultedNames(underlyingPool);
+
+    int numberOfNonDefaultedNames = numberOfObligorsInPool - numberOfDefaultedNames;
+
+    return numberOfNonDefaultedNames;
+  }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

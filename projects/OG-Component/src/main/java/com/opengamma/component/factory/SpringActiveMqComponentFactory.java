@@ -21,6 +21,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentFactory;
 import com.opengamma.component.ComponentRepository;
+import com.opengamma.transport.jms.ActiveMQJmsConfiguration;
 
 /**
  * Component definition for starting Active MQ.
@@ -30,16 +31,17 @@ public class SpringActiveMqComponentFactory extends AbstractSpringComponentFacto
 
   //-------------------------------------------------------------------------
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    GenericApplicationContext appContext = createApplicationContext(repo);
-    
-    String[] beanNames = appContext.getBeanNamesForType(BrokerService.class);
+  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+    final GenericApplicationContext appContext = createApplicationContext(repo);
+
+    final String[] beanNames = appContext.getBeanNamesForType(BrokerService.class);
     if (beanNames.length != 1) {
       throw new IllegalStateException("Expected 1 broker, but found " + beanNames.length);
     }
-    BrokerService broker = appContext.getBean(beanNames[0], BrokerService.class);
+    final BrokerService broker = appContext.getBean(beanNames[0], BrokerService.class);
     repo.registerComponent(BrokerService.class, "jetty", broker);
     repo.registerLifecycle(new ActiveMQLifecycle(broker));
+    repo.registerComponent(ActiveMQJmsConfiguration.class, "main", appContext.getBean("mainActiveMQJmsConfiguration", ActiveMQJmsConfiguration.class));
   }
 
   //-------------------------------------------------------------------------
@@ -49,7 +51,7 @@ public class SpringActiveMqComponentFactory extends AbstractSpringComponentFacto
   static class ActiveMQLifecycle implements Lifecycle {
     private final BrokerService _broker;
 
-    public ActiveMQLifecycle(BrokerService broker) {
+    public ActiveMQLifecycle(final BrokerService broker) {
       _broker = broker;
     }
 
@@ -57,7 +59,7 @@ public class SpringActiveMqComponentFactory extends AbstractSpringComponentFacto
     public void start() {
       try {
         _broker.start();
-      } catch (Exception ex) {
+      } catch (final Exception ex) {
         throw new OpenGammaRuntimeException(ex.getMessage(), ex);
       }
     }
@@ -66,7 +68,7 @@ public class SpringActiveMqComponentFactory extends AbstractSpringComponentFacto
     public void stop() {
       try {
         _broker.stop();
-      } catch (Exception ex) {
+      } catch (final Exception ex) {
         throw new OpenGammaRuntimeException(ex.getMessage(), ex);
       }
     }

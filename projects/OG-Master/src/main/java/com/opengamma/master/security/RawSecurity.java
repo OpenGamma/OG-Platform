@@ -51,6 +51,7 @@ public class RawSecurity extends ManageableSecurity {
    * The security details should be set before use.
    */
   public RawSecurity() {
+    super(UNSUPPORTED_SECURITY_TYPE);
   }
 
   /**

@@ -42,8 +42,8 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
  * Describes a capital inflation indexed bond issue. Both the coupon and the nominal are indexed on a price index.
  * @param <C> Type of inflation coupon. Can be {@link CouponInflationZeroCouponMonthlyGearingDefinition} or {@link CouponInflationZeroCouponInterpolationGearingDefinition}.
  */
-public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefinition> extends BondSecurityDefinition<C, C> 
-  implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
+public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefinition>
+  extends BondSecurityDefinition<C, C> implements InstrumentDefinitionWithData<BondSecurity<? extends Payment, ? extends Coupon>, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The default ex-coupon number of days.
@@ -227,7 +227,6 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
   /**
    * Builder of Inflation capital index bond from financial details. The notional and the coupon reference index are interpolated index.
    * The coupon dates are computed from the maturity and have a short first coupon if required.
-   * @param priceIndex
    * @param priceIndex The price index associated to the bond.
    * @param monthLag The lag in month between the index validity and the coupon dates.
    * @param startDate The bond start date.
@@ -339,6 +338,12 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     return toDerivative(date, spot, data);
   }
 
+  /**
+   * @param date The date to use when converting to the derivative form, not null
+   * @param settlementDate The settlement date, not null
+   * @param data The index time series
+   * @return The derivative form
+   */
   public BondCapitalIndexedSecurity<Coupon> toDerivative(final ZonedDateTime date, final ZonedDateTime settlementDate, final DoubleTimeSeries<ZonedDateTime> data) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(settlementDate, "settlement date");

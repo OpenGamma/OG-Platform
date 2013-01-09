@@ -39,22 +39,20 @@ public class FileFactoryBean implements FactoryBean<File> {
   }
 
   public void setResource(final Resource resource) {
-    try {
-      // Because File objects can't point to things in JAR files, we extract any resources to
-      // the local file system so we can return a proper "File".
-      final InputStream in = resource.getInputStream();
+    // Because File objects can't point to things in JAR files, we extract any resources to
+    // the local file system so we can return a proper "File".
+    try (InputStream in = resource.getInputStream()) {
       if (in == null) {
         throw new OpenGammaRuntimeException("Resource " + resource.getDescription() + " not found");
       }
       _file = File.createTempFile("FileFactoryBean", null);
-      final OutputStream out = new FileOutputStream(_file);
-      final byte[] buffer = new byte[4096];
-      int i;
-      while ((i = in.read(buffer)) > 0) {
-        out.write(buffer, 0, i);
+      try (OutputStream out = new FileOutputStream(_file)) {
+        final byte[] buffer = new byte[4096];
+        int i;
+        while ((i = in.read(buffer)) > 0) {
+          out.write(buffer, 0, i);
+        }
       }
-      in.close();
-      out.close();
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("error loading resource", e);
     }

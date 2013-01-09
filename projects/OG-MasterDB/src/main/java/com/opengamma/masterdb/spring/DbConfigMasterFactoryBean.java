@@ -54,7 +54,6 @@ public class DbConfigMasterFactoryBean extends AbstractDbMasterFactoryBean<DbCon
    * The meta-bean for {@code DbConfigMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbConfigMasterFactoryBean.Meta meta() {
     return DbConfigMasterFactoryBean.Meta.INSTANCE;
   }

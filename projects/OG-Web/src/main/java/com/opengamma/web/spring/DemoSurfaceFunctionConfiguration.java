@@ -20,9 +20,9 @@ import com.opengamma.financial.analytics.model.volatility.surface.ForexCallDelta
 import com.opengamma.financial.analytics.model.volatility.surface.ForexFlatWithTermStructureVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.ForexStrangleRiskReversalVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.InterpolatedVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.model.volatility.surface.black.pure.PureBlackVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.VolatilitySurfaceSpecificationFunction;
 import com.opengamma.financial.analytics.volatility.surface.BondFutureOptionVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.volatility.surface.CommodityOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
@@ -36,6 +36,7 @@ import com.opengamma.financial.analytics.volatility.surface.RawBondFutureOptionV
 import com.opengamma.financial.analytics.volatility.surface.RawEquityOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawFXVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawIRFutureOptionVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.volatility.surface.RawSoybeanFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawSwaptionATMVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.SwaptionATMVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
@@ -75,9 +76,11 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
     addConfigFor(configs, RawFXVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, RawSwaptionATMVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, RawEquityOptionVolatilitySurfaceDataFunction.class.getName());
+    addConfigFor(configs, RawSoybeanFutureOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, IRFutureOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, BondFutureOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunction.class.getName());
+    addConfigFor(configs, CommodityOptionVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, ForexStrangleRiskReversalVolatilitySurfaceFunction.class.getName());
     addConfigFor(configs, ForexCallDeltaVolatilitySurfaceFunction.class.getName());
     addConfigFor(configs, ForexFlatWithTermStructureVolatilitySurfaceFunction.class.getName());
