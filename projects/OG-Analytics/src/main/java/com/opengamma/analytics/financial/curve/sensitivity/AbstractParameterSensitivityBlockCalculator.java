@@ -67,7 +67,8 @@ public abstract class AbstractParameterSensitivityBlockCalculator {
    * @param bundle The curve bundle with all the curves with respect to which the sensitivity should be computed. Not null.
    * @return The sensitivity (as a DoubleMatrix1D).
    */
-  public abstract MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle);
+  public abstract MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, 
+      final YieldCurveBundle bundle);
 
   /**
    * Computes the sensitivity with respect to the parameters from the point sensitivities to only one curve.

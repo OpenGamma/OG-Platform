@@ -57,6 +57,7 @@ public class GeneratorCurveAddYield extends GeneratorYDCurve {
 
   @Override
   public YieldAndDiscountCurve generateCurve(String name, double[] x) {
+    ArgumentChecker.notNull(name, "Name");
     ArgumentChecker.isTrue(x.length == getNumberOfParameter(), "Incorrect number of parameters");
     YieldAndDiscountCurve[] underlyingCurves = new YieldAndDiscountCurve[_nbGenerators];
     int index = 0;
@@ -79,9 +80,10 @@ public class GeneratorCurveAddYield extends GeneratorYDCurve {
   }
 
   /**
-   * All generator but the last should be already in their final form and with a known number of parameters.
+   * All generator but the last should have a known number of parameters.
    * The number of data corresponding to each known generator is eliminated and only the last part is used to create the final generator version.
    * If several generators had a unknown number of parameters, it would be unclear which instrument correspond to which generator.
+   * In the last generator, the previous instrument is passed to create the anchor.
    * @param data The array of instrument used to construct the curve.
    * @return The final generator.
    */
@@ -93,12 +95,15 @@ public class GeneratorCurveAddYield extends GeneratorYDCurve {
     int nbDataUsed = 0;
     int nbParam = 0;
     for (int loopgen = 0; loopgen < _nbGenerators - 1; loopgen++) {
-      finalGenerator[loopgen] = _generators[loopgen];
       nbParam = _generators[loopgen].getNumberOfParameter();
+      InstrumentDerivative[] instrumentsLoop = new InstrumentDerivative[nbParam];
+      System.arraycopy(instruments, nbDataUsed, instrumentsLoop, 0, nbParam);
+      finalGenerator[loopgen] = _generators[loopgen].finalGenerator(instrumentsLoop);
       nbDataUsed += nbParam;
     }
     InstrumentDerivative[] instrumentsLast = new InstrumentDerivative[instruments.length - nbDataUsed + 1];
-    instrumentsLast[0] = instruments[nbDataUsed - (nbParam + 1) / 2]; // For the anchor.
+    instrumentsLast[0] = instruments[nbDataUsed - 1];
+    // Implementation note: The anchor is the previous instrument.
     System.arraycopy(instruments, nbDataUsed, instrumentsLast, 1, instruments.length - nbDataUsed);
     finalGenerator[_nbGenerators - 1] = _generators[_nbGenerators - 1].finalGenerator(instrumentsLast);
     return new GeneratorCurveAddYield(finalGenerator, _substract);
