@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.bumpers;
 
 /**
  * Enumerate the types of bumps that can be applied to recovery rates (to compute recovery rate sensitivities)

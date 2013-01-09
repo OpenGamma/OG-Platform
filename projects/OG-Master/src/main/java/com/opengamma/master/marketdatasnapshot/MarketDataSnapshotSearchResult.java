@@ -106,7 +106,6 @@ public class MarketDataSnapshotSearchResult extends AbstractSearchResult<MarketD
    * The meta-bean for {@code MarketDataSnapshotSearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static MarketDataSnapshotSearchResult.Meta meta() {
     return MarketDataSnapshotSearchResult.Meta.INSTANCE;
   }

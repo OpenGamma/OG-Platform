@@ -104,7 +104,6 @@ public class PositionSearchResult extends AbstractSearchResult<PositionDocument>
    * The meta-bean for {@code PositionSearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static PositionSearchResult.Meta meta() {
     return PositionSearchResult.Meta.INSTANCE;
   }

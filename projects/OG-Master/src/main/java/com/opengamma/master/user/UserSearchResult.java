@@ -104,7 +104,6 @@ public class UserSearchResult extends AbstractSearchResult<UserDocument> {
    * The meta-bean for {@code UserSearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static UserSearchResult.Meta meta() {
     return UserSearchResult.Meta.INSTANCE;
   }

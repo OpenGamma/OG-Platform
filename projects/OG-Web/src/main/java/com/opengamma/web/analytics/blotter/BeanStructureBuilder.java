@@ -29,7 +29,7 @@ import com.opengamma.util.OpenGammaClock;
 /**
  * Builds an HTML page containing a description of a type's attributes. It's intended to help with the development
  * of the blotter, not to be a long-term feature of the platform (hence the hacky nature of it).
- * Its output is used to populate bean-structure.tfl.
+ * Its output is used to populate bean-structure.ftl.
  * TODO decide if this is worth keeping and clean it up or delete it when it's not useful any more
  */
 /* package */ class BeanStructureBuilder implements BeanVisitor<Map<String, Object>> {

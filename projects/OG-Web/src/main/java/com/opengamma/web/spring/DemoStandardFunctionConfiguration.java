@@ -1272,7 +1272,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(CommodityFutureOptionBjerksundStenslandGreeksFunction.class.getName()));
     
     functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityFutureOptionBlackDefaults.class.getName(),
-        Arrays.asList("USD", "Discounting", "DefaultTwoCurveUSDConfig", "BBG_S ", "Spline")));
+        Arrays.asList("USD", "Discounting", "DefaultTwoCurveUSDConfig", "BBG", "Spline")));
   }
 
   private static void addLocalVolatilityCalculators(final List<FunctionConfiguration> functionConfigs) {

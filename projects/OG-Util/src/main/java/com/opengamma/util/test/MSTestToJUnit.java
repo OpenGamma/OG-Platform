@@ -149,8 +149,8 @@ public class MSTestToJUnit implements Runnable {
   private Map<String, Collection<UnitTest>> readTests() {
     try {
       final XMLStreamReader reader = createXMLReader();
-      final Map<String, UnitTest> unitTestsById = new HashMap<String, UnitTest>();
-      final Map<String, Collection<UnitTest>> unitTestsBySuite = new HashMap<String, Collection<UnitTest>>();
+      final Map<String, UnitTest> unitTestsById = new HashMap<>();
+      final Map<String, Collection<UnitTest>> unitTestsBySuite = new HashMap<>();
       UnitTest currentUnitTest = null;
       while (reader.hasNext()) {
         switch (reader.next()) {

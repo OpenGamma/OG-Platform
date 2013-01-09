@@ -64,7 +64,14 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -315,6 +322,33 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
       return null;
     }
 
+    // ------ FX securities handled by a different tool ------
+
+    @Override
+    public Object visitFXOptionSecurity(final FXOptionSecurity security) {
+      return null;
+    }
+
+    @Override
+    public Object visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
+      return null;
+    }
+
+    @Override
+    public Object visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
+      return null;
+    }
+
+    @Override
+    public Object visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
+      return null;
+    }
+
+    @Override
+    public Object visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
+      return null;
+    }
+
     // ------ Non option securities -------
 
     @Override
@@ -354,6 +388,16 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
 
     @Override
     public Object visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
+      return null;
+    }
+
+    @Override
+    public Object visitSwapSecurity(final SwapSecurity security) {
+      return null;
+    }
+
+    @Override
+    public Object visitSwaptionSecurity(final SwaptionSecurity security) {
       return null;
     }
 
@@ -487,6 +531,6 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
   protected void usage(Options options) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.setWidth(120);
-    formatter.printHelp("volatility-surface-loader.sh", options, true);
+    formatter.printHelp("volatility-surface-creator.sh", options, true);
   }
 }

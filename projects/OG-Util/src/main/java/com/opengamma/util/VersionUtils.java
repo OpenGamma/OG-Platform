@@ -50,15 +50,12 @@ public final class VersionUtils {
   public static String getVersion(String projectName) {
     String fileName = "/" + projectName + ".properties";
     
-    InputStream stream = VersionUtils.class.getResourceAsStream(fileName);
-    if (stream == null) {
-      return getLocalBuildVersion();
-    }
-    
     Properties properties = new Properties();
-    try {
+    try (InputStream stream = VersionUtils.class.getResourceAsStream(fileName)) {
+      if (stream == null) {
+        return getLocalBuildVersion();
+      }
       properties.load(stream);
-      stream.close();
     } catch (IOException e) {
       s_logger.error("Failed to read properties", e);
       return getLocalBuildVersion();

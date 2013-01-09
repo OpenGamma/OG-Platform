@@ -19,13 +19,10 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
@@ -34,35 +31,26 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 
 /**
  *
  */
-/* package */ abstract class OtcTradeBuilder {
+/* package */ abstract class OtcTradeBuilder extends AbstractTradeBuilder {
 
-  // TODO where should these live?
-  private static final ExternalScheme CPTY_SCHEME = ExternalScheme.of("Cpty");
-  private static final String COUNTERPARTY = "counterparty";
-
-  private final SecurityMaster _securityMaster;
-  private final PositionMaster _positionMaster;
-  private final MetaBeanFactory _metaBeanFactory;
+  public static final String TRADE_TYPE_NAME = "OtcTrade";
 
   /* package */ OtcTradeBuilder(SecurityMaster securityMaster, PositionMaster positionMaster, Set<MetaBean> metaBeans) {
-    ArgumentChecker.notNull(securityMaster, "securityManager");
-    ArgumentChecker.notNull(positionMaster, "positionMaster");
-    ArgumentChecker.notEmpty(metaBeans, "metaBeans");
-    _positionMaster = positionMaster;
-    _securityMaster = securityMaster;
-    _metaBeanFactory = new MapMetaBeanFactory(metaBeans);
+    super(positionMaster, securityMaster, metaBeans);
   }
 
   /* package */ UniqueId buildAndSaveTrade(BeanDataSource tradeData,
                                            BeanDataSource securityData,
                                            BeanDataSource underlyingData) {
-    // TODO check the type name is OtcTrade
+    if (!TRADE_TYPE_NAME.equals(tradeData.getBeanTypeName())) {
+      throw new IllegalArgumentException("Can only build trades of type " + TRADE_TYPE_NAME +
+                                             ", type name = " + tradeData.getBeanTypeName());
+    }
     ObjectId securityId = buildSecurity(securityData, underlyingData).getObjectId();
     ManageableTrade.Meta meta = ManageableTrade.meta();
     BeanBuilder<? extends ManageableTrade> tradeBuilder =
@@ -101,7 +89,7 @@ import com.opengamma.util.OpenGammaClock;
    * @param sink The sink that should be populated with the trade data
    */
   /* package */ static void extractTradeData(ManageableTrade trade, BeanDataSink<?> sink) {
-    sink.setBeanData(trade.metaBean(), trade);
+    sink.setValue("type", TRADE_TYPE_NAME);
     extractPropertyData(trade.uniqueId(), sink);
     extractPropertyData(trade.tradeDate(), sink);
     extractPropertyData(trade.tradeTime(), sink);
@@ -139,15 +127,6 @@ import com.opengamma.util.OpenGammaClock;
    */
   /* package */ abstract ManageableSecurity saveSecurity(ManageableSecurity security);
 
-  /**
-   * Saves a position to the position master.
-   * @param position The position
-   * @return The saved position
-   */
-  /* package */ abstract ManageablePosition savePosition(ManageablePosition position);
-
-  /* package */ abstract ManageablePosition getPosition(ManageableTrade trade);
-
   private UniqueId buildSecurity(BeanDataSource securityData, BeanDataSource underlyingData) {
     ExternalId underlyingId = buildUnderlying(underlyingData);
     BeanDataSource dataSource;
@@ -168,7 +147,7 @@ import com.opengamma.util.OpenGammaClock;
     }
     FinancialSecurity underlying = build(underlyingData, FinancialSecurity.class);
     saveSecurity(underlying);
-    ExternalId underlyingId = underlying.accept(new ExternalIdVisitor(_securityMaster));
+    ExternalId underlyingId = underlying.accept(new ExternalIdVisitor(getSecurityMaster()));
     if (underlyingId == null) {
       throw new IllegalArgumentException("Unable to get external ID of underlying security " + underlying);
     }
@@ -181,8 +160,8 @@ import com.opengamma.util.OpenGammaClock;
     // default timezone based on OpenGammaClock
     // default times for effectiveDate and maturityDate properties on SwapSecurity, probably others
     // TODO decorator to filter out trade properties
-    BeanVisitor<Bean> visitor = new BeanBuildingVisitor<Bean>(data, _metaBeanFactory);
-    MetaBean metaBean = _metaBeanFactory.beanFor(data);
+    BeanVisitor<Bean> visitor = new BeanBuildingVisitor<>(data, getMetaBeanFactory());
+    MetaBean metaBean = getMetaBeanFactory().beanFor(data);
     // TODO externalIdBundle needs to be specified or building fails because it's null
     // we never want to set it. BeanBuildingVisitor should return the bean builder so we can set an empty ID bundle
     // and then call build(). we don't need to support externalIdBundle so can always set it to be EMPTY
@@ -194,17 +173,9 @@ import com.opengamma.util.OpenGammaClock;
     return expectedType.cast(bean);
   }
 
-  /* package */  SecurityMaster getSecurityMaster() {
-    return _securityMaster;
-  }
-
-  /* package */ PositionMaster getPositionMaster() {
-    return _positionMaster;
-  }
-
   // TODO different versions for OTC / non OTC
   // the horror... make this go away TODO move to the TradeBuilers? they create the trades
-  static Map<String, Object> tradeStructure() {
+  /* package */ static Map<String, Object> tradeStructure() {
     Map<String, Object> structure = Maps.newHashMap();
     List<Map<String, Object>> properties = Lists.newArrayList();
     properties.add(property("uniqueId", true, true, typeInfo("string", "UniqueId")));
@@ -216,35 +187,10 @@ import com.opengamma.util.OpenGammaClock;
     properties.add(property("premiumDate", true, false, typeInfo("string", "LocalDate")));
     properties.add(property("premiumTime", true, false, typeInfo("string", "OffsetTime")));
     properties.add(attributesProperty());
-    structure.put("type", "OtcTrade"); // TODO different type name for OTC and fungible
+    structure.put("type", TRADE_TYPE_NAME);
     structure.put("properties", properties);
     structure.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
     return structure;
   }
 
-  private static Map<String, Object> property(String name,
-                                              boolean optional,
-                                              boolean readOnly,
-                                              Map<String, Object> typeInfo) {
-    return ImmutableMap.<String, Object>of("name", name,
-                                           "type", "single",
-                                           "optional", optional,
-                                           "readOnly", readOnly,
-                                           "types", ImmutableList.of(typeInfo));
-  }
-
-  private static Map<String, Object> attributesProperty() {
-    Map<String, Object> map = Maps.newHashMap();
-    map.put("name", "attributes");
-    map.put("type", "map");
-    map.put("optional", true); // can't be null but have a default value so client doesn't need to specify
-    map.put("readOnly", false);
-    map.put("types", ImmutableList.of(typeInfo("string", "")));
-    map.put("valueTypes", ImmutableList.of(typeInfo("string", "")));
-    return map;
-  }
-
-  private static Map<String, Object> typeInfo(String expectedType, String actualType) {
-    return ImmutableMap.<String, Object>of("beanType", false, "expectedType", expectedType, "actualType", actualType);
-  }
 }

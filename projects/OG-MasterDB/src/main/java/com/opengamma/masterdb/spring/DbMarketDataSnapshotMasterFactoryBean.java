@@ -54,7 +54,6 @@ public class DbMarketDataSnapshotMasterFactoryBean extends AbstractDbMasterFacto
    * The meta-bean for {@code DbMarketDataSnapshotMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbMarketDataSnapshotMasterFactoryBean.Meta meta() {
     return DbMarketDataSnapshotMasterFactoryBean.Meta.INSTANCE;
   }

@@ -481,37 +481,37 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
     /**
      * The meta-property for the {@code currency} property.
      */
-    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<Currency> _currency = DirectMetaProperty.ofReadOnly(
         this, "currency", YieldCurveDefinition.class, Currency.class);
     /**
      * The meta-property for the {@code regionId} property.
      */
-    private final MetaProperty<ExternalId> _regionId = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<ExternalId> _regionId = DirectMetaProperty.ofReadOnly(
         this, "regionId", YieldCurveDefinition.class, ExternalId.class);
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<String> _name = DirectMetaProperty.ofReadOnly(
         this, "name", YieldCurveDefinition.class, String.class);
     /**
      * The meta-property for the {@code interpolatorName} property.
      */
-    private final MetaProperty<String> _interpolatorName = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<String> _interpolatorName = DirectMetaProperty.ofReadOnly(
         this, "interpolatorName", YieldCurveDefinition.class, String.class);
     /**
      * The meta-property for the {@code leftExtrapolatorName} property.
      */
-    private final MetaProperty<String> _leftExtrapolatorName = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<String> _leftExtrapolatorName = DirectMetaProperty.ofReadOnly(
         this, "leftExtrapolatorName", YieldCurveDefinition.class, String.class);
     /**
      * The meta-property for the {@code rightExtrapolatorName} property.
      */
-    private final MetaProperty<String> _rightExtrapolatorName = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<String> _rightExtrapolatorName = DirectMetaProperty.ofReadOnly(
         this, "rightExtrapolatorName", YieldCurveDefinition.class, String.class);
     /**
      * The meta-property for the {@code interpolateYields} property.
      */
-    private final MetaProperty<Boolean> _interpolateYields = DirectMetaProperty.ofReadWrite(
+    private final MetaProperty<Boolean> _interpolateYields = DirectMetaProperty.ofReadOnly(
         this, "interpolateYields", YieldCurveDefinition.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code strips} property.

@@ -59,12 +59,10 @@ public class TestProperties {
       } catch (IOException e) {
         throw new OpenGammaRuntimeException("Couldn't get canonical path of file " + file, e);
       }
-      try {
-        FileInputStream fis = new FileInputStream(file);
+      try (FileInputStream fis = new FileInputStream(file)) {
         _props.load(fis);
-        fis.close();
-      } catch (IOException e) {
-        throw new OpenGammaRuntimeException("Could not read " + propsFileName, e);
+      } catch (IOException ex) {
+        throw new OpenGammaRuntimeException("Could not read " + propsFileName, ex);
       }
     }
     return _props;

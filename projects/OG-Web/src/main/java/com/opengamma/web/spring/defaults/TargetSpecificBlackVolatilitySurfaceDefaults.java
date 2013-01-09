@@ -28,7 +28,7 @@ public class TargetSpecificBlackVolatilitySurfaceDefaults {
     FX_BLACK_SURFACE_DEFAULTS = new HashMap<UnorderedCurrencyPair, List<String>>(); 
     FX_BLACK_SURFACE_DEFAULTS.put(UnorderedCurrencyPair.of(Currency.EUR, Currency.USD), eurusd);
 
-    List<String> usdCommodity = Arrays.asList("USD", "BBG_S ", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD, "BBG_S ");
+    List<String> usdCommodity = Arrays.asList("USD", "BBG", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD, "BBG");
     COMMODITY_BLACK_SURFACE_DEFAULTS = new HashMap<Currency, List<String>>();
     COMMODITY_BLACK_SURFACE_DEFAULTS.put(Currency.USD, usdCommodity);
   }
