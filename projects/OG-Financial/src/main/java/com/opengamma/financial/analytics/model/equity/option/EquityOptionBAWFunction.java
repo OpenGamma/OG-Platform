@@ -11,6 +11,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.SecurityExerciseTypeVisitor;
+import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
@@ -48,5 +49,9 @@ public abstract class EquityOptionBAWFunction extends EquityOptionFunction {
   @Override
   protected String getModelType() {
     return CalculationPropertyNamesAndValues.ANALYTIC;
+  }
+
+  public PriorityClass getPriority() {
+    return PriorityClass.ABOVE_NORMAL;
   }
 }

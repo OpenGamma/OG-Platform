@@ -23,7 +23,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
-import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
@@ -32,24 +31,24 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Populates {@link EquityOptionFunction}, including {@link EquityVanillaBarrierOptionBlackFunction}, with defaults aapropriate
+ * Populates {@link EquityOptionFunction}, including {@link EquityVanillaBarrierOptionBlackFunction}, with defaults appropriate
  * for pricing using an interpolated Black lognormal volatility surface.
  */
-public class EquityOptionInterpolatedBlackLognormalDefaults extends DefaultPropertyFunction {
+public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends DefaultPropertyFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionInterpolatedBlackLognormalDefaults.class);
-  /** Map of equity name to discounting curve configuration */
-  private final Map<String, String> _equityToDiscountingCurveConfig;
-  /** Map of equity name to discounting curve name */
-  private final Map<String, String> _equityToDiscountingCurveName;
-  /** Map of equity name to volatility surface name */
-  private final Map<String, String> _equityToSurfaceName;
-  /** Map of equity name to volatility surface calculation method name */
-  private final Map<String, String> _equityToSurfaceInterpolatorName;
-  /** Map of equity name to forward curve name */
-  private final Map<String, String> _equityToForwardCurveName;
-  /** Map of equity name to forward curve calculation method name */
-  private final Map<String, String> _equityToForwardCurveCalculationMethodName;
+  /** Map of id name to discounting curve configuration */
+  private final Map<String, String> _idToDiscountingCurveConfig;
+  /** Map of id name to discounting curve name */
+  private final Map<String, String> _idToDiscountingCurveName;
+  /** Map of id name to volatility surface name */
+  private final Map<String, String> _idToSurfaceName;
+  /** Map of id name to volatility surface calculation method name */
+  private final Map<String, String> _idToSurfaceInterpolatorName;
+  /** Map of id name to forward curve name */
+  private final Map<String, String> _idToForwardCurveName;
+  /** Map of id name to forward curve calculation method name */
+  private final Map<String, String> _idToForwardCurveCalculationMethodName;
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
 
@@ -74,31 +73,31 @@ public class EquityOptionInterpolatedBlackLognormalDefaults extends DefaultPrope
 
   /**
    * @param priority The priority class of {@link DefaultPropertyFunction} instances, allowing them to be ordered relative to each other, not null
-   * @param perEquityConfig Defaults values of curve configuration, discounting curve, surface name and interpolation method per equity, not null
+   * @param perIdConfig Defaults values of curve configuration, discounting curve, surface name and interpolation method per id, not null
    */
-  public EquityOptionInterpolatedBlackLognormalDefaults(final String priority, final String... perEquityConfig) {
+  public EquityOptionInterpolatedBlackLognormalDefaults(final String priority, final String... perIdConfig) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
-    ArgumentChecker.notNull(perEquityConfig, "per equity configuration");
+    ArgumentChecker.notNull(perIdConfig, "per id configuration");
     _priority = PriorityClass.valueOf(priority);
 
-    final int nPairs = perEquityConfig.length;
+    final int nPairs = perIdConfig.length;
     ArgumentChecker.isTrue(nPairs % 7 == 0, "Must have discounting name, discounting curve config, surface name, surface interpolation method, forward curve name" +
-      "and forward curve calculation method per equity");
-    _equityToDiscountingCurveName = Maps.newHashMap();
-    _equityToDiscountingCurveConfig = Maps.newHashMap();
-    _equityToSurfaceName = Maps.newHashMap();
-    _equityToSurfaceInterpolatorName = Maps.newHashMap();
-    _equityToForwardCurveName = Maps.newHashMap();
-    _equityToForwardCurveCalculationMethodName = Maps.newHashMap();
-    for (int i = 0; i < perEquityConfig.length; i += 7) {
-      final String equity = perEquityConfig[i].toUpperCase();
-      _equityToDiscountingCurveName.put(equity, perEquityConfig[i + 1]);
-      _equityToDiscountingCurveConfig.put(equity, perEquityConfig[i + 2]);
-      _equityToSurfaceName.put(equity, perEquityConfig[i + 3]);
-      _equityToSurfaceInterpolatorName.put(equity, perEquityConfig[i + 4]);
-      _equityToForwardCurveName.put(equity, perEquityConfig[i + 5]);
-      _equityToForwardCurveCalculationMethodName.put(equity, perEquityConfig[i + 6]);
+      "and forward curve calculation method per id");
+    _idToDiscountingCurveName = Maps.newHashMap();
+    _idToDiscountingCurveConfig = Maps.newHashMap();
+    _idToSurfaceName = Maps.newHashMap();
+    _idToSurfaceInterpolatorName = Maps.newHashMap();
+    _idToForwardCurveName = Maps.newHashMap();
+    _idToForwardCurveCalculationMethodName = Maps.newHashMap();
+    for (int i = 0; i < perIdConfig.length; i += 7) {
+      final String id = perIdConfig[i].toUpperCase();
+      _idToDiscountingCurveName.put(id, perIdConfig[i + 1]);
+      _idToDiscountingCurveConfig.put(id, perIdConfig[i + 2]);
+      _idToSurfaceName.put(id, perIdConfig[i + 3]);
+      _idToSurfaceInterpolatorName.put(id, perIdConfig[i + 4]);
+      _idToForwardCurveName.put(id, perIdConfig[i + 5]);
+      _idToForwardCurveCalculationMethodName.put(id, perIdConfig[i + 6]);
     }
   }
 
@@ -111,8 +110,8 @@ public class EquityOptionInterpolatedBlackLognormalDefaults extends DefaultPrope
     if (!((eqSec instanceof EquityIndexOptionSecurity) || (eqSec instanceof EquityBarrierOptionSecurity) || (eqSec instanceof EquityOptionSecurity))) {
       return false;
     }
-    final String equity = EquitySecurityUtils.getIndexOrEquityName(eqSec);
-    return _equityToDiscountingCurveName.containsKey(equity);
+    final String id = getId(eqSec);
+    return _idToDiscountingCurveName.containsKey(id);
   }
 
   @Override
@@ -135,28 +134,28 @@ public class EquityOptionInterpolatedBlackLognormalDefaults extends DefaultPrope
         return null;
       }
     }
-    final String equity = EquitySecurityUtils.getIndexOrEquityName(target.getSecurity());
-    if (!_equityToDiscountingCurveConfig.containsKey(equity)) {
-      s_logger.error("Could not find defaults for {}", equity);
+    final String id = getId(target.getSecurity());
+    if (!_idToDiscountingCurveConfig.containsKey(id)) {
+      s_logger.error("Could not find defaults for {}", id);
       return null;
     }
     if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG.equals(propertyName)) {
-      return Collections.singleton(_equityToDiscountingCurveConfig.get(equity));
+      return Collections.singleton(_idToDiscountingCurveConfig.get(id));
     }
     if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME.equals(propertyName)) {
-      return Collections.singleton(_equityToDiscountingCurveName.get(equity));
+      return Collections.singleton(_idToDiscountingCurveName.get(id));
     }
     if (EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME.equals(propertyName)) {
-      return Collections.singleton(_equityToForwardCurveName.get(equity));
+      return Collections.singleton(_idToForwardCurveName.get(id));
     }
     if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_equityToForwardCurveCalculationMethodName.get(equity));
+      return Collections.singleton(_idToForwardCurveCalculationMethodName.get(id));
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_equityToSurfaceName.get(equity));
+      return Collections.singleton(_idToSurfaceName.get(id));
     }
     if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_equityToSurfaceInterpolatorName.get(equity));
+      return Collections.singleton(_idToSurfaceInterpolatorName.get(id));
     }
     s_logger.error("Cannot get a default value for {}", propertyName);
     return null;
@@ -171,4 +170,17 @@ public class EquityOptionInterpolatedBlackLognormalDefaults extends DefaultPrope
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.EQUITY_OPTION_INTERPOLATED_BLACK_LOGNORMAL_DEFAULTS;
   }
+
+  /**
+   * @return All ids for which a default is available
+   */
+  protected Set<String> getAllIds() {
+    return _idToDiscountingCurveConfig.keySet();
+  }
+
+  /**
+   * @param security The security
+   * @return The id for the security
+   */
+  protected abstract String getId(Security security);
 }

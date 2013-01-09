@@ -396,4 +396,5 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
    * @return The model type
    */
   protected abstract String getModelType();
+
 }
