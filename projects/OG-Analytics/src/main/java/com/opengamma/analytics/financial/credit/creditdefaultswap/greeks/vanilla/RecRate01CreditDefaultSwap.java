@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanill
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.RecoveryRateBumpType;
+import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy.CalibrateHazardRateCurveLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;

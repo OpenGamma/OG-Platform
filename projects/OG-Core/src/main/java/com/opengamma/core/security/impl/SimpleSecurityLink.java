@@ -210,7 +210,6 @@ public class SimpleSecurityLink extends AbstractLink<Security>
    * The meta-bean for {@code SimpleSecurityLink}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static SimpleSecurityLink.Meta meta() {
     return SimpleSecurityLink.Meta.INSTANCE;
   }

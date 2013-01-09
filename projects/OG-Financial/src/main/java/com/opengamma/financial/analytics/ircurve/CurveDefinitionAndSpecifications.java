@@ -585,6 +585,35 @@ public class CurveDefinitionAndSpecifications {
     definitions.put("Discounting", discountingDefinitions);
     return definitions;
   }
+  
+  public static Map<String, Map<Currency, YieldCurveDefinition>> buildNewBbgCurveDefinitions() {
+    final Map<Currency, YieldCurveDefinition> forward3MDefinitions = new HashMap<Currency, YieldCurveDefinition>();
+    final Map<Currency, YieldCurveDefinition> forward6MDefinitions = new HashMap<Currency, YieldCurveDefinition>();
+    final Map<Currency, YieldCurveDefinition> discountingDefinitions = new HashMap<Currency, YieldCurveDefinition>();
+    forward3MDefinitions.put(Currency.USD, buildUSDThreeMonthForwardCurveDefinition());
+    discountingDefinitions.put(Currency.USD, buildUSDFundingCurveDefinition());
+    forward6MDefinitions.put(Currency.EUR, buildEURSixMonthForwardCurveDefinition());
+    discountingDefinitions.put(Currency.EUR, buildEURFundingCurveDefinition());
+    forward6MDefinitions.put(Currency.GBP, buildGBPSixMonthForwardCurveDefinition());
+    discountingDefinitions.put(Currency.GBP, buildGBPFundingCurveDefinition());
+    forward6MDefinitions.put(Currency.JPY, buildJPYSixMonthForwardCurveDefinition());
+    discountingDefinitions.put(Currency.JPY, buildJPYFundingCurveDefinition());
+    forward6MDefinitions.put(Currency.CHF, buildCHFSixMonthForwardCurveDefinition());
+    discountingDefinitions.put(Currency.CHF, buildCHFFundingCurveDefinition());
+    forward6MDefinitions.put(Currency.CAD, buildCADSixMonthForwardCurveDefinition());
+    discountingDefinitions.put(Currency.CAD, buildCADFundingCurveDefinition());
+    forward6MDefinitions.put(Currency.AUD, buildAUDSixMonthForwardCurveDefinition());
+    discountingDefinitions.put(Currency.AUD, buildAUDFundingCurveDefinition());
+    forward3MDefinitions.put(Currency.NZD, buildNZDThreeMonthForwardCurveDefinition());
+    discountingDefinitions.put(Currency.NZD, buildNZDFundingCurveDefinition());
+    forward6MDefinitions.put(Currency.DKK, buildDKKSixMonthForwardCurveDefinition());
+    discountingDefinitions.put(Currency.DKK, buildDKKFundingCurveDefinition());
+    final Map<String, Map<Currency, YieldCurveDefinition>> definitions = new HashMap<String, Map<Currency, YieldCurveDefinition>>();
+    definitions.put("Forward3M", forward3MDefinitions);
+    definitions.put("Forward6M", forward6MDefinitions);
+    definitions.put("Discounting", discountingDefinitions);
+    return definitions;
+  }
 
   /**
    * @deprecated Use buildNewCurveDefinitions

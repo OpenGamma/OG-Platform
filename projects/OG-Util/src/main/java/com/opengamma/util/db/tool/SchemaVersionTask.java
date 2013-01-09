@@ -76,12 +76,8 @@ public class SchemaVersionTask extends Task {
           f.delete();
         }
         f.createNewFile();
-        final FileOutputStream fos = new FileOutputStream(f);
-        final OutputStreamWriter out = new OutputStreamWriter(fos);
-        try {
+        try (OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(f))) {
           out.write(Integer.toString(latestVersion));
-        } finally {
-          out.close();
         }
         System.out.println("Written version " + latestVersion + " to " + f.getAbsolutePath());
       } catch (Exception e) {
@@ -89,4 +85,5 @@ public class SchemaVersionTask extends Task {
       }
     }
   }
+
 }

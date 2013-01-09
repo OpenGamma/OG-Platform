@@ -21,6 +21,7 @@ import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.portfolio.ManageablePortfolio;
+import javax.time.calendar.TimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;

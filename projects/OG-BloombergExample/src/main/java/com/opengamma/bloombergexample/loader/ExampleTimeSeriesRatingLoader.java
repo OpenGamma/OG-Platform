@@ -56,7 +56,7 @@ public class ExampleTimeSeriesRatingLoader extends AbstractTool<IntegrationToolC
     List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>();
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 2));
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, 1));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPL", 2));
+    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "UNKNOWN", 2));
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, 1));
     HistoricalTimeSeriesRating ratingConfig = new HistoricalTimeSeriesRating(rules);
     ConfigItem<HistoricalTimeSeriesRating> configDoc = ConfigItem.of(ratingConfig, DEFAULT_CONFIG_NAME, HistoricalTimeSeriesRating.class);

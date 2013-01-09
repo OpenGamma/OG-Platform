@@ -29,6 +29,8 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 
+import com.google.common.collect.Maps;
+
 /**
  * Builder to convert DirectBean to and from Fudge.
  * 
@@ -213,7 +215,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
   private Map<Object, Object> buildObjectMap(FudgeDeserializer deserializer, MetaProperty<?> prop, Class<?> type, FudgeMsg msg) {
     Class<?> keyType = JodaBeanUtils.mapKeyType(prop, type);
     Class<?> valueType = JodaBeanUtils.mapValueType(prop, type);
-    Map<Object, Object> map = new HashMap<Object, Object>();  // should be Map<keyType,contentType>
+    Map<Object, Object> map = Maps.newHashMap();  // should be Map<keyType,contentType>
     Queue<Object> keys = new LinkedList<Object>();
     Queue<Object> values = new LinkedList<Object>();
     for (FudgeField field : msg) {

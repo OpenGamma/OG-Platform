@@ -108,10 +108,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   private ViewComputationJobDataProvider _marketDataProvider;
 
-  public ViewComputationJob(ViewProcessImpl viewProcess,
-                            ViewExecutionOptions executionOptions,
-                            ViewProcessContext processContext,
-                            EngineResourceManagerInternal<SingleComputationCycle> cycleManager) {
+  public ViewComputationJob(final ViewProcessImpl viewProcess,
+                            final ViewExecutionOptions executionOptions,
+                            final ViewProcessContext processContext,
+                            final EngineResourceManagerInternal<SingleComputationCycle> cycleManager) {
     ArgumentChecker.notNull(viewProcess, "viewProcess");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(processContext, "processContext");
@@ -128,8 +128,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     subscribeToViewDefinition();
   }
 
-  private ViewCycleTrigger createViewCycleTrigger(ViewExecutionOptions executionOptions) {
-    CombinedViewCycleTrigger trigger = new CombinedViewCycleTrigger();
+  private ViewCycleTrigger createViewCycleTrigger(final ViewExecutionOptions executionOptions) {
+    final CombinedViewCycleTrigger trigger = new CombinedViewCycleTrigger();
     trigger.addTrigger(_compilationExpiryCycleTrigger);
     if (executionOptions.getFlags().contains(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE)) {
       trigger.addTrigger(new RunAsFastAsPossibleTrigger());
@@ -185,7 +185,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     ViewCycleType cycleType;
     try {
       cycleType = waitForNextCycle();
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       return;
     }
 
@@ -200,7 +200,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         processCompleted();
         return;
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       s_logger.error("Error obtaining next view cycle execution options from sequence for view process " + getViewProcess(), e);
       return;
     }
@@ -225,7 +225,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
       // Obtain the snapshot in case it is needed, but don't explicitly initialise it until the data is required
       marketDataSnapshot = _marketDataProvider.snapshot();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       s_logger.error("Error with market data provider", e);
       cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error with market data provider", e));
       return;
@@ -244,18 +244,18 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
           throw new OpenGammaRuntimeException("Market data snapshot " + marketDataSnapshot + " produced a null indication of snapshot time");
         }
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       s_logger.error("Error obtaining compilation valuation time", e);
       cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error obtaining compilation valuation time", e));
       return;
     }
 
-    VersionCorrection versionCorrection = getResolvedVersionCorrection();
+    final VersionCorrection versionCorrection = getResolvedVersionCorrection();
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
     try {
       compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
-    } catch (Exception e) {
-      String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1} at version-correction {2}",
+    } catch (final Exception e) {
+      final String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1} at version-correction {2}",
           getViewProcess().getDefinitionId(), compilationValuationTime, versionCorrection);
       s_logger.error(message);
       cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException(message, e));
@@ -272,7 +272,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         executionOptions = new ViewCycleExecutionOptions(marketDataSnapshot.getSnapshotTime(),
                                                          executionOptions.getMarketDataSpecifications());
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       s_logger.error("Error initializing snapshot {}", marketDataSnapshot);
       cycleExecutionFailed(executionOptions, new OpenGammaRuntimeException("Error initializing snapshot" + marketDataSnapshot, e));
     }
@@ -280,7 +280,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     EngineResourceReference<SingleComputationCycle> cycleReference;
     try {
       cycleReference = createCycle(executionOptions, compiledViewDefinition, versionCorrection);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       s_logger.error("Error creating next view cycle for view process " + getViewProcess(), e);
       return;
     }
@@ -290,7 +290,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         final SingleComputationCycle singleComputationCycle = cycleReference.get();
         final HashMap<String, Collection<ComputationTargetSpecification>> configToComputationTargets = new HashMap<String, Collection<ComputationTargetSpecification>>();
         final HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>> configToTerminalOutputs = new HashMap<String, Map<ValueSpecification, Set<ValueRequirement>>>();
-        for (DependencyGraph graph : compiledViewDefinition.getAllDependencyGraphs()) {
+        for (final DependencyGraph graph : compiledViewDefinition.getAllDependencyGraphs()) {
           configToComputationTargets.put(graph.getCalculationConfigurationName(), graph.getAllComputationTargets());
           configToTerminalOutputs.put(graph.getCalculationConfigurationName(), graph.getTerminalOutputs());
         }
@@ -304,12 +304,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
             configToComputationTargets,
             configToTerminalOutputs));
         executeViewCycle(cycleType, cycleReference, marketDataSnapshot);
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         // Execution interrupted - don't propagate as failure
         s_logger.info("View cycle execution interrupted for view process {}", getViewProcess());
         cycleReference.release();
         return;
-      } catch (Exception e) {
+      } catch (final Exception e) {
         // Execution failed
         s_logger.error("View cycle execution failed for view process " + getViewProcess(), e);
         cycleReference.release();
@@ -341,58 +341,58 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
-  private void cycleCompleted(ViewCycle cycle) {
+  private void cycleCompleted(final ViewCycle cycle) {
     try {
       getViewProcess().cycleCompleted(cycle);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle completion", e);
     }
   }
 
-  private void cycleStarted(ViewCycleMetadata cycleMetadata) {
+  private void cycleStarted(final ViewCycleMetadata cycleMetadata) {
     try {
       getViewProcess().cycleStarted(cycleMetadata);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle starting", e);
     }
   }
 
-  private void cycleFragmentCompleted(ViewComputationResultModel result) {
+  private void cycleFragmentCompleted(final ViewComputationResultModel result) {
     try {
       getViewProcess().cycleFragmentCompleted(result, _viewDefinition);
-    } catch (Exception e) {
+    } catch (final Exception e) {
       s_logger.error("Error notifying view process " + getViewProcess() + " of cycle fragment completion", e);
     }
   }
 
-  private void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
+  private void cycleExecutionFailed(final ViewCycleExecutionOptions executionOptions, final Exception exception) {
     try {
       getViewProcess().cycleExecutionFailed(executionOptions, exception);
-    } catch (Exception vpe) {
+    } catch (final Exception vpe) {
       s_logger.error("Error notifying the view process " + getViewProcess() + " of the cycle execution error", vpe);
     }
   }
 
-  private void viewDefinitionCompiled(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
+  private void viewDefinitionCompiled(final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
     try {
       getViewProcess().viewDefinitionCompiled(compiledViewDefinition, _marketDataProvider.getPermissionProvider());
-    } catch (Exception vpe) {
+    } catch (final Exception vpe) {
       s_logger.error("Error notifying view process " + getViewProcess() + " of view definition compilation");
     }
   }
 
-  private void viewDefinitionCompilationFailed(Instant compilationTime, Exception e) {
+  private void viewDefinitionCompilationFailed(final Instant compilationTime, final Exception e) {
     try {
       getViewProcess().viewDefinitionCompilationFailed(compilationTime, e);
-    } catch (Exception vpe) {
+    } catch (final Exception vpe) {
       s_logger.error("Error notifying the view process " + getViewProcess() + " of the view definition compilation failure", vpe);
     }
   }
 
   private synchronized ViewCycleType waitForNextCycle() throws InterruptedException {
     while (true) {
-      long currentTimeNanos = System.nanoTime();
-      ViewCycleTriggerResult triggerResult = getMasterCycleTrigger().query(currentTimeNanos);
+      final long currentTimeNanos = System.nanoTime();
+      final ViewCycleTriggerResult triggerResult = getMasterCycleTrigger().query(currentTimeNanos);
 
       ViewCycleEligibility cycleEligibility = triggerResult.getCycleEligibility();
       if (_forceTriggerCycle) {
@@ -408,7 +408,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         }
         try {
           getMasterCycleTrigger().cycleTriggered(currentTimeNanos, cycleType);
-        } catch (Exception e) {
+        } catch (final Exception e) {
           s_logger.error("Error notifying trigger of intention to execute cycle", e);
         }
         s_logger.debug("Eligible for {} cycle", cycleType);
@@ -416,7 +416,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       }
 
       // Going to sleep
-      long wakeUpTime = triggerResult.getNextStateChangeNanos();
+      final long wakeUpTime = triggerResult.getNextStateChangeNanos();
       if (_marketDataChanged) {
         s_logger.debug("Sleeping until eligible to perform the next computation cycle");
         // No amount of market data can make us eligible for a computation cycle any sooner.
@@ -429,12 +429,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       long sleepTime = wakeUpTime - currentTimeNanos;
       sleepTime = Math.max(0, sleepTime);
       sleepTime /= NANOS_PER_MILLISECOND;
-      sleepTime += 1; // Could have been rounded down during division so ensure only woken after state change 
+      sleepTime += 1; // Could have been rounded down during division so ensure only woken after state change
       s_logger.debug("Waiting for {} ms", sleepTime);
       try {
         // This could wait until end of time. In this case, only marketDataChanged() or triggerCycle() will wake it up
         wait(sleepTime);
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         // We support interruption as a signal that we have been terminated. If we're interrupted without having been
         // terminated, we'll just return to this method and go back to sleep.
         Thread.interrupted();
@@ -444,9 +444,9 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
-  private void executeViewCycle(ViewCycleType cycleType,
-                                EngineResourceReference<SingleComputationCycle> cycleReference,
-                                MarketDataSnapshot marketDataSnapshot) throws Exception {
+  private void executeViewCycle(final ViewCycleType cycleType,
+                                final EngineResourceReference<SingleComputationCycle> cycleReference,
+                                final MarketDataSnapshot marketDataSnapshot) throws Exception {
     SingleComputationCycle deltaCycle;
     if (cycleType == ViewCycleType.FULL) {
       s_logger.info("Performing full computation");
@@ -462,19 +462,19 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
     try {
       cycleReference.get().execute(deltaCycle, marketDataSnapshot, _calcJobResultExecutor);
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       Thread.interrupted();
       // In reality this means that the job has been terminated, and it will end as soon as we return from this method.
       // In case the thread has been interrupted without terminating the job, we tidy everything up as if the
       // interrupted cycle never happened so that deltas will be calculated from the previous cycle.
       s_logger.info("Interrupted while executing a computation cycle. No results will be output from this cycle.");
       throw e;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       s_logger.error("Error while executing view cycle", e);
       throw e;
     }
 
-    long durationNanos = cycleReference.get().getDuration().toNanosLong();
+    final long durationNanos = cycleReference.get().getDuration().toNanosLong();
     _totalTimeNanos += durationNanos;
     _cycleCount += 1;
     s_logger.info("Last latency was {} ms, Average latency is {} ms",
@@ -505,7 +505,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     s_logger.info("Computation job completed for view process {}", getViewProcess());
     try {
       getViewProcess().processCompleted();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       s_logger.error("Error notifying view process " + getViewProcess() + " of computation job completion", e);
     }
     terminate();
@@ -549,36 +549,36 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   //-------------------------------------------------------------------------
-  private EngineResourceReference<SingleComputationCycle> createCycle(ViewCycleExecutionOptions executionOptions,
-      CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, VersionCorrection versionCorrection) {
+  private EngineResourceReference<SingleComputationCycle> createCycle(final ViewCycleExecutionOptions executionOptions,
+      final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, final VersionCorrection versionCorrection) {
     // View definition was compiled based on compilation options, which might have only included an indicative
     // valuation time. A further check ensures that the compiled view definition is still valid.
     if (!compiledViewDefinition.isValidFor(executionOptions.getValuationTime())) {
       throw new OpenGammaRuntimeException("Compiled view definition " + compiledViewDefinition + " not valid for execution options " + executionOptions);
     }
-    UniqueId cycleId = getViewProcess().generateCycleId();
+    final UniqueId cycleId = getViewProcess().generateCycleId();
 
-    ComputationResultListener streamingResultListener = new ComputationResultListener() {
+    final ComputationResultListener streamingResultListener = new ComputationResultListener() {
       @Override
-      public void resultAvailable(ViewComputationResultModel result) {
+      public void resultAvailable(final ViewComputationResultModel result) {
         cycleFragmentCompleted(result);
       }
     };
-    SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(),
+    final SingleComputationCycle cycle = new SingleComputationCycle(cycleId, getViewProcess().getUniqueId(),
         streamingResultListener, getProcessContext(), compiledViewDefinition, executionOptions, getViewProcess().getExecutionLogModeSource(), versionCorrection);
     return getCycleManager().manage(cycle);
   }
 
   private VersionCorrection getResolvedVersionCorrection() {
-    VersionCorrection versionCorrection = getExecutionOptions().getVersionCorrection();
+    final VersionCorrection versionCorrection = getExecutionOptions().getVersionCorrection();
     if (!versionCorrection.containsLatest()) {
       return versionCorrection;
     }
     return versionCorrection.withLatestFixed(Instant.now());
   }
 
-  private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(Instant valuationTime, VersionCorrection versionCorrection) {
-    long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
+  private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(final Instant valuationTime, final VersionCorrection versionCorrection) {
+    final long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
     updateViewDefinitionIfRequired();
     if (_compilationDirty) {
@@ -594,8 +594,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
 
     try {
-      MarketDataAvailabilityProvider availabilityProvider = _marketDataProvider.getAvailabilityProvider();
-      ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
+      final MarketDataAvailabilityProvider availabilityProvider = _marketDataProvider.getAvailabilityProvider();
+      final ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
       _compilationTask = ViewDefinitionCompiler.compileTask(_viewDefinition, compilationServices, valuationTime, versionCorrection);
       try {
         if (!isTerminated()) {
@@ -606,8 +606,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       } finally {
         _compilationTask = null;
       }
-    } catch (Exception e) {
-      String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewProcess().getDefinitionId(), valuationTime);
+    } catch (final Exception e) {
+      final String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewProcess().getDefinitionId(), valuationTime);
       viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));
       throw new OpenGammaRuntimeException(message, e);
     }
@@ -618,8 +618,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     // cycle. In the predicted case, we trigger a cycle on expiry so that any new market data subscriptions are made
     // straight away.
     if (compiledViewDefinition.getValidTo() != null) {
-      Duration durationToExpiry = _marketDataProvider.getRealTimeDuration(valuationTime, compiledViewDefinition.getValidTo());
-      long expiryNanos = System.nanoTime() + durationToExpiry.toNanosLong();
+      final Duration durationToExpiry = _marketDataProvider.getRealTimeDuration(valuationTime, compiledViewDefinition.getValidTo());
+      final long expiryNanos = System.nanoTime() + durationToExpiry.toNanosLong();
       _compilationExpiryCycleTrigger.set(expiryNanos, ViewCycleTriggerResult.forceFull());
     } else {
       _compilationExpiryCycleTrigger.reset();
@@ -631,7 +631,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     // otherwise there's there possibility that a provider will
 
     // Notify the view that a (re)compilation has taken place before going on to do any time-consuming work.
-    // This might contain enough for clients to e.g. render an empty grid in which results will later appear. 
+    // This might contain enough for clients to e.g. render an empty grid in which results will later appear.
     viewDefinitionCompiled(compiledViewDefinition);
 
     // Update the market data subscriptions to whatever is now required, ensuring the computation cycle can find the
@@ -644,7 +644,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    * Gets the cached compiled view definition which may be re-used in subsequent computation cycles.
    * <p>
    * External visibility for tests.
-   * 
+   *
    * @return the cached compiled view definition, or null if nothing is currently cached
    */
   public CompiledViewDefinitionWithGraphsImpl getCachedCompiledViewDefinition() {
@@ -659,16 +659,16 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
    * Replaces the cached compiled view definition.
    * <p>
    * External visibility for tests.
-   * 
+   *
    * @param latestCompiledViewDefinition the compiled view definition, may be null
    */
-  public void setCachedCompiledViewDefinition(CompiledViewDefinitionWithGraphsImpl latestCompiledViewDefinition) {
+  public void setCachedCompiledViewDefinition(final CompiledViewDefinitionWithGraphsImpl latestCompiledViewDefinition) {
     _latestCompiledViewDefinition = latestCompiledViewDefinition;
   }
 
   /**
    * Gets the view definition currently in use by the computation job.
-   * 
+   *
    * @return the view definition, not null
    */
   public ViewDefinition getViewDefinition() {
@@ -703,7 +703,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   }
 
   //-------------------------------------------------------------------------
-  private void replaceMarketDataProvider(List<MarketDataSpecification> marketDataSpecs) {
+  private void replaceMarketDataProvider(final List<MarketDataSpecification> marketDataSpecs) {
     removeMarketDataProvider();
     // A different market data provider may change the availability of market data, altering the dependency graph
     invalidateCachedCompiledViewDefinition();
@@ -719,12 +719,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _marketDataProvider = null;
   }
 
-  private void setMarketDataProvider(List<MarketDataSpecification> marketDataSpecs) {
+  private void setMarketDataProvider(final List<MarketDataSpecification> marketDataSpecs) {
     try {
       _marketDataProvider = new ViewComputationJobDataProvider(_viewDefinition.getMarketDataUser(),
                                                                marketDataSpecs,
                                                                _processContext.getMarketDataProviderResolver());
-    } catch (Exception e) {
+    } catch (final Exception e) {
       s_logger.error("Failed to create data provider", e);
       _marketDataProvider = null;
     }
@@ -756,13 +756,13 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _marketDataSubscriptions.addAll(requiredSubscriptions);
     try {
       if (!_pendingSubscriptionLatch.await(MARKET_DATA_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
-        long remainingCount = _pendingSubscriptionLatch.getCount();
+        final long remainingCount = _pendingSubscriptionLatch.getCount();
         s_logger.warn("Timed out after {} ms waiting for market data subscriptions to be made. The market data " +
             "snapshot used in the computation cycle could be incomplete. Still waiting for {} out of {} market data " +
             "subscriptions",
             new Object[] {MARKET_DATA_TIMEOUT_MILLIS, remainingCount, _marketDataSubscriptions.size() });
       }
-    } catch (InterruptedException ex) {
+    } catch (final InterruptedException ex) {
       s_logger.info("Interrupted while waiting for subscription results.");
     } finally {
       _pendingSubscriptions.clear();
@@ -771,8 +771,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     timer.finished();
   }
 
-  private void removePendingSubscription(ValueRequirement requirement) {
-    CountDownLatch pendingSubscriptionLatch = _pendingSubscriptionLatch;
+  private void removePendingSubscription(final ValueRequirement requirement) {
+    final CountDownLatch pendingSubscriptionLatch = _pendingSubscriptionLatch;
     if (_pendingSubscriptions.remove(requirement) && pendingSubscriptionLatch != null) {
       pendingSubscriptionLatch.countDown();
     }
@@ -791,32 +791,32 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   //-------------------------------------------------------------------------
   @Override
-  public void subscriptionSucceeded(ValueRequirement requirement) {
+  public void subscriptionSucceeded(final ValueRequirement requirement) {
     s_logger.debug("Subscription succeeded: {}", requirement);
     removePendingSubscription(requirement);
   }
 
   @Override
-  public void subscriptionFailed(ValueRequirement requirement, String msg) {
+  public void subscriptionFailed(final ValueRequirement requirement, final String msg) {
     s_logger.debug("Market data subscription to {} failed. This market data may be missing from computation cycles.", requirement);
     removePendingSubscription(requirement);
   }
 
   @Override
-  public void subscriptionStopped(ValueRequirement requirement) {
+  public void subscriptionStopped(final ValueRequirement requirement) {
   }
 
   @Override
-  public void valuesChanged(Collection<ValueRequirement> values) {
+  public void valuesChanged(final Collection<ValueRequirement> values) {
     if (!getExecutionOptions().getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED)) {
       return;
     }
 
-    CompiledViewDefinitionWithGraphsImpl compiledView = getCachedCompiledViewDefinition();
+    final CompiledViewDefinitionWithGraphsImpl compiledView = getCachedCompiledViewDefinition();
     if (compiledView == null) {
       return;
     }
-    //Since this happens for every tick, for every job, we need to use the quick call here 
+    //Since this happens for every tick, for every job, we need to use the quick call here
     if (compiledView.hasAnyMarketDataRequirements(values)) {
       marketDataChanged();
     }

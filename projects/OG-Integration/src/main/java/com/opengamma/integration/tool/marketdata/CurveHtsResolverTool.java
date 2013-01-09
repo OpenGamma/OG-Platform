@@ -68,7 +68,7 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
   private static final String TIME_SERIES_DATAPROVIDER_OPT = "p";
   /** Time series data field option flag*/
   private static final String TIME_SERIES_DATAFIELD_OPT = "d";
-  
+
   //-------------------------------------------------------------------------
 
   /**
@@ -77,7 +77,7 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
    *
    * @param args  the arguments, unused
    */
-  public static void main(String[] args) {  // CSIGNORE
+  public static void main(final String[] args) {  // CSIGNORE
     new CurveHtsResolverTool().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
   }
@@ -86,54 +86,54 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
   @SuppressWarnings("unchecked")
   @Override
   protected void doRun() {
-    
+
     Set<ExternalId> curveNodesExternalIds;
 
     Set<ExternalId> initialRateExternalIds;
-        
-    ConfigSource configSource = getToolContext().getConfigSource();
-    ConfigMaster configMaster = getToolContext().getConfigMaster();
+
+    final ConfigSource configSource = getToolContext().getConfigSource();
+    final ConfigMaster configMaster = getToolContext().getConfigMaster();
 
     // Find all matching curves
-    List<YieldCurveDefinition> curves = getCurveDefinitionNames(configMaster, getCommandLine().getOptionValue(CURVE_NAME_OPT));
+    final List<YieldCurveDefinition> curves = getCurveDefinitionNames(configMaster, getCommandLine().getOptionValue(CURVE_NAME_OPT));
 
     // Get initial rate hts external ids for curves
-    Set<Currency> currencies = newHashSet();
-    for (YieldCurveDefinition curve : curves) {
+    final Set<Currency> currencies = newHashSet();
+    for (final YieldCurveDefinition curve : curves) {
       currencies.add(curve.getCurrency());
     }
     initialRateExternalIds = getInitialRateExternalIds(currencies);
 
     // Get all other required hts external ids for curves
-    List<LocalDate> dates = buildDates();
-    Set<String> curveNames = map(new HashSet<String>(), curves, new Function1<YieldCurveDefinition, String>() {
+    final List<LocalDate> dates = buildDates();
+    final Set<String> curveNames = map(new HashSet<String>(), curves, new Function1<YieldCurveDefinition, String>() {
       @Override
-      public String execute(YieldCurveDefinition yieldCurveDefinition) {
+      public String execute(final YieldCurveDefinition yieldCurveDefinition) {
         return yieldCurveDefinition.getName() + "_" + yieldCurveDefinition.getCurrency().getCode();
       }
     });
     curveNodesExternalIds = getCurveRequiredExternalIds(configSource, curveNames, dates);
-    
+
     // Load the required time series
     loadHistoricalData(
         getCommandLine().hasOption(WRITE_OPT),
         getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT) == null ? new String[] {"PX_LAST"} : getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT),
         getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT) == null ? "CMPL" : getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT),
-        initialRateExternalIds, 
+        initialRateExternalIds,
         curveNodesExternalIds);
   }
 
-  private Set<ExternalId> getInitialRateExternalIds(Set<Currency> currencies) {
-    ConventionBundleMaster cbm = new InMemoryConventionBundleMaster();
-    DefaultConventionBundleSource cbs = new DefaultConventionBundleSource(cbm);
-    Set<ExternalId> externalInitialRateId = newHashSet();
-    for (Currency currency : currencies) {
-      for (String swapType : new String[]{"SWAP", "3M_SWAP", "6M_SWAP"}) {
-        String product = currency.getCode() + "_" + swapType;
-        ConventionBundle convention = cbs.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, product));
+  private Set<ExternalId> getInitialRateExternalIds(final Set<Currency> currencies) {
+    final ConventionBundleMaster cbm = new InMemoryConventionBundleMaster();
+    final DefaultConventionBundleSource cbs = new DefaultConventionBundleSource(cbm);
+    final Set<ExternalId> externalInitialRateId = newHashSet();
+    for (final Currency currency : currencies) {
+      for (final String swapType : new String[]{"SWAP", "3M_SWAP", "6M_SWAP"}) {
+        final String product = currency.getCode() + "_" + swapType;
+        final ConventionBundle convention = cbs.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, product));
         if (convention != null) {
-          ExternalId initialRate = convention.getSwapFloatingLegInitialRate();
-          ConventionBundle realIdConvention = cbs.getConventionBundle(initialRate);
+          final ExternalId initialRate = convention.getSwapFloatingLegInitialRate();
+          final ConventionBundle realIdConvention = cbs.getConventionBundle(initialRate);
           if (realIdConvention != null) {
             externalInitialRateId.add(realIdConvention.getIdentifiers().getExternalId(ExternalSchemes.BLOOMBERG_TICKER));
           } else {
@@ -152,10 +152,10 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
    * @return list of dates
    */
   private List<LocalDate> buildDates() {
-    Clock clock = Clock.systemDefaultZone();
-    List<LocalDate> dates = new ArrayList<LocalDate>();
-    LocalDate twoYearsAgo = clock.today().minusYears(2);
-    LocalDate twoYearsTime = clock.today().plusYears(2);
+    final Clock clock = Clock.systemDefaultZone();
+    final List<LocalDate> dates = new ArrayList<LocalDate>();
+    final LocalDate twoYearsAgo = clock.today().minusYears(2);
+    final LocalDate twoYearsTime = clock.today().plusYears(2);
     for (LocalDate next = twoYearsAgo; next.isBefore(twoYearsTime); next = next.plusMonths(3)) {
       dates.add(next);
     }
@@ -168,11 +168,11 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
    * @param nameExpr glob type expression - e.g. blah*
    * @return list of names of config objects matching glob expression
    */
-  private List<YieldCurveDefinition> getCurveDefinitionNames(ConfigMaster configMaster, String nameExpr) {
-    List<YieldCurveDefinition> results = new ArrayList<YieldCurveDefinition>();
-    ConfigSearchRequest<YieldCurveDefinition> request = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
+  private List<YieldCurveDefinition> getCurveDefinitionNames(final ConfigMaster configMaster, final String nameExpr) {
+    final List<YieldCurveDefinition> results = new ArrayList<YieldCurveDefinition>();
+    final ConfigSearchRequest<YieldCurveDefinition> request = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
     request.setName(nameExpr);
-    for (ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, request)) {
+    for (final ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, request)) {
       results.add((YieldCurveDefinition) doc.getConfig().getValue());
     }
     return results;
@@ -185,23 +185,22 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
    * @param dates
    * @return list of all ids required by curves
    */
-  private Set<ExternalId> getCurveRequiredExternalIds(ConfigSource configSource, Collection<String> names, List<LocalDate> dates) {
-    Set<ExternalId> externalIds = newHashSet();
-    for (String name : names) {
+  private Set<ExternalId> getCurveRequiredExternalIds(final ConfigSource configSource, final Collection<String> names, final List<LocalDate> dates) {
+    final Set<ExternalId> externalIds = newHashSet();
+    for (final String name : names) {
       s_logger.info("Processing curve " + name);
-      ConfigItem<YieldCurveDefinition> curveDefinitionItem = configSource.get(YieldCurveDefinition.class, name, null);      
-      if (curveDefinitionItem != null) {
-        YieldCurveDefinition curveDefinition = curveDefinitionItem.getValue();
+      YieldCurveDefinition curveDefinition = configSource.getSingle(YieldCurveDefinition.class, name, null);
+      if (curveDefinition != null) {
         InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
         for (LocalDate date : dates) {
           s_logger.info("Processing curve date " + date);
           try {
-            InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
-            for (FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
+            final InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
+            for (final FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
               s_logger.info("Processing strip " + strip.getSecurity());
               externalIds.add(strip.getSecurity());
             }
-          } catch (Throwable t) {
+          } catch (final Throwable t) {
             s_logger.warn("Unable to build curve " + t.getMessage());
           }
         }
@@ -211,16 +210,16 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
     }
     return externalIds;
   }
-  
-  private void loadHistoricalData(boolean write, String[] dataFields, String dataProvider, Set<ExternalId>... externalIdSets) {
-    BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
+
+  private void loadHistoricalData(final boolean write, final String[] dataFields, final String dataProvider, final Set<ExternalId>... externalIdSets) {
+    final BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
       getToolContext().getHistoricalTimeSeriesProvider(),
       new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
 
-    for (Set<ExternalId> externalIds : externalIdSets) {
+    for (final Set<ExternalId> externalIds : externalIdSets) {
       if (externalIds.size() > 0) {
-        for (String dataField : dataFields) {
+        for (final String dataField : dataFields) {
           s_logger.info("Loading time series (field: " + dataField + ", provider: " + dataProvider + ") with external IDs " + externalIds);
           if (write) {
             loader.addTimeSeries(externalIds, dataProvider, dataField, LocalDate.now().minusYears(1), null);
@@ -231,30 +230,30 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
   }
 
   @Override
-  protected Options createOptions(boolean contextProvided) {
-    
-    Options options = super.createOptions(contextProvided);
-    
-    Option curveNameOption = new Option(
+  protected Options createOptions(final boolean contextProvided) {
+
+    final Options options = super.createOptions(contextProvided);
+
+    final Option curveNameOption = new Option(
         CURVE_NAME_OPT, "name", true, "The name of the yield curve definition for which to resolve time series");
     curveNameOption.setRequired(true);
     options.addOption(curveNameOption);
-    
-    Option writeOption = new Option(
-        WRITE_OPT, "write", false, 
+
+    final Option writeOption = new Option(
+        WRITE_OPT, "write", false,
         "Actually persists the time series to the database if specified, otherwise pretty-prints without persisting");
     options.addOption(writeOption);
- 
-    Option verboseOption = new Option(
-        VERBOSE_OPT, "verbose", false, 
+
+    final Option verboseOption = new Option(
+        VERBOSE_OPT, "verbose", false,
         "Displays progress messages on the terminal");
     options.addOption(verboseOption);
-   
-    Option timeSeriesDataProviderOption = new Option(
+
+    final Option timeSeriesDataProviderOption = new Option(
         TIME_SERIES_DATAPROVIDER_OPT, "provider", true, "The name of the time series data provider");
     options.addOption(timeSeriesDataProviderOption);
-    
-    Option timeSeriesDataFieldOption = new Option(
+
+    final Option timeSeriesDataFieldOption = new Option(
         TIME_SERIES_DATAFIELD_OPT, "field", true, "The name(s) of the time series data field(s)");
     options.addOption(timeSeriesDataFieldOption);
 

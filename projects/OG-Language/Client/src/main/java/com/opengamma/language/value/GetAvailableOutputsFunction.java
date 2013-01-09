@@ -59,7 +59,7 @@ public class GetAvailableOutputsFunction extends AbstractFunctionInvoker impleme
   }
 
   public GetAvailableOutputsFunction() {
-    this(new DefinitionAnnotater(ExpandComputedValuesFunction.class));
+    this(new DefinitionAnnotater(GetAvailableOutputsFunction.class));
   }
 
   public static AvailableOutputs invoke(final AvailableOutputsProvider provider, final UniqueId portfolio, final Integer nodeSample, final Integer positionSample, final Instant evaluationTime) {

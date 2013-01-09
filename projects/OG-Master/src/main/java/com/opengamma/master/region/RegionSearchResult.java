@@ -105,7 +105,6 @@ public class RegionSearchResult extends AbstractSearchResult<RegionDocument> {
    * The meta-bean for {@code RegionSearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static RegionSearchResult.Meta meta() {
     return RegionSearchResult.Meta.INSTANCE;
   }

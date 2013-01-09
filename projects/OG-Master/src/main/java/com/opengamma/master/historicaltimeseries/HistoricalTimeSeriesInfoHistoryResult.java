@@ -93,7 +93,6 @@ public class HistoricalTimeSeriesInfoHistoryResult extends AbstractHistoryResult
    * The meta-bean for {@code HistoricalTimeSeriesInfoHistoryResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static HistoricalTimeSeriesInfoHistoryResult.Meta meta() {
     return HistoricalTimeSeriesInfoHistoryResult.Meta.INSTANCE;
   }

@@ -54,7 +54,6 @@ public class DbPortfolioMasterFactoryBean extends AbstractDbMasterFactoryBean<Db
    * The meta-bean for {@code DbPortfolioMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbPortfolioMasterFactoryBean.Meta meta() {
     return DbPortfolioMasterFactoryBean.Meta.INSTANCE;
   }

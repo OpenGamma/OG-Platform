@@ -104,7 +104,6 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
    * The meta-bean for {@code HolidaySearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static HolidaySearchResult.Meta meta() {
     return HolidaySearchResult.Meta.INSTANCE;
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial;
@@ -15,6 +15,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
+import com.opengamma.financial.analytics.model.pnl.PnLRequirementsGatherer;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
@@ -38,6 +39,8 @@ public final class OpenGammaCompilationContext {
   private static final String CURVE_CALCULATION_CONFIG_NAME = "curveCalculationConfigurationSource";
   private static final String HISTORICAL_TIME_SERIES_SOURCE = "historicalTimeSeriesSource";
   private static final String HISTORICAL_TIME_SERIES_RESOLVER = "historicalTimeSeriesResolver";
+  private static final String PERMISSIVE_FLAG_NAME = "permissive";
+  private static final String PNL_REQUIREMENTS_GATHERER_NAME = "pnlRequirementsGatherer";
 
   /**
    * Restricted constructor.
@@ -190,11 +193,11 @@ public final class OpenGammaCompilationContext {
   public static void setCurveCalculationConfigSource(final FunctionCompilationContext compilationContext, final CurveCalculationConfigSource curveConfigSource) {
     set(compilationContext, CURVE_CALCULATION_CONFIG_NAME, curveConfigSource);
   }
-  
+
   public static HistoricalTimeSeriesSource getHistoricalTimeSeriesSource(final FunctionCompilationContext compilationContext) {
     return get(compilationContext, HISTORICAL_TIME_SERIES_SOURCE);
   }
-  
+
   public static void setHistoricalTimeSeriesSource(final FunctionCompilationContext compilationContext, final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
     set(compilationContext, HISTORICAL_TIME_SERIES_SOURCE, historicalTimeSeriesSource);
   }
@@ -205,6 +208,44 @@ public final class OpenGammaCompilationContext {
 
   public static void setHistoricalTimeSeriesResolver(final FunctionCompilationContext compilationContext, final HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
     set(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER, historicalTimeSeriesResolver);
+  }
+
+  /**
+   * Tests whether functions should allow more permissive constraints. Permissive behavior, if implemented by a function, will prefer to satisfy a constraint by assuming (possibly inappropriate)
+   * values rather than abandon the production. This increases the chance of a successful graph build for an inaccurately specified view but the graph may not be as the user intended/expected.
+   * <p>
+   * This flag is off by default.
+   *
+   * @param compilationContext the context to test, not null
+   * @return true if permissive behavior is enabled, false otherwise.
+   */
+  public static boolean isPermissive(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, PERMISSIVE_FLAG_NAME) != null;
+  }
+
+  /**
+   * Sets whether functions should allow more permissive constraints. Permissive behavior, if implemented by a function, will prefer to satisfy a constraint by assuming (possibly inappropriate) values
+   * rather than abandon the production. This increases the chance of a successful graph build for an inaccurately specified view but the graph may not be as the user intended/expected.
+   * <p>
+   * This flag is off by default.
+   *
+   * @param compilationContext the context to update, not null
+   * @param permissive true to enable permissive behavior, false to disable it
+   */
+  public static void setPermissive(final FunctionCompilationContext compilationContext, final boolean permissive) {
+    if (permissive) {
+      set(compilationContext, PERMISSIVE_FLAG_NAME, Boolean.TRUE);
+    } else {
+      compilationContext.remove(PERMISSIVE_FLAG_NAME);
+    }
+  }
+
+  public static PnLRequirementsGatherer getPnLRequirementsGatherer(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, PNL_REQUIREMENTS_GATHERER_NAME);
+  }
+
+  public static void setPnLRequirementsGatherer(final FunctionCompilationContext compilationContext, final PnLRequirementsGatherer pnlRequirementsGatherer) {
+    set(compilationContext, PNL_REQUIREMENTS_GATHERER_NAME, pnlRequirementsGatherer);
   }
 
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.util.rest;
@@ -20,6 +20,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.google.common.base.Supplier;
 import com.opengamma.transport.jaxrs.FudgeFieldContainerBrowser;
 
 /**
@@ -63,11 +64,15 @@ public class DataConfigurationResource extends AbstractDataResource {
   @SuppressWarnings("unchecked")
   private FudgeMsg mapToMessage(final FudgeSerializer serializer, final Map<?, ?> value) {
     final MutableFudgeMsg message = serializer.newMessage();
-    for (Map.Entry<Object, Object> config : ((Map<Object, Object>) value).entrySet()) {
-      if (config.getValue() instanceof Map) {
-        message.add(config.getKey().toString(), mapToMessage(serializer, (Map<?, ?>) config.getValue()));
+    for (final Map.Entry<Object, Object> config : ((Map<Object, Object>) value).entrySet()) {
+      Object configValue = config.getValue();
+      if (configValue instanceof Supplier) {
+        configValue = ((Supplier) configValue).get();
+      }
+      if (configValue instanceof Map) {
+        message.add(config.getKey().toString(), mapToMessage(serializer, (Map<?, ?>) configValue));
       } else {
-        serializer.addToMessage(message, config.getKey().toString(), null, config.getValue());
+        serializer.addToMessage(message, config.getKey().toString(), null, configValue);
       }
     }
     return message;
@@ -75,7 +80,7 @@ public class DataConfigurationResource extends AbstractDataResource {
 
   @GET
   public FudgeMsgEnvelope getResource() {
-    FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
     return new FudgeMsgEnvelope(mapToMessage(serializer, getResources()));
   }
 
@@ -89,7 +94,7 @@ public class DataConfigurationResource extends AbstractDataResource {
     if (object instanceof Map<?, ?>) {
       return new DataConfigurationResource(getFudgeContext(), (Map<String, Object>) object);
     } else {
-      FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
+      final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
       return new FudgeFieldContainerBrowser(serializer.objectToFudgeMsg(object));
     }
   }
@@ -97,14 +102,14 @@ public class DataConfigurationResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   /**
    * Builds a URI.
-   * 
+   *
    * @param baseUri  the base URI of this resource, not null
    * @param parts  the parts of the configuration, not null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, String... parts) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri);
-    for (String part : parts) {
+  public static URI uri(final URI baseUri, final String... parts) {
+    final UriBuilder bld = UriBuilder.fromUri(baseUri);
+    for (final String part : parts) {
       bld.path(part);
     }
     return bld.build();

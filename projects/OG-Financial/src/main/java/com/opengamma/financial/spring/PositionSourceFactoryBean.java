@@ -71,7 +71,6 @@ public class PositionSourceFactoryBean extends SpringFactoryBean<PositionSource>
    * The meta-bean for {@code PositionSourceFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static PositionSourceFactoryBean.Meta meta() {
     return PositionSourceFactoryBean.Meta.INSTANCE;
   }

@@ -131,7 +131,6 @@ public class SimpleRegionLink extends AbstractLink<Region>
    * The meta-bean for {@code SimpleRegionLink}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static SimpleRegionLink.Meta meta() {
     return SimpleRegionLink.Meta.INSTANCE;
   }

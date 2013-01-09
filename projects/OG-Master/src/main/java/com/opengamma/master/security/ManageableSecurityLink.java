@@ -260,7 +260,6 @@ public class ManageableSecurityLink extends AbstractLink<Security> implements Se
    * The meta-bean for {@code ManageableSecurityLink}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static ManageableSecurityLink.Meta meta() {
     return ManageableSecurityLink.Meta.INSTANCE;
   }

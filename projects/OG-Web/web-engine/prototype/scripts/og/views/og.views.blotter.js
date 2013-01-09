@@ -15,6 +15,11 @@ $.register_module({
 //                masthead.menu.set_tab(page_name);
                 if (!form) form = new og.analytics.form2();
                 $('.new_trade').css({display: 'inline-block'}).click(function (){new og.blotter.Dialog();});
+                $('.fxforward').click(function (){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164134"}).pipe(function(data){
+                        new og.blotter.Dialog(data);
+                    });
+                });
             },
             load_item: function (args) {},
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},

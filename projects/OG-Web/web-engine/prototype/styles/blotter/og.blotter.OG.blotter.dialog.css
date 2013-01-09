@@ -13,7 +13,7 @@
 }
 .OG-blotter-dialog select{
     width: 50%;
-} 
+}
 .OG-blotter-form-block .og-triple-cell div{
     width:96%;
 }
@@ -39,8 +39,13 @@
     display: inline-block;
 }
 .OG-blotter-form-block .og-double-cell label{
-    margin-left:10%;
+    margin-left:10%
 }
+
+.OG-blotter-form-block label input[type=radio] {
+    vertical-align: top;
+}
+
 .OG-blotter-form-block .og-double-cell span:last-child{
     width: 50%;
     padding-right: 0;

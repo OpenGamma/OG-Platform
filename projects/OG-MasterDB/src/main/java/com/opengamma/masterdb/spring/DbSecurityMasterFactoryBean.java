@@ -70,7 +70,6 @@ public class DbSecurityMasterFactoryBean extends AbstractDbMasterFactoryBean<DbS
    * The meta-bean for {@code DbSecurityMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbSecurityMasterFactoryBean.Meta meta() {
     return DbSecurityMasterFactoryBean.Meta.INSTANCE;
   }

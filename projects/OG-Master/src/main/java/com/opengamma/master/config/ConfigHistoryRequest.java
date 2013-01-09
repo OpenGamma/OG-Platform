@@ -94,11 +94,20 @@ public class ConfigHistoryRequest<T> extends AbstractHistoryRequest {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ConfigHistoryRequest}.
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("rawtypes")
+  public static ConfigHistoryRequest.Meta meta() {
+    return ConfigHistoryRequest.Meta.INSTANCE;
+  }
+  /**
+   * The meta-bean for {@code ConfigHistoryRequest}.
    * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R> ConfigHistoryRequest.Meta<R> meta() {
+  public static <R> ConfigHistoryRequest.Meta<R> metaConfigHistoryRequest(Class<R> cls) {
     return ConfigHistoryRequest.Meta.INSTANCE;
   }
   static {

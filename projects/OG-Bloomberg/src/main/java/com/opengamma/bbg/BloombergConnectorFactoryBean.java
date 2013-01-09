@@ -109,7 +109,6 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
    * The meta-bean for {@code BloombergConnectorFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static BloombergConnectorFactoryBean.Meta meta() {
     return BloombergConnectorFactoryBean.Meta.INSTANCE;
   }
