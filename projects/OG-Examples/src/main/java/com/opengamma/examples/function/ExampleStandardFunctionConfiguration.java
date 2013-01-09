@@ -74,6 +74,7 @@ import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePres
 import com.opengamma.financial.analytics.model.var.NormalHistoricalVaRDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults;
+import com.opengamma.financial.analytics.volatility.surface.Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -302,6 +303,12 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
         FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "USD", "DefaultTwoCurveUSDConfig", "SECONDARY"));
   }
 
+  private static void addSurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(ExampleEquityOptionVolatilitySurfaceDataFunction.class, "SECONDARY", "EQUITY_OPTION", "SECONDARY"));
+    functionConfigs.add(functionConfiguration(Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated.class, "SECONDARY", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator",
+        "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator"));
+  }
+
   private static void addVaRDefaults(final List<FunctionConfiguration> functionConfigs) {
     final String defaultSamplingPeriodName = "P2Y";
     final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
@@ -335,6 +342,7 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
     addPnLDefaults(functions);
     addPortfolioAnalysisDefaults(functions);
     addSABRDefaults(functions);
+    addSurfaceDefaults(functions);
     addVaRDefaults(functions);
     addYieldCurveDefaults(functions);
     functions.add(functionConfiguration(SimpleFuturePresentValueFunctionDeprecated.class, "SECONDARY"));
@@ -361,7 +369,7 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), pnlFunctions(), portfolioTheoryFunctions());
+    return new CombiningRepositoryConfigurationSource(super.createObject(), deprecatedFunctions(), sensitivitiesFunctions(), pnlFunctions(), portfolioTheoryFunctions());
   }
 
 }

@@ -108,6 +108,7 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.defaultp
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceSecurityDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceTradeDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.PureBlackVolatilitySurfaceDefaults;
+import com.opengamma.financial.analytics.volatility.surface.InterpolatedVolatilitySurfaceDefaultPropertiesFunction;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -447,6 +448,11 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
         "EUR", "DefaultTwoCurveEURConfig", "DEFAULT_PRICE"));
   }
 
+  private static void addInterpolatedVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(InterpolatedVolatilitySurfaceDefaultPropertiesFunction.class, "FlatExtrapolator", "FlatExtrapolator", "Linear", "FlatExtrapolator", "FlatExtrapolator",
+        "Linear"));
+  }
+
   private static void addLocalVolatilityPDEDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(ForwardPDEDefaults.class,
         "0.5", "100", "100", "5.0", "0.05", "1.5", "1.0", Interpolator1DFactory.DOUBLE_QUADRATIC));
@@ -602,6 +608,7 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
     addFXOptionBlackVolatilitySurfaceDefaults(functions);
     addInterestRateFutureDefaults(functions);
     addInterestRateFutureOptionDefaults(functions);
+    addInterpolatedVolatilitySurfaceDefaults(functions);
     addLocalVolatilityPDEDefaults(functions);
     addLocalVolatilitySurfaceDefaults(functions);
     addPnLDefaults(functions);
@@ -621,13 +628,9 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
     return PortfolioTheoryFunctions.calculators(getHtsResolutionKey());
   }
 
-  protected RepositoryConfigurationSource bloombergVolatilityCubeFunctions() {
-    return BloombergVolatilityCubeFunctions.instance();
-  }
-
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), pnlFunctions(), portfolioTheoryFunctions(), bloombergVolatilityCubeFunctions());
+    return new CombiningRepositoryConfigurationSource(super.createObject(), pnlFunctions(), portfolioTheoryFunctions());
   }
 
 }

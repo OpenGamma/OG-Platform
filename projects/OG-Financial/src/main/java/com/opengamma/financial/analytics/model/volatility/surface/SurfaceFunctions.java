@@ -20,7 +20,7 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
-   * 
+   *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
   public static RepositoryConfigurationSource instance() {
@@ -32,6 +32,11 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(BlackScholesMertonImpliedVolatilitySurfaceFunction.class));
     functions.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class));
     functions.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction.class));
+    functions.add(functionConfiguration(ForexStrangleRiskReversalVolatilitySurfaceFunction.class));
+    functions.add(functionConfiguration(ForexCallDeltaVolatilitySurfaceFunction.class));
+    functions.add(functionConfiguration(ForexFlatWithTermStructureVolatilitySurfaceFunction.class));
+    functions.add(functionConfiguration(ForexStrangleRiskReversalVolatilitySurfaceFunction.class));
+    functions.add(functionConfiguration(InterpolatedVolatilitySurfaceFunction.class));
   }
 
   protected RepositoryConfigurationSource blackFunctionConfiguration() {
