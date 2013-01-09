@@ -10,7 +10,7 @@ $.register_module({
             var constructor = this, form, ui = og.common.util.ui;
             if(config) {data = config; data.id = config.trade.uniqueId;}
             else {data = {security: {type: "FXForwardSecurity", name: "FXForwardSecurity ABC", 
-                regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.manageable_trade};}
+                regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};}
             constructor.load = function () {
                 constructor.title = 'FX Forward';
                 form = new og.common.util.ui.Form({
