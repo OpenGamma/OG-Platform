@@ -10,6 +10,7 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
@@ -23,6 +24,104 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
    */
   public static RepositoryConfigurationSource instance() {
     return new SurfaceFunctions().getObjectCreating();
+  }
+
+  public static RepositoryConfigurationSource defaults() {
+    final Defaults factory = new Defaults();
+    factory.afterPropertiesSet();
+    return factory.getObject();
+  }
+
+  public static RepositoryConfigurationSource defaults(final String leftXExtrapolatorName, final String rightXExtrapolatorName, final String xInterpolatorName, final String leftYExtrapolatorName,
+      final String rightYExtrapolatorName, final String yInterpolatorName) {
+    final Defaults factory = new Defaults();
+    factory.setLeftXExtrapolatorName(leftXExtrapolatorName);
+    factory.setRightXExtrapolatorName(rightXExtrapolatorName);
+    factory.setXInterpolatorName(xInterpolatorName);
+    factory.setLeftYExtrapolatorName(leftYExtrapolatorName);
+    factory.setRightYExtrapolatorName(rightYExtrapolatorName);
+    factory.setYInterpolatorName(yInterpolatorName);
+    factory.afterPropertiesSet();
+    return factory.getObject();
+  }
+
+  /**
+   * Function repository configuration source for the functions contained in this package and sub-packages.
+   */
+  public static class Defaults extends AbstractRepositoryConfigurationBean {
+
+    private String _leftXExtrapolatorName = "FlatExtrapolator";
+    private String _rightXExtrapolatorName = "FlatExtrapolator";
+    private String _xInterpolatorName = "Linear";
+    private String _leftYExtrapolatorName = "FlatExtrapolator";
+    private String _rightYExtrapolatorName = "FlatExtrapolator";
+    private String _yInterpolatorName = "Linear";
+
+    public String getLeftXExtrapolatorName() {
+      return _leftXExtrapolatorName;
+    }
+
+    public void setLeftXExtrapolatorName(final String leftXExtrapolatorName) {
+      _leftXExtrapolatorName = leftXExtrapolatorName;
+    }
+
+    public String getRightXExtrapolatorName() {
+      return _rightXExtrapolatorName;
+    }
+
+    public void setRightXExtrapolatorName(final String rightXExtrapolatorName) {
+      _rightXExtrapolatorName = rightXExtrapolatorName;
+    }
+
+    public String getXInterpolatorName() {
+      return _xInterpolatorName;
+    }
+
+    public void setXInterpolatorName(final String xInterpolatorName) {
+      _xInterpolatorName = xInterpolatorName;
+    }
+
+    public String getLeftYExtrapolatorName() {
+      return _leftYExtrapolatorName;
+    }
+
+    public void setLeftYExtrapolatorName(final String leftYExtrapolatorName) {
+      _leftYExtrapolatorName = leftYExtrapolatorName;
+    }
+
+    public String getRightYExtrapolatorName() {
+      return _rightYExtrapolatorName;
+    }
+
+    public void setRightYExtrapolatorName(final String rightYExtrapolatorName) {
+      _rightYExtrapolatorName = rightYExtrapolatorName;
+    }
+
+    public String getYInterpolatorName() {
+      return _yInterpolatorName;
+    }
+
+    public void setYInterpolatorName(final String yInterpolatorName) {
+      _yInterpolatorName = yInterpolatorName;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+      ArgumentChecker.notNull(getLeftXExtrapolatorName(), "leftXExtrapolatorName");
+      ArgumentChecker.notNull(getRightXExtrapolatorName(), "rightXExtrapolatorName");
+      ArgumentChecker.notNull(getXInterpolatorName(), "xInterpolatorName");
+      ArgumentChecker.notNull(getLeftYExtrapolatorName(), "leftYExtrapolatorName");
+      ArgumentChecker.notNull(getRightYExtrapolatorName(), "rightYExtrapolatorName");
+      ArgumentChecker.notNull(getYInterpolatorName(), "yInterpolatorName");
+      super.afterPropertiesSet();
+    }
+
+    @Override
+    protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+      functions.add(functionConfiguration(InterpolatedVolatilitySurfaceDefaultPropertiesFunction.class, getLeftXExtrapolatorName(), getRightXExtrapolatorName(), getXInterpolatorName(),
+          getLeftYExtrapolatorName(), getRightYExtrapolatorName(), getYInterpolatorName()));
+    }
+
   }
 
   @Override

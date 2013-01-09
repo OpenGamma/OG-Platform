@@ -19,7 +19,7 @@ public class ForwardFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
-   * 
+   *
    * @return the configuration source exposing functions from this package
    */
   public static RepositoryConfigurationSource instance() {

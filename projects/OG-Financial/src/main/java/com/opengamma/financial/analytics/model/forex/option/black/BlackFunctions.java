@@ -26,7 +26,7 @@ public class BlackFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package.
-   * 
+   *
    * @return the configuration source exposing functions from this package
    */
   public static RepositoryConfigurationSource instance() {
@@ -35,6 +35,51 @@ public class BlackFunctions extends AbstractRepositoryConfigurationBean {
 
   public static RepositoryConfigurationSource deprecated() {
     return new DeprecatedFunctions().getObjectCreating();
+  }
+
+  public static RepositoryConfigurationSource defaults() {
+    final Defaults factory = new Defaults();
+    factory.afterPropertiesSet();
+    return factory.getObject();
+  }
+
+  public static RepositoryConfigurationSource defaults(final double overhedge, final double relativeStrikeSmoothing) {
+    final Defaults factory = new Defaults();
+    factory.setOverhedge(overhedge);
+    factory.setRelativeStrikeSmoothing(relativeStrikeSmoothing);
+    factory.afterPropertiesSet();
+    return factory.getObject();
+  }
+
+  /**
+   * Function repository configuration source for the defaults functions contained in this package.
+   */
+  public static class Defaults extends AbstractRepositoryConfigurationBean {
+
+    private double _overhedge; /* = 0.0;*/
+    private double _relativeStrikeSmoothing = 0.001;
+
+    public void setOverhedge(final double overhedge) {
+      _overhedge = overhedge;
+    }
+
+    public double getOverhedge() {
+      return _overhedge;
+    }
+
+    public void setRelativeStrikeSmoothing(final double relativeStrikeSmoothing) {
+      _relativeStrikeSmoothing = relativeStrikeSmoothing;
+    }
+
+    public double getRelativeStrikeSmoothing() {
+      return _relativeStrikeSmoothing;
+    }
+
+    @Override
+    protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+      functions.add(functionConfiguration(FXOneLookBarrierOptionBlackDefaultPropertiesFunction.class, Double.toString(getOverhedge()), Double.toString(getRelativeStrikeSmoothing())));
+    }
+
   }
 
   @Override

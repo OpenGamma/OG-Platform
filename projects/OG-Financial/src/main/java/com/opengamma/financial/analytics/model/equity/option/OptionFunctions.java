@@ -25,6 +25,51 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
     return new OptionFunctions().getObjectCreating();
   }
 
+  public static RepositoryConfigurationSource defaults() {
+    final Defaults factory = new Defaults();
+    factory.afterPropertiesSet();
+    return factory.getObject();
+  }
+
+  public static RepositoryConfigurationSource defaults(final double overhedge, final double callSpreadFullWidth) {
+    final Defaults factory = new Defaults();
+    factory.setOverhedge(overhedge);
+    factory.setCallSpreadFullWidth(callSpreadFullWidth);
+    factory.afterPropertiesSet();
+    return factory.getObject();
+  }
+
+  /**
+   * Function repository configuration source for the default functions contained in this package.
+   */
+  public static class Defaults extends AbstractRepositoryConfigurationBean {
+
+    private double _overhedge; /* = 0.0; */
+    private double _callSpreadFullWidth = 0.001;
+
+    public void setOverhedge(final double overhedge) {
+      _overhedge = overhedge;
+    }
+
+    public double getOverhedge() {
+      return _overhedge;
+    }
+
+    public void setCallSpreadFullWidth(final double callSpreadFullWidth) {
+      _callSpreadFullWidth = callSpreadFullWidth;
+    }
+
+    public double getCallSpreadFullWidth() {
+      return _callSpreadFullWidth;
+    }
+
+    @Override
+    protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+      functions.add(functionConfiguration(EquityVanillaBarrierOptionDefaults.class, Double.toString(getOverhedge()), Double.toString(getCallSpreadFullWidth())));
+    }
+
+  }
+
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(EquityOptionBAWPresentValueFunction.class));
