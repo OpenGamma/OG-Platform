@@ -219,7 +219,8 @@ public class BlotterResource {
                                                                        s_underlyingSecurityTypes,
                                                                        s_endpoints);
       BeanVisitorDecorator propertyNameFilter = new PropertyNameFilter("externalIdBundle", "securityType");
-      BeanTraverser traverser = new BeanTraverser(propertyNameFilter);
+      PropertyFilter swaptionUnderlyingFilter = new PropertyFilter(SwaptionSecurity.meta().underlyingId());
+      BeanTraverser traverser = new BeanTraverser(propertyNameFilter, swaptionUnderlyingFilter);
       beanData = (Map<String, Object>) traverser.traverse(metaBean, structureBuilder);
     }
     return _freemarker.build("blotter/bean-structure.ftl", beanData);
