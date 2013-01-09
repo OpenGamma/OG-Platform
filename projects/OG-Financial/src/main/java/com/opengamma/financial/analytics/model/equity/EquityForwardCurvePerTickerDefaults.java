@@ -19,6 +19,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Triple;
@@ -26,9 +27,9 @@ import com.opengamma.util.tuple.Triple;
 /**
  *
  */
-public class EquityForwardCurveDefaults extends DefaultPropertyFunction {
+public class EquityForwardCurvePerEquityDefaults extends DefaultPropertyFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCurveDefaults.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCurvePerEquityDefaults.class);
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
   /** Map from currency to curve configuration, curve name and currency */
@@ -38,7 +39,7 @@ public class EquityForwardCurveDefaults extends DefaultPropertyFunction {
    * @param priority The priority, not null
    * @param perEquityConfig The default values per equity, not null
    */
-  public EquityForwardCurveDefaults(final String priority, final String... perEquityConfig) {
+  public EquityForwardCurvePerEquityDefaults(final String priority, final String... perEquityConfig) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perEquityConfig, "per equity config");
@@ -92,6 +93,11 @@ public class EquityForwardCurveDefaults extends DefaultPropertyFunction {
   @Override
   public PriorityClass getPriority() {
     return _priority;
+  }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.EQUITY_FORWARD_CURVE_DEFAULTS;
   }
 
 }

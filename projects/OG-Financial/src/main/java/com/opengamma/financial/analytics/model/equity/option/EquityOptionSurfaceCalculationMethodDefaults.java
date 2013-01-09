@@ -21,22 +21,18 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
-import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Populates {@link EquityOptionFunction}, including {@link EquityVanillaBarrierOptionBlackFunction}, with defaults aapropriate
+ * Populates {@link EquityOptionFunction}, including {@link EquityVanillaBarrierOptionBlackFunction}, with defaults appropriate
  * for pricing using an interpolated Black lognormal volatility surface.
  */
-public class EquityOptionSurfaceCalculationMethodDefaults extends DefaultPropertyFunction {
+public abstract class EquityOptionSurfaceCalculationMethodDefaults extends DefaultPropertyFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionSurfaceCalculationMethodDefaults.class);
-  /** Map of equity name to surface calculation method */
-  private final Map<String, String> _equityToSurfaceCalculationMethod;
+  /** Map of id name to surface calculation method */
+  private final Map<String, String> _idToSurfaceCalculationMethod;
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
 
@@ -61,35 +57,25 @@ public class EquityOptionSurfaceCalculationMethodDefaults extends DefaultPropert
 
   /**
    * @param priority The priority class of {@link DefaultPropertyFunction} instances, allowing them to be ordered relative to each other, not null
-   * @param perEquityConfig Defaults values of curve configuration, discounting curve, surface name and interpolation method per equity, not null
+   * @param perIdConfig Default values of curve configuration, discounting curve, surface name and interpolation method per id, not null
    */
-  public EquityOptionSurfaceCalculationMethodDefaults(final String priority, final String... perEquityConfig) {
+  public EquityOptionSurfaceCalculationMethodDefaults(final String priority, final String... perIdConfig) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
-    ArgumentChecker.notNull(perEquityConfig, "per equity configuration");
+    ArgumentChecker.notNull(perIdConfig, "per id configuration");
     _priority = PriorityClass.valueOf(priority);
 
-    final int nPairs = perEquityConfig.length;
-    ArgumentChecker.isTrue(nPairs % 2 == 0, "Must have surface calculation method per equity");
-    _equityToSurfaceCalculationMethod = Maps.newHashMap();
-    for (int i = 0; i < perEquityConfig.length; i += 2) {
-      final String equity = perEquityConfig[i].toUpperCase();
-      _equityToSurfaceCalculationMethod.put(equity, perEquityConfig[i + 1]);
+    final int nPairs = perIdConfig.length;
+    ArgumentChecker.isTrue(nPairs % 2 == 0, "Must have surface calculation method per id");
+    _idToSurfaceCalculationMethod = Maps.newHashMap();
+    for (int i = 0; i < perIdConfig.length; i += 2) {
+      final String id = perIdConfig[i].toUpperCase();
+      _idToSurfaceCalculationMethod.put(id, perIdConfig[i + 1]);
     }
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    final Security eqSec = target.getSecurity();
-    if (!((eqSec instanceof EquityIndexOptionSecurity) || (eqSec instanceof EquityBarrierOptionSecurity) || (eqSec instanceof EquityOptionSecurity))) {
-      return false;
-    }
-    final String equity = EquitySecurityUtils.getIndexOrEquityName(eqSec);
-    return _equityToSurfaceCalculationMethod.containsKey(equity);
-  }
+  public abstract boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target);
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
@@ -100,13 +86,13 @@ public class EquityOptionSurfaceCalculationMethodDefaults extends DefaultPropert
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final String equity = EquitySecurityUtils.getIndexOrEquityName(target.getSecurity());
-    if (!_equityToSurfaceCalculationMethod.containsKey(equity)) {
-      s_logger.error("Could not find defaults for {}", equity);
+    final String id = getId(target.getSecurity());
+    if (!_idToSurfaceCalculationMethod.containsKey(id)) {
+      s_logger.error("Could not find defaults for {}", id);
       return null;
     }
     if (ValuePropertyNames.SURFACE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_equityToSurfaceCalculationMethod.get(equity));
+      return Collections.singleton(_idToSurfaceCalculationMethod.get(id));
     }
     s_logger.error("Cannot get a default value for {}", propertyName);
     return null;
@@ -121,4 +107,17 @@ public class EquityOptionSurfaceCalculationMethodDefaults extends DefaultPropert
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.EQUITY_OPTION_SURFACE_CALCULATION_METHOD_DEFAULTS;
   }
+
+  /**
+   * @return All ids for which a default is available
+   */
+  protected Set<String> getAllIds() {
+    return _idToSurfaceCalculationMethod.keySet();
+  }
+
+  /**
+   * @param security The security
+   * @return The id for the security
+   */
+  protected abstract String getId(Security security);
 }

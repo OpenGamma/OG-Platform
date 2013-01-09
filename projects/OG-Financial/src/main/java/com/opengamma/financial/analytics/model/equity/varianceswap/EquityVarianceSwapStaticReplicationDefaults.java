@@ -32,7 +32,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public class EquityVarianceSwapStaticReplicationDefaults extends DefaultPropertyFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCalculationDefaults.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardPerEquityDefaults.class);
   /** The value requirements for which these defaults are valid */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
