@@ -14,10 +14,8 @@ import java.util.List;
 
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
-import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
@@ -27,19 +25,7 @@ import com.opengamma.financial.analytics.model.bond.BondDefaultCurveNamesFunctio
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesPrimitiveDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesSecurityDefaults;
 import com.opengamma.financial.analytics.model.curve.interestrate.YieldCurveDefaults;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaDefaultPropertiesPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMBetaDefaultPropertiesPositionFunction;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMFromRegressionDefaultPropertiesPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.CAPMFromRegressionDefaultPropertiesPositionFunction;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.JensenAlphaDefaultPropertiesPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.JensenAlphaDefaultPropertiesPositionFunction;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioTheoryFunctions;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRatioDefaultPropertiesPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.SharpeRatioDefaultPropertiesPositionFunction;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskAlphaDefaultPropertiesPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.TotalRiskAlphaDefaultPropertiesPositionFunction;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioDefaultPropertiesPortfolioNodeFunction;
-import com.opengamma.financial.analytics.model.equity.portfoliotheory.TreynorRatioDefaultPropertiesPositionFunction;
 import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentDefaultCurveNameFunctionDeprecated;
@@ -50,13 +36,8 @@ import com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
-import com.opengamma.financial.analytics.model.pnl.EquityPnLDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.ExternallyProvidedSensitivityPnLDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
-import com.opengamma.financial.analytics.model.pnl.SecurityPriceSeriesDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.pnl.SimpleFXFuturePnLDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.pnl.SimpleFuturePnLDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.pnl.ValueGreekSensitivityPnLDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodeSensitivityPnLDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRNoExtrapolationDefaults;
@@ -79,7 +60,6 @@ import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
-import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 
 /**
  * Constructs a standard function repository.
@@ -91,18 +71,8 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
   // TODO: Make this an extension of DemoStandardFunctionConfiguration and overload the methods that
   // add data provider specific entries in favour of the synthetic data
 
-  private String _htsResolutionKey = HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
   private String _mark2MarketField = "CLOSE";
   private String _costOfCarryField = "COST_OF_CARRY";
-  private String _valueFieldName = MarketDataRequirementNames.MARKET_VALUE;
-
-  public void setHtsResolutionKey(final String htsResolutionKey) {
-    _htsResolutionKey = htsResolutionKey;
-  }
-
-  public String getHtsResolutionKey() {
-    return _htsResolutionKey;
-  }
 
   public void setMark2MarketField(final String mark2MarketField) {
     _mark2MarketField = mark2MarketField;
@@ -118,14 +88,6 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
 
   public String getCostOfCarryField() {
     return _costOfCarryField;
-  }
-
-  public void setValueFieldName(final String valueFieldName) {
-    _valueFieldName = valueFieldName;
-  }
-
-  public String getValueFieldName() {
-    return _valueFieldName;
   }
 
   public static RepositoryConfigurationSource instance() {
@@ -147,6 +109,11 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
   private static void addDeprecatedFixedIncomeInstrumentDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunctionDeprecated.class, "ParRate", "SECONDARY", "SECONDARY", "AUD", "CAD", "CHF", "DKK", "EUR",
         "GBP", "JPY", "NZD", "USD"));
+  }
+
+  private static void addDeprecatedPNLDefaults(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(YieldCurveNodeSensitivityPnLDefaultsDeprecated.class, "SECONDARY", "SECONDARY", PRESENT_VALUE_STRING, "P2Y",
+        ScheduleCalculatorFactory.DAILY, TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING, "AUD", "USD", "CAD", "DKK", "EUR", "GBP", "JPY", "NZD", "CHF"));
   }
 
   private static void addDeprecatedSABRDefaults(final List<FunctionConfiguration> functionConfigs) {
@@ -235,62 +202,6 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
     functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunctionDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "USD", "EUR"));
   }
 
-  private static void addPnLDefaults(final List<FunctionConfiguration> functionConfigs) {
-    final String defaultCurveCalculationMethod = PRESENT_VALUE_STRING;
-    final String defaultReturnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
-    final String defaultSamplingPeriodName = "P2Y";
-    final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
-    final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
-    functionConfigs.add(functionConfiguration(SecurityPriceSeriesDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
-    functionConfigs.add(functionConfiguration(EquityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName, defaultReturnCalculatorName));
-    functionConfigs.add(functionConfiguration(SimpleFuturePnLDefaultPropertiesFunction.class, "SECONDARY", defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
-    functionConfigs
-        .add(functionConfiguration(SimpleFXFuturePnLDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
-    functionConfigs.add(functionConfiguration(YieldCurveNodeSensitivityPnLDefaultsDeprecated.class, "SECONDARY", "SECONDARY", defaultCurveCalculationMethod, defaultSamplingPeriodName,
-        defaultScheduleName, defaultSamplingCalculatorName, "AUD", "USD", "CAD", "DKK", "EUR", "GBP", "JPY", "NZD", "CHF"));
-    functionConfigs.add(functionConfiguration(ValueGreekSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName,
-        defaultReturnCalculatorName));
-  }
-
-  private static void addPortfolioAnalysisDefaults(final List<FunctionConfiguration> functionConfigs) {
-    final String returnCalculator = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT;
-    final String samplingPeriod = "P2Y";
-    final String schedule = ScheduleCalculatorFactory.DAILY;
-    final String samplingFunction = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
-    final String stdDevCalculator = StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION;
-    final String covarianceCalculator = StatisticsCalculatorFactory.SAMPLE_COVARIANCE;
-    final String varianceCalculator = StatisticsCalculatorFactory.SAMPLE_VARIANCE;
-    final String excessReturnCalculator = StatisticsCalculatorFactory.MEAN;
-    functionConfigs.add(functionConfiguration(CAPMBetaDefaultPropertiesPortfolioNodeFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator, covarianceCalculator, varianceCalculator));
-    functionConfigs.add(functionConfiguration(CAPMBetaDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator, covarianceCalculator, varianceCalculator));
-    functionConfigs.add(functionConfiguration(CAPMBetaDefaultPropertiesPortfolioNodeFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator, covarianceCalculator, varianceCalculator));
-    functionConfigs.add(functionConfiguration(CAPMBetaDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator, covarianceCalculator, varianceCalculator));
-    functionConfigs.add(functionConfiguration(CAPMFromRegressionDefaultPropertiesPortfolioNodeFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator));
-    functionConfigs.add(functionConfiguration(CAPMFromRegressionDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator));
-    functionConfigs.add(functionConfiguration(SharpeRatioDefaultPropertiesPortfolioNodeFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator, stdDevCalculator, excessReturnCalculator));
-    functionConfigs.add(functionConfiguration(SharpeRatioDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator, stdDevCalculator, excessReturnCalculator));
-    functionConfigs.add(functionConfiguration(TreynorRatioDefaultPropertiesPortfolioNodeFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator, stdDevCalculator, excessReturnCalculator, covarianceCalculator, varianceCalculator));
-    functionConfigs.add(functionConfiguration(TreynorRatioDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator, stdDevCalculator, excessReturnCalculator, covarianceCalculator, varianceCalculator));
-    functionConfigs.add(functionConfiguration(JensenAlphaDefaultPropertiesPortfolioNodeFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator, stdDevCalculator, excessReturnCalculator, covarianceCalculator, varianceCalculator));
-    functionConfigs.add(functionConfiguration(JensenAlphaDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator, stdDevCalculator, excessReturnCalculator, covarianceCalculator, varianceCalculator));
-    functionConfigs.add(functionConfiguration(TotalRiskAlphaDefaultPropertiesPortfolioNodeFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator, stdDevCalculator, excessReturnCalculator));
-    functionConfigs.add(functionConfiguration(TotalRiskAlphaDefaultPropertiesPositionFunction.class, samplingPeriod, schedule, samplingFunction,
-        returnCalculator, stdDevCalculator, excessReturnCalculator));
-  }
-
   private static void addSABRDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "USD", "SECONDARY"));
     functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, PriorityClass.ABOVE_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES, "USD", "DefaultTwoCurveUSDConfig",
@@ -332,6 +243,7 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
     addCurrencyConversionFunctions(functions);
     addDeprecatedFixedIncomeInstrumentDefaults(functions);
     addDeprecatedSABRDefaults(functions);
+    addDeprecatedPNLDefaults(functions);
     addExternallyProvidedSensitivitiesDefaults(functions);
     addFixedIncomeInstrumentDefaults(functions);
     addForexForwardDefaults(functions);
@@ -339,8 +251,6 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
     addForexOptionDefaults(functions);
     addFXForwardCurveDefaults(functions);
     addInterestRateFutureDefaults(functions);
-    addPnLDefaults(functions);
-    addPortfolioAnalysisDefaults(functions);
     addSABRDefaults(functions);
     addSurfaceDefaults(functions);
     addVaRDefaults(functions);
@@ -356,15 +266,16 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
   }
 
   protected RepositoryConfigurationSource sensitivitiesFunctions() {
-    return SensitivitiesFunctions.calculators(getHtsResolutionKey());
+    return SensitivitiesFunctions.calculators();
   }
 
   protected RepositoryConfigurationSource pnlFunctions() {
-    return PNLFunctions.calculators(getHtsResolutionKey(), getMark2MarketField(), getCostOfCarryField(), getValueFieldName());
+    return new CombiningRepositoryConfigurationSource(PNLFunctions.calculators(getMark2MarketField(), getCostOfCarryField()),
+        PNLFunctions.defaults("SECONDARY", "SECONDARY", "SECONDARY"));
   }
 
   protected RepositoryConfigurationSource portfolioTheoryFunctions() {
-    return PortfolioTheoryFunctions.calculators(getHtsResolutionKey());
+    return new CombiningRepositoryConfigurationSource(PortfolioTheoryFunctions.calculators(), PortfolioTheoryFunctions.defaults());
   }
 
   @Override

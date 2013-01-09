@@ -7,9 +7,15 @@ package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 
 import java.util.List;
 
+import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
+import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
+import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
+import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -25,10 +31,17 @@ public class PortfolioTheoryFunctions extends AbstractRepositoryConfigurationBea
     return new PortfolioTheoryFunctions().getObjectCreating();
   }
 
+  public static RepositoryConfigurationSource calculators() {
+    final Calculators factory = new Calculators();
+    factory.afterPropertiesSet();
+    return factory.getObject();
+  }
+
   public static RepositoryConfigurationSource calculators(final String htsResolutionKey) {
     final Calculators factory = new Calculators();
     factory.setHtsResolutionKey(htsResolutionKey);
-    return factory.getObjectCreating();
+    factory.afterPropertiesSet();
+    return factory.getObject();
   }
 
   /**
@@ -36,7 +49,7 @@ public class PortfolioTheoryFunctions extends AbstractRepositoryConfigurationBea
    */
   public static class Calculators extends AbstractRepositoryConfigurationBean {
 
-    private String _htsResolutionKey;
+    private String _htsResolutionKey = HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
 
     public String getHtsResolutionKey() {
       return _htsResolutionKey;
@@ -44,6 +57,12 @@ public class PortfolioTheoryFunctions extends AbstractRepositoryConfigurationBea
 
     public void setHtsResolutionKey(final String htsResolutionKey) {
       _htsResolutionKey = htsResolutionKey;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+      ArgumentChecker.notNullInjected(getHtsResolutionKey(), "htsResolutionKey");
+      super.afterPropertiesSet();
     }
 
     @Override
@@ -58,6 +77,143 @@ public class PortfolioTheoryFunctions extends AbstractRepositoryConfigurationBea
       functions.add(functionConfiguration(JensenAlphaFunction.class, getHtsResolutionKey()));
       functions.add(functionConfiguration(TotalRiskAlphaPositionFunction.class, getHtsResolutionKey()));
       functions.add(functionConfiguration(TotalRiskAlphaPortfolioNodeFunction.class, getHtsResolutionKey()));
+    }
+
+  }
+
+  public static RepositoryConfigurationSource defaults() {
+    final Defaults factory = new Defaults();
+    factory.afterPropertiesSet();
+    return factory.getObject();
+  }
+
+  public static RepositoryConfigurationSource defaults(final Object o) {
+    final Defaults factory = new Defaults();
+    factory.afterPropertiesSet();
+    return factory.getObject();
+  }
+
+  /**
+   * Function repository configuration source for the default functions contained in this package.
+   */
+  public static class Defaults extends AbstractRepositoryConfigurationBean {
+
+    private String _returnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT;
+    private final String _samplingPeriodName = "P2Y";
+    private String _scheduleName = ScheduleCalculatorFactory.DAILY;
+    private String _samplingFunctionName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
+    private String _stdDevCalculatorName = StatisticsCalculatorFactory.SAMPLE_STANDARD_DEVIATION;
+    private String _covarianceCalculatorName = StatisticsCalculatorFactory.SAMPLE_COVARIANCE;
+    private String _varianceCalculatorName = StatisticsCalculatorFactory.SAMPLE_VARIANCE;
+    private String _excessReturnCalculatorName = StatisticsCalculatorFactory.MEAN;
+
+    public void setReturnCalculatorName(final String returnCalculatorName) {
+      _returnCalculatorName = returnCalculatorName;
+    }
+
+    public String getReturnCalculatorName() {
+      return _returnCalculatorName;
+    }
+
+    public void setSamplingPeriodName(final String samplingPeriodName) {
+      _samplingFunctionName = samplingPeriodName;
+    }
+
+    public String getSamplingPeriodName() {
+      return _samplingPeriodName;
+    }
+
+    public void setScheduleName(final String scheduleName) {
+      _scheduleName = scheduleName;
+    }
+
+    public String getScheduleName() {
+      return _scheduleName;
+    }
+
+    public void setSamplingFunctionName(final String samplingFunctionName) {
+      _samplingFunctionName = samplingFunctionName;
+    }
+
+    public String getSamplingFunctionName() {
+      return _samplingFunctionName;
+    }
+
+    public void setStdDevCalculatorName(final String stdDevCalculatorName) {
+      _stdDevCalculatorName = stdDevCalculatorName;
+    }
+
+    public String getStdDevCalculatorName() {
+      return _stdDevCalculatorName;
+    }
+
+    public void setCovarianceCalculatorName(final String covarianceCalculatorName) {
+      _covarianceCalculatorName = covarianceCalculatorName;
+    }
+
+    public String getCovarianceCalculatorName() {
+      return _covarianceCalculatorName;
+    }
+
+    public void setVarianceCalculatorName(final String varianceCalculatorName) {
+      _varianceCalculatorName = varianceCalculatorName;
+    }
+
+    public String getVarianceCalculatorName() {
+      return _varianceCalculatorName;
+    }
+
+    public void setExcessReturnCalculatorName(final String excessReturnCalculatorName) {
+      _excessReturnCalculatorName = excessReturnCalculatorName;
+    }
+
+    public String getExcessReturnCalculatorName() {
+      return _excessReturnCalculatorName;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+      ArgumentChecker.notNullInjected(getReturnCalculatorName(), "returnCalculatorName");
+      ArgumentChecker.notNullInjected(getSamplingPeriodName(), "samplingPeriodName");
+      ArgumentChecker.notNullInjected(getScheduleName(), "scheduleName");
+      ArgumentChecker.notNullInjected(getSamplingFunctionName(), "samplingFunctionName");
+      ArgumentChecker.notNullInjected(getStdDevCalculatorName(), "stdDevCalculatorName");
+      ArgumentChecker.notNullInjected(getCovarianceCalculatorName(), "covarianceCalculatorName");
+      ArgumentChecker.notNullInjected(getVarianceCalculatorName(), "varianceCalculatorName");
+      ArgumentChecker.notNullInjected(getExcessReturnCalculatorName(), "excessReturnCalculatorName");
+      super.afterPropertiesSet();
+    }
+
+    @Override
+    protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+      functions.add(functionConfiguration(CAPMBetaDefaultPropertiesPortfolioNodeFunction.class, getSamplingPeriodName(), getScheduleName(),
+          getSamplingFunctionName(), getReturnCalculatorName(), getCovarianceCalculatorName(), getVarianceCalculatorName()));
+      functions.add(functionConfiguration(CAPMBetaDefaultPropertiesPositionFunction.class, getSamplingPeriodName(), getScheduleName(),
+          getSamplingFunctionName(), getReturnCalculatorName(), getCovarianceCalculatorName(), getVarianceCalculatorName()));
+      functions.add(functionConfiguration(CAPMFromRegressionDefaultPropertiesPortfolioNodeFunction.class, getSamplingPeriodName(), getScheduleName(),
+          getSamplingFunctionName(), getReturnCalculatorName()));
+      functions.add(functionConfiguration(CAPMFromRegressionDefaultPropertiesPositionFunction.class, getSamplingPeriodName(), getScheduleName(),
+          getSamplingFunctionName(), getReturnCalculatorName()));
+      functions.add(functionConfiguration(SharpeRatioDefaultPropertiesPortfolioNodeFunction.class, getSamplingPeriodName(), getScheduleName(),
+          getSamplingFunctionName(), getReturnCalculatorName(), getStdDevCalculatorName(), getExcessReturnCalculatorName()));
+      functions.add(functionConfiguration(SharpeRatioDefaultPropertiesPositionFunction.class, getSamplingPeriodName(), getScheduleName(),
+          getSamplingFunctionName(), getReturnCalculatorName(), getStdDevCalculatorName(), getExcessReturnCalculatorName()));
+      functions.add(functionConfiguration(TreynorRatioDefaultPropertiesPortfolioNodeFunction.class, getSamplingPeriodName(), getScheduleName(),
+          getSamplingFunctionName(), getReturnCalculatorName(), getStdDevCalculatorName(), getExcessReturnCalculatorName(), getCovarianceCalculatorName(),
+          getVarianceCalculatorName()));
+      functions.add(functionConfiguration(TreynorRatioDefaultPropertiesPositionFunction.class, getSamplingPeriodName(), getScheduleName(),
+          getSamplingFunctionName(), getReturnCalculatorName(), getStdDevCalculatorName(), getExcessReturnCalculatorName(), getCovarianceCalculatorName(),
+          getVarianceCalculatorName()));
+      functions.add(functionConfiguration(JensenAlphaDefaultPropertiesPortfolioNodeFunction.class, getSamplingPeriodName(), getScheduleName(),
+          getSamplingFunctionName(), getReturnCalculatorName(), getStdDevCalculatorName(), getExcessReturnCalculatorName(), getCovarianceCalculatorName(),
+          getVarianceCalculatorName()));
+      functions.add(functionConfiguration(JensenAlphaDefaultPropertiesPositionFunction.class, getSamplingPeriodName(), getScheduleName(),
+          getSamplingFunctionName(), getReturnCalculatorName(), getStdDevCalculatorName(), getExcessReturnCalculatorName(), getCovarianceCalculatorName(),
+          getVarianceCalculatorName()));
+      functions.add(functionConfiguration(TotalRiskAlphaDefaultPropertiesPortfolioNodeFunction.class, getSamplingPeriodName(), getScheduleName(),
+          getSamplingFunctionName(), getReturnCalculatorName(), getStdDevCalculatorName(), getExcessReturnCalculatorName()));
+      functions.add(functionConfiguration(TotalRiskAlphaDefaultPropertiesPositionFunction.class, getSamplingPeriodName(), getScheduleName(),
+          getSamplingFunctionName(), getReturnCalculatorName(), getStdDevCalculatorName(), getExcessReturnCalculatorName()));
     }
 
   }

@@ -11,6 +11,7 @@ import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.swaption.deprecated.DeprecatedFunctions;
+import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
@@ -28,6 +29,28 @@ public class LocalFunctions extends AbstractRepositoryConfigurationBean {
 
   public static RepositoryConfigurationSource deprecated() {
     return new DeprecatedFunctions().getObjectCreating();
+  }
+
+  public static RepositoryConfigurationSource defaults() {
+    final DefaultPropertiesFunctions factory = new DefaultPropertiesFunctions();
+    factory.afterPropertiesSet();
+    return factory.getObject();
+  }
+
+  public static RepositoryConfigurationSource defaults(final double theta, final int nTimeSteps, final int nSpaceSteps, final double timeStepBunching, final double spaceStepBunching,
+      final double maxProxyDelta, final double centreMoneyness, final double maxMoneynessScale, final String spaceDirectionInterpolator) {
+    final DefaultPropertiesFunctions factory = new DefaultPropertiesFunctions();
+    factory.setTheta(theta);
+    factory.setNTimeSteps(nTimeSteps);
+    factory.setNSpaceSteps(nSpaceSteps);
+    factory.setTimeStepBunching(timeStepBunching);
+    factory.setSpaceStepBunching(spaceStepBunching);
+    factory.setMaxProxyDelta(maxProxyDelta);
+    factory.setCentreMoneyness(centreMoneyness);
+    factory.setMaxMoneynessScale(maxMoneynessScale);
+    factory.setSpaceDirectionInterpolator(spaceDirectionInterpolator);
+    factory.afterPropertiesSet();
+    return factory.getObject();
   }
 
   @Override

@@ -11,6 +11,8 @@ import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.pnl.ExternallyProvidedSensitivityPnLFunction;
+import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -26,10 +28,17 @@ public class SensitivitiesFunctions extends AbstractRepositoryConfigurationBean 
     return new SensitivitiesFunctions().getObjectCreating();
   }
 
+  public static RepositoryConfigurationSource calculators() {
+    final Calculators factory = new Calculators();
+    factory.afterPropertiesSet();
+    return factory.getObject();
+  }
+
   public static RepositoryConfigurationSource calculators(final String htsResolutionKey) {
     final Calculators factory = new Calculators();
     factory.setHtsResolutionKey(htsResolutionKey);
-    return factory.getObjectCreating();
+    factory.afterPropertiesSet();
+    return factory.getObject();
   }
 
   /**
@@ -37,7 +46,7 @@ public class SensitivitiesFunctions extends AbstractRepositoryConfigurationBean 
    */
   public static class Calculators extends AbstractRepositoryConfigurationBean {
 
-    private String _htsResolutionKey;
+    private String _htsResolutionKey = HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
 
     public void setHtsResolutionKey(final String htsResolutionKey) {
       _htsResolutionKey = htsResolutionKey;
@@ -45,6 +54,12 @@ public class SensitivitiesFunctions extends AbstractRepositoryConfigurationBean 
 
     public String getHtsResolutionKey() {
       return _htsResolutionKey;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+      ArgumentChecker.notNull(getHtsResolutionKey(), "htsResolutionKey");
+      super.afterPropertiesSet();
     }
 
     @Override

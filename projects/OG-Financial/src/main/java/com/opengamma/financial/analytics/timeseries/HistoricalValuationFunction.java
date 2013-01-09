@@ -239,12 +239,16 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ViewEvaluationTarget tempTarget = new ViewEvaluationTarget(context.getViewCalculationConfiguration().getViewDefinition().getMarketDataUser());
     tempTarget.setCorrection(context.getComputationTargetResolver().getVersionCorrection().getCorrectedTo());
+    final ValueRequirement requirement = getNestedRequirement(context.getComputationTargetResolver(), target, desiredValue.getConstraints(), tempTarget);
+    if (requirement == null) {
+      return null;
+    }
     final ViewCalculationConfiguration calcConfig = new ViewCalculationConfiguration(tempTarget.getViewDefinition(), context.getViewCalculationConfiguration().getName());
-    calcConfig.addSpecificRequirement(getNestedRequirement(context.getComputationTargetResolver(), target, desiredValue.getConstraints(), tempTarget));
+    calcConfig.addSpecificRequirement(requirement);
     tempTarget.getViewDefinition().addViewCalculationConfiguration(calcConfig);
     final TempTargetRepository targets = OpenGammaCompilationContext.getTempTargets(context);
-    final UniqueId requirement = targets.locateOrStore(tempTarget);
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.VALUE, new ComputationTargetSpecification(TempTarget.TYPE, requirement), ValueProperties.none()));
+    final UniqueId tempTargetId = targets.locateOrStore(tempTarget);
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.VALUE, new ComputationTargetSpecification(TempTarget.TYPE, tempTargetId), ValueProperties.none()));
   }
 
   protected ValueProperties.Builder createValueProperties(final ViewEvaluationTarget tempTarget) {
