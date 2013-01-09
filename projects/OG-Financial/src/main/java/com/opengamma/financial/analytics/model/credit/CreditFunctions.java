@@ -51,7 +51,7 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
   }
 
   /**
-   * Function repository configuration source for the functions contained in this package.
+   * Function repository configuration source for the default functions contained in this package.
    */
   public static class Defaults extends AbstractRepositoryConfigurationBean {
 

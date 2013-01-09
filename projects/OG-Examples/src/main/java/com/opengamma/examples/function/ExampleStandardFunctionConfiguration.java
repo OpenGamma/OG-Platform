@@ -12,6 +12,7 @@ import static com.opengamma.financial.analytics.model.curve.interestrate.MarketI
 
 import java.util.List;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
@@ -20,7 +21,7 @@ import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSour
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.CurrencyPairsDefaults;
-import com.opengamma.financial.analytics.model.bond.BondDefaultCurveNamesFunction;
+import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesPrimitiveDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesSecurityDefaults;
 import com.opengamma.financial.analytics.model.curve.interestrate.YieldCurveDefaults;
@@ -92,13 +93,6 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
 
   public static RepositoryConfigurationSource instance() {
     return new ExampleStandardFunctionConfiguration().getObjectCreating();
-  }
-
-  protected void addBondDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
-        "USD", "Discounting", "DefaultTwoCurveUSDConfig", "Discounting", "DefaultTwoCurveUSDConfig",
-        "EUR", "Discounting", "DefaultTwoCurveEURConfig", "Discounting", "DefaultTwoCurveEURConfig",
-        "GBP", "Discounting", "DefaultTwoCurveGBPConfig", "Discounting", "DefaultTwoCurveGBPConfig"));
   }
 
   protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -227,7 +221,6 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    addBondDefaults(functions);
     addCurrencyConversionFunctions(functions);
     addDeprecatedFixedIncomeInstrumentDefaults(functions);
     addDeprecatedSABRDefaults(functions);
@@ -245,6 +238,13 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
     functions.add(functionConfiguration(SimpleFuturePresentValueFunctionDeprecated.class, "SECONDARY"));
     functions.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, "SECONDARY", "SECONDARY"));
     functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
+  }
+
+  protected RepositoryConfigurationSource bondFunctions() {
+    return BondFunctions.defaults(ImmutableMap.of(
+        "USD", new BondFunctions.Defaults.CurrencyInfo("Discounting", "DefaultTwoCurveUSDConfig", "Discounting", "DefaultTwoCurveUSDConfig"),
+        "EUR", new BondFunctions.Defaults.CurrencyInfo("Discounting", "DefaultTwoCurveEURConfig", "Discounting", "DefaultTwoCurveEURConfig"),
+        "GBP", new BondFunctions.Defaults.CurrencyInfo("Discounting", "DefaultTwoCurveGBPConfig", "Discounting", "DefaultTwoCurveGBPConfig")));
   }
 
   protected RepositoryConfigurationSource deprecatedFunctions() {
@@ -288,7 +288,7 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), deprecatedFunctions(), equityOptionFunctions(), forexOptionFunctions(), forwardCurveFunctions(),
+    return new CombiningRepositoryConfigurationSource(super.createObject(), bondFunctions(), deprecatedFunctions(), equityOptionFunctions(), forexOptionFunctions(), forwardCurveFunctions(),
         localVolatilityFunctions(), sensitivitiesFunctions(), pnlFunctions(), portfolioTheoryFunctions(), varFunctions());
   }
 
