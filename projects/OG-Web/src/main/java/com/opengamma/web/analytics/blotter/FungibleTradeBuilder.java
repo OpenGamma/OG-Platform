@@ -141,7 +141,7 @@ import com.opengamma.util.OpenGammaClock;
 
   // TODO different versions for OTC / non OTC
   // the horror... make this go away
-  static Map<String, Object> tradeStructure() {
+  /* package */ static Map<String, Object> tradeStructure() {
     Map<String, Object> structure = Maps.newHashMap();
     List<Map<String, Object>> properties = Lists.newArrayList();
     properties.add(property("uniqueId", true, true, typeInfo("string", "UniqueId")));
