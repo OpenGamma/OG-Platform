@@ -190,7 +190,7 @@ $.register_module({
                 context = typeof arguments[2] !== 'function' ? arguments[2] : arguments[3];
             if (0 === type.indexOf('form:')) {
                 og.common.events.on.call(form, type, handler, context);
-                return form.events[type][form.events[type].length - 1].origin = origin;
+                return form['og.common.events'][type][form['og.common.events'][type].length - 1].origin = origin;
             }
             if (!selector) throw new TypeError(module.name + '#on: selector is not defined');
             if (form.dom_events[type])
