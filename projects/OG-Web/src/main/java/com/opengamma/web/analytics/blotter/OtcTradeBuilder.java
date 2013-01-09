@@ -93,8 +93,6 @@ import com.opengamma.util.OpenGammaClock;
    * @param sink The sink that should be populated with the trade data
    */
   /* package */ static void extractTradeData(ManageableTrade trade, BeanDataSink<?> sink) {
-    // TODO this uses the SimpleName, need to override
-    //sink.setBeanData(trade.metaBean(), trade);
     sink.setValue("type", TRADE_TYPE_NAME);
     extractPropertyData(trade.uniqueId(), sink);
     extractPropertyData(trade.tradeDate(), sink);
