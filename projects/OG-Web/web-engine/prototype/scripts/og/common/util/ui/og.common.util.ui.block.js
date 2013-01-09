@@ -64,8 +64,9 @@ $.register_module({
          */
         Block.prototype.load = function () {
             var block = this, form = block.form;
-            if (form.events['form:load']) // mimic a form load event
-                form.events['form:load'].forEach(function (val) {if (val.origin === block) val.handler();});
+            if (form['og.common.events']['form:load']) // mimic a form load event
+                form['og.common.events']['form:load']
+                    .forEach(function (val) {if (val.origin === block) val.handler();});
             block.children.forEach(function (child) {child.load();});
             return block;
         };
