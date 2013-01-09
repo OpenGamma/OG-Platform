@@ -87,7 +87,7 @@ $.register_module({
                             .on('change', 'select', menu_handler);
                     }
                 }
-                menu.emitEvent('initialized', [initialized = true]);
+                menu.fire('initialized', [initialized = true]);
             };
 
             var menu_handler = function (event) {

@@ -26,15 +26,17 @@ $.register_module({
                 menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
                 menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
             }
-            menu.addListener(events.open, menu.open.bind(menu))
-                .addListener(events.close, menu.close.bind(menu))
-                .addListener(events.focus, menu.focus.bind(menu));
+            menu.on(events.open, menu.open.bind(menu))
+                .on(events.close, menu.close.bind(menu))
+                .on(events.focus, menu.focus.bind(menu));
             return menu;
         };
-        $.extend(true, DropMenu.prototype, EventEmitter.prototype);
         DropMenu.prototype.constructor = DropMenu;
+        DropMenu.prototype.fire = og.common.events.fire;
+        DropMenu.prototype.on = og.common.events.on;
+        DropMenu.prototype.off = og.common.events.off;
         DropMenu.prototype.focus = function () {
-            return this.opened = true, this.state = 'focused', this.emitEvent(events.focused), this;
+            return this.opened = true, this.state = 'focused', this.fire(events.focused), this;
         };
         DropMenu.prototype.open = function () {
             var menu = this;
@@ -48,7 +50,7 @@ $.register_module({
                 menu.state = 'open';
                 menu.opened = true;
                 menu.$dom.toggle.addClass('og-active');
-                menu.emitEvent(events.opened);
+                menu.fire(events.opened);
             }
             return menu;
         };
@@ -58,7 +60,7 @@ $.register_module({
             if (menu.$dom.toggle) menu.$dom.toggle.removeClass('og-active');
             menu.state = 'closed';
             menu.opened = menu.init_blurkill = false;
-            menu.emitEvent(events.closed);
+            menu.fire(events.closed);
             return menu;
         };
         DropMenu.prototype.menu_handler = function () {

@@ -27,7 +27,7 @@ $.register_module({
                     menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
                     menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
                     if (menu.$dom.toggle)
-                        menu.block.on('mousedown', menu.$dom.toggle.selector, menu.toggle_menu.bind(menu));
+                        menu.block.on('click', menu.$dom.toggle.selector, menu.toggle_menu.bind(menu));
                     if (menu.$dom.menu) {
                         menu.$dom.menu_actions = $('.og-menu-actions', menu.$dom.menu);
                         menu.$dom.opt = $('.OG-dropmenu-options', menu.$dom.menu);

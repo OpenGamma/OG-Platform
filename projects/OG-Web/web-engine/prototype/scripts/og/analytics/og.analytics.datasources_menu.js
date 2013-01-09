@@ -81,7 +81,7 @@ $.register_module({
                 menu.delete_handler(menu.opts[entry]);
                 if (menu.opts.length) {
                     for (var i = ~idx ? idx : sel_pos, len = query.length; i < len; query[i++].pos -= 1);
-                    if (~idx) return remove_entry(idx), display_query(); // emitEvent; optsrepositioned
+                    if (~idx) return remove_entry(idx), display_query(); // fire; optsrepositioned
                 }
             };
 
@@ -155,14 +155,14 @@ $.register_module({
                         }
                         populate_src_options(0);
                         source_handler(0);
-                        menu.emitEvent('initialized', [initialized = true]);
+                        menu.fire('initialized', [initialized = true]);
                     });
                 }
             };
 
             var init_listeners = function () {
-                menu.addListener(events.queryresequested, remove_orphans);
-                menu.addListener(events.resetquery, menu.reset);
+                menu.on(events.queryresequested, remove_orphans);
+                menu.on(events.resetquery, menu.reset);
             };
 
             var menu_handler = function (event) {
@@ -361,7 +361,7 @@ $.register_module({
                     }
                     arr.push(obj);
                 });
-                menu.emitEvent(events.queryresequested);
+                menu.fire(events.queryresequested);
                 return arr;
             },
 
@@ -403,7 +403,7 @@ $.register_module({
                         });
                     }
                 };
-                if (!initialized) menu.addListener('initialized', replay_opts); else replay_opts();
+                if (!initialized) menu.on('initialized', replay_opts); else replay_opts();
             },
 
             menu.reset = function () {

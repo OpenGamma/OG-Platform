@@ -44,11 +44,11 @@ $.register_module({
 
         var init = function () {
             form.children.push(
-                // (datasources_menu = new og.analytics.DatasourcesMenu({form:form})).block
+                (datasources_menu = new og.analytics.DatasourcesMenu({form:form})).block,
                 (aggregation_menu = new og.analytics.AggregatorsMenu({form:form})).block
             );
             form.dom();
-            menus.push(aggregation_menu); //datasources_menu, aggregation_menu
+            menus.push(datasources_menu, aggregation_menu);
         };
 
         var replay = function (config) {
