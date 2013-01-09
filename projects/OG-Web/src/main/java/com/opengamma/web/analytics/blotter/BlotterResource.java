@@ -24,6 +24,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.joda.beans.Bean;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +39,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.conversion.JodaBeanConverters;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -78,7 +78,6 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
-import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.web.FreemarkerOutputter;
@@ -151,8 +150,8 @@ public class BlotterResource {
       }
     }
     // TODO use constants for these
-    s_otherTypeNames.add("OtcTrade");
-    s_otherTypeNames.add("FungibleTrade");
+    s_otherTypeNames.add(OtcTradeBuilder.TRADE_TYPE_NAME);
+    s_otherTypeNames.add(FungibleTradeBuilder.TRADE_TYPE_NAME);
     Collections.sort(s_otherTypeNames);
     Collections.sort(s_securityTypeNames);
   }
@@ -160,7 +159,6 @@ public class BlotterResource {
   private final SecurityMaster _securityMaster;
   private final PortfolioMaster _portfolioMaster;
   private final PositionMaster _positionMaster;
-  private final MasterSecuritySource _securitySource;
 
   private FreemarkerOutputter _freemarker;
 
@@ -172,7 +170,6 @@ public class BlotterResource {
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
     _newTradeBuilder = new NewOtcTradeBuilder(_securityMaster, _positionMaster, s_metaBeans);
-    _securitySource = new MasterSecuritySource(_securityMaster);
   }
 
   /* package */
@@ -207,9 +204,10 @@ public class BlotterResource {
   @Path("types/{typeName}")
   public String getStructure(@PathParam("typeName") String typeName) {
     Map<String, Object> beanData;
-    if (typeName.equals("OtcTrade")) {
+    // TODO tell don't ask
+    if (typeName.equals(OtcTradeBuilder.TRADE_TYPE_NAME)) {
       beanData = OtcTradeBuilder.tradeStructure();
-    } else if (typeName.equals("FungibleTrade")) {
+    } else if (typeName.equals(FungibleTradeBuilder.TRADE_TYPE_NAME)) {
       beanData = FungibleTradeBuilder.tradeStructure();
     } else {
       MetaBean metaBean = s_metaBeansByTypeName.get(typeName);
@@ -231,20 +229,14 @@ public class BlotterResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   @Path("trades/{tradeId}")
-  public String getJSON(@PathParam("tradeId") String tradeIdStr) {
+  public String getTradeJSON(@PathParam("tradeId") String tradeIdStr) {
     ManageableTrade trade = findTrade(tradeIdStr);
     ManageableSecurity security = findSecurity(trade.getSecurityLink());
     // TODO visitor that returns trade builder? what about underlying?
-    boolean isOtc;
-    if (security instanceof FinancialSecurity) {
-      isOtc = ((FinancialSecurity) security).accept(new OtcSecurityVisitor());
-    } else {
-      isOtc = false;
-    }
     JSONObject root = new JSONObject();
     try {
       JsonDataSink tradeSink = new JsonDataSink();
-      if (isOtc) {
+      if (isOtc(security)) {
         OtcTradeBuilder.extractTradeData(trade, tradeSink);
         MetaBean securityMetaBean = s_metaBeansByTypeName.get(security.getClass().getSimpleName());
         if (securityMetaBean == null) {
@@ -255,7 +247,7 @@ public class BlotterResource {
         JSONObject securityJson = (JSONObject) new BeanTraverser(securityPropertyFilter).traverse(securityMetaBean, securityVisitor);
         root.put("security", securityJson);
         // TODO filter out underlyingId for securities with OTC underlying
-        // TODO include underlying security for securities with OTC underlying
+        // TODO include underlying security for securities with OTC underlying (i.e. swaptions)
       } else {
         FungibleTradeBuilder.extractTradeData(trade, tradeSink);
       }
@@ -265,6 +257,15 @@ public class BlotterResource {
       throw new OpenGammaRuntimeException("Failed to build JSON", e);
     }
     return root.toString();
+  }
+
+  private static boolean isOtc(ManageableSecurity security) {
+    try {
+      MetaBean metaBean = JodaBeanUtils.metaBean(security.getClass());
+      return s_metaBeans.contains(metaBean);
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
   }
 
   // TODO this is a bit of a palaver, surely there's something that already does this?
@@ -305,8 +306,22 @@ public class BlotterResource {
   @Path("trades")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
-  public String createOtcTrade(@FormParam("trade") String tradeJsonStr) {
-    return createOtcTrade(tradeJsonStr, _newTradeBuilder);
+  public String createTrade(@FormParam("trade") String jsonStr) {
+    try {
+      JSONObject json = new JSONObject(jsonStr);
+      JSONObject tradeJson = json.getJSONObject("trade");
+      String tradeTypeName = tradeJson.getString("type");
+      // TODO tell don't ask - it is an option to ask each of the new trade builders?
+      if (tradeTypeName.equals(OtcTradeBuilder.TRADE_TYPE_NAME)) {
+        return createOtcTrade(json, tradeJson, _newTradeBuilder);
+      } else if (tradeTypeName.equals(FungibleTradeBuilder.TRADE_TYPE_NAME)) {
+        return createFungibleTrade(tradeJson, new NewFungibleTradeBuilder(_positionMaster, _securityMaster, s_metaBeans));
+      } else {
+        throw new IllegalArgumentException("Unknown trade type " + tradeTypeName);
+      }
+    } catch (JSONException e) {
+      throw new IllegalArgumentException("Failed to parse JSON", e);
+    }
     // TODO don't return JSON, just set the created header with the URL
   }
 
@@ -315,17 +330,30 @@ public class BlotterResource {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
-  public String updateOtcTrade(@FormParam("trade") String tradeJsonStr,
-                               @PathParam("tradeIdStr") String tradeIdStr) {
-    UniqueId tradeId = UniqueId.parse(tradeIdStr);
-    OtcTradeBuilder tradeBuilder = new ExistingOtcTradeBuilder(tradeId, _securityMaster, _positionMaster, s_metaBeans);
-    return createOtcTrade(tradeJsonStr, tradeBuilder);
-  }
-
-  private String createOtcTrade(String jsonStr, OtcTradeBuilder tradeBuilder) {
+  public String updateTrade(@FormParam("trade") String jsonStr, @PathParam("tradeIdStr") String tradeIdStr) {
     try {
+      UniqueId tradeId = UniqueId.parse(tradeIdStr);
       JSONObject json = new JSONObject(jsonStr);
       JSONObject tradeJson = json.getJSONObject("trade");
+      String tradeTypeName = tradeJson.getString("type");
+      // TODO tell don't ask - ask each of the existing trade builders until one of them can handle it?
+      if (tradeTypeName.equals(OtcTradeBuilder.TRADE_TYPE_NAME)) {
+        OtcTradeBuilder tradeBuilder = new ExistingOtcTradeBuilder(tradeId, _securityMaster, _positionMaster, s_metaBeans);
+        return createOtcTrade(json, tradeJson, tradeBuilder);
+      } else if (tradeTypeName.equals(FungibleTradeBuilder.TRADE_TYPE_NAME)) {
+        ExistingFungibleTradeBuilder tradeBuilder =
+            new ExistingFungibleTradeBuilder(_positionMaster, _securityMaster, s_metaBeans, tradeId);
+        return createFungibleTrade(tradeJson, tradeBuilder);
+      } else {
+        throw new IllegalArgumentException("Unknown trade type " + tradeTypeName);
+      }
+    } catch (JSONException e) {
+      throw new IllegalArgumentException("Failed to parse JSON", e);
+    }
+  }
+
+  private String createOtcTrade(JSONObject json, JSONObject tradeJson, OtcTradeBuilder tradeBuilder) {
+    try {
       JSONObject securityJson = json.getJSONObject("security");
       JSONObject underlyingJson = json.optJSONObject("underlying");
       BeanDataSource tradeData = new JsonBeanDataSource(tradeJson);
@@ -341,6 +369,11 @@ public class BlotterResource {
     } catch (JSONException e) {
       throw new IllegalArgumentException("Failed to parse JSON", e);
     }
+  }
+
+  private String createFungibleTrade(JSONObject tradeJson, FungibleTradeBuilder tradeBuilder) {
+    UniqueId tradeId = tradeBuilder.buildAndSaveTrade(new JsonBeanDataSource(tradeJson));
+    return new JSONObject(ImmutableMap.of("tradeId", tradeId)).toString();
   }
 
   private static Map<Object, Object> map(Object... values) {
