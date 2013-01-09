@@ -17,16 +17,7 @@ $.register_module({
                     form: config.form,
                     selector: '.og-datasources',
                     tmpl: 'og.analytics.form_datasources_tash',
-                    children: [
-                        new og.common.util.ui.Dropdown({
-                            form: config.form, value: 'Live', placeholder: 'select type...', classes:'type',
-                            data_generator: function (callback) { callback(['Live', 'Snapshot', 'Historical']);}
-                        }),
-                        new og.common.util.ui.Dropdown({
-                            form: config.form, resource: 'livedatasources', classes:'source',
-                            value: 'Bloomberg', placeholder: 'select data source...'
-                        })
-                    ]
+                    extras: { types: ['Live', 'Snapshot', 'Historical']}
                 },
                 events = {
                     open: 'dropmenu:open',
@@ -49,16 +40,10 @@ $.register_module({
                 corrections_s = '.corrections', initialized = false, form = config.form;
 
             var add_handler = function (opts) {
-                var index = opts && opts.hasOwnProperty('idx') ? opts.idx : menu.opts.length;
-                new og.common.util.ui.Dropdown({
-                    form: config.form, resource: opts.source, rest_options: opts.rest_options || {},
-                    value: (opts && opts.hasOwnProperty('val') ? opts.val : ''), placeholder: 'select data source...'
-                }).html(function (html) {
-                    var idx, $elem = menu.$dom.opt_cp.clone(true); $elem.find('td.ds-opts').html(html);
-                    menu.add_handler($elem); idx = menu.opts.length-1;
-                    populate_src_options(idx);
-                    source_handler(idx);
-                });
+                menu.add_handler();
+                var idx = menu.opts.length-1;
+                set_type_select(idx, {type: 'live'});
+                type_handler(idx, {post_handler: replay_post_handler(idx, {src:{idx:1}})});
             };
 
             var date_handler = function (entry, preload) { // TODO AG: refocus custom, hide datepicker
@@ -97,7 +82,7 @@ $.register_module({
                 })
                 .datepicker('show');
                 widget = custom_dp.datepicker('widget').on(events.preventblurkill, function(event) {
-                    menu.open();
+                    menu.fire(events.open);
                 });
             };
 
@@ -108,6 +93,7 @@ $.register_module({
                         if (i > 0) arr[i++] = $dom.toggle_infix.html() + " ";
                         arr[i++] = entry;
                     });
+
                     $query.html(arr.reduce(function (a, v) {
                         return a += v.type ? menu.capitalize(v.type) + ":" + v.src : menu.capitalize(v);
                     }, ''));
@@ -131,6 +117,7 @@ $.register_module({
             };
 
             var init = function (config) {
+                menu.on(events.resetquery, reset_query);
                 $dom = menu.$dom;
                 if ($dom) {
                     $query = $('.datasources-query', $dom.toggle);
@@ -146,15 +133,15 @@ $.register_module({
                             'data' in res_keys.data && res_keys.data.data)
                             res_keys.data.data.forEach(function (entry) {resolver_keys.push(entry.split('|')[1]);});
                         if ($dom.menu) {
-                            $dom.menu.find('.type-opts select').attr('class', 'type');
-                            $dom.menu.find('.ds-opts select').attr('class', 'source');
-                            menu.block
-                                .on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
+                            $dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                                 .on('change', 'select', menu_handler);
                             init_listeners();
                         }
-                        populate_src_options(0);
-                        source_handler(0);
+                        if (config && config.opts) menu.replay_query(config.opts);
+                        else {
+                            set_type_select(0, {type: 'live'});
+                            type_handler(0, {post_handler: replay_post_handler(0, {src:{idx:1}})});
+                        }
                         menu.fire('initialized', [initialized = true]);
                     });
                 }
@@ -162,16 +149,14 @@ $.register_module({
 
             var init_listeners = function () {
                 menu.on(events.queryresequested, remove_orphans);
-                menu.on(events.resetquery, menu.reset);
+                menu.on(events.resetquery, menu.reset_query);
             };
 
             var menu_handler = function (event) {
                 var entry, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s);
                 if (!parent) return;
                 entry = parent.data('pos');
-                if (elem.is(menu.$dom.add)) {
-                    return menu.stop(event), add_handler({source:'livedatasources', name:'live', val:'Bloomberg'});
-                }
+                if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler();
                 if (elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                 if (elem.is(type_s)) return type_handler(entry);
                 if (elem.is(source_s)) return source_handler(entry);
@@ -220,14 +205,12 @@ $.register_module({
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase();
                 if (!source_select) return;
                 if (type_val) menu.opts[entry].data('type', type_val).addClass(type_val);
-                if (data) {
-                    source_select.hide();
-                    data.forEach(function (d) {
-                        if ($.isPlainObject(d) && 'name' in d && typeof d.name === 'string') snapshots[d.name] = d.id;
-                        source_select.append($($option.html()).text(d.name || d));
-                    });
-                    source_select.show();
-                }
+                source_select.hide();
+                (data || []).forEach(function (d) {
+                    if ($.isPlainObject(d) && 'name' in d && typeof d.name === 'string') snapshots[d.name] = d.id;
+                    source_select.append($($option.html()).text(d.name || d));
+                });
+                source_select.show();
             };
 
             var remove_date = function (entry) {
@@ -331,7 +314,9 @@ $.register_module({
                     return remove_entry(idx), remove_ext_opts(entry), display_query(),
                         enable_extra_options(entry, false);
                 }
-                if (parent.hasClass(parent.data('type'))) remove_entry(idx); remove_ext_opts(entry); display_query();
+                if (parent.hasClass(parent.data('type'))) {
+                    remove_entry(idx); remove_ext_opts(entry); display_query();
+                }
                 switch (type_val) {
                     case 'live': populate_livedatasources(entry, conf); break;
                     case 'snapshot': populate_marketdatasnapshots(entry, conf); break;
@@ -365,55 +350,39 @@ $.register_module({
                 return arr;
             },
 
-            menu.replay = function (conf) {
-                if (!conf && !conf.providers || !$.isArray(conf.providers) || !conf.providers.length) return;
-
-                var datasources = conf.providers.map(function (entry) {
-                    var obj = {};
-                    if (entry.marketDataType) {
-                        switch (entry.marketDataType) {
-                            case 'live' : obj.source = 'livedatasources'; break;
-                            case 'snapshot':
-                                obj.source = 'marketdatasnapshots'; break;
-                            case 'fixedHistorical':
-                            case 'latestHistorical': obj.source = 'configs'; break;
-                        }
-                    }
-                    if (entry.source) obj.val = entry.source;
-                    else if (entry.snapshotId) obj.val = entry.snapshotId;
-                    else if (entry.resolverKey) {
-                        obj.val = entry.resolverKey;
-                        if (entry.date) obj.date = entry.date;
-                    }
-                    obj.rest_options = obj.source === 'configs' ?
-                                    {type: 'HistoricalTimeSeriesRating'} :
-                                    {cache_for: 5000};
-                    return obj;
-                });
-
-                var replay_opts = function () {
-                    var i, len, src;
-                    menu.opts.forEach(function (option) { option.remove(); }); menu.opts.length = 0; query = [];
-                    for (i = 0, len = datasources.length; i < len; i+=1) {
-                        add_handler({
-                            source: datasources[i].source,
-                            val: datasources[i].val,
-                            rest_options: datasources[i].rest_options || {},
-                            date: datasources[i].date || null
-                        });
-                    }
-                };
-                if (!initialized) menu.on('initialized', replay_opts); else replay_opts();
+            menu.replay_query = function (conf) {
+                if (!conf && !conf.datasources || !$.isArray(conf.datasources) || !conf.datasources.length) return;
+                var i, len, src;
+                menu.opts.forEach(function (option) { option.remove(); }); menu.opts.length = 0; query = [];
+                for (len = conf.datasources.length, src; menu.opts.length < len; menu.add_handler());
+                for (i = 0, len = conf.datasources.length; i < len; i+=1) {
+                    if ('marketDataType' in conf.datasources[i] && conf.datasources[i] &&
+                        typeof conf.datasources[i].marketDataType === 'string')
+                        set_type_select(i, {type:conf.datasources[i].marketDataType});
+                    type_handler(i, {post_handler: replay_post_handler(i, {src:conf.datasources[i]})});
+                }
             },
 
-            menu.reset = function () {
-                menu.opts.forEach(function (option) { option.remove(); });
-                menu.opts.length = 0;
-                query = [];
-                return add_handler({source:'livedatasources', val:'Bloomberg'}), reset_query();
+            menu.reset_query = function () {
+                var type_select, source_select;
+                for (var i = menu.opts.length-1; i >= 0; i-=1) {
+                    if (menu.opts.length === 1 && menu.opts[i]) {
+                        type_select = $(type_s, menu.opts[i]),
+                        source_select = $(source_s, menu.opts[i]);
+                        if (type_select) type_select.val(default_sel_txt);
+                        if (source_select) source_select.val(default_type_txt);
+                        remove_ext_opts(i);
+                        reset_query(i);
+                        break;
+                    }
+                    delete_handler(i);
+                }
+                set_type_select(0, {type: 'live'});
+                type_handler(0, {post_handler: replay_post_handler(0, {src:{idx:1}})});
             },
 
             menu;
         };
     }
+
 });

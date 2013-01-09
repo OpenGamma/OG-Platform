@@ -44,11 +44,10 @@ $.register_module({
             this.toggle_handler();
             if (this.opened) this.opts[this.opts.length-1].find('select').first().focus(0);
         };
-        DropMenu.prototype.add_handler = function (elem) {
+        DropMenu.prototype.add_handler = function () {
             var len, opt;
-            return len = this.opts.length, opt = elem ? elem.data("pos", this.opts.length) :
-                this.$dom.opt_cp.clone(true).data("pos", this.opts.length), this.opts.push(opt), this.$dom.add.focus(0),
-                this.opts[len].find('.number span').text(this.opts.length),
+            return len = this.opts.length, opt = this.$dom.opt_cp.clone(true).data("pos", this.opts.length),
+                this.opts.push(opt), this.$dom.add.focus(0), this.opts[len].find('.number span').text(this.opts.length),
                 this.$dom.menu_actions.before(this.opts[len]);
         };
         DropMenu.prototype.delete_handler = function (elem) {
