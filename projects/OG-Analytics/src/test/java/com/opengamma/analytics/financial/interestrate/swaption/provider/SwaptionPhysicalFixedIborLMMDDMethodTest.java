@@ -87,7 +87,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   private static final Calendar TARGET = EURIBOR6M.getCalendar();
 
   public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
+  public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", TARGET);
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR3M", TARGET);
@@ -135,9 +135,9 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_PARMETERS, EUR1YEURIBOR6M);
 
   private static final int NB_PATH = 12500;
-  private static final LiborMarketModelMonteCarloMethod METHOD_LMM_MC = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0), NB_PATH);
+  //  private static final LiborMarketModelMonteCarloMethod METHOD_LMM_MC = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0), NB_PATH);
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
-  private static final double[] MONEYNESS = new double[] {-0.0100, 0, 0.0100 };
+  private static final double[] MONEYNESS = new double[] {-0.0100, 0, 0.0100};
   private static final SwaptionPhysicalFixedIborSABRLMMLeastSquareMethod METHOD_SABR_LMM_ATBEST = new SwaptionPhysicalFixedIborSABRLMMLeastSquareMethod(MONEYNESS, PARAMETERS_LMM);
   private static final SwaptionPhysicalFixedIborBasketMethod METHOD_BASKET = SwaptionPhysicalFixedIborBasketMethod.getInstance();
 
@@ -255,7 +255,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborLMMDDMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Tests of performance. "enabled = false" for the standard testing.
    */
@@ -289,7 +289,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
       pvPayerLongApproximation[looptest] = METHOD_LMM.presentValue(swaption[looptest], lmmMulticurves);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " swaption LMM approximation method: " + (endTime - startTime) + " ms");
+    System.out.println("[SwaptionPhysicalFixedIborLMMDDMethod] " + nbTest + " swaption LMM approximation method: " + (endTime - startTime) + " ms");
     // Performance note: LMM approximation: 1-Sep-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 30 ms for 1000 swaptions.
 
     startTime = System.currentTimeMillis();
@@ -297,7 +297,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
       pvLmmSensi[looptest] = METHOD_LMM.presentValueLMMSensitivity(swaption[looptest], lmmMulticurves);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " swaption LMM approximation method - LMM volatility parameters sensitivity (20x2): " + (endTime - startTime) + " ms");
+    System.out.println("[SwaptionPhysicalFixedIborLMMDDMethod] " + nbTest + " swaption LMM approximation method - LMM volatility parameters sensitivity (20x2): " + (endTime - startTime) + " ms");
     // Performance note: LMM approximation - LMM sensi: 1-Sep-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 30 ms for 1000 swaptions.
 
     System.out.println("Approximation: " + Arrays.toString(pvPayerLongApproximation));
@@ -311,7 +311,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
       pvMC[looptest] = methodLMMMC.presentValue(swaption[looptest], EUR, lmmMulticurves);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest2 + " swaption LMM Monte Carlo method (" + nbPaths + " paths): " + (endTime - startTime) + " ms");
+    System.out.println("[SwaptionPhysicalFixedIborLMMDDMethod] " + nbTest2 + " swaption LMM Monte Carlo method (" + nbPaths + " paths): " + (endTime - startTime) + " ms");
     // Performance note: LMM Monte Carlo: 20-Sep-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 2400 ms for 10 swaptions 5Yx5Y/12500 paths/5 jumps.
   }
 
@@ -320,8 +320,8 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
    * Calibrate and price an amortized swaption.
    */
   public void calibrateExactPriceAmortized() {
-    final int[] swapTenorYear = {1, 2, 3, 4, 5 };
-    final double[] amortization = new double[] {1.00, 0.80, 0.60, 0.40, 0.20 }; // For 5Y amortization
+    final int[] swapTenorYear = {1, 2, 3, 4, 5};
+    final double[] amortization = new double[] {1.00, 0.80, 0.60, 0.40, 0.20}; // For 5Y amortization
     //    double[] amortization = new double[] {1.00, 0.90, 0.80, 0.70, 0.60, 0.50, 0.40, 0.30, 0.20, 0.10}; // For 10Y amortization
     final SwapFixedIborDefinition[] swapCalibrationDefinition = new SwapFixedIborDefinition[swapTenorYear.length];
     final SwaptionPhysicalFixedIborDefinition[] swaptionCalibrationDefinition = new SwaptionPhysicalFixedIborDefinition[swapTenorYear.length];
@@ -477,7 +477,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
    * Calibrate and price an amortized swaption.
    */
   public void calibrateAtBestPriceAmortized() {
-    final double[] amortization = new double[] {1.00, 0.80, 0.60, 0.40, 0.20 }; // For 5Y amortization
+    final double[] amortization = new double[] {1.00, 0.80, 0.60, 0.40, 0.20}; // For 5Y amortization
     final int nbPeriods = amortization.length;
     final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, Period.ofYears(nbPeriods), EUR1YEURIBOR6M, NOTIONAL, RATE, FIXED_IS_PAYER);
     //    SwapFixedCoupon<Coupon> swap = swapDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -498,9 +498,9 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
 
     // SABR parameters sensitivity (parallel shift check). The sensitivities are not exact; in the approximation a small "second order" term is ignored
     final PresentValueSABRSensitivityDataBundle pvss = METHOD_SABR_LMM_ATBEST.presentValueSABRSensitivity(swaptionAmortized, SABR_MULTICURVES);
-    final double[] shift = new double[] {0.0001, 0.0001, 0.0001 };
-    final double[] toleranceSABRSensi = new double[] {5.0E+4, 5.0E+3, 1.0E+4 };
-    final double[] sensiComputed = new double[] {pvss.getAlpha().toSingleValue(), pvss.getRho().toSingleValue(), pvss.getNu().toSingleValue() };
+    final double[] shift = new double[] {0.0001, 0.0001, 0.0001};
+    final double[] toleranceSABRSensi = new double[] {5.0E+4, 5.0E+3, 1.0E+4};
+    final double[] sensiComputed = new double[] {pvss.getAlpha().toSingleValue(), pvss.getRho().toSingleValue(), pvss.getNu().toSingleValue()};
     final double[] sensiExpected = new double[shift.length];
     SABRInterestRateParameters sabrParameterShift;
     SABRSwaptionProvider sabrBundleShift;
