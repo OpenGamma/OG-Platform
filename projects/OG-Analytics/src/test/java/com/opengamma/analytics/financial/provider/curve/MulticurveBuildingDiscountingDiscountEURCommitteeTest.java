@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -276,7 +276,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeTest {
 
   //TODO: test on the correctness of the Jacobian matrix in the CurveBuildingBlock's.
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void performance() {
     long startTime, endTime;
     final int nbTest = 100;
