@@ -192,7 +192,6 @@ public class SABRFiniteDifferenceTest {
     }, 5 * SPOT, false);
 
     final PDEGrid1D grid = new PDEGrid1D(tNodes, xNodes, T, lower.getLevel(), upper.getLevel());
-    // final ZZConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getBackwardsLocalVol(RATE, RATE - DRIFT, STRIKE, T, true, SABR_LOCAL_VOL);
     final ConvectionDiffusionPDE1DCoefficients pde = PDE_PROVIDER.getBackwardsLocalVol(RATE, RATE - DRIFT, T, SABR_LOCAL_VOL);
     final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, PAYOFF, lower, upper, grid);
     final PDEResults1D res = solver.solve(db);

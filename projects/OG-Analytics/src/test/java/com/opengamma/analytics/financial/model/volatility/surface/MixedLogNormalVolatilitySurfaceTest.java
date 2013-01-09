@@ -61,7 +61,8 @@ public class MixedLogNormalVolatilitySurfaceTest {
 
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
 
-  @Test(enabled = false)
+  @Test
+  //(enabled = false)
   public void printTest() {
     final double t = 1.5;
     final double spot = 100.0;
