@@ -255,7 +255,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), cashFlowFunctionConfiguration(), irCurveFunctionConfiguration(),
+    return CombiningRepositoryConfigurationSource.of(super.createObject(), cashFlowFunctionConfiguration(), irCurveFunctionConfiguration(),
         modelFunctionConfiguration(), timeSeriesFunctionConfiguration(), volatilityFunctionConfiguration());
   }
 

@@ -22,7 +22,7 @@ public class BlackFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
-   * 
+   *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
   public static RepositoryConfigurationSource instance() {
@@ -51,7 +51,7 @@ public class BlackFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), pureFunctionConfiguration());
+    return CombiningRepositoryConfigurationSource.of(super.createObject(), pureFunctionConfiguration());
   }
 
 }

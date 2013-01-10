@@ -21,7 +21,7 @@ public class SwaptionFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
-   * 
+   *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
   public static RepositoryConfigurationSource instance() {
@@ -43,7 +43,7 @@ public class SwaptionFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), blackFunctionConfiguration());
+    return CombiningRepositoryConfigurationSource.of(super.createObject(), blackFunctionConfiguration());
   }
 
 }

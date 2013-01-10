@@ -195,7 +195,7 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
   }
 
   protected RepositoryConfigurationSource deprecatedFunctions() {
-    return new CombiningRepositoryConfigurationSource(FixedIncomeFunctions.deprecated(), SABRCubeFunctions.deprecated(),
+    return CombiningRepositoryConfigurationSource.of(FixedIncomeFunctions.deprecated(), SABRCubeFunctions.deprecated(),
         com.opengamma.financial.analytics.model.forex.forward.ForwardFunctions.deprecated(), BlackFunctions.deprecated(),
         FutureFunctions.deprecated(), PNLFunctions.deprecated());
   }
@@ -251,12 +251,12 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
   }
 
   protected RepositoryConfigurationSource pnlFunctions() {
-    return new CombiningRepositoryConfigurationSource(PNLFunctions.calculators(getMark2MarketField(), getCostOfCarryField()),
+    return CombiningRepositoryConfigurationSource.of(PNLFunctions.calculators(getMark2MarketField(), getCostOfCarryField()),
         PNLFunctions.defaults("SECONDARY", "SECONDARY", "SECONDARY"));
   }
 
   protected RepositoryConfigurationSource portfolioTheoryFunctions() {
-    return new CombiningRepositoryConfigurationSource(PortfolioTheoryFunctions.calculators(), PortfolioTheoryFunctions.defaults());
+    return CombiningRepositoryConfigurationSource.of(PortfolioTheoryFunctions.calculators(), PortfolioTheoryFunctions.defaults());
   }
 
   protected RepositoryConfigurationSource sabrCubeFunctions() {
@@ -276,7 +276,7 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), bondFunctions(), deprecatedFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(), fixedIncomeFunctions(),
+    return CombiningRepositoryConfigurationSource.of(super.createObject(), bondFunctions(), deprecatedFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(), fixedIncomeFunctions(),
         forexOptionFunctions(), forwardCurveFunctions(), interestRateFunctions(), localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(),
         sensitivitiesFunctions(), varFunctions());
   }

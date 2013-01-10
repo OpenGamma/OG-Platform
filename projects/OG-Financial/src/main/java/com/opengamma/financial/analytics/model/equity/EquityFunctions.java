@@ -25,7 +25,7 @@ public class EquityFunctions extends AbstractRepositoryConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
-   * 
+   *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
   public static RepositoryConfigurationSource instance() {
@@ -58,7 +58,7 @@ public class EquityFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), futuresFunctionConfiguration(), optionFunctionConfiguration(), portfolioTheoryFunctionConfiguration(),
+    return CombiningRepositoryConfigurationSource.of(super.createObject(), futuresFunctionConfiguration(), optionFunctionConfiguration(), portfolioTheoryFunctionConfiguration(),
         varianceSwapFunctionConfiguration());
   }
 

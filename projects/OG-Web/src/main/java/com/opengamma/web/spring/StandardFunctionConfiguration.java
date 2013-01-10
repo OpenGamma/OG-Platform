@@ -778,7 +778,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   }
 
   protected RepositoryConfigurationSource portfolioTheoryFunctions() {
-    return new CombiningRepositoryConfigurationSource(PortfolioTheoryFunctions.calculators(), PortfolioTheoryFunctions.defaults());
+    return CombiningRepositoryConfigurationSource.of(PortfolioTheoryFunctions.calculators(), PortfolioTheoryFunctions.defaults());
   }
 
   protected RepositoryConfigurationSource sabrCubeFunctions() {
@@ -811,13 +811,13 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   }
 
   protected RepositoryConfigurationSource volatilitySurfaceFunctions() {
-    return new CombiningRepositoryConfigurationSource(com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions.defaults(),
+    return CombiningRepositoryConfigurationSource.of(com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions.defaults(),
         com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.defaults());
   }
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), bondFunctions(), cdsFunctions(), cubeFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(),
+    return CombiningRepositoryConfigurationSource.of(super.createObject(), bondFunctions(), cdsFunctions(), cubeFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(),
         fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(), interestRateFunctions(), localVolatilityFunctions(),
         pnlFunctions(), portfolioTheoryFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions());
   }

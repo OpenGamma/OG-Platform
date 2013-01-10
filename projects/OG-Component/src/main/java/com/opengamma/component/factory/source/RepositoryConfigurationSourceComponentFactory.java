@@ -87,7 +87,7 @@ public class RepositoryConfigurationSourceComponentFactory extends AbstractCompo
   protected RepositoryConfigurationSource initSource() {
     final List<RepositoryConfigurationSource> underlying = initSources();
     final RepositoryConfigurationSource[] array = underlying.toArray(new RepositoryConfigurationSource[underlying.size()]);
-    return new CombiningRepositoryConfigurationSource(array);
+    return CombiningRepositoryConfigurationSource.of(array);
   }
 
   protected RepositoryConfigurationSource financialFunctions() {

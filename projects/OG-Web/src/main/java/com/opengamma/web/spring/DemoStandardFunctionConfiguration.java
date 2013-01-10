@@ -269,7 +269,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
 
   @Override
   protected RepositoryConfigurationSource pnlFunctions() {
-    return new CombiningRepositoryConfigurationSource(super.pnlFunctions(), PNLFunctions.defaults("FUNDING", "FUNDING", "FUNDING"));
+    return CombiningRepositoryConfigurationSource.of(super.pnlFunctions(), PNLFunctions.defaults("FUNDING", "FUNDING", "FUNDING"));
   }
 
 }

@@ -239,7 +239,7 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), blackFunctionConfiguration());
+    return CombiningRepositoryConfigurationSource.of(super.createObject(), blackFunctionConfiguration());
   }
 
 }

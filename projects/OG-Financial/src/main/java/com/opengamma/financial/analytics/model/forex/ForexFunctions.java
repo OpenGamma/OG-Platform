@@ -68,7 +68,7 @@ public class ForexFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), forwardFunctionConfiguration(), optionFunctionConfiguration());
+    return CombiningRepositoryConfigurationSource.of(super.createObject(), forwardFunctionConfiguration(), optionFunctionConfiguration());
   }
 
 }

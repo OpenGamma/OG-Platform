@@ -63,7 +63,7 @@ public class FinancialFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), aggregationFunctionConfiguration(), analyticsFunctionConfiguration(), currencyFunctionConfiguration(),
+    return CombiningRepositoryConfigurationSource.of(super.createObject(), aggregationFunctionConfiguration(), analyticsFunctionConfiguration(), currencyFunctionConfiguration(),
         propertyFunctionConfiguration(), valueFunctionConfiguration(), viewFunctionConfiguration());
   }
 
