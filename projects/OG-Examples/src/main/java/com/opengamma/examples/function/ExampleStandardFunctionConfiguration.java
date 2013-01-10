@@ -5,8 +5,6 @@
  */
 package com.opengamma.examples.function;
 
-import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
-import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING;
 
@@ -15,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
-import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
@@ -26,7 +24,7 @@ import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
-import com.opengamma.financial.analytics.model.curve.interestrate.YieldCurveDefaults;
+import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
 import com.opengamma.financial.analytics.model.equity.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioTheoryFunctions;
 import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
@@ -41,26 +39,19 @@ import com.opengamma.financial.analytics.model.pnl.ExternallyProvidedSensitivity
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.pnl.YieldCurveNodeSensitivityPnLDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
-import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRNoExtrapolationDefaults;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRNoExtrapolationDefaultsDeprecated;
-import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRNoExtrapolationVegaDefaults;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRNoExtrapolationVegaDefaultsDeprecated;
-import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationDefaults;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationDefaultsDeprecated;
-import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationVegaDefaults;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationVegaDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunctionDeprecated;
 import com.opengamma.financial.analytics.model.var.VaRFunctions;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
-import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults;
 import com.opengamma.financial.analytics.model.volatility.local.LocalFunctions;
 import com.opengamma.financial.analytics.volatility.surface.Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPairs;
-import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -173,27 +164,10 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
     functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunctionDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "USD", "EUR"));
   }
 
-  protected void addSABRDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults.class, "USD", "SECONDARY"));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationDefaults.class, PriorityClass.ABOVE_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES, "USD", "DefaultTwoCurveUSDConfig",
-        "SECONDARY"));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationDefaults.class, PriorityClass.ABOVE_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES, "0.07", "10.0", "USD",
-        "DefaultTwoCurveUSDConfig", "SECONDARY"));
-    functionConfigs.add(functionConfiguration(SABRNoExtrapolationVegaDefaults.class, PriorityClass.ABOVE_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES, LINEAR, FLAT_EXTRAPOLATOR,
-        FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "USD", "DefaultTwoCurveUSDConfig", "SECONDARY"));
-    functionConfigs.add(functionConfiguration(SABRRightExtrapolationVegaDefaults.class, PriorityClass.ABOVE_NORMAL.name(), SmileFittingProperties.NON_LINEAR_LEAST_SQUARES, "0.07", "10.0", LINEAR,
-        FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, LINEAR, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR, "USD", "DefaultTwoCurveUSDConfig", "SECONDARY"));
-  }
-
   protected void addSurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(ExampleEquityOptionVolatilitySurfaceDataFunction.class, "SECONDARY", "EQUITY_OPTION", "SECONDARY"));
     functionConfigs.add(functionConfiguration(Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated.class, "SECONDARY", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator",
         "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator"));
-  }
-
-  protected void addYieldCurveDefaults(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(YieldCurveDefaults.class, "0.0001", "0.0001", "1000", DecompositionFactory.SV_COLT_NAME, "false", "USD",
-        "EUR", "GBP", "JPY", "CHF", "AUD"));
   }
 
   @Override
@@ -207,9 +181,7 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
     functions.add(functionConfiguration(ExampleForexSpotRateMarketDataFunction.class));
     addForexOptionDefaults(functions);
     addInterestRateFutureDefaults(functions);
-    addSABRDefaults(functions);
     addSurfaceDefaults(functions);
-    addYieldCurveDefaults(functions);
     functions.add(functionConfiguration(SimpleFuturePresentValueFunctionDeprecated.class, "SECONDARY"));
     functions.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, "SECONDARY", "SECONDARY"));
     functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
@@ -266,12 +238,16 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
     return ForwardFunctions.defaults(ccyDefaults, ccypDefaults);
   }
 
-  protected RepositoryConfigurationSource localVolatilityFunctions() {
-    return LocalFunctions.defaults();
+  protected RepositoryConfigurationSource interestRateFunctions() {
+    return InterestRateFunctions.defaults(ImmutableSet.of("USD", "EUR", "GBP", "JPY", "CHF", "AUD"));
   }
 
-  protected RepositoryConfigurationSource sensitivitiesFunctions() {
-    return SensitivitiesFunctions.calculators();
+  protected RepositoryConfigurationSource localVolatilityFunctions() {
+    final Map<String, com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo> defaults =
+        new HashMap<String, com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>();
+    defaults.put("USD", new com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultTwoCurveUSDConfig", "Discounting"));
+    defaults.put("EUR", new com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultTwoCurveEURConfig", "Discounting"));
+    return LocalFunctions.defaults(defaults);
   }
 
   protected RepositoryConfigurationSource pnlFunctions() {
@@ -283,6 +259,17 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
     return new CombiningRepositoryConfigurationSource(PortfolioTheoryFunctions.calculators(), PortfolioTheoryFunctions.defaults());
   }
 
+  protected RepositoryConfigurationSource sabrCubeFunctions() {
+    final Map<String, com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo> defaults =
+        new HashMap<String, com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>();
+    defaults.put("USD", new com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultTwoCurveUSDConfig", "SECONDARY"));
+    return SABRCubeFunctions.defaults(defaults);
+  }
+
+  protected RepositoryConfigurationSource sensitivitiesFunctions() {
+    return SensitivitiesFunctions.calculators();
+  }
+
   protected RepositoryConfigurationSource varFunctions() {
     return VaRFunctions.defaults();
   }
@@ -290,7 +277,8 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
   @Override
   protected RepositoryConfigurationSource createObject() {
     return new CombiningRepositoryConfigurationSource(super.createObject(), bondFunctions(), deprecatedFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(), fixedIncomeFunctions(),
-        forexOptionFunctions(), forwardCurveFunctions(), localVolatilityFunctions(), sensitivitiesFunctions(), pnlFunctions(), portfolioTheoryFunctions(), varFunctions());
+        forexOptionFunctions(), forwardCurveFunctions(), interestRateFunctions(), localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(),
+        sensitivitiesFunctions(), varFunctions());
   }
 
 }

@@ -5,7 +5,11 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local.defaultproperties;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.InitializingBean;
 
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
@@ -17,6 +21,47 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationBean {
 
+  /**
+   * Currency specific data.
+   */
+  public static class CurrencyInfo implements InitializingBean {
+
+    private String _curveConfiguration;
+    private String _discountingCurve;
+
+    public CurrencyInfo() {
+    }
+
+    public CurrencyInfo(final String curveConfiguration, final String discountingCurve) {
+      setCurveConfiguration(curveConfiguration);
+      setDiscountingCurve(discountingCurve);
+    }
+
+    public String getCurveConfiguration() {
+      return _curveConfiguration;
+    }
+
+    public void setCurveConfiguration(final String curveConfiguration) {
+      _curveConfiguration = curveConfiguration;
+    }
+
+    public String getDiscountingCurve() {
+      return _discountingCurve;
+    }
+
+    public void setDiscountingCurve(final String discountingCurve) {
+      _discountingCurve = discountingCurve;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+      ArgumentChecker.notNullInjected(getCurveConfiguration(), "curveConfiguration");
+      ArgumentChecker.notNullInjected(getDiscountingCurve(), "discountingCurve");
+    }
+
+  }
+
+  private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
   private double _theta = 0.5;
   private int _nTimeSteps = 100;
   private int _nSpaceSteps = 100;
@@ -26,6 +71,23 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
   private double _centreMoneyness = 1.0;
   private double _maxMoneynessScale = 3.5;
   private String _spaceDirectionInterpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
+
+  public void setPerCurrencyInfo(final Map<String, CurrencyInfo> perCurrencyInfo) {
+    _perCurrencyInfo.clear();
+    _perCurrencyInfo.putAll(perCurrencyInfo);
+  }
+
+  public Map<String, CurrencyInfo> getPerCurrencyInfo() {
+    return _perCurrencyInfo;
+  }
+
+  public void setCurrencyInfo(final String currency, final CurrencyInfo info) {
+    _perCurrencyInfo.put(currency, info);
+  }
+
+  public CurrencyInfo getCurrencyInfo(final String currency) {
+    return _perCurrencyInfo.get(currency);
+  }
 
   public void setTheta(final double theta) {
     _theta = theta;
@@ -105,12 +167,24 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
     super.afterPropertiesSet();
   }
 
+  protected void addPDECurveDefaults(final List<FunctionConfiguration> functions) {
+    final String[] args = new String[getPerCurrencyInfo().size() * 3];
+    int i = 0;
+    for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+      args[i++] = e.getKey();
+      args[i++] = e.getValue().getDiscountingCurve();
+      args[i++] = e.getValue().getCurveConfiguration();
+    }
+    functions.add(functionConfiguration(FXPDECurveDefaults.class, args));
+  }
+
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(ForwardPDEDefaults.class, Double.toString(getTheta()), Integer.toString(getNTimeSteps()), Integer.toString(getNSpaceSteps()),
         Double.toString(getTimeStepBunching()), Double.toString(getSpaceStepBunching()), Double.toString(getMaxProxyDelta()), Double.toString(getCentreMoneyness()), getSpaceDirectionInterpolator()));
     functions.add(functionConfiguration(BackwardPDEDefaults.class, Double.toString(getTheta()), Integer.toString(getNTimeSteps()), Integer.toString(getNSpaceSteps()),
         Double.toString(getTimeStepBunching()), Double.toString(getSpaceStepBunching()), Double.toString(getMaxMoneynessScale()), getSpaceDirectionInterpolator()));
+    addPDECurveDefaults(functions);
   }
 
 }

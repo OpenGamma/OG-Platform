@@ -6,10 +6,13 @@
 package com.opengamma.financial.analytics.model.sabrcube;
 
 import java.util.List;
+import java.util.Map;
 
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions;
+import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -59,6 +62,29 @@ public class SABRCubeFunctions extends AbstractRepositoryConfigurationBean {
       functions.add(functionConfiguration(SABRRightExtrapolationYCNSFunctionDeprecated.class));
     }
 
+  }
+
+  public static RepositoryConfigurationSource defaults(final Map<String, CurrencyInfo> perCurrencyInfo) {
+    final DefaultPropertiesFunctions factory = new DefaultPropertiesFunctions();
+    factory.setPerCurrencyInfo(perCurrencyInfo);
+    factory.afterPropertiesSet();
+    return factory.getObject();
+  }
+
+  public static RepositoryConfigurationSource defaults(final Map<String, CurrencyInfo> perCurrencyInfo, final String fittingMethod, final String xInterpolator, final String xLeftExtrapolator,
+      final String xRightExtrapolator, final String yInterpolator, final String yLeftExtrapolator, final String yRightExtrapolator, final double cutOff, final double mu) {
+    final DefaultPropertiesFunctions factory = new DefaultPropertiesFunctions();
+    factory.setPerCurrencyInfo(perCurrencyInfo);
+    factory.setXInterpolator(xInterpolator);
+    factory.setXLeftExtrapolator(xLeftExtrapolator);
+    factory.setXRightExtrapolator(xRightExtrapolator);
+    factory.setYInterpolator(yInterpolator);
+    factory.setYLeftExtrapolator(yLeftExtrapolator);
+    factory.setYRightExtrapolator(yRightExtrapolator);
+    factory.setCutOff(cutOff);
+    factory.setMu(mu);
+    factory.afterPropertiesSet();
+    return factory.getObject();
   }
 
   @Override
