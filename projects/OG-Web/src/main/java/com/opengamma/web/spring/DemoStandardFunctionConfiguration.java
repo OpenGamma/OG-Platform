@@ -32,8 +32,8 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   }
 
   @Override
-  protected CurrencyInfo audDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo audCurrencyInfo() {
+    final CurrencyInfo i = super.audCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultTwoCurveAUDConfig");
     i.setDefaultCurve("Discounting");
     i.setDefaultCube("BLOOMBERG");
@@ -41,32 +41,32 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   }
 
   @Override
-  protected CurrencyInfo brlDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo brlCurrencyInfo() {
+    final CurrencyInfo i = super.brlCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultCashCurveBRLConfig");
     i.setDefaultCurve("Cash");
     return i;
   }
 
   @Override
-  protected CurrencyInfo cadDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo cadCurrencyInfo() {
+    final CurrencyInfo i = super.cadCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultTwoCurveCADConfig");
     i.setDefaultCurve("Discounting");
     return i;
   }
 
   @Override
-  protected CurrencyInfo chfDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo chfCurrencyInfo() {
+    final CurrencyInfo i = super.chfCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultTwoCurveCHFConfig");
     i.setDefaultCurve("Discounting");
     return i;
   }
 
   @Override
-  protected CurrencyInfo eurDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo eurCurrencyInfo() {
+    final CurrencyInfo i = super.eurCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultTwoCurveEURConfig");
     i.setDefaultCurve("Discounting");
     i.setIRFutureOptionSurface("DEFAULT_PRICE");
@@ -76,8 +76,8 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   }
 
   @Override
-  protected CurrencyInfo gbpDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo gbpCurrencyInfo() {
+    final CurrencyInfo i = super.gbpCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultTwoCurveGBPConfig");
     i.setDefaultCurve("Discounting");
     i.setDefaultCube("BLOOMBERG");
@@ -85,64 +85,64 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   }
 
   @Override
-  protected CurrencyInfo hkdDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo hkdCurrencyInfo() {
+    final CurrencyInfo i = super.hkdCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultCashCurveHKDConfig");
     i.setDefaultCurve("Cash");
     return i;
   }
 
   @Override
-  protected CurrencyInfo hufDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo hufCurrencyInfo() {
+    final CurrencyInfo i = super.hufCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultCashCurveHUFConfig");
     i.setDefaultCurve("Cash");
     return i;
   }
 
   @Override
-  protected CurrencyInfo jpyDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo jpyCurrencyInfo() {
+    final CurrencyInfo i = super.jpyCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultTwoCurveJPYConfig");
     i.setDefaultCurve("Discounting");
     return i;
   }
 
   @Override
-  protected CurrencyInfo krwDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo krwCurrencyInfo() {
+    final CurrencyInfo i = super.krwCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultCashCurveKRWConfig");
     i.setDefaultCurve("Cash");
     return i;
   }
 
   @Override
-  protected CurrencyInfo mxnDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo mxnCurrencyInfo() {
+    final CurrencyInfo i = super.mxnCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultCashCurveMXNConfig");
     i.setDefaultCurve("Cash");
     return i;
   }
 
   @Override
-  protected CurrencyInfo nzdDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo nzdCurrencyInfo() {
+    final CurrencyInfo i = super.nzdCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultTwoCurveNZDConfig");
     i.setDefaultCurve("Discounting");
     return i;
   }
 
   @Override
-  protected CurrencyInfo rubDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo rubCurrencyInfo() {
+    final CurrencyInfo i = super.rubCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultCashCurveRUBConfig");
     i.setDefaultCurve("Cash");
     return i;
   }
 
   @Override
-  protected CurrencyInfo usdDefaultCurrencyInfo() {
-    final CurrencyInfo i = new CurrencyInfo();
+  protected CurrencyInfo usdCurrencyInfo() {
+    final CurrencyInfo i = super.usdCurrencyInfo();
     i.setDefaultCurveConfiguration("DefaultTwoCurveUSDConfig");
     i.setDefaultCurve("Discounting");
     i.setISDACurveConfiguration("ISDA");

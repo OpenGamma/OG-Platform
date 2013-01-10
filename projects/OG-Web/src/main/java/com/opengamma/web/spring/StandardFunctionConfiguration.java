@@ -287,92 +287,92 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     return _costOfCarryField;
   }
 
-  protected CurrencyInfo audDefaultCurrencyInfo() {
+  protected CurrencyInfo audCurrencyInfo() {
     return new CurrencyInfo();
   }
 
-  protected CurrencyInfo brlDefaultCurrencyInfo() {
+  protected CurrencyInfo brlCurrencyInfo() {
     return new CurrencyInfo();
   }
 
-  protected CurrencyInfo cadDefaultCurrencyInfo() {
+  protected CurrencyInfo cadCurrencyInfo() {
     return new CurrencyInfo();
   }
 
-  protected CurrencyInfo chfDefaultCurrencyInfo() {
+  protected CurrencyInfo chfCurrencyInfo() {
     return new CurrencyInfo();
   }
 
-  protected CurrencyInfo eurDefaultCurrencyInfo() {
+  protected CurrencyInfo eurCurrencyInfo() {
     return new CurrencyInfo();
   }
 
-  protected CurrencyInfo gbpDefaultCurrencyInfo() {
+  protected CurrencyInfo gbpCurrencyInfo() {
     return new CurrencyInfo();
   }
 
-  protected CurrencyInfo hkdDefaultCurrencyInfo() {
+  protected CurrencyInfo hkdCurrencyInfo() {
     return new CurrencyInfo();
   }
 
-  protected CurrencyInfo hufDefaultCurrencyInfo() {
+  protected CurrencyInfo hufCurrencyInfo() {
     return new CurrencyInfo();
   }
 
-  protected CurrencyInfo jpyDefaultCurrencyInfo() {
+  protected CurrencyInfo jpyCurrencyInfo() {
     return new CurrencyInfo();
   }
 
-  protected CurrencyInfo krwDefaultCurrencyInfo() {
+  protected CurrencyInfo krwCurrencyInfo() {
     return new CurrencyInfo();
   }
 
-  protected CurrencyInfo mxnDefaultCurrencyInfo() {
+  protected CurrencyInfo mxnCurrencyInfo() {
     return new CurrencyInfo();
   }
 
-  protected CurrencyInfo nzdDefaultCurrencyInfo() {
+  protected CurrencyInfo nzdCurrencyInfo() {
     return new CurrencyInfo();
   }
 
-  protected CurrencyInfo rubDefaultCurrencyInfo() {
+  protected CurrencyInfo rubCurrencyInfo() {
     return new CurrencyInfo();
   }
 
-  protected CurrencyInfo usdDefaultCurrencyInfo() {
+  protected CurrencyInfo usdCurrencyInfo() {
     return new CurrencyInfo();
   }
 
   protected void setDefaultCurrencyInfo() {
     setCurrencyInfo("ARS", new CurrencyInfo());
-    setCurrencyInfo("AUD", audDefaultCurrencyInfo());
-    setCurrencyInfo("BRL", brlDefaultCurrencyInfo());
-    setCurrencyInfo("CAD", cadDefaultCurrencyInfo());
-    setCurrencyInfo("CHF", chfDefaultCurrencyInfo());
+    setCurrencyInfo("AUD", audCurrencyInfo());
+    setCurrencyInfo("BRL", brlCurrencyInfo());
+    setCurrencyInfo("CAD", cadCurrencyInfo());
+    setCurrencyInfo("CHF", chfCurrencyInfo());
     setCurrencyInfo("CNY", new CurrencyInfo());
     setCurrencyInfo("CZK", new CurrencyInfo());
     setCurrencyInfo("EGP", new CurrencyInfo());
-    setCurrencyInfo("EUR", eurDefaultCurrencyInfo());
-    setCurrencyInfo("GBP", gbpDefaultCurrencyInfo());
-    setCurrencyInfo("HKD", hkdDefaultCurrencyInfo());
-    setCurrencyInfo("HUF", hufDefaultCurrencyInfo());
+    setCurrencyInfo("EUR", eurCurrencyInfo());
+    setCurrencyInfo("GBP", gbpCurrencyInfo());
+    setCurrencyInfo("HKD", hkdCurrencyInfo());
+    setCurrencyInfo("HUF", hufCurrencyInfo());
     setCurrencyInfo("IDR", new CurrencyInfo());
     setCurrencyInfo("ILS", new CurrencyInfo());
     setCurrencyInfo("INR", new CurrencyInfo());
-    setCurrencyInfo("JPY", jpyDefaultCurrencyInfo());
-    setCurrencyInfo("KRW", krwDefaultCurrencyInfo());
-    setCurrencyInfo("MXN", mxnDefaultCurrencyInfo());
+    setCurrencyInfo("JPY", jpyCurrencyInfo());
+    setCurrencyInfo("KRW", krwCurrencyInfo());
+    setCurrencyInfo("MXN", mxnCurrencyInfo());
     setCurrencyInfo("MYR", new CurrencyInfo());
     setCurrencyInfo("NOK", new CurrencyInfo());
-    setCurrencyInfo("NZD", nzdDefaultCurrencyInfo());
+    setCurrencyInfo("NZD", nzdCurrencyInfo());
     setCurrencyInfo("PHP", new CurrencyInfo());
     setCurrencyInfo("PLN", new CurrencyInfo());
-    setCurrencyInfo("RUB", rubDefaultCurrencyInfo());
+    setCurrencyInfo("RUB", rubCurrencyInfo());
     setCurrencyInfo("SEK", new CurrencyInfo());
     setCurrencyInfo("SGD", new CurrencyInfo());
     setCurrencyInfo("TRY", new CurrencyInfo());
     setCurrencyInfo("TWD", new CurrencyInfo());
-    setCurrencyInfo("USD", usdDefaultCurrencyInfo());
+    setCurrencyInfo("USD", usdCurrencyInfo());
     setCurrencyInfo("ZAR", new CurrencyInfo());
   }
 
@@ -644,15 +644,16 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   }
 
   protected RepositoryConfigurationSource externalSensitivitiesFunctions() {
-    return SensitivitiesFunctions.defaults(getCurrencyInfo(new Function1<CurrencyInfo, SensitivitiesFunctions.Defaults.CurrencyInfo>() {
-      @Override
-      public SensitivitiesFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        if (i.getDefaultCurveConfiguration() == null) {
-          return null;
-        }
-        return new SensitivitiesFunctions.Defaults.CurrencyInfo(i.getDefaultCurveConfiguration());
-      }
-    }));
+    return CombiningRepositoryConfigurationSource.of(SensitivitiesFunctions.calculators(),
+        SensitivitiesFunctions.defaults(getCurrencyInfo(new Function1<CurrencyInfo, SensitivitiesFunctions.Defaults.CurrencyInfo>() {
+          @Override
+          public SensitivitiesFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+            if (i.getDefaultCurveConfiguration() == null) {
+              return null;
+            }
+            return new SensitivitiesFunctions.Defaults.CurrencyInfo(i.getDefaultCurveConfiguration());
+          }
+        })));
   }
 
   protected RepositoryConfigurationSource fixedIncomeFunctions() {
