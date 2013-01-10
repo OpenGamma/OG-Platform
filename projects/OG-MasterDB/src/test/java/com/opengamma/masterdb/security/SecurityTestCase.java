@@ -912,31 +912,37 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   }
 
   @Override
+  @Test
   public void testStandardFixedRecoveryCDSSecurity() {
     assertSecurities(StandardFixedRecoveryCDSSecurity.class);
   }
   
   @Override
+  @Test
   public void testStandardRecoveryLockCDSSecurity() {
     assertSecurities(StandardRecoveryLockCDSSecurity.class);
   }
 
   @Override
+  @Test
   public void testStandardVanillaCDSSecurity() {
     assertSecurities(StandardVanillaCDSSecurity.class);
   }
 
   @Override
+  @Test
   public void testLegacyFixedRecoveryCDSSecurity() {
     assertSecurities(LegacyFixedRecoveryCDSSecurity.class);
   }
 
   @Override
+  @Test
   public void testLegacyRecoveryLockCDSSecurity() {
     assertSecurities(LegacyRecoveryLockCDSSecurity.class);
   }
 
   @Override
+  @Test
   public void testLegacyVanillaCDSSecurity() {
     assertSecurities(LegacyVanillaCDSSecurity.class);
   }
