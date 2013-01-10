@@ -9,12 +9,12 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.F
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
@@ -25,14 +25,9 @@ import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
-import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesPrimitiveDefaults;
-import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesSecurityDefaults;
-import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurvePrimitiveDefaults;
-import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveSecurityDefaults;
-import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveTradeDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
-import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveDefaults;
+import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.YieldCurveDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurveDefaults;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldPricingDefaults;
@@ -44,7 +39,7 @@ import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianc
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationDefaults;
 import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
 import com.opengamma.financial.analytics.model.forex.ForexFunctions;
-import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaults;
+import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRDefaults;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackDefaults;
@@ -239,24 +234,6 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityVarianceSwapDefaults.class.getName(), equityVarianceSwapDefaultsWithPriority));
   }
 
-  protected void addForwardCurveDefaults(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(FXForwardCurveFromYieldCurvesPrimitiveDefaults.class,
-            "USD", "DefaultTwoCurveUSDConfig", "Discounting",
-            "EUR", "DefaultTwoCurveEURConfig", "Discounting",
-            "CHF", "DefaultTwoCurveCHFConfig", "Discounting"));
-    functions.add(functionConfiguration(FXForwardCurveFromYieldCurvesSecurityDefaults.class,
-            "USD", "DefaultTwoCurveUSDConfig", "Discounting",
-            "EUR", "DefaultTwoCurveEURConfig", "Discounting",
-            "CHF", "DefaultTwoCurveCHFConfig", "Discounting"));
-  }
-
-  protected void addFXImpliedYieldCurveDefaults(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(FXImpliedYieldCurveDefaults.class, "0.0001", "0.0001", "1000",
-        DecompositionFactory.SV_COLT_NAME, "false", "DoubleQuadratic", "LinearExtrapolator", "FlatExtrapolator", "ARS", "AUD",
-        "BRL", "CAD", "CHF", "CLP", "CNY", "CZK", "EGP", "EUR", "GBP", "HKD", "HUF", "IDR", "ILS", "INR", "JPY", "KRW", "MXN",
-        "MYR", "NOK", "NZD", "PHP", "PLN", "SEK", "SGD", "TRY", "TWD", "ZAR"));
-  }
-
   protected void addFXOptionBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXBlackVolatilitySurfacePrimitiveDefaults.class.getName(),
         TargetSpecificBlackVolatilitySurfaceDefaults.getAllFXDefaults()));
@@ -264,20 +241,6 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
         TargetSpecificBlackVolatilitySurfaceDefaults.getAllFXDefaults()));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FXBlackVolatilitySurfaceTradeDefaults.class.getName(),
         TargetSpecificBlackVolatilitySurfaceDefaults.getAllFXDefaults()));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FXForwardCurvePrimitiveDefaults.class.getName(),
-        Arrays.asList("EURUSD", "DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FXForwardCurveSecurityDefaults.class.getName(),
-        Arrays.asList("EURUSD", "DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(FXForwardCurveTradeDefaults.class.getName(),
-        Arrays.asList("EURUSD", "DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)));
-  }
-
-  protected void addInterestRateFutureDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateFutureDefaults.class, PriorityClass.NORMAL.name(),
-        "USD", "DefaultTwoCurveUSDConfig",
-        "EUR", "DefaultTwoCurveEURConfig",
-        "CHF", "DefaultTwoCurveCHFConfig",
-        "RUB", "DefaultCashCurveRUBConfig"));
   }
 
   protected void addInterestRateFutureOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
@@ -350,10 +313,7 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
     addEquityOptionDefaults(functions);
     addEquityPureVolatilitySurfaceDefaults(functions);
     addEquityVarianceSwapDefaults(functions);
-    addForwardCurveDefaults(functions);
-    addFXImpliedYieldCurveDefaults(functions);
     addFXOptionBlackVolatilitySurfaceDefaults(functions);
-    addInterestRateFutureDefaults(functions);
     addInterestRateFutureOptionDefaults(functions);
     addLocalVolatilityPDEDefaults(functions);
     addLocalVolatilitySurfaceDefaults(functions);
@@ -449,11 +409,32 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
   }
 
   protected RepositoryConfigurationSource forwardCurveFunctions() {
-    return ForwardFunctions.defaults();
+    final Map<String, ForwardFunctions.Defaults.CurrencyInfo> ccyDefaults = new HashMap<String, ForwardFunctions.Defaults.CurrencyInfo>();
+    ccyDefaults.put("USD", new ForwardFunctions.Defaults.CurrencyInfo("DefaultTwoCurveUSDConfig", "Discounting"));
+    ccyDefaults.put("EUR", new ForwardFunctions.Defaults.CurrencyInfo("DefaultTwoCurveEURConfig", "Discounting"));
+    ccyDefaults.put("CHF", new ForwardFunctions.Defaults.CurrencyInfo("DefaultTwoCurveCHFConfig", "Discounting"));
+    final Map<Pair<String, String>, ForwardFunctions.Defaults.CurrencyPairInfo> ccypDefaults = new HashMap<Pair<String, String>, ForwardFunctions.Defaults.CurrencyPairInfo>();
+    ccypDefaults.put(Pair.of("EUR", "USD"), new ForwardFunctions.Defaults.CurrencyPairInfo("DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD));
+    return ForwardFunctions.defaults(ccyDefaults, ccypDefaults);
+  }
+
+  protected RepositoryConfigurationSource futureFunctions() {
+    final Map<String, FutureFunctions.Defaults.CurrencyInfo> defaults = new HashMap<String, FutureFunctions.Defaults.CurrencyInfo>();
+    defaults.put("USD", new FutureFunctions.Defaults.CurrencyInfo("DefaultTwoCurveUSDConfig"));
+    defaults.put("EUR", new FutureFunctions.Defaults.CurrencyInfo("DefaultTwoCurveEURConfig"));
+    defaults.put("CHF", new FutureFunctions.Defaults.CurrencyInfo("DefaultTwoCurveCHFConfig"));
+    defaults.put("RUB", new FutureFunctions.Defaults.CurrencyInfo("DefaultsCashCurveRUBConfig"));
+    return FutureFunctions.defaults(defaults);
   }
 
   protected RepositoryConfigurationSource futureOptionFunctions() {
     return FutureOptionFunctions.defaults(ImmutableMap.of("USD", new FutureOptionFunctions.Defaults.CurrencyInfo("Discounting", "DefaultTwoCurveUSDConfig", "BBG_S ", "Spline")));
+  }
+
+  protected RepositoryConfigurationSource interestRateFunctions() {
+    return InterestRateFunctions.defaults(ImmutableSet.of("ARS", "AUD",
+        "BRL", "CAD", "CHF", "CLP", "CNY", "CZK", "EGP", "EUR", "GBP", "HKD", "HUF", "IDR", "ILS", "INR", "JPY", "KRW", "MXN",
+        "MYR", "NOK", "NZD", "PHP", "PLN", "SEK", "SGD", "TRY", "TWD", "ZAR"));
   }
 
   protected RepositoryConfigurationSource localVolatilityFunctions() {
@@ -486,8 +467,8 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
   @Override
   protected RepositoryConfigurationSource createObject() {
     return new CombiningRepositoryConfigurationSource(super.createObject(), bondFunctions(), cdsFunctions(), cubeFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(),
-        fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), forwardCurveFunctions(), futureOptionFunctions(), localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(),
-        swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions());
+        fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(), interestRateFunctions(), localVolatilityFunctions(),
+        pnlFunctions(), portfolioTheoryFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions());
   }
 
 }

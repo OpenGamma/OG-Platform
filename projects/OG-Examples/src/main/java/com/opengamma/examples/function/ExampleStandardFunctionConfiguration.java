@@ -24,8 +24,8 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
-import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesPrimitiveDefaults;
-import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesSecurityDefaults;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.YieldCurveDefaults;
 import com.opengamma.financial.analytics.model.equity.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioTheoryFunctions;
@@ -61,6 +61,7 @@ import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Constructs a standard function repository.
@@ -168,15 +169,6 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
         "SECONDARY", PAR_RATE_STRING, "SECONDARY", "DoubleQuadratic", "LinearExtrapolator", "LinearExtrapolator", "EUR", "USD"));
   }
 
-  private void addFXForwardCurveDefaults(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(FXForwardCurveFromYieldCurvesPrimitiveDefaults.class,
-            "USD", "DefaultTwoCurveUSDConfig", "Discounting",
-            "EUR", "DefaultTwoCurveEURConfig", "Discounting"));
-    functions.add(functionConfiguration(FXForwardCurveFromYieldCurvesSecurityDefaults.class,
-            "USD", "DefaultTwoCurveUSDConfig", "Discounting",
-            "EUR", "DefaultTwoCurveEURConfig", "Discounting"));
-  }
-
   protected void addInterestRateFutureDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunctionDeprecated.class, "SECONDARY", "SECONDARY", PAR_RATE_STRING, "USD", "EUR"));
   }
@@ -214,7 +206,6 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
     addForexForwardDefaults(functions);
     functions.add(functionConfiguration(ExampleForexSpotRateMarketDataFunction.class));
     addForexOptionDefaults(functions);
-    addFXForwardCurveDefaults(functions);
     addInterestRateFutureDefaults(functions);
     addSABRDefaults(functions);
     addSurfaceDefaults(functions);
@@ -266,7 +257,13 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
   }
 
   protected RepositoryConfigurationSource forwardCurveFunctions() {
-    return com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions.defaults();
+    final Map<String, ForwardFunctions.Defaults.CurrencyInfo> ccyDefaults = new HashMap<String, ForwardFunctions.Defaults.CurrencyInfo>();
+    ccyDefaults.put("USD", new ForwardFunctions.Defaults.CurrencyInfo("DefaultTwoCurveUSDConfig", "Discounting"));
+    ccyDefaults.put("EUR", new ForwardFunctions.Defaults.CurrencyInfo("DefaultTwoCurveEURConfig", "Discounting"));
+    ccyDefaults.put("CHF", new ForwardFunctions.Defaults.CurrencyInfo("DefaultTwoCurveCHFConfig", "Discounting"));
+    final Map<Pair<String, String>, ForwardFunctions.Defaults.CurrencyPairInfo> ccypDefaults = new HashMap<Pair<String, String>, ForwardFunctions.Defaults.CurrencyPairInfo>();
+    ccypDefaults.put(Pair.of("EUR", "USD"), new ForwardFunctions.Defaults.CurrencyPairInfo("DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD));
+    return ForwardFunctions.defaults(ccyDefaults, ccypDefaults);
   }
 
   protected RepositoryConfigurationSource localVolatilityFunctions() {
