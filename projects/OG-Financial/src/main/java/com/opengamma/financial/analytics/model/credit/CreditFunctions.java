@@ -63,19 +63,19 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
       private int _offset; /* = 0; */
       private String _curveName;
       private String _curveCalculationConfig;
-      private String _curveCalculationMethod;
+      private String _curveCalculationMethod = "ISDA";
 
       public CurrencyInfo() {
       }
 
-      public CurrencyInfo(final String curveName, final String curveCalculationConfig, final String curveCalculationMethod) {
+      public CurrencyInfo(final String curveName, final String curveCalculationConfig) {
         setCurveName(curveName);
         setCurveCalculationConfig(curveCalculationConfig);
-        setCurveCalculationMethod(curveCalculationMethod);
       }
 
       public CurrencyInfo(final int offset, final String curveName, final String curveCalculationConfig, final String curveCalculationMethod) {
-        this(curveName, curveCalculationConfig, curveCalculationMethod);
+        this(curveName, curveCalculationConfig);
+        setCurveCalculationMethod(curveCalculationMethod);
         setOffset(offset);
       }
 

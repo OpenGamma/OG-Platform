@@ -51,15 +51,19 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
       private String _curveName;
       private String _curveCalculationConfig;
       private String _surfaceName;
-      private String _interpolationMethod;
+      private String _interpolationMethod = "Spline";
 
       public CurrencyInfo() {
       }
 
-      public CurrencyInfo(final String curveName, final String curveCalculationConfig, final String surfaceName, final String interpolationMethod) {
+      public CurrencyInfo(final String curveName, final String curveCalculationConfig, final String surfaceName) {
         setCurveName(curveName);
         setCurveCalculationConfig(curveCalculationConfig);
         setSurfaceName(surfaceName);
+      }
+
+      public CurrencyInfo(final String curveName, final String curveCalculationConfig, final String surfaceName, final String interpolationMethod) {
+        this(curveName, curveCalculationConfig, surfaceName);
         setInterpolationMethod(interpolationMethod);
       }
 

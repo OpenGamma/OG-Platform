@@ -104,13 +104,17 @@ public class ForwardFunctions extends AbstractRepositoryConfigurationBean {
     public static class CurrencyPairInfo implements InitializingBean {
 
       private String _curveName;
-      private String _curveCalculationMethod;
+      private String _curveCalculationMethod = ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD;
 
       public CurrencyPairInfo() {
       }
 
-      public CurrencyPairInfo(final String curveName, final String curveCalculationMethod) {
+      public CurrencyPairInfo(final String curveName) {
         setCurveName(curveName);
+      }
+
+      public CurrencyPairInfo(final String curveName, final String curveCalculationMethod) {
+        this(curveName);
         setCurveCalculationMethod(curveCalculationMethod);
       }
 
