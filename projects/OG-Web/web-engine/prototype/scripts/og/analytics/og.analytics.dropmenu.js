@@ -20,7 +20,8 @@ $.register_module({
                     extras: config.extras || {},
                     module: config.tmpl,
                     children: config.children || [],
-                    generator: config.generator || null
+                    generator: config.generator || null,
+                    processor: config.processor || null
                 });
                 form.on('form:load', function () {
                     menu.$dom.cntr = $(config.selector);

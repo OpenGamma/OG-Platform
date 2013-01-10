@@ -32,8 +32,8 @@ $.register_module({
                     reset:'reset',
                     replay:'replay'
                 },
-                query = [], resolver_keys = [], snapshots = {}, $dom, $query, $option, $snapshot_opts, $historical_opts,
-                default_type_txt = 'select type...', default_sel_txt = 'select data source...',
+                menu, query = [], resolver_keys = [], snapshots = {}, $dom, $query, $option, $snapshot_opts,
+                $historical_opts, default_type_txt = 'select type...', default_sel_txt = 'select data source...',
                 del_s = '.og-icon-delete', parent_s = '.OG-dropmenu-options', wrapper = '<wrapper>', type_s = '.type',
                 source_s = '.source',  extra_opts_s = '.extra-opts', latest_s = '.latest', custom_s = '.custom',
                 custom_val = 'Custom', date_selected_s = 'date-selected', active_s = 'active', versions_s = '.versions',

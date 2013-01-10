@@ -3,13 +3,13 @@
   <tr class="OG-dropmenu-options">
     <td class="number"><span>1</span></td>
     <td>
-      <select class="type" name="aggregators.0">
+      <select class="type">
         <option selected="selected">select aggregation...</option>
-        {{#each aggregations}}<option>{{this}}</option>{{/each}}
+        {{#each this.aggregations}}<option>{{this}}</option>{{/each}}
       </select>
     </td>
     <td>
-      <label class="og-option"><input type="checkbox" disabled="true" name="required_fields.0" />
+      <label class="og-option"><input type="checkbox" disabled="true" />
         <span>Include required fields</span>
       </label>
     </td>

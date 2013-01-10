@@ -46,10 +46,11 @@ $.register_module({
             form.children.push(
                 //(portfolio_dropdown = new og.common.util.ui.AutoCombo({form:form})),
                 (datasources_menu = new og.analytics.DatasourcesMenu({form:form})).block,
+                (temporal_menu = new og.analytics.TemporalMenu({form:form})).block,
                 (aggregation_menu = new og.analytics.AggregatorsMenu({form:form})).block
             );
             form.dom();
-            menus.push(datasources_menu, aggregation_menu);
+            menus.push(datasources_menu, temporal_menu, aggregation_menu);
         };
 
         var replay = function (config) {

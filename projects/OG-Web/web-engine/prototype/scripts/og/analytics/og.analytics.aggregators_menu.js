@@ -17,11 +17,12 @@ $.register_module({
                     form: config.form,
                     selector: '.og-aggregation',
                     tmpl: 'og.analytics.form_aggregation_tash',
-                    children: [
-                        new og.common.util.ui.Dropdown({
-                            form: config.form, resource: 'aggregators', value: '', placeholder: 'select aggregation...'
-                        })
-                    ]
+                    generator : function (handler, tmpl, data) {
+                        og.api.rest.aggregators.get().pipe(function (resp) {
+                            data.aggregators = resp.data;
+                            handler(tmpl(data));
+                        });
+                    }
                 },
                 events = {
                     reset:'reset',
@@ -32,23 +33,14 @@ $.register_module({
                 del_s = '.og-icon-delete', options_s = '.OG-dropmenu-options', select_s = 'select',
                 checkbox_s = '.og-option :checkbox', tmpl_menu = '', tmpl_toggle = '', menu;
 
-            var add_handler = function (opts) {
-                new og.common.util.ui.Dropdown({
-                    form: config.form, resource: 'aggregators',
-                    value: (opts && opts.hasOwnProperty('val') ? opts.val : ''), placeholder: 'select aggregation...'
-                }).html(function (html) {
-                    var idx, $elem = menu.$dom.opt_cp.clone(true); $elem.find('td.aggregation').html(html);
-                    menu.add_handler($elem); idx = menu.opts.length-1;
-                    menu.opts[idx].find('.og-option input[type=checkbox]').attr('name', 'required_fields.'+idx);
-                });
+            var add_handler = function () {
+                menu.add_handler();
             };
-
             var checkbox_handler = function (entry) {
                 if ($checkbox[0].checked && ~entry) query[entry].required_field = true;
                 else if (!$checkbox[0].checked && ~entry) query[entry].required_field = false;
                 $checkbox.focus();
             };
-
             var delete_handler = function (entry) {
                 if (menu.opts.length === 1) {
                     if ($checkbox) $checkbox[0].disabled = true;
@@ -63,7 +55,6 @@ $.register_module({
                     display_query();
                 }
             };
-
             var display_query = function () {
                 if(query.length) {
                     var i = 0, arr = [], query_val;
@@ -86,10 +77,14 @@ $.register_module({
                             .on('mousedown', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                             .on('change', 'select', menu_handler);
                     }
+                    menu.fire('initialized', [initialized = true]);
                 }
-                menu.fire('initialized', [initialized = true]);
             };
-
+            var init_menu_elems = function (index) {
+                $parent = menu.opts[index];
+                $select = $parent.find(select_s);
+                $checkbox = $parent.find(checkbox_s);
+            };
             var menu_handler = function (event) {
                 var $elem = $(event.srcElement || event.target), entry;
                     $parent = $elem.parents(options_s);
@@ -104,12 +99,10 @@ $.register_module({
                 if ($elem.is($select)) return select_handler(entry);
                 if ($elem.is('button')) return menu.button_handler($elem.text());
             };
-
             var remove_entry = function (entry) {
                 if (query.length === 1) return query.length = 0;
                 query.splice(entry, 1);
             };
-
             var remove_orphans = function () {
                 for (var i = menu.opts.length-1; i >= 0; i-=1) {
                     if (menu.opts.length === 1) break;
@@ -117,13 +110,11 @@ $.register_module({
                     if ($(select_s, option).val() === default_sel_txt) menu.delete_handler(option);
                 }
             };
-
             var reset_query = function () {
-                return $query.text(default_query_text), remove_entry();
+                return $query.text(default_query_text), $select.val(default_sel_txt).focus(), remove_entry();
             };
-
             var select_handler = function (entry) {
-                if (sel_val === "") {
+                    if (sel_val === default_sel_txt) {
                     remove_entry(entry);
                     if ($checkbox) $checkbox[0].disabled = true;
                     if (query.length === 0) return $query.html(default_query_text);
@@ -138,28 +129,32 @@ $.register_module({
             return menu = new og.analytics.DropMenu(default_conf, init),
 
             // Public
-            menu.replay = function (conf) {
-                var replay_opts = function () {
-                    if (!conf || !conf.hasOwnProperty('aggregators')) return;
-                    var aggregators = conf.aggregators;
-                    if (!$.isArray(aggregators) || !aggregators.length) return;
-                    menu.opts.forEach(function (option) { option.remove(); });
-                    menu.opts.length = 0;
-                    query = [];
-                    conf.aggregators.forEach(function (entry, index) {
-                        if (menu.opts.length < conf.aggregators.length) add_handler({ val: entry, idx: index });
-                        query.splice(index, 0, {pos: index, val: entry, required_field: true});
-                    });
-                    display_query();
-                };
-                if (!initialized) menu.addListener('initialized', replay_opts); else replay_opts();
-            },
-
-            menu.reset = function () {
-                menu.opts.forEach(function (option) { option.remove(); });
+            menu.replay_query = function (conf) {
+                if (!conf && !conf.aggregators || !$.isArray(conf.aggregators)) return;
+                menu.opts.forEach(function (option) {
+                    option.remove();
+                });
                 menu.opts.length = 0;
                 query = [];
-                return add_handler(), reset_query();
+                conf.aggregators.forEach(function (entry, index) {
+                    if (menu.opts.length < conf.aggregators.length) add_handler();
+                    init_menu_elems(index);
+                    $select.val(entry.val);
+                    $checkbox[0].disabled = false;
+                    query.splice(index, 0, {pos: index, val: entry.val, required_field: entry.required_field});
+                    display_query();
+                });
+            },
+            menu.reset_query = function () {
+                for (var i = menu.opts.length-1; i >=0; i-=1) {
+                    if (menu.opts.length === 1) {
+                        menu.opts[i].val(default_sel_txt);
+                        break;
+                    }
+                    init_menu_elems(i);
+                    delete_handler(i);
+                }
+                return init_menu_elems(0), reset_query();
             },
 
             menu.get_query = function () {
