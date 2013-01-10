@@ -942,6 +942,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   }
 
   @Override
+  @Test
   public void testCashFlowSecurity() {
     assertSecurities(CashFlowSecurity.class);
   }
