@@ -32,7 +32,7 @@ public class LocalVolatilityBackwardPDEPriceGridCalculator implements PDELocalVo
     final PDEGrid1D grid = pdeGrid.getGrid();
     final double df = discountingCurve.getDiscountFactor(option.getTimeToExpiry());
     final double[] forwards = grid.getSpaceNodes();
-    final double[] forwardPrices = pdeGrid.getFinalTimePrices();
+    final double[] forwardPrices = pdeGrid.getTerminalResults();
     final int n = forwards.length;
     final double[] prices = new double[n];
     for (int i = 0; i < n; i++) {
@@ -47,7 +47,7 @@ public class LocalVolatilityBackwardPDEPriceGridCalculator implements PDELocalVo
     final PDETerminalResults1D pdeGrid = _pdeCalculator.runPDESolver(localVolatility, forwardCurve, option);
     final PDEGrid1D grid = pdeGrid.getGrid();
     final double[] forwards = grid.getSpaceNodes();
-    final double[] forwardPrices = pdeGrid.getFinalTimePrices();
+    final double[] forwardPrices = pdeGrid.getTerminalResults();
     return _interpolator.getDataBundleFromSortedArrays(forwards, forwardPrices);
   }
 

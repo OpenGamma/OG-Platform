@@ -38,7 +38,7 @@ public class LocalVolatilityForwardPDEPriceGridCalculator implements PDELocalVol
     final double strike = option.getStrike();
     final double forward = forwardCurve.getForward(expiry);
     final double[] moneynesses = grid.getSpaceNodes();
-    final double[] modifiedPrices = pdeGrid.getFinalTimePrices();
+    final double[] modifiedPrices = pdeGrid.getTerminalResults();
     final int n = modifiedPrices.length;
     final DoubleArrayList strikes = new DoubleArrayList();
     final DoubleArrayList prices = new DoubleArrayList();

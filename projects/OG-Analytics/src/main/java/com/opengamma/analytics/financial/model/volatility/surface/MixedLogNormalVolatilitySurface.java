@@ -7,9 +7,11 @@ package com.opengamma.analytics.financial.model.volatility.surface;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
 import com.opengamma.analytics.financial.model.volatility.smile.function.MultiHorizonMixedLogNormalModelData;
+import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
@@ -24,6 +26,52 @@ public class MixedLogNormalVolatilitySurface {
 
   private static final double ROOT_2_PI = Math.sqrt(2 * Math.PI);
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
+
+  public static PriceSurface getPriceSurface(final ForwardCurve fwdCurve, final YieldAndDiscountCurve disCurve, final MultiHorizonMixedLogNormalModelData data) {
+    final double minT = 1e-6;
+    ArgumentChecker.notNull(fwdCurve, "null fwdCurve");
+    ArgumentChecker.notNull(data, "null data");
+
+    final double[] w = data.getWeights();
+    final double[] sigma = data.getVolatilities();
+    final double[] mu = data.getMus();
+    final int n = w.length;
+    double sum = 0;
+    for (int i = 0; i < n; i++) {
+      sum += w[i] * sigma[i];
+    }
+    final double tZeroLimit = sum;
+
+    final Function<Double, Double> surf = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... x) {
+        double t = x[0];
+        final double k = x[1];
+        final double fwd = fwdCurve.getForward(t);
+        if (t < minT) {
+          if (k == fwd) {
+            return tZeroLimit;
+          }
+          t = minT;
+        }
+        double expOmega = 0.0;
+        for (int i = 0; i < n; i++) {
+          expOmega += w[i] * Math.exp(t * mu[i]);
+        }
+
+        final boolean isCall = k >= fwd;
+        final double kStar = k / fwd;
+        double price = 0;
+        for (int i = 0; i < n; i++) {
+          final double fStar = Math.exp(t * mu[i]) / expOmega;
+          price += w[i] * BlackFormulaRepository.price(fStar, kStar, t, sigma[i], isCall);
+        }
+        return disCurve.getDiscountFactor(t) * price * fwd;
+      }
+    };
+
+    return new PriceSurface(FunctionalDoublesSurface.from(surf));
+  }
 
   /**
    * Gets the implied volatility surface from a mixed log-normal model
@@ -189,8 +237,8 @@ public class MixedLogNormalVolatilitySurface {
         if (Doubles.isFinite(res)) {
           return res;
         }
-        return 0.0;
-        //        throw new MathException("Local Volatility failure: " + res);
+        // return 0.0;
+        throw new MathException("Local Volatility failure: " + res);
       }
     };
     return new LocalVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
