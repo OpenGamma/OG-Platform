@@ -111,7 +111,8 @@ import com.opengamma.util.ArgumentChecker;
 
     @Override
     public String toString() {
-      return "[" + _property.toString() + ", '" + _exception.getMessage() + "']";
+      String message = _exception.getMessage() == null ? null : "'" + _exception.getMessage() + "'";
+      return "[" + _property.toString() + ", " + message + "]";
     }
   }
 
@@ -124,14 +125,14 @@ import com.opengamma.util.ArgumentChecker;
       }
     }
 
-    private static String buildMessage(MetaBean metaBean,
-                                       BeanVisitor<?> visitor,
-                                       List<TraversalFailure> failures) {
+    private static String buildMessage(MetaBean metaBean, BeanVisitor<?> visitor, List<TraversalFailure> failures) {
       ArgumentChecker.notNull(metaBean, "metaBean");
       ArgumentChecker.notEmpty(failures, "failures");
       ArgumentChecker.notNull(visitor, "visitor");
-      return "Bean traversal failed. bean: " + metaBean + ", visitor: " + visitor + ", failures: [" +
-          StringUtils.join(failures, ", ") + "]";
+      return "Bean traversal failed. " +
+          "bean: " + metaBean + ", " +
+          "visitor: " + visitor + ", " +
+          "failures: [" + StringUtils.join(failures, ", ") + "]";
     }
   }
 }

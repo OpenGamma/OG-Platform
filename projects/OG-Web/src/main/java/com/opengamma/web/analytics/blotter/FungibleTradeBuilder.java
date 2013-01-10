@@ -32,7 +32,7 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.OpenGammaClock;
 
 /**
- * TODO factor out common code into an abstract superclass shared with OtcTradeBuilder?
+ *
  */
 /* package */ abstract class FungibleTradeBuilder extends AbstractTradeBuilder {
 
@@ -80,7 +80,7 @@ import com.opengamma.util.OpenGammaClock;
     ManageableTrade.Meta meta = ManageableTrade.meta();
     BeanBuilder<? extends ManageableTrade> tradeBuilder =
         tradeBuilder(tradeData,
-                     meta.uniqueId(), // TODO handle uniqueId differently for new trades - shouldn't be specified
+                     meta.uniqueId(),
                      meta.tradeDate(),
                      meta.tradeTime(),
                      meta.premium(),
@@ -92,6 +92,8 @@ import com.opengamma.util.OpenGammaClock;
     StringConverter<ExternalIdBundle> idBundleConverter =
         JodaBeanUtils.stringConverter().findConverter(ExternalIdBundle.class);
     String idBundleStr = tradeData.getValue(SECURITY_ID_BUNDLE);
+    // TODO check the security exists and load it if not? and the underlying? what securities have fungible underlying securities?
+    // TODO is a trade's security allowed to change? presumably not
     ExternalIdBundle securityIdBundle = idBundleConverter.convertFromString(ExternalIdBundle.class,idBundleStr);
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(securityIdBundle));
     String counterparty = tradeData.getValue(COUNTERPARTY);
@@ -102,7 +104,6 @@ import com.opengamma.util.OpenGammaClock;
     ManageableTrade trade = tradeBuilder.build();
     // TODO need the node ID so we can add the position to the portfolio node
     ManageablePosition position = getPosition(trade);
-    // TODO check the security exists and load it if not?
     ManageablePosition savedPosition = savePosition(position);
     List<ManageableTrade> trades = savedPosition.getTrades();
     ManageableTrade savedTrade = trades.get(0);
@@ -116,8 +117,7 @@ import com.opengamma.util.OpenGammaClock;
    */
   /* package */ abstract ManageablePosition savePosition(ManageablePosition position);
 
-  // for existing trades need to remove from the position and adjust the quantity
-  // need the node ID? if there's an existing position in the security need to add to that, otherwise create new
+  // TODO need the node ID. if there's an existing position need to add trade to it and adjust the amount
   /* package */ abstract ManageablePosition getPosition(ManageableTrade trade);
 
   /**
