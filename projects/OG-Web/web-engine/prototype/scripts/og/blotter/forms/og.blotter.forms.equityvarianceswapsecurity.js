@@ -11,7 +11,6 @@ $.register_module({
             if(config) {data = config; data.id = config.trade.uniqueId;}
             else {data = {security: {type: "EquityVarianceSwapSecurity", name: "EquityVarianceSwapSecurity ABC", 
                 regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};}
-            console.log(config);
             constructor.load = function () {
                 constructor.title = 'Equity Varience Swap';
                 form = new og.common.util.ui.Form({
@@ -54,7 +53,7 @@ $.register_module({
                         data.security.parameterizedAsVariance);
                 });
                 form.on('form:submit', function (result){
-                    og.api.rest.blotter.trades.put(result.data).pipe(/*console.log*/);
+                    og.api.rest.blotter.trades.put(result.data);
                 });
             }; 
             constructor.load();

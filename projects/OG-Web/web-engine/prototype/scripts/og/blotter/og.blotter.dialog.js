@@ -10,7 +10,6 @@ $.register_module({
             var dialog = this, $selector, form_block = '.OG-blotter-form-block', form_wrapper, title, submit;
             dialog.load = function () {
                 if(config) {
-                    
                     title = "Edit Trade", submit = "Update";
                     og.api.text({module: 'og.blotter.forms.blocks.form_edit_tash'}).pipe(function (template){
                         $selector = $(template);
@@ -37,7 +36,6 @@ $.register_module({
                     else return acc[val];
                     }, window);
                 if(inner) {
-                    console.log(config);
                     form_wrapper = new inner(data);
                     $('.ui-dialog-title').html(form_wrapper.title);
                 }
