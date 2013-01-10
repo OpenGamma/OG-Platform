@@ -55,6 +55,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
@@ -939,5 +940,9 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
   public void testLegacyVanillaCDSSecurity() {
     assertSecurities(LegacyVanillaCDSSecurity.class);
   }
-   
+
+  @Override
+  public void testCashFlowSecurity() {
+    assertSecurities(CashFlowSecurity.class);
+  }
 }

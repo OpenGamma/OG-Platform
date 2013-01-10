@@ -30,6 +30,7 @@ import com.opengamma.masterdb.security.hibernate.bond.BondSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorCMSSpreadSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cash.CashSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.cashflow.CashFlowSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cds.CDSSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cds.LegacyFixedRecoveryCDSSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.cds.LegacyRecoveryLockCDSSecurityBeanOperation;
@@ -186,6 +187,7 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     loadBeanOperation(StdFixedRecoveryCDSSecurityBeanOperation.INSTANCE);
     loadBeanOperation(StdRecoveryLockCDSSecurityBeanOperation.INSTANCE);
     loadBeanOperation(StdVanillaCDSSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(CashFlowSecurityBeanOperation.INSTANCE);
   }
 
   //-------------------------------------------------------------------------

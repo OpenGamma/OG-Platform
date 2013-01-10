@@ -7,6 +7,8 @@ START TRANSACTION;
     id bigint NOT NULL,
     security_id bigint NOT NULL,
     currency_id bigint NOT NULL,
+    settlement_date timestamp without time zone NOT NULL,
+    settlement_zone varchar(50) NOT NULL,
     amount double precision NOT NULL,
 
     PRIMARY KEY (id),

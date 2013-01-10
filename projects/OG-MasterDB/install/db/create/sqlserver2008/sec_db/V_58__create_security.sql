@@ -967,6 +967,8 @@ CREATE TABLE sec_debt_seniority (
     id bigint NOT NULL,
     security_id bigint NOT NULL,
     currency_id bigint NOT NULL,
+    settlement_date DATETIME2(6) NOT NULL,
+    settlement_zone VARCHAR(50) NOT NULL,
     amount double precision NOT NULL,
 
     PRIMARY KEY (id),
