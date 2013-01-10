@@ -18,6 +18,8 @@ public class RecoveryRateModelConstant extends RecoveryRateModel {
 
   private final double _recoveryRate;
 
+  private final RecoveryRateType _recoveryRateType;
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   public RecoveryRateModelConstant(final double recoveryRate) {
@@ -33,6 +35,8 @@ public class RecoveryRateModelConstant extends RecoveryRateModel {
 
     _recoveryRate = recoveryRate;
 
+    _recoveryRateType = RecoveryRateType.CONSTANT;
+
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
@@ -41,6 +45,21 @@ public class RecoveryRateModelConstant extends RecoveryRateModel {
   @Override
   public double getRecoveryRate() {
     return _recoveryRate;
+  }
+
+  public RecoveryRateType getRecoveryRateType() {
+    return _recoveryRateType;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Builder method to allow the recovery rate to be set at a specified value
+
+  public RecoveryRateModelConstant sampleRecoveryRate(final double recoveryRate) {
+
+    final RecoveryRateModelConstant modifiedRecoveryRateModel = new RecoveryRateModelConstant(recoveryRate);
+
+    return modifiedRecoveryRateModel;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
