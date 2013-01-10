@@ -31,7 +31,6 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 
 /**
@@ -43,9 +42,6 @@ import com.opengamma.util.OpenGammaClock;
 
   /* package */ OtcTradeBuilder(SecurityMaster securityMaster, PositionMaster positionMaster, Set<MetaBean> metaBeans) {
     super(positionMaster, securityMaster, metaBeans);
-    ArgumentChecker.notNull(securityMaster, "securityManager");
-    ArgumentChecker.notNull(positionMaster, "positionMaster");
-    ArgumentChecker.notEmpty(metaBeans, "metaBeans");
   }
 
   /* package */ UniqueId buildAndSaveTrade(BeanDataSource tradeData,
@@ -179,7 +175,7 @@ import com.opengamma.util.OpenGammaClock;
 
   // TODO different versions for OTC / non OTC
   // the horror... make this go away TODO move to the TradeBuilers? they create the trades
-  static Map<String, Object> tradeStructure() {
+  /* package */ static Map<String, Object> tradeStructure() {
     Map<String, Object> structure = Maps.newHashMap();
     List<Map<String, Object>> properties = Lists.newArrayList();
     properties.add(property("uniqueId", true, true, typeInfo("string", "UniqueId")));
@@ -191,7 +187,7 @@ import com.opengamma.util.OpenGammaClock;
     properties.add(property("premiumDate", true, false, typeInfo("string", "LocalDate")));
     properties.add(property("premiumTime", true, false, typeInfo("string", "OffsetTime")));
     properties.add(attributesProperty());
-    structure.put("type", TRADE_TYPE_NAME); // TODO different type name for OTC and fungible
+    structure.put("type", TRADE_TYPE_NAME);
     structure.put("properties", properties);
     structure.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
     return structure;

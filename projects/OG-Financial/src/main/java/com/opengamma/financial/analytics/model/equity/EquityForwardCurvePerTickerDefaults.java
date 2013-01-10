@@ -19,6 +19,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Triple;
@@ -26,9 +27,9 @@ import com.opengamma.util.tuple.Triple;
 /**
  *
  */
-public class EquityForwardCurveDefaults extends DefaultPropertyFunction {
+public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCurveDefaults.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCurvePerTickerDefaults.class);
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
   /** Map from currency to curve configuration, curve name and currency */
@@ -38,7 +39,7 @@ public class EquityForwardCurveDefaults extends DefaultPropertyFunction {
    * @param priority The priority, not null
    * @param perEquityConfig The default values per equity, not null
    */
-  public EquityForwardCurveDefaults(final String priority, final String... perEquityConfig) {
+  public EquityForwardCurvePerTickerDefaults(final String priority, final String... perEquityConfig) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perEquityConfig, "per equity config");
@@ -48,7 +49,7 @@ public class EquityForwardCurveDefaults extends DefaultPropertyFunction {
     _perEquityConfig = new HashMap<String, Triple<String, String, String>>();
     for (int i = 0; i < perEquityConfig.length; i += 4) {
       final Triple<String, String, String> config = new Triple<String, String, String>(perEquityConfig[i + 1], perEquityConfig[i + 2], perEquityConfig[i + 3]);
-      _perEquityConfig.put(perEquityConfig[i], config);
+      _perEquityConfig.put(perEquityConfig[i].toUpperCase(), config);
     }
   }
 
@@ -58,7 +59,10 @@ public class EquityForwardCurveDefaults extends DefaultPropertyFunction {
       return false;
     }
     final String equityId = EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
-    return _perEquityConfig.containsKey(equityId);
+    if (equityId == null) {
+      return false;
+    }
+    return _perEquityConfig.containsKey(equityId.toUpperCase());
   }
 
   @Override
@@ -92,6 +96,11 @@ public class EquityForwardCurveDefaults extends DefaultPropertyFunction {
   @Override
   public PriorityClass getPriority() {
     return _priority;
+  }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.EQUITY_FORWARD_CURVE_DEFAULTS;
   }
 
 }

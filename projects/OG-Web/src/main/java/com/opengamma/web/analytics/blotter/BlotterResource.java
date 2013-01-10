@@ -39,6 +39,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.conversion.JodaBeanConverters;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -218,7 +219,8 @@ public class BlotterResource {
                                                                        s_underlyingSecurityTypes,
                                                                        s_endpoints);
       BeanVisitorDecorator propertyNameFilter = new PropertyNameFilter("externalIdBundle", "securityType");
-      BeanTraverser traverser = new BeanTraverser(propertyNameFilter);
+      PropertyFilter swaptionUnderlyingFilter = new PropertyFilter(SwaptionSecurity.meta().underlyingId());
+      BeanTraverser traverser = new BeanTraverser(propertyNameFilter, swaptionUnderlyingFilter);
       beanData = (Map<String, Object>) traverser.traverse(metaBean, structureBuilder);
     }
     return _freemarker.build("blotter/bean-structure.ftl", beanData);
@@ -232,7 +234,6 @@ public class BlotterResource {
   public String getTradeJSON(@PathParam("tradeId") String tradeIdStr) {
     ManageableTrade trade = findTrade(tradeIdStr);
     ManageableSecurity security = findSecurity(trade.getSecurityLink());
-    // TODO visitor that returns trade builder? what about underlying?
     JSONObject root = new JSONObject();
     try {
       JsonDataSink tradeSink = new JsonDataSink();
@@ -242,11 +243,21 @@ public class BlotterResource {
         if (securityMetaBean == null) {
           throw new DataNotFoundException("No MetaBean is registered for security type " + security.getClass().getName());
         }
-        BeanVisitor<JSONObject> securityVisitor = new BuildingBeanVisitor<JSONObject>(security, new JsonDataSink());
+        BeanVisitor<JSONObject> securityVisitor = new BuildingBeanVisitor<>(security, new JsonDataSink());
         PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
-        JSONObject securityJson = (JSONObject) new BeanTraverser(securityPropertyFilter).traverse(securityMetaBean, securityVisitor);
+        BeanTraverser securityTraverser = new BeanTraverser(securityPropertyFilter);
+        JSONObject securityJson = (JSONObject) securityTraverser.traverse(securityMetaBean, securityVisitor);
+        if (security instanceof FinancialSecurity) {
+          UnderlyingSecurityVisitor visitor = new UnderlyingSecurityVisitor(VersionCorrection.LATEST, _securityMaster);
+          ManageableSecurity underlying = ((FinancialSecurity) security).accept(visitor);
+          if (underlying != null) {
+            BeanVisitor<JSONObject> underlyingVisitor = new BuildingBeanVisitor<>(underlying, new JsonDataSink());
+            MetaBean underlyingMetaBean = s_metaBeansByTypeName.get(underlying.getClass().getSimpleName());
+            JSONObject underlyingJson = (JSONObject) securityTraverser.traverse(underlyingMetaBean, underlyingVisitor);
+            root.put("underlying", underlyingJson);
+          }
+        }
         root.put("security", securityJson);
-        // TODO filter out underlyingId for securities with OTC underlying
         // TODO include underlying security for securities with OTC underlying (i.e. swaptions)
       } else {
         FungibleTradeBuilder.extractTradeData(trade, tradeSink);
@@ -389,7 +400,4 @@ public class BlotterResource {
   public BlotterLookupResource getLookupResource() {
     return new BlotterLookupResource();
   }
-
-  // TODO create fungible trade - identifier and quantity
-
 }

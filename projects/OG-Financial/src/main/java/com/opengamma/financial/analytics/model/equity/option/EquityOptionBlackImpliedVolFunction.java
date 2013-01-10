@@ -6,13 +6,16 @@
 package com.opengamma.financial.analytics.model.equity.option;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -42,14 +45,17 @@ public class EquityOptionBlackImpliedVolFunction extends EquityOptionBlackFuncti
   }
 
   @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
-    return super.createValueProperties(target)
-        .withoutAny(ValuePropertyNames.CURRENCY);
-  }
-
-  @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
-    return super.createValueProperties(target, desiredValue)
-        .withoutAny(ValuePropertyNames.CURRENCY);
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final Set<ValueSpecification> results = super.getResults(context, target, inputs);
+    final Set<ValueSpecification> resultsWithoutCurrency = Sets.newHashSetWithExpectedSize(results.size());
+    for (final ValueSpecification spec : results) {
+      final String name = spec.getValueName();
+      final ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
+      final ValueProperties properties = spec.getProperties().copy()
+          .withoutAny(ValuePropertyNames.CURRENCY)
+          .get();
+      resultsWithoutCurrency.add(new ValueSpecification(name, targetSpec, properties));
+    }
+    return results;
   }
 }

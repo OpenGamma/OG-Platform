@@ -31,16 +31,23 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Defaults function for forward values for equity variance swap securities
  */
-public class EquityForwardCalculationDefaults extends DefaultPropertyFunction {
+public class EquityForwardPerEquityDefaults extends DefaultPropertyFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCalculationDefaults.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardPerEquityDefaults.class);
+  /** The value requirements for which these defaults are valid */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.FORWARD
   };
+  /** The priority of these defaults */
   private final PriorityClass _priority;
+  /** The default values */
   private final Map<String, Pair<String, String>> _equityCurveConfigAndDiscountingCurveNames;
 
-  public EquityForwardCalculationDefaults(final String priority, final String... equityCurveConfigAndDiscountingCurveNames) {
+  /**
+   * @param priority The priority of these defaults, not null
+   * @param equityCurveConfigAndDiscountingCurveNames The per-equity curve configuration and discounting curve names, not null
+   */
+  public EquityForwardPerEquityDefaults(final String priority, final String... equityCurveConfigAndDiscountingCurveNames) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(equityCurveConfigAndDiscountingCurveNames, "equity and curve config names");

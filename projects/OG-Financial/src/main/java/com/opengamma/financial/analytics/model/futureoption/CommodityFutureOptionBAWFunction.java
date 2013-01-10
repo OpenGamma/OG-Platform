@@ -51,6 +51,7 @@ public abstract class CommodityFutureOptionBAWFunction extends FutureOptionFunct
     final String fullSurfaceName = CommodityFutureOptionUtils.getSurfaceName(security, surfaceName);
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, fullSurfaceName)
+        .with(ValuePropertyNames.CURVE, fullSurfaceName)
         .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolator)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION)
         .get();

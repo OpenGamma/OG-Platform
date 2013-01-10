@@ -33,7 +33,7 @@ public abstract class BlackVolatilitySurfaceSplineInterpolatorFunction extends B
 
   @Override
   protected ValueProperties getResultProperties(final ValueRequirement desiredValue) {
-    ValueProperties.Builder properties = BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(createValueProperties().get(), desiredValue);
+    final ValueProperties.Builder properties = BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(createValueProperties().get(), desiredValue);
     return properties.get();
   }
   protected Interpolator1D getInterpolator1D(final ValueRequirement desiredValue) {
@@ -45,7 +45,7 @@ public abstract class BlackVolatilitySurfaceSplineInterpolatorFunction extends B
   }
 
   /**
-   * The Spline Smile extrapolates by fitting a ShiftedLogNormal Model. This is Black with an additional free paramter, F' = F*exp(mu)) <p>
+   * The Spline Smile extrapolates by fitting a ShiftedLogNormal Model. This is Black with an additional free parameter, F' = F*exp(mu)) <p>
    * <p>
    * Two choices are provided of how to handle ExtrapolatorFailureBehaviour if the fitter is unable to find a solution to fit the boundary vol and the vol gradient dVol/dK at that point...<p>
    * "Exception": an exception will be thrown. This selection puts the onus of shepherding the data on whoever provides marks. <p>
@@ -53,7 +53,7 @@ public abstract class BlackVolatilitySurfaceSplineInterpolatorFunction extends B
    */
   public static class Quiet extends BlackVolatilitySurfaceSplineInterpolatorFunction {
     @Override
-    protected GeneralSmileInterpolator getSmileInterpolator(ValueRequirement desiredValue) {
+    protected GeneralSmileInterpolator getSmileInterpolator(final ValueRequirement desiredValue) {
       final Interpolator1D interpolator = getInterpolator1D(desiredValue);
       return new SmileInterpolatorSpline(interpolator, QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
     }
@@ -72,7 +72,7 @@ public abstract class BlackVolatilitySurfaceSplineInterpolatorFunction extends B
   public static class Exception extends BlackVolatilitySurfaceSplineInterpolatorFunction {
 
     @Override
-    protected GeneralSmileInterpolator getSmileInterpolator(ValueRequirement desiredValue) {
+    protected GeneralSmileInterpolator getSmileInterpolator(final ValueRequirement desiredValue) {
       final Interpolator1D interpolator = getInterpolator1D(desiredValue);
       return new SmileInterpolatorSpline(interpolator, EXCEPTION_SPLINE_EXTRAPOLATOR_FAILURE);
     }

@@ -18,6 +18,7 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *
@@ -32,7 +33,12 @@ import com.opengamma.master.security.SecurityMaster;
   private final PositionMaster _positionMaster;
   private final MetaBeanFactory _metaBeanFactory;
 
-  AbstractTradeBuilder(PositionMaster positionMaster, SecurityMaster securityMaster, Set<MetaBean> metaBeans) {
+  /* package */ AbstractTradeBuilder(PositionMaster positionMaster,
+                                     SecurityMaster securityMaster,
+                                     Set<MetaBean> metaBeans) {
+    ArgumentChecker.notNull(securityMaster, "securityManager");
+    ArgumentChecker.notNull(positionMaster, "positionMaster");
+    ArgumentChecker.notEmpty(metaBeans, "metaBeans");
     _positionMaster = positionMaster;
     _securityMaster = securityMaster;
     _metaBeanFactory = new MapMetaBeanFactory(metaBeans);

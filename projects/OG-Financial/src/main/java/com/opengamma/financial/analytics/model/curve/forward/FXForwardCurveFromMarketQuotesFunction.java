@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.forward;
@@ -53,7 +53,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardCurveFromMarketQuotesFunction.class);
@@ -80,7 +80,7 @@ public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
             .withAny(PROPERTY_FORWARD_CURVE_INTERPOLATOR)
             .withAny(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
             .withAny(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR)
-            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_FORWARD_QUOTES).get();
+            .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, FX_FORWARD_QUOTES).get();
         final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
         return Collections.singleton(spec);
       }
@@ -171,7 +171,7 @@ public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
             .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, interpolatorName)
             .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, leftExtrapolatorName)
             .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, rightExtrapolatorName)
-            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_FORWARD_QUOTES).get();
+            .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, FX_FORWARD_QUOTES).get();
         return new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
       }
     };

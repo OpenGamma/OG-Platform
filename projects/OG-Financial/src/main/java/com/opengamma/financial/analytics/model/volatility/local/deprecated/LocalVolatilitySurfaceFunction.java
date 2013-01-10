@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.volatility.local.deprecated;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_H;
 import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE;
 import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS;
@@ -35,6 +34,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 
 /**
  *
@@ -51,7 +51,7 @@ public abstract class LocalVolatilitySurfaceFunction extends AbstractFunction.No
     final String xAxis = desiredValue.getConstraint(PROPERTY_X_AXIS);
     final String yAxis = desiredValue.getConstraint(PROPERTY_Y_AXIS);
     final String yAxisType = desiredValue.getConstraint(PROPERTY_Y_AXIS_TYPE);
-    final String forwardCurveCalculationMethod = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
+    final String forwardCurveCalculationMethod = desiredValue.getConstraint(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     final String forwardCurveName = desiredValue.getConstraint(CURVE);
     final String hName = desiredValue.getConstraint(PROPERTY_H);
     final double h = Double.parseDouble(hName);
@@ -116,7 +116,7 @@ public abstract class LocalVolatilitySurfaceFunction extends AbstractFunction.No
     if (hNames == null || hNames.size() != 1) {
       return null;
     }
-    final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(CURVE_CALCULATION_METHOD);
+    final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     if (forwardCurveCalculationMethodNames == null || forwardCurveCalculationMethodNames.size() != 1) {
       return null;
     }
@@ -148,8 +148,8 @@ public abstract class LocalVolatilitySurfaceFunction extends AbstractFunction.No
     for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
       final ValueProperties constraints = input.getValue().getConstraints();
       if (input.getValue().getValueName().equals(ValueRequirementNames.FORWARD_CURVE)) {
-        if (constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD) != null) {
-          final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+        if (constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD) != null) {
+          final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
           if (forwardCurveCalculationMethodNames == null || forwardCurveCalculationMethodNames.size() != 1) {
             throw new OpenGammaRuntimeException("Missing or non-unique forward curve calculation method name");
           }
@@ -226,7 +226,7 @@ public abstract class LocalVolatilitySurfaceFunction extends AbstractFunction.No
 
   private ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final String calculationMethod, final String curveName) {
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, calculationMethod)
         .with(ValuePropertyNames.CURVE, curveName).get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
   }
