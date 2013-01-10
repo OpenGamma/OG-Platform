@@ -73,9 +73,6 @@ import com.opengamma.util.OpenGammaClock;
     ManageableTrade trade = tradeBuilder.build();
     // TODO need the node ID so we can add the position to the portfolio node
     ManageablePosition position = getPosition(trade);
-    position.setSecurityLink(new ManageableSecurityLink(securityId));
-    position.addTrade(trade);
-    position.setQuantity(trade.getQuantity());
     ManageablePosition savedPosition = savePosition(position);
     List<ManageableTrade> trades = savedPosition.getTrades();
     ManageableTrade savedTrade = trades.get(0);
