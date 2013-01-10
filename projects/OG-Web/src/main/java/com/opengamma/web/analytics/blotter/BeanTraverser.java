@@ -111,7 +111,7 @@ import com.opengamma.util.ArgumentChecker;
 
     @Override
     public String toString() {
-      return "[property: " + _property.toString() + ", message: " + _exception.getMessage() + "]";
+      return "[" + _property.toString() + ", '" + _exception.getMessage() + "']";
     }
   }
 
