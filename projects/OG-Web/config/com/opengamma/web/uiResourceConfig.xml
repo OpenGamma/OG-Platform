@@ -44,6 +44,7 @@
     <fragment>/styles/common/util/ui/og.common.util.ui.OG-warning-message.css</fragment>
     <fragment>/styles/common/util/ui/og.common.util.ui.OG-breadcrumb.css</fragment>
     <fragment>/styles/common/util/ui/og.common.util.ui.OG-portfolio.css</fragment>
+    <fragment>/styles/common/util/ui/og.common.util.ui.OG-contextmenu.css</fragment>
   </bundle>
   <bundle id="common.classes.css">
     <fragment>/styles/common/classes/og.common.classes.OG-table_style_01.css</fragment>
@@ -139,7 +140,6 @@
     <fragment>/styles/lib/jquery/ui/jquery.ui.datepicker.css</fragment>
     <fragment>/styles/lib/jquery/ui/jquery.ui.resizable.css</fragment>
     <fragment>/styles/lib/jquery/ui/jquery.ui.sliders.css</fragment>
-    <fragment>/styles/lib/jquery/jquery.awesome_contextmenu.css</fragment>
     <fragment>/styles/lib/jquery/jquery-layout-default.css</fragment>
     <fragment>/styles/lib/jquery/jquery-layout-admin.css</fragment>
   </bundle>
@@ -248,7 +248,6 @@
     <fragment>/scripts/lib/og.standalone.data.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.layout.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.awesometable.js</fragment>
-    <fragment>/scripts/lib/jquery/jquery.awesome_contextmenu.js</fragment>
     <fragment>/scripts/lib/three/three.js</fragment>
     <fragment>/scripts/lib/three/detector.js</fragment>
     <fragment>/scripts/lib/four/four.buffer.js</fragment>
@@ -304,6 +303,7 @@
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.tooltip.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.attributes.js</fragment>
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.portfolio.js</fragment>
+    <fragment>/scripts/og/common/util/ui/og.common.util.ui.contextmenu.js</fragment>
   </bundle>
   <bundle id="common.js">
     <fragment>/scripts/og/common/slickgrid/formatters/og.common.slickgrid.formatters.timeseries.js</fragment>

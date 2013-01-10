@@ -1,20 +1,20 @@
-.awesome_contextmenu {
+.OG-contextmenu {
     background-color: #f7f7f7;
     border: 1px solid #e5e5e5;
     line-height: 26px;
     cursor: default;
 }
 
-.awesome_contextmenu div {
+.OG-contextmenu div {
     padding: 0 20px 0 8px;
 }
 
-.awesome_contextmenu span {
+.OG-contextmenu span {
     display: inline-block;
     width: 28px;
 }
 
-.awesome_contextmenu hr {
+.OG-contextmenu hr {
     background-color: rgba(255, 255, 255, 0.5);
     border-color: rgba(0, 0, 0, 0.1);
     left: 30px;
@@ -23,7 +23,7 @@
     right: 0;
 }
 
-.awesome_contextmenu span:after {
+.OG-contextmenu span:after {
     content: '';
     position: absolute;
     top: 0;
@@ -35,7 +35,7 @@
     opacity: 0.3;
 }
 
-.awesome_contextmenu span:before {
+.OG-contextmenu span:before {
     content: '';
     position: absolute;
     top: 0;
@@ -48,13 +48,13 @@
 }
 
 
-.awesome_contextmenu div:hover {
+.OG-contextmenu div:hover {
     background-color: #80c696;
     color: #fff;
 }
 
-.awesome_contextmenu div[data-active=false],
-.awesome_contextmenu div[data-active=false]:hover {
+.OG-contextmenu div[data-active=false],
+.OG-contextmenu div[data-active=false]:hover {
     color: #ccc;
     background-color: transparent;
 }

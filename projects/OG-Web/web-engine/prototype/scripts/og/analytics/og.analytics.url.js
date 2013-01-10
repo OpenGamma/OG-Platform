@@ -49,6 +49,13 @@ $.register_module({
                             source: $.extend({}, last_object.main)
                         }).on('viewchange', function (view) {
                             url.main($.extend({}, og.analytics.grid.source, {type: view}));
+                        }).on('contextmenu', function (event, cell, col) {
+//                            if (cell) return og.common.util.ui.contextmenu({
+//                                defaults: true, zindex: 4, items: [
+//                                    {name: 'Insert', callback: function () {new og.blotter.Dialog()}},
+//                                    {name: 'Edit', callback: $.noop}
+//                                ]
+//                            }, event, cell);
                         }).on('fatal', url.clear_main);
                     }
                     panels.forEach(function (panel) {

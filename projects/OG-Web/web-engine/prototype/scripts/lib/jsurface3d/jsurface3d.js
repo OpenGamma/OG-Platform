@@ -17,7 +17,6 @@
  * @see <a href="http://www.opengamma.com/">OpenGamma</a>
  * @see <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>
  * @author Alan Ayoub
- * Creates a surface instance
  * @name JSurface3D
  * @namespace JSurface3D
  * @constructor

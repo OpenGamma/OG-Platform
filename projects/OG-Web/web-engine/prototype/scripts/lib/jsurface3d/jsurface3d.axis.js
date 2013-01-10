@@ -64,6 +64,7 @@
                 }
                 value.matrixAutoUpdate = false;
                 value.updateMatrix();
+                js3d.buffers.load.add(value);
                 mesh.add(value);
             }
         }());
@@ -77,6 +78,7 @@
             label.position.z = 22;
             label.matrixAutoUpdate = false;
             label.updateMatrix();
+            js3d.buffers.load.add(label);
             mesh.add(label);
         }());
         (function () { // axis ticks
@@ -112,6 +114,7 @@
             }
             axis.matrixAutoUpdate = false;
             axis.updateMatrix();
+            js3d.buffers.surface.add(axis);
             mesh.add(axis);
         }());
         return mesh;
