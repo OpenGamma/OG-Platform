@@ -28,7 +28,7 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -133,7 +133,7 @@ public class PresentValueMCACalculator extends InstrumentDerivativeVisitorAdapte
   }
 
   @Override
-  public MultipleCurrencyAmount visitCouponIborCompounded(final CouponIborCompounded coupon, final YieldCurveBundle curves) {
+  public MultipleCurrencyAmount visitCouponIborCompounding(final CouponIborCompounding coupon, final YieldCurveBundle curves) {
     return MultipleCurrencyAmount.of(METHOD_CPN_IBOR_COMP.presentValue(coupon, curves));
   }
 

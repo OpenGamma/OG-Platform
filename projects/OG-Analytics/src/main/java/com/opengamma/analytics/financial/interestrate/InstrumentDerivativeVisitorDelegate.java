@@ -64,7 +64,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
@@ -376,13 +377,23 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborCompounded(final CouponIborCompounded payment) {
-    return _delegate.visitCouponIborCompounded(payment);
+  public RESULT_TYPE visitCouponIborCompounding(final CouponIborCompounding payment) {
+    return _delegate.visitCouponIborCompounding(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborCompounded(final CouponIborCompounded payment, final DATA_TYPE data) {
-    return _delegate.visitCouponIborCompounded(payment, data);
+  public RESULT_TYPE visitCouponIborCompounding(final CouponIborCompounding payment, final DATA_TYPE data) {
+    return _delegate.visitCouponIborCompounding(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread payment) {
+    return _delegate.visitCouponIborCompoundingSpread(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread payment, final DATA_TYPE data) {
+    return _delegate.visitCouponIborCompoundingSpread(payment, data);
   }
 
   @Override

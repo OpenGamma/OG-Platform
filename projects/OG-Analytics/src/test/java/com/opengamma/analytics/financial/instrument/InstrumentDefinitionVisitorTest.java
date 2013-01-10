@@ -73,7 +73,8 @@ import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDef
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
@@ -113,8 +114,7 @@ public class InstrumentDefinitionVisitorTest {
         fail();
       } catch (final IllegalArgumentException e) {
       } catch (final NullPointerException e) {
-        throw new NullPointerException("accept(InstrumentDefinitionVisitor visitor) in " + definition.getClass().getSimpleName()
-            + " does not check that the visitor is not null");
+        throw new NullPointerException("accept(InstrumentDefinitionVisitor visitor) in " + definition.getClass().getSimpleName() + " does not check that the visitor is not null");
       }
     }
     for (final InstrumentDefinition<?> definition : ALL_INSTRUMENTS) {
@@ -123,8 +123,7 @@ public class InstrumentDefinitionVisitorTest {
         fail();
       } catch (final IllegalArgumentException e) {
       } catch (final NullPointerException e) {
-        throw new NullPointerException("accept(InstrumentDefinitionVisitor visitor, S data) in " + definition.getClass().getSimpleName()
-            + " does not check that the visitor is not null");
+        throw new NullPointerException("accept(InstrumentDefinitionVisitor visitor, S data) in " + definition.getClass().getSimpleName() + " does not check that the visitor is not null");
       }
     }
   }
@@ -535,12 +534,12 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment, final T data) {
+    public String visitCouponIborCompoundingDefinition(final CouponIborCompoundingDefinition payment, final T data) {
       return getValue(payment, true);
     }
 
     @Override
-    public String visitCouponIborCompoundedDefinition(final CouponIborCompoundedDefinition payment) {
+    public String visitCouponIborCompoundingDefinition(final CouponIborCompoundingDefinition payment) {
       return getValue(payment, false);
     }
 
@@ -992,6 +991,16 @@ public class InstrumentDefinitionVisitorTest {
     @Override
     public String visitEquityVarianceSwapDefinition(final EquityVarianceSwapDefinition varianceSwap, final T data) {
       return getValue(varianceSwap, true);
+    }
+
+    @Override
+    public String visitCouponIborCompoundingSpreadDefinition(CouponIborCompoundingSpreadDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborCompoundingSpreadDefinition(CouponIborCompoundingSpreadDefinition payment) {
+      return null;
     }
   }
 }

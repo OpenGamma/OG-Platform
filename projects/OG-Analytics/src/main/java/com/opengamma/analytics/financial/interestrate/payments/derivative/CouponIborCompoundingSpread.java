@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -15,18 +15,21 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing an Ibor-like compounded coupon. The Ibor fixings are compounded over several sub-periods.
+ * Class describing a Ibor-like coupon with compounding and spread. There are three ISDA versions of compounding with spread. 
+ * The one referred in this class is the "compounding" (not "Flat Compounding" and not "Compounding treating spread as simple interest").
+ * The Ibor fixing are compounded over several sub-periods.
  * The amount paid is equal to
  * $$
  * \begin{equation*}
- * \left(\prod_{i=1}^n (1+\delta_i r_i) \right)-1
+ * \left(\prod_{i=1}^n (1+\delta_i r_i + s) \right)-1
  * \end{equation*}
  * $$
- * where the $\delta_i$ are the accrual factors of the sub periods and the $r_i$ the fixing for the same periods.
- * The fixing have their own start dates, end dates and accrual factors. In general they are close to the accrual 
+ * where the $\delta_i$ are the accrual factors of the sub periods, the $r_i$ the fixing for the same periods and $s$ the common spread.
+ * The fixing have their own start dates, end dates and accrual factors. In general they are close to the accrual
  * dates used to compute the coupon accrual factors.
+ * <p> Reference: Mengle, D. (2009). Alternative compounding methods for over-the-counter derivative transactions. ISDA.
  */
-public class CouponIborCompounded extends Coupon {
+public class CouponIborCompoundingSpread extends Coupon {
 
   /**
    * The Ibor-like index on which the coupon fixes. The index currency should be the same as the coupon currency.
@@ -58,15 +61,14 @@ public class CouponIborCompounded extends Coupon {
    */
   private final double _notionalAccrued;
   /**
-   * The forward curve name used in to estimate the fixing index.
+   * The spread paid above the Ibor rate.
    */
-  private final String _forwardCurveName;
+  private final double _spread;
 
   /**
    * Constructor.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
-   * @param discountingCurveName The name of the discounting curve.
    * @param paymentAccrualFactor The year fraction (or accrual factor) for the coupon payment.
    * @param notional The coupon notional.
    * @param notionalAccrued The notional with the interest already fixed accrued.
@@ -76,17 +78,16 @@ public class CouponIborCompounded extends Coupon {
    * @param fixingPeriodStartTimes The start times of the fixing periods.
    * @param fixingPeriodEndTimes The end times of the fixing periods.
    * @param fixingPeriodAccrualFactors The accrual factors (or year fraction) associated with the fixing periods in the Index day count convention.
-   * @param forwardCurveName Name of the forward (or estimation) curve.
+   * @param spread The spread paid above the Ibor rate.
    */
-  public CouponIborCompounded(Currency currency, double paymentTime, String discountingCurveName, double paymentAccrualFactor, double notional, double notionalAccrued, IborIndex index,
-      double[] paymentAccrualFactors, double[] fixingTimes, double[] fixingPeriodStartTimes, double[] fixingPeriodEndTimes, double[] fixingPeriodAccrualFactors, final String forwardCurveName) {
-    super(currency, paymentTime, discountingCurveName, paymentAccrualFactor, notional);
+  public CouponIborCompoundingSpread(Currency currency, double paymentTime, double paymentAccrualFactor, double notional, double notionalAccrued, IborIndex index, double[] paymentAccrualFactors,
+      double[] fixingTimes, double[] fixingPeriodStartTimes, double[] fixingPeriodEndTimes, double[] fixingPeriodAccrualFactors, final double spread) {
+    super(currency, paymentTime, "Not used", paymentAccrualFactor, notional);
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodStartTimes.length, "Fixing times and fixing period should have same length");
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodEndTimes.length, "Fixing times and fixing period should have same length");
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodAccrualFactors.length, "Fixing times and fixing period should have same length");
     ArgumentChecker.isTrue(fixingTimes.length == paymentAccrualFactors.length, "Fixing times and fixing period should have same length");
     ArgumentChecker.notNull(index, "Ibor index");
-    ArgumentChecker.notNull(forwardCurveName, "Forward");
     _notionalAccrued = notionalAccrued;
     _index = index;
     _paymentAccrualFactors = paymentAccrualFactors;
@@ -94,7 +95,7 @@ public class CouponIborCompounded extends Coupon {
     _fixingPeriodStartTimes = fixingPeriodStartTimes;
     _fixingPeriodEndTimes = fixingPeriodEndTimes;
     _fixingPeriodAccrualFactors = fixingPeriodAccrualFactors;
-    _forwardCurveName = forwardCurveName;
+    _spread = spread;
   }
 
   /**
@@ -154,27 +155,27 @@ public class CouponIborCompounded extends Coupon {
   }
 
   /**
-   * Gets the forward curve name.
-   * @return The name.
+   * Returns the spread.
+   * @return the spread
    */
-  public String getForwardCurveName() {
-    return _forwardCurveName;
+  public double getSpread() {
+    return _spread;
   }
 
   @Override
   public Coupon withNotional(double notional) {
-    return new CouponIborCompounded(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, _notionalAccrued, _index, _paymentAccrualFactors, _fixingTimes,
-        _fixingPeriodStartTimes, _fixingPeriodEndTimes, _fixingPeriodAccrualFactors, _forwardCurveName);
+    return new CouponIborCompoundingSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, _notionalAccrued, _index, _paymentAccrualFactors, _fixingTimes,
+        _fixingPeriodStartTimes, _fixingPeriodEndTimes, _fixingPeriodAccrualFactors, _spread);
   }
 
   @Override
   public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
-    return visitor.visitCouponIborCompounded(this, data);
+    return visitor.visitCouponIborCompoundingSpread(this, data);
   }
 
   @Override
   public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
-    return visitor.visitCouponIborCompounded(this);
+    return visitor.visitCouponIborCompoundingSpread(this);
   }
 
   @Override
@@ -185,12 +186,13 @@ public class CouponIborCompounded extends Coupon {
     result = prime * result + Arrays.hashCode(_fixingPeriodEndTimes);
     result = prime * result + Arrays.hashCode(_fixingPeriodStartTimes);
     result = prime * result + Arrays.hashCode(_fixingTimes);
-    result = prime * result + _forwardCurveName.hashCode();
     result = prime * result + _index.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_notionalAccrued);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + Arrays.hashCode(_paymentAccrualFactors);
+    temp = Double.doubleToLongBits(_spread);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
@@ -205,7 +207,7 @@ public class CouponIborCompounded extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponIborCompounded other = (CouponIborCompounded) obj;
+    CouponIborCompoundingSpread other = (CouponIborCompoundingSpread) obj;
     if (!Arrays.equals(_fixingPeriodAccrualFactors, other._fixingPeriodAccrualFactors)) {
       return false;
     }
@@ -218,9 +220,6 @@ public class CouponIborCompounded extends Coupon {
     if (!Arrays.equals(_fixingTimes, other._fixingTimes)) {
       return false;
     }
-    if (!ObjectUtils.equals(_forwardCurveName, other._forwardCurveName)) {
-      return false;
-    }
     if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }
@@ -228,6 +227,9 @@ public class CouponIborCompounded extends Coupon {
       return false;
     }
     if (!Arrays.equals(_paymentAccrualFactors, other._paymentAccrualFactors)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_spread) != Double.doubleToLongBits(other._spread)) {
       return false;
     }
     return true;

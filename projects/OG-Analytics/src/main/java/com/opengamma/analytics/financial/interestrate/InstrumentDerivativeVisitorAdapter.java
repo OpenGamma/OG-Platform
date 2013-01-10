@@ -64,7 +64,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
@@ -327,12 +328,22 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborCompounded(final CouponIborCompounded payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponIborCompounding(final CouponIborCompounding payment, final DATA_TYPE data) {
     return getException(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponIborCompounded(final CouponIborCompounded payment) {
+  public RESULT_TYPE visitCouponIborCompounding(final CouponIborCompounding payment) {
+    return getException(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread payment, final DATA_TYPE data) {
+    return getException(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread payment) {
     return getException(payment);
   }
 
@@ -808,8 +819,8 @@ public abstract class InstrumentDerivativeVisitorAdapter<DATA_TYPE, RESULT_TYPE>
 
   private RESULT_TYPE getException(final InstrumentDerivative definition, final DATA_TYPE data) {
     if (definition != null && data != null) {
-      throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support derivatives of type " + definition.getClass().getSimpleName()
-          + " with data of type " + data.getClass().getSimpleName());
+      throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support derivatives of type " + definition.getClass().getSimpleName() + " with data of type "
+          + data.getClass().getSimpleName());
     }
     throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support this method");
   }

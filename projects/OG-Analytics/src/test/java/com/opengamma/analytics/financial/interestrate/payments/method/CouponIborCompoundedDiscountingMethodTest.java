@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.interestrate.FDCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils;
@@ -29,7 +29,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivityIRSCalculator;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -50,7 +50,7 @@ public class CouponIborCompoundedDiscountingMethodTest {
   private static final Period M6 = Period.ofMonths(6);
   private static final double NOTIONAL = 123000000;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2012, 8, 24);
-  private static final CouponIborCompoundedDefinition CPN_DEFINITION = CouponIborCompoundedDefinition.from(NOTIONAL, START_DATE, M6, CDOR3M);
+  private static final CouponIborCompoundingDefinition CPN_DEFINITION = CouponIborCompoundingDefinition.from(NOTIONAL, START_DATE, M6, CDOR3M);
 
   private static final CouponIborCompoundedDiscountingMethod METHOD_COMPOUNDED = CouponIborCompoundedDiscountingMethod.getInstance();
 
@@ -58,13 +58,13 @@ public class CouponIborCompoundedDiscountingMethodTest {
   private static final String[] CURVES_NAMES = TestsDataSetsSABR.curves1Names();
 
   private static final ZonedDateTime REFERENCE_DATE_BEFORE = DateUtils.getUTCDate(2012, 8, 7);
-  private static final CouponIborCompounded CPN_BEFORE = CPN_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE, CURVES_NAMES);
+  private static final CouponIborCompounding CPN_BEFORE = CPN_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE, CURVES_NAMES);
 
   private static final double[] FIXING_RATES = new double[] {0.0010, 0.0011, 0.0012 };
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 8, 23), DateUtils.getUTCDate(2012, 8, 24),
       DateUtils.getUTCDate(2012, 9, 20) }, FIXING_RATES);
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2012, 8, 28);
-  private static final CouponIborCompounded CPN_1 = (CouponIborCompounded) CPN_DEFINITION.toDerivative(REFERENCE_DATE_1, FIXING_TS, CURVES_NAMES);
+  private static final CouponIborCompounding CPN_1 = (CouponIborCompounding) CPN_DEFINITION.toDerivative(REFERENCE_DATE_1, FIXING_TS, CURVES_NAMES);
 
   private static final PresentValueMCACalculator PVC_MCA = PresentValueMCACalculator.getInstance();
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
@@ -121,7 +121,7 @@ public class CouponIborCompoundedDiscountingMethodTest {
     final double deltaShift = 1.0E-6;
     // Credit curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
-    final CouponIborCompounded cpnBumped = CPN_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE, CURVES_NAMES[0], bumpedCurveName);
+    final CouponIborCompounding cpnBumped = CPN_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE, CURVES_NAMES[0], bumpedCurveName);
     final double[] nodeTimesDsc = new double[] {cpnBumped.getPaymentTime() };
     final List<DoublesPair> sensiDscFD = FDCurveSensitivityCalculator.curveSensitvityFDCalculator(CPN_BEFORE, PVC, CURVES_BUNDLE, CURVES_NAMES[0], nodeTimesDsc, deltaShift);
     final List<DoublesPair> sensiDscComputed = pscsComputed.getSensitivities().get(CURVES_NAMES[0]);

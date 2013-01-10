@@ -72,7 +72,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
@@ -698,13 +699,13 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitCouponIborCompounded(final CouponIborCompounded payment) {
+    public String visitCouponIborCompounding(final CouponIborCompounding payment) {
       // TODO Auto-generated method stub
       return null;
     }
 
     @Override
-    public String visitCouponIborCompounded(final CouponIborCompounded payment, final T data) {
+    public String visitCouponIborCompounding(final CouponIborCompounding payment, final T data) {
       // TODO Auto-generated method stub
       return null;
     }
@@ -876,6 +877,16 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitForexForward(ForexForward fx) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborCompoundingSpread(CouponIborCompoundingSpread payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborCompoundingSpread(CouponIborCompoundingSpread payment, T data) {
       return null;
     }
 
