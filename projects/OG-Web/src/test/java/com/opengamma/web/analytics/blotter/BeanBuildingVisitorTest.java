@@ -40,8 +40,8 @@ public class BeanBuildingVisitorTest {
    */
   @Test
   public void buildFXForwardSecurity() {
-    BeanVisitor<ManageableSecurity> visitor = new BeanBuildingVisitor<ManageableSecurity>(BlotterTestUtils.FX_FORWARD_DATA_SOURCE,
-                                                                                          META_BEAN_FACTORY);
+    BeanVisitor<ManageableSecurity> visitor = new BeanBuildingVisitor<>(BlotterTestUtils.FX_FORWARD_DATA_SOURCE,
+                                                                        META_BEAN_FACTORY);
     MetaBean metaBean = META_BEAN_FACTORY.beanFor(BlotterTestUtils.FX_FORWARD_DATA_SOURCE);
     ManageableSecurity security = (ManageableSecurity) new BeanTraverser().traverse(metaBean, visitor);
     assertEquals(BlotterTestUtils.FX_FORWARD, security);
@@ -52,8 +52,8 @@ public class BeanBuildingVisitorTest {
    */
   @Test
   public void buildSwapSecurity() {
-    BeanVisitor<ManageableSecurity> visitor = new BeanBuildingVisitor<ManageableSecurity>(BlotterTestUtils.SWAP_DATA_SOURCE,
-                                                                                          META_BEAN_FACTORY);
+    BeanVisitor<ManageableSecurity> visitor = new BeanBuildingVisitor<>(BlotterTestUtils.SWAP_DATA_SOURCE,
+                                                                        META_BEAN_FACTORY);
     MetaBean metaBean = META_BEAN_FACTORY.beanFor(BlotterTestUtils.SWAP_DATA_SOURCE);
     ManageableSecurity security = (ManageableSecurity) new BeanTraverser().traverse(metaBean, visitor);
     assertEquals(BlotterTestUtils.SWAP, security);

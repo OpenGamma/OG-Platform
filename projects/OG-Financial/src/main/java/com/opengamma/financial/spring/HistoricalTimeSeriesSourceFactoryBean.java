@@ -71,7 +71,6 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
    * The meta-bean for {@code HistoricalTimeSeriesSourceFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static HistoricalTimeSeriesSourceFactoryBean.Meta meta() {
     return HistoricalTimeSeriesSourceFactoryBean.Meta.INSTANCE;
   }

@@ -43,14 +43,14 @@ import com.opengamma.engine.value.ValueSpecification;
       }
     }
     List<Double> vol = Lists.newArrayList();
-    // x values expiries
-    // y values strikes
+    // x values (outer loop of vol) strikes
+    // y values (inner loop of vol) expiries
     List<Double> expiries = Lists.newArrayListWithCapacity(gridData.getExpiries().length);
     for (double expiry : gridData.getExpiries()) {
       expiries.add(expiry);
     }
-    for (Double expiry : expiries) {
-      for (Double strike : strikes) {
+    for (Double strike : strikes) {
+      for (Double expiry : expiries) {
         vol.add(value.getVolatility(expiry, strike));
       }
     }

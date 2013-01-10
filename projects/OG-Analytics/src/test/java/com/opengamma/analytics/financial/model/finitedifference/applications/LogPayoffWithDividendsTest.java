@@ -213,7 +213,7 @@ public class LogPayoffWithDividendsTest {
     PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db1 = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, payoff, lower, upper, grid);
     final PDETerminalResults1D res = (PDETerminalResults1D) solver.solve(db1);
 
-    final Interpolator1DDataBundle interpolDB = INTEPOLATOR1D.getDataBundle(sNodes, res.getFinalTimePrices());
+    final Interpolator1DDataBundle interpolDB = INTEPOLATOR1D.getDataBundle(sNodes, res.getTerminalResults());
 
     double val = INTEPOLATOR1D.interpolate(interpolDB, lnFT);
     assertEquals(0.41491529, Math.sqrt(-2 * (val) / EXPIRY), 5e-4); //Number from backwardsPDETest
@@ -300,10 +300,10 @@ public class LogPayoffWithDividendsTest {
     BoundaryCondition upper2 = new NeumannBoundaryCondition(1.0, sNodes2[nSNodes - 1], false);
 
     //run the PDE solver backward from the dividend date to zero 
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db2 = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, res1.getFinalTimePrices(), lower2, upper2, grid2);
+    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db2 = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, res1.getTerminalResults(), lower2, upper2, grid2);
     final PDETerminalResults1D res2 = (PDETerminalResults1D) solver.solve(db2);
 
-    final Interpolator1DDataBundle interpolDB2 = INTEPOLATOR1D.getDataBundle(sNodes2, res2.getFinalTimePrices());
+    final Interpolator1DDataBundle interpolDB2 = INTEPOLATOR1D.getDataBundle(sNodes2, res2.getTerminalResults());
     double val2 = INTEPOLATOR1D.interpolate(interpolDB2, Math.log(SPOT));
     return val2;
   }

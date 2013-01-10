@@ -65,7 +65,6 @@ public class FinancialSecuritySourceFactoryBean extends SpringFactoryBean<Financ
    * The meta-bean for {@code FinancialSecuritySourceFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static FinancialSecuritySourceFactoryBean.Meta meta() {
     return FinancialSecuritySourceFactoryBean.Meta.INSTANCE;
   }

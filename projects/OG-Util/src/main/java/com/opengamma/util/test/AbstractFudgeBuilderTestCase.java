@@ -112,16 +112,14 @@ public abstract class AbstractFudgeBuilderTestCase {
 
   @SuppressWarnings("unchecked")
   protected <T> T cycleObjectOverBytes(final T object) {
-    ByteArrayOutputStream _output = new ByteArrayOutputStream();
-    FudgeObjectWriter _fudgeObjectWriter = getFudgeContext().createObjectWriter(_output);
-
-    _fudgeObjectWriter.write(object);
-
-    ByteArrayInputStream input = new ByteArrayInputStream(_output.toByteArray());
-
-    FudgeObjectReader fudgeObjectReader = getFudgeContext().createObjectReader(input);
-
-    return (T) fudgeObjectReader.read();
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    try (FudgeObjectWriter writer = getFudgeContext().createObjectWriter(output)) {
+      writer.write(object);
+    }
+    ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
+    try (FudgeObjectReader reader = getFudgeContext().createObjectReader(input)) {
+      return (T) reader.read();
+    }
   }
 
   public static void isInstanceOf(Object parameter, Class<?> clazz) {

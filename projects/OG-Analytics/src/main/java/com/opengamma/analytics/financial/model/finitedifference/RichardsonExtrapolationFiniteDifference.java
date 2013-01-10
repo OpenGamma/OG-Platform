@@ -7,9 +7,6 @@ package com.opengamma.analytics.financial.model.finitedifference;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.surface.Surface;
-
 /**
  * 
  */
@@ -46,50 +43,6 @@ public class RichardsonExtrapolationFiniteDifference implements ConvectionDiffus
       f[i] = 2 * res2.getFunctionValue(i) - res1.getFunctionValue(i);
     }
     return new PDETerminalResults1D(grid, f);
-  }
-
-  @Override
-  public PDEResults1D solve(ConvectionDiffusionPDE1DStandardCoefficients pdeData, Function1D<Double, Double> initialCondition, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary,
-      BoundaryCondition upperBoundary) {
-    final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
-    PDE1DDataBundle data = new PDE1DDataBundle(pdeData, initialCondition, lowerBoundary, upperBoundary, grid);
-    return solve(data);
-  }
-
-  @Override
-  public PDEResults1D solve(ConvectionDiffusionPDE1DStandardCoefficients pdeData, Function1D<Double, Double> initialCondition, int tSteps, int xSteps, double tMax, BoundaryCondition lowerBoundary,
-      BoundaryCondition upperBoundary, Surface<Double, Double, Double> freeBoundary) {
-    final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
-    PDE1DDataBundle data = new PDE1DDataBundle(pdeData, initialCondition, lowerBoundary, upperBoundary, freeBoundary, grid);
-    return solve(data);
-  }
-
-  @Override
-  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary) {
-    PDE1DDataBundle data = new PDE1DDataBundle(pdeData.getCoefficients(), pdeData.getInitialCondition(), lowerBoundary, upperBoundary, grid);
-    return solve(data);
-  }
-
-  @Override
-  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
-      final Surface<Double, Double, Double> freeBoundary) {
-    PDE1DDataBundle data = new PDE1DDataBundle(pdeData.getCoefficients(), pdeData.getInitialCondition(),
-        lowerBoundary, upperBoundary, freeBoundary, grid);
-    return solve(data);
-  }
-
-  @Override
-  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
-      final BoundaryCondition upperBoundary) {
-    final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
-    return solve(pdeData, grid, lowerBoundary, upperBoundary);
-  }
-
-  @Override
-  public PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
-      final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary) {
-    final PDEGrid1D grid = new PDEGrid1D(tSteps + 1, xSteps + 1, tMax, lowerBoundary.getLevel(), upperBoundary.getLevel());
-    return solve(pdeData, grid, lowerBoundary, upperBoundary, freeBoundary);
   }
 
 }

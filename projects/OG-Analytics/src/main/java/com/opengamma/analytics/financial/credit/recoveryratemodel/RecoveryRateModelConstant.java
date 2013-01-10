@@ -10,7 +10,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Class to specify a constant recovery rate model to tag to a given obligor/trade
  */
-public class RecoveryRateModelConstant {
+public class RecoveryRateModelConstant extends RecoveryRateModel {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -18,9 +18,13 @@ public class RecoveryRateModelConstant {
 
   private final double _recoveryRate;
 
+  private final RecoveryRateType _recoveryRateType;
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   public RecoveryRateModelConstant(final double recoveryRate) {
+
+    super(recoveryRate);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -31,13 +35,31 @@ public class RecoveryRateModelConstant {
 
     _recoveryRate = recoveryRate;
 
+    _recoveryRateType = RecoveryRateType.CONSTANT;
+
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  @Override
   public double getRecoveryRate() {
     return _recoveryRate;
+  }
+
+  public RecoveryRateType getRecoveryRateType() {
+    return _recoveryRateType;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // Builder method to allow the recovery rate to be set at a specified value
+
+  public RecoveryRateModelConstant sampleRecoveryRate(final double recoveryRate) {
+
+    final RecoveryRateModelConstant modifiedRecoveryRateModel = new RecoveryRateModelConstant(recoveryRate);
+
+    return modifiedRecoveryRateModel;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

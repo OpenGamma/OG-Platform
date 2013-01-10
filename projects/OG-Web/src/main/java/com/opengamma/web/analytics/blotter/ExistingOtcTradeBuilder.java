@@ -16,6 +16,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -62,14 +63,20 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   ManageablePosition getPosition(ManageableTrade trade) {
-    if (!_tradeId.isVersioned()) {
+    if (!trade.getUniqueId().isVersioned()) {
       throw new IllegalArgumentException("trade ID must be versioned. trade: " + trade);
+    }
+    if (!trade.getUniqueId().getObjectId().equals(_tradeId.getObjectId())) {
+      throw new IllegalArgumentException("The trade ID in the path (" + _tradeId + ") doesn't match the trade ID " +
+                                             "in the trade (" + trade.getUniqueId().getObjectId() + ")");
     }
     ManageableTrade originalTrade = getPositionMaster().getTrade(_tradeId);
     UniqueId positionId = originalTrade.getParentPositionId();
     ManageablePosition position = getPositionMaster().get(positionId).getPosition();
-    // for OTCs there's always 1 trade per position, remove the existing trade because it's being replaced
-    position.setTrades(Collections.<ManageableTrade>emptyList());
+    // for OTCs there's only 1 trade per position, can replace the trades and set the quantity based on this trade
+    position.setTrades(Collections.singletonList(trade));
+    position.setQuantity(trade.getQuantity());
+    position.setSecurityLink(new ManageableSecurityLink(trade.getSecurityLink()));
     return position;
   }
 }

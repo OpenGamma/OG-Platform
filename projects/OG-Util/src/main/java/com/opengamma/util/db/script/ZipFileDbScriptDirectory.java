@@ -71,9 +71,7 @@ public class ZipFileDbScriptDirectory implements DbScriptDirectory {
   @Override
   public Collection<DbScriptDirectory> getSubdirectories() {
     Set<String> subdirectories = new HashSet<String>();
-    ZipInputStream zippedIn = null;
-    try {
-      zippedIn = new ZipInputStream(new FileInputStream(getZipFile()));
+    try (ZipInputStream zippedIn = new ZipInputStream(new FileInputStream(getZipFile()))) {
       ZipEntry entry;
       while ((entry = zippedIn.getNextEntry()) != null) {
         // Directory entries do not have to be present, so best to imply from files
@@ -89,17 +87,10 @@ public class ZipFileDbScriptDirectory implements DbScriptDirectory {
         String firstDir = subPath.substring(0, firstSeparatorIdx);
         subdirectories.add(firstDir);
       }
-    } catch (FileNotFoundException e) {
+    } catch (FileNotFoundException ex) {
       throw new OpenGammaRuntimeException("Zip file not found: " + getZipFile());
-    } catch (IOException e) {
-      throw new OpenGammaRuntimeException("Error reading from zip file: " + getZipFile(), e);
-    } finally {
-      if (zippedIn != null) {
-        try {
-          zippedIn.close();
-        } catch (IOException e) {
-        }        
-      }
+    } catch (IOException ex) {
+      throw new OpenGammaRuntimeException("Error reading from zip file: " + getZipFile(), ex);
     }
     Collection<DbScriptDirectory> result = new ArrayList<DbScriptDirectory>();
     for (String subdirectory : subdirectories) {

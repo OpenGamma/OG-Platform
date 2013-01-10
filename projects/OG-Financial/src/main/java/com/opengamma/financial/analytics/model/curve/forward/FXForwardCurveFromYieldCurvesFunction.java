@@ -54,7 +54,7 @@ public class FXForwardCurveFromYieldCurvesFunction extends AbstractFunction.NonC
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURVE)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .withAny(ValuePropertyNames.PAY_CURVE)
         .withAny(FXForwardFunction.PAY_CURVE_CALC_CONFIG)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
@@ -195,7 +195,7 @@ public class FXForwardCurveFromYieldCurvesFunction extends AbstractFunction.NonC
     final ForwardCurve fxForwardCurve = new ForwardCurveYieldImplied(spot, payCurve, receiveCurve);
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURVE, fxForwardCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .with(ValuePropertyNames.PAY_CURVE, Iterables.getOnlyElement(payCurveNames))
         .with(FXForwardFunction.PAY_CURVE_CALC_CONFIG, Iterables.getOnlyElement(payCurveCalculationConfigs))
         .with(ValuePropertyNames.RECEIVE_CURVE, Iterables.getOnlyElement(receiveCurveNames))

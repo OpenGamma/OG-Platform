@@ -42,7 +42,7 @@ public final class ComFutOptBaroneAdesiGreekCalculator extends CommodityFutureOp
     final double k = option.getStrike();
     final double t = option.getExpiry();
     final double r = data.getDiscountCurve().getInterestRate(t);
-    final double b = 0; //TODO
+    final double b = r; //TODO
     final double volatility = data.getVolatilitySurface().getVolatility(t, k);
     final boolean isCall = option.isCall();
     final double[] greeks = MODEL.getPriceAdjoint(s, k, r, b, t, volatility, isCall);

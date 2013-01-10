@@ -23,11 +23,13 @@ public class BarrierOptionPricerTest {
   private static final boolean PRINT = false;
   private static final double SPOT = 100;
   private static final double REBATE = 3.0;
+  // private static final double REBATE = 0.0;
   private static final double EXPIRY = 0.5;
   private static final double R = 0.08;
   private static final double B = 0.04;
   private static final double SIGMA = 0.3;
   private static final BarrierOptionPricer PRICER = new BarrierOptionPricer(100, 50, 0.5, 0.1);
+  // private static final BarrierOptionPricer PRICER = new BarrierOptionPricer(100, 50, 100, 0.1);
   private static final BlackBarrierPriceFunction ANAL_PRICER = BlackBarrierPriceFunction.getInstance();
 
   @Test

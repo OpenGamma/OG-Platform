@@ -22,7 +22,7 @@ import com.opengamma.analytics.math.surface.Surface;
  * The stock price, S_t, is given by S_t = (F_t-D_t)X_t + D_t where F_t is the forward, D_t is the discounted value of future dividend payments
  * and X_t is the "pure stock price" process. See Buehler, Hans. Volatility and Dividends 
  */
-public class PureStockPriceImpliedVol {
+public class PureStockPriceImpliedVolTest {
 
   private static final Integrator1D<Double, Double> DEFAULT_INTEGRATOR = new RungeKuttaIntegrator1D();
 
@@ -115,8 +115,9 @@ public class PureStockPriceImpliedVol {
 
   }
 
-  @Test
+  @Test(enabled = false)
   public void printForward() {
+    System.out.println("PureStockPriceImpliedVolTest.printForward");
     for (int i = 0; i < 101; i++) {
       double t = 0.7 * i / 100.;
       double f = F.evaluate(t);
@@ -126,9 +127,9 @@ public class PureStockPriceImpliedVol {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void testFlatImpledVol() {
-
+    System.out.println("PureStockPriceImpliedVolTest.testFlatImpledVol");
     final double impVol = 0.4;
     final Function<Double, Double> pureImpVolFunc = new Function<Double, Double>() {
 
@@ -150,9 +151,9 @@ public class PureStockPriceImpliedVol {
 
   }
 
-  @Test
+  @Test(enabled = false)
   public void testFlatPureImpledVol() {
-
+    System.out.println("PureStockPriceImpliedVolTest.testFlatPureImpledVol");
     final double pureImpVol = 0.4;
     final Function<Double, Double> impVolFunc = new Function<Double, Double>() {
 
@@ -175,9 +176,9 @@ public class PureStockPriceImpliedVol {
 
   }
 
-  @Test
+  @Test(enabled = false)
   public void testFlatPureImpledVol2() {
-
+    System.out.println("PureStockPriceImpliedVolTest.testFlatPureImpledVol");
     final double pureImpVol = 0.4;
     final Function<Double, Double> impVolFunc = new Function<Double, Double>() {
 
@@ -197,8 +198,9 @@ public class PureStockPriceImpliedVol {
 
   }
 
-  @Test
+  @Test(enabled = false)
   public void calandarSpreadTest() {
+    System.out.println("PureStockPriceImpliedVolTest.testFlatPureImpledVol");
     final double pureImpVol = 0.4;
     final double kM = 110;
     final double t = 0.1;
@@ -231,8 +233,9 @@ public class PureStockPriceImpliedVol {
     System.out.println(corrDelta);
   }
 
-  @Test
+  @Test(enabled = false)
   public void calandarSpreadTest2() {
+    System.out.println("PureStockPriceImpliedVolTest.testFlatPureImpledVol");
     final double impVol = 0.4;
     final double kM = 110;
     final double t = 0.1;
@@ -259,8 +262,9 @@ public class PureStockPriceImpliedVol {
     System.out.println(delta);
   }
 
-  @Test
+  @Test(enabled = false)
   public void calandarSpreadTest3() {
+    System.out.println("PureStockPriceImpliedVolTest.testFlatPureImpledVol");
     final double t = 0.1;
     final double dt = 1e-12;
     final double p = 0.2;
@@ -274,9 +278,9 @@ public class PureStockPriceImpliedVol {
     System.out.println(ivM + "\t" + iv);
   }
 
-  @Test
+  @Test(enabled = false)
   public void testRoundTrip() {
-
+    System.out.println("PureStockPriceImpliedVolTest.testFlatPureImpledVol");
     final double impVol = 0.4;
     final Function<Double, Double> pureImpVolFunc = new Function<Double, Double>() {
       @Override
@@ -312,8 +316,9 @@ public class PureStockPriceImpliedVol {
 
   }
 
-  @Test
+  @Test(enabled = false)
   public void varianceSwapTest() {
+    System.out.println("PureStockPriceImpliedVolTest.testFlatPureImpledVol");
     final double expiry = 0.11;
 
     final Function1D<Double, Double> integral = new Function1D<Double, Double>() {

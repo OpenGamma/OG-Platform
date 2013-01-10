@@ -38,6 +38,8 @@ import com.opengamma.util.money.Currency;
  */
 public class OtcTradeBuilderTest {
 
+  // TODO test that the URL ID is always unversioned and the trade ID is always versioned
+
   static {
     JodaBeanConverters.getInstance();
   }
@@ -51,6 +53,7 @@ public class OtcTradeBuilderTest {
     NewOtcTradeBuilder builder = new NewOtcTradeBuilder(securityMaster, positionMaster, BlotterResource.s_metaBeans);
     ImmutableMap<String, String> attributes = ImmutableMap.of("attr1", "val1", "attr2", "val2");
     BeanDataSource tradeData = BlotterTestUtils.beanData(
+        "type", "OtcTrade",
         "counterparty", "testCpty",
         "tradeDate", "2012-12-21",
         "tradeTime", "10:00+00:00",

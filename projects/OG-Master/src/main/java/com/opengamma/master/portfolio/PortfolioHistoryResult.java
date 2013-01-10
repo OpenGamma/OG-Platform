@@ -95,7 +95,6 @@ public class PortfolioHistoryResult extends AbstractHistoryResult<PortfolioDocum
    * The meta-bean for {@code PortfolioHistoryResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static PortfolioHistoryResult.Meta meta() {
     return PortfolioHistoryResult.Meta.INSTANCE;
   }
