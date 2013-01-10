@@ -454,10 +454,9 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
       }
       // assume all strikes exist for all exercise dates
       int numX = options.size() / strikes.size();
-      // Can get quite low numbers (OPT_CHAIN truncated?) so ensure a minimum
-      //TODO: Check why numbers can be so low.
-      if (numX < 8) {
-        numX = 8;
+      // Could call FUT_CHAIN to get list if OPT_CHAIN list is insufficient but just default to a reasonable value
+      if (numX < 17) {
+        numX = 17;
       }
       List<Double> xAxis = new ArrayList<Double>();
       for (int i = 1; i < numX + 1; i++) {
