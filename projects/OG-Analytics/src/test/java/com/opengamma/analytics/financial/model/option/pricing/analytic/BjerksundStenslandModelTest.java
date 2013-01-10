@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.option.pricing.analytic;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
 
@@ -29,7 +30,7 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     super.assertValid(new BjerksundStenslandModelDeprecated(), 1e-4);
   }
 
-  @Test
+  @Test(enabled = false)
   public void priceTest() {
     final double s0 = 120;
     final double r = 0.08;
@@ -45,11 +46,27 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     System.out.println(eurPrice + "\t" + amPrice);
   }
 
+  //[PLAT-2944]
+  @Test
+  public void earlyExciseTest() {
+    final double s0 = 10.0;
+    final double r = 0.0;
+    final double b = 0.05;
+    final double k = 13.0;
+    final double t = 0.25;
+    final double sigma = 0.3;
+    final boolean isCall = false;
+
+    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final double amPrice = bs.price(s0, k, r, b, t, sigma, isCall);
+    assertTrue(amPrice >= (k - s0));
+  }
+
   @Test
   public void adjointTest() {
     final double[] s0Set = new double[] {60, 90, 100, 110, 160 };
     final double k = 100;
-    final double r = 0.1;
+    final double[] rSet = new double[] {0.0, 0.1 };
     final double[] bSet = new double[] {-0.04, 0.0, 0.04, 0.11 };
     final double sigma = 0.35;
     final double t = 0.5;
@@ -59,39 +76,68 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
     final double eps = 1e-5;
 
     for (double s0 : s0Set) {
-      for (double b : bSet) {
-        final double[] parms = new double[] {s0, k, r, b, t, sigma };
-        final int n = parms.length;
+      for (double r : rSet) {
+        for (double b : bSet) {
+          final double[] parms = new double[] {s0, k, r, b, t, sigma };
+          final int n = parms.length;
 
-        for (boolean isCall : tfSet) {
-          final double price = bs.price(s0, k, r, b, t, sigma, isCall);
-          final double[] sense = bs.getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
-          assertEquals("price " + s0 + " " + b, price, sense[0], 1e-13);
+          for (boolean isCall : tfSet) {
+            final double price = bs.price(s0, k, r, b, t, sigma, isCall);
+            final double[] sense = bs.getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
+            assertEquals("price " + s0 + " " + r + " " + b + " " + isCall, price, sense[0], 1e-13);
 
-          for (int i = 0; i < n; i++) {
-            final double delta = (1 + Math.abs(parms[i])) * eps;
-            double[] temp = Arrays.copyOf(parms, n);
-            temp[i] += delta;
-            double up = bs.price(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], isCall);
-            temp[i] -= 2 * delta;
-            double down = bs.price(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], isCall);
-            double fd;
-            if (i == 3 && Math.abs(b) < delta) {
-              //there is a discontinuity in the gradient at at b == 0 r != 0, hence forward difference for the test
-              if (isCall) {
-                fd = (up - price) / delta;
+            for (int i = 0; i < n; i++) {
+              final double delta = (1 + Math.abs(parms[i])) * eps;
+              double[] temp = Arrays.copyOf(parms, n);
+              temp[i] += delta;
+              double up = bs.price(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], isCall);
+              temp[i] -= 2 * delta;
+              double down = bs.price(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], isCall);
+              //  System.out.println("debug " + i + " " + s0 + " " + r + " " + b + " " + isCall + "\t" + up + "\t" + price + "\t" + down + "\t" + delta);
+              double fd;
+              if ((i == 3 && Math.abs(b) < delta) /*|| (i == 2 && Math.abs(r) < delta)*/) {
+                //there is a discontinuity in the gradient at at b == 0 r != 0, and also for puts with r = 0 hence forward difference for the test
+                if (isCall) {
+                  fd = (up - price) / delta;
+                } else {
+                  fd = (price - down) / delta;
+                }
+                assertEquals(i + " " + s0 + " " + r + " " + b + " " + isCall, fd, sense[i + 1], Math.abs(fd) * 1e-4);
               } else {
-                fd = (price - down) / delta;
+                fd = (up - down) / 2 / delta;
+                if (!isCall && r == 0 && b > 0) {
+                  assertEquals(i + " " + s0 + " " + r + " " + b + " " + isCall, fd, sense[i + 1], Math.abs(fd) * 1e-4);
+                } else {
+                  assertEquals(i + " " + s0 + " " + r + " " + b + " " + isCall, fd, sense[i + 1], Math.abs(fd) * 1e-5);
+                }
               }
-              assertEquals(i + " " + s0 + " " + b + " " + isCall, fd, sense[i + 1], Math.abs(fd) * 1e-4);
-            } else {
-              fd = (up - down) / 2 / delta;
-              assertEquals(i + " " + s0 + " " + b + " " + isCall, fd, sense[i + 1], Math.abs(fd) * 1e-5);
             }
           }
         }
       }
     }
+  }
+
+  @Test
+  public void debugTest() {
+    BjerksundStenslandModel bs = new BjerksundStenslandModel();
+    final double s0 = 90;
+    final double k = 100;
+    final double r = 0.0;
+    final double b = 0.11;
+    final double sigma = 0.35;
+    final double t = 0.5;
+    final boolean isCall = false;
+
+    final double price = bs.price(s0, k, r, b, t, sigma, isCall);
+    final double[] sense = bs.getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
+    System.out.println(price + "\t" + sense[0]);
+
+    System.out.println(sense[3]);
+    double eps = 1e-4;
+    double up = bs.price(s0, k, r + eps, b, t, sigma, isCall);
+    double down = bs.price(s0, k, r - eps, b, t, sigma, isCall);
+    System.out.println(up + "\t" + down + "\t" + (up - down) / 2 / eps);
   }
 
   @Test
@@ -398,27 +444,34 @@ public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest
   @Test
   public void i1Test() {
     final double k = 100.04;
-    final double r = 0.1;
+    final double[] rSet = {-0.03, 0.1 };
     final double[] bb = new double[] {-0.03, 0.04 };
     final double sigma = 0.3;
     final double t = 0.3;
 
     BjerksundStenslandModel bs = new BjerksundStenslandModel();
 
-    for (double b : bb) {
+    for (double r : rSet) {
+      for (double b : bb) {
 
-      final double[] sense = bs.getI1Adjoint(k, r, b, sigma, t);
-      final double[] parms = new double[] {k, r, b, sigma, t };
-      final int n = parms.length;
-      final double eps = 1e-5;
-      for (int i = 0; i < n; i++) {
-        double[] temp = Arrays.copyOf(parms, n);
-        temp[i] += eps;
-        double up = bs.getI1Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
-        temp[i] -= 2 * eps;
-        double down = bs.getI1Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
-        double fd = (up - down) / 2 / eps;
-        assertEquals(fd, sense[i + 1], Math.abs(fd) * 1e-7);
+        if (r >= b) {
+
+          final double[] sense = bs.getI1Adjoint(k, r, b, sigma, t);
+          System.out.println(sense[0]);
+          final double[] parms = new double[] {k, r, b, sigma, t };
+          final int n = parms.length;
+          final double eps = 1e-5;
+          for (int i = 0; i < n; i++) {
+            double[] temp = Arrays.copyOf(parms, n);
+            temp[i] += eps;
+            double up = bs.getI1Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
+            temp[i] -= 2 * eps;
+            double down = bs.getI1Adjoint(temp[0], temp[1], temp[2], temp[3], temp[4])[0];
+            double fd = (up - down) / 2 / eps;
+            System.out.println(up + "\t" + down);
+            assertEquals(i + "\t" + r + "\t" + b, fd, sense[i + 1], Math.abs(fd) * 1e-5);
+          }
+        }
       }
     }
   }

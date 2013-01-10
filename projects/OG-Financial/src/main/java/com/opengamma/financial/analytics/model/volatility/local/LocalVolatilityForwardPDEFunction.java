@@ -111,8 +111,9 @@ public abstract class LocalVolatilityForwardPDEFunction extends LocalVolatilityP
         constraintsBuilder.with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, getBlackSmileInterpolatorName());
       } else if (values.size() != 1) {
         constraintsBuilder = constraints.copy();
-        constraintsBuilder.withoutAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
-            .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, getBlackSmileInterpolatorName());
+        constraintsBuilder
+          .withoutAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
+          .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, getBlackSmileInterpolatorName());
       }
       values = constraints.getValues(PDEPropertyNamesAndValues.PROPERTY_PDE_DIRECTION);
       if (values == null) {

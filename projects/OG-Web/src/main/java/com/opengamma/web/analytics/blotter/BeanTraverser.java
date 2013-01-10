@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.joda.beans.Bean;
+import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 
@@ -45,7 +46,9 @@ import com.opengamma.util.ArgumentChecker;
     for (MetaProperty<?> property : bean.metaPropertyIterable()) {
       Class<?> propertyType = property.propertyType();
       try {
-        if (Bean.class.isAssignableFrom(propertyType)) {
+        if (isConvertible(propertyType)) {
+          decoratedVisitor.visitProperty(property);
+        } else if (Bean.class.isAssignableFrom(propertyType)) {
           decoratedVisitor.visitBeanProperty(property, this);
         } else if (Set.class.isAssignableFrom(propertyType)) {
           decoratedVisitor.visitSetProperty(property);
@@ -69,6 +72,17 @@ import com.opengamma.util.ArgumentChecker;
     } else {
       throw new TraversalException(failures);
     }
+  }
+
+  private static boolean isConvertible(Class<?> type) {
+    boolean canConvert;
+    try {
+      JodaBeanUtils.stringConverter().findConverter(type);
+      canConvert = true;
+    } catch (Exception e) {
+      canConvert = false;
+    }
+    return canConvert;
   }
 
   private BeanVisitor<?> decorate(BeanVisitor<?> visitor) {

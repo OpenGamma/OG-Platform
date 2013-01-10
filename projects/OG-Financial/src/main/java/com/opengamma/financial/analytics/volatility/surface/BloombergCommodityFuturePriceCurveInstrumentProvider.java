@@ -5,12 +5,13 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import java.util.Map;
+
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.Validate;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.SoybeanFutureExpiryCalculator;
@@ -22,10 +23,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class BloombergCommodityFuturePriceCurveInstrumentProvider implements FuturePriceCurveInstrumentProvider<Number> {
 
-  private static final BiMap<String, ExchangeTradedInstrumentExpiryCalculator> EXPIRY_RULES;
+  private static final Map<String, ExchangeTradedInstrumentExpiryCalculator> EXPIRY_RULES;
   static {
-    EXPIRY_RULES = HashBiMap.create();
+    EXPIRY_RULES = Maps.newHashMap();
     EXPIRY_RULES.put("S ", SoybeanFutureExpiryCalculator.getInstance());
+    EXPIRY_RULES.put("BO", SoybeanFutureExpiryCalculator.getInstance());
   }
 
   private final String _futurePrefix;

@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
+import com.opengamma.analytics.math.function.Function1D;
 
 /**
  * Tests on a pair of backwards Black-Scholes PDEs. The model is a Black-Scholes SDE where the volatility can take one of two values
@@ -31,6 +32,7 @@ public class CoupledFiniteDifferenceTest {
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static BoundaryCondition LOWER;
   private static BoundaryCondition UPPER;
+  private static Function1D<Double, Double> INITIAL_COND;
 
   private static final double SPOT = 100;
   private static final ForwardCurve FORWARD;
@@ -53,7 +55,13 @@ public class CoupledFiniteDifferenceTest {
     //UPPER = new DirichletBoundaryCondition(10 * SPOT - STRIKE, 10.0 * SPOT);
     UPPER = new NeumannBoundaryCondition(1.0, 10 * STRIKE, false);
     // UPPER = new FixedSecondDerivativeBoundaryCondition(0.0, 10 * FORWARD, false);
+    INITIAL_COND = new Function1D<Double, Double>() {
 
+      @Override
+      public Double evaluate(Double x) {
+        return Math.max(0, x - STRIKE);
+      }
+    };
   }
 
   @Test
@@ -62,9 +70,10 @@ public class CoupledFiniteDifferenceTest {
     final CoupledFiniteDifference solver = new CoupledFiniteDifference(0.5, false);
     final double lambda12 = 0.0;
     final double lambda21 = 0.0;
+    final double p0 = 0.5;
 
-    TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, lambda12, lambda21, 0.5);
-    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, STRIKE, T, chainData);
+    TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, lambda12, lambda21, p0);
+    ConvectionDiffusionPDE1DCoupledCoefficients[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, T, chainData);
     final int timeNodes = 20;
     final int spaceNodes = 150;
     final double lowerMoneyness = 0.4;
@@ -85,8 +94,10 @@ public class CoupledFiniteDifferenceTest {
     }
 
     final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
+    CoupledPDEDataBundle d1 = new CoupledPDEDataBundle(pdeData[0], INITIAL_COND, LOWER, UPPER, grid);
+    CoupledPDEDataBundle d2 = new CoupledPDEDataBundle(pdeData[1], INITIAL_COND, LOWER, UPPER, grid);
 
-    final PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER, UPPER, LOWER, UPPER, null);
+    final PDEResults1D[] res = solver.solve(d1, d2);
     final double df = YIELD_CURVE.getDiscountFactor(T);
     final int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
@@ -123,7 +134,7 @@ public class CoupledFiniteDifferenceTest {
     final double lambda21 = 0.5;
 
     TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL1, lambda12, lambda21, 0.5);
-    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, STRIKE, T, chainData);
+    ConvectionDiffusionPDE1DCoupledCoefficients[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, T, chainData);
     final int timeNodes = 20;
     final int spaceNodes = 150;
     final double lowerMoneyness = 0.4;
@@ -145,7 +156,10 @@ public class CoupledFiniteDifferenceTest {
 
     final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
 
-    final PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER, UPPER, LOWER, UPPER, null);
+    final CoupledPDEDataBundle d1 = new CoupledPDEDataBundle(pdeData[0], INITIAL_COND, LOWER, UPPER, grid);
+    final CoupledPDEDataBundle d2 = new CoupledPDEDataBundle(pdeData[1], INITIAL_COND, LOWER, UPPER, grid);
+
+    final PDEResults1D[] res = solver.solve(d1, d2);
     final double df = YIELD_CURVE.getDiscountFactor(T);
     final int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
@@ -208,12 +222,13 @@ public class CoupledFiniteDifferenceTest {
     final double lambda21 = 2.0;
 
     TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, lambda12, lambda21, 1.0);
-    CoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, STRIKE, T, chainData);
+    ConvectionDiffusionPDE1DCoupledCoefficients[] pdeData = PDE_DATA_PROVIDER.getCoupledBackwardsPair(FORWARD, T, chainData);
     final int timeNodes = 20;
     final int spaceNodes = 150;
     final double lowerMoneyness = 0.3;
     final double upperMoneyness = 3.0;
 
+    //state in state 1
     final MarkovChain mc = new MarkovChain(VOL1, VOL2, lambda12, lambda21, 1.0);
     final double[] mcSims = mc.simulate(T, 10000); // simulate the vol path
 
@@ -232,8 +247,10 @@ public class CoupledFiniteDifferenceTest {
     }
 
     final PDEGrid1D grid = new PDEGrid1D(timeGrid, spaceGrid);
+    final CoupledPDEDataBundle d1 = new CoupledPDEDataBundle(pdeData[0], INITIAL_COND, LOWER, UPPER, grid);
+    final CoupledPDEDataBundle d2 = new CoupledPDEDataBundle(pdeData[1], INITIAL_COND, LOWER, UPPER, grid);
 
-    final PDEResults1D[] res = solver.solve(pdeData[0], pdeData[1], grid, LOWER, UPPER, LOWER, UPPER, null);
+    final PDEResults1D[] res = solver.solve(d1, d2);
     final double df = YIELD_CURVE.getDiscountFactor(T);
     final int n = res[0].getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {

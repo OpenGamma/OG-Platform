@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.volatility.local.deprecated;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_H;
 import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS;
@@ -55,6 +54,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -91,7 +91,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     final boolean useIntegratedVariance = LocalVolatilityPDEUtils.useIntegratedVariance(yAxis);
     final String yAxisType = desiredValue.getConstraint(PROPERTY_Y_AXIS_TYPE);
     final boolean useLogValue = LocalVolatilityPDEUtils.useLogValue(yAxisType);
-    final String forwardCurveCalculationMethod = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
+    final String forwardCurveCalculationMethod = desiredValue.getConstraint(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     final String forwardCurveName = desiredValue.getConstraint(CURVE);
     final String hName = desiredValue.getConstraint(PROPERTY_H);
     final double h = Double.parseDouble(hName);
@@ -161,7 +161,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
         .withAny(PROPERTY_X_AXIS)
         .withAny(PROPERTY_Y_AXIS)
         .withAny(PROPERTY_Y_AXIS_TYPE)
-        .withAny(CURVE_CALCULATION_METHOD)
+        .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD)
         .withAny(CURVE)
         .withAny(PROPERTY_THETA)
         .withAny(PROPERTY_TIME_STEPS)
@@ -197,7 +197,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     if (yAxisTypeNames == null || yAxisTypeNames.size() != 1) {
       return null;
     }
-    final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(CURVE_CALCULATION_METHOD);
+    final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     if (forwardCurveCalculationMethodNames == null || forwardCurveCalculationMethodNames.size() != 1) {
       return null;
     }
@@ -238,8 +238,8 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
       final ValueProperties constraints = input.getValue().getConstraints();
       if (input.getValue().getValueName().equals(ValueRequirementNames.FORWARD_CURVE)) {
-        if (constraints.getValues(CURVE_CALCULATION_METHOD) != null) {
-          final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(CURVE_CALCULATION_METHOD);
+        if (constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD) != null) {
+          final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
           if (forwardCurveCalculationMethodNames == null || forwardCurveCalculationMethodNames.size() != 1) {
             throw new OpenGammaRuntimeException("Missing or non-unique forward curve calculation method name");
           }
@@ -331,7 +331,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
         .with(PROPERTY_X_AXIS, xAxis)
         .with(PROPERTY_Y_AXIS, yAxis)
         .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
-        .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .with(CURVE, forwardCurveName)
         .with(PROPERTY_H, h).get();
     return new ValueRequirement(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, uid, properties);
@@ -339,7 +339,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
 
   private ValueRequirement getForwardCurveRequirement(final String calculationMethod, final String forwardCurveName, final UniqueId uid) {
     final ValueProperties properties = ValueProperties.builder()
-        .with(CURVE_CALCULATION_METHOD, calculationMethod)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, calculationMethod)
         .with(CURVE, forwardCurveName).get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, uid, properties);
   }
@@ -354,7 +354,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
         .with(PROPERTY_X_AXIS, xAxis)
         .with(PROPERTY_Y_AXIS, yAxis)
         .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
-        .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .with(CURVE, forwardCurveName)
         .withAny(PROPERTY_THETA)
         .withAny(PROPERTY_TIME_STEPS)
@@ -377,7 +377,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
         .with(PROPERTY_X_AXIS, xAxis)
         .with(PROPERTY_Y_AXIS, yAxis)
         .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
-        .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .with(CURVE, forwardCurveName)
         .with(PROPERTY_THETA, theta)
         .with(PROPERTY_TIME_STEPS, timeSteps)

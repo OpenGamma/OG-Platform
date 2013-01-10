@@ -32,7 +32,8 @@ public class EquityOptionBAWGreeksFunction extends EquityOptionBAWFunction {
     ValueRequirementNames.VALUE_RHO,
     ValueRequirementNames.VALUE_CARRY_RHO,
     ValueRequirementNames.VALUE_VEGA,
-    ValueRequirementNames.VALUE_THETA
+    ValueRequirementNames.VALUE_THETA,
+    ValueRequirementNames.VALUE_GAMMA
   };
   /** Equivalent greeks */
   private static final Greek[] GREEKS = new Greek[] {
@@ -41,7 +42,8 @@ public class EquityOptionBAWGreeksFunction extends EquityOptionBAWFunction {
     Greek.RHO,
     Greek.CARRY_RHO,
     Greek.VEGA,
-    Greek.THETA
+    Greek.THETA,
+    Greek.GAMMA
   };
 
   /**

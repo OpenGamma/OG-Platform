@@ -10,10 +10,11 @@ import org.apache.commons.math.distribution.BetaDistributionImpl;
 /**
  * Class to specify a stochastic recovery rate model to tag to a given obligor/trade
  */
-public class RecoveryRateModelStochastic {
+public class RecoveryRateModelStochastic extends RecoveryRateModel {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // TODO : Sort out the hack for the super class ctor call
   // TODO : Need to add the arg checkers for the input arguments
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -31,6 +32,8 @@ public class RecoveryRateModelStochastic {
   // Ctor for the stochastic recovery rate model
 
   public RecoveryRateModelStochastic(final double a, final double b, final double x) {
+
+    super(0.0);
 
     _a = a;
     _b = b;
@@ -59,6 +62,7 @@ public class RecoveryRateModelStochastic {
     return _x;
   }
 
+  @Override
   public double getRecoveryRate() {
     return _recoveryRate;
   }

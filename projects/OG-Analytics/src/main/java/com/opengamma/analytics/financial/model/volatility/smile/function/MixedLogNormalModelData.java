@@ -12,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * If a PDF is constructed as the weighted sum of log-normal distributions, then a European option price is give by the weighted sum of Black prices (with different volatilities and
- * (potentially) different forwards). Sufficiently many log-normal distributions can reproduce any PDE and therefore any arbitrage free smile.
+ * (potentially) different forwards). Sufficiently many log-normal distributions can reproduce any PDF and therefore any arbitrage free smile.
  */
 public class MixedLogNormalModelData implements SmileModelData {
 
