@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.blotter.forms.Fx_barrier_option',
+    name: 'og.blotter.forms.fxbarrieroptionsecurity',
     dependencies: [],
     obj: function (config) {   
         return function () {

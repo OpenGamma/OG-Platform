@@ -3,14 +3,14 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.blotter.forms.Non_del_fx_option',
+    name: 'og.blotter.forms.fxoptionsecurity',
     dependencies: [],
     obj: function () {   
         return function (config) {
             config = og.blotter.util.FAKE_FX_OPTION;
             var constructor = this, ui = og.common.util.ui, data = config || {};
             constructor.load = function () {
-                constructor.title = 'Non-Deliverable FX Option';
+                constructor.title = 'FX Option';
                 var form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.fx_option_tash',
                     selector: '.OG-blotter-form-block'
@@ -27,15 +27,16 @@ $.register_module({
                             new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'putCurrency'}}),
                             new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'callCurrency'}})
                         ]
-                    }),                
+                    }),                    
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_option_date_tash',
-                        extras: {nondev:true, expiry: data.expiry, settlement: data.settlementDate},
+                        extras: {expiry: data.expiry, settlement: data.settlementDate},
                         children: [
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.exercisetypes', index: 'exerciseType',
                                 value: data.exerciseType, placeholder: 'Select Exercise Type'
-                            })
+                            }),
+                            new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'ITTODO'}})
                         ]
                     }),
                     new og.common.util.ui.Attributes({form: form, attributes: data.attributes})
@@ -46,8 +47,7 @@ $.register_module({
                     og.blotter.util.set_select("putCurrency", data.putCurrency);
                     og.blotter.util.set_select("callCurrency", data.callCurrency);
                     og.blotter.util.check_radio("longShort", data.longShort);
-                    og.blotter.util.check_checkbox("deliveryInCallCurrency", data.deliveryInCallCurrency);
-                });  
+                });
             }; 
             constructor.load();
             constructor.kill = function () {

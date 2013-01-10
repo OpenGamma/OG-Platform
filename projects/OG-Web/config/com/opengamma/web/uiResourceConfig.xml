@@ -355,19 +355,23 @@
   <bundle id="blotter.js">
     <fragment>/scripts/og/blotter/og.blotter.dialog.js</fragment>
     <fragment>/scripts/og/blotter/og.blotter.util.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.swap.js</fragment>
+    <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.portfolio.js</fragment>
+    <!--OTC Trades-->
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.swapsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.equityvarianceswapsecurity.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.swaption.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fx_barrier_option.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.swaptionsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxbarrieroptionsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxforwardsecurity.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fx_option.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.non_del_fx_option.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxoptionsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.nondeliverablefxoptionsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorcmsspreadsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.frasecurity.js</fragment>
+    <!--Fungible Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond_future.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.trade.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorsecurity.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorcmsspreadsecurity.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.forward_rate_agreement.js</fragment>
+    <!--Lifecycle-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_cap_floor.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_equity_option.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_forward.js</fragment>
@@ -375,7 +379,6 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_fx_option.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_ir_swap.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_swaption.js</fragment>
-    <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.portfolio.js</fragment>
   </bundle>
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>

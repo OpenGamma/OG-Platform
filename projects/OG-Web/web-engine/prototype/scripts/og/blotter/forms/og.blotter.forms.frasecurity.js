@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.blotter.forms.Forward_rate_agreement',
+    name: 'og.blotter.forms.frasecurity',
     dependencies: [],
     obj: function (config) {   
         return function () {
