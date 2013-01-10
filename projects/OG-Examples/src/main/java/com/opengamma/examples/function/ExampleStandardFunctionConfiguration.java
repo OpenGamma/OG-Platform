@@ -10,7 +10,9 @@ import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.L
 import static com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
@@ -28,7 +30,6 @@ import com.opengamma.financial.analytics.model.curve.interestrate.YieldCurveDefa
 import com.opengamma.financial.analytics.model.equity.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioTheoryFunctions;
 import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentDefaultCurveNameFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackDefaultsDeprecated;
@@ -48,7 +49,6 @@ import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRi
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationVegaDefaults;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationVegaDefaultsDeprecated;
-import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunctionDeprecated;
@@ -124,21 +124,6 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
     final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
     final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesDefaultPropertiesFunction.class, PriorityClass.ABOVE_NORMAL.name(),
-        "USD", "DefaultTwoCurveUSDConfig",
-        "GBP", "DefaultTwoCurveGBPConfig",
-        "EUR", "DefaultTwoCurveEURConfig",
-        "JPY", "DefaultTwoCurveJPYConfig",
-        "CHF", "DefaultTwoCurveCHFConfig"));
-  }
-
-  protected void addFixedIncomeInstrumentDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultPropertiesFunction.class, PriorityClass.ABOVE_NORMAL.name(), "false",
-        "USD", "DefaultTwoCurveUSDConfig",
-        "GBP", "DefaultTwoCurveGBPConfig",
-        "EUR", "DefaultTwoCurveEURConfig",
-        "JPY", "DefaultTwoCurveJPYConfig",
-        "CHF", "DefaultTwoCurveCHFConfig"));
   }
 
   protected void addForexForwardDefaults(final List<FunctionConfiguration> functionConfigs) {
@@ -226,7 +211,6 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
     addDeprecatedSABRDefaults(functions);
     addDeprecatedPNLDefaults(functions);
     addExternallyProvidedSensitivitiesDefaults(functions);
-    addFixedIncomeInstrumentDefaults(functions);
     addForexForwardDefaults(functions);
     functions.add(functionConfiguration(ExampleForexSpotRateMarketDataFunction.class));
     addForexOptionDefaults(functions);
@@ -255,6 +239,26 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
 
   protected RepositoryConfigurationSource equityOptionFunctions() {
     return OptionFunctions.defaults();
+  }
+
+  protected RepositoryConfigurationSource externalSensitivitiesFunctions() {
+    final Map<String, SensitivitiesFunctions.Defaults.CurrencyInfo> defaults = new HashMap<String, SensitivitiesFunctions.Defaults.CurrencyInfo>();
+    defaults.put("EUR", new SensitivitiesFunctions.Defaults.CurrencyInfo("DefaultTwoCurveEURConfig"));
+    defaults.put("USD", new SensitivitiesFunctions.Defaults.CurrencyInfo("DefaultTwoCurveUSDConfig"));
+    defaults.put("CHF", new SensitivitiesFunctions.Defaults.CurrencyInfo("DefaultTwoCurveCHFConfig"));
+    defaults.put("JPY", new SensitivitiesFunctions.Defaults.CurrencyInfo("DefaultTwoCurveJPYConfig"));
+    defaults.put("GBP", new SensitivitiesFunctions.Defaults.CurrencyInfo("DefaultTwoCurveGBPConfig"));
+    return SensitivitiesFunctions.defaults(defaults);
+  }
+
+  protected RepositoryConfigurationSource fixedIncomeFunctions() {
+    final Map<String, FixedIncomeFunctions.Defaults.CurrencyInfo> defaults = new HashMap<String, FixedIncomeFunctions.Defaults.CurrencyInfo>();
+    defaults.put("EUR", new FixedIncomeFunctions.Defaults.CurrencyInfo("DefaultTwoCurveEURConfig"));
+    defaults.put("USD", new FixedIncomeFunctions.Defaults.CurrencyInfo("DefaultTwoCurveUSDConfig"));
+    defaults.put("CHF", new FixedIncomeFunctions.Defaults.CurrencyInfo("DefaultTwoCurveCHFConfig"));
+    defaults.put("JPY", new FixedIncomeFunctions.Defaults.CurrencyInfo("DefaultTwoCurveJPYConfig"));
+    defaults.put("GBP", new FixedIncomeFunctions.Defaults.CurrencyInfo("DefaultTwoCurveGBPConfig"));
+    return FixedIncomeFunctions.defaults(defaults);
   }
 
   protected RepositoryConfigurationSource forexOptionFunctions() {
@@ -288,8 +292,8 @@ public class ExampleStandardFunctionConfiguration extends AbstractRepositoryConf
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), bondFunctions(), deprecatedFunctions(), equityOptionFunctions(), forexOptionFunctions(), forwardCurveFunctions(),
-        localVolatilityFunctions(), sensitivitiesFunctions(), pnlFunctions(), portfolioTheoryFunctions(), varFunctions());
+    return new CombiningRepositoryConfigurationSource(super.createObject(), bondFunctions(), deprecatedFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(), fixedIncomeFunctions(),
+        forexOptionFunctions(), forwardCurveFunctions(), localVolatilityFunctions(), sensitivitiesFunctions(), pnlFunctions(), portfolioTheoryFunctions(), varFunctions());
   }
 
 }

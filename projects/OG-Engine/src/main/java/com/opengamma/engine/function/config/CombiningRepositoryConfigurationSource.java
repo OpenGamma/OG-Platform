@@ -22,6 +22,8 @@ public class CombiningRepositoryConfigurationSource implements RepositoryConfigu
     _sources = Arrays.copyOf(sources, sources.length);
   }
 
+  // TODO: change to "of" method that will remove NULLs and spot the singleton case
+
   protected RepositoryConfigurationSource[] getSources() {
     return _sources;
   }
@@ -29,7 +31,7 @@ public class CombiningRepositoryConfigurationSource implements RepositoryConfigu
   @Override
   public RepositoryConfiguration getRepositoryConfiguration() {
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
-    for (RepositoryConfigurationSource source : getSources()) {
+    for (final RepositoryConfigurationSource source : getSources()) {
       configs.addAll(source.getRepositoryConfiguration().getFunctions());
     }
     return new RepositoryConfiguration(configs);

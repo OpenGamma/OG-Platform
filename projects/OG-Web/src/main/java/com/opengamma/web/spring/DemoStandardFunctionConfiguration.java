@@ -5,14 +5,14 @@
  */
 package com.opengamma.web.spring;
 
-import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.DOUBLE_QUADRATIC;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR;
-import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
@@ -23,7 +23,7 @@ import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
-import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionDefaults;
+import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesPrimitiveDefaults;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurvesSecurityDefaults;
@@ -42,12 +42,10 @@ import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioT
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityForwardCalculationDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationDefaults;
-import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardDefaults;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackCurveDefaults;
-import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackSurfaceDefaults;
+import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
+import com.opengamma.financial.analytics.model.forex.ForexFunctions;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaults;
-import com.opengamma.financial.analytics.model.futureoption.CommodityFutureOptionBlackDefaults;
+import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionSABRDefaults;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackDefaults;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionHestonDefaults;
@@ -57,7 +55,7 @@ import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRNo
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRNoExtrapolationVegaDefaults;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationDefaults;
 import com.opengamma.financial.analytics.model.sabrcube.defaultproperties.SABRRightExtrapolationVegaDefaults;
-import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
 import com.opengamma.financial.analytics.model.var.VaRFunctions;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.model.volatility.cube.CubeFunctions;
@@ -82,6 +80,7 @@ import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues;
 import com.opengamma.web.spring.defaults.GeneralBlackVolatilityInterpolationDefaults;
 import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
@@ -126,11 +125,6 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
         GeneralBlackVolatilityInterpolationDefaults.getSplineInterpolationDefaults()));
   }
 
-  protected void addBondFutureOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(BondFutureOptionDefaults.class, PriorityClass.NORMAL.name(),
-        "USD", "DefaultTwoCurveUSDConfig", "BBG"));
-  }
-
   protected void addCommodityBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityBlackVolatilitySurfacePrimitiveDefaults.class.getName(),
         TargetSpecificBlackVolatilitySurfaceDefaults.getAllCommodityDefaults()));
@@ -138,11 +132,6 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
         TargetSpecificBlackVolatilitySurfaceDefaults.getAllCommodityDefaults()));
     functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityBlackVolatilitySurfaceTradeDefaults.class.getName(),
         TargetSpecificBlackVolatilitySurfaceDefaults.getAllCommodityDefaults()));
-  }
-
-  protected void addCommodityFutureOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(new ParameterizedFunctionConfiguration(CommodityFutureOptionBlackDefaults.class.getName(),
-        Arrays.asList("USD", "Discounting", "DefaultTwoCurveUSDConfig", "BBG_S ", "Spline")));
   }
 
   protected void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -250,66 +239,6 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityVarianceSwapDefaults.class.getName(), equityVarianceSwapDefaultsWithPriority));
   }
 
-  protected void addExternallyProvidedSensitivitiesDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesDefaultPropertiesFunction.class, PriorityClass.BELOW_NORMAL.name(),
-        "EUR", "DefaultTwoCurveEURConfig",
-        "USD", "DefaultTwoCurveUSDConfig",
-        "CHF", "DefaultTwoCurveCHFConfig",
-        "JPY", "DefaultTwoCurveJPYConfig",
-        "GBP", "DefaultTwoCurveGBPConfig"));
-  }
-
-  protected void addFixedIncomeInstrumentDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultPropertiesFunction.class, PriorityClass.BELOW_NORMAL.name(), "false",
-        "EUR", "DefaultTwoCurveEURConfig",
-        "USD", "DefaultTwoCurveUSDConfig",
-        "CHF", "DefaultTwoCurveCHFConfig",
-        "JPY", "DefaultTwoCurveJPYConfig",
-        "GBP", "DefaultTwoCurveGBPConfig"));
-  }
-
-  protected void addForexForwardDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(FXForwardDefaults.class, PriorityClass.NORMAL.name(),
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting",
-        "EUR", "DefaultTwoCurveEURConfig", "Discounting",
-        "CHF", "DefaultTwoCurveCHFConfig", "Discounting",
-        "RUB", "DefaultCashCurveRUBConfig", "Cash",
-        "CAD", "DefaultTwoCurveCADConfig", "Discounting"));
-  }
-
-  protected void addForexOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(FXOptionBlackCurveDefaults.class, PriorityClass.NORMAL.name(),
-        "USD", "DefaultTwoCurveUSDConfig", "Discounting",
-        "EUR", "DefaultTwoCurveEURConfig", "Discounting",
-        "CAD", "DefaultTwoCurveCADConfig", "Discounting",
-        "AUD", "DefaultTwoCurveAUDConfig", "Discounting",
-        "CHF", "DefaultTwoCurveCHFConfig", "Discounting",
-        "MXN", "DefaultCashCurveMXNConfig", "Cash",
-        "JPY", "DefaultTwoCurveJPYConfig", "Discounting",
-        "GBP", "DefaultTwoCurveGBPConfig", "Discounting",
-        "NZD", "DefaultTwoCurveNZDConfig", "Discounting",
-        "HUF", "DefaultCashCurveHUFConfig", "Cash",
-        "KRW", "DefaultCashCurveKRWConfig", "Cash",
-        "BRL", "DefaultCashCurveBRLConfig", "Cash",
-        "HKD", "DefaultCashCurveHKDConfig", "Cash"));
-    functionConfigs.add(functionConfiguration(FXOptionBlackSurfaceDefaults.class, PriorityClass.NORMAL.name(), DOUBLE_QUADRATIC, LINEAR_EXTRAPOLATOR,
-        LINEAR_EXTRAPOLATOR,
-        "USD", "EUR", "TULLETT",
-        "USD", "CAD", "TULLETT",
-        "USD", "AUD", "TULLETT",
-        "USD", "CHF", "TULLETT",
-        "USD", "MXN", "TULLETT",
-        "USD", "JPY", "TULLETT",
-        "USD", "GBP", "TULLETT",
-        "USD", "NZD", "TULLETT",
-        "USD", "HUF", "TULLETT",
-        "USD", "KRW", "TULLETT",
-        "USD", "BRL", "TULLETT",
-        "EUR", "CHF", "TULLETT",
-        "USD", "HKD", "TULLETT",
-        "EUR", "JPY", "TULLETT"));
-  }
-
   protected void addForwardCurveDefaults(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(FXForwardCurveFromYieldCurvesPrimitiveDefaults.class,
             "USD", "DefaultTwoCurveUSDConfig", "Discounting",
@@ -413,9 +342,7 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     addBlackVolatilitySurfaceDefaults(functions);
-    addBondFutureOptionDefaults(functions);
     addCommodityBlackVolatilitySurfaceDefaults(functions);
-    addCommodityFutureOptionDefaults(functions);
     addCurrencyConversionFunctions(functions);
     addEquityDividendYieldFuturesDefaults(functions);
     addEquityForwardDefaults(functions);
@@ -423,10 +350,6 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
     addEquityOptionDefaults(functions);
     addEquityPureVolatilitySurfaceDefaults(functions);
     addEquityVarianceSwapDefaults(functions);
-    addExternallyProvidedSensitivitiesDefaults(functions);
-    addFixedIncomeInstrumentDefaults(functions);
-    addForexForwardDefaults(functions);
-    addForexOptionDefaults(functions);
     addForwardCurveDefaults(functions);
     addFXImpliedYieldCurveDefaults(functions);
     addFXOptionBlackVolatilitySurfaceDefaults(functions);
@@ -447,6 +370,10 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
         "GBP", new BondFunctions.Defaults.CurrencyInfo("Discounting", "DefaultTwoCurveGBPConfig", "Discounting", "DefaultTwoCurveGBPConfig")));
   }
 
+  protected RepositoryConfigurationSource bondFutureOptionFunctions() {
+    return BondFutureOptionFunctions.defaults(ImmutableMap.of("USD", new BondFutureOptionFunctions.Defaults.CurrencyInfo("DefaultTwoCurveUSDConfig", "BBG")));
+  }
+
   protected RepositoryConfigurationSource cdsFunctions() {
     return CreditFunctions.defaults(ImmutableMap.of("USD", new CreditFunctions.Defaults.CurrencyInfo("ISDA", "ISDA", "ISDA")));
   }
@@ -459,12 +386,74 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
     return OptionFunctions.defaults();
   }
 
+  protected RepositoryConfigurationSource externalSensitivitiesFunctions() {
+    final Map<String, SensitivitiesFunctions.Defaults.CurrencyInfo> defaults = new HashMap<String, SensitivitiesFunctions.Defaults.CurrencyInfo>();
+    defaults.put("EUR", new SensitivitiesFunctions.Defaults.CurrencyInfo("DefaultTwoCurveEURConfig"));
+    defaults.put("USD", new SensitivitiesFunctions.Defaults.CurrencyInfo("DefaultTwoCurveUSDConfig"));
+    defaults.put("CHF", new SensitivitiesFunctions.Defaults.CurrencyInfo("DefaultTwoCurveCHFConfig"));
+    defaults.put("JPY", new SensitivitiesFunctions.Defaults.CurrencyInfo("DefaultTwoCurveJPYConfig"));
+    defaults.put("GBP", new SensitivitiesFunctions.Defaults.CurrencyInfo("DefaultTwoCurveGBPConfig"));
+    return SensitivitiesFunctions.defaults(defaults);
+  }
+
+  protected RepositoryConfigurationSource fixedIncomeFunctions() {
+    final Map<String, FixedIncomeFunctions.Defaults.CurrencyInfo> defaults = new HashMap<String, FixedIncomeFunctions.Defaults.CurrencyInfo>();
+    defaults.put("EUR", new FixedIncomeFunctions.Defaults.CurrencyInfo("DefaultTwoCurveEURConfig"));
+    defaults.put("USD", new FixedIncomeFunctions.Defaults.CurrencyInfo("DefaultTwoCurveUSDConfig"));
+    defaults.put("CHF", new FixedIncomeFunctions.Defaults.CurrencyInfo("DefaultTwoCurveCHFConfig"));
+    defaults.put("JPY", new FixedIncomeFunctions.Defaults.CurrencyInfo("DefaultTwoCurveJPYConfig"));
+    defaults.put("GBP", new FixedIncomeFunctions.Defaults.CurrencyInfo("DefaultTwoCurveGBPConfig"));
+    return FixedIncomeFunctions.defaults(defaults);
+  }
+
+  protected RepositoryConfigurationSource forexFunctions() {
+    final Map<String, com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo> curveDefaults =
+        new HashMap<String, com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>();
+    curveDefaults.put("EUR", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultTwoCurveEURConfig", "Discounting"));
+    curveDefaults.put("USD", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultTwoCurveUSDConfig", "Discounting"));
+    curveDefaults.put("CHF", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultTwoCurveCHFConfig", "Discounting"));
+    curveDefaults.put("RUB", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultCashCurveRUBConfig", "Cash"));
+    curveDefaults.put("CAD", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultTwoCurveCADConfig", "Discounting"));
+    curveDefaults.put("AUD", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultTwoCurveAUDConfig", "Discounting"));
+    curveDefaults.put("CHF", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultTwoCurveCHFConfig", "Discounting"));
+    curveDefaults.put("MXN", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultCashCurveMXNConfig", "Cash"));
+    curveDefaults.put("JPY", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultTwoCurveJPYConfig", "Discounting"));
+    curveDefaults.put("GBP", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultTwoCurveGBPConfig", "Discounting"));
+    curveDefaults.put("NZD", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultTwoCurveNZDConfig", "Discounting"));
+    curveDefaults.put("HUF", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultCashCurveHUFConfig", "Cash"));
+    curveDefaults.put("KRW", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultCashCurveKRWConfig", "Cash"));
+    curveDefaults.put("BRL", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultCashCurveBRLConfig", "Cash"));
+    curveDefaults.put("HKD", new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo("DefaultCashCurveHKDConfig", "Cash"));
+    final Map<Pair<String, String>, com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo> surfaceDefaults =
+        new HashMap<Pair<String, String>, com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo>();
+    surfaceDefaults.put(Pair.of("USD", "EUR"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("USD", "EUR"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("USD", "CAD"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("USD", "AUD"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("USD", "CHF"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("USD", "MXN"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("USD", "JPY"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("USD", "GBP"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("USD", "NZD"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("USD", "HUF"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("USD", "KRW"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("USD", "BRL"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("EUR", "CHF"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("USD", "HKD"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    surfaceDefaults.put(Pair.of("EUR", "JPY"), new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo("TULLETT"));
+    return ForexFunctions.defaults(curveDefaults, surfaceDefaults);
+  }
+
   protected RepositoryConfigurationSource forexOptionFunctions() {
     return com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.defaults();
   }
 
   protected RepositoryConfigurationSource forwardCurveFunctions() {
     return ForwardFunctions.defaults();
+  }
+
+  protected RepositoryConfigurationSource futureOptionFunctions() {
+    return FutureOptionFunctions.defaults(ImmutableMap.of("USD", new FutureOptionFunctions.Defaults.CurrencyInfo("Discounting", "DefaultTwoCurveUSDConfig", "BBG_S ", "Spline")));
   }
 
   protected RepositoryConfigurationSource localVolatilityFunctions() {
@@ -496,8 +485,9 @@ public class DemoStandardFunctionConfiguration extends AbstractRepositoryConfigu
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return new CombiningRepositoryConfigurationSource(super.createObject(), bondFunctions(), cdsFunctions(), cubeFunctions(), equityOptionFunctions(), forexOptionFunctions(), forwardCurveFunctions(),
-        localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions());
+    return new CombiningRepositoryConfigurationSource(super.createObject(), bondFunctions(), cdsFunctions(), cubeFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(),
+        fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), forwardCurveFunctions(), futureOptionFunctions(), localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(),
+        swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions());
   }
 
 }
