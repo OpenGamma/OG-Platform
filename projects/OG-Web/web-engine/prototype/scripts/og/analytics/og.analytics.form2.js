@@ -6,8 +6,8 @@ $.register_module({
     name: 'og.analytics.form2',
     dependencies: [],
     obj: function () {
-        var module = this, constructor, menus = [], viewdef_menu, aggregation_menu, datasources_menu, query,
-            url_config,
+        var module = this, constructor, menus = [], portfolio_dropdown, viewdef_menu, aggregation_menu,
+            datasources_menu, query, url_config,
             events = {
                 focus: 'focus',
                 focused:'focused',
@@ -44,6 +44,7 @@ $.register_module({
 
         var init = function () {
             form.children.push(
+                //(portfolio_dropdown = new og.common.util.ui.AutoCombo({form:form})),
                 (datasources_menu = new og.analytics.DatasourcesMenu({form:form})).block,
                 (aggregation_menu = new og.analytics.AggregatorsMenu({form:form})).block
             );

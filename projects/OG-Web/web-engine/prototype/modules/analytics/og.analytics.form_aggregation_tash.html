@@ -1,8 +1,6 @@
-<div class="og-menu-toggle og-option-title">
-  <header class="OG-background-05">aggregated by:</header>
-  <ul>
-    <li class="aggregation-selection">Default</li>
-  </ul>
+<div class="og-menu-toggle">
+  <div class="OG-icon og-icon-Aggregation"></div>
+  <span>aggregation</span>
   <div class="OG-icon og-icon-down"></div>
 </div>
 <div class="OG-analytics-form-menu og-menu-aggregation OG-shadow og-menu" style="display: none">
@@ -10,11 +8,14 @@
   <table class="OG-aggregation-options">
     <tr class="OG-dropmenu-options">
       <td class="number"><span>1</span></td>
-      <td class="aggregation">{{{item_0}}}</td>
       <td>
-        <label class="og-option"><input type="checkbox" disabled="true" name="required_fields.0" />
-          <span>Include required fields</span>
-        </label>
+        <select class="type">
+          <option selected="selected">select aggregation...</option>
+          {{#each this}}<option>{{this}}</option>{{/each}}
+        </select>
+      </td>
+      <td>
+        <label class="og-option"><input type="checkbox" disabled="true" /><span>Include required fields</span></label>
       </td>
       <td>
         <div class="OG-icon og-icon-delete"></div>
