@@ -60,6 +60,8 @@ public class BlotterLookupResource {
     return new JSONArray(results).toString();
   }
 
+  // TODO endpoint for the standard external identifier scheme and their human readable names
+
   @GET
   @Path("frequencies")
   @Produces(MediaType.APPLICATION_JSON)

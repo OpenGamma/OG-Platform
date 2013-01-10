@@ -10,7 +10,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Class to specify a constant recovery rate model to tag to a given obligor/trade
  */
-public class RecoveryRateModelConstant {
+public class RecoveryRateModelConstant extends RecoveryRateModel {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -21,6 +21,8 @@ public class RecoveryRateModelConstant {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   public RecoveryRateModelConstant(final double recoveryRate) {
+
+    super(recoveryRate);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -36,6 +38,7 @@ public class RecoveryRateModelConstant {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  @Override
   public double getRecoveryRate() {
     return _recoveryRate;
   }

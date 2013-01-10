@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.equity.option;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
@@ -13,6 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
@@ -25,9 +27,9 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
@@ -103,7 +105,7 @@ public abstract class EquityVanillaBarrierOptionBlackFunction extends EquityOpti
     final StaticReplicationDataBundle market = buildMarketBundle(underlyingId, executionContext, inputs, target, desiredValues);
 
     // 4. Properties of what's required of this function
-    final ValueProperties resultProperties = createValueProperties(target, desiredValue).get();
+    final ValueProperties resultProperties = desiredValue.getConstraints().copy().get();
     // 5. Compute Values and return
     return computeValues(vanillas, market, inputs, desiredValues, target.toSpecification(), resultProperties);
   }
@@ -143,23 +145,20 @@ public abstract class EquityVanillaBarrierOptionBlackFunction extends EquityOpti
     return commonReqs;
   }
 
-  /**
-   * @param target For Equity * Options, the ComputationTarget is the Underlying's ticker
-   * @return The properties (ValueRequirements) that the Function promises to deliver
-   */
   @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
-    return super.createValueProperties(target)
-        .withAny(ValuePropertyNames.BINARY_OVERHEDGE)
-        .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH);
-  }
-
-  @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Builder builder = super.createValueProperties(target, desiredValue)
-        .with(ValuePropertyNames.BINARY_OVERHEDGE, desiredValue.getConstraint(ValuePropertyNames.BINARY_OVERHEDGE))
-        .with(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH, desiredValue.getConstraint(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH));
-    return builder;
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final Set<ValueSpecification> results = super.getResults(context, target, inputs);
+    final Set<ValueSpecification> resultsWithExtraProperties = Sets.newHashSetWithExpectedSize(results.size());
+    for (final ValueSpecification spec : results) {
+      final String name = spec.getValueName();
+      final ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
+      final ValueProperties properties = spec.getProperties().copy()
+          .withAny(ValuePropertyNames.BINARY_OVERHEDGE)
+          .withAny(ValuePropertyNames.BINARY_SMOOTHING_FULLWIDTH)
+          .get();
+      resultsWithExtraProperties.add(new ValueSpecification(name, targetSpec, properties));
+    }
+    return results;
   }
 
   //TODO does all of this work need to be done in financial?

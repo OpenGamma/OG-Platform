@@ -152,7 +152,7 @@ public class SABRFiniteDifferenceTest {
     final int tNodes = 20;
     final int xNodes = 101;
     final PDEGrid1D grid = new PDEGrid1D(tNodes, xNodes, T, LOWER.getLevel(), UPPER.getLevel());
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(PDE, PAYOFF, LOWER, UPPER, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(PDE, PAYOFF, LOWER, UPPER, grid);
     final PDEResults1D res = solver.solve(db);
     final double fwd0 = FORWARD_CURVE.getForward(T);
     final double df = YIELD_CURVE.getDiscountFactor(T);
@@ -192,9 +192,8 @@ public class SABRFiniteDifferenceTest {
     }, 5 * SPOT, false);
 
     final PDEGrid1D grid = new PDEGrid1D(tNodes, xNodes, T, lower.getLevel(), upper.getLevel());
-    // final ZZConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getBackwardsLocalVol(RATE, RATE - DRIFT, STRIKE, T, true, SABR_LOCAL_VOL);
     final ConvectionDiffusionPDE1DCoefficients pde = PDE_PROVIDER.getBackwardsLocalVol(RATE, RATE - DRIFT, T, SABR_LOCAL_VOL);
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, PAYOFF, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, PAYOFF, lower, upper, grid);
     final PDEResults1D res = solver.solve(db);
 
     final double df = YIELD_CURVE.getDiscountFactor(T);
@@ -239,8 +238,8 @@ public class SABRFiniteDifferenceTest {
       final double strike = forward * (0.5 + 1.5 * j / 49.);
       final BoundaryCondition upper = new DirichletBoundaryCondition(maxForward - strike, maxForward);
       // final ZZConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getBackwardsLocalVol(strike, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
-      Function1D<Double, Double> payoff = INITIAL_CONDITIONS_PROVIDER.getEuropeanPayoff(strike, true);
-      PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(PDE, payoff, lower, upper, grid);
+      final Function1D<Double, Double> payoff = INITIAL_CONDITIONS_PROVIDER.getEuropeanPayoff(strike, true);
+      final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(PDE, payoff, lower, upper, grid);
       final PDEResults1D res = solver.solve(db);
 
       //since the grid of forwards values may not contain the desired forward, we interpolate
@@ -287,8 +286,8 @@ public class SABRFiniteDifferenceTest {
     final double maxMoneyness = 6.0;
 
     //  final ZZConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getForwardLocalVol(SABR_LOCAL_VOL, FORWARD_CURVE, true);
-    ConvectionDiffusionPDE1DCoefficients pde = PDE_PROVIDER.getForwardLocalVol(FORWARD_CURVE, SABR_LOCAL_VOL);
-    Function1D<Double, Double> initialCondition = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(true);
+    final ConvectionDiffusionPDE1DCoefficients pde = PDE_PROVIDER.getForwardLocalVol(FORWARD_CURVE, SABR_LOCAL_VOL);
+    final Function1D<Double, Double> initialCondition = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(true);
 
     final BoundaryCondition lower = new DirichletBoundaryCondition(1.0, 0.0);
     // BoundaryCondition upper = new DirichletBoundaryCondition(0.0, maxMoneyness);
@@ -298,7 +297,7 @@ public class SABRFiniteDifferenceTest {
     final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxMoneyness, 1.0, xNodes, 0.05);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initialCondition, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initialCondition, lower, upper, grid);
     final PDEResults1D res = solver.solve(db);
     final double fwd = FORWARD_CURVE.getForward(T);
 
@@ -333,7 +332,7 @@ public class SABRFiniteDifferenceTest {
 
     // final ZZConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT, true, SABR_LOCAL_VOL);
     final ConvectionDiffusionPDE1DCoefficients pde = PDE_PROVIDER.getForwardLocalVolatility(RATE, RATE - DRIFT, SABR_LOCAL_VOL);
-    Function1D<Double, Double> initialCondition = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(SPOT, true);
+    final Function1D<Double, Double> initialCondition = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(SPOT, true);
 
     final BoundaryCondition lower = new DirichletBoundaryCondition(new Function1D<Double, Double>() {
       @Override
@@ -346,7 +345,7 @@ public class SABRFiniteDifferenceTest {
     final MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 5.0);
     final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxStrike, SPOT, xNodes, 0.1);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initialCondition, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initialCondition, lower, upper, grid);
 
     final PDEResults1D res = solver.solve(db);
     final double df = Math.exp(-RATE * T);
@@ -393,14 +392,14 @@ public class SABRFiniteDifferenceTest {
     final LocalVolatilitySurfaceMoneyness lvUp = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, shift);
     final LocalVolatilitySurfaceMoneyness lvDown = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, -shift);
 
-    ConvectionDiffusionPDE1DCoefficients pdeFwd = PDE_PROVIDER.getForwardLocalVol(LV_M);
-    ConvectionDiffusionPDE1DCoefficients pdeClasFwd = PDE_PROVIDER.getForwardLocalVolatility(RATE, RATE - DRIFT, SABR_LOCAL_VOL);
-    ConvectionDiffusionPDE1DCoefficients pdeFwdUp = PDE_PROVIDER.getForwardLocalVol(lvUp);
-    ConvectionDiffusionPDE1DCoefficients pdeFwdDown = PDE_PROVIDER.getForwardLocalVol(lvDown);
+    final ConvectionDiffusionPDE1DCoefficients pdeFwd = PDE_PROVIDER.getForwardLocalVol(LV_M);
+    final ConvectionDiffusionPDE1DCoefficients pdeClasFwd = PDE_PROVIDER.getForwardLocalVolatility(RATE, RATE - DRIFT, SABR_LOCAL_VOL);
+    final ConvectionDiffusionPDE1DCoefficients pdeFwdUp = PDE_PROVIDER.getForwardLocalVol(lvUp);
+    final ConvectionDiffusionPDE1DCoefficients pdeFwdDown = PDE_PROVIDER.getForwardLocalVol(lvDown);
 
-    Function1D<Double, Double> initialCondFwd = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(true);
-    Function1D<Double, Double> initialCondClasFwdUp = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(SPOT * (1 + shift), true);
-    Function1D<Double, Double> initialCondClasFwdDown = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(SPOT * (1 - shift), true);
+    final Function1D<Double, Double> initialCondFwd = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(true);
+    final Function1D<Double, Double> initialCondClasFwdUp = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(SPOT * (1 + shift), true);
+    final Function1D<Double, Double> initialCondClasFwdDown = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(SPOT * (1 - shift), true);
 
     final BoundaryCondition lowerFwd = new DirichletBoundaryCondition(1.0, 0.0);
     final BoundaryCondition upperFwd = new DirichletBoundaryCondition(0.0, maxMoneyness);
@@ -431,7 +430,8 @@ public class SABRFiniteDifferenceTest {
     final PDEResults1D resUp = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeFwdUp, initialCondFwd, lowerFwd, upperFwd, gridFwd));
     final PDEResults1D resDown = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeFwdDown, initialCondFwd, lowerFwd, upperFwd, gridFwd));
     final PDEResults1D resCUp = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeClasFwd, initialCondClasFwdUp, lowerUp, upperCFwd, gridCFwd));
-    final PDEResults1D resCDown = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeClasFwd, initialCondClasFwdDown, lowerDown, upperCFwd, gridCFwd));
+    final PDEResults1D resCDown = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeClasFwd, initialCondClasFwdDown, lowerDown, upperCFwd,
+        gridCFwd));
 
     final double q = Math.exp(-(RATE - DRIFT) * T);
 
@@ -451,7 +451,7 @@ public class SABRFiniteDifferenceTest {
 
       final BoundaryCondition upperBwd = new DirichletBoundaryCondition(maxForward - k, maxForward);
 
-      Function1D<Double, Double> payoff = INITIAL_CONDITIONS_PROVIDER.getEuropeanPayoff(k, true);
+      final Function1D<Double, Double> payoff = INITIAL_CONDITIONS_PROVIDER.getEuropeanPayoff(k, true);
       final PDEResults1D resBkd = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(PDE, payoff, lowerBwd, upperBwd, gridBwd));//pdeDataBkd, gridBwd, lowerBwd, upperBwd);
 
       //since the actual forward (i.e. F(0,T)) does not necessarily lie on the grid, we have to interpolate
@@ -500,11 +500,11 @@ public class SABRFiniteDifferenceTest {
     //    final ZZConvectionDiffusionPDEDataBundle pdeDataUp = PDE_DATA_PROVIDER.getForwardLocalVol(lvUp, true);
     //    final ZZConvectionDiffusionPDEDataBundle pdeDataDown = PDE_DATA_PROVIDER.getForwardLocalVol(lvDown, true);
 
-    ConvectionDiffusionPDE1DCoefficients pdeFwd = PDE_PROVIDER.getForwardLocalVol(LV_M);
-    ConvectionDiffusionPDE1DCoefficients pdeFwdUp = PDE_PROVIDER.getForwardLocalVol(lvUp);
-    ConvectionDiffusionPDE1DCoefficients pdeFwdDown = PDE_PROVIDER.getForwardLocalVol(lvDown);
+    final ConvectionDiffusionPDE1DCoefficients pdeFwd = PDE_PROVIDER.getForwardLocalVol(LV_M);
+    final ConvectionDiffusionPDE1DCoefficients pdeFwdUp = PDE_PROVIDER.getForwardLocalVol(lvUp);
+    final ConvectionDiffusionPDE1DCoefficients pdeFwdDown = PDE_PROVIDER.getForwardLocalVol(lvDown);
 
-    Function1D<Double, Double> initialCondFwd = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(true);
+    final Function1D<Double, Double> initialCondFwd = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(true);
 
     final BoundaryCondition lowerFwd = new DirichletBoundaryCondition(1.0, 0.0);
     final BoundaryCondition upperFwd = new DirichletBoundaryCondition(0.0, maxMoneyness);
@@ -535,7 +535,7 @@ public class SABRFiniteDifferenceTest {
 
       final BoundaryCondition upperBwd = new DirichletBoundaryCondition(maxForward - k, maxForward);
       // final ZZConvectionDiffusionPDEDataBundle pdeDataBkd = PDE_DATA_PROVIDER.getBackwardsLocalVol(k, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
-      Function1D<Double, Double> payoff = INITIAL_CONDITIONS_PROVIDER.getEuropeanPayoff(k, true);
+      final Function1D<Double, Double> payoff = INITIAL_CONDITIONS_PROVIDER.getEuropeanPayoff(k, true);
       final PDEResults1D resBkd = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(PDE, payoff, lowerBwd, upperBwd, gridBwd));
 
       //since the actual forward (i.e. F(0,T)) does not necessarily lie on the grid, we have to interpolate
@@ -564,7 +564,8 @@ public class SABRFiniteDifferenceTest {
       final double gammaBkd = INTERPOLATOR_1D.interpolate(dbGamma, forward);
 
       if (DEBUG) {
-        System.out.println(k + "\t" + deltaFwd + "\t" + deltaBkd + "\t" + gammaFwd + "\t" + gammaBkd + "\t" + fixedSurfaceGamma + "\t" + surfaceDelta + "\t" + surfaceVanna + "\t" + surfaceGamma);
+        System.out.println(k + "\t" + deltaFwd + "\t" + deltaBkd + "\t" + gammaFwd + "\t" + gammaBkd + "\t" + fixedSurfaceGamma + "\t" + surfaceDelta + "\t"
+            + surfaceVanna + "\t" + surfaceGamma);
       } else {
         assertEquals("testLocalVolDelta", gammaFwd, gammaBkd, 5e-1);//TODO still a large error here
       }
@@ -587,8 +588,8 @@ public class SABRFiniteDifferenceTest {
     final LocalVolatilitySurfaceStrike locVol = getSABRLocalVolSurface(1.0, FORWARD_CURVE);
 
     // final ZZConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(locVol, FORWARD_CURVE, true);
-    ConvectionDiffusionPDE1DCoefficients pde = PDE_PROVIDER.getForwardLocalVol(FORWARD_CURVE, locVol);
-    Function1D<Double, Double> initialCond = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(true);
+    final ConvectionDiffusionPDE1DCoefficients pde = PDE_PROVIDER.getForwardLocalVol(FORWARD_CURVE, locVol);
+    final Function1D<Double, Double> initialCond = INITIAL_CONDITIONS_PROVIDER.getForwardCallPut(true);
 
     final BoundaryCondition lowerFwd = new DirichletBoundaryCondition(1.0, 0.0);
     final BoundaryCondition upperFwd = new DirichletBoundaryCondition(0.0, maxMoneyness);

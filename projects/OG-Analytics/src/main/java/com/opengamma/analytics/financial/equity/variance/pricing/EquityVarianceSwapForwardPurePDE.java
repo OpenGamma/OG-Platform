@@ -147,7 +147,7 @@ public class EquityVarianceSwapForwardPurePDE {
     res[0] = (PDETerminalResults1D) _solver.solve(db);
     for (int i = 1; i <= nDivsBeforeExpiry; i++) {
       grids[i] = new PDEGrid1D(timeMeshes[i], spaceMesh);
-      db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, res[i - 1].getFinalTimePrices(), lower, upper, grids[i]);
+      db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, res[i - 1].getTerminalResults(), lower, upper, grids[i]);
       res[i] = (PDETerminalResults1D) _solver.solve(db);
     }
 

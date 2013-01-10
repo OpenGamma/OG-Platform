@@ -149,4 +149,9 @@ public class PDEFullResults1D implements PDEResults1D {
     return true;
   }
 
+  @Override
+  public double[] getTerminalResults() {
+    return _terminalResults.getTerminalResults();
+  }
+
 }

@@ -44,7 +44,7 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
@@ -76,7 +76,6 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
   private ValueRequirement getFundingCurveRequirement(final Currency ccy, final String curveName, final String curveCalculationConfig) {
     final ValueProperties fundingProperties = ValueProperties.builder()  // Note that createValueProperties is _not_ used - otherwise engine can't find the requirement
         .with(ValuePropertyNames.CURVE, curveName)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE,
@@ -146,7 +145,7 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     final ForwardCurveYieldImplied forwardCurve = new ForwardCurveYieldImplied(spot, fundingCurve, zeroCostOfCarryCurve);
 
     final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .with(ValuePropertyNames.CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CURRENCY, ccyName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)

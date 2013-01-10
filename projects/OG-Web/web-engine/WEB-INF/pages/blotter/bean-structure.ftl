@@ -33,7 +33,7 @@
             </td>
             </@table>
         </@section>
-        <#if underlyingType?has_content>
+        <#if underlyingTypes?has_content>
             <@subsection title="Underlying Security">
                 <#list underlyingTypes as info>
                     <a href="${info.expectedType}">${info.expectedType}</a><#if info_has_next>, </#if>
