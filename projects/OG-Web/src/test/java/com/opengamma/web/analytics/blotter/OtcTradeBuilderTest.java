@@ -38,6 +38,8 @@ import com.opengamma.util.money.Currency;
  */
 public class OtcTradeBuilderTest {
 
+  // TODO test that the URL ID is always unversioned and the trade ID is always versioned
+
   static {
     JodaBeanConverters.getInstance();
   }

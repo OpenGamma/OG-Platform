@@ -5,9 +5,6 @@
  */
 package com.opengamma.analytics.financial.model.finitedifference;
 
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.surface.Surface;
-
 /**
  * Solver for convection-diffusion type partial differential equations (PDEs), i.e.
  * $\frac{\partial f}{\partial t} + a(t,x) \frac{\partial^2 f}{\partial x^2} + b(t,x) \frac{\partial f}{\partial x} + (t,x)f = 0$
@@ -18,49 +15,6 @@ import com.opengamma.analytics.math.surface.Surface;
  */
 public interface ConvectionDiffusionPDESolver extends PDE1DSolver<ConvectionDiffusionPDE1DCoefficients> {
 
-  /**
-   * Solver for convection-diffusion type partial differential equations (PDEs), i.e.
-   * $\frac{\partial f}{\partial t} + a(t,x) \frac{\partial^2 f}{\partial x^2} + b(t,x) \frac{\partial f}{\partial x} + (t,x)f = 0$
-   * @param pdeData Data bundle holding a description of the PDE
-   * @param tSteps Number of steps in the time direction (Note: The number of grid points in the time direction  will be tSteps + 1)
-   * @param xSteps Number of steps in the spatial direction (Note: The number of grid points in the spatial direction  will be xSteps + 1)
-   * @param tMax Time starts at zero (where the initial condition is set) and runs to tMax (where the solution is taken)
-   * @param lowerBoundary Descriptor of the lower boundary in $x$
-   * @param upperBoundary Descriptor of the upper boundary in $x$
-   * @return An 2 by (xSteps + 1) array, with the first column giving the spatial (x) grid points and the second given the value of the fucntion $f$ at tMax and these grid points
-   */
-  @SuppressWarnings("deprecation")
-  PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
-      final BoundaryCondition upperBoundary);
-
-  /**
-   * Solver for convection-diffusion type partial differential equations (PDEs), i.e.
-   * $\frac{\partial f}{\partial t} + a(t,x) \frac{\partial^2 f}{\partial x^2} + b(t,x) \frac{\partial f}{\partial x} + (t,x)f = 0$
-   * @param pdeData Data bundle holding a description of the PDE
-   * @param tSteps Number of steps in the time direction (Note: The number of grid points in the time direction  will be tSteps + 1)
-   * @param xSteps Number of steps in the spatial direction (Note: The number of grid points in the spatial direction  will be xSteps + 1)
-   * @param tMax Time starts at zero (where the initial condition is set) and runs to tMax (where the solution is taken)
-   * @param lowerBoundary Descriptor of the lower boundary in x
-   * @param upperBoundary Descriptor of the upper boundary in x
-   * @param freeBoundary A surface g(t,x) such that f+(t,x) = max(f-(t,x),g(t,x)), where f-(t,x) is the normal solution at (t,x) and f+(t,x) is the updated solution to be used
-   * in the next time step. E.g. for a American put where x is the stock price, then g(t,x) = max(k-x,0), where k is the strike
-   * @return An 2 by (xSteps + 1) array, with the first column  giving the spatial (x) grid points and the second given the value of the fucntion f at tMax and these grid points
-   */
-  @SuppressWarnings("deprecation")
-  PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final int tSteps, final int xSteps, final double tMax, final BoundaryCondition lowerBoundary,
-      final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary);
-
-  @SuppressWarnings("deprecation")
-  PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary);
-
-  @SuppressWarnings("deprecation")
-  PDEResults1D solve(final ZZConvectionDiffusionPDEDataBundle pdeData, final PDEGrid1D grid, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary,
-      final Surface<Double, Double, Double> freeBoundary);
-
-  PDEResults1D solve(final ConvectionDiffusionPDE1DStandardCoefficients pdeData, final Function1D<Double, Double> initialCondition, final int tSteps, final int xSteps,
-      final double tMax, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary);
-
-  PDEResults1D solve(final ConvectionDiffusionPDE1DStandardCoefficients pdeData, final Function1D<Double, Double> initialCondition, final int tSteps, final int xSteps,
-      final double tMax, final BoundaryCondition lowerBoundary, final BoundaryCondition upperBoundary, final Surface<Double, Double, Double> freeBoundary);
-
+  @Override
+  PDEResults1D solve(PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> pdeData);
 }

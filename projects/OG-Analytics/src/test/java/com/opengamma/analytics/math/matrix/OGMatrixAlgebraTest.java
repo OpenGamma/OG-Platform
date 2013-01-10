@@ -9,11 +9,15 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.math.linearalgebra.TridiagonalMatrix;
+import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
+import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+
 /**
  * 
  */
 public class OGMatrixAlgebraTest {
-
+  private static ProbabilityDistribution<Double> RANDOM = new NormalDistribution(0, 1);
   private static final MatrixAlgebra ALGEBRA = MatrixAlgebraFactory.getMatrixAlgebra("OG");
   private static final DoubleMatrix2D A = new DoubleMatrix2D(new double[][] { {1., 2., 3. }, {-1., 1., 0. }, {-2., 1., -2. } });
   private static final DoubleMatrix2D B = new DoubleMatrix2D(new double[][] { {1, 1 }, {2, -2 }, {3, 1 } });
@@ -68,6 +72,35 @@ public class OGMatrixAlgebraTest {
   }
 
   @Test
+  public void testTridiagonalMultiply() {
+    final int n = 37;
+    double[] l = new double[n - 1];
+    double[] c = new double[n];
+    double[] u = new double[n - 1];
+    double[] x = new double[n];
+
+    for (int ii = 0; ii < n; ii++) {
+      c[ii] = RANDOM.nextRandom();
+      x[ii] = RANDOM.nextRandom();
+      if (ii < n - 1) {
+        l[ii] = RANDOM.nextRandom();
+        u[ii] = RANDOM.nextRandom();
+      }
+    }
+
+    final TridiagonalMatrix m = new TridiagonalMatrix(c, u, l);
+    final DoubleMatrix1D xVec = new DoubleMatrix1D(x);
+    DoubleMatrix1D y1 = (DoubleMatrix1D) ALGEBRA.multiply(m, xVec);
+    DoubleMatrix2D full = m.toDoubleMatrix2D();
+    DoubleMatrix1D y2 = (DoubleMatrix1D) ALGEBRA.multiply(full, xVec);
+
+    for (int i = 0; i < n; i++) {
+      assertEquals(y1.getEntry(i), y2.getEntry(i), 1e-12);
+    }
+
+  }
+
+  @Test
   public void testTranspose() {
     final DoubleMatrix2D a = new DoubleMatrix2D(new double[][] { {1, 2 }, {3, 4 }, {5, 6 } });
     assertEquals(3, a.getNumberOfRows());
@@ -75,7 +108,7 @@ public class OGMatrixAlgebraTest {
     DoubleMatrix2D aT = ALGEBRA.getTranspose(a);
     assertEquals(2, aT.getNumberOfRows());
     assertEquals(3, aT.getNumberOfColumns());
-    
+
   }
 
 }

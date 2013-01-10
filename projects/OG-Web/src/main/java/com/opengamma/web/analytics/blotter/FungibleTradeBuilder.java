@@ -93,7 +93,6 @@ import com.opengamma.util.OpenGammaClock;
         JodaBeanUtils.stringConverter().findConverter(ExternalIdBundle.class);
     String idBundleStr = tradeData.getValue(SECURITY_ID_BUNDLE);
     ExternalIdBundle securityIdBundle = idBundleConverter.convertFromString(ExternalIdBundle.class,idBundleStr);
-    // TODO should there be checks to stop a trade's type changing by pointing to a different security type?
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(securityIdBundle));
     String counterparty = tradeData.getValue(COUNTERPARTY);
     if (StringUtils.isEmpty(counterparty)) {
@@ -104,9 +103,6 @@ import com.opengamma.util.OpenGammaClock;
     // TODO need the node ID so we can add the position to the portfolio node
     ManageablePosition position = getPosition(trade);
     // TODO check the security exists and load it if not?
-    position.setSecurityLink(new ManageableSecurityLink(securityIdBundle));
-    position.addTrade(trade);
-    position.setQuantity(trade.getQuantity().add(position.getQuantity()));
     ManageablePosition savedPosition = savePosition(position);
     List<ManageableTrade> trades = savedPosition.getTrades();
     ManageableTrade savedTrade = trades.get(0);

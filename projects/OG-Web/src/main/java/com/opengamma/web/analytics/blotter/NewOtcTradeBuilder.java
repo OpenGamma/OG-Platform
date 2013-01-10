@@ -14,6 +14,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 
@@ -51,6 +52,10 @@ import com.opengamma.master.security.SecurityMaster;
 
   @Override
   ManageablePosition getPosition(ManageableTrade trade) {
-    return new ManageablePosition();
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(trade.getQuantity());
+    position.setSecurityLink(new ManageableSecurityLink(trade.getSecurityLink()));
+    position.addTrade(trade);
+    return position;
   }
 }

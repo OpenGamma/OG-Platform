@@ -77,6 +77,10 @@ import com.opengamma.util.ArgumentChecker;
    */
   /* package */ abstract ManageablePosition savePosition(ManageablePosition position);
 
+  // TODO should this be pushed down into subclasses?
+  // the position might be modified in different ways by the subclasses, might be misleading to have a single
+  // superclass method when the subclass impls do totally different things. maybe name them differently
+  // TODO or change spec and maybe name - this method adds the trade to the position and returns it adjusted appropriately
   /* package */ abstract ManageablePosition getPosition(ManageableTrade trade);
 
   /* package */  SecurityMaster getSecurityMaster() {

@@ -37,7 +37,7 @@ public class LocalVolatilityForwardPDEImpliedVolatilityGridCalculator implements
     final boolean isCall = option.isCall();
     final double forward = forwardCurve.getForward(expiry);
     final double[] moneynesses = grid.getSpaceNodes();
-    final double[] modifiedPrices = pdeGrid.getFinalTimePrices();
+    final double[] modifiedPrices = pdeGrid.getTerminalResults();
     final int n = modifiedPrices.length;
     double[] strikes = new double[n];
     double[] impliedVols = new double[n];
