@@ -182,8 +182,10 @@ public class InterestRateFunctions extends AbstractRepositoryConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      addFXImpliedYieldCurveDefaults(functions);
-      addYieldCurveDefaults(functions);
+      if (!getApplicableCurrencies().isEmpty()) {
+        addFXImpliedYieldCurveDefaults(functions);
+        addYieldCurveDefaults(functions);
+      }
     }
 
   }

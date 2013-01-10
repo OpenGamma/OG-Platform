@@ -36,6 +36,8 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
     }
 
     public CurrencyInfo(final String curveConfiguration, final String cubeName) {
+      setCurveConfiguration(curveConfiguration);
+      setCubeName(cubeName);
     }
 
     public String getCurveConfiguration() {
@@ -228,7 +230,7 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
   }
 
   protected void addRightExtrapolationVegaDefaults(final List<FunctionConfiguration> functions) {
-    final String[] args = new String[8 + getPerCurrencyInfo().size() * 3];
+    final String[] args = new String[10 + getPerCurrencyInfo().size() * 3];
     int i = 0;
     args[i++] = PriorityClass.BELOW_NORMAL.name();
     args[i++] = getFittingMethod();
@@ -250,11 +252,13 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    addNoExtrapolationDefaults(functions);
-    addNoExtrapolationVegaDefaults(functions);
-    addNonLinearLeastSquaresSwaptionCubeFittingDefaults(functions);
-    addRightExtrapolationDefaults(functions);
-    addRightExtrapolationVegaDefaults(functions);
+    if (!getPerCurrencyInfo().isEmpty()) {
+      addNoExtrapolationDefaults(functions);
+      addNoExtrapolationVegaDefaults(functions);
+      addNonLinearLeastSquaresSwaptionCubeFittingDefaults(functions);
+      addRightExtrapolationDefaults(functions);
+      addRightExtrapolationVegaDefaults(functions);
+    }
   }
 
 }

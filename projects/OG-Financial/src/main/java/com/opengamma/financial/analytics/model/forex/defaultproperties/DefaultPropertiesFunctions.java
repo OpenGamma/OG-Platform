@@ -205,9 +205,13 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    addFXForwardDefaults(functions);
-    addFXOptionBlackCurveDefaults(functions);
-    addFXOptionBlackSurfaceDefaults(functions);
+    if (!getPerCurrencyInfo().isEmpty()) {
+      addFXForwardDefaults(functions);
+      addFXOptionBlackCurveDefaults(functions);
+    }
+    if (!getPerCurrencyPairInfo().isEmpty()) {
+      addFXOptionBlackSurfaceDefaults(functions);
+    }
   }
 
 }

@@ -208,8 +208,10 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      addISDAYieldCurveDefaults(functions);
-      addISDALegacyCDSHazardCurveDefaults(functions);
+      if (!getPerCurrencyInfo().isEmpty()) {
+        addISDAYieldCurveDefaults(functions);
+        addISDALegacyCDSHazardCurveDefaults(functions);
+      }
       addISDALegacyVanillaCDSDefaults(functions);
     }
 

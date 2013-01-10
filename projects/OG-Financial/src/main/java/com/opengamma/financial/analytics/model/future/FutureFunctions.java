@@ -123,7 +123,9 @@ public class FutureFunctions extends AbstractRepositoryConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      addInterestRateFutureDefaults(functions);
+      if (!getPerCurrencyInfo().isEmpty()) {
+        addInterestRateFutureDefaults(functions);
+      }
     }
 
   }

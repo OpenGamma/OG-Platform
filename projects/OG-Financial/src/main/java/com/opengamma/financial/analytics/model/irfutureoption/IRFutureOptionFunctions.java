@@ -173,9 +173,11 @@ public class IRFutureOptionFunctions extends AbstractRepositoryConfigurationBean
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      addIRFutureOptionBlackDefaults(functions);
-      addIRFutureOptionSABRDefaults(functions);
-      addIRFutureOptionHestonDefaults(functions);
+      if (!getPerCurrencyInfo().isEmpty()) {
+        addIRFutureOptionBlackDefaults(functions);
+        addIRFutureOptionSABRDefaults(functions);
+        addIRFutureOptionHestonDefaults(functions);
+      }
     }
 
   }

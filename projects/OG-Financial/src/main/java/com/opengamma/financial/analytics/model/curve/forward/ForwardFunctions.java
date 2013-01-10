@@ -243,8 +243,12 @@ public class ForwardFunctions extends AbstractRepositoryConfigurationBean {
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       functions.add(functionConfiguration(FXForwardCurveFromMarketQuotesDefaults.class, getInterpolator(), getLeftExtrapolator(), getRightExtrapolator()));
       functions.add(functionConfiguration(InterpolatedForwardCurveDefaults.class, getInterpolator(), getLeftExtrapolator(), getRightExtrapolator()));
-      addForwardCurveDefaults(functions);
-      addFXForwardCurveDefaults(functions);
+      if (!getPerCurrencyInfo().isEmpty()) {
+        addForwardCurveDefaults(functions);
+      }
+      if (!getPerCurrencyPairInfo().isEmpty()) {
+        addFXForwardCurveDefaults(functions);
+      }
     }
 
   }

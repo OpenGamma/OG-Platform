@@ -68,6 +68,7 @@ public class FixedIncomeFunctions extends AbstractRepositoryConfigurationBean {
       }
 
       public CurrencyInfo(final String curveCalculationConfig) {
+        setCurveCalculationConfig(curveCalculationConfig);
       }
 
       public void setCurveCalculationConfig(final String curveCalculationConfig) {
@@ -127,7 +128,9 @@ public class FixedIncomeFunctions extends AbstractRepositoryConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      addInterestRateInstrumentDefaults(functions);
+      if (!getPerCurrencyInfo().isEmpty()) {
+        addInterestRateInstrumentDefaults(functions);
+      }
     }
 
   }

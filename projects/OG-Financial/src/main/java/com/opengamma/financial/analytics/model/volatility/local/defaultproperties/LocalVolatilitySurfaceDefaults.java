@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public abstract class LocalVolatilitySurfaceDefaults extends DefaultPropertyFunction {
+public class LocalVolatilitySurfaceDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(LocalVolatilitySurfaceDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,

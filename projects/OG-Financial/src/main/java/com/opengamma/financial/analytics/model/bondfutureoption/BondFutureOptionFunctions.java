@@ -115,7 +115,9 @@ public class BondFutureOptionFunctions extends AbstractRepositoryConfigurationBe
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      addBondFutureOptionDefaults(functions);
+      if (!getPerCurrencyInfo().isEmpty()) {
+        addBondFutureOptionDefaults(functions);
+      }
     }
 
   }

@@ -98,6 +98,7 @@ public class SensitivitiesFunctions extends AbstractRepositoryConfigurationBean 
       }
 
       public CurrencyInfo(final String curveConfiguration) {
+        setCurveConfiguration(curveConfiguration);
       }
 
       public void setCurveConfiguration(final String curveConfiguration) {
@@ -147,7 +148,9 @@ public class SensitivitiesFunctions extends AbstractRepositoryConfigurationBean 
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      addExternallyProvidedSensitivitiesDefaultProperties(functions);
+      if (!getPerCurrencyInfo().isEmpty()) {
+        addExternallyProvidedSensitivitiesDefaultProperties(functions);
+      }
     }
 
   }

@@ -140,8 +140,10 @@ public class BlackFunctions extends AbstractRepositoryConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      addSwaptionBlackDefaults(functions);
-      addSwaptionBlackThetaDefaults(functions);
+      if (!getPerCurrencyInfo().isEmpty()) {
+        addSwaptionBlackDefaults(functions);
+        addSwaptionBlackThetaDefaults(functions);
+      }
     }
 
   }

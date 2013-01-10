@@ -53,7 +53,8 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.defaultp
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfacePrimitiveDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceSecurityDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceTradeDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.PureBlackVolatilitySurfaceDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.PureBlackVolatilitySurfacePrimitiveDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.PureBlackVolatilitySurfaceSecurityDefaults;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.functional.Function1;
@@ -541,7 +542,8 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
         .useDiscountingCurveCalculationConfigNames()
         .useVolatilitySurfaceNames()
         .createDefaults();
-    functionConfigs.add(new ParameterizedFunctionConfiguration(PureBlackVolatilitySurfaceDefaults.class.getName(), defaults));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(PureBlackVolatilitySurfacePrimitiveDefaults.class.getName(), defaults));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(PureBlackVolatilitySurfaceSecurityDefaults.class.getName(), defaults));
   }
 
   protected void addEquityVarianceSwapDefaults(final List<FunctionConfiguration> functionConfigs) {

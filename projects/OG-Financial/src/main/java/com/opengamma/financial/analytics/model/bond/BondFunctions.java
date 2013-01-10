@@ -141,7 +141,9 @@ public class BondFunctions extends AbstractRepositoryConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      addBondCurveDefaults(functions);
+      if (!getPerCurrencyInfo().isEmpty()) {
+        addBondCurveDefaults(functions);
+      }
     }
 
   }

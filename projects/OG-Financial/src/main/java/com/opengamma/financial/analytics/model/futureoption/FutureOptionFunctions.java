@@ -143,7 +143,9 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      addCommodityFutureOptionBlackDefaults(functions);
+      if (!getPerCurrencyInfo().isEmpty()) {
+        addCommodityFutureOptionBlackDefaults(functions);
+      }
     }
 
   }
