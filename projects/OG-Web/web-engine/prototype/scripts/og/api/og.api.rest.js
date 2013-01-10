@@ -240,7 +240,7 @@ $.register_module({
                 };
                 [ // blotter/lookup/* endpoints
                     'barrierdirections', 'barriertypes', 'businessdayconventions', 'daycountconventions',
-                    'exercisetypes', 'floatingratetypes', 'frequencies', 'longshort', 'monitoringtype',
+                    'exercisetypes', 'floatingratetypes', 'frequencies', 'idschemes', 'longshort', 'monitoringtype',
                     'samplingfrequencies'
                 ].forEach(function (key) {
                     blotter[key] = {
