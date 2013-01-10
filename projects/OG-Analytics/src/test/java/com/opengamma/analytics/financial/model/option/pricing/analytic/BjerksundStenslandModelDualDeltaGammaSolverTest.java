@@ -15,8 +15,9 @@ import org.testng.annotations.Test;
 public class BjerksundStenslandModelDualDeltaGammaSolverTest {
 
   @Test
-  //(enabled = false)
-  public void deltaGammaTest() {
+      (enabled = false)
+      public void deltaGammaTest() {
+    System.out.println("BjerksundStenslandModelDualDeltaGammaSolverTest.deltaGammaTest");
     BjerksundStenslandModel bs = new BjerksundStenslandModel();
     //BjerksundStenslandModelDualDeltaGammaSolver temp = new BjerksundStenslandModelDualDeltaGammaSolver();
     final double[] s0Set = new double[] {60, 90, 100, 110, 160 };

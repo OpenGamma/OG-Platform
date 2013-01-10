@@ -10,6 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import cern.jet.random.engine.MersenneTwister;
+
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
@@ -22,7 +24,7 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 public class TridiagonalSolverTest {
 
   private static MatrixAlgebra MA = new OGMatrixAlgebra();
-  private static ProbabilityDistribution<Double> RANDOM = new NormalDistribution(0, 1);
+  private static ProbabilityDistribution<Double> RANDOM = new NormalDistribution(0, 1, new MersenneTwister(123));
 
   @Test
   public void test() {
