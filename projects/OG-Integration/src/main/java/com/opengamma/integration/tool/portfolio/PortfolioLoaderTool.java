@@ -116,7 +116,7 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
           s_context.getPortfolioMaster(), 
           s_context.getPositionMaster(), 
           s_context.getSecurityMaster(),
-          overwrite, false, false);
+          overwrite, false, false, false);
     } else {
       System.out.println("Write option not specified, not persisting to OpenGamma masters");
 
