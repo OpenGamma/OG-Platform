@@ -41,6 +41,12 @@ $.register_module({
                         new og.blotter.Dialog(data);
                     });
                 });
+                $('.fxbarrier').click(function (){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164255"}).pipe(function(data){
+
+                        new og.blotter.Dialog(data);
+                    });
+                });
             },
             load_item: function (args) {},
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
