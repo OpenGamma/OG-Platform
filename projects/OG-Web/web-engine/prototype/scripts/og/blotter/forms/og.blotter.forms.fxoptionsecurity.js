@@ -59,7 +59,7 @@ $.register_module({
                     og.blotter.util.check_radio("security.longShort", data.security.longShort);
                 });
                 form.on('form:submit', function (result){
-                    og.api.rest.blotter.trades.put(result.data).pipe(console.log);
+                    og.api.rest.blotter.trades.put(result.data);
                 });
             }; 
             constructor.load();

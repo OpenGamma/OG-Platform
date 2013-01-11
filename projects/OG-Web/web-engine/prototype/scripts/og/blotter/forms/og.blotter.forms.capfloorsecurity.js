@@ -12,7 +12,7 @@ $.register_module({
             else {data = {security: {type: "CapFloorSecurity", name: "CapFloorSecurity ABC", 
                 regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};}
             constructor.load = function () {
-                constructor.title = 'Cap/Floor CMS Spread';
+                constructor.title = 'Cap/Floor';
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.simple_tash',
                     selector: '.OG-blotter-form-block',

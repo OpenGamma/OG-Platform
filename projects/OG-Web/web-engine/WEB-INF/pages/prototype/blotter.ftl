@@ -19,6 +19,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
         <div class="fxbarrier">FX Barrier Option - DbPos~164255</div> 
         <div class="fxforward">FX Forward - DbPos~164134</div>
         <div class="fxoption">FX Option - DbPos~164257</div>
+        <div class="nondelfxoption">Non Deliverable FX Option - DbPos~164259</div>
   </div>
 </div>
 ${ogScript.print('og_common.js',false)}

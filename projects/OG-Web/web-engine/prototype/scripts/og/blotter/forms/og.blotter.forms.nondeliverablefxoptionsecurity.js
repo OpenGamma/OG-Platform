@@ -7,13 +7,16 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function (config) {
-            config = og.blotter.util.FAKE_FX_OPTION;
-            var constructor = this, ui = og.common.util.ui, data = config || {};
+            var constructor = this, form, ui = og.common.util.ui;
+            if(config) {data = config; data.id = config.trade.uniqueId;}
+            else {data = {security: {type: "NonDeliverableFXOptionSecurity", name: "NonDeliverableFXOptionSecurity ABC", 
+                regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};}
             constructor.load = function () {
                 constructor.title = 'Non-Deliverable FX Option';
-                var form = new og.common.util.ui.Form({
+                form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.fx_option_tash',
-                    selector: '.OG-blotter-form-block'
+                    selector: '.OG-blotter-form-block',
+                    data: data
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
@@ -22,34 +25,49 @@ $.register_module({
                     }), 
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_option_value_tash',
-                        extras: {put: data.putAmount, call: data.callAmount},
+                        extras: {put: data.security.putAmount, call: data.security.callAmount},
                         children: [
-                            new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'putCurrency'}}),
-                            new form.Block({module:'og.views.forms.currency_tash', extras:{name: 'callCurrency'}})
+                            new form.Block({module:'og.views.forms.currency_tash', 
+                                extras:{name: 'security.putCurrency'}}),
+                            new form.Block({module:'og.views.forms.currency_tash', 
+                                extras:{name: 'security.callCurrency'}})
                         ]
                     }),                
                     new form.Block({
                         module: 'og.blotter.forms.blocks.fx_option_date_tash',
-                        extras: {nondev:true, expiry: data.expiry, settlement: data.settlementDate},
+                        extras: {nondev:true, expiry: data.security.expiry, settlement: data.security.settlementDate},
+                        processor: function (data) {
+                            data.security.deliveryInCallCurrency = 
+                            og.blotter.util.get_checkbox("security.deliveryInCallCurrency");
+                        },
                         children: [
                             new ui.Dropdown({
-                                form: form, resource: 'blotter.exercisetypes', index: 'exerciseType',
-                                value: data.exerciseType, placeholder: 'Select Exercise Type'
+                                form: form, resource: 'blotter.exercisetypes', index: 'security.exerciseType',
+                                value: data.security.exerciseType, placeholder: 'Select Exercise Type'
                             })
                         ]
                     }),
-                    new og.common.util.ui.Attributes({form: form, attributes: data.attributes})
+                    new og.common.util.ui.Attributes({form: form, attributes: data.security.attributes})
                 );
                 form.dom();
                 form.on('form:load', function (){
-                    if(data.length) return;
-                    og.blotter.util.set_select("putCurrency", data.putCurrency);
-                    og.blotter.util.set_select("callCurrency", data.callCurrency);
-                    og.blotter.util.check_radio("longShort", data.longShort);
-                    og.blotter.util.check_checkbox("deliveryInCallCurrency", data.deliveryInCallCurrency);
+                    og.blotter.util.add_datetimepicker("security.expiry");
+                    og.blotter.util.add_datetimepicker("security.settlementDate");  
+                    if(data.security.length) return;
+                    og.blotter.util.set_select("security.putCurrency", data.security.putCurrency);
+                    og.blotter.util.set_select("security.callCurrency", data.security.callCurrency);
+                    og.blotter.util.check_radio("security.longShort", data.security.longShort);
+                    og.blotter.util.check_checkbox("security.deliveryInCallCurrency", 
+                        data.security.deliveryInCallCurrency);
                 });  
+                form.on('form:submit', function (result){
+                    og.api.rest.blotter.trades.put(result.data).pipe(console.log);
+                });
             }; 
             constructor.load();
+            constructor.submit = function () {
+                form.submit();
+            };
             constructor.kill = function () {
             };
         };

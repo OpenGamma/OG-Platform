@@ -37,19 +37,21 @@ $.register_module({
                 });
                 $('.fra').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164245"}).pipe(function(data){
-
                         new og.blotter.Dialog(data);
                     });
                 });
                 $('.fxbarrier').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164255"}).pipe(function(data){
-
                         new og.blotter.Dialog(data);
                     });
                 });
                 $('.fxoption').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164257"}).pipe(function(data){
-
+                        new og.blotter.Dialog(data);
+                    });
+                });
+                $('.nondelfxoption').click(function (){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164259"}).pipe(function(data){
                         new og.blotter.Dialog(data);
                     });
                 });
