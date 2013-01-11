@@ -68,7 +68,10 @@ public class OtcTradeBuilderTest {
   public void newSecurityWithNoUnderlying() {
     SecurityMaster securityMaster = new InMemorySecurityMaster();
     PositionMaster positionMaster = new InMemoryPositionMaster();
-    NewOtcTradeBuilder builder = new NewOtcTradeBuilder(securityMaster, positionMaster, BlotterResource.s_metaBeans);
+    NewOtcTradeBuilder builder = new NewOtcTradeBuilder(securityMaster,
+                                                        positionMaster,
+                                                        BlotterResource.s_metaBeans,
+                                                        BlotterResource.getStringConvert());
     UniqueId tradeId = builder.buildAndSaveTrade(createTradeData(), BlotterTestUtils.FX_FORWARD_DATA_SOURCE, null);
     ManageableTrade trade = positionMaster.getTrade(tradeId);
     UniqueId positionId = trade.getParentPositionId();
@@ -94,7 +97,10 @@ public class OtcTradeBuilderTest {
   public void newSecurityWithFungibleUnderlying() {
     SecurityMaster securityMaster = new InMemorySecurityMaster();
     PositionMaster positionMaster = new InMemoryPositionMaster();
-    NewOtcTradeBuilder builder = new NewOtcTradeBuilder(securityMaster, positionMaster, BlotterResource.s_metaBeans);
+    NewOtcTradeBuilder builder = new NewOtcTradeBuilder(securityMaster,
+                                                        positionMaster,
+                                                        BlotterResource.s_metaBeans,
+                                                        BlotterResource.getStringConvert());
     BeanDataSource tradeData = createTradeData();
     UniqueId tradeId = builder.buildAndSaveTrade(tradeData, BlotterTestUtils.EQUITY_VARIANCE_SWAP_DATA_SOURCE, null);
 

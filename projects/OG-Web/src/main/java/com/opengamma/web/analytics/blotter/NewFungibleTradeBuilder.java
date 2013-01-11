@@ -8,6 +8,7 @@ package com.opengamma.web.analytics.blotter;
 import java.util.Set;
 
 import org.joda.beans.MetaBean;
+import org.joda.convert.StringConvert;
 
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -23,8 +24,9 @@ import com.opengamma.master.security.SecurityMaster;
 
   /* package */ NewFungibleTradeBuilder(PositionMaster positionMaster,
                                         SecurityMaster securityMaster,
-                                        Set<MetaBean> metaBeans) {
-    super(positionMaster, securityMaster, metaBeans);
+                                        Set<MetaBean> metaBeans,
+                                        StringConvert stringConvert) {
+    super(positionMaster, securityMaster, metaBeans, stringConvert);
   }
 
   @Override

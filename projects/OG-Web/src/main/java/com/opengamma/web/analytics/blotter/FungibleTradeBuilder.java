@@ -13,10 +13,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 
 import com.google.common.collect.Lists;
@@ -42,16 +42,18 @@ import com.opengamma.util.OpenGammaClock;
 
   /* package */ FungibleTradeBuilder(PositionMaster positionMaster,
                                      SecurityMaster securityMaster,
-                                     Set<MetaBean> metaBeans) {
-    super(positionMaster, securityMaster, metaBeans);
+                                     Set<MetaBean> metaBeans,
+                                     StringConvert stringConvert) {
+    super(positionMaster, securityMaster, metaBeans, stringConvert);
   }
 
   /**
+   * TODO make this non-static and make stringConvert a field
    * Extracts trade data and populates a data sink.
    * @param trade The trade
    * @param sink The sink that should be populated with the trade data
    */
-  /* package */ static void extractTradeData(ManageableTrade trade, BeanDataSink<?> sink) {
+  /* package */ static void extractTradeData(ManageableTrade trade, BeanDataSink<?> sink, StringConvert stringConvert) {
     sink.setValue("type", TRADE_TYPE_NAME);
     // TODO extract fields into list, use when building trade
     extractPropertyData(trade.uniqueId(), sink);
@@ -65,7 +67,7 @@ import com.opengamma.util.OpenGammaClock;
     sink.setMapValues(trade.attributes().name(), trade.getAttributes());
     sink.setValue(COUNTERPARTY, trade.getCounterpartyExternalId().getValue());
     ExternalIdBundle securityIdBundle = trade.getSecurityLink().getExternalId();
-    StringConverter<ExternalIdBundle> converter = JodaBeanUtils.stringConverter().findConverter(ExternalIdBundle.class);
+    StringConverter<ExternalIdBundle> converter = stringConvert.findConverter(ExternalIdBundle.class);
     sink.setValue(SECURITY_ID_BUNDLE, converter.convertToString(securityIdBundle));
   }
 
@@ -89,12 +91,10 @@ import com.opengamma.util.OpenGammaClock;
                      meta.quantity(),
                      meta.premiumTime());
     tradeBuilder.set(meta.attributes(), tradeData.getMapValues(meta.attributes().name()));
-    StringConverter<ExternalIdBundle> idBundleConverter =
-        JodaBeanUtils.stringConverter().findConverter(ExternalIdBundle.class);
     String idBundleStr = tradeData.getValue(SECURITY_ID_BUNDLE);
     // TODO check the security exists and load it if not? and the underlying? what securities have fungible underlying securities?
     // TODO is a trade's security allowed to change? presumably not
-    ExternalIdBundle securityIdBundle = idBundleConverter.convertFromString(ExternalIdBundle.class,idBundleStr);
+    ExternalIdBundle securityIdBundle = getStringConvert().convertFromString(ExternalIdBundle.class,idBundleStr);
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(securityIdBundle));
     String counterparty = tradeData.getValue(COUNTERPARTY);
     if (StringUtils.isEmpty(counterparty)) {

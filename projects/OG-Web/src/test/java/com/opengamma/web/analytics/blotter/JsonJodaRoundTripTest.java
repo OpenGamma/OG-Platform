@@ -48,7 +48,7 @@ public class JsonJodaRoundTripTest {
     fxForward.setName("GBP/USD forward");
 
     JsonDataSink sink = new JsonDataSink();
-    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<JSONObject>(fxForward, sink);
+    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(fxForward, sink);
     BeanTraverser traverser = new BeanTraverser();
     JSONObject json = (JSONObject) traverser.traverse(FXForwardSecurity.meta(), writingVisitor);
     assertNotNull(json);
@@ -56,7 +56,8 @@ public class JsonJodaRoundTripTest {
 
     JsonBeanDataSource dataSource = new JsonBeanDataSource(new JSONObject(json.toString()));
     MetaBeanFactory metaBeanFactory = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(FXForwardSecurity.meta()));
-    BeanVisitor<BeanBuilder<Bean>> readingVisitor = new BeanBuildingVisitor<>(dataSource, metaBeanFactory);
+    BeanVisitor<BeanBuilder<Bean>> readingVisitor =
+        new BeanBuildingVisitor<>(dataSource, metaBeanFactory, BlotterResource.getStringConvert());
     BeanBuilder<FXForwardSecurity> beanBuilder =
         (BeanBuilder<FXForwardSecurity>) traverser.traverse(FXForwardSecurity.meta(), readingVisitor);
     FXForwardSecurity fxForward2 = beanBuilder.build();
@@ -90,7 +91,7 @@ public class JsonJodaRoundTripTest {
 
     JsonDataSink sink = new JsonDataSink();
     BeanTraverser traverser = new BeanTraverser();
-    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<JSONObject>(security, sink);
+    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(security, sink);
     JSONObject json = (JSONObject) traverser.traverse(SwapSecurity.meta(), writingVisitor);
     assertNotNull(json);
     System.out.println(json);
@@ -101,7 +102,8 @@ public class JsonJodaRoundTripTest {
         FixedInterestRateLeg.meta(),
         FloatingInterestRateLeg.meta(),
         InterestRateNotional.meta()));
-    BeanVisitor<BeanBuilder<SwapSecurity>> readingVisitor = new BeanBuildingVisitor<>(dataSource, metaBeanFactory);
+    BeanVisitor<BeanBuilder<SwapSecurity>> readingVisitor =
+        new BeanBuildingVisitor<>(dataSource, metaBeanFactory, BlotterResource.getStringConvert());
     BeanBuilder<SwapSecurity> beanBuilder =
         (BeanBuilder<SwapSecurity>) traverser.traverse(SwapSecurity.meta(), readingVisitor);
     SwapSecurity security2 = beanBuilder.build();

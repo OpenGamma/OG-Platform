@@ -17,6 +17,7 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.convert.StringConvert;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -40,8 +41,11 @@ import com.opengamma.util.OpenGammaClock;
 
   public static final String TRADE_TYPE_NAME = "OtcTrade";
 
-  /* package */ OtcTradeBuilder(SecurityMaster securityMaster, PositionMaster positionMaster, Set<MetaBean> metaBeans) {
-    super(positionMaster, securityMaster, metaBeans);
+  /* package */ OtcTradeBuilder(SecurityMaster securityMaster,
+                                PositionMaster positionMaster,
+                                Set<MetaBean> metaBeans,
+                                StringConvert stringConvert) {
+    super(positionMaster, securityMaster, metaBeans, stringConvert);
   }
 
   /* package */ UniqueId buildAndSaveTrade(BeanDataSource tradeData,
@@ -55,7 +59,7 @@ import com.opengamma.util.OpenGammaClock;
     ManageableTrade.Meta meta = ManageableTrade.meta();
     BeanBuilder<? extends ManageableTrade> tradeBuilder =
         tradeBuilder(tradeData,
-                     meta.uniqueId(), // TODO handle uniqueId differently for new trades - shouldn't be specified
+                     meta.uniqueId(),
                      meta.tradeDate(),
                      meta.tradeTime(),
                      meta.premium(),
@@ -128,6 +132,7 @@ import com.opengamma.util.OpenGammaClock;
     ExternalId underlyingId = buildUnderlying(underlyingData);
     BeanDataSource dataSource;
     // TODO would it be better to just return the bean builder from the visitor and handle this property manually?
+    // TODO would have to use a different property for every security with underlyingId, there's no common supertype with it
     if (underlyingId != null) {
       dataSource = new PropertyReplacingDataSource(securityData, "underlyingId", underlyingId.toString());
     } else {
@@ -156,7 +161,8 @@ import com.opengamma.util.OpenGammaClock;
     // TODO custom converters for dates
     // default timezone based on OpenGammaClock
     // default times for effectiveDate and maturityDate properties on SwapSecurity, probably others
-    BeanVisitor<BeanBuilder<FinancialSecurity>> visitor = new BeanBuildingVisitor<>(data, getMetaBeanFactory());
+    BeanVisitor<BeanBuilder<FinancialSecurity>> visitor =
+        new BeanBuildingVisitor<>(data, getMetaBeanFactory(), getStringConvert());
     MetaBean metaBean = getMetaBeanFactory().beanFor(data);
     // TODO check it's a FinancialSecurity metaBean
     if (!(metaBean instanceof FinancialSecurity.Meta)) {
@@ -167,6 +173,8 @@ import com.opengamma.util.OpenGammaClock;
     BeanBuilder<FinancialSecurity> builder =
         (BeanBuilder<FinancialSecurity>) new BeanTraverser(externalIdFilter).traverse(metaBean, visitor);
     // externalIdBundle needs to be specified or building fails because it's not nullable
+    // TODO need to preserve the bundle when editing existing trades. pass to client or use previous version?
+    // do in Existing* subclass, that looks up previous version, other subclass doesn't care, no bundle for new trades
     builder.set(FinancialSecurity.meta().externalIdBundle(), ExternalIdBundle.EMPTY);
     Object bean = builder.build();
     if (bean instanceof FinancialSecurity) {
