@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class BeanBuildingVisitor<T extends Bean> implements BeanVisitor<T> {
+/* package */ class BeanBuildingVisitor<T extends Bean> implements BeanVisitor<BeanBuilder<T>> {
 
   private final BeanDataSource _data;
   private final MetaBeanFactory _metaBeanFactory;
@@ -63,7 +63,7 @@ import com.opengamma.util.ArgumentChecker;
       if (beanData != null) {
         BeanBuildingVisitor<?> visitor = new BeanBuildingVisitor<>(beanData, _metaBeanFactory, _converters);
         MetaBean metaBean = _metaBeanFactory.beanFor(beanData);
-        result = (Bean) traverser.traverse(metaBean, visitor);
+        result = ((BeanBuilder<?>) traverser.traverse(metaBean, visitor)).build();
       } else {
         result = null;
       }
@@ -110,10 +110,8 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public T finish() {
-    // TODO return builder instead?
-    // allows handling properties that need to be manually fudged before building the bean
-    return _builder.build();
+  public BeanBuilder<T> finish() {
+    return _builder;
   }
 
   private static Map<?, ?> buildMap(MetaProperty<?> property, Map<String, String> values) {
