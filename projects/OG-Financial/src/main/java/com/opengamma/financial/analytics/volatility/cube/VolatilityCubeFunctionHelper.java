@@ -18,9 +18,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -46,7 +44,7 @@ public class VolatilityCubeFunctionHelper {
       s_logger.warn("No cube definition for {} on {}", _definitionName, _currency);
     } else {
       if (_definition.getUniqueId() != null) {
-        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, Pair.of(_definition.getUniqueId().getObjectId(), VersionCorrection.LATEST));
+        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId().getObjectId());
       } else {
         s_logger.warn("Cube {} on {} has no identifier - cannot subscribe to updates", _definitionName, _currency);
       }

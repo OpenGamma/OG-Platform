@@ -602,6 +602,7 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
     return getRiskFactor(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, constraints);
   }
 
+  //FIXME properties aren't correct
   private Pair<String, ValueProperties> getEquityValue(final String requirementName, final ExternalId underlying) {
     final com.opengamma.engine.value.ValueProperties.Builder builder = ValueProperties.builder().with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, _configProvider.getEquityFundingCurve())
                              .with(ValuePropertyNames.SURFACE, _configProvider.getEquityIndexOptionVolatilitySurfaceName(underlying.getValue()))

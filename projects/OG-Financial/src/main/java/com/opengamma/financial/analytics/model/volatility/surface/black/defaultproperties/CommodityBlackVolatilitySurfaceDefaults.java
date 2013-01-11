@@ -20,6 +20,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
@@ -58,7 +59,7 @@ public abstract class CommodityBlackVolatilitySurfaceDefaults extends DefaultPro
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : _valueRequirementNames) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
+      defaults.addValuePropertyName(valueRequirement, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
     }
   }
@@ -74,7 +75,7 @@ public abstract class CommodityBlackVolatilitySurfaceDefaults extends DefaultPro
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
       return Collections.singleton(curveName);
     }
-    if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
+    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_currencyToCurveCalculationMethodName.get(currencyPair));
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {

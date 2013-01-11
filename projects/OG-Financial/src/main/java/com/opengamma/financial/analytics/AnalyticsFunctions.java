@@ -202,7 +202,9 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.THETA);
     addUnitScalingFunction(functions, ValueRequirementNames.ULTIMA);
     addSummingFunction(functions, ValueRequirementNames.VALUE);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.VALUE_CARRY_RHO);
     addValueGreekAndSummingFunction(functions, ValueRequirementNames.VALUE_DELTA);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.VALUE_DUAL_DELTA);
     addValueGreekAndSummingFunction(functions, ValueRequirementNames.VALUE_GAMMA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.VALUE_PHI);
     addScalingAndSummingFunction(functions, ValueRequirementNames.VALUE_RHO);

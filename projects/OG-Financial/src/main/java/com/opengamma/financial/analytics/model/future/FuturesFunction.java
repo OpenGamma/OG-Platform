@@ -20,8 +20,11 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -34,14 +37,16 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
@@ -55,7 +60,7 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(FuturesFunction.class);
   /** The converter */
-  private static final FutureSecurityConverter CONVERTER = new FutureSecurityConverter();
+  private FutureSecurityConverter _converter;
 
   /** The value requirement name */
   private final String _valueRequirementName;
@@ -73,6 +78,17 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     _calculator = calculator;
   }
 
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
+    _converter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter);
+  }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
@@ -96,8 +112,8 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     }
     // Build the analytic's version of the security - the derivative
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
-    final InstrumentDefinitionWithData<?, Double> definition = security.accept(CONVERTER);
-    final InstrumentDerivative derivative = definition.toDerivative(valuationTime, lastMarginPrice);
+    final InstrumentDefinitionWithData<?, Double> definition = security.accept(_converter);
+    final InstrumentDerivative derivative = definition.toDerivative(valuationTime, lastMarginPrice, new String[] {"", ""});
     // Build the DataBundle it requires
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final SimpleFutureDataBundle dataBundle = getFutureDataBundle(security, inputs, timeSeriesBundle, desiredValue);
@@ -115,13 +131,7 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getTrade().getSecurity();
-    if (!(security instanceof FutureSecurity)) {
-      return false;
-    }
-    if (security instanceof InterestRateFutureSecurity || security instanceof BondFutureSecurity) {
-      return false;
-    }
-    return true;
+    return security instanceof FutureSecurity;
   }
 
   /**
@@ -181,7 +191,7 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
   protected ExternalId getSpotAssetId(final FutureSecurity sec) {
     final ExternalId spotAssetId = FinancialSecurityUtils.getUnderlyingId(sec);
     if (spotAssetId == null) {
-      s_logger.error("Failed to find spot asset id (category = {}) for future with id bundle {}", sec.getContractCategory(), sec.getExternalIdBundle());
+      s_logger.info("Failed to find spot asset id (category = {}) for future with id bundle {}", sec.getContractCategory(), sec.getExternalIdBundle());
       return null;
     }
     return spotAssetId;

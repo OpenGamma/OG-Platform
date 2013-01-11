@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.volatility.cube;
@@ -12,7 +12,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * A source of swaption volatility cube definitions that come from a {@link ConfigSource}
- * 
+ *
  */
 public class SyntheticSwaptionVolatilityCubeDefinitionSource implements VolatilityCubeDefinitionSource {
   private final ConfigSource _configSource;
@@ -32,7 +32,7 @@ public class SyntheticSwaptionVolatilityCubeDefinitionSource implements Volatili
   public VolatilityCubeDefinition getDefinition(final Currency currency, final String name, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    return _configSource.getConfig(VolatilityCubeDefinition.class, name, versionCorrection);
+    return _configSource.getSingle(VolatilityCubeDefinition.class, name, versionCorrection);
   }
 
 }

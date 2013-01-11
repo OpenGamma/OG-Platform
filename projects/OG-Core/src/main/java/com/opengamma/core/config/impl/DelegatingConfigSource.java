@@ -7,7 +7,9 @@ package com.opengamma.core.config.impl;
 
 import static com.google.common.collect.Sets.newHashSet;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -76,17 +78,49 @@ public class DelegatingConfigSource
   }
 
   @Override
-  public <R> ConfigItem<R> get(final Class<R> clazz, final String configName, final VersionCorrection versionCorrection) {
+  public <R> Collection<ConfigItem<R>> get(final Class<R> clazz, final String configName, final VersionCorrection versionCorrection) {
     final Map<String, ConfigSource> delegates = getDelegates();
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(configName, "configName");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    Collection<ConfigItem<R>> results = null;
+    boolean alloc = false;
     for (final ConfigSource configSource : delegates.values()) {
-      final ConfigItem<R> config = configSource.get(clazz, configName, versionCorrection);
-      if (config != null) {
-        return config;
+      final Collection<ConfigItem<R>> configs = configSource.get(clazz, configName, versionCorrection);
+      if (!configs.isEmpty()) {
+        if (results == null) {
+          results = configs;
+        } else if (alloc) {
+          results.addAll(configs);
+        } else {
+          final Collection<ConfigItem<R>> newResults = new ArrayList<ConfigItem<R>>(results.size() + configs.size());
+          newResults.addAll(results);
+          newResults.addAll(configs);
+          results = newResults;
+          alloc = true;
+        }
       }
     }
-    return getDefaultDelegate().get(clazz, configName, versionCorrection);
+    final Collection<ConfigItem<R>> configs = getDefaultDelegate().get(clazz, configName, versionCorrection);
+    if (configs.isEmpty()) {
+      if (results == null) {
+        return Collections.emptySet();
+      } else {
+        return results;
+      }
+    } else {
+      if (results == null) {
+        return configs;
+      } else if (alloc) {
+        results.addAll(configs);
+        return results;
+      } else {
+        final Collection<ConfigItem<R>> newResults = new ArrayList<ConfigItem<R>>(results.size() + configs.size());
+        newResults.addAll(results);
+        newResults.addAll(configs);
+        return newResults;
+      }
+    }
   }
 
   @Override
@@ -121,24 +155,24 @@ public class DelegatingConfigSource
   }
 
   @Override
-  public <R> R getConfig(final Class<R> clazz, final String configName, final VersionCorrection versionCorrection) {
+  public <R> R getSingle(final Class<R> clazz, final String configName, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(configName, "configName");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
 
     final Map<String, ConfigSource> delegates = getDelegates();
     for (final ConfigSource configSource : delegates.values()) {
-      final R config = configSource.getConfig(clazz, configName, versionCorrection);
+      final R config = configSource.getSingle(clazz, configName, versionCorrection);
       if (config != null) {
         return config;
       }
     }
-    return getDefaultDelegate().getConfig(clazz, configName, versionCorrection);
+    return getDefaultDelegate().getSingle(clazz, configName, versionCorrection);
   }
 
   @Override
   public <R> R getLatestByName(final Class<R> clazz, final String name) {
-    return getConfig(clazz, name, VersionCorrection.LATEST);
+    return getSingle(clazz, name, VersionCorrection.LATEST);
   }
 
   @Override

@@ -15,6 +15,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
+import com.opengamma.financial.analytics.model.pnl.PnLRequirementsGatherer;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
@@ -85,6 +86,10 @@ public final class OpenGammaCompilationContext {
    * The name under which an instance of {@link TempTargetRepository} should be bound.
    */
   public static final String TEMPORARY_TARGETS_NAME = "tempTargets";
+
+  private static final String PERMISSIVE_FLAG_NAME = "permissive";
+
+  private static final String PNL_REQUIREMENTS_GATHERER_NAME = "pnlRequirementsGatherer";
 
   /**
    * Restricted constructor.
@@ -260,6 +265,44 @@ public final class OpenGammaCompilationContext {
 
   public static void setTempTargets(final FunctionCompilationContext compilationContext, final TempTargetRepository tempTargets) {
     set(compilationContext, TEMPORARY_TARGETS_NAME, tempTargets);
+  }
+
+  /**
+   * Tests whether functions should allow more permissive constraints. Permissive behavior, if implemented by a function, will prefer to satisfy a constraint by assuming (possibly inappropriate)
+   * values rather than abandon the production. This increases the chance of a successful graph build for an inaccurately specified view but the graph may not be as the user intended/expected.
+   * <p>
+   * This flag is off by default.
+   *
+   * @param compilationContext the context to test, not null
+   * @return true if permissive behavior is enabled, false otherwise.
+   */
+  public static boolean isPermissive(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, PERMISSIVE_FLAG_NAME) != null;
+  }
+
+  /**
+   * Sets whether functions should allow more permissive constraints. Permissive behavior, if implemented by a function, will prefer to satisfy a constraint by assuming (possibly inappropriate) values
+   * rather than abandon the production. This increases the chance of a successful graph build for an inaccurately specified view but the graph may not be as the user intended/expected.
+   * <p>
+   * This flag is off by default.
+   *
+   * @param compilationContext the context to update, not null
+   * @param permissive true to enable permissive behavior, false to disable it
+   */
+  public static void setPermissive(final FunctionCompilationContext compilationContext, final boolean permissive) {
+    if (permissive) {
+      set(compilationContext, PERMISSIVE_FLAG_NAME, Boolean.TRUE);
+    } else {
+      compilationContext.remove(PERMISSIVE_FLAG_NAME);
+    }
+  }
+
+  public static PnLRequirementsGatherer getPnLRequirementsGatherer(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, PNL_REQUIREMENTS_GATHERER_NAME);
+  }
+
+  public static void setPnLRequirementsGatherer(final FunctionCompilationContext compilationContext, final PnLRequirementsGatherer pnlRequirementsGatherer) {
+    set(compilationContext, PNL_REQUIREMENTS_GATHERER_NAME, pnlRequirementsGatherer);
   }
 
 }

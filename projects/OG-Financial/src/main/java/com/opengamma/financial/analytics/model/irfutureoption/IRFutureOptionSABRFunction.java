@@ -183,7 +183,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     final Currency currency = FinancialSecurityUtils.getCurrency(trade.getSecurity());
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(getCurveRequirement(trade, curveCalculationConfig, context));
-    final ValueRequirement surfaceRequirement = SABRFittingPropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, currency);
+    final ValueRequirement surfaceRequirement = SABRFittingPropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, currency, InstrumentTypeProperties.IR_FUTURE_OPTION);
     if (surfaceRequirement == null) {
       return null;
     }
@@ -234,6 +234,8 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
       }
     }
     assert surfaceName != null;
+    assert curvePropertiesSet;
+    assert surfacePropertiesSet;
     properties = properties.with(ValuePropertyNames.SURFACE, surfaceName);
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     for (final String valueRequirement : _valueRequirementNames) {

@@ -70,7 +70,7 @@ public class InterestRateFutureOptionSABRVegaFunction extends InterestRateFuture
       throw new OpenGammaRuntimeException("Couldn't find volatility surface definition for IR future option surface called " + surfaceName);
     }
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    final ValueProperties sensitivityProperties = getModelSensitivityProperties(ccy.getCode(), forwardCurveName, fundingCurveName, surfaceName);
+    final ValueProperties sensitivityProperties = getModelSensitivityProperties(ccy.getCode(), forwardCurveName, fundingCurveName, surfaceName, curveCalculationMethodName);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final Object alphaSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, targetSpec, sensitivityProperties));
     if (alphaSensitivityObject == null) {
@@ -156,7 +156,7 @@ public class InterestRateFutureOptionSABRVegaFunction extends InterestRateFuture
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     final String ccyCode = ccy.getCode();
     final String surfaceName = surfaceNames.iterator().next();
-    final ValueProperties sensitivityProperties = getModelSensitivityProperties(ccyCode, forwardCurveName, fundingCurveName, surfaceName);
+    final ValueProperties sensitivityProperties = getModelSensitivityProperties(ccyCode, forwardCurveName, fundingCurveName, surfaceName, curveCalculationMethodName);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, targetSpec, sensitivityProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, targetSpec, sensitivityProperties));
@@ -193,10 +193,12 @@ public class InterestRateFutureOptionSABRVegaFunction extends InterestRateFuture
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get());
   }
 
-  private ValueProperties getModelSensitivityProperties(final String ccyCode, final String forwardCurveName, final String fundingCurveName, final String surfaceName) {
+  private ValueProperties getModelSensitivityProperties(final String ccyCode, final String forwardCurveName, final String fundingCurveName, final String surfaceName,
+      final String curveCalculationMethodName) {
     return ValueProperties.builder().with(ValuePropertyNames.CURRENCY, ccyCode)
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethodName)
         .with(ValuePropertyNames.SURFACE, surfaceName).get();
   }
 

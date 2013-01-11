@@ -63,23 +63,6 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
     return true;
   }
 
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Position position = target.getPosition();
-    final ValueProperties constraint;
-    final Currency ccy = FinancialSecurityUtils.getCurrency(position.getSecurity());
-    if (ccy != null) {
-      constraint = ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
-    } else {
-      constraint = ValueProperties.none();
-    }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    for (final Trade trade : position.getTrades()) {
-      requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.TRADE, trade.getUniqueId(), constraint));
-    }
-    return requirements;
-  }
-
   protected ValueProperties.Builder createValueProperties(final Position position) {
     final ValueProperties.Builder properties = super.createValueProperties();
     final Currency ccy = FinancialSecurityUtils.getCurrency(position.getSecurity());
@@ -92,6 +75,23 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), createValueProperties(target.getPosition()).get()));
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Position position = target.getPosition();
+    final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
+    final ValueProperties constraints;
+    if (currency != null) {
+      constraints = ValueProperties.with(ValuePropertyNames.CURRENCY, currency.getCode()).get();
+    } else {
+      constraints = ValueProperties.none();
+    }
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    for (final Trade trade : position.getTrades()) {
+      requirements.add(new ValueRequirement(ValueRequirementNames.PNL, ComputationTargetType.TRADE, trade.getUniqueId(), constraints));
+    }
+    return requirements;
   }
 
 }

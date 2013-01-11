@@ -23,6 +23,7 @@ public class DeprecatedFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(FXOptionBlackVegaMatrixFunctionDeprecated.class));
     functions.add(functionConfiguration(FXOptionBlackVegaQuoteMatrixFunctionDeprecated.class));
     functions.add(functionConfiguration(FXOptionBlackPresentValueCurveSensitivityFunctionDeprecated.class));
+    functions.add(functionConfiguration(FXOptionBlackPV01FunctionDeprecated.class));
     functions.add(functionConfiguration(FXOptionBlackYCNSFunctionDeprecated.class));
   }
 

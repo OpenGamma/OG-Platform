@@ -19,7 +19,7 @@ public enum CollateralRate {
    */
   FEDFUNDS,
   /**
-   * No return earnt
+   * No return earned
    */
   NONE,
   /**

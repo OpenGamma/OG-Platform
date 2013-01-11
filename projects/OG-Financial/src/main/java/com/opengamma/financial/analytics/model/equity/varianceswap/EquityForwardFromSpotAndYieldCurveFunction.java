@@ -70,7 +70,7 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
     Validate.isTrue(discountFactor != 0, "The discount curve has returned a zero value for a discount bond. Check rates.");
     final double forward = spot / discountFactor;
 
-    ValueSpecification valueSpec = getValueSpecification(target.toSpecification(), security);
+    final ValueSpecification valueSpec = getValueSpecification(target.toSpecification(), security);
     return Collections.singleton(new ComputedValue(valueSpec, forward));
   }
 
@@ -103,7 +103,7 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, security.getCurrency().getUniqueId(), properties);
   }
 
-  private ValueRequirement getSpotRequirement(EquityVarianceSwapSecurity security) {
+  private ValueRequirement getSpotRequirement(final EquityVarianceSwapSecurity security) {
     final ExternalId id = security.getSpotUnderlyingId();
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id);
   }
@@ -119,6 +119,7 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
+        .withAny(ValuePropertyNames.CURVE)
         .with(FORWARD_CALCULATION_METHOD, FORWARD_FROM_SPOT_AND_YIELD_CURVE).get();
     return new ValueSpecification(ValueRequirementNames.FORWARD, targetSpec, properties);
   }

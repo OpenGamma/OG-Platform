@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.volatility.local.deprecated;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_H;
 import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS;
@@ -50,6 +49,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
@@ -78,7 +78,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
     final String xAxis = desiredValue.getConstraint(PROPERTY_X_AXIS);
     final String yAxis = desiredValue.getConstraint(PROPERTY_Y_AXIS);
     final String yAxisType = desiredValue.getConstraint(PROPERTY_Y_AXIS_TYPE);
-    final String forwardCurveCalculationMethod = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
+    final String forwardCurveCalculationMethod = desiredValue.getConstraint(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     final String forwardCurveName = desiredValue.getConstraint(CURVE);
     final String h = desiredValue.getConstraint(PROPERTY_H);
     final String theta = desiredValue.getConstraint(PROPERTY_THETA);
@@ -149,7 +149,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
         .withAny(PROPERTY_X_AXIS)
         .withAny(PROPERTY_Y_AXIS)
         .withAny(PROPERTY_Y_AXIS_TYPE)
-        .withAny(CURVE_CALCULATION_METHOD)
+        .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD)
         .withAny(CURVE)
         .withAny(PROPERTY_THETA)
         .withAny(PROPERTY_TIME_STEPS)
@@ -188,7 +188,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
     if (yAxisTypeNames == null || yAxisTypeNames.size() != 1) {
       return null;
     }
-    final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(CURVE_CALCULATION_METHOD);
+    final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     if (forwardCurveCalculationMethodNames == null || forwardCurveCalculationMethodNames.size() != 1) {
       return null;
     }
@@ -305,8 +305,8 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
         }
         yAxisType = yAxisTypeNames.iterator().next();
       }
-      if (constraints.getValues(CURVE_CALCULATION_METHOD) != null) {
-        final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(CURVE_CALCULATION_METHOD);
+      if (constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD) != null) {
+        final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
         if (forwardCurveCalculationMethodNames == null || forwardCurveCalculationMethodNames.size() != 1) {
           throw new OpenGammaRuntimeException("Missing or non-unique forward curve calculation method name");
         }
@@ -413,7 +413,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
         .with(PROPERTY_X_AXIS, xAxis)
         .with(PROPERTY_Y_AXIS, yAxis)
         .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
-        .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .with(CURVE, forwardCurveName)
         .with(PROPERTY_THETA, theta)
         .with(PROPERTY_TIME_STEPS, timeSteps)
@@ -454,7 +454,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
         .with(PROPERTY_X_AXIS, xAxis)
         .with(PROPERTY_Y_AXIS, yAxis)
         .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
-        .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .with(CURVE, forwardCurveName)
         .with(PROPERTY_THETA, theta)
         .with(PROPERTY_TIME_STEPS, timeSteps)
@@ -480,7 +480,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
         .with(PROPERTY_X_AXIS, xAxis)
         .with(PROPERTY_Y_AXIS, yAxis)
         .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
-        .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .with(CURVE, forwardCurveName)
         .with(PROPERTY_THETA, theta)
         .with(PROPERTY_TIME_STEPS, timeSteps)
@@ -497,7 +497,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
 
   private ValueRequirement getForwardCurveRequirement(final String calculationMethod, final String forwardCurveName, final UnorderedCurrencyPair target) {
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, calculationMethod)
         .with(CURVE, forwardCurveName).get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(target), properties);
   }

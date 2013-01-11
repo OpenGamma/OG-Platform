@@ -19,19 +19,16 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * 
- * 
- *
- * @author elaine
+ * Maps an underlying type.
  */
 public class UnderlyingTypeToValueRequirementMapper {
 
-  public static ValueRequirement getValueRequirement(SecuritySource secMaster, final UnderlyingType underlying, final Security security) {
+  public static ValueRequirement getValueRequirement(SecuritySource secSource, final UnderlyingType underlying, final Security security) {
     if (security instanceof EquityOptionSecurity) {
       final EquityOptionSecurity option = (EquityOptionSecurity) security;
       switch (underlying) {
         case SPOT_PRICE:
-          Security optionUnderlying = secMaster.getSingle(ExternalIdBundle.of(option.getUnderlyingId()));
+          Security optionUnderlying = secSource.getSingle(ExternalIdBundle.of(option.getUnderlyingId()));
           if (optionUnderlying == null) {
             throw new DataNotFoundException("Don't have security for underlying of " + option);
           }
@@ -50,4 +47,5 @@ public class UnderlyingTypeToValueRequirementMapper {
     }
     throw new NotImplementedException("Can only get ValueRequirements for options (was " + security + ")");
   }
+
 }

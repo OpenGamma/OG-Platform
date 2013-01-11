@@ -26,9 +26,9 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -36,17 +36,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvoker {
 
-  /**
-   * The value name this function will request the conversion rate with.
-   */
-  public static final String RATE_LOOKUP_VALUE_NAME = "CurrencyConversion";
-
-  /**
-   * The scheme used to construct the target for the conversion rate.
-   */
-  public static final String RATE_LOOKUP_SCHEME = "CurrencyPair";
-
-  private static final String CURRENCY_INJECTION_PROPERTY = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Currency";
+  private static final String DEFAULT_CURRENCY_INJECTION = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Currency";
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyConversionFunction.class);
 
@@ -76,13 +66,13 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
-    return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(CURRENCY_INJECTION_PROPERTY)
+    return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(DEFAULT_CURRENCY_INJECTION)
         .withAny(ValuePropertyNames.CURRENCY).get());
   }
 
   private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue, final String forceCurrency) {
     return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(ValuePropertyNames.CURRENCY).with(
-        ValuePropertyNames.CURRENCY, forceCurrency).withOptional(CURRENCY_INJECTION_PROPERTY).get());
+        ValuePropertyNames.CURRENCY, forceCurrency).withOptional(DEFAULT_CURRENCY_INJECTION).get());
   }
 
   /**
@@ -134,7 +124,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     ComputedValue inputValue = null;
     double exchangeRate = 0;
     for (final ComputedValue input : inputs.getAllValues()) {
-      if (RATE_LOOKUP_VALUE_NAME.equals(input.getSpecification().getValueName())) {
+      if (ValueRequirementNames.SPOT_RATE.equals(input.getSpecification().getValueName())) {
         if (input.getValue() instanceof Double) {
           exchangeRate = (Double) input.getValue();
         } else {
@@ -207,7 +197,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final Map.Entry<ValueSpecification, ValueRequirement> input = inputs.entrySet().iterator().next();
-    if (input.getValue().getConstraints().getValues(CURRENCY_INJECTION_PROPERTY) == null) {
+    if (input.getValue().getConstraints().getValues(DEFAULT_CURRENCY_INJECTION) == null) {
       // Resolved output is the input with the currency wild-carded, and the function ID the same (this is so that after composition the node might
       // be removed from the graph)
       final ValueSpecification value = input.getKey();
@@ -227,7 +217,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   private ValueRequirement getCurrencyConversion(final String fromCurrency, final String toCurrency) {
-    return new ValueRequirement(RATE_LOOKUP_VALUE_NAME, ComputationTargetSpecification.of(UniqueId.of(RATE_LOOKUP_SCHEME, fromCurrency + "_" + toCurrency)));
+    return CurrencyMatrixSourcingFunction.getConversionRequirement(fromCurrency, toCurrency);
   }
 
   @Override

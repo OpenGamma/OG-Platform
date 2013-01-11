@@ -7,7 +7,6 @@ package com.opengamma.web.spring;
 
 import java.util.List;
 
-import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
@@ -148,7 +147,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     i.setISDACurveConfiguration("ISDA");
     i.setISDACurve("ISDA");
     i.setBondFutureOptionSurface("BBG");
-    i.setFutureOptionSurface("BBG_S ");
+    i.setFutureOptionSurface("BBG");
     i.setIRFutureOptionSurface("DEFAULT_PRICE");
     i.setDefaultCube("BLOOMBERG");
     return i;
@@ -268,8 +267,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   }
 
   @Override
-  protected RepositoryConfigurationSource pnlFunctions() {
-    return CombiningRepositoryConfigurationSource.of(super.pnlFunctions(), PNLFunctions.defaults("FUNDING", "FUNDING", "FUNDING"));
+  protected void pnlFunctionDefaultsImpl(final PNLFunctions.Defaults factory) {
+    super.pnlFunctionDefaultsImpl(factory);
+    factory.setCurveName("FUNDING");
+    factory.setPayCurveName("FUNDING");
+    factory.setReceiveCurveName("FUNDING");
   }
 
 }

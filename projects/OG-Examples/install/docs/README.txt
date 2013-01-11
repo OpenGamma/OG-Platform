@@ -1,58 +1,59 @@
 Welcome to the OpenGamma Platform!
-==================================
+----------------------------------
+OpenGamma's flagship technology, the OpenGamma Platform, is a comprehensive solution for analytics capable of 
+satisfying the full range of front-office and risk requirements. It supports pre-trade ad-hoc calculations, 
+near-real-time streaming analytics, batch/overnight risk calculations, and complex historical scenarios and stress 
+tests in the same system.
 
-OpenGamma's flagship technology for financial institutions, the OpenGamma Platform, is a comprehensive solution for
-financial analytics capable of satisfying the full range of front-office and risk requirements.  It supports pre-trade
-ad-hoc calculations, near-real-time streaming analytics, batch/overnight risk calculations, and complex historical
-scenarios and stress tests in the same system.
+Built as a completely open architecture, the OpenGamma Platform is designed so that every component can be 
+individually used, or individually replaced, based on customer requirements. We don't believe in forklift 
+upgrades, and we built the OpenGamma Platform so that they're never necessary: individual projects can use 
+OpenGamma components when they provide a clear advantage, and later migrate additional portions of their 
+infrastructure if and when time and resources permit.
 
-Built as a completely open architecture, the OpenGamma Platform is designed so that every component can be individually
-used, or individually replaced, based on customer requirements.  We do not believe in forklift upgrades, and we built
-the OpenGamma Platform so that they are never necessary: individual projects can use OpenGamma components when they
-provide a clear advantage, and later migrate additional portions of their infrastructure if and when time and resources
-permit.
-
-Visit the developer website at http://developers.opengamma.com for more information, downloads, docs and more.
-
+Visit the developer website at http://developers.opengamma.com for more information, downloads, docs and more
 
 The Examples server
 -------------------
-
 This package is intended to contain only what is needed to run our example system if you do not have access to
 the Bloomberg data API.  If you are interested in looking at the source code, you should look at the source packages
 distributed separately.
 
-
 Pre-requisites
 --------------
-
-All you should need is the latest Java 1.6 or 1.7 JRE/JDK.  You will need at least 2GB RAM and a dual-core processor,
+All you should need is the latest Java 1.6 JRE/JDK.  You'll need at least 2GB RAM and a dual-core processor,
 although you might get by with 1GB in a pinch.  Production systems will generally have higher requirements.
-
 
 Initializing the Examples database
 ----------------------------------
+To do the initial database setup, you should run:
 
-To perform the initial database setup on Linux or MacOS X, you should run:
+  scripts/init-og-examples-db.sh 
 
-    scripts/init-og-examples-db.sh
+on Linux and MacOS X, and 
 
-To perform the initial database setup on Windows, you should run:
+  scripts\init-og-examples-db.bat 
 
-    scripts\init-og-examples-db.bat
+on Windows.  
 
-You only need to perform this step before running the server for the first time, or if you want to reset the databases
+You only need to do this the first time you run the server, or if you want to reset the databases
 to the original configurations.
-
 
 Running the Examples server
 ---------------------------
 
-To start the server itself on Linux or MacOS X, you should run:
+To start the server itself, you should run:
 
-    scripts/og-examples.sh start
+  scripts/og-examples.sh
 
-This will detach from the console and run the service in the background.
+on Linux and MacOS X or
+
+  scripts\og-examples.bat
+
+on Windows.  
+
+This particular script sends debugging output to the console.  It is normal to see some Exceptions
+thrown when starting a view in this mode.
 
 The service may be stopped by running:
 
@@ -102,4 +103,9 @@ documentation.
 More information
 ----------------
 
+For more information go to http://developers.opengamma.com
+
+
+More information
+----------------
 For more information go to http://developers.opengamma.com

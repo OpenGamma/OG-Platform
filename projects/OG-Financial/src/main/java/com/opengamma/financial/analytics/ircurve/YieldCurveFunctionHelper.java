@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -29,13 +29,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ *
  */
 public class YieldCurveFunctionHelper {
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveFunctionHelper.class);
@@ -55,17 +53,18 @@ public class YieldCurveFunctionHelper {
 
   public YieldCurveDefinition init(final FunctionCompilationContext context, final FunctionDefinition defnToReInit) {
     _curveSpecificationBuilder = OpenGammaCompilationContext.getInterpolatedYieldCurveSpecificationBuilder(context);
-
+    if (_curveSpecificationBuilder == null) {
+      throw new UnsupportedOperationException("An interpolated yield curve specification builder is required");
+    }
     _definition = getDefinition(context);
     if (_definition == null) {
-      s_logger.warn("No curve definition for {} on {}", _curveName, _currency);
+      throw new UnsupportedOperationException("No curve definition for " + _curveName + " on " + _currency);
     } else {
       if (_definition.getUniqueId() != null) {
-        /* TODO Rather than VersionCorrection.LATEST it should take the actual VersionCorrection from the ViewComputationJob. Currenly Engine is not supprting that */
         // REVIEW 2012-10-23 Andrew -- The initialisation state is no longer appropriate for tasks such as this as job version/correction will never be available at
         // this point. Most init methods are examples of premature optimisation to avoid work during the other calls. Additional target dependencies should be used
-        // which easily replaces the function reinitialiser mechanism and will result if a proper implementation of version/correction handling.
-        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, Pair.of(_definition.getUniqueId().getObjectId(), VersionCorrection.LATEST));
+        // which easily replaces the function reinitialiser mechanism and will result in a proper implementation of version/correction handling.
+        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId().getObjectId());
       } else {
         s_logger.warn("Curve {} on {} has no identifier - cannot subscribe to updates", _curveName, _currency);
       }

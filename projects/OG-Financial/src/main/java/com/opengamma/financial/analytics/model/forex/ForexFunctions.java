@@ -55,7 +55,7 @@ public class ForexFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(BloombergFXSpotRateMarketDataFunction.class));
+    functions.add(functionConfiguration(FXSpotRateMarketDataFunction.class));
   }
 
   protected RepositoryConfigurationSource forwardFunctionConfiguration() {

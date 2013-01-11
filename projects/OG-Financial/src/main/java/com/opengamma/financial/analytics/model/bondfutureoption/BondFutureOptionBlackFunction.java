@@ -194,10 +194,7 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
         return null;
       }
       requirements.addAll(tsRequirements);
-    } catch (final IllegalArgumentException e) {
-      s_logger.error(e.getMessage());
-      return null;
-    } catch (final OpenGammaRuntimeException e) {
+    } catch (final Exception e) {
       s_logger.error(e.getMessage());
       return null;
     }

@@ -59,7 +59,16 @@
       </bean>
     </constructor-arg>
     <constructor-arg ref="standardFudgeContext" />
+    <property name="portNumber" value="${vp.main.cache.port}" />
   </bean>
+<<<<<<< HEAD
+=======
+  <bean id="calcNodeQueryServer" class="com.opengamma.transport.socket.ServerSocketFudgeRequestDispatcher" init-method="start" destroy-method="stop">
+    <constructor-arg ref="mainViewProcessorQueryReceiver" />
+    <constructor-arg ref="standardFudgeContext" />
+    <property name="portNumber" value="${vp.main.query.port}" />
+  </bean>
+>>>>>>> 77912cada971602d41ab87992b83a142fa92cd88
   <bean id="calcNodeJobServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver" init-method="start" destroy-method="stop">
     <constructor-arg ref="standardFudgeContext" />
     <constructor-arg>
@@ -72,6 +81,7 @@
         <constructor-arg ref="mainFunctionCompilationContext" />
       </bean>
     </constructor-arg>
+    <property name="portNumber" value="${vp.main.job.port}" />
   </bean>
   <bean id="mainCalcNodeSocketConfiguration" class="com.opengamma.engine.view.calcnode.CalcNodeSocketConfiguration">
     <property name="cacheServer" ref="calcNodeCacheServer" />

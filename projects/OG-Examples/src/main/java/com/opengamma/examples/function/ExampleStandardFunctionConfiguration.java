@@ -19,7 +19,6 @@ import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.InterestRateInstrumentDefaultCurveNameFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXForwardDefaultsDeprecated;
 import com.opengamma.financial.analytics.model.forex.defaultproperties.FXOptionBlackDefaultsDeprecated;
-import com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunctionDeprecated;
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
@@ -196,30 +195,23 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     addForexOptionDefaults(functions);
     addInterestRateFutureDefaults(functions);
     addSurfaceDefaults(functions);
-    functions.add(functionConfiguration(ExampleForexSpotRateMarketDataFunction.class));
     functions.add(functionConfiguration(SimpleFuturePresentValueFunctionDeprecated.class, "SECONDARY"));
     functions.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, "SECONDARY", "SECONDARY"));
     functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
   }
 
+  @Override
   protected RepositoryConfigurationSource deprecatedFunctions() {
-    return CombiningRepositoryConfigurationSource.of(FixedIncomeFunctions.deprecated(), SABRCubeFunctions.deprecated(),
-        com.opengamma.financial.analytics.model.forex.forward.ForwardFunctions.deprecated(), BlackFunctions.deprecated(),
-        FutureFunctions.deprecated(), PNLFunctions.deprecated());
+    return CombiningRepositoryConfigurationSource.of(super.deprecatedFunctions(), FixedIncomeFunctions.deprecated(), SABRCubeFunctions.deprecated(),
+        com.opengamma.financial.analytics.model.forex.forward.ForwardFunctions.deprecated(), FutureFunctions.deprecated(), PNLFunctions.deprecated());
   }
 
   @Override
-  protected RepositoryConfigurationSource pnlFunctions() {
-    return CombiningRepositoryConfigurationSource.of(PNLFunctions.calculators(getMark2MarketField(), getCostOfCarryField()),
-        PNLFunctions.defaults("SECONDARY", "SECONDARY", "SECONDARY"));
-  }
-
-  @Override
-  protected RepositoryConfigurationSource createObject() {
-    // TODO: only refer to the new stuff here
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), bondFunctions(), deprecatedFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(), fixedIncomeFunctions(),
-        forexOptionFunctions(), forwardCurveFunctions(), interestRateFunctions(), localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), sabrCubeFunctions(),
-        varFunctions());
+  protected void pnlFunctionDefaultsImpl(final PNLFunctions.Defaults factory) {
+    super.pnlFunctionDefaultsImpl(factory);
+    factory.setCurveName("SECONDARY");
+    factory.setPayCurveName("SECONDARY");
+    factory.setReceiveCurveName("SECONDARY");
   }
 
 }

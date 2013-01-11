@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
@@ -21,12 +22,17 @@ import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOption
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
-import com.opengamma.financial.analytics.model.equity.EquityForwardCurveDefaults;
+import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerTickerDefaults;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldPricingDefaults;
-import com.opengamma.financial.analytics.model.equity.option.EquityOptionDefaults;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpolatedBlackLognormalPerCurrencyDefaults;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpolatedBlackLognormalPerEquityDefaults;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionInterpolatedBlackLognormalPerExchangeDefaults;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionSurfaceCalculationMethodPerCurrencyDefaults;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionSurfaceCalculationMethodPerEquityDefaults;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionSurfaceCalculationMethodPerExchangeDefaults;
 import com.opengamma.financial.analytics.model.equity.option.OptionFunctions;
 import com.opengamma.financial.analytics.model.equity.portfoliotheory.PortfolioTheoryFunctions;
-import com.opengamma.financial.analytics.model.equity.varianceswap.EquityForwardCalculationDefaults;
+import com.opengamma.financial.analytics.model.equity.varianceswap.EquityForwardPerEquityDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationDefaults;
 import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
@@ -38,7 +44,6 @@ import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
 import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
 import com.opengamma.financial.analytics.model.var.VaRFunctions;
-import com.opengamma.financial.analytics.model.volatility.cube.CubeFunctions;
 import com.opengamma.financial.analytics.model.volatility.local.LocalFunctions;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceMixedLogNormalDefaults;
@@ -47,9 +52,8 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.defaultp
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.CommodityBlackVolatilitySurfacePrimitiveDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.CommodityBlackVolatilitySurfaceSecurityDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.CommodityBlackVolatilitySurfaceTradeDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfacePrimitiveDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfaceSecurityDefaults;
-import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfaceTradeDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfaceAnyTickerDefaults;
+import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.EquityBlackVolatilitySurfacePerTickerDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfacePrimitiveDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceSecurityDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.FXBlackVolatilitySurfaceTradeDefaults;
@@ -477,7 +481,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
         .useDiscountingCurveCurrency()
         .useDiscountingCurveCalculationConfigNames()
         .useDiscountingCurveNames()
-        .createDefaults();
+        .createPerEquityDefaults();
     final List<String> equityFutureDefaultsWithPriority = new ArrayList<String>();
     equityFutureDefaultsWithPriority.add(PriorityClass.NORMAL.name());
     equityFutureDefaultsWithPriority.addAll(equityFutureDefaults);
@@ -486,86 +490,109 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
 
   protected void addEquityForwardDefaults(final List<FunctionConfiguration> functionConfigs) {
     final List<String> equityForwardDefaults = EquityInstrumentDefaultValues.builder()
-        .useEquityName()
+        .useIdName()
         .useDiscountingCurveNames()
         .useDiscountingCurveCalculationConfigNames()
-        .createDefaults();
-    final List<String> equityForwardDefaultsWithPriority = new ArrayList<String>();
-    equityForwardDefaultsWithPriority.add(PriorityClass.NORMAL.name());
-    equityForwardDefaultsWithPriority.addAll(equityForwardDefaults);
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCalculationDefaults.class.getName(), equityForwardDefaultsWithPriority));
-    final List<String> equityForwardCurveDefaults = EquityInstrumentDefaultValues.builder()
-        .useEquityName()
+        .createPerEquityDefaults();
+    final List<String> equityForwardPerEquityDefaults = new ArrayList<String>();
+    equityForwardPerEquityDefaults.add(PriorityClass.ABOVE_NORMAL.name());
+    equityForwardPerEquityDefaults.addAll(equityForwardDefaults);
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardPerEquityDefaults.class.getName(), equityForwardPerEquityDefaults));
+    final EquityInstrumentDefaultValues.Builder equityForwardCurvePerEquityDefaults = EquityInstrumentDefaultValues.builder()
+        .useIdName()
         .useDiscountingCurveNames()
         .useDiscountingCurveCalculationConfigNames()
-        .useDiscountingCurveCurrency()
-        .createDefaults();
-    final List<String> equityForwardCurveDefaultsWithPriority = new ArrayList<String>();
-    equityForwardCurveDefaultsWithPriority.add(PriorityClass.NORMAL.name());
-    equityForwardCurveDefaultsWithPriority.addAll(equityForwardCurveDefaults);
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurveDefaults.class.getName(), equityForwardCurveDefaultsWithPriority));
+        .useDiscountingCurveCurrency();
+    final List<String> equityForwardCurvePerTickerDefaults = new ArrayList<String>();
+    equityForwardCurvePerTickerDefaults.add(PriorityClass.ABOVE_NORMAL.name());
+    equityForwardCurvePerTickerDefaults.addAll(equityForwardCurvePerEquityDefaults.createPerEquityDefaults());
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurvePerTickerDefaults.class.getName(), equityForwardCurvePerTickerDefaults));
   }
 
   protected void addEquityIndexOptionBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
-    final List<String> defaults = EquityInstrumentDefaultValues.builder()
-        .useEquityName()
+    final EquityInstrumentDefaultValues.Builder perEquityDefaults = EquityInstrumentDefaultValues.builder()
+        .useIdName()
         .useForwardCurveNames()
         .useForwardCurveCalculationMethodNames()
-        .useDiscountingCurveCurrency()
-        .useForwardCurveCalculationConfigNames()
-        .useVolatilitySurfaceNames()
-        .createDefaults();
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfacePrimitiveDefaults.class.getName(), defaults));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceSecurityDefaults.class.getName(), defaults));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceTradeDefaults.class.getName(), defaults));
+        .useVolatilitySurfaceNames();
+    final EquityInstrumentDefaultValues.Builder anyEquityDefaults = EquityInstrumentDefaultValues.builder()
+        .useForwardCurveNames()
+        .useForwardCurveCalculationMethodNames()
+        .useVolatilitySurfaceNames();
+    final List<String> perTickerDefaults = Lists.newArrayList(PriorityClass.ABOVE_NORMAL.name());
+    perTickerDefaults.addAll(perEquityDefaults.createPerEquityDefaults());
+    final List<String> anyTickerDefaults = Lists.newArrayList(PriorityClass.NORMAL.name());
+    anyTickerDefaults.addAll(anyEquityDefaults.createAnyTickerDefaults());
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfacePerTickerDefaults.class.getName(), perTickerDefaults));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityBlackVolatilitySurfaceAnyTickerDefaults.class.getName(), anyTickerDefaults));
+
   }
 
   protected void addEquityOptionDefaults(final List<FunctionConfiguration> functionConfigs) {
-    final List<String> equityIndexOptionDefaults = EquityInstrumentDefaultValues.builder()
-        .useEquityName()
-        .useForwardCurveCalculationConfigNames()
-        .useForwardCurveNames()
+    final EquityInstrumentDefaultValues.Builder equityOptionSurfaceCalculationMethodDefaults = EquityInstrumentDefaultValues.builder()
+        .useIdName()
+        .useVolatilitySurfaceCalculationMethodNames();
+    final List<String> equityOptionSurfaceCalculationMethodPerEquityDefaults = Lists.newArrayList(PriorityClass.ABOVE_NORMAL.name());
+    equityOptionSurfaceCalculationMethodPerEquityDefaults.addAll(equityOptionSurfaceCalculationMethodDefaults.createPerEquityDefaults());
+    final List<String> equityOptionSurfaceCalculationMethodPerExchangeDefaults = Lists.newArrayList(PriorityClass.NORMAL.name());
+    equityOptionSurfaceCalculationMethodPerExchangeDefaults.addAll(equityOptionSurfaceCalculationMethodDefaults.createPerExchangeDefaults());
+    final List<String> equityOptionSurfaceCalculationMethodPerCurrencyDefaults = Lists.newArrayList(PriorityClass.BELOW_NORMAL.name());
+    equityOptionSurfaceCalculationMethodPerCurrencyDefaults.addAll(equityOptionSurfaceCalculationMethodDefaults.createPerCurrencyDefaults());
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionSurfaceCalculationMethodPerEquityDefaults.class.getName(), equityOptionSurfaceCalculationMethodPerEquityDefaults));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionSurfaceCalculationMethodPerExchangeDefaults.class.getName(), equityOptionSurfaceCalculationMethodPerExchangeDefaults));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionSurfaceCalculationMethodPerCurrencyDefaults.class.getName(), equityOptionSurfaceCalculationMethodPerCurrencyDefaults));
+    final EquityInstrumentDefaultValues.Builder equityOptionBlackSurfaceInterpolationDefaults = EquityInstrumentDefaultValues.builder()
+        .useIdName()
+        .useDiscountingCurveNames()
+        .useDiscountingCurveCalculationConfigNames()
         .useVolatilitySurfaceNames()
         .useInterpolationMethodNames()
-        .createDefaults();
-    final List<String> equityIndexOptionDefaultsWithPriority = new ArrayList<String>();
-    equityIndexOptionDefaultsWithPriority.add(PriorityClass.NORMAL.name());
-    equityIndexOptionDefaultsWithPriority.addAll(equityIndexOptionDefaults);
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionDefaults.class.getName(), equityIndexOptionDefaultsWithPriority));
+        .useForwardCurveNames()
+        .useForwardCurveCalculationMethodNames();
+    final List<String> equityOptionPerEquityDefaults = Lists.newArrayList(PriorityClass.ABOVE_NORMAL.name());
+    equityOptionPerEquityDefaults.addAll(equityOptionBlackSurfaceInterpolationDefaults.createPerEquityDefaults());
+    final List<String> equityOptionPerExchangeDefaults = Lists.newArrayList(PriorityClass.NORMAL.name());
+    equityOptionPerExchangeDefaults.addAll(equityOptionBlackSurfaceInterpolationDefaults.createPerExchangeDefaults());
+    final List<String> equityOptionPerCurrencyDefaults = Lists.newArrayList(PriorityClass.BELOW_NORMAL.name());
+    equityOptionPerCurrencyDefaults.addAll(equityOptionBlackSurfaceInterpolationDefaults.createPerCurrencyDefaults());
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionInterpolatedBlackLognormalPerEquityDefaults.class.getName(), equityOptionPerEquityDefaults));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionInterpolatedBlackLognormalPerExchangeDefaults.class.getName(), equityOptionPerExchangeDefaults));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionInterpolatedBlackLognormalPerCurrencyDefaults.class.getName(), equityOptionPerCurrencyDefaults));
+
   }
 
   protected void addEquityPureVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
     final List<String> defaults = EquityInstrumentDefaultValues.builder()
-        .useEquityName()
+        .useIdName()
         .useDiscountingCurveNames()
         .useDiscountingCurveCurrency()
         .useDiscountingCurveCalculationConfigNames()
         .useVolatilitySurfaceNames()
-        .createDefaults();
+        .createPerEquityDefaults();
     functionConfigs.add(new ParameterizedFunctionConfiguration(PureBlackVolatilitySurfacePrimitiveDefaults.class.getName(), defaults));
     functionConfigs.add(new ParameterizedFunctionConfiguration(PureBlackVolatilitySurfaceSecurityDefaults.class.getName(), defaults));
   }
 
   protected void addEquityVarianceSwapDefaults(final List<FunctionConfiguration> functionConfigs) {
     final List<String> equityVarianceSwapStaticReplicationDefaults = EquityInstrumentDefaultValues.builder()
-        .useEquityName()
+        .useIdName()
         .useDiscountingCurveNames()
         .useDiscountingCurveCalculationConfigNames()
         .useVolatilitySurfaceNames()
-        .createDefaults();
+        .createPerEquityDefaults();
     final List<String> equityVarianceSwapStaticReplicationDefaultsWithPriority = new ArrayList<String>();
     equityVarianceSwapStaticReplicationDefaultsWithPriority.add(PriorityClass.NORMAL.name());
     equityVarianceSwapStaticReplicationDefaultsWithPriority.addAll(equityVarianceSwapStaticReplicationDefaults);
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityVarianceSwapStaticReplicationDefaults.class.getName(), equityVarianceSwapStaticReplicationDefaultsWithPriority));
     final List<String> equityVarianceSwapDefaults = EquityInstrumentDefaultValues.builder()
-        .useEquityName()
+        .useIdName()
         .useDiscountingCurveNames()
         .useForwardCurveNames()
         .useForwardCurveCalculationConfigNames()
         .useForwardCurveCalculationMethodNames()
         .useDiscountingCurveCurrency()
         .useVolatilitySurfaceNames()
-        .createDefaults();
+        .createPerEquityDefaults();
     final List<String> equityVarianceSwapDefaultsWithPriority = new ArrayList<String>();
     equityVarianceSwapDefaultsWithPriority.add(PriorityClass.NORMAL.name());
     equityVarianceSwapDefaultsWithPriority.addAll(equityVarianceSwapDefaults);
@@ -637,8 +664,8 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource cubeFunctions() {
-    return CubeFunctions.defaults();
+  protected RepositoryConfigurationSource deprecatedFunctions() {
+    return com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.deprecated();
   }
 
   protected RepositoryConfigurationSource equityOptionFunctions() {
@@ -772,12 +799,35 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     }));
   }
 
-  protected RepositoryConfigurationSource pnlFunctions() {
+  protected RepositoryConfigurationSource pnlFunctionCalculators() {
     if ((getMark2MarketField() != null) && (getCostOfCarryField() != null)) {
       return PNLFunctions.calculators(getMark2MarketField(), getCostOfCarryField());
     } else {
       return null;
     }
+  }
+
+  protected void pnlFunctionDefaultsImpl(final PNLFunctions.Defaults factory) {
+    factory.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, PNLFunctions.Defaults.CurrencyInfo>() {
+      @Override
+      public PNLFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+        if (i.getDefaultCurveConfiguration() == null) {
+          return null;
+        }
+        return new PNLFunctions.Defaults.CurrencyInfo(i.getDefaultCurveConfiguration());
+      }
+    }));
+  }
+
+  protected RepositoryConfigurationSource pnlFunctionDefaults() {
+    final PNLFunctions.Defaults factory = new PNLFunctions.Defaults();
+    pnlFunctionDefaultsImpl(factory);
+    factory.afterPropertiesSet();
+    return factory.getObject();
+  }
+
+  protected RepositoryConfigurationSource pnlFunctions() {
+    return CombiningRepositoryConfigurationSource.of(pnlFunctionCalculators(), pnlFunctionDefaults());
   }
 
   protected RepositoryConfigurationSource portfolioTheoryFunctions() {
@@ -820,9 +870,9 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), bondFunctions(), cdsFunctions(), cubeFunctions(), equityOptionFunctions(), externalSensitivitiesFunctions(),
-        fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(), interestRateFunctions(), localVolatilityFunctions(),
-        pnlFunctions(), portfolioTheoryFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions());
+    return CombiningRepositoryConfigurationSource.of(super.createObject(), bondFunctions(), cdsFunctions(), deprecatedFunctions(), equityOptionFunctions(),
+        externalSensitivitiesFunctions(), fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(),
+        interestRateFunctions(), localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions());
   }
 
 }

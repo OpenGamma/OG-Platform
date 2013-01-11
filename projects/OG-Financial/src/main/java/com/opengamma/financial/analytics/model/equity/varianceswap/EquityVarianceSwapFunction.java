@@ -32,6 +32,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.EquityVarianceSwapConverter;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfaceUtils;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
@@ -74,7 +75,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURVE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+        .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD)
         .withAny(ValuePropertyNames.SURFACE)
         .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethod())
         .with(PROPERTY_VOLATILITY_SURFACE_TYPE, getVolatilitySurfaceType())
@@ -97,7 +98,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> forwardCurveCalculationMethods = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    final Set<String> forwardCurveCalculationMethods = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     if (forwardCurveCalculationMethods == null || forwardCurveCalculationMethods.size() != 1) {
       return null;
     }
@@ -143,12 +144,12 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
   private ValueRequirement getForwardCurveRequirement(final ComputationTargetReference target, final ValueRequirement desiredValue) {
     final String forwardCurveCcyName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
     final String discountingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    final String curveCalculationMethod = desiredValue.getConstraint(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CURRENCY, forwardCurveCcyName)
         .with(ValuePropertyNames.CURVE, discountingCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
         .get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target, properties);

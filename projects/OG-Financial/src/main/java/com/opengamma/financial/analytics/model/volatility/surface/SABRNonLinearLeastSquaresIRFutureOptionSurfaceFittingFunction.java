@@ -159,12 +159,12 @@ public class SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction exten
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
-    final ValueProperties resultProperties = SABRFittingPropertyUtils.addNLSSFittingProperties(createValueProperties()
+    final ValueProperties resultProperties = SABRFittingPropertyUtils.addNLSSFittingProperties(createValueProperties())
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .withAny(ValuePropertyNames.SURFACE)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION)
         .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
-        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, SmileFittingProperties.NON_LINEAR_LEAST_SQUARES).get());
+        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, SmileFittingProperties.NON_LINEAR_LEAST_SQUARES).get();
     final ValueSpecification resultSpecification = new ValueSpecification(ValueRequirementNames.SABR_SURFACES, target.toSpecification(), resultProperties);
     final ValueSpecification fittedPointsSpecification = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_FITTED_POINTS, target.toSpecification(), resultProperties);
     return Sets.newHashSet(resultSpecification, fittedPointsSpecification);

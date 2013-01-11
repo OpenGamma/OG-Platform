@@ -40,6 +40,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.security.FinancialSecurity;
 
 /**
@@ -92,13 +94,45 @@ public abstract class LocalVolatilityForwardPDEFunction extends LocalVolatilityP
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties constraints = desiredValue.getConstraints();
+    ValueProperties constraints = desiredValue.getConstraints();
     final Set<ValueRequirement> pdeRequirements = PDEFunctionUtils.ensureForwardPDEFunctionProperties(constraints);
     if (pdeRequirements == null) {
       return null;
     }
     final Set<ValueRequirement> localVolSurfaceRequirements = LocalVolatilitySurfaceUtils.ensureDupireLocalVolatilitySurfaceProperties(constraints);
     if (localVolSurfaceRequirements == null) {
+      return null;
+    }
+    if (OpenGammaCompilationContext.isPermissive(context)) {
+      ValueProperties.Builder constraintsBuilder = null;
+      Set<String> values = constraints.getValues(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
+      if (values == null) {
+        constraintsBuilder = constraints.copy();
+        constraintsBuilder.with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, getBlackSmileInterpolatorName());
+      } else if (values.size() != 1) {
+        constraintsBuilder = constraints.copy();
+        constraintsBuilder
+          .withoutAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
+          .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, getBlackSmileInterpolatorName());
+      }
+      values = constraints.getValues(PDEPropertyNamesAndValues.PROPERTY_PDE_DIRECTION);
+      if (values == null) {
+        if (constraintsBuilder == null) {
+          constraintsBuilder = constraints.copy();
+        }
+        constraintsBuilder.with(PDEPropertyNamesAndValues.PROPERTY_PDE_DIRECTION, PDEPropertyNamesAndValues.FORWARDS);
+      } else if (values.size() != 1) {
+        if (constraintsBuilder == null) {
+          constraintsBuilder = constraints.copy();
+        }
+        constraintsBuilder.withoutAny(PDEPropertyNamesAndValues.PROPERTY_PDE_DIRECTION).with(PDEPropertyNamesAndValues.PROPERTY_PDE_DIRECTION, PDEPropertyNamesAndValues.FORWARDS);
+      }
+      if (constraintsBuilder != null) {
+        constraints = constraintsBuilder.get();
+      }
+    }
+    final Set<ValueRequirement> requirements = PDEFunctionUtils.ensureForwardPDEFunctionProperties(constraints);
+    if (requirements == null) {
       return null;
     }
     final ValueRequirement volatilitySurfaceRequirement = getVolatilitySurfaceRequirement(target, desiredValue);

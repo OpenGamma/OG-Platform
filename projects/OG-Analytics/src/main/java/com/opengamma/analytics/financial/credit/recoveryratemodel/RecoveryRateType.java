@@ -15,7 +15,7 @@ public enum RecoveryRateType {
    */
   CONSTANT,
   /**
-   * Recovery rate is computed according to some stochastic model
+   * Recovery rate is computed according to some stochastic model e.g. sampled from a beta distribution
    */
   STOCHASTIC;
 

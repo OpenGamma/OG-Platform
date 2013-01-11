@@ -48,8 +48,8 @@ public class SABRFittingPropertyUtils {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SABRFittingPropertyUtils.class);
 
-  public static ValueProperties addNLSSFittingProperties(final ValueProperties properties) {
-    final ValueProperties result = properties.copy()
+  public static ValueProperties.Builder addNLSSFittingProperties(final ValueProperties.Builder properties) {
+    return properties
       .withAny(X_INTERPOLATOR_NAME)
       .withAny(Y_INTERPOLATOR_NAME)
       .withAny(LEFT_X_EXTRAPOLATOR_NAME)
@@ -64,9 +64,7 @@ public class SABRFittingPropertyUtils {
       .withAny(PROPERTY_USE_FIXED_BETA)
       .withAny(PROPERTY_USE_FIXED_NU)
       .withAny(PROPERTY_USE_FIXED_RHO)
-      .withAny(PROPERTY_ERROR)
-      .get();
-    return result;
+      .withAny(PROPERTY_ERROR);
   }
 
   public static boolean ensureNLSSFittingProperties(final ValueRequirement desiredValue) {
@@ -134,7 +132,8 @@ public class SABRFittingPropertyUtils {
     return true;
   }
 
-  public static ValueRequirement getSurfaceRequirement(final ValueRequirement desiredValue, final String surfaceName, final Currency currency) {
+  public static ValueRequirement getSurfaceRequirement(final ValueRequirement desiredValue, final String surfaceName, final Currency currency,
+      final String instrumentType) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
     if (fittingMethod == null) {
@@ -142,21 +141,20 @@ public class SABRFittingPropertyUtils {
       return null;
     }
     if (fittingMethod.equals(SmileFittingProperties.NON_LINEAR_LEAST_SQUARES)) {
-      final ValueProperties fittingProperties = addNLSSFittingProperties(ValueProperties.none());
-      ValueProperties.Builder properties = ValueProperties.builder()
+      final ValueProperties.Builder allProperties = addNLSSFittingProperties(ValueProperties.builder())
           .with(ValuePropertyNames.CURRENCY, currency.getCode())
           .with(ValuePropertyNames.SURFACE, surfaceName)
-          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION)
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
           .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
           .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, SmileFittingProperties.NON_LINEAR_LEAST_SQUARES);
       for (final String constraint : constraints.getProperties()) {
-        if (fittingProperties.getProperties().contains(constraint)) {
-          properties = properties
+        if (!constraints.getValues(constraint).isEmpty() && allProperties.get().getProperties().contains(constraint)) {
+          allProperties
               .withoutAny(constraint)
               .with(constraint, constraints.getValues(constraint));
         }
       }
-      return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetSpecification.of(currency), properties.get());
+      return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetSpecification.of(currency), allProperties.get());
     }
     s_logger.error("Could not handle fitting method {}", fittingMethod);
     return null;

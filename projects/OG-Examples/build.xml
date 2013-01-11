@@ -108,6 +108,8 @@
 		</java>
 	</target>
 
+  <target name="tests" depends="init-database,common.tests" />
+
 	<target name="dist-common" depends="common.dist-common">
 
 		<copy todir="${dist.dir}/${dist.name}" overwrite="true">

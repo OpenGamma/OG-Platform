@@ -40,7 +40,7 @@ public final class EqyOptBaroneAdesiWhaleyPresentValueCalculator extends Instrum
     final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
     final boolean isCall = option.isCall();
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    final double costOfCarry = 0; //TODO
+    final double costOfCarry = interestRate; //TODO
     return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
   }
 }

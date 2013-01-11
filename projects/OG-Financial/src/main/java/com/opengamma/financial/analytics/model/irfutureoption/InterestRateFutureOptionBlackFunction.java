@@ -178,7 +178,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
         return null;
       }
       requirements.addAll(tsRequirements);
-    } catch (final OpenGammaRuntimeException e) {
+    } catch (final Exception e) {
       s_logger.error(e.getMessage());
       return null;
     }

@@ -5,7 +5,6 @@
  */
 package com.opengamma.bloombergexample.loader;
 
-
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.util.functional.Functional.map;
 
@@ -22,44 +21,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
-import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.impl.ConfigSearchIterator;
 import com.opengamma.util.functional.Function1;
-import com.opengamma.util.generate.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 
-
 /**
- * Example code to load a very simple swap portfolio.
- * <p>
- * This code is kept deliberately as simple as possible.
- * There are no checks for the securities or portfolios already existing, so if you run it
- * more than once you will get multiple copies portfolios and securities with the same names.
- * It is designed to run against the HSQLDB example database.
+ * Finds the historical time series that need to be loaded so that they can be used as instruments in the defined curves.
  */
-@Scriptable
-public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolContext> {
+public class CurveNodeHistoricalDataLoader {
+
   /**
    * Logger.
    */
@@ -83,40 +72,24 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
     return _futuresExternalIds;
   }
 
-  //-------------------------------------------------------------------------
+  public void run(final ToolContext tools) {
+    final ConfigSource configSource = tools.getConfigSource();
+    final ConfigMaster configMaster = tools.getConfigMaster();
+    final List<YieldCurveDefinition> curves = getForwardAndFundingCurves(configMaster);
 
-  /**
-   * Main method to run the tool.
-   * No arguments are needed.
-   *
-   * @param args  the arguments, unused
-   */
-  public static void main(String[] args) {  // CSIGNORE
-    new CurveNodeHistoricalDataLoader().initAndRun(args, IntegrationToolContext.class);
-    System.exit(0);
-  }
+    final Set<Currency> currencies = newHashSet();
 
-  //-------------------------------------------------------------------------
-  @Override
-  protected void doRun() {
-    ConfigSource configSource = getToolContext().getConfigSource();
-    ConfigMaster configMaster = getToolContext().getConfigMaster();
-    YieldCurveConfigPopulator.populateCurveConfigMaster(configMaster);
-    List<YieldCurveDefinition> curves = getForwardAndFundingCurves(configMaster);
-
-    Set<Currency> currencies = newHashSet();
-
-    for (YieldCurveDefinition curve : curves) {
+    for (final YieldCurveDefinition curve : curves) {
       currencies.add(curve.getCurrency());
     }
 
     _initialRateExternalIds = getInitialRateExternalIds(currencies);
 
-    List<LocalDate> dates = buildDates();
+    final List<LocalDate> dates = buildDates();
 
-    Set<String> curveNames = map(new HashSet<String>(), curves, new Function1<YieldCurveDefinition, String>() {
+    final Set<String> curveNames = map(new HashSet<String>(), curves, new Function1<YieldCurveDefinition, String>() {
       @Override
-      public String execute(YieldCurveDefinition yieldCurveDefinition) {
+      public String execute(final YieldCurveDefinition yieldCurveDefinition) {
         return yieldCurveDefinition.getName() + "_" + yieldCurveDefinition.getCurrency().getCode();
       }
     });
@@ -126,17 +99,17 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
 
   }
 
-  private Set<ExternalId> getInitialRateExternalIds(Set<Currency> currencies) {
-    ConventionBundleMaster cbm = new InMemoryConventionBundleMaster();
-    DefaultConventionBundleSource cbs = new DefaultConventionBundleSource(cbm);
-    Set<ExternalId> externalInitialRateId = newHashSet();
-    for (Currency currency : currencies) {
-      for (String swapType : new String[]{"SWAP", "3M_SWAP", "6M_SWAP"}) {
-        String product = currency.getCode() + "_" + swapType;
-        ConventionBundle convention = cbs.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, product));
+  private Set<ExternalId> getInitialRateExternalIds(final Set<Currency> currencies) {
+    final ConventionBundleMaster cbm = new InMemoryConventionBundleMaster();
+    final DefaultConventionBundleSource cbs = new DefaultConventionBundleSource(cbm);
+    final Set<ExternalId> externalInitialRateId = newHashSet();
+    for (final Currency currency : currencies) {
+      for (final String swapType : new String[]{"SWAP", "3M_SWAP", "6M_SWAP"}) {
+        final String product = currency.getCode() + "_" + swapType;
+        final ConventionBundle convention = cbs.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, product));
         if (convention != null) {
-          ExternalId initialRate = convention.getSwapFloatingLegInitialRate();
-          ConventionBundle realIdConvention = cbs.getConventionBundle(initialRate);
+          final ExternalId initialRate = convention.getSwapFloatingLegInitialRate();
+          final ConventionBundle realIdConvention = cbs.getConventionBundle(initialRate);
           externalInitialRateId.add(realIdConvention.getIdentifiers().getExternalId(ExternalSchemes.BLOOMBERG_TICKER));
         } else {
           s_logger.warn("No convention for {} product", product);
@@ -151,10 +124,10 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
    * @return list of dates
    */
   private List<LocalDate> buildDates() {
-    Clock clock = Clock.systemDefaultZone();
-    List<LocalDate> dates = new ArrayList<LocalDate>();
-    LocalDate twoYearsAgo = clock.today().minusYears(2);
-    LocalDate twoYearsTime = clock.today().plusYears(2);
+    final Clock clock = Clock.systemDefaultZone();
+    final List<LocalDate> dates = new ArrayList<LocalDate>();
+    final LocalDate twoYearsAgo = clock.today().minusYears(2);
+    final LocalDate twoYearsTime = clock.today().plusYears(2);
     for (LocalDate next = twoYearsAgo; next.isBefore(twoYearsTime); next = next.plusMonths(3)) {
       dates.add(next);
     }
@@ -166,12 +139,16 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
    * @param configMaster
    * @return list of yield curve definition config object names
    */
-  private List<YieldCurveDefinition> getForwardAndFundingCurves(ConfigMaster configMaster) {
-    List<YieldCurveDefinition> forwardCurves = getCurveDefinitionNames(configMaster, "FORWARD*");
-    List<YieldCurveDefinition> fundingCurves = getCurveDefinitionNames(configMaster, "FUNDING*");
-    List<YieldCurveDefinition> allCurves = Lists.newArrayList();
+  private List<YieldCurveDefinition> getForwardAndFundingCurves(final ConfigMaster configMaster) {
+    final List<YieldCurveDefinition> forwardCurves = getCurveDefinitionNames(configMaster, "Forward*");
+    final List<YieldCurveDefinition> oldForwardCurves = getCurveDefinitionNames(configMaster, "FORWARD*");
+    final List<YieldCurveDefinition> fundingCurves = getCurveDefinitionNames(configMaster, "Funding*");
+    final List<YieldCurveDefinition> oldFundingCurves = getCurveDefinitionNames(configMaster, "FUNDING*");
+    final List<YieldCurveDefinition> allCurves = Lists.newArrayList();
     allCurves.addAll(forwardCurves);
     allCurves.addAll(fundingCurves);
+    allCurves.addAll(oldForwardCurves);
+    allCurves.addAll(oldFundingCurves);
     return allCurves;
   }
 
@@ -181,11 +158,11 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
    * @param nameExpr glob type expression - e.g. blah*
    * @return list of names of config objects matching glob expression
    */
-  private List<YieldCurveDefinition> getCurveDefinitionNames(ConfigMaster configMaster, String nameExpr) {
-    List<YieldCurveDefinition> results = new ArrayList<YieldCurveDefinition>();
-    ConfigSearchRequest<YieldCurveDefinition> request = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
+  private List<YieldCurveDefinition> getCurveDefinitionNames(final ConfigMaster configMaster, final String nameExpr) {
+    final List<YieldCurveDefinition> results = new ArrayList<YieldCurveDefinition>();
+    final ConfigSearchRequest<YieldCurveDefinition> request = new ConfigSearchRequest<YieldCurveDefinition>(YieldCurveDefinition.class);
     request.setName(nameExpr);
-    for (ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, request)) {
+    for (final ConfigDocument doc : ConfigSearchIterator.iterable(configMaster, request)) {
       results.add((YieldCurveDefinition) doc.getConfig().getValue());
     }
     return results;
@@ -198,17 +175,17 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
    * @param dates
    * @return list of all ids required by curves
    */
-  private Set<ExternalId> getCurves(ConfigSource configSource, Collection<String> names, List<LocalDate> dates) {
-    Set<ExternalId> externalIds = newHashSet();
-    for (String name : names) {
+  private Set<ExternalId> getCurves(final ConfigSource configSource, final Collection<String> names, final List<LocalDate> dates) {
+    final Set<ExternalId> externalIds = newHashSet();
+    for (final String name : names) {
       s_logger.info("Processing curve " + name);
-      ConfigItem<YieldCurveDefinition> curveDefinition = configSource.get(YieldCurveDefinition.class, name, VersionCorrection.LATEST);
+      final YieldCurveDefinition curveDefinition = configSource.getSingle(YieldCurveDefinition.class, name, VersionCorrection.LATEST);
       if (curveDefinition != null) {
-        InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
-        for (LocalDate date : dates) {
+        final InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
+        for (final LocalDate date : dates) {
           s_logger.info("Processing curve date " + date);
-          InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition.getValue());
-          for (FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
+          final InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
+          for (final FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
             s_logger.info("Processing strip " + strip.getSecurity());
             externalIds.add(strip.getSecurity());
           }
@@ -227,17 +204,17 @@ public class CurveNodeHistoricalDataLoader extends AbstractTool<IntegrationToolC
    * @param dates
    * @return list of all ids required by curves
    */
-  private Set<ExternalIdBundle> getFutures(ConfigSource configSource, Collection<String> names, List<LocalDate> dates) {
-    Set<ExternalIdBundle> externalIds = newHashSet();
-    for (String name : names) {
+  private Set<ExternalIdBundle> getFutures(final ConfigSource configSource, final Collection<String> names, final List<LocalDate> dates) {
+    final Set<ExternalIdBundle> externalIds = newHashSet();
+    for (final String name : names) {
       s_logger.info("Processing curve " + name);
-      ConfigItem<YieldCurveDefinition> curveDefinition = configSource.get(YieldCurveDefinition.class, name, VersionCorrection.LATEST);
+      final YieldCurveDefinition curveDefinition = configSource.getSingle(YieldCurveDefinition.class, name, VersionCorrection.LATEST);
       if (curveDefinition != null) {
-        InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
-        for (LocalDate date : dates) {
+        final InterpolatedYieldCurveSpecificationBuilder builder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
+        for (final LocalDate date : dates) {
           s_logger.info("Processing curve date " + date);
-          InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition.getValue());
-          for (FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
+          final InterpolatedYieldCurveSpecification curveSpec = builder.buildCurve(date, curveDefinition);
+          for (final FixedIncomeStripWithIdentifier strip : curveSpec.getStrips()) {
             s_logger.info("Processing strip " + strip.getSecurity());
             if (strip.getStrip().getInstrumentType().equals(StripInstrumentType.FUTURE)) {
               externalIds.add(ExternalIdBundle.of(strip.getSecurity()));

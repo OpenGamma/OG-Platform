@@ -129,6 +129,7 @@ public class YieldCurveMarketDataFunction extends AbstractFunction {
       double rate = (Double) value.getValue();
       //TODO this is here because KWCDC Curncy is not normalized
       if (rate > 1.1) {
+        s_logger.error("Normalizing {}, value {}", value.getSpecification(), rate);
         s_logger.warn("Performing normalization of rate in YieldCurveMarketDataFunction; if this is being used for anything other than KWCDC Curncy check market data normalization");
         rate /= 100;
       }

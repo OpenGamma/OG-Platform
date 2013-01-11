@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.model.finitedifference.applications;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DCoupledCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.CoupledFiniteDifference;
 import com.opengamma.analytics.financial.model.finitedifference.CoupledPDEDataBundle;
 import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
@@ -25,10 +26,12 @@ import com.opengamma.analytics.math.function.Function1D;
 public class TwoStateMarkovChainPricer {
   private static final CoupledPDEDataBundleProvider BUNDLE_PROVIDER = new CoupledPDEDataBundleProvider();
 
-  private final CoupledPDEDataBundle[] _data;
+  private final ConvectionDiffusionPDE1DCoupledCoefficients[] _data;
 
   private final ForwardCurve _forward;
   private final TwoStateMarkovChainDataBundle _chainDB;
+  private final Function1D<Double, Double> _initalCond1;
+  private final Function1D<Double, Double> _initalCond2;
 
   //  private final double _lambda12;
   //  private final double _lambda21;
@@ -41,6 +44,8 @@ public class TwoStateMarkovChainPricer {
     _forward = forward;
     _chainDB = chainDB;
     _data = BUNDLE_PROVIDER.getCoupledForwardPair(forward, chainDB);
+    _initalCond1 = getInitialCond(forward.getSpot(), chainDB.getP0());
+    _initalCond2 = getInitialCond(forward.getSpot(), 1.0 - chainDB.getP0());
   }
 
   /**
@@ -57,6 +62,8 @@ public class TwoStateMarkovChainPricer {
     _forward = forward;
     _chainDB = chainDB;
     _data = BUNDLE_PROVIDER.getCoupledForwardPair(forward, chainDB, localVolOverlay);
+    _initalCond1 = getInitialCond(forward.getSpot(), chainDB.getP0());
+    _initalCond2 = getInitialCond(forward.getSpot(), 1.0 - chainDB.getP0());
   }
 
   PDEFullResults1D solve(final PDEGrid1D grid, final double theta) {
@@ -87,10 +94,12 @@ public class TwoStateMarkovChainPricer {
     final double kMax = grid.getSpaceNode(grid.getNumSpaceNodes() - 1);
 
     final BoundaryCondition upper = new NeumannBoundaryCondition(0, kMax, false);
-   // long timer = System.nanoTime();
+
+    final CoupledPDEDataBundle d1 = new CoupledPDEDataBundle(_data[0], _initalCond1, lower1, upper, grid);
+    final CoupledPDEDataBundle d2 = new CoupledPDEDataBundle(_data[1], _initalCond2, lower2, upper, grid);
+
     final CoupledFiniteDifference solver = new CoupledFiniteDifference(theta, true);
-    final PDEResults1D[] res = solver.solve(_data[0], _data[1], grid, lower1, upper, lower2, upper, null);
-   // System.out.println("time " + ((System.nanoTime() - timer) / 1e6) + "ms");
+    final PDEResults1D[] res = solver.solve(d1, d2);
     final PDEFullResults1D res1 = (PDEFullResults1D) res[0];
     final PDEFullResults1D res2 = (PDEFullResults1D) res[1];
 
@@ -107,6 +116,15 @@ public class TwoStateMarkovChainPricer {
   private double probState1(final double t) {
     final double sum = _chainDB.getLambda12() + _chainDB.getLambda21();
     return _chainDB.getSteadyStateProb() + (_chainDB.getP0() - _chainDB.getSteadyStateProb()) * Math.exp(-sum * t);
+  }
+
+  private Function1D<Double, Double> getInitialCond(final double s0, final double p0) {
+    return new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double k) {
+        return p0 * Math.max(0.0, s0 - k);
+      }
+    };
   }
 
 }

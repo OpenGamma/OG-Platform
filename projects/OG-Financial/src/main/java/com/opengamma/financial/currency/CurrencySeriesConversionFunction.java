@@ -28,8 +28,8 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -38,14 +38,14 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompiledInvoker {
 
-  /**
-   * The value name this function will request the conversion rates with.
-   */
-  public static final String RATE_LOOKUP_VALUE_NAME = "CurrencySeriesConversion";
-
   private static final String CURRENCY_INJECTION_PROPERTY = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Currency";
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyConversionFunction.class);
+
+  /**
+   * The value requirement name used to request a Spot Rate series instead of the valuation time spot rate.
+   */
+  public static final String SPOT_RATE = ValueRequirementNames.SPOT_RATE + "Series";
 
   private final Set<String> _valueNames;
   private boolean _allowViewDefaultCurrency; // = false;
@@ -132,7 +132,7 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
     DoubleTimeSeries<LocalDate> exchangeRates = null;
     Double exchangeRate = null;
     for (final ComputedValue input : inputs.getAllValues()) {
-      if (RATE_LOOKUP_VALUE_NAME.equals(input.getSpecification().getValueName())) {
+      if (SPOT_RATE.equals(input.getSpecification().getValueName())) {
         if (input.getValue() instanceof Double) {
           // Note: The rate might be a DOUBLE if the matrix being used has a hard coded constant in it. Improbable for a time-series conversion, but possible.
           exchangeRate = (Double) input.getValue();
@@ -235,10 +235,6 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
     return currencies.iterator().next();
   }
 
-  private ValueRequirement getCurrencyConversion(final String fromCurrency, final String toCurrency) {
-    return new ValueRequirement(RATE_LOOKUP_VALUE_NAME, ComputationTargetSpecification.of(UniqueId.of(CurrencyConversionFunction.RATE_LOOKUP_SCHEME, fromCurrency + "_" + toCurrency)));
-  }
-
   @Override
   public Set<ValueRequirement> getAdditionalRequirements(final FunctionCompilationContext context, final ComputationTarget target, final Set<ValueSpecification> inputs,
       final Set<ValueSpecification> outputs) {
@@ -254,7 +250,7 @@ public class CurrencySeriesConversionFunction extends AbstractFunction.NonCompil
     if (inputCurrency.equals(outputCurrency)) {
       return Collections.emptySet();
     }
-    return Collections.singleton(getCurrencyConversion(inputCurrency, outputCurrency));
+    return Collections.singleton(CurrencyMatrixSourcingFunction.getSeriesConversionRequirement(inputCurrency, outputCurrency));
   }
 
   @Override

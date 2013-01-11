@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.fixedincome.deprecated;
@@ -83,10 +83,25 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunctionDeprecated
   @Override
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    if (holidaySource == null) {
+      throw new UnsupportedOperationException("A holiday source is required");
+    }
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
+    if (regionSource == null) {
+      throw new UnsupportedOperationException("A region source is required");
+    }
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    if (conventionSource == null) {
+      throw new UnsupportedOperationException("A convention bundle source is required");
+    }
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    if (securitySource == null) {
+      throw new UnsupportedOperationException("A security source is required");
+    }
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
+    if (timeSeriesResolver == null) {
+      throw new UnsupportedOperationException("A time series resolver is required");
+    }
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);

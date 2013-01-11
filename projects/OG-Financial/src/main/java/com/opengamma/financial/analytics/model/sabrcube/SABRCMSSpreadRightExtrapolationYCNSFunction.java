@@ -78,7 +78,7 @@ public class SABRCMSSpreadRightExtrapolationYCNSFunction extends SABRYCNSFunctio
   }
 
   @Override
-  protected ValueProperties getResultProperties(final Currency currency) {
+  protected ValueProperties.Builder createValueProperties(final Currency currency) {
     return createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
@@ -89,11 +89,11 @@ public class SABRCMSSpreadRightExtrapolationYCNSFunction extends SABRYCNSFunctio
         .withAny(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER)
         .withAny(SmileFittingProperties.PROPERTY_FITTING_METHOD)
         .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_RIGHT_EXTRAPOLATION).get();
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_RIGHT_EXTRAPOLATION);
   }
 
   @Override
-  protected ValueProperties getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
+  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
@@ -111,7 +111,7 @@ public class SABRCMSSpreadRightExtrapolationYCNSFunction extends SABRYCNSFunctio
         .with(SABRRightExtrapolationFunction.PROPERTY_TAIL_THICKNESS_PARAMETER, mu)
         .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod)
         .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
-        .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_RIGHT_EXTRAPOLATION).get();
+        .with(ValuePropertyNames.CALCULATION_METHOD, SABRFunction.SABR_RIGHT_EXTRAPOLATION);
   }
 
   @Override

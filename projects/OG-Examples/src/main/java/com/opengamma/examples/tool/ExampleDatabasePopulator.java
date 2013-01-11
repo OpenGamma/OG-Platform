@@ -18,10 +18,13 @@ import com.google.common.collect.Sets;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.examples.generator.SyntheticPortfolioGeneratorTool;
+import com.opengamma.examples.loader.ExampleCurrencyConfigurationLoader;
 import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.loader.ExampleCurveConfigurationLoader;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
+import com.opengamma.examples.loader.ExampleExchangeLoader;
 import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
+import com.opengamma.examples.loader.ExampleHolidayLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.loader.ExampleViewsPopulator;
 import com.opengamma.examples.loader.PortfolioLoaderHelper;
@@ -51,7 +54,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   /**
    * The name of the multi-currency swap portfolio.
    */
-  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "Multi-currency Swap Portfolio";
+  public static final String MULTI_CURRENCY_SWAP_PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
   /**
    * The name of Cap/Floor portfolio
    */
@@ -92,6 +95,7 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       new ExampleDatabasePopulator().initAndRun(args, TOOLCONTEXT_EXAMPLE_PROPERTIES, null, ToolContext.class);
       System.exit(0);
     } catch (final Exception ex) {
+      s_logger.error("Caught exception", ex);
       ex.printStackTrace();
       System.exit(1);
     }
@@ -100,6 +104,9 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
+    loadExchanges();
+    loadHolidays();
+    loadCurrencyConfiguration();
     loadCurveAndSurfaceDefinitions();
     loadCurveCalculationConfigurations();
     loadDefaultVolatilityCubeDefinition();
@@ -140,6 +147,17 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
       throw e;
     }
 
+  }
+
+  private void loadCurrencyConfiguration() {
+    final Log log = new Log("Creating FX definitions");
+    try {
+      final ExampleCurrencyConfigurationLoader currencyLoader = new ExampleCurrencyConfigurationLoader();
+      currencyLoader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
   }
 
   private void loadCurveAndSurfaceDefinitions() {
@@ -330,6 +348,28 @@ public class ExampleDatabasePopulator extends AbstractTool<ToolContext> {
     try {
       final ExampleViewsPopulator populator = new ExampleViewsPopulator();
       populator.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadExchanges() {
+    final Log log = new Log("Creating exchange data");
+    try {
+      final ExampleExchangeLoader loader = new ExampleExchangeLoader();
+      loader.run(getToolContext());
+      log.done();
+    } catch (final RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadHolidays() {
+    final Log log = new Log("Creating holiday data");
+    try {
+      final ExampleHolidayLoader loader = new ExampleHolidayLoader();
+      loader.run(getToolContext());
       log.done();
     } catch (final RuntimeException t) {
       log.fail(t);

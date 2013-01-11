@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.fixedincome;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -17,6 +15,7 @@ import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -94,7 +93,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     final InstrumentDerivative derivative = InterestRateInstrumentFunction.getDerivative(security, now, timeSeries, curveNames, definition, getConverter());
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final YieldCurveBundle fixedCurves = YieldCurveFunctionUtils.getFixedCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
-    final ValueProperties properties = createValueProperties(target, curveName, curveCalculationConfigName);
+    final ValueProperties properties = createValueProperties(target, curveName, curveCalculationConfigName).get();
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirement(), target.toSpecification(), properties);
     final Object jacobianObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE_JACOBIAN);
     if (jacobianObject == null) {
@@ -138,9 +137,10 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
       return null;
     }
-    final Set<String> curves = constraints.getValues(ValuePropertyNames.CURVE);
-    if (curves == null || curves.size() != 1) {
-      s_logger.error("Must specify a single curve name; have {}", curves);
+    final boolean permissive = OpenGammaCompilationContext.isPermissive(context);
+    Set<String> requestedCurveNames = constraints.getValues(ValuePropertyNames.CURVE);
+    if (!permissive && (requestedCurveNames == null || requestedCurveNames.isEmpty())) {
+      s_logger.error("Must specify a single curve name; have {}", requestedCurveNames);
       return null;
     }
     final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
@@ -154,15 +154,31 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
       return null;
     }
-    final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final String curve = curves.iterator().next();
-    if (Arrays.binarySearch(curveNames, curve) < 0) {
-      s_logger.info("Curve named {} is not available in curve calculation configuration called {}", curve, curveCalculationConfigName);
+    final String[] availableCurveNames = curveCalculationConfig.getYieldCurveNames();
+    if ((requestedCurveNames == null) || requestedCurveNames.isEmpty()) {
+      requestedCurveNames = Sets.newHashSet(availableCurveNames);
+    } else {
+      final Set<String> intersection = YieldCurveFunctionUtils.intersection(requestedCurveNames, availableCurveNames);
+      if (intersection.isEmpty()) {
+        s_logger.error("None of the requested curves {} are available in curve calculation configuration called {}", requestedCurveNames, curveCalculationConfigName);
+        return null;
+      }
+      requestedCurveNames = intersection;
+    }
+    if (!permissive && (requestedCurveNames.size() != 1)) {
+      s_logger.error("Must specify single curve name constraint, got {}", requestedCurveNames);
       return null;
     }
+    final String curve = requestedCurveNames.iterator().next();
     final String curveCalculationMethod = curveCalculationConfig.getCalculationMethod();
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
+
+    final Set<ValueRequirement> curveRequirements = YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource);
+    final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(curveRequirements.size());
+    for (final ValueRequirement curveRequirement : curveRequirements) {
+      final ValueProperties.Builder properties = curveRequirement.getConstraints().copy();
+      properties.with(PROPERTY_REQUESTED_CURVE, curve).withOptional(PROPERTY_REQUESTED_CURVE);
+      requirements.add(new ValueRequirement(curveRequirement.getValueName(), curveRequirement.getTargetReference(), properties.get()));
+    }
     if (!curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       requirements.add(getCurveSpecRequirement(currency, curve));
     }

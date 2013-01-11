@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
@@ -68,6 +69,21 @@ public class EquityOptionBlackFundingCurveSensitivitiesFunction extends EquityOp
     return result;
   }
 
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final Set<ValueSpecification> results = super.getResults(context, target, inputs);
+    final Set<ValueSpecification> resultsWithCurve = Sets.newHashSetWithExpectedSize(results.size());
+    for (final ValueSpecification spec : results) {
+      final String name = spec.getValueName();
+      final ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
+      final ValueProperties properties = spec.getProperties().copy()
+          .withAny(ValuePropertyNames.CURVE)
+          .get();
+      resultsWithCurve.add(new ValueSpecification(name, targetSpec, properties));
+    }
+    return results;
+  }
+
   // Need to do this to get labels for the output
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
@@ -76,7 +92,7 @@ public class EquityOptionBlackFundingCurveSensitivitiesFunction extends EquityOp
 
   @Override
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
-      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties properties) {
     final YieldAndDiscountCurve fundingCurve = market.getDiscountCurve();
     if (!(fundingCurve instanceof YieldCurve)) {
       throw new OpenGammaRuntimeException("Can only handle YieldCurve");
@@ -114,6 +130,10 @@ public class EquityOptionBlackFundingCurveSensitivitiesFunction extends EquityOp
       throw new OpenGammaRuntimeException("Curve specification was null");
     }
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
+    final ValueProperties resultProperties = properties.copy()
+        .withoutAny(ValuePropertyNames.CURVE)
+        .with(ValuePropertyNames.CURVE, fundingCurveName)
+        .get();
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fundingCurveName, curveBundle, sensVector, curveSpec, resultSpec);
   }

@@ -38,7 +38,7 @@ public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.
    * @return a pair formed from the two parameters, not null
    */
   public static <B> IntObjectPair<B> of(final int first, final B second) {
-    return new IntObjectPair<B>(first, second);
+    return new IntObjectPair<>(first, second);
   }
 
   /**

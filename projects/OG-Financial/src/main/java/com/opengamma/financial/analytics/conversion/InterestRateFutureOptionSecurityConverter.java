@@ -52,8 +52,7 @@ public class InterestRateFutureOptionSecurityConverter extends FinancialSecurity
     final ExternalId underlyingIdentifier = security.getUnderlyingId();
     final InterestRateFutureSecurity underlyingSecurity = ((InterestRateFutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier)));
     if (underlyingSecurity == null) {
-      throw new OpenGammaRuntimeException("Couldn't find underlying interest rate future with id " + underlyingIdentifier + " for interest rate future option with id "
-          + security.getExternalIdBundle());
+      throw new OpenGammaRuntimeException("Underlying security " + underlyingIdentifier + " was not found in database");
     }
     final InterestRateFutureDefinition underlyingFuture = _underlyingConverter.visitInterestRateFutureSecurity(underlyingSecurity);
     final ZonedDateTime expirationDate = security.getExpiry().getExpiry();
