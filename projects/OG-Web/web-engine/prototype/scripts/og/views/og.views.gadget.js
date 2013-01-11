@@ -15,7 +15,7 @@ $.register_module({
             },
             block: function (args) {
                 var block = args.block.split('.').reduce(function (acc, val) {return acc[val];}, window), form;
-                form = new og.common.util.ui.Form({selector: content});
+                form = new og.common.util.ui.Form({selector: content}).on('form:submit', console.log);
                 form.children.push(new block({form: form}));
                 form.dom();
             },
