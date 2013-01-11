@@ -11,6 +11,8 @@ import static org.testng.AssertJUnit.assertNotNull;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.MetaBean;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +33,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
+@SuppressWarnings("unchecked")
 public class JsonJodaRoundTripTest {
 
   static {
@@ -45,7 +48,7 @@ public class JsonJodaRoundTripTest {
     fxForward.setName("GBP/USD forward");
 
     JsonDataSink sink = new JsonDataSink();
-    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<JSONObject>(fxForward, sink);
+    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(fxForward, sink);
     BeanTraverser traverser = new BeanTraverser();
     JSONObject json = (JSONObject) traverser.traverse(FXForwardSecurity.meta(), writingVisitor);
     assertNotNull(json);
@@ -53,8 +56,11 @@ public class JsonJodaRoundTripTest {
 
     JsonBeanDataSource dataSource = new JsonBeanDataSource(new JSONObject(json.toString()));
     MetaBeanFactory metaBeanFactory = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(FXForwardSecurity.meta()));
-    BeanVisitor<FXForwardSecurity> readingVisitor = new BeanBuildingVisitor<FXForwardSecurity>(dataSource, metaBeanFactory);
-    FXForwardSecurity fxForward2 = (FXForwardSecurity) traverser.traverse(FXForwardSecurity.meta(), readingVisitor);
+    BeanVisitor<BeanBuilder<Bean>> readingVisitor =
+        new BeanBuildingVisitor<>(dataSource, metaBeanFactory, BlotterResource.getStringConvert());
+    BeanBuilder<FXForwardSecurity> beanBuilder =
+        (BeanBuilder<FXForwardSecurity>) traverser.traverse(FXForwardSecurity.meta(), readingVisitor);
+    FXForwardSecurity fxForward2 = beanBuilder.build();
     assertEquals(fxForward, fxForward2);
   }
 
@@ -85,7 +91,7 @@ public class JsonJodaRoundTripTest {
 
     JsonDataSink sink = new JsonDataSink();
     BeanTraverser traverser = new BeanTraverser();
-    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<JSONObject>(security, sink);
+    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(security, sink);
     JSONObject json = (JSONObject) traverser.traverse(SwapSecurity.meta(), writingVisitor);
     assertNotNull(json);
     System.out.println(json);
@@ -96,8 +102,11 @@ public class JsonJodaRoundTripTest {
         FixedInterestRateLeg.meta(),
         FloatingInterestRateLeg.meta(),
         InterestRateNotional.meta()));
-    BeanVisitor<SwapSecurity> readingVisitor = new BeanBuildingVisitor<SwapSecurity>(dataSource, metaBeanFactory);
-    SwapSecurity security2 = (SwapSecurity) traverser.traverse(SwapSecurity.meta(), readingVisitor);
+    BeanVisitor<BeanBuilder<SwapSecurity>> readingVisitor =
+        new BeanBuildingVisitor<>(dataSource, metaBeanFactory, BlotterResource.getStringConvert());
+    BeanBuilder<SwapSecurity> beanBuilder =
+        (BeanBuilder<SwapSecurity>) traverser.traverse(SwapSecurity.meta(), readingVisitor);
+    SwapSecurity security2 = beanBuilder.build();
     assertEquals(security, security2);
   }
 }

@@ -13,16 +13,17 @@ import java.util.Set;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.StringUtils;
-import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.convert.StringConvert;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
@@ -40,8 +41,11 @@ import com.opengamma.util.OpenGammaClock;
 
   public static final String TRADE_TYPE_NAME = "OtcTrade";
 
-  /* package */ OtcTradeBuilder(SecurityMaster securityMaster, PositionMaster positionMaster, Set<MetaBean> metaBeans) {
-    super(positionMaster, securityMaster, metaBeans);
+  /* package */ OtcTradeBuilder(SecurityMaster securityMaster,
+                                PositionMaster positionMaster,
+                                Set<MetaBean> metaBeans,
+                                StringConvert stringConvert) {
+    super(positionMaster, securityMaster, metaBeans, stringConvert);
   }
 
   /* package */ UniqueId buildAndSaveTrade(BeanDataSource tradeData,
@@ -55,7 +59,7 @@ import com.opengamma.util.OpenGammaClock;
     ManageableTrade.Meta meta = ManageableTrade.meta();
     BeanBuilder<? extends ManageableTrade> tradeBuilder =
         tradeBuilder(tradeData,
-                     meta.uniqueId(), // TODO handle uniqueId differently for new trades - shouldn't be specified
+                     meta.uniqueId(),
                      meta.tradeDate(),
                      meta.tradeTime(),
                      meta.premium(),
@@ -128,12 +132,13 @@ import com.opengamma.util.OpenGammaClock;
     ExternalId underlyingId = buildUnderlying(underlyingData);
     BeanDataSource dataSource;
     // TODO would it be better to just return the bean builder from the visitor and handle this property manually?
+    // TODO would have to use a different property for every security with underlyingId, there's no common supertype with it
     if (underlyingId != null) {
       dataSource = new PropertyReplacingDataSource(securityData, "underlyingId", underlyingId.toString());
     } else {
       dataSource = securityData;
     }
-    FinancialSecurity security = build(dataSource, FinancialSecurity.class);
+    FinancialSecurity security = build(dataSource);
     ManageableSecurity savedSecurity = saveSecurity(security);
     return savedSecurity.getUniqueId();
   }
@@ -142,7 +147,7 @@ import com.opengamma.util.OpenGammaClock;
     if (underlyingData == null) {
       return null;
     }
-    FinancialSecurity underlying = build(underlyingData, FinancialSecurity.class);
+    FinancialSecurity underlying = build(underlyingData);
     saveSecurity(underlying);
     ExternalId underlyingId = underlying.accept(new ExternalIdVisitor(getSecurityMaster()));
     if (underlyingId == null) {
@@ -152,22 +157,31 @@ import com.opengamma.util.OpenGammaClock;
   }
 
   @SuppressWarnings("unchecked")
-  private <T extends Bean> T build(BeanDataSource data, Class<T> expectedType) {
+  private FinancialSecurity build(BeanDataSource data) {
     // TODO custom converters for dates
     // default timezone based on OpenGammaClock
     // default times for effectiveDate and maturityDate properties on SwapSecurity, probably others
-    // TODO decorator to filter out trade properties
-    BeanVisitor<Bean> visitor = new BeanBuildingVisitor<>(data, getMetaBeanFactory());
+    BeanVisitor<BeanBuilder<FinancialSecurity>> visitor =
+        new BeanBuildingVisitor<>(data, getMetaBeanFactory(), getStringConvert());
     MetaBean metaBean = getMetaBeanFactory().beanFor(data);
-    // TODO externalIdBundle needs to be specified or building fails because it's null
-    // we never want to set it. BeanBuildingVisitor should return the bean builder so we can set an empty ID bundle
-    // and then call build(). we don't need to support externalIdBundle so can always set it to be EMPTY
-    Object bean = new BeanTraverser().traverse(metaBean, visitor);
-    if (!expectedType.isAssignableFrom(bean.getClass())) {
-      throw new IllegalArgumentException("object type " + bean.getClass().getName() + " doesn't conform to " +
-                                             "the expected type " + expectedType.getName());
+    // TODO check it's a FinancialSecurity metaBean
+    if (!(metaBean instanceof FinancialSecurity.Meta)) {
+      throw new IllegalArgumentException("MetaBean " + metaBean + " isn't for a FinancialSecurity");
     }
-    return expectedType.cast(bean);
+    // filter out the externalIdBundle property so the traverser doesn't set it to null (which will fail)
+    PropertyFilter externalIdFilter = new PropertyFilter(FinancialSecurity.meta().externalIdBundle());
+    BeanBuilder<FinancialSecurity> builder =
+        (BeanBuilder<FinancialSecurity>) new BeanTraverser(externalIdFilter).traverse(metaBean, visitor);
+    // externalIdBundle needs to be specified or building fails because it's not nullable
+    // TODO need to preserve the bundle when editing existing trades. pass to client or use previous version?
+    // do in Existing* subclass, that looks up previous version, other subclass doesn't care, no bundle for new trades
+    builder.set(FinancialSecurity.meta().externalIdBundle(), ExternalIdBundle.EMPTY);
+    Object bean = builder.build();
+    if (bean instanceof FinancialSecurity) {
+      return (FinancialSecurity) bean;
+    } else {
+      throw new IllegalArgumentException("object type " + bean.getClass().getName() + " isn't a Financial Security");
+    }
   }
 
   // TODO different versions for OTC / non OTC
@@ -189,5 +203,4 @@ import com.opengamma.util.OpenGammaClock;
     structure.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
     return structure;
   }
-
 }
