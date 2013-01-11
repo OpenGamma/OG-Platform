@@ -6,8 +6,8 @@ $.register_module({
     name: 'og.analytics.form2',
     dependencies: [],
     obj: function () {
-        var module = this, constructor, menus = [], portfolio_dropdown, viewdef_menu, aggregation_menu,
-            datasources_menu, query, url_config,
+        var module = this, constructor, menus = [], portfolio_dropdown, viewdefinitions_dropdown,
+            aggregation_menu, datasources_menu, temporal_menu, query, url_config,
             events = {
                 focus: 'focus',
                 focused:'focused',
@@ -25,10 +25,7 @@ $.register_module({
                 form_container:  'og.analytics.form_tash'
             },
             selectors = {
-                form_container: 'OG-analytics-form',
-                calculations_cntr: 'og-calculations',
-                aggregation_cntr: 'og-aggregation',
-                datasources_cntr: 'og-datasources'
+                form_container: 'OG-analytics-form'
             },
             dom = { form_container : $('.' + selectors.form_container) },
             form = new og.common.util.ui.Form({
@@ -44,13 +41,14 @@ $.register_module({
 
         var init = function () {
             form.children.push(
-                //(portfolio_dropdown = new og.common.util.ui.AutoCombo({form:form})),
+                (portfolios_dropdown = new og.analytics.form.Portfolios({form:form})).block,
+                (viewdefinitions_dropdown = new og.analytics.form.ViewDefinitions({form:form})).block,
                 (datasources_menu = new og.analytics.DatasourcesMenu({form:form})).block,
                 (temporal_menu = new og.analytics.TemporalMenu({form:form})).block,
                 (aggregation_menu = new og.analytics.AggregatorsMenu({form:form})).block
             );
             form.dom();
-            menus.push(datasources_menu, temporal_menu, aggregation_menu);
+            menus.push(portfolios_dropdown, viewdefinitions_dropdown, datasources_menu, temporal_menu, aggregation_menu);
         };
 
         var replay = function (config) {
