@@ -20,6 +20,41 @@ $.register_module({
                         new og.blotter.Dialog(data);
                     });
                 });
+                $('.capfloorcmsspread').click(function (){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164152"}).pipe(function(data){
+                        new og.blotter.Dialog(data);
+                    });
+                });
+                $('.capfloor').click(function (){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164182"}).pipe(function(data){
+                        new og.blotter.Dialog(data);
+                    });
+                });
+                $('.equityvar').click(function (){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164208"}).pipe(function(data){
+                        new og.blotter.Dialog(data);
+                    });
+                });
+                $('.fra').click(function (){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164245"}).pipe(function(data){
+                        new og.blotter.Dialog(data);
+                    });
+                });
+                $('.fxbarrier').click(function (){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164255"}).pipe(function(data){
+                        new og.blotter.Dialog(data);
+                    });
+                });
+                $('.fxoption').click(function (){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164257"}).pipe(function(data){
+                        new og.blotter.Dialog(data);
+                    });
+                });
+                $('.nondelfxoption').click(function (){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164259"}).pipe(function(data){
+                        new og.blotter.Dialog(data);
+                    });
+                });
             },
             load_item: function (args) {},
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},

@@ -12,7 +12,8 @@
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span>{{{item_0}}}</span><span><input name="notional" type="text" value="{{notional}}"/></span></div>
+        <div><span>{{{item_0}}}</span><span><input name="security.notional" type="text" value="{{notional}}"/></span>
+        </div>
       </td>
     </tr>
     <tr>
@@ -22,7 +23,7 @@
         </label>
       </td>
       <td>
-        <input name="strike" type="text" value="{{strike}}"/>
+        <input name="security.strike" type="text" value="{{strike}}"/>
       </td>
     </tr>
     <tr>
@@ -32,7 +33,7 @@
         </label>
       </td>
       <td>
-        <input name="regionId" type="text" value="{{region}}"/>
+        <input name="security.regionId" type="text" value="{{region}}"/>
       </td>
     </tr>
     <tr>
@@ -42,7 +43,7 @@
         </label>
       </td>
       <td>
-        <input name="spotUnderlyingId" type="text" value="{{underlying}}"/>
+        <input name="security.spotUnderlyingId" type="text" value="{{underlying}}"/>
       </td>
     </tr>
     <tr>
@@ -52,7 +53,7 @@
         </label>
       </td>
       <td>
-        <input name="settlementDate" type="text" value="{{settlement}}"/>
+        <input name="security.settlementDate" type="text" value="{{settlement}}"/>
       </td>
     </tr>
     <tr>
@@ -60,10 +61,10 @@
         <span>Observation</span>
       </td>
       <td class="og-triple-cell">
-        <div><span>{{{item_1}}}
-        </span><span><input name="firstObservationDate" type="text" placeholder="First Date" value="{{first}}"/>
-        </span><span><input name="lastObservationDate" type="text" placeholder="Last Date" value="{{last}}"/>
-        </span></div>
+       <div><span>{{{item_1}}}
+       </span><span><input name="security.firstObservationDate" type="text" placeholder="First Date" value="{{first}}"/>
+       </span><span><input name="security.lastObservationDate" type="text" placeholder="Last Date" value="{{last}}"/>
+       </span></div>
       </td> 
     </tr>
     <tr>
@@ -71,14 +72,14 @@
         Annualization Factor
       </td>
       <td>
-        <input name="annualizationFactor" type="text" value="{{annualization}}"/>
+        <input name="security.annualizationFactor" type="text" value="{{annualization}}"/>
       </td>
     </tr>
     <tr>
       <td>
       </td>
       <td>
-        <input name="parameterizedAsVariance" type="checkbox" /><span>Parameterized As Variance</span>
+        <input name="security.parameterizedAsVariance" type="checkbox" /><span>Parameterized As Variance</span>
       </td>
     </tr>
   </tbody>

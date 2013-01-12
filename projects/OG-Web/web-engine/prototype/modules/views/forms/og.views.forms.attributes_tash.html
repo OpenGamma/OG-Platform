@@ -20,7 +20,11 @@
         <td>    
           <ul class="og-awesome-list og-attributes-add-list">
             {{#each data}}
-              <li><div class="og-del og-js-rem"></div>{{{key}}} = {{{value}}}</li>
+              <li>
+                <div class="og-del og-js-rem"></div>{{{key}}} = {{{value}}}
+                <input type="hidden" class="og-attributes-key" value="{{{key}}} "/>
+                <input type="hidden" class="og-attributes-value" value="{{{value}}}"/>
+              </li>
             {{/each}}
           </ul>
         </td>

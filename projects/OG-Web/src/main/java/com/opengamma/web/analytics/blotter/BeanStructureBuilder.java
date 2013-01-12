@@ -18,6 +18,7 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.PropertyReadWrite;
+import org.joda.convert.StringConvert;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -61,6 +62,7 @@ import com.opengamma.util.OpenGammaClock;
     s_types.put(String.class, STRING);
   }
 
+  private final StringConvert _stringConvert;
   private final Map<String, Object> _beanData = Maps.newHashMap();
   private final BeanHierarchy _beanHierarchy;
   private final List<Map<String, Object>> _propertyData = Lists.newArrayList();
@@ -69,13 +71,16 @@ import com.opengamma.util.OpenGammaClock;
 
   /* package */ BeanStructureBuilder(Set<MetaBean> metaBeans,
                                      Map<Class<?>, Class<?>> underlyingSecurityTypes,
-                                     Map<Class<?>, String> endpoints) {
+                                     Map<Class<?>, String> endpoints,
+                                     StringConvert stringConvert) {
     ArgumentChecker.notNull(underlyingSecurityTypes, "underlyingSecurityTypes");
     ArgumentChecker.notNull(metaBeans, "metaBeans");
     ArgumentChecker.notNull(endpoints, "endpoints");
+    ArgumentChecker.notNull(stringConvert, "stringConvert");
     _endpoints = endpoints;
     _underlyingSecurityTypes = underlyingSecurityTypes;
     _beanHierarchy = new BeanHierarchy(metaBeans);
+    _stringConvert = stringConvert;
   }
 
   @Override
@@ -142,10 +147,10 @@ import com.opengamma.util.OpenGammaClock;
     return property(property, typesFor(property.propertyType()), null, PropertyType.ARRAY);
   }
 
-  private static boolean isConvertible(Class<?> type) {
+  private boolean isConvertible(Class<?> type) {
     boolean canConvert;
     try {
-      JodaBeanUtils.stringConverter().findConverter(type);
+      _stringConvert.findConverter(type);
       canConvert = true;
     } catch (Exception e) {
       canConvert = false;

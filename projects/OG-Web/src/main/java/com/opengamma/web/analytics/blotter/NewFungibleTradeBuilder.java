@@ -5,15 +5,16 @@
  */
 package com.opengamma.web.analytics.blotter;
 
-import java.math.BigDecimal;
 import java.util.Set;
 
 import org.joda.beans.MetaBean;
+import org.joda.convert.StringConvert;
 
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityMaster;
 
 /**
@@ -23,8 +24,9 @@ import com.opengamma.master.security.SecurityMaster;
 
   /* package */ NewFungibleTradeBuilder(PositionMaster positionMaster,
                                         SecurityMaster securityMaster,
-                                        Set<MetaBean> metaBeans) {
-    super(positionMaster, securityMaster, metaBeans);
+                                        Set<MetaBean> metaBeans,
+                                        StringConvert stringConvert) {
+    super(positionMaster, securityMaster, metaBeans, stringConvert);
   }
 
   @Override
@@ -36,7 +38,9 @@ import com.opengamma.master.security.SecurityMaster;
   /* package */ ManageablePosition getPosition(ManageableTrade trade) {
     // TODO need the node ID - find the node and reuse existing position in the security if possible
     ManageablePosition position = new ManageablePosition();
-    position.setQuantity(BigDecimal.ZERO);
+    position.setQuantity(trade.getQuantity());
+    position.addTrade(trade);
+    position.setSecurityLink(new ManageableSecurityLink(trade.getSecurityLink()));
     return position;
   }
 }

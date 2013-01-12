@@ -228,7 +228,7 @@ $.register_module({
             unravel_structure.call(grid);
             meta.row_class = {}; // TODO populate with added, deleted, edited by data row index
             if (grid.elements.empty) init_elements.call(grid);
-            grid.resize();
+            grid.resize(grid.config.source.depgraph);
             render_rows.call(grid, null, true);
         };
         var render_header = (function () {
@@ -455,7 +455,7 @@ $.register_module({
                 return row.pluck('type').every(function (type) {return type in do_not_expand;});
             }) ? result : null;
         };
-        Grid.prototype.resize = function () {
+        Grid.prototype.resize = function (collapse) {
             var grid = this, config = grid.config, meta = grid.meta, columns = meta.columns, id = grid.id, css, sheet,
                 width = grid.elements.parent.width(), data_width, height = grid.elements.parent.height(),
                 header_height = meta.header_height;
@@ -481,6 +481,7 @@ $.register_module({
             columns.scan.all = columns.scan.fixed
                 .concat(columns.scan.scroll.map(function (val) {return val + columns.width.fixed;}));
             data_width = columns.scan.all[columns.scan.all.length - 1] + scrollbar;
+            if (collapse) meta.nodes.all.forEach(function (node) {if (node) meta.nodes[node] = false;});
             meta.rows = (meta.available = available(grid.meta)).length;
             meta.inner = {
                 scroll_height: height - header_height, height: meta.rows * row_height,

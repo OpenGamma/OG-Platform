@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.joda.beans.MetaBean;
+import org.joda.convert.StringConvert;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -33,9 +34,13 @@ import com.opengamma.util.ArgumentChecker;
   private final PositionMaster _positionMaster;
   private final MetaBeanFactory _metaBeanFactory;
 
+  private final StringConvert _stringConvert;
+
   /* package */ AbstractTradeBuilder(PositionMaster positionMaster,
                                      SecurityMaster securityMaster,
-                                     Set<MetaBean> metaBeans) {
+                                     Set<MetaBean> metaBeans,
+                                     StringConvert stringConvert) {
+    _stringConvert = stringConvert;
     ArgumentChecker.notNull(securityMaster, "securityManager");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notEmpty(metaBeans, "metaBeans");
@@ -77,6 +82,10 @@ import com.opengamma.util.ArgumentChecker;
    */
   /* package */ abstract ManageablePosition savePosition(ManageablePosition position);
 
+  // TODO should this be pushed down into subclasses?
+  // the position might be modified in different ways by the subclasses, might be misleading to have a single
+  // superclass method when the subclass impls do totally different things. maybe name them differently
+  // TODO or change spec and maybe name - this method adds the trade to the position and returns it adjusted appropriately
   /* package */ abstract ManageablePosition getPosition(ManageableTrade trade);
 
   /* package */  SecurityMaster getSecurityMaster() {
@@ -89,5 +98,9 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ MetaBeanFactory getMetaBeanFactory() {
     return _metaBeanFactory;
+  }
+
+  /* package */ StringConvert getStringConvert() {
+    return _stringConvert;
   }
 }

@@ -20,7 +20,7 @@ import com.opengamma.web.analytics.JsonTestUtils;
  */
 public class BlotterLookupResourceTest {
 
-  private final BlotterLookupResource _resource = new BlotterLookupResource();
+  private final BlotterLookupResource _resource = new BlotterLookupResource(BlotterResource.getStringConvert());
 
   static {
     // ensure the converters are loaded and registered
@@ -79,5 +79,11 @@ public class BlotterLookupResourceTest {
   public void getFloatingRateTypes() throws JSONException {
     JSONArray expected = new JSONArray(Lists.newArrayList("IBOR", "CMS", "OIS"));
     assertTrue(JsonTestUtils.equal(expected, new JSONArray(_resource.getFloatingRateTypes())));
+  }
+
+  @Test
+  public void getMonitoringType() throws JSONException {
+    JSONArray expected = new JSONArray(Lists.newArrayList("Continuous", "Discrete"));
+    assertTrue(JsonTestUtils.equal(expected, new JSONArray(_resource.getMonitoringType())));
   }
 }

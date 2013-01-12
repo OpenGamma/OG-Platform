@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.portfoliolosssimulationmodel;
 
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.credit.recoveryratemodel.RecoveryRateModel;
 import com.opengamma.analytics.financial.credit.underlyingpool.UnderlyingPoolDummyPool;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
@@ -20,9 +22,15 @@ public class ScenarioGeneratorTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private static final int numberOfSimulations = 7;
+  // Flag to control if any test results are output to the console
+  private static final boolean outputResults = false;
 
-  private static final int simulationSeed = 987654321;
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  private static final int numberOfSimulations = 12;
+
+  private static final int defaultSimulationSeed = 987654321;
+  private static final int recoveryRateSimulationSeed = 987654321;
 
   private static final double simulationTimeHorizon = 1.0;
 
@@ -43,6 +51,8 @@ public class ScenarioGeneratorTest {
 
   private static final SimulationMethods simMethods = new SimulationMethods();
 
+  private static final SimulationEngine simulationEngine = new SimulationEngine();
+
   private static final RecoveryRateModel[] recoveryRateModels = simMethods.constructRecoveryRateModels(numberOfObligors);
 
   private static final double[] defaultCorrelationVector = simMethods.constructCorrelationVector(numberOfObligors, homogeneousDefaultCorrelation);
@@ -53,7 +63,8 @@ public class ScenarioGeneratorTest {
       obligorUniverse,
       recoveryRateModels,
       numberOfSimulations,
-      simulationSeed,
+      defaultSimulationSeed,
+      recoveryRateSimulationSeed,
       simulationTimeHorizon,
       defaultCorrelationVector,
       recoveryCorrelationVector,
@@ -61,23 +72,10 @@ public class ScenarioGeneratorTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  //@Test
-  public void testScenarioGenerator() {
+  @Test
+  public void testCreditPortfolioLossModelScenarioGenerator() {
 
-    final int[][] simulatedDefaultScenarios = scenarioGenerator.generateDefaultScenarios(scenarioGenerator);
-
-    final int[] numberOfDefaultsPerScenario = scenarioGenerator.getNumberOfDefaultsPerScenario(scenarioGenerator, simulatedDefaultScenarios);
-
-    for (int alpha = 0; alpha < numberOfSimulations; alpha++) {
-      for (int i = 0; i < numberOfObligors; i++) {
-        System.out.print(simulatedDefaultScenarios[alpha][i] + "\t");
-      }
-      System.out.println();
-    }
-
-    for (int alpha = 0; alpha < numberOfSimulations; alpha++) {
-      System.out.println("Scenario alpha = " + alpha + "\t" + numberOfDefaultsPerScenario[alpha]);
-    }
+    simulationEngine.runSimulation(scenarioGenerator, outputResults);
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

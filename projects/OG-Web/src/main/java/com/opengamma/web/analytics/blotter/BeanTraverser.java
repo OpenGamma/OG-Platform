@@ -12,12 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 
 import com.google.common.collect.Lists;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -39,16 +40,14 @@ import com.opengamma.util.ArgumentChecker;
     Collections.reverse(_decorators);
   }
 
-  /* package */ Object traverse(MetaBean bean, BeanVisitor<?> visitor) {
+  /* package */ Object traverse(MetaBean metaBean, BeanVisitor<?> visitor) {
     BeanVisitor<?> decoratedVisitor = decorate(visitor);
-    decoratedVisitor.visitBean(bean);
+    decoratedVisitor.visitBean(metaBean);
     List<TraversalFailure> failures = Lists.newArrayList();
-    for (MetaProperty<?> property : bean.metaPropertyIterable()) {
+    for (MetaProperty<?> property : metaBean.metaPropertyIterable()) {
       Class<?> propertyType = property.propertyType();
       try {
-        if (isConvertible(propertyType)) {
-          decoratedVisitor.visitProperty(property);
-        } else if (Bean.class.isAssignableFrom(propertyType)) {
+        if (Bean.class.isAssignableFrom(propertyType)) {
           decoratedVisitor.visitBeanProperty(property, this);
         } else if (Set.class.isAssignableFrom(propertyType)) {
           decoratedVisitor.visitSetProperty(property);
@@ -63,26 +62,13 @@ import com.opengamma.util.ArgumentChecker;
         }
       } catch (Exception e) {
         failures.add(new TraversalFailure(e, property));
-        // TODO temporary. need to make the stack traces from traversal failures nice and obvious
-        throw new RuntimeException(e);
       }
     }
     if (failures.isEmpty()) {
       return decoratedVisitor.finish();
     } else {
-      throw new TraversalException(failures);
+      throw new TraversalException(metaBean, visitor, failures);
     }
-  }
-
-  private static boolean isConvertible(Class<?> type) {
-    boolean canConvert;
-    try {
-      JodaBeanUtils.stringConverter().findConverter(type);
-      canConvert = true;
-    } catch (Exception e) {
-      canConvert = false;
-    }
-    return canConvert;
   }
 
   private BeanVisitor<?> decorate(BeanVisitor<?> visitor) {
@@ -109,23 +95,30 @@ import com.opengamma.util.ArgumentChecker;
       return _exception;
     }
 
-    /* package */ MetaProperty<?> getProperty() {
-      return _property;
+    @Override
+    public String toString() {
+      String message = _exception.getMessage() == null ? null : "'" + _exception.getMessage() + "'";
+      return "[" + _property.toString() + ", " + message + "]";
     }
   }
 
-  /* package */ static final class TraversalException extends RuntimeException {
+  /* package */ static final class TraversalException extends OpenGammaRuntimeException {
 
-    private final List<TraversalFailure> _failures;
-
-    /* package */ TraversalException(List<TraversalFailure> failures) {
-      super("Bean traversal failed");
-      ArgumentChecker.notEmpty(failures, "failures");
-      _failures = failures;
+    /* package */ TraversalException(MetaBean metaBean, BeanVisitor<?> visitor, List<TraversalFailure> failures) {
+      super(buildMessage(metaBean, visitor, failures));
+      for (TraversalFailure failure : failures) {
+        addSuppressed(failure.getException());
+      }
     }
 
-    /* package */ List<TraversalFailure> getFailures() {
-      return _failures;
+    private static String buildMessage(MetaBean metaBean, BeanVisitor<?> visitor, List<TraversalFailure> failures) {
+      ArgumentChecker.notNull(metaBean, "metaBean");
+      ArgumentChecker.notEmpty(failures, "failures");
+      ArgumentChecker.notNull(visitor, "visitor");
+      return "Bean traversal failed. " +
+          "bean: " + metaBean + ", " +
+          "visitor: " + visitor + ", " +
+          "failures: [" + StringUtils.join(failures, ", ") + "]";
     }
   }
 }

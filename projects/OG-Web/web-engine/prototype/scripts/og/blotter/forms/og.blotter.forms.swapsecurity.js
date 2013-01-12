@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.blotter.forms.Swap',
+    name: 'og.blotter.forms.swapsecurity',
     dependencies: [],
     obj: function () {   
         return function (config) {

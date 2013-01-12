@@ -294,7 +294,12 @@
     .OG-analytics-form-menu.og-menu-temporal .portfolio-version p,
     .OG-analytics-form-menu.og-menu-temporal .portfolio-correction p{
         margin-bottom: 10px;
-    }
+}
+
+/* filters */
+.OG-analytics-form-menu.og-filters input[type=radio] {
+    vertical-align: top;
+}
 
 /* ie8 doesnt support nth or last child...degrade */
     .ie8 .OG-analytics-form-menu select {

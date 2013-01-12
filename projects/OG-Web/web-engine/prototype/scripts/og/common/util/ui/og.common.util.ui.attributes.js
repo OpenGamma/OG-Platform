@@ -7,17 +7,22 @@ $.register_module({
     dependencies: ['og.common.util.ui.Form'],
     obj: function () {
         var module = this, Block = og.common.util.ui.Block, add_list = '.og-attributes-add-list',
-        attribute = Handlebars.compile('<li><div class="og-del og-js-rem"></div>{{{key}}} = {{{value}}}</li>');
+        template = Handlebars.compile('<li><div class="og-del og-js-rem"></div>{{{key}}} = {{{value}}}\
+            <input type="hidden" class="og-attributes-key" value="{{{key}}} ">\
+            <input type="hidden" class="og-attributes-value" value="{{{value}}}"></li>');
         var Attributes = function (config) {
-            var block = this, id = og.common.id('attributes'), form = config.form;
+            var block = this, id = og.common.id('attributes'), form = config.form,
+                attr_data = config.attributes ? Object.keys(config.attributes).reduce(function (acc, val) {
+                    return acc.concat({key: val, value: config.attributes[val]});
+                }, []) : {};
             form.Block.call(block, {
                 module: 'og.views.forms.attributes_tash', 
-                extras: {id: id, data: config.attributes},
+                extras: {id: id, data: attr_data},
                 processor: function (data) {
                     var attributes = {};
                     $('.og-attributes-add-list li').each(function (i, elm) {
-                        var arr = $(elm).text().split(' = ');
-                        attributes[arr[0]] = arr[1];
+                        attributes[$(elm).find('.og-attributes-key').val()] = 
+                        $(elm).find('.og-attributes-value').val();
                     });
                     data.security.attributes = attributes;                    
                 }
@@ -30,8 +35,9 @@ $.register_module({
                 key = $group.find('.attr_key').val(),
                 value = $group.find('.attr_val').val();
                 if (!key || !value) return;
-                $(add_list).prepend(attribute({key: key, value: value}));
-                $group.find('[name^=attr]').val('');
+                $(add_list).prepend(template({key: key, value: value}));
+                $group.find('[class^=attr_]').val('');
+                $('.attr_key').focus();
             });
         };
         Attributes.prototype = new Block(); // inherit Block prototype

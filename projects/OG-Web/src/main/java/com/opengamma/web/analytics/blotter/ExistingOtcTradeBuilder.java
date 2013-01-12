@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.joda.beans.MetaBean;
+import org.joda.convert.StringConvert;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
@@ -16,6 +17,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -30,8 +32,9 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ ExistingOtcTradeBuilder(UniqueId tradeId,
                                         SecurityMaster securityMaster,
                                         PositionMaster positionMaster,
-                                        Set<MetaBean> metaBeans) {
-    super(securityMaster, positionMaster, metaBeans);
+                                        Set<MetaBean> metaBeans,
+                                        StringConvert stringConvert) {
+    super(securityMaster, positionMaster, metaBeans, stringConvert);
     ArgumentChecker.notNull(tradeId, "tradeId");
     _tradeId = tradeId;
   }
@@ -46,6 +49,7 @@ import com.opengamma.util.ArgumentChecker;
     // TODO need to check
     //   security has an ID
     //   previous version of security referred to by ID exists and has the same type - need to load existing
+    // TODO set the externalIdBundle from the previous version. client doesn't use it or pass it to server
     return getSecurityMaster().update(new SecurityDocument(security)).getSecurity();
   }
 
@@ -62,14 +66,20 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   ManageablePosition getPosition(ManageableTrade trade) {
-    if (!_tradeId.isVersioned()) {
+    if (!trade.getUniqueId().isVersioned()) {
       throw new IllegalArgumentException("trade ID must be versioned. trade: " + trade);
+    }
+    if (!trade.getUniqueId().getObjectId().equals(_tradeId.getObjectId())) {
+      throw new IllegalArgumentException("The trade ID in the path (" + _tradeId + ") doesn't match the trade ID " +
+                                             "in the trade (" + trade.getUniqueId().getObjectId() + ")");
     }
     ManageableTrade originalTrade = getPositionMaster().getTrade(_tradeId);
     UniqueId positionId = originalTrade.getParentPositionId();
     ManageablePosition position = getPositionMaster().get(positionId).getPosition();
-    // for OTCs there's always 1 trade per position, remove the existing trade because it's being replaced
-    position.setTrades(Collections.<ManageableTrade>emptyList());
+    // for OTCs there's only 1 trade per position, can replace the trades and set the quantity based on this trade
+    position.setTrades(Collections.singletonList(trade));
+    position.setQuantity(trade.getQuantity());
+    position.setSecurityLink(new ManageableSecurityLink(trade.getSecurityLink()));
     return position;
   }
 }

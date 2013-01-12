@@ -6,13 +6,16 @@ $.register_module({
     name: 'og.blotter.util',
     dependencies: [],
     obj: function () {
+
          var FAKE_ATTRIBUTES = [
                 {key: 'what',value: 'that'},
                 {key: 'colour',value: 'white'},
                 {key: 'moral',value: 'bad'},
                 {key: 'direction',value: 'down'},
-                {key: 'speed',value: 'fast'}];  
+                {key: 'speed',value: 'fast'}],
+            bools = {"false": false, "true": true};  
         return {
+            /* Util methods */
             update_block : function (section, extras){
                 section.block.html(function (html) {
                     $(section.selector).html(html);
@@ -25,13 +28,18 @@ $.register_module({
                 $('select[name="'+ name +'"]').val(value);
             },
             check_checkbox : function (name, value){
-                $('input:checkbox[name= "'+ name +'"]').attr('checked', value); 
+                
+                $('input:checkbox[name= "'+ name +'"]').prop('checked', bools[value]); 
+           
             },
             add_datetimepicker : function (name){
                 $('input[name="'+ name +'"]').datetimepicker({
                     dateFormat: 'yy-mm-dd',separator: 'T',firstDay: 1, showTimezone: true, timeFormat: 'hh:mm:ss',
                     timeSuffix: '+00:00[UTC]'
                 });
+            },
+            get_checkbox : function (name) {
+                return $('input:checkbox[name="'+ name +'"]').is(':checked').toString();
             },
             set_datetime : function (name, value){
                 $('input[name="'+ name +'"]').datetimepicker('setDate', value);
@@ -44,7 +52,29 @@ $.register_module({
                 });
                 return attributes;
             },
+            
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
+            /* Util data */
+            otc_trade : {                
+                tradeDate: "2013-01-01",
+                premiumCurrency: null,
+                tradeTime: "00:00Z",
+                premium: null,
+                premiumTime: null,
+                attributes: {},
+                premiumDate: null,
+                type: "OtcTrade",
+                counterparty: 'ABC Counterparty'
+            },
+            /*Util fake data */
+            IDS : [
+                {name: 'ActivFeed Ticker', value: 'ACTIVFEED_TICKER'},
+                {name: 'Bloomberg Ticker', value: 'BLOOMBERG_TICKER'},
+                {name: 'Bloomberg Ticker/Coupon/Maturity', value: 'BLOOMBERG_TCM'},
+                {name: 'Bloomberg BUID', value: 'BLOOMBERG_BUID'},
+                {name: 'CUSIP', value: 'CUSIP'},
+                {name: 'ISIN', value: 'ISIN'} 
+            ],
             FAKE_DROPDOWN : [
                     {name:'Select', value:''},
                     {name:'Value 1', value:'0'},

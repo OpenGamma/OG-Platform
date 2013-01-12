@@ -13,10 +13,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 
 import com.google.common.collect.Lists;
@@ -32,7 +32,7 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.OpenGammaClock;
 
 /**
- * TODO factor out common code into an abstract superclass shared with OtcTradeBuilder?
+ *
  */
 /* package */ abstract class FungibleTradeBuilder extends AbstractTradeBuilder {
 
@@ -42,16 +42,18 @@ import com.opengamma.util.OpenGammaClock;
 
   /* package */ FungibleTradeBuilder(PositionMaster positionMaster,
                                      SecurityMaster securityMaster,
-                                     Set<MetaBean> metaBeans) {
-    super(positionMaster, securityMaster, metaBeans);
+                                     Set<MetaBean> metaBeans,
+                                     StringConvert stringConvert) {
+    super(positionMaster, securityMaster, metaBeans, stringConvert);
   }
 
   /**
+   * TODO make this non-static and make stringConvert a field
    * Extracts trade data and populates a data sink.
    * @param trade The trade
    * @param sink The sink that should be populated with the trade data
    */
-  /* package */ static void extractTradeData(ManageableTrade trade, BeanDataSink<?> sink) {
+  /* package */ static void extractTradeData(ManageableTrade trade, BeanDataSink<?> sink, StringConvert stringConvert) {
     sink.setValue("type", TRADE_TYPE_NAME);
     // TODO extract fields into list, use when building trade
     extractPropertyData(trade.uniqueId(), sink);
@@ -65,7 +67,7 @@ import com.opengamma.util.OpenGammaClock;
     sink.setMapValues(trade.attributes().name(), trade.getAttributes());
     sink.setValue(COUNTERPARTY, trade.getCounterpartyExternalId().getValue());
     ExternalIdBundle securityIdBundle = trade.getSecurityLink().getExternalId();
-    StringConverter<ExternalIdBundle> converter = JodaBeanUtils.stringConverter().findConverter(ExternalIdBundle.class);
+    StringConverter<ExternalIdBundle> converter = stringConvert.findConverter(ExternalIdBundle.class);
     sink.setValue(SECURITY_ID_BUNDLE, converter.convertToString(securityIdBundle));
   }
 
@@ -80,7 +82,7 @@ import com.opengamma.util.OpenGammaClock;
     ManageableTrade.Meta meta = ManageableTrade.meta();
     BeanBuilder<? extends ManageableTrade> tradeBuilder =
         tradeBuilder(tradeData,
-                     meta.uniqueId(), // TODO handle uniqueId differently for new trades - shouldn't be specified
+                     meta.uniqueId(),
                      meta.tradeDate(),
                      meta.tradeTime(),
                      meta.premium(),
@@ -89,11 +91,10 @@ import com.opengamma.util.OpenGammaClock;
                      meta.quantity(),
                      meta.premiumTime());
     tradeBuilder.set(meta.attributes(), tradeData.getMapValues(meta.attributes().name()));
-    StringConverter<ExternalIdBundle> idBundleConverter =
-        JodaBeanUtils.stringConverter().findConverter(ExternalIdBundle.class);
     String idBundleStr = tradeData.getValue(SECURITY_ID_BUNDLE);
-    ExternalIdBundle securityIdBundle = idBundleConverter.convertFromString(ExternalIdBundle.class,idBundleStr);
-    // TODO should there be checks to stop a trade's type changing by pointing to a different security type?
+    // TODO check the security exists and load it if not? and the underlying? what securities have fungible underlying securities?
+    // TODO is a trade's security allowed to change? presumably not
+    ExternalIdBundle securityIdBundle = getStringConvert().convertFromString(ExternalIdBundle.class,idBundleStr);
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(securityIdBundle));
     String counterparty = tradeData.getValue(COUNTERPARTY);
     if (StringUtils.isEmpty(counterparty)) {
@@ -103,10 +104,6 @@ import com.opengamma.util.OpenGammaClock;
     ManageableTrade trade = tradeBuilder.build();
     // TODO need the node ID so we can add the position to the portfolio node
     ManageablePosition position = getPosition(trade);
-    // TODO check the security exists and load it if not?
-    position.setSecurityLink(new ManageableSecurityLink(securityIdBundle));
-    position.addTrade(trade);
-    position.setQuantity(trade.getQuantity().add(position.getQuantity()));
     ManageablePosition savedPosition = savePosition(position);
     List<ManageableTrade> trades = savedPosition.getTrades();
     ManageableTrade savedTrade = trades.get(0);
@@ -120,8 +117,7 @@ import com.opengamma.util.OpenGammaClock;
    */
   /* package */ abstract ManageablePosition savePosition(ManageablePosition position);
 
-  // for existing trades need to remove from the position and adjust the quantity
-  // need the node ID? if there's an existing position in the security need to add to that, otherwise create new
+  // TODO need the node ID. if there's an existing position need to add trade to it and adjust the amount
   /* package */ abstract ManageablePosition getPosition(ManageableTrade trade);
 
   /**

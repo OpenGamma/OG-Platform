@@ -27,6 +27,8 @@ public class RecoveryRateModelStochastic extends RecoveryRateModel {
 
   private final double _recoveryRate;
 
+  private final RecoveryRateType _recoveryRateType;
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Ctor for the stochastic recovery rate model
@@ -44,6 +46,8 @@ public class RecoveryRateModelStochastic extends RecoveryRateModel {
 
     // FIXME : Fix this
     _recoveryRate = 0.0; //betaDistribution.inverseCumulativeProbability(_x);
+
+    _recoveryRateType = RecoveryRateType.STOCHASTIC;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
@@ -65,6 +69,10 @@ public class RecoveryRateModelStochastic extends RecoveryRateModel {
   @Override
   public double getRecoveryRate() {
     return _recoveryRate;
+  }
+
+  public RecoveryRateType getRecoveryRateType() {
+    return _recoveryRateType;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

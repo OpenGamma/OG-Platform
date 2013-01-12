@@ -8,12 +8,14 @@ package com.opengamma.web.analytics.blotter;
 import java.util.Set;
 
 import org.joda.beans.MetaBean;
+import org.joda.convert.StringConvert;
 
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 
@@ -25,8 +27,9 @@ import com.opengamma.master.security.SecurityMaster;
 
   /* package */ NewOtcTradeBuilder(SecurityMaster securityMaster,
                                    PositionMaster positionMaster,
-                                   Set<MetaBean> metaBeans) {
-    super(securityMaster, positionMaster, metaBeans);
+                                   Set<MetaBean> metaBeans,
+                                   StringConvert stringConvert) {
+    super(securityMaster, positionMaster, metaBeans, stringConvert);
   }
 
   /**
@@ -51,6 +54,10 @@ import com.opengamma.master.security.SecurityMaster;
 
   @Override
   ManageablePosition getPosition(ManageableTrade trade) {
-    return new ManageablePosition();
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(trade.getQuantity());
+    position.setSecurityLink(new ManageableSecurityLink(trade.getSecurityLink()));
+    position.addTrade(trade);
+    return position;
   }
 }
