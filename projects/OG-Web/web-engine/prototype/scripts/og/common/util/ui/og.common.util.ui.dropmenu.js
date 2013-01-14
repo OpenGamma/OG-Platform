@@ -21,10 +21,17 @@ $.register_module({
             menu.init_blurkill = false;
             menu.events = events;
             menu.$dom = {};
-            if (config && config.hasOwnProperty('tmpl') && config.hasOwnProperty('data')) {
-                menu.$dom.cntr = config.$cntr.html($((Handlebars.compile(config.tmpl||''))(config.data||{})));
-                menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
-                menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
+            if (config && config.hasOwnProperty('cntr')){
+                if (config.hasOwnProperty('tmpl') && config.hasOwnProperty('data')) {
+                    menu.$dom.cntr = config.cntr.html($((Handlebars.compile(config.tmpl||''))(config.data||{})));
+                    menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
+                    menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
+                } else {
+                    menu.$dom.cntr = config.cntr;
+                    menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
+                    menu.$dom.toggle.on('click', menu.toggle_handler.bind(menu));
+                    menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
+                }
             }
             menu.on(events.open, menu.open.bind(menu))
                 .on(events.close, menu.close.bind(menu))

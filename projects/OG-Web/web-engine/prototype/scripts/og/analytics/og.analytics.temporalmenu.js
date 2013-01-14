@@ -6,22 +6,19 @@ $.register_module({
     name: 'og.analytics.TemporalMenu',
     dependencies: ['og.analytics.DropMenu'],
     obj: function () {
-        return function (config) {
+        var module = this, Block = og.common.util.ui.Block;
+        var TemporalMenu = function (config) {
             if (!config) return og.dev.warn('og.analytics.TemporalMenu: Missing param [config] to constructor.');
 
             if (!('form' in config) || !config.form)
                 return og.dev.warn('og.analytics.TemporalMenu: Missing param key [config.form] to constructor.');
 
             // Private
-            var default_conf = {
-                    form: config.form,
-                    selector: '.og-temporal',
-                    tmpl: 'og.analytics.form_temporal_tash'
-                },
-                menu, initialized = false;
+            var menu = this, initialized = false, form = config.form;
+
+            form.Block.call(menu, { selector: '.og-temporal', module: 'og.analytics.form_temporal_tash' });
 
             var init = function (conf) {
-                if (($dom = menu.$dom) && $dom.menu) $dom.menu.on('click', 'input', menu_handler);
                  menu.fire('initialized', [initialized = true]);
             };
 
@@ -29,7 +26,8 @@ $.register_module({
                 var $elem = $(event.srcElement || event.target), entry;
             };
 
-            return menu = new og.analytics.DropMenu(default_conf, init);
         };
+        TemporalMenu.prototype = new Block;
+        return TemporalMenu;
     }
 });

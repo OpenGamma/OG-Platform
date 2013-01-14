@@ -6,8 +6,8 @@ $.register_module({
     name: 'og.analytics.form2',
     dependencies: [],
     obj: function () {
-        var module = this, constructor, menus = [], portfolio_dropdown, viewdefinitions_dropdown,
-            aggregation_menu, datasources_menu, temporal_menu, query, url_config,
+        var module = this, constructor, menus = [], portfolios_dropdown, viewdefinitions_dropdown, datasources_menu,
+            temporal_menu, aggregation_menu, filters_menu, query, url_config,
             events = {
                 focus: 'focus',
                 focused:'focused',
@@ -34,6 +34,10 @@ $.register_module({
             });
 
         var init = function (callback) {
+            form.on('form:load', function () {
+                (new og.common.util.ui.DropMenu({cntr: $('.og-temporal', dom.form_container)}));
+                (new og.common.util.ui.DropMenu({cntr: $('.og-filters', dom.form_container)}));
+            });
             form.on('click', '.og-load', function () {
                 var compilation = form.compile();
                 query = {
@@ -44,14 +48,18 @@ $.register_module({
                 callback(query);
             });
             form.children.push(
-                (portfolios_dropdown = new og.analytics.form.Portfolios({form:form})).block,
-                (viewdefinitions_dropdown = new og.analytics.form.ViewDefinitions({form:form})).block,
-                (datasources_menu = new og.analytics.DatasourcesMenu({form:form})).block,
-                (temporal_menu = new og.analytics.TemporalMenu({form:form})).block,
-                (aggregation_menu = new og.analytics.AggregatorsMenu({form:form})).block
+                (new og.analytics.form.Portfolios({form:form})).block,
+                (new og.analytics.form.ViewDefinitions({form:form})).block,
+                (new og.analytics.DatasourcesMenu({form:form})).block,
+                new og.analytics.TemporalMenu({form:form}),
+                (new og.analytics.AggregatorsMenu({form:form})).block,
+                new og.analytics.FiltersMenu({form:form, index:'filters' })
             );
             form.dom();
-            menus.push(portfolios_dropdown, viewdefinitions_dropdown, datasources_menu, temporal_menu, aggregation_menu);
+            menus.push(
+                portfolios_dropdown, viewdefinitions_dropdown, datasources_menu,
+                temporal_menu, aggregation_menu, filters_menu
+            );
         };
 
         constructor = function (callback) {
