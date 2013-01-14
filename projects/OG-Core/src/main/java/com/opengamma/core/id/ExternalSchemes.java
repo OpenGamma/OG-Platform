@@ -80,7 +80,7 @@ public class ExternalSchemes {
    */
   public static final ExternalScheme OG_SYNTHETIC_TICKER = ExternalScheme.of("OG_SYNTHETIC_TICKER");
   /**
-   * Identification scheme for Tullet-Prebon SURF tickers.
+   * Identification scheme for Tullett Prebon SURF tickers.
    */
   public static final ExternalScheme SURF = ExternalScheme.of("SURF");
   /**

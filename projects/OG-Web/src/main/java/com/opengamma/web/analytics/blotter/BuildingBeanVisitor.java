@@ -14,6 +14,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
+import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 
 import com.google.common.collect.Lists;
@@ -29,12 +30,15 @@ import com.opengamma.util.ArgumentChecker;
 
   private final Bean _bean;
   private final BeanDataSink<T> _sink;
+  private final StringConvert _stringConvert;
 
   /* package */ BuildingBeanVisitor(Bean bean, BeanDataSink<T> sink) {
     ArgumentChecker.notNull(bean, "bean");
     ArgumentChecker.notNull(sink, "sink");
     _bean = bean;
     _sink = sink;
+    // TODO constructor arg, don't use the default converter
+    _stringConvert = JodaBeanUtils.stringConverter();
   }
 
   @Override
@@ -56,7 +60,7 @@ import com.opengamma.util.ArgumentChecker;
     List<String> stringValues = Lists.newArrayList();
     Class<?> collectionType = JodaBeanUtils.collectionType(property, property.declaringType());
     StringConverter<Object> converter =
-        (StringConverter<Object>) JodaBeanUtils.stringConverter().findConverter(collectionType);
+        (StringConverter<Object>) _stringConvert.findConverter(collectionType);
     for (Object value : values) {
       stringValues.add(converter.convertToString(value));
     }
@@ -82,10 +86,8 @@ import com.opengamma.util.ArgumentChecker;
   public void visitMapProperty(MetaProperty<?> property) {
     Class<?> keyType = JodaBeanUtils.mapKeyType(property, property.declaringType());
     Class<?> valueType = JodaBeanUtils.mapValueType(property, property.declaringType());
-    StringConverter<Object> keyConverter =
-        (StringConverter<Object>) JodaBeanUtils.stringConverter().findConverter(keyType);
-    StringConverter<Object> valueConverter =
-        (StringConverter<Object>) JodaBeanUtils.stringConverter().findConverter(valueType);
+    StringConverter<Object> keyConverter = (StringConverter<Object>) _stringConvert.findConverter(keyType);
+    StringConverter<Object> valueConverter = (StringConverter<Object>) _stringConvert.findConverter(valueType);
     HashMap<String, String> stringMap = Maps.newHashMap();
     Map<?, ?> valueMap = (Map<?, ?>) property.get(_bean);
     for (Map.Entry<?, ?> entry : valueMap.entrySet()) {
@@ -96,6 +98,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void visitProperty(MetaProperty<?> property) {
+    // TODO use overloaded version with explicit converter
     _sink.setValue(property.name(), property.getString(_bean));
   }
 

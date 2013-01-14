@@ -15,6 +15,7 @@ import javax.time.calendar.OffsetTime;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZoneOffset;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -25,8 +26,6 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.position.PositionSearchRequest;
-import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.position.impl.InMemoryPositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
@@ -38,7 +37,10 @@ import com.opengamma.util.money.Currency;
  */
 public class OtcTradeBuilderTest {
 
+  private static final ImmutableMap<String,String> ATTRIBUTES = ImmutableMap.of("attr1", "val1", "attr2", "val2");
+
   // TODO test that the URL ID is always unversioned and the trade ID is always versioned
+  // TODO what happens if an existing trade's security is changed?
 
   static {
     JodaBeanConverters.getInstance();
@@ -46,13 +48,9 @@ public class OtcTradeBuilderTest {
 
   // TODO create trade with various fields missing (especially attributes)
 
-  @Test
-  public void newSecurityWithNoUnderlying() {
-    SecurityMaster securityMaster = new InMemorySecurityMaster();
-    PositionMaster positionMaster = new InMemoryPositionMaster();
-    NewOtcTradeBuilder builder = new NewOtcTradeBuilder(securityMaster, positionMaster, BlotterResource.s_metaBeans);
-    ImmutableMap<String, String> attributes = ImmutableMap.of("attr1", "val1", "attr2", "val2");
-    BeanDataSource tradeData = BlotterTestUtils.beanData(
+  // TODO move to BlotterTestUtils?
+  private static BeanDataSource createTradeData(Object... valuePairs) {
+    Object[] basicData = {
         "type", "OtcTrade",
         "counterparty", "testCpty",
         "tradeDate", "2012-12-21",
@@ -61,17 +59,25 @@ public class OtcTradeBuilderTest {
         "premiumCurrency", "GBP",
         "premiumDate", "2012-12-25",
         "premiumTime", "13:00+00:00",
-        "attributes", attributes
-    );
-    UniqueId uniqueId = builder.buildAndSaveTrade(tradeData, BlotterTestUtils.FX_FORWARD_DATA_SOURCE, null);
-    PositionSearchRequest searchRequest = new PositionSearchRequest();
-    searchRequest.addTradeObjectId(uniqueId.getObjectId());
-    PositionSearchResult searchResult = positionMaster.search(searchRequest);
-    assertEquals(1, searchResult.getPositions().size());
-    ManageablePosition position = searchResult.getFirstPosition();
-    ManageableTrade trade = position.getTrade(uniqueId.getObjectId());
+        "attributes", ATTRIBUTES};
+    Object[] tradeData = ArrayUtils.addAll(basicData, valuePairs);
+    return BlotterTestUtils.beanData(tradeData);
+  }
+
+  @Test
+  public void newSecurityWithNoUnderlying() {
+    SecurityMaster securityMaster = new InMemorySecurityMaster();
+    PositionMaster positionMaster = new InMemoryPositionMaster();
+    NewOtcTradeBuilder builder = new NewOtcTradeBuilder(securityMaster,
+                                                        positionMaster,
+                                                        BlotterResource.s_metaBeans,
+                                                        BlotterResource.getStringConvert());
+    UniqueId tradeId = builder.buildAndSaveTrade(createTradeData(), BlotterTestUtils.FX_FORWARD_DATA_SOURCE, null);
+    ManageableTrade trade = positionMaster.getTrade(tradeId);
+    UniqueId positionId = trade.getParentPositionId();
+    ManageablePosition position = positionMaster.get(positionId).getPosition();
+    assertEquals(BigDecimal.ONE, trade.getQuantity());
     assertEquals(BigDecimal.ONE, position.getQuantity());
-    assertNotNull(trade);
     ManageableSecurity security = securityMaster.get(trade.getSecurityLink().getObjectId(),
                                                      VersionCorrection.LATEST).getSecurity();
     assertNotNull(security);
@@ -84,17 +90,44 @@ public class OtcTradeBuilderTest {
     assertEquals(LocalDate.of(2012, 12, 21), trade.getTradeDate());
     assertEquals(OffsetTime.of(13, 0, ZoneOffset.of(Period.ZERO)), trade.getPremiumTime());
     assertEquals(OffsetTime.of(10, 0, ZoneOffset.of(Period.ZERO)), trade.getTradeTime());
-    assertEquals(attributes, trade.getAttributes());
+    assertEquals(ATTRIBUTES, trade.getAttributes());
   }
 
   @Test
   public void newSecurityWithFungibleUnderlying() {
+    SecurityMaster securityMaster = new InMemorySecurityMaster();
+    PositionMaster positionMaster = new InMemoryPositionMaster();
+    NewOtcTradeBuilder builder = new NewOtcTradeBuilder(securityMaster,
+                                                        positionMaster,
+                                                        BlotterResource.s_metaBeans,
+                                                        BlotterResource.getStringConvert());
+    BeanDataSource tradeData = createTradeData();
+    UniqueId tradeId = builder.buildAndSaveTrade(tradeData, BlotterTestUtils.EQUITY_VARIANCE_SWAP_DATA_SOURCE, null);
 
+    ManageableTrade trade = positionMaster.getTrade(tradeId);
+    UniqueId positionId = trade.getParentPositionId();
+    ManageablePosition position = positionMaster.get(positionId).getPosition();
+    assertEquals(BigDecimal.ONE, position.getQuantity());
+    ManageableSecurity security =
+        securityMaster.get(trade.getSecurityLink().getObjectId(), VersionCorrection.LATEST).getSecurity();
+    assertNotNull(security);
+    security.setUniqueId(null); // so it can be tested for equality against the unsaved version
+    assertEquals(BlotterTestUtils.EQUITY_VARIANCE_SWAP, security);
+
+    assertEquals(ExternalId.of("Cpty", "testCpty"), trade.getCounterpartyExternalId());
+    assertEquals(1234d, trade.getPremium());
+    assertEquals(Currency.GBP, trade.getPremiumCurrency());
+    assertEquals(LocalDate.of(2012, 12, 25), trade.getPremiumDate());
+    assertEquals(LocalDate.of(2012, 12, 21), trade.getTradeDate());
+    assertEquals(OffsetTime.of(13, 0, ZoneOffset.of(Period.ZERO)), trade.getPremiumTime());
+    assertEquals(OffsetTime.of(10, 0, ZoneOffset.of(Period.ZERO)), trade.getTradeTime());
+    assertEquals(ATTRIBUTES, trade.getAttributes());
+    assertEquals(position.getUniqueId(), trade.getParentPositionId());
   }
 
   @Test
   public void newSecurityWithOtcUnderlying() {
-
+    // TODO i.e. a swaption
   }
 
   @Test

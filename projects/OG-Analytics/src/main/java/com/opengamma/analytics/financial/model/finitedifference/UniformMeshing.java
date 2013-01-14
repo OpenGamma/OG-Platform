@@ -44,66 +44,81 @@ public class UniformMeshing extends MeshingFunction {
     super(nPoints);
     ArgumentChecker.notNull(fixedPoints, "null fixed Points");
 
-    //sort and remove duplicates, preserving order 
+    // sort and remove duplicates, preserving order
     _fpValues = unique(fixedPoints);
+    // remove any fixed points on the boundary
+//    int nn = temp.length;
+//    if (nn > 0 && temp[0] == 0.0) {
+//      temp = Arrays.copyOfRange(temp, 1, nn - 1);
+//    }
+//    nn = temp.length;
+//    if (nn > 0 && temp[nn - 1] == 1.0) {
+//      temp = Arrays.copyOfRange(temp, 0, nn - 2);
+//    }
+//    _fpValues = temp;
     final int m = _fpValues.length;
-    if (_fpValues[0] <= 0.0 || _fpValues[m - 1] >= 1.0) {
-      throw new IllegalArgumentException("fixedPoints must be between 0.0 and 1.0 exclusive");
-    }
-    if (super.getNumberOfPoints() - m < 2) {
-      throw new IllegalArgumentException("insufficient points to form grid");
-    }
+    if (m == 0) {
+      _db = null;
+      _fpIndicies = null;
+    } else {
+      if (_fpValues[0] <= 0.0 || _fpValues[m - 1] >= 1.0) {
+        throw new IllegalArgumentException("fixedPoints must be between 0.0 and 1.0 exclusive");
+      }
+      if (super.getNumberOfPoints() - m < 2) {
+        throw new IllegalArgumentException("insufficient points to form grid");
+      }
 
-    _fpIndicies = new int[m];
-    for (int ii = 0; ii < m; ii++) {
-      _fpIndicies[ii] = (int) Math.round((nPoints - 1) * _fpValues[ii]);
-    }
-    //prevent points sharing index
-    if (m != unique(_fpIndicies).length) {
-      for (int ii = 1; ii < m; ii++) {
-        int step = _fpIndicies[ii] - _fpIndicies[ii - 1];
-        if (step < 1) {
-          _fpIndicies[ii] += 1 - step;
+      _fpIndicies = new int[m];
+      for (int ii = 0; ii < m; ii++) {
+        _fpIndicies[ii] = (int) Math.round((nPoints - 1) * _fpValues[ii]);
+      }
+      // prevent points sharing index
+      if (m != unique(_fpIndicies).length) {
+        for (int ii = 1; ii < m; ii++) {
+          int step = _fpIndicies[ii] - _fpIndicies[ii - 1];
+          if (step < 1) {
+            _fpIndicies[ii] += 1 - step;
+          }
         }
       }
-    }
 
-    if (_fpIndicies[0] == 0) {
-      _fpIndicies[0] = 1;
-      for (int ii = 1; ii < m; ii++) {
-        if (_fpIndicies[ii - 1] == _fpIndicies[ii]) {
-          _fpIndicies[ii] = _fpIndicies[ii] + 1;
-        } else {
-          break; //no more work to do
+      if (_fpIndicies[0] == 0) {
+        _fpIndicies[0] = 1;
+        for (int ii = 1; ii < m; ii++) {
+          if (_fpIndicies[ii - 1] == _fpIndicies[ii]) {
+            _fpIndicies[ii] = _fpIndicies[ii] + 1;
+          } else {
+            break; // no more work to do
+          }
         }
       }
-    }
 
-    if (_fpIndicies[m - 1] >= nPoints - 1) {
-      _fpIndicies[m - 1] = nPoints - 2;
-      for (int ii = 1; ii < m - 1; ii++) {
-        int step = _fpIndicies[m - ii] - _fpIndicies[m - ii - 1];
-        if (step < 1) {
-          _fpIndicies[m - ii - 1] += step - 1;
-        } else {
-          break;
+      if (_fpIndicies[m - 1] >= nPoints - 1) {
+        _fpIndicies[m - 1] = nPoints - 2;
+        for (int ii = 1; ii < m - 1; ii++) {
+          int step = _fpIndicies[m - ii] - _fpIndicies[m - ii - 1];
+          if (step < 1) {
+            _fpIndicies[m - ii - 1] += step - 1;
+          } else {
+            break;
+          }
         }
       }
-    }
 
-    final double[] x = new double[m + 2];
-    final double[] y = new double[m + 2];
-    x[0] = 0.0;
-    for (int ii = 0; ii < m; ii++) {
-      x[ii + 1] = _fpIndicies[ii];
+      final double[] x = new double[m + 2];
+      final double[] y = new double[m + 2];
+      x[0] = 0.0;
+      for (int ii = 0; ii < m; ii++) {
+        x[ii + 1] = _fpIndicies[ii];
+      }
+      x[m + 1] = nPoints - 1;
+      y[0] = 0.0;
+      System.arraycopy(_fpValues, 0, y, 1, m);
+      y[m + 1] = 1.0;
+      Interpolator1DDataBundle data = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
+      final double grad = 1.0 / (nPoints - 1);
+      _db = new Interpolator1DCubicSplineDataBundle(data, grad, grad);
     }
-    x[m + 1] = nPoints - 1;
-    y[0] = 0.0;
-    System.arraycopy(_fpValues, 0, y, 1, m);
-    y[m + 1] = 1.0;
-    Interpolator1DDataBundle data = INTERPOLATOR.getDataBundleFromSortedArrays(x, y);
-    final double grad = 1.0 / (nPoints - 1);
-    _db = new Interpolator1DCubicSplineDataBundle(data, grad, grad);
   }
 
   protected int getFixedPointIndex(int i) {
@@ -127,7 +142,7 @@ public class UniformMeshing extends MeshingFunction {
       return ((double) x) / (getNumberOfPoints() - 1);
     }
 
-    //avoid interpolator lookup if requested value is a fixed value
+    // avoid interpolator lookup if requested value is a fixed value
     final int index = getFixedPointIndex(x);
     if (index >= 0) {
       return _fpValues[index];

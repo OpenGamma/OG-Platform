@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import javax.time.Instant;
 
@@ -27,17 +27,18 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 public class ViewCycleExecutionOptionsFudgeBuilder implements FudgeBuilder<ViewCycleExecutionOptions> {
 
   private static final String VALUATION_TIME_FIELD = "valuation";
-  private static final String MARKET_DATA_SPECIFICATIONS = "marketDataSpecifications";
+  private static final String MARKET_DATA_SPECIFICATION = "marketDataSpecification";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ViewCycleExecutionOptions object) {
     MutableFudgeMsg msg = serializer.newMessage();
     msg.add(VALUATION_TIME_FIELD, object.getValuationTime());
-    serializer.addToMessageWithClassHeaders(msg, MARKET_DATA_SPECIFICATIONS, null, object.getMarketDataSpecifications());
+    for (MarketDataSpecification spec : object.getMarketDataSpecifications()) {
+      serializer.addToMessageWithClassHeaders(msg, MARKET_DATA_SPECIFICATION, null, spec);
+    }
     return msg;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public ViewCycleExecutionOptions buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
     FudgeField valuationTimeField = msg.getByName(VALUATION_TIME_FIELD);
@@ -47,12 +48,9 @@ public class ViewCycleExecutionOptionsFudgeBuilder implements FudgeBuilder<ViewC
     } else {
       valuationTimeProvider = null;
     }
-    FudgeField marketDataSpecificationField = msg.getByName(MARKET_DATA_SPECIFICATIONS);
-    List<MarketDataSpecification> specs;
-    if (marketDataSpecificationField != null) {
-      specs = deserializer.fieldValueToObject(List.class, marketDataSpecificationField);
-    } else {
-      specs = null;
+    ArrayList<MarketDataSpecification> specs = new ArrayList<>();
+    for (FudgeField marketDataSpecificationField : msg.getAllByName(MARKET_DATA_SPECIFICATION)) {
+      specs.add(deserializer.fieldValueToObject(MarketDataSpecification.class, marketDataSpecificationField));
     }
     return new ViewCycleExecutionOptions(valuationTimeProvider, specs);
   }

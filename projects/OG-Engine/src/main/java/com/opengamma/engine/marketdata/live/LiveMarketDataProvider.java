@@ -163,7 +163,12 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
       return;
     }
     if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
-      _liveDataSpec2ValueRequirements.put(subscriptionResult.getFullyQualifiedSpecification(), valueRequirements);
+      Set<ValueRequirement> existingSatisfiedRequirements = _liveDataSpec2ValueRequirements.get(subscriptionResult.getFullyQualifiedSpecification());
+      if (existingSatisfiedRequirements != null) {
+        existingSatisfiedRequirements.addAll(valueRequirements);
+      } else {
+        _liveDataSpec2ValueRequirements.put(subscriptionResult.getFullyQualifiedSpecification(), valueRequirements);
+      }
       _failedRequirements.removeAll(valueRequirements); //We expect a valueUpdate call for this later
       s_logger.debug("Subscription made to {} resulted in fully qualified {}", subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
 
