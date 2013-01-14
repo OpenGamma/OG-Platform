@@ -8,12 +8,6 @@ package com.opengamma.engine;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
-import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.DummyChangeManager;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
-import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.target.DefaultComputationTargetSpecificationResolver;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
@@ -22,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is intended for use by a single thread.
  */
-public class MapComputationTargetResolver implements ComputationTargetResolver {
+public class MapComputationTargetResolver extends DefaultComputationTargetResolver {
 
   // [PLAT-444]: move to com.opengamma.engine.target
 
@@ -31,19 +25,13 @@ public class MapComputationTargetResolver implements ComputationTargetResolver {
    */
   private final Map<ComputationTargetSpecification, ComputationTarget> _backingMap = Maps.newHashMap();
 
-  /**
-   * The backing specification resolver.
-   */
-  private final DefaultComputationTargetSpecificationResolver _specificationResolver = new DefaultComputationTargetSpecificationResolver();
-
   @Override
   public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
-    return _backingMap.get(specification);
-  }
-
-  @Override
-  public ComputationTargetType simplifyType(final ComputationTargetType type) {
-    return type;
+    ComputationTarget resolved = _backingMap.get(specification);
+    if (resolved == null) {
+      resolved = super.resolve(specification, versionCorrection);
+    }
+    return resolved;
   }
 
   /**
@@ -54,49 +42,6 @@ public class MapComputationTargetResolver implements ComputationTargetResolver {
   public void addTarget(final ComputationTarget target) {
     ArgumentChecker.notNull(target, "target");
     _backingMap.put(target.toSpecification(), target);
-  }
-
-  @Override
-  public SecuritySource getSecuritySource() {
-    return null;
-  }
-
-  @Override
-  public ComputationTargetSpecificationResolver getSpecificationResolver() {
-    return _specificationResolver;
-  }
-
-  @Override
-  public ComputationTargetResolver.AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
-    final ComputationTargetSpecificationResolver.AtVersionCorrection specificationResolver = MapComputationTargetResolver.this.getSpecificationResolver().atVersionCorrection(versionCorrection);
-    return new AtVersionCorrection() {
-
-      @Override
-      public ComputationTarget resolve(final ComputationTargetSpecification specification) {
-        return MapComputationTargetResolver.this.resolve(specification, versionCorrection);
-      }
-
-      @Override
-      public ComputationTargetSpecificationResolver.AtVersionCorrection getSpecificationResolver() {
-        return specificationResolver;
-      }
-
-      @Override
-      public ComputationTargetType simplifyType(final ComputationTargetType type) {
-        return MapComputationTargetResolver.this.simplifyType(type);
-      }
-
-      @Override
-      public VersionCorrection getVersionCorrection() {
-        return versionCorrection;
-      }
-
-    };
-  }
-
-  @Override
-  public ChangeManager changeManager() {
-    return DummyChangeManager.INSTANCE;
   }
 
   /**

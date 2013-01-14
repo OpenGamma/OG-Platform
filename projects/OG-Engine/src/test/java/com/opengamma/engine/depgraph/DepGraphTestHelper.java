@@ -11,7 +11,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -163,7 +163,7 @@ public class DepGraphTestHelper {
     final DependencyGraphBuilder builder = new DependencyGraphBuilder();
     builder.setMarketDataAvailabilityProvider(_liveDataAvailabilityProvider);
     final FunctionCompilationContext context = new FunctionCompilationContext();
-    final ComputationTargetResolver targetResolver = new DefaultComputationTargetResolver();
+    final ComputationTargetResolver targetResolver = new MapComputationTargetResolver();
     context.setRawComputationTargetResolver(targetResolver);
     context.setComputationTargetResolver(targetResolver.atVersionCorrection(VersionCorrection.of(now, now)));
     builder.setCompilationContext(context);

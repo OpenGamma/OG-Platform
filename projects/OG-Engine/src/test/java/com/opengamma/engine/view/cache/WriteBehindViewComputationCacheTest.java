@@ -98,7 +98,7 @@ public class WriteBehindViewComputationCacheTest {
 
     private void putValuesImpl(final Collection<ComputedValue> values) {
       try {
-        _allowPutValue.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
+        _allowPutValues.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
       } catch (final InterruptedException ex) {
         ex.printStackTrace();
       }
@@ -235,13 +235,6 @@ public class WriteBehindViewComputationCacheTest {
 
   private static final long PAUSE = 10;
 
-  private void pause() {
-    try {
-      Thread.sleep(PAUSE);
-    } catch (final InterruptedException e) {
-    }
-  }
-
   @Test
   public void putValueDirectWrite() throws InterruptedException {
     _underlying._allowPutValue.countDown();
@@ -251,7 +244,7 @@ public class WriteBehindViewComputationCacheTest {
       if (_underlying._putValue != null) {
         break;
       }
-      Thread.sleep(10);
+      Thread.sleep(PAUSE);
     }
     assertEquals(value, _underlying._putValue);
     assertNull(_underlying._putValues);
@@ -271,7 +264,7 @@ public class WriteBehindViewComputationCacheTest {
       if (_underlying._putValues != null) {
         break;
       }
-      Thread.sleep(10);
+      Thread.sleep(PAUSE);
     }
     assertEquals(value0, _underlying._putValue);
     assertEquals(Arrays.asList(value1, value2), _underlying._putValues);
@@ -286,7 +279,7 @@ public class WriteBehindViewComputationCacheTest {
       if (_underlying._putValues != null) {
         break;
       }
-      Thread.sleep(10);
+      Thread.sleep(PAUSE);
     }
     assertEquals(values, _underlying._putValues);
     assertNull(_underlying._putValue);
@@ -306,7 +299,7 @@ public class WriteBehindViewComputationCacheTest {
       if (_underlying._putValues != null) {
         break;
       }
-      Thread.sleep(10);
+      Thread.sleep(PAUSE);
     }
     final Collection<ComputedValue> values = _underlying._putValues;
     assertEquals(3, values.size());
@@ -322,7 +315,7 @@ public class WriteBehindViewComputationCacheTest {
       if (_underlying._putValue != null) {
         break;
       }
-      Thread.sleep(10);
+      Thread.sleep(PAUSE);
     }
     assertNotNull(_underlying._putValue);
     flush(_cache);
