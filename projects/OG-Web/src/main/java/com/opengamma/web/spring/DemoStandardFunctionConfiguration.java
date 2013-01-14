@@ -1040,7 +1040,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         .useDiscountingCurveCalculationConfigNames()
         .useDiscountingCurveNames()
         .createPerEquityDefaults();
-    final List<String> equityFutureDefaultsWithPriority = new ArrayList<String>();
+    final List<String> equityFutureDefaultsWithPriority = new ArrayList<>();
     equityFutureDefaultsWithPriority.add(PriorityClass.NORMAL.name());
     equityFutureDefaultsWithPriority.addAll(equityFutureDefaults);
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityDividendYieldPricingDefaults.class.getName(), equityFutureDefaultsWithPriority));
@@ -1178,18 +1178,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     final String overhedge = "0.0";
     final String relativeStrikeSmoothing = "0.001";
     functionConfigs.add(functionConfiguration(FXOneLookBarrierOptionBlackDefaultPropertiesFunction.class, overhedge, relativeStrikeSmoothing));
-  }
-
-
-  private static void addDeprecatedForexOptionCalculators(final List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(FXOptionBlackPresentValueFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackCurrencyExposureFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackVegaFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackVegaMatrixFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackVegaQuoteMatrixFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackPresentValueCurveSensitivityFunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackPV01FunctionDeprecated.class));
-    functionConfigs.add(functionConfiguration(FXOptionBlackYCNSFunctionDeprecated.class));
   }
 
   private static void addForexForwardCalculators(final List<FunctionConfiguration> functionConfigs) {
