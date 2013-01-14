@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.fudgemsg;
@@ -30,22 +30,22 @@ import com.opengamma.id.UniqueIdentifiable;
 
 /**
  * Fudge builder for {@link ComputationTargetReference}.
- * 
+ *
  * <pre>
- * 
+ *
  * message ComputationTargetReference extends ComputationTargetType {
  * }
- * 
+ *
  * message ComputationTargetSpecification extends ComputationTargetReference {
  *   optional repeated UniqueId computationTargetIdentifier;         // the target specification identifier
  * }
- * 
+ *
  * message ComputationTargetRequirement extends ComputationTargetReference {
  *   optional repeated ExternalIdBundle computationTargetIdentifier; // the target requirement identifiers
  * }
- * 
+ *
  * </pre>
- * 
+ *
  * When references are nested to give object context, the outermost identifier is listed first followed by inner identifiers. The type is the type that should be assigned to the resultant inner most
  * reference.
  */
@@ -85,7 +85,7 @@ public class ComputationTargetReferenceFudgeBuilder implements FudgeBuilder<Comp
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ComputationTargetReference object) {
-    MutableFudgeMsg msg = serializer.newMessage();
+    final MutableFudgeMsg msg = serializer.newMessage();
     buildMessageImpl(serializer, msg, object);
     return msg;
   }
@@ -124,7 +124,10 @@ public class ComputationTargetReferenceFudgeBuilder implements FudgeBuilder<Comp
         return new ComputationTargetRequirement(type, ExternalIdBundle.EMPTY);
       }
     } else if (types.isEmpty()) {
-      final FudgeField field = message.getByName(IDENTIFIER_FIELD_NAME);
+      FudgeField field = message.getByName(IDENTIFIER_FIELD_NAME);
+      if (field == null) {
+        field = message.getByName("computationTargetId");
+      }
       if (field.getValue() instanceof FudgeMsg) {
         return new ComputationTargetRequirement(type, deserializer.fieldValueToObject(ExternalIdBundle.class, field));
       } else {
@@ -133,7 +136,7 @@ public class ComputationTargetReferenceFudgeBuilder implements FudgeBuilder<Comp
     } else {
       ComputationTargetReference result = null;
       final Iterator<ComputationTargetType> itrType = types.iterator();
-      for (FudgeField field : message.getAllByName(IDENTIFIER_FIELD_NAME)) {
+      for (final FudgeField field : message.getAllByName(IDENTIFIER_FIELD_NAME)) {
         type = itrType.next();
         if (field.getValue() instanceof FudgeMsg) {
           final ExternalIdBundle identifiers = deserializer.fieldValueToObject(ExternalIdBundle.class, field);
@@ -156,7 +159,7 @@ public class ComputationTargetReferenceFudgeBuilder implements FudgeBuilder<Comp
   }
 
   @Override
-  public ComputationTargetReference buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+  public ComputationTargetReference buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     return buildObjectImpl(deserializer, message);
   }
 
