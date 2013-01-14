@@ -46,10 +46,10 @@ public class BlackScholesMertonPDEPricer {
   private final double _burninTheta;
   private final double _mainRunTheta;
 
- /**
-  * Finite difference PDE solver that uses a 'burn-in' period that consumes 20% of the time nodes (and hence the compute time) and runs with a theta of 1.0.
-  * <b>Note</b> These setting are ignored if user supplies own grids and thetas.
-  */
+  /**
+   * Finite difference PDE solver that uses a 'burn-in' period that consumes 20% of the time nodes (and hence the compute time) and runs with a theta of 1.0.
+   * <b>Note</b> These setting are ignored if user supplies own grids and thetas.
+   */
   public BlackScholesMertonPDEPricer() {
     _useBurnin = USE_BURNIN;
     _burninFrac = BURNIN_FRACTION;
@@ -141,7 +141,8 @@ public class BlackScholesMertonPDEPricer {
     final double sMax = Math.max(1.25 * k, s0 * mult);
 
     // set up a near-uniform mesh that includes spot and strike
-    MeshingFunction xMesh = new ExponentialMeshing(sMin, sMax, spaceNodes, 0.0, new double[] {s0, k});
+    final double[] fixedPoints = k == 0.0 ? new double[] {s0} : new double[] {s0, k};
+    MeshingFunction xMesh = new ExponentialMeshing(sMin, sMax, spaceNodes, 0.0, fixedPoints);
 
     PDEGrid1D[] grid;
     double[] theta;
@@ -203,7 +204,8 @@ public class BlackScholesMertonPDEPricer {
     }
 
     // centre the nodes around the spot
-    MeshingFunction xMesh = new HyperbolicMeshing(sMin, sMax, s0, spaceNodes, beta, new double[] {s0, k});
+    final double[] fixedPoints = k == 0.0 ? new double[] {s0} : new double[] {s0, k};
+    MeshingFunction xMesh = new HyperbolicMeshing(sMin, sMax, s0, spaceNodes, beta, fixedPoints);
 
     MeshingFunction tMesh = new ExponentialMeshing(0, t, timeNodes, lambda);
     final PDEGrid1D[] grid;
@@ -264,8 +266,8 @@ public class BlackScholesMertonPDEPricer {
 
     final double sMin = xNodes[0];
     final double sMax = xNodes[xNodes.length - 1];
-    ArgumentChecker.isTrue(sMin < k, "strike lower than sMin");
-    ArgumentChecker.isTrue(sMax > k, "strike higher than sMax");
+    ArgumentChecker.isTrue(sMin <= k, "strike lower than sMin");
+    ArgumentChecker.isTrue(sMax >= k, "strike higher than sMax");
 
     final int index = Arrays.binarySearch(xNodes, s0);
     ArgumentChecker.isTrue(index >= 0, "cannot find spot on grid");

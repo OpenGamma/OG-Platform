@@ -182,10 +182,10 @@ public class BlackScholesMertonPDEPricerTest {
     System.out.println(tSteps + "\t" + sSteps + "\t" + ((double) tSteps) * sSteps + "\t" + bsPrice + "\t" + pdePrice1 + "\t" + pdePrice2 + "\t" + relErr1 + "\t" + relErr2);
 
     assertEquals(0, relErr1, 5e-4);
-    assertEquals(0, relErr2, 2e-6); //much better accuracy with non-uniform
+    assertEquals(0, relErr2, 2e-6); // much better accuracy with non-uniform
   }
 
-  @Test//(enabled = false)
+  @Test(enabled = false)
   public void optNuTest() {
     final double s0 = 10.0;
     final double k = 13.0;
@@ -246,6 +246,35 @@ public class BlackScholesMertonPDEPricerTest {
     final double pdePricePC = 0.0; // PRICER.price(k, s0, r - b, -b, t, sigma, !isCall, true, sSteps, tSteps);
 
     System.out.println(b + "\t" + bsPrice + "\t" + bsPrice2 + "\t" + amAprox + "\t" + pdePrice + "\t" + pdePricePC + "\t" + (1 - pdePrice / bsPrice));
+  }
+
+  @Test(enabled = false)
+  public void debugTest() {
+    final double s0 = 10.0;
+    final double k = 0.0;
+    final double r = 0.06;
+    final double b = 0.04;
+    final double t = 1.75;
+    final double sigma = 0.5;
+    final boolean isCall = true;
+
+    // warm-up
+    double nu = 10;
+    int tSteps = 20;
+    int sSteps = (int) (nu * tSteps);
+
+
+    final double df = Math.exp(-r * t);
+    final double fwd = s0 * Math.exp(b * t);
+    final double bsPrice = df * BlackFormulaRepository.price(fwd, k, t, sigma, isCall);
+    double startTime = System.nanoTime() / 1e6;
+    double pdePrice = PRICER.price(s0, k, r, b, t, sigma, isCall, false, sSteps, tSteps);
+    double endTime = System.nanoTime() / 1e6;
+    double duration = endTime - startTime;
+
+    double relErr = Math.abs(1 - pdePrice / bsPrice);
+    System.out.println(tSteps + "\t" + sSteps + "\t" + duration + df*fwd+  "\t" + bsPrice + "\t" + pdePrice+ "\t" + relErr);
+
   }
 }
 // }
