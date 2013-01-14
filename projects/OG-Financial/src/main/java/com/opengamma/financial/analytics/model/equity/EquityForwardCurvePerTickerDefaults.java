@@ -32,7 +32,7 @@ public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction
   private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCurvePerTickerDefaults.class);
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
-  /** Map from currency to curve configuration, curve name and currency */
+  /** Map from ticker to curve configuration, curve name and currency */
   private final Map<String, Triple<String, String, String>> _perEquityConfig;
 
   /**
@@ -46,9 +46,9 @@ public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction
     final int nPairs = perEquityConfig.length;
     ArgumentChecker.isTrue(nPairs % 4 == 0, "Must have one curve config, discounting curve name and currency per equity");
     _priority = PriorityClass.valueOf(priority);
-    _perEquityConfig = new HashMap<String, Triple<String, String, String>>();
+    _perEquityConfig = new HashMap<>();
     for (int i = 0; i < perEquityConfig.length; i += 4) {
-      final Triple<String, String, String> config = new Triple<String, String, String>(perEquityConfig[i + 1], perEquityConfig[i + 2], perEquityConfig[i + 3]);
+      final Triple<String, String, String> config = new Triple<>(perEquityConfig[i + 1], perEquityConfig[i + 2], perEquityConfig[i + 3]);
       _perEquityConfig.put(perEquityConfig[i].toUpperCase(), config);
     }
   }

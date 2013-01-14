@@ -34,9 +34,13 @@ public final class EquitySecurityUtils {
    * @param security The security, not null
    * @return The equity or index name, null if the underlying id is not a BUID or Bloomberg ticker
    */
-  public static String getIndexOrEquityName(final Security security) {
+  public static String getIndexOrEquityNameFromUnderlying(final Security security) {
     ArgumentChecker.notNull(security, "security");
     final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
+    if (underlyingId == null) {
+      s_logger.error("Underlying id for security {} was null", security);
+      return null;
+    }
     final String value = underlyingId.getValue();
     final ExternalScheme scheme = underlyingId.getScheme();
     if (scheme.equals(ExternalSchemes.BLOOMBERG_BUID) || scheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK)) {
@@ -47,6 +51,24 @@ public final class EquitySecurityUtils {
       s_logger.error("Can only use BUIDs for equity index options; have {}", security);
       return null;
     } else if (scheme.equals(ExternalSchemes.BLOOMBERG_TICKER) || scheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK)) {
+      final int lastSpace = value.lastIndexOf(" ");
+      return value.substring(0, lastSpace);
+    }
+    s_logger.info("Cannot handle scheme of type {}", scheme);
+    return null;
+  }
+
+  /**
+   * Gets the underlying index or equity name from an external id. At the moment, only ids with a Bloomberg ticker are handled.
+   * For a Bloomberg ticker, the suffix is stripped (SPX Index -> SPX).
+   * @param underlyingId The security, not null
+   * @return The equity or index name, null if the underlying id is not a Bloomberg ticker
+   */
+  public static String getIndexOrEquityNameFromUnderlying(final ExternalId underlyingId) {
+    ArgumentChecker.notNull(underlyingId, "underlying id");
+    final String value = underlyingId.getValue();
+    final ExternalScheme scheme = underlyingId.getScheme();
+    if (scheme.equals(ExternalSchemes.BLOOMBERG_TICKER) || scheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK)) {
       final int lastSpace = value.lastIndexOf(" ");
       return value.substring(0, lastSpace);
     }

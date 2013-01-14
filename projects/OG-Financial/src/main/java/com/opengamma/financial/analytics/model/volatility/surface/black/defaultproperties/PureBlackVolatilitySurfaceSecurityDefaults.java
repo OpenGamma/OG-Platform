@@ -29,7 +29,7 @@ public class PureBlackVolatilitySurfaceSecurityDefaults extends PureBlackVolatil
       return false;
     }
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
-    final String underlyingId = EquitySecurityUtils.getIndexOrEquityName(security);
+    final String underlyingId = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security);
     return getAllTickers().contains(underlyingId);
   }
 

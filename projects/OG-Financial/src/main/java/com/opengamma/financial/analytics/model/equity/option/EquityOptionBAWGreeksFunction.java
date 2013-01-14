@@ -57,7 +57,7 @@ public class EquityOptionBAWGreeksFunction extends EquityOptionBAWFunction {
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final GreekResultCollection greeks = derivative.accept(EqyOptBaroneAdesiWhaleyGreekCalculator.getInstance(), market);
-    final Set<ComputedValue> result = new HashSet<ComputedValue>();
+    final Set<ComputedValue> result = new HashSet<>();
     for (int i = 0; i < GREEKS.length; i++) {
       final ValueSpecification spec = new ValueSpecification(GREEK_NAMES[i], targetSpec, resultProperties);
       final double greek = greeks.get(GREEKS[i]);

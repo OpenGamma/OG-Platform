@@ -71,7 +71,7 @@ public class EquityVarianceSwapStaticReplicationDefaults extends DefaultProperty
       return false;
     }
     final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) security;
-    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityName(varianceSwap);
+    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(varianceSwap);
     return _surfacesPerEquity.containsKey(underlyingEquity);
   }
 
@@ -88,7 +88,7 @@ public class EquityVarianceSwapStaticReplicationDefaults extends DefaultProperty
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
     final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) target.getSecurity();
-    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityName(varianceSwap);
+    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(varianceSwap);
     if (!_surfacesPerEquity.containsKey(underlyingEquity)) {
       s_logger.error("Could not get config for underlying equity " + underlyingEquity + "; should never happen");
       return null;

@@ -115,7 +115,7 @@ public class EquityOptionBlackVegaMatrixFunction extends EquityOptionBlackFuncti
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final Set<ValueSpecification> results = super.getResults(context, target, inputs);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final String bbgTicker = EquitySecurityUtils.getIndexOrEquityName(security);
+    final String bbgTicker = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security);
     final Set<ValueSpecification> resultsWithExtraProperties = Sets.newHashSetWithExpectedSize(results.size());
     for (final ValueSpecification spec : results) {
       final String name = spec.getValueName();

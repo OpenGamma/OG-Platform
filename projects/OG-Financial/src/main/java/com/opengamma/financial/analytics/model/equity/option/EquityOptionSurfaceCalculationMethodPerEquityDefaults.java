@@ -38,13 +38,13 @@ public class EquityOptionSurfaceCalculationMethodPerEquityDefaults extends Equit
     if (!((eqSec instanceof EquityIndexOptionSecurity) || (eqSec instanceof EquityBarrierOptionSecurity) || (eqSec instanceof EquityOptionSecurity))) {
       return false;
     }
-    final String equity = EquitySecurityUtils.getIndexOrEquityName(eqSec);
+    final String equity = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(eqSec);
     return getAllIds().contains(equity);
   }
 
   @Override
   protected String getId(final Security security) {
-    return EquitySecurityUtils.getIndexOrEquityName(security).toUpperCase();
+    return EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security).toUpperCase();
   }
 
 }

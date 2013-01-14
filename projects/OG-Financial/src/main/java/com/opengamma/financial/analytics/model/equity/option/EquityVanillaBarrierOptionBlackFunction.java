@@ -165,7 +165,7 @@ public abstract class EquityVanillaBarrierOptionBlackFunction extends EquityOpti
   private Set<EquityIndexOption> vanillaDecomposition(final ZonedDateTime valuation, final EquityBarrierOptionSecurity barrierOption,
       final double smoothingFullWidth, final double overhedge) {
 
-    final Set<EquityIndexOption> vanillas = new HashSet<EquityIndexOption>();
+    final Set<EquityIndexOption> vanillas = new HashSet<>();
     // Unpack the barrier security
     final BarrierDirection bInOut = barrierOption.getBarrierDirection(); //   KNOCK_IN, KNOCK_OUT,
     final BarrierType bUpDown = barrierOption.getBarrierType(); //   UP, DOWN, DOUBLE

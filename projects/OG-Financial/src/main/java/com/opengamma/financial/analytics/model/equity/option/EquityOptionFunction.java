@@ -188,7 +188,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = ValueProperties.all();
-    final Set<ValueSpecification> result = Sets.newHashSetWithExpectedSize(_valueRequirementNames.length);
+    final Set<ValueSpecification> result = new HashSet<>();
     for (final String valueRequirementName : _valueRequirementNames) {
       result.add(new ValueSpecification(valueRequirementName, target.toSpecification(), properties));
     }
@@ -207,7 +207,6 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     }
     // Get security and its underlying's ExternalId.
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
 
     // 1. Funding Curve Requirement
     // Funding curve
@@ -235,6 +234,8 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     if (surfaceCalculationMethods == null || surfaceCalculationMethods.size() != 1) {
       return null;
     }
+    final String surfaceCalculationMethod = Iterables.getOnlyElement(surfaceCalculationMethods);
+
     // 3. Forward curve requirement
     final Set<String> forwardCurveNames = constraints.getValues(PROPERTY_FORWARD_CURVE_NAME);
     if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
@@ -245,9 +246,9 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
       return null;
     }
 
+    final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
     final HistoricalTimeSeriesSource tsSource = OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final String surfaceCalculationMethod = Iterables.getOnlyElement(surfaceCalculationMethods);
     final ValueRequirement volReq = getVolatilitySurfaceRequirement(tsSource, securitySource, desiredValue, security, volSurfaceName, surfaceCalculationMethod, underlyingId);
     if (volReq == null) {
       return null;

@@ -85,7 +85,7 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
   @Override
   /* If a requirement is not found, return null, and go looking for a default */
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     final ValueProperties constraints = desiredValue.getConstraints();
 
     // Spot Requirement

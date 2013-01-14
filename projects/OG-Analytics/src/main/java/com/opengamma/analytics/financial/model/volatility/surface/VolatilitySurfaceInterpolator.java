@@ -76,12 +76,13 @@ public class VolatilitySurfaceInterpolator {
     _useIntegratedVariance = useIntegratedVariance;
     _useLogVar = useLogVariance;
     if (_useIntegratedVariance && _useLogVar != _useLogTime) {
-      LOGGER.warn("The combination of useIntegratedVariance = true, useLogTime != useLogValue  can produce very bad results, including considerable dips between " +
-          "points at the same level (all other combinations give a flat line), and thus should be avoided.");
+      LOGGER.warn("The combination of useIntegratedVariance = true, useLogTime != useLogValue  can produce very bad results, including considerable dips between "
+          + "points at the same level (all other combinations give a flat line), and thus should be avoided.");
     }
   }
 
-  public VolatilitySurfaceInterpolator(final GeneralSmileInterpolator smileInterpolator, final boolean useLogTime, final boolean useIntegratedVariance, final boolean useLogValue) {
+  public VolatilitySurfaceInterpolator(final GeneralSmileInterpolator smileInterpolator, final boolean useLogTime, final boolean useIntegratedVariance,
+      final boolean useLogValue) {
     this(smileInterpolator, DEFAULT_TIME_INTERPOLATOR, useLogTime, useIntegratedVariance, useLogValue);
   }
 
@@ -89,8 +90,8 @@ public class VolatilitySurfaceInterpolator {
     this(DEFAULT_SMILE_INTERPOLATOR, timeInterpolator, useLogTime, useIntegratedVariance, useLogValue);
   }
 
-  public VolatilitySurfaceInterpolator(final GeneralSmileInterpolator smileInterpolator, final Interpolator1D timeInterpolator, final boolean useLogTime, final boolean useIntegratedVariance,
-      final boolean useLogValue) {
+  public VolatilitySurfaceInterpolator(final GeneralSmileInterpolator smileInterpolator, final Interpolator1D timeInterpolator, final boolean useLogTime,
+      final boolean useIntegratedVariance, final boolean useLogValue) {
     ArgumentChecker.notNull(smileInterpolator, "null smile interpolator");
     ArgumentChecker.notNull(timeInterpolator, "null time interpolator");
     _smileInterpolator = smileInterpolator;
@@ -99,8 +100,8 @@ public class VolatilitySurfaceInterpolator {
     _useIntegratedVariance = useIntegratedVariance;
     _useLogVar = useLogValue;
     if (_useIntegratedVariance && _useLogVar != _useLogTime) {
-      LOGGER.warn("The combination of useIntegratedVariance = true, useLogTime != useLogValue  can produce very bad results, including considerable dips between " +
-          "points at the same level (all other combinations give a flat line), and thus should be avoided.");
+      LOGGER.warn("The combination of useIntegratedVariance = true, useLogTime != useLogValue  can produce very bad results, including considerable dips between "
+          + "points at the same level (all other combinations give a flat line), and thus should be avoided.");
     }
   }
 
@@ -147,7 +148,11 @@ public class VolatilitySurfaceInterpolator {
    * @param marketData The mark data - contains the forwards, expiries, and strikes and (market) implied volatilities at each expiry, not null
    * @return Implied volatility surface parameterised by time and moneyness
    */
-  public BlackVolatilitySurfaceMoneynessFcnBackedByGrid combineIndependentSmileFits(final Function1D<Double, Double>[] smileFunctions, final SmileSurfaceDataBundle marketData) {
+  public BlackVolatilitySurfaceMoneynessFcnBackedByGrid combineIndependentSmileFits(final Function1D<Double, Double>[] smileFunctions,
+      final SmileSurfaceDataBundle marketData) {
+    ArgumentChecker.notNull(marketData, "market data");
+    ArgumentChecker.isTrue(marketData.getNumExpiries() > 3, "Number of expiries in volatility surface must be greater than 3 to perform natural cubic"
+        + " spline interpolation in expiry");
     final int n = marketData.getNumExpiries();
     final double[] forwards = marketData.getForwards();
     final double[] expiries = marketData.getExpiries();
@@ -172,6 +177,9 @@ public class VolatilitySurfaceInterpolator {
         final double m = tm[1];
 
         //For time less than the first expiry, linearly extrapolate the variance
+        // FIXME //REVIEW emcleod 14-01-2013 this code assumes that there are at least two expiries. The linear extrapolation behaviour 
+        // is hard-coded into the time interpolator (which should be changed), but what happens when this becomes more 
+        // configurable?
         if (t <= expiries[0]) {
           final double k1 = forwards[0] * m;
           final double k2 = forwards[1] * m;
@@ -185,6 +193,8 @@ public class VolatilitySurfaceInterpolator {
           return Math.sqrt(var1);
         }
 
+        //FIXME even though the time interpolator hard-coded (which is bad in itself) to be a natural cubic spline with extrapolation
+        // this code breaks if the number of expiries is less than 4
         final int index = SurfaceArrayUtils.getLowerBoundIndex(expiries, t);
         int lower;
         if (index == 0) {
@@ -225,11 +235,13 @@ public class VolatilitySurfaceInterpolator {
       }
     };
 
-    return new BlackVolatilitySurfaceMoneynessFcnBackedByGrid(FunctionalDoublesSurface.from(surFunc), marketData.getForwardCurve(), marketData, VolatilitySurfaceInterpolator.this);
+    return new BlackVolatilitySurfaceMoneynessFcnBackedByGrid(FunctionalDoublesSurface.from(surFunc), marketData.getForwardCurve(), marketData,
+        VolatilitySurfaceInterpolator.this);
   }
 
   //TODO find a way of bumping a single point without recalibrating all unaffected smiles
-  public BlackVolatilitySurfaceMoneynessFcnBackedByGrid getBumpedVolatilitySurface(final SmileSurfaceDataBundle marketData, final int expiryIndex, final int strikeIndex, final double amount) {
+  public BlackVolatilitySurfaceMoneynessFcnBackedByGrid getBumpedVolatilitySurface(final SmileSurfaceDataBundle marketData, final int expiryIndex, final int strikeIndex,
+      final double amount) {
     ArgumentChecker.notNull(marketData, "marketData");
     final SmileSurfaceDataBundle bumpedData = marketData.withBumpedPoint(expiryIndex, strikeIndex, amount);
     return getVolatilitySurface(bumpedData);
