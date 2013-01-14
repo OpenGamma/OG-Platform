@@ -84,8 +84,12 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
   }
 
   private static Pair<Currency, Currency> parse(final UniqueId uniqueId) {
-    final Currency source = Currency.of(uniqueId.getValue().substring(0, 3));
-    final Currency target = Currency.of(uniqueId.getValue().substring(3));
+    final String value = uniqueId.getValue();
+    if (value.length() != 6) {
+      return null;
+    }
+    final Currency source = Currency.of(value.substring(0, 3));
+    final Currency target = Currency.of(value.substring(3));
     return Pair.of(source, target);
   }
 

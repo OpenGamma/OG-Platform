@@ -78,14 +78,9 @@ public class CurrencyMatrixSourcingFunctionTest {
         CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "USDGBP"))));
     assertTrue(_function.canApplyTo(_functionCompilationContext, new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(
         CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "GBPUSD"))));
-    assertTrue(_function.canApplyTo(_functionCompilationContext, new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(
-        CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "USDEUR"))));
-    assertTrue(_function.canApplyTo(_functionCompilationContext, new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(
-        CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "EURUSD"))));
     assertFalse(_function.canApplyTo(_functionCompilationContext, new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(
-        CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "USDCHF"))));
-    assertFalse(_function.canApplyTo(_functionCompilationContext, new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of(
-        CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "CHFUSD"))));
+        CurrencyMatrixSourcingFunction.TARGET_IDENTIFIER_SCHEME, "USD_EUR"))));
+    assertFalse(_function.canApplyTo(_functionCompilationContext, new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Invalid Scheme", "EURUSD"))));
   }
 
   @Test
