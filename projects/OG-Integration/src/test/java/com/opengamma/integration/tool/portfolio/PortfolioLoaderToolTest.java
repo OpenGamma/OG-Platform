@@ -57,20 +57,12 @@ public class PortfolioLoaderToolTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testToolContextMustBeProvided() {
-    new PortfolioLoader(null, "My portfolio",
-                                            "Equity",
-                                            _tempFile.getAbsolutePath(),
-                                            true, true,
-                                            false, true);
+    new PortfolioLoader(null, "My portfolio", "Equity", _tempFile.getAbsolutePath(), true, true, false, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPortfolioNameMustBeProvided() {
-    new PortfolioLoader(_toolContext, null,
-                                            "Equity",
-                                            _tempFile.getAbsolutePath(),
-                                            true, true,
-                                            false, true);
+    new PortfolioLoader(_toolContext, null, "Equity", _tempFile.getAbsolutePath(), true, true, false, true);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -80,9 +72,7 @@ public class PortfolioLoaderToolTest {
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testFileMustHaveRecognisedExtension() {
-
-    new PortfolioLoader(_toolContext, "My portfolio", "Equity", "some_file.goobledygook", true,
-                                            true, false, true).execute();
+    new PortfolioLoader(_toolContext, "My portfolio", "Equity", "some_file.goobledygook", true, true, false, true).execute();
   }
 
   @Test
@@ -110,9 +100,7 @@ public class PortfolioLoaderToolTest {
 
     populateFileWithData(data);
 
-    new PortfolioLoader(_toolContext,
-                                            portfolioName, securityType, _tempFile.getAbsolutePath(), true, true,
-                                            false, true).execute();
+    new PortfolioLoader(_toolContext, portfolioName, securityType, _tempFile.getAbsolutePath(), true, true, false, true).execute();
 
     assertEquals(_portfolioMaster.search(new PortfolioSearchRequest()).getPortfolios().size(), expectedPortfolios);
     assertEquals(_positionMaster.search(new PositionSearchRequest()).getPositions().size(), expectedPositions);
