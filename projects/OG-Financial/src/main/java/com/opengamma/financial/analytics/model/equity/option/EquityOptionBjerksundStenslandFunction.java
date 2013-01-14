@@ -19,12 +19,12 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 /**
  *
  */
-public abstract class EquityOptionBAWFunction extends EquityOptionFunction {
+public abstract class EquityOptionBjerksundStenslandFunction extends EquityOptionFunction {
 
   /**
    * @param valueRequirementNames The value requirement names
    */
-  public EquityOptionBAWFunction(final String... valueRequirementNames) {
+  public EquityOptionBjerksundStenslandFunction(final String... valueRequirementNames) {
     super(valueRequirementNames);
   }
 
@@ -42,7 +42,7 @@ public abstract class EquityOptionBAWFunction extends EquityOptionFunction {
 
   @Override
   protected String getCalculationMethod() {
-    return CalculationPropertyNamesAndValues.BAW_METHOD;
+    return CalculationPropertyNamesAndValues.BJERKSUND_STENSLAND_METHOD;
   }
 
   @Override
