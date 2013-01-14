@@ -145,16 +145,6 @@ $.register_module({
                 (form.root = $('#' + form.id)).unbind().submit(function (event) {return submit_handler(form), false;});
             });
         };
-<<<<<<< HEAD
-        Form.type =  {
-            BOO: 'boolean',
-            BYT: 'byte',
-            DBL: 'double',
-            IND: 'indicator',
-            LNG: 'long',
-            SHR: 'short',
-            STR: 'string'
-=======
         /**
          * removes an event listener
          * @param {String} type event type
@@ -207,13 +197,12 @@ $.register_module({
             form.dom_events[type] = [{type: type, selector: selector, handler: handler}];
             form.parent.on(type, delegator.bind(form));
             return origin;
->>>>>>> 33740b5bc799c9b579677f44c6ec402c91e79f3d
         };
         /**
          * collection of meta type information for creating metadata to describe config objects for REST API
          * @name Form.type
          */
-        Form.type =  {BOO: 'boolean', BYT: 'byte', DBL: 'double', IND: 'indicator', SHR: 'short', STR: 'string'};
+        Form.type =  {BOO: 'boolean', BYT: 'byte', DBL: 'double', IND: 'indicator', LNG: 'long', SHR: 'short', STR: 'string'};
         ['BYT', 'DBL', 'SHR'].forEach(function (val, idx) {numbers[Form.type[val]] = null;});
         return Form;
     }
