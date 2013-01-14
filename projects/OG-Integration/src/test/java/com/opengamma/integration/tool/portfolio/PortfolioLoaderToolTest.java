@@ -87,6 +87,24 @@ public class PortfolioLoaderToolTest {
   }
 
   @Test
+  public void testLoadEquityIndexFutureOptionPortfolio() throws IOException {
+
+    String data = "\"currency\",\"exchange\",\"exerciseType\",\"expiry\",\"externalIdBundle\",\"underlyingId\",\"optionType\",\"position:quantity\",\"securityType\",\"trade:counterpartyExternalId\",\"trade:deal\",\"trade:premium\",\"trade:premiumCurrency\",\"trade:premiumDate\",\"trade:premiumTime\",\"trade:quantity\",\"trade:tradeDate\",\"trade:tradeTime\"\n" +
+        "\"USD\",\"NEW YORK STOCK EXCHANGE INC.\",\"EX_TYPE\",\"2050-01-01T00:00:00+00:00[Europe/London]\",\"EIFO_ID~EIFO1234\",\"UNDERLYING_ID~ul9999\",\"PUT\",\"1264\",\"EQUITY_INDEX_FUTURE_OPTION\",\"CPID~123\",,,,,,,,\n";
+
+    doPortfolioLoadTest("EquityIndexFutureOption Portfolio", "EquityIndexFutureOption", data, 1, 1);
+  }
+
+  @Test
+  public void testLoadEquityIndexDividendFutureOptionPortfolio() throws IOException {
+
+    String data = "\"currency\",\"exchange\",\"exerciseType\",\"expiry\",\"externalIdBundle\",\"underlyingId\",\"optionType\",\"position:quantity\",\"securityType\",\"trade:counterpartyExternalId\",\"trade:deal\",\"trade:premium\",\"trade:premiumCurrency\",\"trade:premiumDate\",\"trade:premiumTime\",\"trade:quantity\",\"trade:tradeDate\",\"trade:tradeTime\"\n" +
+        "\"USD\",\"NEW YORK STOCK EXCHANGE INC.\",\"EX_TYPE\",\"2050-01-01T00:00:00+00:00[Europe/London]\",\"EIFO_ID~EIFO1234\",\"UNDERLYING_ID~ul9999\",\"PUT\",\"1264\",\"EQUITY_INDEX_DIVIDEND_FUTURE_OPTION\",\"CPID~123\",,,,,,,,\n";
+
+    doPortfolioLoadTest("EquityIndexDividendFutureOption Portfolio", "EquityIndexDividendFutureOption", data, 1, 1);
+  }
+
+  @Test
   public void testLoadCashFlowPortfolio() throws IOException {
 
     String data = "\"amount\",\"currency\",\"settlement\",\"externalIdBundle\",\"position:quantity\",\"securityType\",\"shortName\",\"trade:counterpartyExternalId\",\"trade:deal\",\"trade:premium\",\"trade:premiumCurrency\",\"trade:premiumDate\",\"trade:premiumTime\",\"trade:quantity\",\"trade:tradeDate\",\"trade:tradeTime\"\n" +
