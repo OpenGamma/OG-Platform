@@ -259,21 +259,21 @@ public class DefaultCachingComputationTargetResolver extends DelegatingComputati
     // If the cache is going to write to disk and two threads hit this then one gets blocked; better to let the
     // second one carry on with something else and the first can do "cache writing" duties until the queue is
     // clear.
-    if (_cachePutLock.compareAndSet(false, true)) {
-      int count = 1;
-      _computationTarget.put(e);
-      do {
-        e = _pendingCachePuts.poll();
-        while (e != null) {
-          _computationTarget.put(e);
-          e = _pendingCachePuts.poll();
-          count++;
-        }
-        _cachePutLock.set(false);
-      } while (!_pendingCachePuts.isEmpty() && _cachePutLock.compareAndSet(false, true));
-    } else {
+    if (!_cachePutLock.compareAndSet(false, true)) {
       _pendingCachePuts.add(e);
+      if (!_cachePutLock.compareAndSet(false, true)) {
+        return;
+      }
     }
+    _computationTarget.put(e);
+    do {
+      e = _pendingCachePuts.poll();
+      while (e != null) {
+        _computationTarget.put(e);
+        e = _pendingCachePuts.poll();
+      }
+      _cachePutLock.set(false);
+    } while (!_pendingCachePuts.isEmpty() && _cachePutLock.compareAndSet(false, true));
   }
 
   protected void cacheTarget(final UniqueIdentifiable target, final VersionCorrection versionCorrection) {
