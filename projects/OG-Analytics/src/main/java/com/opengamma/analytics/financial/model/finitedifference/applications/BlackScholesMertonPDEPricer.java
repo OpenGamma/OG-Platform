@@ -11,6 +11,7 @@ import com.opengamma.analytics.financial.model.finitedifference.BoundaryConditio
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DStandardCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
+import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
 import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
 import com.opengamma.analytics.financial.model.finitedifference.PDE1DDataBundle;
@@ -30,14 +31,72 @@ public class BlackScholesMertonPDEPricer {
 
   private static final InitialConditionsProvider ICP = new InitialConditionsProvider();
   private static final PDE1DCoefficientsProvider PDE = new PDE1DCoefficientsProvider();
-  private static final ThetaMethodFiniteDifference INITIAL_SOLVER = new ThetaMethodFiniteDifference(1.0, false);
-  private static final ThetaMethodFiniteDifference SOLVER = new ThetaMethodFiniteDifference();
-  /*Crank-Nicolson (i.e. theta = 0.5) is known to give poor results around at-the-money. This can be solved by using a short fully implicit (theta = 1.0) burn-in period.
-  Eigenvalues associated with the discontinuity in the first derivative are not damped out when theta = 0.5, but are for theta = 1.0 - the time step for this phase should be 
-  such that the Crank-Nicolson (order(dt^2)) accuracy is not destroyed. 
-  */
+  /*
+   * Crank-Nicolson (i.e. theta = 0.5) is known to give poor results around at-the-money. This can be solved by using a short fully implicit (theta = 1.0) burn-in period.
+   * Eigenvalues associated with the discontinuity in the first derivative are not damped out when theta = 0.5, but are for theta = 1.0 - the time step for this phase should be
+   * such that the Crank-Nicolson (order(dt^2)) accuracy is not destroyed.
+   */
   private static final boolean USE_BURNIN = true;
   private static final double BURNIN_FRACTION = 0.20;
+  private static final double BURNIN_THETA = 1.0;
+  private static final double MAIN_RUN_THETA = 0.5;
+
+  private final boolean _useBurnin;
+  private final double _burninFrac;
+  private final double _burninTheta;
+  private final double _mainRunTheta;
+
+  /**
+   * Finite difference PDE solver that uses a 'burn-in' period that consumes 20% of the time nodes (and hence the compute time) and runs with a theta of 1.0.
+   * <b>Note</b> These setting are ignored if user supplies own grids and thetas.
+   */
+  public BlackScholesMertonPDEPricer() {
+    _useBurnin = USE_BURNIN;
+    _burninFrac = BURNIN_FRACTION;
+    _burninTheta = BURNIN_THETA;
+    _mainRunTheta = MAIN_RUN_THETA;
+  }
+
+  /**
+   * All these setting are ignored if user supplies own grids and thetas 
+   * @param useBurnin useBurnin if true use a 'burn-in' period that consumes 20% of the time nodes (and hence the compute time) and runs with a theta of 1.0
+   */
+  public BlackScholesMertonPDEPricer(final boolean useBurnin) {
+    _useBurnin = useBurnin;
+    _burninFrac = BURNIN_FRACTION;
+    _burninTheta = BURNIN_THETA;
+    _mainRunTheta = MAIN_RUN_THETA;
+  }
+
+  /**
+   * All these setting are ignored if user supplies own grids and thetas 
+   * @param useBurnin if true use a 'burn-in' period that consumes some fraction of the time nodes (and hence the compute time) and runs with a theta of 1.0
+   * @param burninFrac The fraction of burn-in (ignored if useBurnin is false)
+   */
+  public BlackScholesMertonPDEPricer(final boolean useBurnin, final double burninFrac) {
+    ArgumentChecker.isTrue(burninFrac < 0.5, "burn-in fraction too high");
+    _useBurnin = useBurnin;
+    _burninFrac = burninFrac;
+    _burninTheta = BURNIN_THETA;
+    _mainRunTheta = MAIN_RUN_THETA;
+  }
+
+  /**
+   * All these setting are ignored if user supplies own grids and thetas 
+   * @param useBurnin if true use a 'burn-in' period that consumes some fraction of the time nodes (and hence the compute time) and runs with a different theta
+   * @param burninFrac The fraction of burn-in (ignored if useBurnin is false)
+   * @param burninTheta the theta to use for burnin (default is 1.0) (ignored if useBurnin is false)
+   * @param mainTheta the theta to use for the main steps (default is 0.5) 
+   */
+  public BlackScholesMertonPDEPricer(final boolean useBurnin, final double burninFrac, final double burninTheta, final double mainTheta) {
+    ArgumentChecker.isTrue(burninFrac < 0.5, "burn-in fraction too high");
+    ArgumentChecker.isTrue(0 <= burninTheta && burninTheta <= 1.0, "burn-in theta must be between 0 and 1.0");
+    ArgumentChecker.isTrue(0 <= mainTheta && mainTheta <= 1.0, "main theta must be between 0 and 1.0");
+    _useBurnin = useBurnin;
+    _burninFrac = burninFrac;
+    _burninTheta = burninTheta;
+    _mainRunTheta = mainTheta;
+  }
 
   /**
    * Price a European option on a commodity under the Black-Scholes-Merton assumptions (i.e. constant risk-free rate, cost-of-carry, and volatility) by using finite difference methods 
@@ -54,8 +113,7 @@ public class BlackScholesMertonPDEPricer {
    * @param timeNodes Number of time nodes 
    * @return The option price 
    */
-  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall,
-      final int spaceNodes, final int timeNodes) {
+  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall, final int spaceNodes, final int timeNodes) {
     return price(s0, k, r, b, t, sigma, isCall, false, spaceNodes, timeNodes);
   }
 
@@ -75,28 +133,148 @@ public class BlackScholesMertonPDEPricer {
    * @param timeNodes Number of time nodes 
    * @return The option price 
    */
-  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall,
-      final boolean isAmerican, final int spaceNodes, final int timeNodes) {
+  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall, final boolean isAmerican, final int spaceNodes,
+      final int timeNodes) {
 
-    final double q = r - b;
     final double mult = Math.exp(6.0 * sigma * Math.sqrt(t));
     final double sMin = Math.min(0.8 * k, s0 / mult);
     final double sMax = Math.max(1.25 * k, s0 * mult);
 
-    final int tBurnNodes = (int) (USE_BURNIN ? Math.max(2, timeNodes * BURNIN_FRACTION) : 0);
-    final double tBurn = USE_BURNIN ? BURNIN_FRACTION * t * t / timeNodes : 0.0;
+    // set up a near-uniform mesh that includes spot and strike
+    final double[] fixedPoints = k == 0.0 ? new double[] {s0} : new double[] {s0, k};
+    MeshingFunction xMesh = new ExponentialMeshing(sMin, sMax, spaceNodes, 0.0, fixedPoints);
 
-    //set up a near-uniform mesh that includes spot and strike 
-    MeshingFunction xMesh = new ExponentialMeshing(sMin, sMax, spaceNodes, 0.0, new double[] {s0, k });
-    MeshingFunction tMeshBurn = USE_BURNIN ? new ExponentialMeshing(0.0, tBurn, tBurnNodes, 0.0) : null;
-    MeshingFunction tMesh = new ExponentialMeshing(tBurn, t, timeNodes - tBurnNodes, 0.0);
-    PDEGrid1D gridBurn = USE_BURNIN ? new PDEGrid1D(tMeshBurn, xMesh) : null;
-    PDEGrid1D grid = new PDEGrid1D(tMesh, xMesh);
-    final int index = Arrays.binarySearch(grid.getSpaceNodes(), s0);
+    PDEGrid1D[] grid;
+    double[] theta;
+    if (_useBurnin) {
+      final int tBurnNodes = (int) Math.max(2, timeNodes * _burninFrac);
+      final double tBurn = _burninFrac * t * t / timeNodes;
+      if (tBurn >= t) { // very unlikely to hit this
+        int minNodes = (int) Math.ceil(_burninFrac * t);
+        double minFrac = timeNodes / t;
+        throw new IllegalArgumentException("burn in period greater than total time. Either increase timeNodes to above " + minNodes + ", or reduce burninFrac to below " + minFrac);
+      }
+      MeshingFunction tBurnMesh = new ExponentialMeshing(0.0, tBurn, tBurnNodes, 0.0);
+      MeshingFunction tMesh = new ExponentialMeshing(tBurn, t, timeNodes - tBurnNodes, 0.0);
+      grid = new PDEGrid1D[2];
+      grid[0] = new PDEGrid1D(tBurnMesh, xMesh);
+      grid[1] = new PDEGrid1D(tMesh, xMesh);
+      theta = new double[] {_burninTheta, _mainRunTheta};
+    } else {
+      grid = new PDEGrid1D[1];
+      MeshingFunction tMesh = new ExponentialMeshing(0, t, timeNodes, 0.0);
+      grid[0] = new PDEGrid1D(tMesh, xMesh);
+      theta = new double[] {_mainRunTheta};
+    }
+
+    return price(s0, k, r, b, t, sigma, isCall, isAmerican, grid, theta);
+  }
+
+  /**
+   * Price a European or American option on a commodity under the Black-Scholes-Merton assumptions (i.e. constant risk-free rate, cost-of-carry, and volatility) by using 
+   * finite difference methods to solve the Black-Scholes-Merton PDE. The spatial (spot) grid concentrates points around the spot level and ensures that 
+   * strike and spot lie on the grid. The temporal grid concentrates points near time-to-expiry = 0 (i.e. the start). The PDE solver uses theta = 0.5 (Crank-Nicolson)
+   * unless a burn-in period is use, in which case theta = 1.0 (fully implicit) in that region. 
+   * @param s0 The spot
+   * @param k The strike
+   * @param r The risk-free rate
+   * @param b The cost-of-carry
+   * @param t The time-to-expiry
+   * @param sigma The volatility
+   * @param isCall true for calls
+   * @param isAmerican true if the option is American (false for European) 
+   * @param spaceNodes Number of Space nodes 
+   * @param timeNodes Number of time nodes 
+   * @param beta Bunching parameter for space (spot) nodes. A value great than zero. Very small values gives a very high density of points around the spot, with the
+   * density quickly falling away in both directions
+   * @param lambda Bunching parameter for time nodes. $\lambda = 0$ is uniform, $\lambda > 0$ gives a high density of points near $\tau = 0$
+   * @param sd The number of standard deviations from s0 to place the boundaries. Values between 3 and 6 are recommended. 
+   * @return The option price 
+   */
+  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall, final boolean isAmerican, final int spaceNodes,
+      final int timeNodes, final double beta, final double lambda, final double sd) {
+
+    final double sigmaRootT = sigma * Math.sqrt(t);
+    final double mult = Math.exp(sd * sigmaRootT);
+    final double sMin = s0 / mult;
+    final double sMax = s0 * mult;
+    if (sMax <= 1.25 * k) {
+      final double minSD = Math.log(1.25 * k / s0) / sigmaRootT;
+      throw new IllegalArgumentException("sd does not give boundaries that contain the strike. Use a minimum value of " + minSD);
+    }
+
+    // centre the nodes around the spot
+    final double[] fixedPoints = k == 0.0 ? new double[] {s0} : new double[] {s0, k};
+    MeshingFunction xMesh = new HyperbolicMeshing(sMin, sMax, s0, spaceNodes, beta, fixedPoints);
+
+    MeshingFunction tMesh = new ExponentialMeshing(0, t, timeNodes, lambda);
+    final PDEGrid1D[] grid;
+    final double[] theta;
+
+    if (_useBurnin) {
+      final int tBurnNodes = (int) Math.max(2, timeNodes * _burninFrac);
+      final double dt = tMesh.evaluate(1) - tMesh.evaluate(0);
+      final double tBurn = tBurnNodes * dt * dt;
+      MeshingFunction tBurnMesh = new ExponentialMeshing(0, tBurn, tBurnNodes, 0.0);
+      tMesh = new ExponentialMeshing(tBurn, t, timeNodes - tBurnNodes, lambda);
+      grid = new PDEGrid1D[2];
+      grid[0] = new PDEGrid1D(tBurnMesh, xMesh);
+      grid[1] = new PDEGrid1D(tMesh, xMesh);
+      theta = new double[] {_burninTheta, _mainRunTheta};
+    } else {
+      grid = new PDEGrid1D[1];
+      grid[0] = new PDEGrid1D(tMesh, xMesh);
+      theta = new double[] {_mainRunTheta};
+    }
+
+    return price(s0, k, r, b, t, sigma, isCall, isAmerican, grid, theta);
+  }
+
+  /**
+   * Price a European or American option on a commodity under the Black-Scholes-Merton assumptions (i.e. constant risk-free rate, cost-of-carry, and volatility) by using 
+   * finite difference methods to solve the Black-Scholes-Merton PDE. <b>Note</b> This is a specialist method that requires correct grid
+   * set up - if unsure use another method that sets up the grid for you.
+   * @param s0 The spot
+   * @param k The strike
+   * @param r The risk-free rate
+   * @param b The cost-of-carry
+   * @param t The time-to-expiry
+   * @param sigma The volatility
+   * @param isCall true for calls
+   * @param isAmerican true if the option is American (false for European) 
+   * @param grid the grids. If a single grid is used, the spot must be a grid point and the strike
+   * must lie in the range of the xNodes; the time nodes must start at zero and finish at t (time-to-expiry). For multiple grids, 
+   * the xNodes must be <b>identical</b>, and the last time node of one grid must be the same as the first time node of the next.  
+   * @param theta the theta to use on different grids
+   * @return The option price 
+   */
+  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall, final boolean isAmerican, final PDEGrid1D[] grid,
+      final double[] theta) {
+
+    final int n = grid.length;
+    ArgumentChecker.isTrue(n == theta.length, "#theta does not match #grid");
+
+    // TODO allow change in grid size and remapping (via spline?) of nodes
+    // ensure the grids are consistent
+    final double[] xNodes = grid[0].getSpaceNodes();
+    ArgumentChecker.isTrue(grid[0].getTimeNode(0) == 0.0, "time nodes not starting from zero");
+    ArgumentChecker.isTrue(grid[n - 1].getTimeNode(grid[n - 1].getNumTimeNodes() - 1) == t, "time nodes not ending at t");
+    for (int ii = 1; ii < n; ii++) {
+      ArgumentChecker.isTrue(Arrays.equals(grid[ii].getSpaceNodes(), xNodes), "different xNodes not supported");
+      ArgumentChecker.isTrue(grid[ii - 1].getTimeNode(grid[ii - 1].getNumTimeNodes() - 1) == grid[ii].getTimeNode(0), "time nodes not consistent");
+    }
+
+    final double sMin = xNodes[0];
+    final double sMax = xNodes[xNodes.length - 1];
+    ArgumentChecker.isTrue(sMin <= k, "strike lower than sMin");
+    ArgumentChecker.isTrue(sMax >= k, "strike higher than sMax");
+
+    final int index = Arrays.binarySearch(xNodes, s0);
     ArgumentChecker.isTrue(index >= 0, "cannot find spot on grid");
 
-    ConvectionDiffusionPDE1DStandardCoefficients coef = PDE.getBlackScholes(r, q, sigma);
-    Function1D<Double, Double> payoff = ICP.getEuropeanPayoff(k, isCall);
+    final double q = r - b;
+    final ConvectionDiffusionPDE1DStandardCoefficients coef = PDE.getBlackScholes(r, q, sigma);
+    final Function1D<Double, Double> payoff = ICP.getEuropeanPayoff(k, isCall);
 
     BoundaryCondition lower;
     BoundaryCondition upper;
@@ -116,22 +294,21 @@ public class BlackScholesMertonPDEPricer {
         @Override
         public Double evaluate(Double... tx) {
           final double x = tx[1];
-          return isCall ? Math.max(x - k, 0.0) : Math.max(k - x, 0);
+          return payoff.evaluate(x);
         }
       };
 
       final FunctionalDoublesSurface free = new FunctionalDoublesSurface(func);
-      if (USE_BURNIN) {
-        PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> dataBurn = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coef, payoff, lower, upper, free, gridBurn);
-        PDEResults1D resBurn = INITIAL_SOLVER.solve(dataBurn);
 
-        PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coef, resBurn.getTerminalResults(), lower, upper, free, grid);
-        res = SOLVER.solve(data);
-      } else {
-        PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coef, payoff, lower, upper, free, grid);
-        res = SOLVER.solve(data);
+      PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coef, payoff, lower, upper, free, grid[0]);
+      ThetaMethodFiniteDifference solver = new ThetaMethodFiniteDifference(theta[0], false);
+      res = solver.solve(data);
+      for (int ii = 1; ii < n; ii++) {
+        data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coef, res.getTerminalResults(), lower, upper, free, grid[ii]);
+        solver = new ThetaMethodFiniteDifference(theta[ii], false);
+        res = solver.solve(data);
       }
-
+      // European
     } else {
       if (isCall) {
         lower = new NeumannBoundaryCondition(0.0, sMin, true);
@@ -152,15 +329,13 @@ public class BlackScholesMertonPDEPricer {
         lower = new NeumannBoundaryCondition(downFunc, sMin, true);
         upper = new NeumannBoundaryCondition(0.0, sMax, false);
       }
-      if (USE_BURNIN) {
-        PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> dataBurn = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coef, payoff, lower, upper, gridBurn);
-        PDEResults1D resBurn = INITIAL_SOLVER.solve(dataBurn);
-
-        PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coef, resBurn.getTerminalResults(), lower, upper, grid);
-        res = SOLVER.solve(data);
-      } else {
-        PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coef, payoff, lower, upper, grid);
-        res = SOLVER.solve(data);
+      PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coef, payoff, lower, upper, grid[0]);
+      ThetaMethodFiniteDifference solver = new ThetaMethodFiniteDifference(theta[0], false);
+      res = solver.solve(data);
+      for (int ii = 1; ii < n; ii++) {
+        data = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(coef, res.getTerminalResults(), lower, upper, grid[ii]);
+        solver = new ThetaMethodFiniteDifference(theta[ii], false);
+        res = solver.solve(data);
       }
     }
 

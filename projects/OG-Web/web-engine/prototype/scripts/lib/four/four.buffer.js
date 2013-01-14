@@ -16,17 +16,23 @@
             buffer.arr.push(object);
             return object;
         };
-        buffer.clear = function (custom) {
+        buffer.clear = function (custom, hard) {
             if (!custom && !buffer.arr.length) return;
             (function dealobj (val) {
                 if (typeof val === 'object') scene.remove(val);
                 if ($.isArray(val)) val.forEach(function (val) {dealobj(val);});
-                else if (val instanceof THREE.Texture) renderer.deallocateTexture(val);
-                else if (val instanceof THREE.ParticleSystem) renderer.deallocateObject(val);
-                else if (val instanceof THREE.Mesh) renderer.deallocateObject(val);
-                else if (val instanceof THREE.Material) renderer.deallocateMaterial(val);
-                else if (val instanceof THREE.Object3D && Detector.webgl)
-                    renderer.deallocateObject(val), dealobj(val.children);
+                else if (val instanceof THREE.ParticleSystem || val instanceof THREE.Mesh) {
+                    dealobj(val.geometry);
+                    // dealobj(val.texture); //  only clear on die
+                    if (hard) dealobj(val.material);
+                }
+                else if (
+                    val instanceof THREE.Geometry ||
+                    val instanceof THREE.Material ||
+                    val instanceof THREE.Texture
+                ) val.dispose();
+                else if (val instanceof THREE.Object3D && Detector.webgl) dealobj(val.children);
+            scene.remove(val);
             }(custom || buffer.arr));
             if (!custom) buffer.arr = [];
         };
