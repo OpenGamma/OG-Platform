@@ -33,222 +33,220 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   @Override
   protected CurrencyInfo audCurrencyInfo() {
     final CurrencyInfo i = super.audCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultTwoCurveAUDConfig");
-    i.setDefaultCurve("Discounting");
-    i.setDefaultCube("BLOOMBERG");
+    i.setCurveConfiguration(null, "DefaultTwoCurveAUDConfig");
+    i.setCurveName(null, "Discounting");
+    i.setCubeName(null, "BLOOMBERG");
     return i;
   }
 
   @Override
   protected CurrencyInfo brlCurrencyInfo() {
     final CurrencyInfo i = super.brlCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultCashCurveBRLConfig");
-    i.setDefaultCurve("Cash");
+    i.setCurveConfiguration(null, "DefaultCashCurveBRLConfig");
+    i.setCurveName(null, "Cash");
     return i;
   }
 
   @Override
   protected CurrencyInfo cadCurrencyInfo() {
     final CurrencyInfo i = super.cadCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultTwoCurveCADConfig");
-    i.setDefaultCurve("Discounting");
+    i.setCurveConfiguration(null, "DefaultTwoCurveCADConfig");
+    i.setCurveName(null, "Discounting");
     return i;
   }
 
   @Override
   protected CurrencyInfo chfCurrencyInfo() {
     final CurrencyInfo i = super.chfCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultTwoCurveCHFConfig");
-    i.setDefaultCurve("Discounting");
+    i.setCurveConfiguration(null, "DefaultTwoCurveCHFConfig");
+    i.setCurveName(null, "Discounting");
     return i;
   }
 
   @Override
   protected CurrencyInfo eurCurrencyInfo() {
     final CurrencyInfo i = super.eurCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultTwoCurveEURConfig");
-    i.setDefaultCurve("Discounting");
-    i.setIRFutureOptionSurface("DEFAULT_PRICE");
-    i.setDefaultCube("BLOOMBERG");
-    i.setSwaptionSurface("DEFAULT");
+    i.setCurveConfiguration(null, "DefaultTwoCurveEURConfig");
+    i.setCurveName(null, "Discounting");
+    i.setSurfaceName("model/irfutureoption", "DEFAULT_PRICE");
+    i.setSurfaceName("model/swaption", "DEFAULT");
+    i.setCubeName(null, "BLOOMBERG");
     return i;
   }
 
   @Override
   protected CurrencyInfo gbpCurrencyInfo() {
     final CurrencyInfo i = super.gbpCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultTwoCurveGBPConfig");
-    i.setDefaultCurve("Discounting");
-    i.setDefaultCube("BLOOMBERG");
+    i.setCurveConfiguration(null, "DefaultTwoCurveGBPConfig");
+    i.setCurveName(null, "Discounting");
+    i.setCubeName(null, "BLOOMBERG");
     return i;
   }
 
   @Override
   protected CurrencyInfo hkdCurrencyInfo() {
     final CurrencyInfo i = super.hkdCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultCashCurveHKDConfig");
-    i.setDefaultCurve("Cash");
+    i.setCurveConfiguration(null, "DefaultCashCurveHKDConfig");
+    i.setCurveName(null, "Cash");
     return i;
   }
 
   @Override
   protected CurrencyInfo hufCurrencyInfo() {
     final CurrencyInfo i = super.hufCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultCashCurveHUFConfig");
-    i.setDefaultCurve("Cash");
+    i.setCurveConfiguration(null, "DefaultCashCurveHUFConfig");
+    i.setCurveName(null, "Cash");
     return i;
   }
 
   @Override
   protected CurrencyInfo jpyCurrencyInfo() {
     final CurrencyInfo i = super.jpyCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultTwoCurveJPYConfig");
-    i.setDefaultCurve("Discounting");
+    i.setCurveConfiguration(null, "DefaultTwoCurveJPYConfig");
+    i.setCurveName(null, "Discounting");
     return i;
   }
 
   @Override
   protected CurrencyInfo krwCurrencyInfo() {
     final CurrencyInfo i = super.krwCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultCashCurveKRWConfig");
-    i.setDefaultCurve("Cash");
+    i.setCurveConfiguration(null, "DefaultCashCurveKRWConfig");
+    i.setCurveName(null, "Cash");
     return i;
   }
 
   @Override
   protected CurrencyInfo mxnCurrencyInfo() {
     final CurrencyInfo i = super.mxnCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultCashCurveMXNConfig");
-    i.setDefaultCurve("Cash");
+    i.setCurveConfiguration(null, "DefaultCashCurveMXNConfig");
+    i.setCurveName(null, "Cash");
     return i;
   }
 
   @Override
   protected CurrencyInfo nzdCurrencyInfo() {
     final CurrencyInfo i = super.nzdCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultTwoCurveNZDConfig");
-    i.setDefaultCurve("Discounting");
+    i.setCurveConfiguration(null, "DefaultTwoCurveNZDConfig");
+    i.setCurveName(null, "Discounting");
     return i;
   }
 
   @Override
   protected CurrencyInfo rubCurrencyInfo() {
     final CurrencyInfo i = super.rubCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultCashCurveRUBConfig");
-    i.setDefaultCurve("Cash");
+    i.setCurveConfiguration(null, "DefaultCashCurveRUBConfig");
+    i.setCurveName(null, "Cash");
     return i;
   }
 
   @Override
   protected CurrencyInfo usdCurrencyInfo() {
     final CurrencyInfo i = super.usdCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultTwoCurveUSDConfig");
-    i.setDefaultCurve("Discounting");
-    i.setISDACurveConfiguration("ISDA");
-    i.setISDACurve("ISDA");
-    i.setBondFutureOptionSurface("BBG");
-    i.setFutureOptionSurface("BBG");
-    i.setIRFutureOptionSurface("DEFAULT_PRICE");
-    i.setDefaultCube("BLOOMBERG");
+    i.setCurveConfiguration(null, "DefaultTwoCurveUSDConfig");
+    i.setCurveName(null, "Discounting");
+    i.setSurfaceName("model/bondfutureoption", "BBG");
+    i.setSurfaceName("model/futureoption", "BBG");
+    i.setSurfaceName("model/irfutureoption", "DEFAULT_PRICE");
+    i.setCubeName(null, "BLOOMBERG");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo eurChfCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.eurChfCurrencyPairInfo();
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo eurJpyCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.eurJpyCurrencyPairInfo();
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdAudCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.usdAudCurrencyPairInfo();
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdBrlCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.usdBrlCurrencyPairInfo();
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdCadCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.usdCadCurrencyPairInfo();
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdChfCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.usdChfCurrencyPairInfo();
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdEurCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultCurve("DiscountingImplied");
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.usdEurCurrencyPairInfo();
+    i.setCurveName(null, "DiscountingImplied");
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdGbpCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.usdGbpCurrencyPairInfo();
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdHkdCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.usdHkdCurrencyPairInfo();
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdHufCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.usdHufCurrencyPairInfo();
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdJpyCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.usdJpyCurrencyPairInfo();
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdKrwCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.usdKrwCurrencyPairInfo();
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdMxnCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.usdMxnCurrencyPairInfo();
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdNzdCurrencyPairInfo() {
-    final CurrencyPairInfo i = new CurrencyPairInfo();
-    i.setDefaultSurface("TULLETT");
+    final CurrencyPairInfo i = super.usdNzdCurrencyPairInfo();
+    i.setSurfaceName(null, "TULLETT");
     return i;
   }
 
@@ -267,11 +265,11 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   }
 
   @Override
-  protected void pnlFunctionDefaultsImpl(final PNLFunctions.Defaults factory) {
-    super.pnlFunctionDefaultsImpl(factory);
-    factory.setCurveName("FUNDING");
-    factory.setPayCurveName("FUNDING");
-    factory.setReceiveCurveName("FUNDING");
+  protected void setPNLFunctionDefaults(final PNLFunctions.Defaults defaults) {
+    super.setPNLFunctionDefaults(defaults);
+    defaults.setCurveName("FUNDING");
+    defaults.setPayCurveName("FUNDING");
+    defaults.setReceiveCurveName("FUNDING");
   }
 
 }

@@ -316,12 +316,17 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(BondFutureOptionBlackYieldCurveNodePnLFunction.class));
     functions.add(functionConfiguration(EquityPnLFunction.class));
+    functions.add(functionConfiguration(FXForwardCurrencyExposurePnLFunction.class));
+    functions.add(functionConfiguration(FXForwardYieldCurveNodePnLFunction.class));
+    functions.add(functionConfiguration(FXOptionBlackDeltaPnLFunction.class));
+    functions.add(functionConfiguration(FXOptionBlackVegaPnLFunction.class));
     functions.add(functionConfiguration(InterestRateFutureOptionBlackYieldCurveNodePnLFunction.class));
     functions.add(functionConfiguration(InterestRateFutureYieldCurveNodePnLFunction.class));
     functions.add(functionConfiguration(PortfolioExchangeTradedDailyPnLFunction.Impl.class));
     functions.add(functionConfiguration(PortfolioExchangeTradedPnLFunction.class));
     functions.add(functionConfiguration(PositionExchangeTradedPnLFunction.class));
     functions.add(functionConfiguration(PositionPnLFunction.class));
+    functions.add(functionConfiguration(SwaptionBlackYieldCurveNodePnLFunction.class));
     functions.add(functionConfiguration(YieldCurveNodePnLFunction.class));
     functions.add(functionConfiguration(AggregationDefaultPropertyFunction.class, ValueRequirementNames.DAILY_PNL, MissingInputsFunction.AGGREGATION_STYLE_FULL));
   }

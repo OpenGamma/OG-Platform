@@ -56,6 +56,8 @@ public class BondFutureOptionFunctions extends AbstractRepositoryConfigurationBe
       }
 
       public CurrencyInfo(final String curveConfig, final String surfaceName) {
+        setCurveConfig(curveConfig);
+        setSurfaceName(surfaceName);
       }
 
       public void setCurveConfig(final String curveConfig) {

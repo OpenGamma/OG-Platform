@@ -144,6 +144,8 @@ public class VaRFunctions extends AbstractRepositoryConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(EmpiricalHistoricalConditionalVaRFunction.class));
+    functions.add(functionConfiguration(EmpiricalHistoricalVaRFunction.class));
     functions.add(functionConfiguration(NormalHistoricalVaRFunction.class));
   }
 

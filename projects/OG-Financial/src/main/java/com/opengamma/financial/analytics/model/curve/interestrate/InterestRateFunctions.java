@@ -147,6 +147,7 @@ public class InterestRateFunctions extends AbstractRepositoryConfigurationBean {
       ArgumentChecker.notNullInjected(getInterpolatorName(), "interpolatorName");
       ArgumentChecker.notNullInjected(getLeftExtrapolatorName(), "leftExtrapolatorName");
       ArgumentChecker.notNullInjected(getRightExtrapolatorName(), "rightExtrapolatorName");
+      super.afterPropertiesSet();
     }
 
     protected void addFXImpliedYieldCurveDefaults(final List<FunctionConfiguration> functions) {

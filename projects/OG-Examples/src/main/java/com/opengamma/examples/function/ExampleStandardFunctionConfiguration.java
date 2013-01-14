@@ -54,48 +54,48 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   @Override
   protected CurrencyInfo chfCurrencyInfo() {
     final CurrencyInfo i = super.chfCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultTwoCurveCHFConfig");
-    i.setDefaultCurve("Discounting");
+    i.setCurveConfiguration(null, "DefaultTwoCurveCHFConfig");
+    i.setCurveName(null, "Discounting");
     return i;
   }
 
   @Override
   protected CurrencyInfo eurCurrencyInfo() {
     final CurrencyInfo i = super.eurCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultTwoCurveEURConfig");
-    i.setDefaultCurve("Discounting");
+    i.setCurveConfiguration(null, "DefaultTwoCurveEURConfig");
+    i.setCurveName(null, "Discounting");
     return i;
   }
 
   @Override
   protected CurrencyInfo gbpCurrencyInfo() {
     final CurrencyInfo i = super.gbpCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultTwoCurveGBPConfig");
-    i.setDefaultCurve("Discounting");
+    i.setCurveConfiguration(null, "DefaultTwoCurveGBPConfig");
+    i.setCurveName(null, "Discounting");
     return i;
   }
 
   @Override
   protected CurrencyInfo jpyCurrencyInfo() {
     final CurrencyInfo i = super.jpyCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultTwoCurveJPYConfig");
-    i.setDefaultCurve("Discounting");
+    i.setCurveConfiguration(null, "DefaultTwoCurveJPYConfig");
+    i.setCurveName(null, "Discounting");
     return i;
   }
 
   @Override
   protected CurrencyInfo usdCurrencyInfo() {
     final CurrencyInfo i = super.usdCurrencyInfo();
-    i.setDefaultCurveConfiguration("DefaultTwoCurveUSDConfig");
-    i.setDefaultCurve("Discounting");
-    i.setDefaultCube("SECONDARY");
+    i.setCurveConfiguration(null, "DefaultTwoCurveUSDConfig");
+    i.setCurveName(null, "Discounting");
+    i.setCubeName(null, "SECONDARY");
     return i;
   }
 
   @Override
   protected CurrencyPairInfo usdEurCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdEurCurrencyPairInfo();
-    i.setDefaultCurve("DiscountingImplied");
+    i.setCurveName(null, "DiscountingImplied");
     return i;
   }
 
@@ -207,11 +207,12 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   }
 
   @Override
-  protected void pnlFunctionDefaultsImpl(final PNLFunctions.Defaults factory) {
-    super.pnlFunctionDefaultsImpl(factory);
-    factory.setCurveName("SECONDARY");
-    factory.setPayCurveName("SECONDARY");
-    factory.setReceiveCurveName("SECONDARY");
+  protected void setPNLFunctionDefaults(final PNLFunctions.Defaults defaults) {
+    super.setPNLFunctionDefaults(defaults);
+    defaults.setCurveName("SECONDARY");
+    defaults.setPayCurveName("SECONDARY");
+    defaults.setReceiveCurveName("SECONDARY");
   }
+
 
 }

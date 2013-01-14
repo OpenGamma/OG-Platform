@@ -10,6 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+
 import com.google.common.collect.Lists;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource;
@@ -36,15 +40,12 @@ import com.opengamma.financial.analytics.model.equity.varianceswap.EquityForward
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapDefaults;
 import com.opengamma.financial.analytics.model.equity.varianceswap.EquityVarianceSwapStaticReplicationDefaults;
 import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions;
-import com.opengamma.financial.analytics.model.forex.ForexFunctions;
 import com.opengamma.financial.analytics.model.future.FutureFunctions;
 import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions;
 import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
-import com.opengamma.financial.analytics.model.sabrcube.SABRCubeFunctions;
 import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions;
 import com.opengamma.financial.analytics.model.var.VaRFunctions;
-import com.opengamma.financial.analytics.model.volatility.local.LocalFunctions;
 import com.opengamma.financial.analytics.model.volatility.local.defaultproperties.LocalVolatilitySurfaceDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceMixedLogNormalDefaults;
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.BlackVolatilitySurfaceSABRDefaults;
@@ -61,6 +62,7 @@ import com.opengamma.financial.analytics.model.volatility.surface.black.defaultp
 import com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties.PureBlackVolatilitySurfaceSecurityDefaults;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
+import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.functional.Function1;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.spring.defaults.EquityInstrumentDefaultValues;
@@ -75,111 +77,75 @@ import com.opengamma.web.spring.defaults.TargetSpecificBlackVolatilitySurfaceDef
  */
 public abstract class StandardFunctionConfiguration extends AbstractRepositoryConfigurationBean {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(StandardFunctionConfiguration.class);
+
+  /**
+   * Holds one or more values referenced by a hierarchical key.
+   */
+  public static class Value {
+
+    private final Map<String, String> _values = new HashMap<String, String>();
+
+    public void set(final String key, final String value) {
+      _values.put(key, value);
+    }
+
+    // TODO: allow wildcard matches, e.g. */discounting
+
+    public String get(final String key) {
+      final String value = _values.get(key);
+      if (value != null) {
+        return value;
+      }
+      final int dot = key.lastIndexOf('/');
+      if (dot == -1) {
+        return _values.get(null);
+      }
+      return get(key.substring(0, dot));
+    }
+
+  }
+
   /**
    * Constants for a particular currency.
    */
   public static class CurrencyInfo {
 
-    private String _defaultCurveConfiguration;
-    private String _defaultCurve;
-    private String _isdaCurveConfiguration;
-    private String _isdaCurve;
-    private String _bondFutureOptionSurface;
-    private String _futureOptionSurface;
-    private String _irFutureOptionSurface;
-    private String _swaptionSurface;
-    private String _defaultCube;
+    private final Value _curveConfiguration = new Value();
+    private final Value _curveName = new Value();
+    private final Value _surfaceName = new Value();
+    private final Value _cubeName = new Value();
 
-    public String getDefaultCurveConfiguration() {
-      return _defaultCurveConfiguration;
+    public void setCurveConfiguration(final String key, final String curveConfiguration) {
+      _curveConfiguration.set(key, curveConfiguration);
     }
 
-    public void setDefaultCurveConfiguration(final String defaultCurveConfiguration) {
-      _defaultCurveConfiguration = defaultCurveConfiguration;
+    public String getCurveConfiguration(final String key) {
+      return _curveConfiguration.get(key);
     }
 
-    public String getDefaultCurve() {
-      return _defaultCurve;
+    public void setCurveName(final String key, final String curveName) {
+      _curveName.set(key, curveName);
     }
 
-    public void setDefaultCurve(final String defaultCurve) {
-      _defaultCurve = defaultCurve;
+    public String getCurveName(final String key) {
+      return _curveName.get(key);
     }
 
-    public String getDiscountingCurve() {
-      return getDefaultCurve();
+    public void setSurfaceName(final String key, final String surfaceName) {
+      _surfaceName.set(key, surfaceName);
     }
 
-    public String getCreditCurveConfiguration() {
-      return getDefaultCurveConfiguration();
+    public String getSurfaceName(final String key) {
+      return _surfaceName.get(key);
     }
 
-    public String getCreditCurve() {
-      return getDefaultCurve();
+    public void setCubeName(final String key, final String cubeName) {
+      _cubeName.set(key, cubeName);
     }
 
-    public String getRiskFreeCurveConfiguration() {
-      return getDefaultCurveConfiguration();
-    }
-
-    public String getRiskFreeCurve() {
-      return getDefaultCurve();
-    }
-
-    public void setISDACurveConfiguration(final String isdaCurveConfiguration) {
-      _isdaCurveConfiguration = isdaCurveConfiguration;
-    }
-
-    public String getISDACurveConfiguration() {
-      return _isdaCurveConfiguration;
-    }
-
-    public void setISDACurve(final String isdaCurve) {
-      _isdaCurve = isdaCurve;
-    }
-
-    public String getISDACurve() {
-      return _isdaCurve;
-    }
-
-    public void setBondFutureOptionSurface(final String bondFutureOptionSurface) {
-      _bondFutureOptionSurface = bondFutureOptionSurface;
-    }
-
-    public String getBondFutureOptionSurface() {
-      return _bondFutureOptionSurface;
-    }
-
-    public void setFutureOptionSurface(final String futureOptionSurface) {
-      _futureOptionSurface = futureOptionSurface;
-    }
-
-    public String getFutureOptionSurface() {
-      return _futureOptionSurface;
-    }
-
-    public void setIRFutureOptionSurface(final String irFutureOptionSurface) {
-      _irFutureOptionSurface = irFutureOptionSurface;
-    }
-
-    public String getIRFutureOptionSurface() {
-      return _irFutureOptionSurface;
-    }
-
-    public void setSwaptionSurface(final String swaptionSurface) {
-      _swaptionSurface = swaptionSurface;
-    }
-
-    public String getSwaptionSurface() {
-      return _swaptionSurface;
-    }
-
-    public void setDefaultCube(final String cubeName) {
-      _defaultCube = cubeName;
-    }
-
-    public String getDefaultCube() {
-      return _defaultCube;
+    public String getCubeName(final String key) {
+      return _cubeName.get(key);
     }
 
   }
@@ -189,23 +155,23 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
    */
   public static class CurrencyPairInfo {
 
-    private String _defaultCurve;
-    private String _defaultSurface;
+    private final Value _curveName = new Value();
+    private final Value _surfaceName = new Value();
 
-    public void setDefaultCurve(final String curve) {
-      _defaultCurve = curve;
+    public void setCurveName(final String key, final String curveName) {
+      _curveName.set(key, curveName);
     }
 
-    public String getDefaultCurve() {
-      return _defaultCurve;
+    public String getCurveName(final String key) {
+      return _curveName.get(key);
     }
 
-    public void setDefaultSurface(final String surface) {
-      _defaultSurface = surface;
+    public void setSurfaceName(final String key, final String surfaceName) {
+      _surfaceName.set(key, surfaceName);
     }
 
-    public String getDefaultSurface() {
-      return _defaultSurface;
+    public String getSurfaceName(final String key) {
+      return _surfaceName.get(key);
     }
 
   }
@@ -241,6 +207,15 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     final Map<String, T> result = new HashMap<String, T>();
     for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
       final T entry = filter.execute(e.getValue());
+      if (entry instanceof InitializingBean) {
+        try {
+          ((InitializingBean) entry).afterPropertiesSet();
+        } catch (final Exception ex) {
+          s_logger.debug("Skipping {}", e.getKey());
+          s_logger.trace("Caught exception", e);
+          continue;
+        }
+      }
       if (entry != null) {
         result.put(e.getKey(), entry);
       }
@@ -292,166 +267,279 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     return _costOfCarryField;
   }
 
-  protected CurrencyInfo audCurrencyInfo() {
+  protected CurrencyInfo defaultCurrencyInfo() {
     return new CurrencyInfo();
+  }
+
+  protected CurrencyInfo arsCurrencyInfo() {
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo audCurrencyInfo() {
+    return defaultCurrencyInfo();
   }
 
   protected CurrencyInfo brlCurrencyInfo() {
-    return new CurrencyInfo();
+    return defaultCurrencyInfo();
   }
 
   protected CurrencyInfo cadCurrencyInfo() {
-    return new CurrencyInfo();
+    return defaultCurrencyInfo();
   }
 
   protected CurrencyInfo chfCurrencyInfo() {
-    return new CurrencyInfo();
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo cnyCurrencyInfo() {
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo czkCurrencyInfo() {
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo egpCurrencyInfo() {
+    return defaultCurrencyInfo();
   }
 
   protected CurrencyInfo eurCurrencyInfo() {
-    return new CurrencyInfo();
+    return defaultCurrencyInfo();
   }
 
   protected CurrencyInfo gbpCurrencyInfo() {
-    return new CurrencyInfo();
+    return defaultCurrencyInfo();
   }
 
   protected CurrencyInfo hkdCurrencyInfo() {
-    return new CurrencyInfo();
+    return defaultCurrencyInfo();
   }
 
   protected CurrencyInfo hufCurrencyInfo() {
-    return new CurrencyInfo();
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo idrCurrencyInfo() {
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo ilsCurrencyInfo() {
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo inrCurrencyInfo() {
+    return defaultCurrencyInfo();
   }
 
   protected CurrencyInfo jpyCurrencyInfo() {
-    return new CurrencyInfo();
+    return defaultCurrencyInfo();
   }
 
   protected CurrencyInfo krwCurrencyInfo() {
-    return new CurrencyInfo();
+    return defaultCurrencyInfo();
   }
 
   protected CurrencyInfo mxnCurrencyInfo() {
-    return new CurrencyInfo();
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo myrCurrencyInfo() {
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo nokCurrencyInfo() {
+    return defaultCurrencyInfo();
   }
 
   protected CurrencyInfo nzdCurrencyInfo() {
-    return new CurrencyInfo();
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo phpCurrencyInfo() {
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo pnlCurrencyInfo() {
+    return defaultCurrencyInfo();
   }
 
   protected CurrencyInfo rubCurrencyInfo() {
-    return new CurrencyInfo();
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo sekCurrencyInfo() {
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo sgdCurrencyInfo() {
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo tryCurrencyInfo() {
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo twdCurrencyInfo() {
+    return defaultCurrencyInfo();
   }
 
   protected CurrencyInfo usdCurrencyInfo() {
-    return new CurrencyInfo();
+    return defaultCurrencyInfo();
+  }
+
+  protected CurrencyInfo zarCurrencyInfo() {
+    return defaultCurrencyInfo();
   }
 
   protected void setDefaultCurrencyInfo() {
-    setCurrencyInfo("ARS", new CurrencyInfo());
+    setCurrencyInfo("ARS", arsCurrencyInfo());
     setCurrencyInfo("AUD", audCurrencyInfo());
     setCurrencyInfo("BRL", brlCurrencyInfo());
     setCurrencyInfo("CAD", cadCurrencyInfo());
     setCurrencyInfo("CHF", chfCurrencyInfo());
-    setCurrencyInfo("CNY", new CurrencyInfo());
-    setCurrencyInfo("CZK", new CurrencyInfo());
-    setCurrencyInfo("EGP", new CurrencyInfo());
+    setCurrencyInfo("CNY", cnyCurrencyInfo());
+    setCurrencyInfo("CZK", czkCurrencyInfo());
+    setCurrencyInfo("EGP", egpCurrencyInfo());
     setCurrencyInfo("EUR", eurCurrencyInfo());
     setCurrencyInfo("GBP", gbpCurrencyInfo());
     setCurrencyInfo("HKD", hkdCurrencyInfo());
     setCurrencyInfo("HUF", hufCurrencyInfo());
-    setCurrencyInfo("IDR", new CurrencyInfo());
-    setCurrencyInfo("ILS", new CurrencyInfo());
-    setCurrencyInfo("INR", new CurrencyInfo());
+    setCurrencyInfo("IDR", idrCurrencyInfo());
+    setCurrencyInfo("ILS", ilsCurrencyInfo());
+    setCurrencyInfo("INR", inrCurrencyInfo());
     setCurrencyInfo("JPY", jpyCurrencyInfo());
     setCurrencyInfo("KRW", krwCurrencyInfo());
     setCurrencyInfo("MXN", mxnCurrencyInfo());
-    setCurrencyInfo("MYR", new CurrencyInfo());
-    setCurrencyInfo("NOK", new CurrencyInfo());
+    setCurrencyInfo("MYR", myrCurrencyInfo());
+    setCurrencyInfo("NOK", nokCurrencyInfo());
     setCurrencyInfo("NZD", nzdCurrencyInfo());
-    setCurrencyInfo("PHP", new CurrencyInfo());
-    setCurrencyInfo("PLN", new CurrencyInfo());
+    setCurrencyInfo("PHP", phpCurrencyInfo());
+    setCurrencyInfo("PLN", pnlCurrencyInfo());
     setCurrencyInfo("RUB", rubCurrencyInfo());
-    setCurrencyInfo("SEK", new CurrencyInfo());
-    setCurrencyInfo("SGD", new CurrencyInfo());
-    setCurrencyInfo("TRY", new CurrencyInfo());
-    setCurrencyInfo("TWD", new CurrencyInfo());
+    setCurrencyInfo("SEK", sekCurrencyInfo());
+    setCurrencyInfo("SGD", sgdCurrencyInfo());
+    setCurrencyInfo("TRY", tryCurrencyInfo());
+    setCurrencyInfo("TWD", twdCurrencyInfo());
     setCurrencyInfo("USD", usdCurrencyInfo());
-    setCurrencyInfo("ZAR", new CurrencyInfo());
+    setCurrencyInfo("ZAR", zarCurrencyInfo());
+  }
+
+  protected CurrencyPairInfo defaultCurrencyPairInfo() {
+    return new CurrencyPairInfo();
+  }
+
+  protected CurrencyPairInfo eurBrlCurrencyPairInfo() {
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo eurChfCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo eurJpyCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
+  }
+
+  protected CurrencyPairInfo eurTryCurrencyPairInfo() {
+    return defaultCurrencyPairInfo();
+  }
+
+  protected CurrencyPairInfo sekJpyCurrencyPairInfo() {
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo usdAudCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo usdBrlCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo usdCadCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo usdChfCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
+  }
+
+  protected CurrencyPairInfo usdCnyCurrencyPairInfo() {
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo usdEurCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo usdGbpCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo usdHkdCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo usdHufCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
+  }
+
+  protected CurrencyPairInfo usdInrCurrencyPairInfo() {
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo usdJpyCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo usdKrwCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo usdMxnCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
+  }
+
+  protected CurrencyPairInfo usdNokCurrencyPairInfo() {
+    return defaultCurrencyPairInfo();
   }
 
   protected CurrencyPairInfo usdNzdCurrencyPairInfo() {
-    return new CurrencyPairInfo();
+    return defaultCurrencyPairInfo();
+  }
+
+  protected CurrencyPairInfo usdSgdCurrencyPairInfo() {
+    return defaultCurrencyPairInfo();
+  }
+
+  protected CurrencyPairInfo usdZarCurrencyPairInfo() {
+    return defaultCurrencyPairInfo();
   }
 
   protected void setDefaultCurrencyPairInfo() {
+    setCurrencyPairInfo(Pair.of("EUR", "BRL"), eurBrlCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("EUR", "CHF"), eurChfCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("EUR", "JPY"), eurJpyCurrencyPairInfo());
+    setCurrencyPairInfo(Pair.of("EUR", "TRY"), eurTryCurrencyPairInfo());
+    setCurrencyPairInfo(Pair.of("SEK", "JPY"), sekJpyCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "AUD"), usdAudCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "BRL"), usdBrlCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "CAD"), usdCadCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "CHF"), usdChfCurrencyPairInfo());
+    setCurrencyPairInfo(Pair.of("USD", "CNY"), usdCnyCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "EUR"), usdEurCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "GBP"), usdGbpCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "HKD"), usdHkdCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "HUF"), usdHufCurrencyPairInfo());
+    setCurrencyPairInfo(Pair.of("USD", "INR"), usdInrCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "JPY"), usdJpyCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "KRW"), usdKrwCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "MXN"), usdMxnCurrencyPairInfo());
+    setCurrencyPairInfo(Pair.of("USD", "NOK"), usdNokCurrencyPairInfo());
     setCurrencyPairInfo(Pair.of("USD", "NZD"), usdNzdCurrencyPairInfo());
+    setCurrencyPairInfo(Pair.of("USD", "SGD"), usdSgdCurrencyPairInfo());
+    setCurrencyPairInfo(Pair.of("USD", "ZAR"), usdZarCurrencyPairInfo());
+
   }
 
   protected void addBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
@@ -628,249 +716,443 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     addLocalVolatilitySurfaceDefaults(functions);
   }
 
-  protected RepositoryConfigurationSource bondFunctions() {
-    return BondFunctions.defaults(getCurrencyInfo(new Function1<CurrencyInfo, BondFunctions.Defaults.CurrencyInfo>() {
+  protected RepositoryConfigurationSource getRepository(final SingletonFactoryBean<RepositoryConfigurationSource> defaults) {
+    try {
+      defaults.afterPropertiesSet();
+    } catch (final Exception e) {
+      s_logger.debug("Caught exception", e);
+      return null;
+    }
+    return defaults.getObject();
+  }
+
+  protected void setBondFunctionDefaults(final CurrencyInfo i, final BondFunctions.Defaults.CurrencyInfo defaults) {
+    defaults.setRiskFreeCurveName(i.getCurveName("model/bond/riskFree"));
+    defaults.setRiskFreeCurveCalculationConfig(i.getCurveConfiguration("model/bond/riskFree"));
+    defaults.setCreditCurveName(i.getCurveName("model/bond/credit"));
+    defaults.setCreditCurveCalculationConfig(i.getCurveConfiguration("model/bond/credit"));
+  }
+
+  protected void setBondFunctionDefaults(final BondFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, BondFunctions.Defaults.CurrencyInfo>() {
       @Override
       public BondFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        if ((i.getRiskFreeCurve() == null) || (i.getRiskFreeCurveConfiguration() == null) || (i.getCreditCurve() == null) || (i.getCreditCurveConfiguration() == null)) {
-          return null;
-        }
-        return new BondFunctions.Defaults.CurrencyInfo(i.getRiskFreeCurve(), i.getRiskFreeCurveConfiguration(), i.getCreditCurve(), i.getCreditCurveConfiguration());
+        final BondFunctions.Defaults.CurrencyInfo d = new BondFunctions.Defaults.CurrencyInfo();
+        setBondFunctionDefaults(i, d);
+        return d;
+      }
+    }));
+  }
+
+  protected RepositoryConfigurationSource bondFunctions() {
+    final BondFunctions.Defaults defaults = new BondFunctions.Defaults();
+    setBondFunctionDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected void setBondFutureOptionDefaults(final CurrencyInfo i, final BondFutureOptionFunctions.Defaults.CurrencyInfo defaults) {
+    defaults.setCurveConfig(i.getCurveConfiguration("model/bondfutureoption"));
+    defaults.setSurfaceName(i.getSurfaceName("model/bondfutureoption"));
+  }
+
+  protected void setBondFutureOptionDefaults(final BondFutureOptionFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, BondFutureOptionFunctions.Defaults.CurrencyInfo>() {
+      @Override
+      public BondFutureOptionFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+        final BondFutureOptionFunctions.Defaults.CurrencyInfo d = new BondFutureOptionFunctions.Defaults.CurrencyInfo();
+        setBondFutureOptionDefaults(i, d);
+        return d;
       }
     }));
   }
 
   protected RepositoryConfigurationSource bondFutureOptionFunctions() {
-    return BondFutureOptionFunctions.defaults(getCurrencyInfo(new Function1<CurrencyInfo, BondFutureOptionFunctions.Defaults.CurrencyInfo>() {
+    final BondFutureOptionFunctions.Defaults defaults = new BondFutureOptionFunctions.Defaults();
+    setBondFutureOptionDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected void setCDSFunctionDefaults(final CurrencyInfo i, final CreditFunctions.Defaults.CurrencyInfo defaults) {
+    defaults.setCurveCalculationConfig("ISDA");
+    defaults.setCurveName("ISDA");
+  }
+
+  protected void setCDSFunctionDefaults(final CreditFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, CreditFunctions.Defaults.CurrencyInfo>() {
       @Override
-      public BondFutureOptionFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        if ((i.getDefaultCurveConfiguration() == null) || (i.getBondFutureOptionSurface() == null)) {
-          return null;
-        }
-        return new BondFutureOptionFunctions.Defaults.CurrencyInfo(i.getDefaultCurveConfiguration(), i.getBondFutureOptionSurface());
+      public CreditFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+        final CreditFunctions.Defaults.CurrencyInfo d = new CreditFunctions.Defaults.CurrencyInfo();
+        setCDSFunctionDefaults(i, d);
+        return d;
       }
     }));
   }
 
   protected RepositoryConfigurationSource cdsFunctions() {
-    return CreditFunctions.defaults(getCurrencyInfo(new Function1<CurrencyInfo, CreditFunctions.Defaults.CurrencyInfo>() {
-      @Override
-      public CreditFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        if ((i.getISDACurve() == null) || (i.getISDACurveConfiguration() == null)) {
-          return null;
-        }
-        return new CreditFunctions.Defaults.CurrencyInfo(i.getISDACurve(), i.getISDACurveConfiguration());
-      }
-    }));
+    final CreditFunctions.Defaults defaults = new CreditFunctions.Defaults();
+    setCDSFunctionDefaults(defaults);
+    return getRepository(defaults);
   }
 
   protected RepositoryConfigurationSource deprecatedFunctions() {
     return com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.deprecated();
   }
 
+  protected void setEquityOptionDefaults(final OptionFunctions.Defaults defaults) {
+  }
+
   protected RepositoryConfigurationSource equityOptionFunctions() {
-    return OptionFunctions.defaults();
+    final OptionFunctions.Defaults defaults = new OptionFunctions.Defaults();
+    setEquityOptionDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected void setExternalSensitivitesCalculators(final SensitivitiesFunctions.Calculators calculators) {
+  }
+
+  protected void setExternalSensitivitiesDefaults(final CurrencyInfo i, final SensitivitiesFunctions.Defaults.CurrencyInfo defaults) {
+    defaults.setCurveConfiguration(i.getCurveConfiguration("model/sensitivities"));
+  }
+
+  protected void setExternalSensitivitiesDefaults(final SensitivitiesFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, SensitivitiesFunctions.Defaults.CurrencyInfo>() {
+      @Override
+      public SensitivitiesFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+        final SensitivitiesFunctions.Defaults.CurrencyInfo d = new SensitivitiesFunctions.Defaults.CurrencyInfo();
+        setExternalSensitivitiesDefaults(i, d);
+        return d;
+      }
+    }));
   }
 
   protected RepositoryConfigurationSource externalSensitivitiesFunctions() {
-    return CombiningRepositoryConfigurationSource.of(SensitivitiesFunctions.calculators(),
-        SensitivitiesFunctions.defaults(getCurrencyInfo(new Function1<CurrencyInfo, SensitivitiesFunctions.Defaults.CurrencyInfo>() {
-          @Override
-          public SensitivitiesFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-            if (i.getDefaultCurveConfiguration() == null) {
-              return null;
-            }
-            return new SensitivitiesFunctions.Defaults.CurrencyInfo(i.getDefaultCurveConfiguration());
-          }
-        })));
+    final SensitivitiesFunctions.Calculators calculators = new SensitivitiesFunctions.Calculators();
+    setExternalSensitivitesCalculators(calculators);
+    final SensitivitiesFunctions.Defaults defaults = new SensitivitiesFunctions.Defaults();
+    setExternalSensitivitiesDefaults(defaults);
+    return CombiningRepositoryConfigurationSource.of(getRepository(calculators), getRepository(defaults));
+  }
+
+  protected void setFixedIncomeDefaults(final CurrencyInfo i, final FixedIncomeFunctions.Defaults.CurrencyInfo defaults) {
+    defaults.setCurveCalculationConfig(i.getCurveConfiguration("model/fixedincome"));
+  }
+
+  protected void setFixedIncomeDefaults(final FixedIncomeFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FixedIncomeFunctions.Defaults.CurrencyInfo>() {
+      @Override
+      public FixedIncomeFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+        return new FixedIncomeFunctions.Defaults.CurrencyInfo(i.getCurveConfiguration("model/fixedincome"));
+      }
+    }));
   }
 
   protected RepositoryConfigurationSource fixedIncomeFunctions() {
-    return FixedIncomeFunctions.defaults(getCurrencyInfo(new Function1<CurrencyInfo, FixedIncomeFunctions.Defaults.CurrencyInfo>() {
+    final FixedIncomeFunctions.Defaults defaults = new FixedIncomeFunctions.Defaults();
+    setFixedIncomeDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected void setForexDefaults(final CurrencyInfo i, final com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo defaults) {
+    defaults.setCurveConfiguration(i.getCurveConfiguration("model/forex"));
+    defaults.setDiscountingCurve(i.getCurveName("model/forex/discounting"));
+  }
+
+  protected void setForexDefaults(final CurrencyPairInfo i, final com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo defaults) {
+    defaults.setSurfaceName(i.getSurfaceName("model/forex"));
+  }
+
+  protected void setForexDefaults(final com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>() {
       @Override
-      public FixedIncomeFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        if (i.getDefaultCurveConfiguration() == null) {
-          return null;
-        }
-        return new FixedIncomeFunctions.Defaults.CurrencyInfo(i.getDefaultCurveConfiguration());
+      public com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
+        final com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo d =
+            new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo();
+        setForexDefaults(i, d);
+        return d;
+      }
+    }));
+    defaults.setPerCurrencyPairInfo(getCurrencyPairInfo(new Function1<CurrencyPairInfo, com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo>() {
+      @Override
+      public com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo execute(final CurrencyPairInfo i) {
+        final com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo d =
+            new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo();
+        setForexDefaults(i, d);
+        return d;
       }
     }));
   }
 
   protected RepositoryConfigurationSource forexFunctions() {
-    final Map<String, com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo> curveDefaults =
-        getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>() {
-          @Override
-          public com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
-            if ((i.getDefaultCurveConfiguration() == null) || (i.getDiscountingCurve() == null)) {
-              return null;
-            }
-            return new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo(i.getDefaultCurveConfiguration(), i.getDiscountingCurve());
-          }
-        });
-    final Map<Pair<String, String>, com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo> surfaceDefaults =
-        getCurrencyPairInfo(new Function1<CurrencyPairInfo, com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo>() {
-          @Override
-          public com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo execute(final CurrencyPairInfo i) {
-            if (i.getDefaultSurface() == null) {
-              return null;
-            }
-            return new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions.CurrencyPairInfo(i.getDefaultSurface());
-          }
-        });
-    return ForexFunctions.defaults(curveDefaults, surfaceDefaults);
+    final com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions defaults =
+        new com.opengamma.financial.analytics.model.forex.defaultproperties.DefaultPropertiesFunctions();
+    setForexDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected void setForexOptionDefaults(final com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.Defaults defaults) {
   }
 
   protected RepositoryConfigurationSource forexOptionFunctions() {
-    return com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.defaults();
+    final com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.Defaults defaults = new com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.Defaults();
+    setForexOptionDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected void setForwardCurveDefaults(final CurrencyInfo i, final ForwardFunctions.Defaults.CurrencyInfo defaults) {
+    defaults.setCurveConfiguration(i.getCurveConfiguration("model/curve/forward"));
+    defaults.setDiscountingCurve(i.getCurveName("model/curve/forward/discounting"));
+  }
+
+  protected void setForwardCurveDefaults(final CurrencyPairInfo i, final ForwardFunctions.Defaults.CurrencyPairInfo defaults) {
+    defaults.setCurveName(i.getCurveName("model/curve/forward"));
+  }
+
+  protected void setForwardCurveDefaults(final ForwardFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, ForwardFunctions.Defaults.CurrencyInfo>() {
+      @Override
+      public ForwardFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+        final ForwardFunctions.Defaults.CurrencyInfo d = new ForwardFunctions.Defaults.CurrencyInfo();
+        setForwardCurveDefaults(i, d);
+        return d;
+      }
+    }));
+    defaults.setPerCurrencyPairInfo(getCurrencyPairInfo(new Function1<CurrencyPairInfo, ForwardFunctions.Defaults.CurrencyPairInfo>() {
+      @Override
+      public ForwardFunctions.Defaults.CurrencyPairInfo execute(final CurrencyPairInfo i) {
+        final ForwardFunctions.Defaults.CurrencyPairInfo d = new ForwardFunctions.Defaults.CurrencyPairInfo();
+        setForwardCurveDefaults(i, d);
+        return d;
+      }
+    }));
   }
 
   protected RepositoryConfigurationSource forwardCurveFunctions() {
-    final Map<String, ForwardFunctions.Defaults.CurrencyInfo> ccyDefaults = getCurrencyInfo(new Function1<CurrencyInfo, ForwardFunctions.Defaults.CurrencyInfo>() {
+    final ForwardFunctions.Defaults defaults = new ForwardFunctions.Defaults();
+    setForwardCurveDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected void setFutureDefaults(final CurrencyInfo i, final FutureFunctions.Defaults.CurrencyInfo defaults) {
+    defaults.setCurveConfiguration(i.getCurveConfiguration("model/future"));
+  }
+
+  protected void setFutureDefaults(final FutureFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FutureFunctions.Defaults.CurrencyInfo>() {
       @Override
-      public ForwardFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        if ((i.getDefaultCurveConfiguration() == null) || (i.getDiscountingCurve() == null)) {
-          return null;
-        }
-        return new ForwardFunctions.Defaults.CurrencyInfo(i.getDefaultCurveConfiguration(), i.getDiscountingCurve());
+      public FutureFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+        final FutureFunctions.Defaults.CurrencyInfo d = new FutureFunctions.Defaults.CurrencyInfo();
+        setFutureDefaults(i, d);
+        return d;
       }
-    });
-    final Map<Pair<String, String>, ForwardFunctions.Defaults.CurrencyPairInfo> ccypDefaults = getCurrencyPairInfo(new Function1<CurrencyPairInfo, ForwardFunctions.Defaults.CurrencyPairInfo>() {
-      @Override
-      public ForwardFunctions.Defaults.CurrencyPairInfo execute(final CurrencyPairInfo i) {
-        if (i.getDefaultCurve() == null) {
-          return null;
-        }
-        return new ForwardFunctions.Defaults.CurrencyPairInfo(i.getDefaultCurve());
-      }
-    });
-    return ForwardFunctions.defaults(ccyDefaults, ccypDefaults);
+    }));
   }
 
   protected RepositoryConfigurationSource futureFunctions() {
-    return FutureFunctions.defaults(getCurrencyInfo(new Function1<CurrencyInfo, FutureFunctions.Defaults.CurrencyInfo>() {
+    final FutureFunctions.Defaults defaults = new FutureFunctions.Defaults();
+    setFutureDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected void setFutureOptionDefaults(final CurrencyInfo i, final FutureOptionFunctions.Defaults.CurrencyInfo defaults) {
+    defaults.setCurveName(i.getCurveName("model/futureoption"));
+    defaults.setCurveCalculationConfig(i.getCurveConfiguration("model/futureoption"));
+    defaults.setSurfaceName(i.getSurfaceName("model/futureoption"));
+  }
+
+  protected void setFutureOptionDefaults(final FutureOptionFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, FutureOptionFunctions.Defaults.CurrencyInfo>() {
       @Override
-      public FutureFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        if (i.getDefaultCurveConfiguration() == null) {
-          return null;
-        }
-        return new FutureFunctions.Defaults.CurrencyInfo(i.getDefaultCurveConfiguration());
+      public FutureOptionFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+        final FutureOptionFunctions.Defaults.CurrencyInfo d = new FutureOptionFunctions.Defaults.CurrencyInfo();
+        setFutureOptionDefaults(i, d);
+        return d;
       }
     }));
   }
 
   protected RepositoryConfigurationSource futureOptionFunctions() {
-    return FutureOptionFunctions.defaults(getCurrencyInfo(new Function1<CurrencyInfo, FutureOptionFunctions.Defaults.CurrencyInfo>() {
+    final FutureOptionFunctions.Defaults defaults = new FutureOptionFunctions.Defaults();
+    setFutureOptionDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected void setInterestRateDefaults(final InterestRateFunctions.Defaults defaults) {
+    defaults.setApplicableCurrencies(getPerCurrencyInfo().keySet());
+  }
+
+  protected RepositoryConfigurationSource interestRateFunctions() {
+    final InterestRateFunctions.Defaults defaults = new InterestRateFunctions.Defaults();
+    setInterestRateDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected void setIRFutureOptionDefaults(final CurrencyInfo i, final IRFutureOptionFunctions.Defaults.CurrencyInfo defaults) {
+    defaults.setCurveConfiguration(i.getCurveConfiguration("model/irfutureoption"));
+    defaults.setSurfaceName(i.getSurfaceName("model/irfutureoption"));
+  }
+
+  protected void setIRFutureOptionDefaults(final IRFutureOptionFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, IRFutureOptionFunctions.Defaults.CurrencyInfo>() {
       @Override
-      public FutureOptionFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        if ((i.getDiscountingCurve() == null) || (i.getDefaultCurveConfiguration() == null) || (i.getFutureOptionSurface() == null)) {
-          return null;
-        }
-        return new FutureOptionFunctions.Defaults.CurrencyInfo(i.getDiscountingCurve(), i.getDefaultCurveConfiguration(), i.getFutureOptionSurface());
+      public IRFutureOptionFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+        final IRFutureOptionFunctions.Defaults.CurrencyInfo d = new IRFutureOptionFunctions.Defaults.CurrencyInfo();
+        setIRFutureOptionDefaults(i, d);
+        return d;
       }
     }));
   }
 
-  protected RepositoryConfigurationSource interestRateFunctions() {
-    return InterestRateFunctions.defaults(getPerCurrencyInfo().keySet());
+  protected RepositoryConfigurationSource irFutureOptionFunctions() {
+    final IRFutureOptionFunctions.Defaults defaults = new IRFutureOptionFunctions.Defaults();
+    setIRFutureOptionDefaults(defaults);
+    return getRepository(defaults);
   }
 
-  protected RepositoryConfigurationSource irFutureOptionFunctions() {
-    return IRFutureOptionFunctions.defaults(getCurrencyInfo(new Function1<CurrencyInfo, IRFutureOptionFunctions.Defaults.CurrencyInfo>() {
+  protected void setLocalVolatilityDefaults(final CurrencyInfo i, final com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo defaults) {
+    defaults.setCurveConfiguration(i.getCurveConfiguration("model/volatility/local"));
+    defaults.setDiscountingCurve(i.getCurveName("model/volatility/local/discounting"));
+  }
+
+  protected void setLocalVolatilityDefaults(final com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>() {
       @Override
-      public IRFutureOptionFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        if ((i.getDefaultCurveConfiguration() == null) || (i.getIRFutureOptionSurface() == null)) {
-          return null;
-        }
-        return new IRFutureOptionFunctions.Defaults.CurrencyInfo(i.getDefaultCurveConfiguration(), i.getIRFutureOptionSurface());
+      public com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
+        final com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo d =
+            new com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo();
+        setLocalVolatilityDefaults(i, d);
+        return d;
       }
     }));
   }
 
   protected RepositoryConfigurationSource localVolatilityFunctions() {
-    return LocalFunctions.defaults(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>() {
-      @Override
-      public com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
-        if ((i.getDefaultCurveConfiguration() == null) || (i.getDiscountingCurve() == null)) {
-          return null;
-        }
-        return new com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo(i.getDefaultCurveConfiguration(), i.getDiscountingCurve());
-      }
-    }));
+    final com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions defaults =
+        new com.opengamma.financial.analytics.model.volatility.local.defaultproperties.DefaultPropertiesFunctions();
+    setLocalVolatilityDefaults(defaults);
+    return getRepository(defaults);
   }
 
-  protected RepositoryConfigurationSource pnlFunctionCalculators() {
-    if ((getMark2MarketField() != null) && (getCostOfCarryField() != null)) {
-      return PNLFunctions.calculators(getMark2MarketField(), getCostOfCarryField());
-    } else {
-      return null;
-    }
+  protected void setPNLFunctionCalculators(final PNLFunctions.Calculators calculators) {
+    calculators.setCostOfCarryField(getCostOfCarryField());
+    calculators.setMark2MarketField(getMark2MarketField());
   }
 
-  protected void pnlFunctionDefaultsImpl(final PNLFunctions.Defaults factory) {
-    factory.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, PNLFunctions.Defaults.CurrencyInfo>() {
+  protected void setPNLFunctionDefaults(final CurrencyInfo i, final PNLFunctions.Defaults.CurrencyInfo defaults) {
+    defaults.setCurveConfiguration(i.getCurveConfiguration("model/pnl"));
+  }
+
+  protected void setPNLFunctionDefaults(final PNLFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, PNLFunctions.Defaults.CurrencyInfo>() {
       @Override
       public PNLFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-        if (i.getDefaultCurveConfiguration() == null) {
-          return null;
-        }
-        return new PNLFunctions.Defaults.CurrencyInfo(i.getDefaultCurveConfiguration());
+        final PNLFunctions.Defaults.CurrencyInfo d = new PNLFunctions.Defaults.CurrencyInfo();
+        setPNLFunctionDefaults(i, d);
+        return d;
       }
     }));
   }
 
   protected RepositoryConfigurationSource pnlFunctionDefaults() {
-    final PNLFunctions.Defaults factory = new PNLFunctions.Defaults();
-    pnlFunctionDefaultsImpl(factory);
-    factory.afterPropertiesSet();
-    return factory.getObject();
+    final PNLFunctions.Defaults defaults = new PNLFunctions.Defaults();
+    setPNLFunctionDefaults(defaults);
+    return getRepository(defaults);
   }
 
   protected RepositoryConfigurationSource pnlFunctions() {
-    return CombiningRepositoryConfigurationSource.of(pnlFunctionCalculators(), pnlFunctionDefaults());
+    final PNLFunctions.Calculators calculators = new PNLFunctions.Calculators();
+    setPNLFunctionCalculators(calculators);
+    final PNLFunctions.Defaults defaults = new PNLFunctions.Defaults();
+    setPNLFunctionDefaults(defaults);
+    return CombiningRepositoryConfigurationSource.of(getRepository(calculators), getRepository(defaults));
+  }
+
+  protected void setPortfolioTheoryCalculators(final PortfolioTheoryFunctions.Calculators calculators) {
+  }
+
+  protected void setPortfolioTheoryDefaults(final PortfolioTheoryFunctions.Defaults defaults) {
   }
 
   protected RepositoryConfigurationSource portfolioTheoryFunctions() {
-    return CombiningRepositoryConfigurationSource.of(PortfolioTheoryFunctions.calculators(), PortfolioTheoryFunctions.defaults());
+    final PortfolioTheoryFunctions.Calculators calculators = new PortfolioTheoryFunctions.Calculators();
+    setPortfolioTheoryCalculators(calculators);
+    final PortfolioTheoryFunctions.Defaults defaults = new PortfolioTheoryFunctions.Defaults();
+    setPortfolioTheoryDefaults(defaults);
+    return CombiningRepositoryConfigurationSource.of(getRepository(calculators), getRepository(defaults));
+  }
+
+  protected void setSABRCubeDefaults(final CurrencyInfo i, final com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo defaults) {
+    defaults.setCurveConfiguration(i.getCurveConfiguration("model/sabrcube"));
+    defaults.setCubeName(i.getCubeName("model/sabrcube"));
+  }
+
+  protected void setSABRCubeDefaults(final com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>() {
+      @Override
+      public com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
+        final com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo d =
+            new com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo();
+        setSABRCubeDefaults(i, d);
+        return d;
+      }
+    }));
   }
 
   protected RepositoryConfigurationSource sabrCubeFunctions() {
-    return SABRCubeFunctions.defaults(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo>() {
+    final com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions defaults =
+        new com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions();
+    setSABRCubeDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected void setSwaptionDefaults(final CurrencyInfo i, final com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults.CurrencyInfo defaults) {
+    defaults.setCurveConfig(i.getCurveConfiguration("model/swaption/black"));
+    defaults.setSurfaceName(i.getSurfaceName("model/swaption/black"));
+  }
+
+  protected void setSwaptionDefaults(final com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults defaults) {
+    defaults.setPerCurrencyInfo(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults.CurrencyInfo>() {
       @Override
-      public com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo execute(final CurrencyInfo i) {
-        if ((i.getDefaultCurveConfiguration() == null) || (i.getDefaultCube() == null)) {
-          return null;
-        }
-        return new com.opengamma.financial.analytics.model.sabrcube.defaultproperties.DefaultPropertiesFunctions.CurrencyInfo(i.getDefaultCurveConfiguration(), i.getDefaultCube());
+      public com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
+        final com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults.CurrencyInfo d =
+            new com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults.CurrencyInfo();
+        setSwaptionDefaults(i, d);
+        return d;
       }
     }));
   }
 
   protected RepositoryConfigurationSource swaptionFunctions() {
-    return com.opengamma.financial.analytics.model.swaption.black.BlackFunctions
-        .defaults(getCurrencyInfo(new Function1<CurrencyInfo, com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults.CurrencyInfo>() {
-          @Override
-          public com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
-            if ((i.getDefaultCurveConfiguration() == null) || (i.getSwaptionSurface() == null)) {
-              return null;
-            }
-            return new com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults.CurrencyInfo(i.getDefaultCurveConfiguration(), i.getSwaptionSurface());
-          }
-        }));
+    final com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults defaults = new com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults();
+    setSwaptionDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected void setVaRDefaults(final VaRFunctions.Defaults defaults) {
   }
 
   protected RepositoryConfigurationSource varFunctions() {
-    return VaRFunctions.defaults();
+    final VaRFunctions.Defaults defaults = new VaRFunctions.Defaults();
+    setVaRDefaults(defaults);
+    return getRepository(defaults);
+  }
+
+  protected void setVolatilitySurfaceDefaults(final com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions.Defaults defaults) {
+  }
+
+  protected void setVolatilitySurfaceDefaults(final com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults defaults) {
   }
 
   protected RepositoryConfigurationSource volatilitySurfaceFunctions() {
-    return CombiningRepositoryConfigurationSource.of(com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions.defaults(),
-        com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.defaults());
+    final com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions.Defaults d1 = new com.opengamma.financial.analytics.model.volatility.surface.SurfaceFunctions.Defaults();
+    setVolatilitySurfaceDefaults(d1);
+    final com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults d2 = new com.opengamma.financial.analytics.volatility.surface.SurfaceFunctions.Defaults();
+    setVolatilitySurfaceDefaults(d2);
+    return CombiningRepositoryConfigurationSource.of(getRepository(d1), getRepository(d2));
   }
 
   @Override
   protected RepositoryConfigurationSource createObject() {
-    return CombiningRepositoryConfigurationSource.of(super.createObject(), bondFunctions(), cdsFunctions(), deprecatedFunctions(), equityOptionFunctions(),
+    return CombiningRepositoryConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), cdsFunctions(), deprecatedFunctions(), equityOptionFunctions(),
         externalSensitivitiesFunctions(), fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(),
         interestRateFunctions(), localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions());
   }
