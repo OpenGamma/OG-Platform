@@ -15,6 +15,7 @@ $.register_module({
             // Private
             var default_conf = {
                     form: config.form,
+                    data: { aggregators:[] },
                     selector: '.og-aggregation',
                     tmpl: 'og.analytics.form_aggregation_tash',
                     generator : function (handler, tmpl, data) {
@@ -22,6 +23,9 @@ $.register_module({
                             data.aggregators = resp.data;
                             handler(tmpl(data));
                         });
+                    },
+                    processor: function (data) {
+                        data.aggregators = get_query();
                     }
                 },
                 events = {
@@ -65,6 +69,10 @@ $.register_module({
                     query_val = arr.reduce(function (a, v) {return a += v.val ? v.val : v;}, '');
                     $query.html(query_val);
                 } else $query.text(default_query_text);
+            };
+
+            var get_query = function () {
+                return remove_orphans(), query.pluck('val');
             };
 
             var init = function () {
@@ -129,7 +137,7 @@ $.register_module({
             return menu = new og.analytics.DropMenu(default_conf, init),
 
             // Public
-            menu.replay_query = function (conf) {
+            replay_query = function (conf) {
                 if (!conf && !conf.aggregators || !$.isArray(conf.aggregators)) return;
                 menu.opts.forEach(function (option) {
                     option.remove();
@@ -145,6 +153,7 @@ $.register_module({
                     display_query();
                 });
             },
+
             menu.reset_query = function () {
                 for (var i = menu.opts.length-1; i >=0; i-=1) {
                     if (menu.opts.length === 1) {
@@ -155,10 +164,6 @@ $.register_module({
                     delete_handler(i);
                 }
                 return init_menu_elems(0), reset_query();
-            },
-
-            menu.get_query = function () {
-                return remove_orphans(), query.pluck('val');
             },
 
             menu;

@@ -15,9 +15,13 @@ $.register_module({
             // Private
             var default_conf = {
                     form: config.form,
+                    data: { providers: [] },
                     selector: '.og-datasources',
                     tmpl: 'og.analytics.form_datasources_tash',
-                    extras: { types: ['Live', 'Snapshot', 'Historical']}
+                    extras: { types: ['Live', 'Snapshot', 'Historical']},
+                    processor: function (data) {
+                        data.providers = get_query();
+                    }
                 },
                 events = {
                     open: 'dropmenu:open',
@@ -107,6 +111,28 @@ $.register_module({
                 if (val) inputs.removeAttr('disabled').filter(latest_s).addClass(active_s);
                 else inputs.attr('disabled', true).filter('.'+active_s).removeClass(active_s);
                 inputs.filter(custom_s).removeClass(active_s+ ' ' +date_selected_s).val(custom_val);
+            };
+
+            var get_query = function () {
+                if (!query.length) return;
+                var arr = [];
+                query.forEach(function (entry) {
+                    var obj = {}, val = entry.type.toLowerCase();
+                    switch (val) {
+                        case 'live': obj['marketDataType'] = val, obj['source'] = entry.src; break;
+                        case 'snapshot': obj['marketDataType'] = val, obj['snapshotId'] = snapshots[entry.src]; break;
+                        case 'historical':
+                            if (entry.date) {
+                                obj['marketDataType'] = 'fixedHistorical';
+                                obj['date'] = entry.date;
+                            } else obj['marketDataType'] = 'latestHistorical';
+                            obj['resolverKey'] = entry.src; break;
+                        //no default
+                    }
+                    arr.push(obj);
+                });
+                menu.fire(events.queryresequested);
+                return arr;
             };
 
             var get_snapshot = function (id) {
@@ -328,28 +354,6 @@ $.register_module({
             return menu = new og.analytics.DropMenu(default_conf, init),
 
             // Public
-            menu.get_query = function () {
-                if (!query.length) return;
-                var arr = [];
-                query.forEach(function (entry) {
-                    var obj = {}, val = entry.type.toLowerCase();
-                    switch (val) {
-                        case 'live': obj['marketDataType'] = val, obj['source'] = entry.src; break;
-                        case 'snapshot': obj['marketDataType'] = val, obj['snapshotId'] = snapshots[entry.src]; break;
-                        case 'historical':
-                            if (entry.date) {
-                                obj['marketDataType'] = 'fixedHistorical';
-                                obj['date'] = entry.date;
-                            } else obj['marketDataType'] = 'latestHistorical';
-                            obj['resolverKey'] = entry.src; break;
-                        //no default
-                    }
-                    arr.push(obj);
-                });
-                menu.fire(events.queryresequested);
-                return arr;
-            },
-
             menu.replay_query = function (conf) {
                 if (!conf && !conf.datasources || !$.isArray(conf.datasources) || !conf.datasources.length) return;
                 var i, len, src;

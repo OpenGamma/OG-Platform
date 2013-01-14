@@ -31,15 +31,18 @@ $.register_module({
             form = new og.common.util.ui.Form({
                 module: tashes.form_container,
                 selector: '.' + selectors.form_container
-            }).on('click', '.og-load', function () {
-                og.analytics.url.main(query = {
-                    aggregators: aggregation_menu.get_query() || [],
-                    providers: datasources_menu.get_query(),
-                    viewdefinition: 'DbCfg~2197901'
-                });
             });
 
-        var init = function () {
+        var init = function (callback) {
+            form.on('click', '.og-load', function () {
+                var compilation = form.compile();
+                query = {
+                    aggregators: compilation.aggregators,
+                    providers: compilation.providers,
+                    viewdefinition: 'DbCfg~2197901'
+                };
+                callback(query);
+            });
             form.children.push(
                 (portfolios_dropdown = new og.analytics.form.Portfolios({form:form})).block,
                 (viewdefinitions_dropdown = new og.analytics.form.ViewDefinitions({form:form})).block,
@@ -51,19 +54,8 @@ $.register_module({
             menus.push(portfolios_dropdown, viewdefinitions_dropdown, datasources_menu, temporal_menu, aggregation_menu);
         };
 
-        var replay = function (config) {
-            if (!config) return;
-            menus.forEach(function (menu) { if (menu) { menu.replay(config); } });
-        };
-
-        var reset = function () {
-            if (query) query = null;
-            menus.forEach(function (menu) { if (menu) menu.reset(); });
-        };
-
-        constructor = function () {
-            this.on(events.reset, reset).on(events.replay, replay);
-            return og.views.common.layout.main.allowOverflow('north'), init();
+        constructor = function (callback) {
+            return og.views.common.layout.main.allowOverflow('north'), init(console.log);
         };
 
         constructor.prototype.fire = og.common.events.fire;

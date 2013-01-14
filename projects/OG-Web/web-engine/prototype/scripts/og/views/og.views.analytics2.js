@@ -14,7 +14,7 @@ $.register_module({
             load: function (args) {
                 $('.OG-masthead .og-analytics-beta').addClass('og-active');
                 var new_page = false;
-                if (!form) form = new og.analytics.form2();
+                if (!form) form = new og.analytics.form2(og.analytics.url.main);
                 view.check_state({args: args, conditions: [
                     {new_page: function () {new_page = true; og.analytics.containers.initialize();}}
                 ]});
