@@ -12,7 +12,7 @@
      * @param {Object} js3d An instance of JSurface3D
      * @param {THREE.Vector3} vertex The vertex within settings.snap_distance of the mouse
      * @param {Number} index The index of the vertex
-     * @param {THREE.Mesh} object The closest object to the camera that THREE.Ray returned
+     * @param {THREE.Mesh} object The closest object to the camera that THREE.Raycaster returned
      */
     var hover = function (js3d, vertex, index, object) {
         var hover_buffer = js3d.buffers.hover, hover_group = js3d.groups.hover, matlib = js3d.matlib,
@@ -158,7 +158,7 @@
      * Test if the cursor is over a mesh
      * @event {Object} mouse event object
      * @meshes {Array} meshes array of meshes to test
-     * @return {Object} THREE.Ray intersects object
+     * @return {Object} THREE.Raycaster intersects object
      */
     var intersects_mesh = function (js3d, event, meshes) {
         var mouse = {x: 0, y: 0}, vector, ray;
@@ -166,7 +166,7 @@
         mouse.y = -((event.pageY - js3d.sel_offset.top) / js3d.height) * 2 + 1;
         vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
         js3d.projector.unprojectVector(vector, js3d.camera);
-        ray = new THREE.Ray(js3d.camera.position, vector.subSelf(js3d.camera.position).normalize());
+        ray = new THREE.Raycaster(js3d.camera.position, vector.subSelf(js3d.camera.position).normalize());
         return ray.intersectObjects(meshes);
     };
     /**

@@ -17,6 +17,7 @@
  * @see <a href="http://www.opengamma.com/">OpenGamma</a>
  * @see <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>
  * @author Alan Ayoub
+ * Creates a surface instance
  * @name JSurface3D
  * @namespace JSurface3D
  * @constructor
@@ -141,9 +142,12 @@
          * @param {Boolean} all removes shared stylesheet
          */
         js3d.die = function (all) {
-            buffers.load.clear();
+            buffers.load.clear(null, true);
             cancelAnimationFrame(animation_frame);
             if (all) {$(stylesheet).remove();}
+            js3d.renderer.render(js3d.scene, js3d.camera);
+//            $selector.remove();
+            js3d = null;
         };
         /**
          * Partialy reloads the scene. Resizes the canvas, reloads the hud, rerenderes the scene
@@ -183,7 +187,7 @@
         /** @ignore */
         js3d.load = function () {
             var animation_group = js3d.groups.animation, camera;
-            scene = new THREE.Scene();
+            js3d.scene = scene = new THREE.Scene();
             js3d.sel_offset = $selector.offset();
             js3d.width = $selector.width();
             js3d.height = $selector.height();
