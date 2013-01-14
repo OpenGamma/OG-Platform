@@ -3,10 +3,9 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine;
+package com.opengamma.engine.marketdata.availability;
 
 import com.opengamma.engine.marketdata.MarketDataUtils;
-import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
