@@ -27,7 +27,7 @@ public class BlackScholesMertonPDEPricerTest {
    * is lowest for nu = 125 in this case.  
    */
   @Test
-  public void speedAccuaryTest() {
+  public void speedAccuracyTest() {
     final double s0 = 10.0;
     final double k = 13.0;
     final double r = 0.06;
@@ -50,19 +50,19 @@ public class BlackScholesMertonPDEPricerTest {
       double size = tSteps * sSteps;
 
       final double bsPrice = Math.exp(-r * t) * BlackFormulaRepository.price(s0 * Math.exp(b * t), k, t, sigma, isCall);
-      double startTime = System.nanoTime() / 1e6;
+      double startTime = System.nanoTime();
       pdePDE = PRICER.price(s0, k, r, b, t, sigma, isCall, false, sSteps, tSteps);
-      double endTime = System.nanoTime() / 1e6;
-      double duration = endTime - startTime; // in ms
+      double endTime = System.nanoTime();
+      double duration = endTime - startTime; // in ns
 
       double relErr = Math.abs(1 - pdePDE / bsPrice);
       // System.out.println(tSteps + "\t" + sSteps + "\t" + duration + "\t" + ((double) tSteps) * sSteps + "\t" + relErr);
 
       // check correct scaling of run time with grid size
       if (i == 0) {
-        scale = size / duration;
+        scale = duration/size; // time per node (ns/node)
       } else {
-        assertTrue("runtime not scaling linearly with grid size\t" + size / duration + "\t" + scale, Math.abs(size / duration - scale) < 0.3 * scale);
+        assertTrue("runtime not scaling linearly with grid size\t" + duration/size + "\t" + scale, Math.abs(duration/size - scale) < 0.4 * scale);
       }
 
       // check correct scaling of error with grid size
