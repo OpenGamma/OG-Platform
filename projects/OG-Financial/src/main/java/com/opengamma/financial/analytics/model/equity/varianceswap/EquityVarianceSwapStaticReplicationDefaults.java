@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -23,6 +22,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -44,7 +44,7 @@ public class EquityVarianceSwapStaticReplicationDefaults extends DefaultProperty
   private final Map<String, String> _surfacesPerEquity;
 
   public EquityVarianceSwapStaticReplicationDefaults(final String priority, final String... perEquityConfig) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.EQUITY_VARIANCE_SWAP_SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perEquityConfig, "per equity config");
     final int n = perEquityConfig.length;
@@ -63,13 +63,7 @@ public class EquityVarianceSwapStaticReplicationDefaults extends DefaultProperty
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     final Security security = target.getSecurity();
-    if (!(security instanceof EquityVarianceSwapSecurity)) {
-      return false;
-    }
     final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) security;
     final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityName(varianceSwap);
     return _surfacesPerEquity.containsKey(underlyingEquity);

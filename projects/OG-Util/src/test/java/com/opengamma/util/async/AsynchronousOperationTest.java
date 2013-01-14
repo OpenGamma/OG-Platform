@@ -34,7 +34,7 @@ public class AsynchronousOperationTest {
   }
 
   private String immediateSignal(final boolean result) throws AsynchronousExecution {
-    final AsynchronousOperation<String> operation = new AsynchronousOperation<String>();
+    final AsynchronousOperation<String> operation = AsynchronousOperation.create(String.class);
     asyncTask(operation.getCallback(), result);
     return operation.getResult();
   }
@@ -49,11 +49,12 @@ public class AsynchronousOperationTest {
   }
 
   private void deferredSignal(final boolean listenerFirst, final boolean result) {
-    final AsynchronousOperation<String> operation = new AsynchronousOperation<String>();
+    final AsynchronousOperation<String> operation = AsynchronousOperation.create(String.class);
     try {
       operation.getResult();
       fail();
-    } catch (AsynchronousExecution async) {
+    } catch (final AsynchronousExecution async) {
+      assertEquals(async.getResultType(), String.class);
       final AtomicBoolean flag = new AtomicBoolean(false);
       if (!listenerFirst) {
         asyncTask(operation.getCallback(), result);
@@ -72,7 +73,7 @@ public class AsynchronousOperationTest {
             try {
               r.getResult();
               fail();
-            } catch (OpenGammaRuntimeException e) {
+            } catch (final OpenGammaRuntimeException e) {
               // ignore
             }
           }
@@ -107,13 +108,13 @@ public class AsynchronousOperationTest {
   }
 
   private String blockingCall(final boolean result) throws InterruptedException {
-    final AsynchronousOperation<String> operation = new AsynchronousOperation<String>();
+    final AsynchronousOperation<String> operation = AsynchronousOperation.create(String.class);
     new Thread() {
       @Override
       public void run() {
         try {
           Thread.sleep(Timeout.standardTimeoutMillis());
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
           // Ignore
         }
         asyncTask(operation.getCallback(), result);
@@ -123,7 +124,7 @@ public class AsynchronousOperationTest {
       operation.getResult();
       fail();
       return null;
-    } catch (AsynchronousExecution async) {
+    } catch (final AsynchronousExecution async) {
       return async.getResult();
     }
   }

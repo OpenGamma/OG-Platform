@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -69,49 +68,56 @@ public class ResolutionFailureGatherer<T> extends ResolutionFailureVisitor<T> {
   }
 
   @Override
-  protected T visitSuccessfulFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected T visitSuccessfulFunction(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied) {
     return result(getUnderlying().visitSuccessfulFunction(valueRequirement, function, desiredOutput, satisfied));
   }
 
   @Override
-  protected T visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected T visitFailedFunction(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied) {
     return result(getUnderlying().visitFailedFunction(valueRequirement, function, desiredOutput, satisfied, unsatisfied));
   }
 
   @Override
-  protected T visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected T visitFailedFunction(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied, final Set<ResolutionFailure> unsatisfiedAdditional) {
     return result(getUnderlying().visitFailedFunction(valueRequirement, function, desiredOutput, satisfied, unsatisfied, unsatisfiedAdditional));
   }
 
   @Override
-  protected T visitFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected T visitFunction(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied, final Set<ResolutionFailure> unsatisfiedAdditional) {
     return result(getUnderlying().visitFunction(valueRequirement, function, desiredOutput, satisfied, unsatisfied, unsatisfiedAdditional));
   }
 
   @Override
-  protected T visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected T visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
     return result(getUnderlying().visitGetAdditionalRequirementsFailed(valueRequirement, function, desiredOutput, requirements));
   }
 
   @Override
-  protected T visitGetResultsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
-    return result(getUnderlying().visitGetResultsFailed(valueRequirement, function, desiredOutput));
+  protected T visitGetResultsFailed(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
+      final Map<ValueSpecification, ValueRequirement> requirements) {
+    return result(getUnderlying().visitGetResultsFailed(valueRequirement, function, desiredOutput, requirements));
   }
 
   @Override
-  protected T visitGetRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
+  protected T visitGetRequirementsFailed(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput) {
     return result(getUnderlying().visitGetRequirementsFailed(valueRequirement, function, desiredOutput));
   }
 
   @Override
-  protected T visitLateResolutionFailure(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected T visitLateResolutionFailure(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
     return result(getUnderlying().visitLateResolutionFailure(valueRequirement, function, desiredOutput, requirements));
+  }
+
+  @Override
+  protected T visitBlacklistSuppressed(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
+      final Map<ValueSpecification, ValueRequirement> requirements) {
+    return result(getUnderlying().visitBlacklistSuppressed(valueRequirement, function, desiredOutput, requirements));
   }
 
 }

@@ -152,8 +152,6 @@ public class InMemoryPositionMaster
       ManageableTrade clonedTrade = clonedTrades.get(i);
       clonedTrade.setUniqueId(uniqueId);
       origTrade.setUniqueId(uniqueId);
-      clonedTrade.setParentPositionId(parentPositionId);
-      origTrade.setParentPositionId(parentPositionId);
       _storeTrades.put(objectId, clonedTrade);
     }
   }

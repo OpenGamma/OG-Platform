@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -49,7 +49,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionFunction;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
 
 /**
  *
@@ -355,7 +355,7 @@ public class BlackVolatilitySurfacePropertyUtils {
     return requirements;
   }
 
-  public static ValueRequirement getSurfaceRequirement(final ValueRequirement desiredValue, final String surfaceName, final String instrumentType, final UniqueId surfaceId) {
+  public static ValueRequirement getSurfaceRequirement(final ValueRequirement desiredValue, final String surfaceName, final String instrumentType, final ExternalId surfaceId) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> calculationMethod = constraints.getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
     if (calculationMethod != null && calculationMethod.size() == 1) {

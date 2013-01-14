@@ -20,7 +20,6 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Pair;
@@ -274,16 +273,7 @@ public interface ViewClient extends UniqueIdentifiable {
    * @see #isResultAvailable()
    */
   ViewComputationResultModel getLatestResult();
-  
-  /**
-   * Gets the version-correction for which the attached view process is operating. This may contain 'latest'.
-   * 
-   * @return the version-correction, not null
-   * @throws IllegalStateException if the view client is not attached to a view process
-   */
-  VersionCorrection getProcessVersionCorrection();
-  
-  //-------------------------------------------------------------------------
+
   /**
    * Gets whether this client supports access to view cycles.
    *  

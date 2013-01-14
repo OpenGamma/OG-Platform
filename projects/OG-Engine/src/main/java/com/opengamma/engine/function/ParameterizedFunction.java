@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
@@ -14,7 +14,7 @@ import com.opengamma.util.PublicAPI;
  * For example, suppose you have a function, PriceCDOMonteCarlo, which
  * takes one parameter, IterationCount.
  * You could then have two {@code ParameterizedFunctions}, one where
- * IterationCount = 20000 and another where IterationCount = 50000. 
+ * IterationCount = 20000 and another where IterationCount = 50000.
  */
 @PublicAPI
 public class ParameterizedFunction {
@@ -25,11 +25,11 @@ public class ParameterizedFunction {
 
   /**
    * Creates a function/parameter pair.
-   * 
+   *
    * @param function the function definition, not null
    * @param parameters the function parameters, not null
    */
-  public ParameterizedFunction(CompiledFunctionDefinition function, FunctionParameters parameters) {
+  public ParameterizedFunction(final CompiledFunctionDefinition function, final FunctionParameters parameters) {
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.notNull(parameters, "parameters");
 
@@ -39,7 +39,7 @@ public class ParameterizedFunction {
 
   /**
    * Returns the unique identifier of the parameterized function, if set.
-   * 
+   *
    * @return the unique identifier, null if none is set
    */
   public String getUniqueId() {
@@ -48,16 +48,16 @@ public class ParameterizedFunction {
 
   /**
    * Sets the unique identifier of the parameterized function.
-   * 
+   *
    * @param uniqueId the unique identifier
    */
-  public void setUniqueId(String uniqueId) {
+  public void setUniqueId(final String uniqueId) {
     _uniqueId = uniqueId;
   }
 
   /**
    * Returns the function definition.
-   * 
+   *
    * @return the function definition
    */
   public CompiledFunctionDefinition getFunction() {
@@ -66,7 +66,7 @@ public class ParameterizedFunction {
 
   /**
    * Returns the function parameters.
-   * 
+   *
    * @return the function parameters
    */
   public FunctionParameters getParameters() {

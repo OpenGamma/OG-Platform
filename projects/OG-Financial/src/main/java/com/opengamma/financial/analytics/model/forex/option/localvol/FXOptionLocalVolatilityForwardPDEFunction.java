@@ -10,14 +10,14 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityForwardPDEFunction;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
@@ -31,20 +31,20 @@ public abstract class FXOptionLocalVolatilityForwardPDEFunction extends LocalVol
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof FXOptionSecurity;
+  public ComputationTargetType getTargetType() {
+    return FinancialSecurityTypes.FX_OPTION_SECURITY;
   }
 
   @Override
-  protected UniqueId getTargetUid(final ComputationTarget target) {
+  protected ComputationTargetReference getVolatilitySurfaceAndForwardCurveTarget(final ComputationTarget target) {
     final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
-    return UnorderedCurrencyPair.of(fxOption.getCallCurrency(), fxOption.getPutCurrency()).getUniqueId();
+    return ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(UnorderedCurrencyPair.of(fxOption.getCallCurrency(), fxOption.getPutCurrency()));
   }
 
   @Override
-  protected UniqueId getDiscountingCurveUid(final ComputationTarget target) {
+  protected ComputationTargetReference getDiscountingCurveTarget(final ComputationTarget target) {
     final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
-    return fxOption.getCallCurrency().getUniqueId();
+    return ComputationTargetType.CURRENCY.specification(fxOption.getCallCurrency());
   }
 
   @Override

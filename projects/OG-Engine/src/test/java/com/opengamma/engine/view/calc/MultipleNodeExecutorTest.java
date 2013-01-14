@@ -27,9 +27,9 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -44,6 +44,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.Cancelable;
 
 /**
@@ -68,37 +69,26 @@ public class MultipleNodeExecutorTest {
    */
   private DependencyNode[] _testNode;
   private DependencyGraph _testGraph;
-  private final ValueSpecification _testValue20 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "20"), ValueProperties.builder().with(
-      ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue21 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "21"), ValueProperties.builder().with(
-      ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue24 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "24"), ValueProperties.builder().with(
-      ValuePropertyNames.FUNCTION, "Mock").get());
-  private final ValueSpecification _testValue34 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "34"), ValueProperties.builder().with(
-      ValuePropertyNames.FUNCTION, "Mock").get());
-
-
+  private final ValueProperties _properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "Mock").get();
+  private final ValueSpecification _testValue20 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "20"), _properties);
+  private final ValueSpecification _testValue21 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "21"), _properties);
+  private final ValueSpecification _testValue24 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "24"), _properties);
+  private final ValueSpecification _testValue34 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "34"), _properties);
   private final ValueRequirement _testRequirement0x = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "0x"), ValueProperties.none());
-  private final ValueSpecification _testValue0x = new ValueSpecification(_testRequirement0x, "Mock");
-
+  private final ValueSpecification _testValue0x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "0x"), _properties);
   private final ValueRequirement _testRequirement1x = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "1x"), ValueProperties.none());
-  private final ValueSpecification _testValue1x = new ValueSpecification(_testRequirement1x, "Mock");
-
+  private final ValueSpecification _testValue1x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "1x"), _properties);
   private final ValueRequirement _testRequirement4x = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "4x"), ValueProperties.none());
-  private final ValueSpecification _testValue4x = new ValueSpecification(_testRequirement4x, "Mock");
-
-  private final ValueRequirement _testRequirementx2 = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "2x"), ValueProperties.none());
-  private final ValueSpecification _testValuex2 = new ValueSpecification(_testRequirementx2, "LiveDataSourcingFunction");
-
-  private final ValueRequirement _testRequirementx3 = new ValueRequirement("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "3x"), ValueProperties.none());
-  private final ValueSpecification _testValuex3 = new ValueSpecification(_testRequirementx3, "LiveDataSourcingFunction");
+  private final ValueSpecification _testValue4x = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "4x"), _properties);
+  private final ValueSpecification _testValuex2 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "x2"), _properties);
+  private final ValueSpecification _testValuex3 = ValueSpecification.of("Test", ComputationTargetType.PRIMITIVE, UniqueId.of("test", "x3"), _properties);
 
   @BeforeMethod
   public void createGraph() {
     _testGraph = new DependencyGraph("Default");
     _testNode = new DependencyNode[5];
     for (int i = 0; i < _testNode.length; i++) {
-      final ComputationTarget target = new ComputationTarget(Integer.toString(i));
+      final ComputationTarget target = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", Integer.toString(i)));
       _testNode[i] = new DependencyNode(target);
       _testNode[i].setFunction(MockFunction.getMockFunction(target, "foo"));
     }
@@ -119,7 +109,7 @@ public class MultipleNodeExecutorTest {
     _testNode[4].addInputValue(_testValue24);
     _testNode[4].addInputNode(_testNode[3]);
     _testNode[4].addInputValue(_testValue34);
-    for (DependencyNode a_testNode : _testNode) {
+    for (final DependencyNode a_testNode : _testNode) {
       _testGraph.addDependencyNode(a_testNode);
     }
     _testGraph.addTerminalOutput(_testRequirement0x, _testValue0x);
@@ -136,13 +126,13 @@ public class MultipleNodeExecutorTest {
       }
 
       @Override
-      protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
-        return new CalculationJobSpecification(UniqueId.of("Test", "ViewProcess"), graph.getCalculationConfigurationName(), Instant.now(), JobIdSource.getId());
+      protected VersionCorrection getResolverVersionCorrection() {
+        return VersionCorrection.LATEST;
       }
 
       @Override
-      protected void addJobToViewProcessorQuery(final CalculationJobSpecification jobSpec, final DependencyGraph graph) {
-        // Nothing
+      protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
+        return new CalculationJobSpecification(UniqueId.of("Test", "ViewProcess"), graph.getCalculationConfigurationName(), Instant.now(), JobIdSource.getId());
       }
 
       @Override
@@ -160,7 +150,7 @@ public class MultipleNodeExecutorTest {
   }
 
   private RootGraphFragmentFuture execute(final MultipleNodeExecutor executor, final DependencyGraph graph) {
-    ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
+    final ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
     when(logModeSource.getLogMode(any(DependencyNode.class))).thenReturn(ExecutionLogMode.INDICATORS);
     final Future<DependencyGraph> future = executor.executeImpl(graph, new LinkedBlockingQueue<ExecutionResult>(), DiscardingGraphStatisticsGathererProvider.GATHERER_INSTANCE, logModeSource);
     return (RootGraphFragmentFuture) future;
@@ -209,7 +199,7 @@ public class MultipleNodeExecutorTest {
     }
     assertEquals(3, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
+    for (final GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       if (singletonFragment(fragment, _testNode[0])) {
         mask |= 1;
         assertEquals(1, fragment.getInputFragments().size());
@@ -235,7 +225,7 @@ public class MultipleNodeExecutorTest {
       } else if (singletonFragment(fragment, _testNode[4])) {
         mask |= 4;
         assertEquals(2, fragment.getInputFragments().size());
-        for (GraphFragment<?> fragment2 : fragment.getInputFragments()) {
+        for (final GraphFragment<?> fragment2 : fragment.getInputFragments()) {
           if (singletonFragment(fragment2, _testNode[2])) {
             mask |= 8;
           } else if (singletonFragment(fragment2, _testNode[3])) {
@@ -270,7 +260,7 @@ public class MultipleNodeExecutorTest {
     }
     assertEquals(2, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
+    for (final GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       assertEquals(2, fragment.getNodes().size());
       if (fragment.getNodes().contains(_testNode[0]) && fragment.getNodes().contains(_testNode[1])) {
         mask |= 1;
@@ -359,7 +349,7 @@ public class MultipleNodeExecutorTest {
     }
     assertEquals(3, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
+    for (final GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       assertEquals(1, fragment.getInputFragments().size());
       final GraphFragment<?> input = fragment.getInputFragments().iterator().next();
       assertTrue(singletonFragment(input, _testNode[2]));
@@ -389,9 +379,9 @@ public class MultipleNodeExecutorTest {
     }
     assertEquals(3, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
+    for (final GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       assertEquals(1, fragment.getInputFragments().size());
-      GraphFragment<?> input = fragment.getInputFragments().iterator().next();
+      final GraphFragment<?> input = fragment.getInputFragments().iterator().next();
       assertTrue(singletonFragment(input, _testNode[2]));
       assertEquals(2, input.getTail().size());
       if (fragment.getNodes().contains(_testNode[0])) {
@@ -419,9 +409,9 @@ public class MultipleNodeExecutorTest {
     }
     assertEquals(3, root.getFragment().getInputFragments().size());
     int mask = 0;
-    for (GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
+    for (final GraphFragment<?> fragment : root.getFragment().getInputFragments()) {
       assertEquals(1, fragment.getInputFragments().size());
-      GraphFragment<?> input = fragment.getInputFragments().iterator().next();
+      final GraphFragment<?> input = fragment.getInputFragments().iterator().next();
       assertTrue(singletonFragment(input, _testNode[2]));
       assertEquals(3, input.getTail().size());
       if (fragment.getNodes().contains(_testNode[0])) {
@@ -448,7 +438,7 @@ public class MultipleNodeExecutorTest {
       }
       nodes.addAll(fragment.getNodes());
     }
-    for (GraphFragment<?> input : fragment.getInputFragments()) {
+    for (final GraphFragment<?> input : fragment.getInputFragments()) {
       extractColours(input, colours);
     }
   }
@@ -465,13 +455,13 @@ public class MultipleNodeExecutorTest {
    * Should be broken into N{5, 2} or N{5, 3} and others at 1x concurrency
    */
   public void testTailGraphColouring() {
-    final ComputationTarget t5 = new ComputationTarget("5");
+    final ComputationTarget t5 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "5"));
     final DependencyNode n5 = new DependencyNode(t5);
     n5.setFunction(MockFunction.getMockFunction(t5, "foo"));
-    final ComputationTarget t6 = new ComputationTarget("6");
+    final ComputationTarget t6 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "6"));
     final DependencyNode n6 = new DependencyNode(t6);
     n6.setFunction(MockFunction.getMockFunction(t6, "foo"));
-    final ComputationTarget t7 = new ComputationTarget("7");
+    final ComputationTarget t7 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "7"));
     final DependencyNode n7 = new DependencyNode(t7);
     n7.setFunction(MockFunction.getMockFunction(t7, "foo"));
     _testNode[0].addInputNode(n6);
@@ -489,7 +479,7 @@ public class MultipleNodeExecutorTest {
     }
     MultipleNodeExecutor executor = createExecutor(1, 1, 1);
     RootGraphFragmentFuture root = execute(executor, _testGraph);
-    Map<Integer, Collection<DependencyNode>> colours = new HashMap<Integer, Collection<DependencyNode>>();
+    final Map<Integer, Collection<DependencyNode>> colours = new HashMap<Integer, Collection<DependencyNode>>();
     extractColours(root.getFragment(), colours);
     if (PRINT_GRAPHS) {
       System.out.println(colours);
@@ -518,7 +508,7 @@ public class MultipleNodeExecutorTest {
     }
     assertEquals(3, colours.size());
     int mask = 0;
-    for (Map.Entry<Integer, Collection<DependencyNode>> colour : colours.entrySet()) {
+    for (final Map.Entry<Integer, Collection<DependencyNode>> colour : colours.entrySet()) {
       if (colour.getValue().contains(n6)) {
         assertEquals(1, colour.getValue().size());
         mask |= 1;

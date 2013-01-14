@@ -55,10 +55,10 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
       } else {
         i = targets.size();
         targets.put(object.getComputationTargetSpecification(), i);
-        ComputationTargetSpecificationFudgeBuilder.buildMessageImpl(msg, object.getComputationTargetSpecification());
+        ComputationTargetReferenceFudgeBuilder.buildMessageImpl(serializer, msg, object.getComputationTargetSpecification());
       }
     } else {
-      ComputationTargetSpecificationFudgeBuilder.buildMessageImpl(msg, object.getComputationTargetSpecification());
+      ComputationTargetReferenceFudgeBuilder.buildMessageImpl(serializer, msg, object.getComputationTargetSpecification());
     }
     if (functions != null) {
       Integer i = functions.get(object.getFunctionUniqueIdentifier());
@@ -102,7 +102,7 @@ public class CalculationJobItemFudgeBuilder implements FudgeBuilder<CalculationJ
     if (field != null) {
       computationTargetSpecification = targets.get(((Number) field.getValue()).intValue());
     } else {
-      computationTargetSpecification = ComputationTargetSpecificationFudgeBuilder.buildObjectImpl(deserializer, message);
+      computationTargetSpecification = ComputationTargetReferenceFudgeBuilder.buildObjectImpl(deserializer, message).getSpecification();
       if (targets != null) {
         targets.put(targets.size(), computationTargetSpecification);
       }

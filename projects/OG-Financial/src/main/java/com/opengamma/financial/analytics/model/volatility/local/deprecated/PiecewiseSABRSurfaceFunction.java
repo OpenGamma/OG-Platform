@@ -24,7 +24,6 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.Smi
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -71,16 +70,6 @@ public abstract class PiecewiseSABRSurfaceFunction extends AbstractFunction.NonC
         forwardCurveName);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, impliedVolatilitySurface));
-  }
-
-  @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.PRIMITIVE && isCorrectIdType(target);
   }
 
   @Override
@@ -164,8 +153,6 @@ public abstract class PiecewiseSABRSurfaceFunction extends AbstractFunction.NonC
     final ValueProperties properties = getResultProperties(surfaceName, forwardCurveCalculationMethod, forwardCurveName);
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, target.toSpecification(), properties));
   }
-
-  protected abstract boolean isCorrectIdType(final ComputationTarget target);
 
   protected abstract SmileSurfaceDataBundle getData(FunctionInputs inputs, ValueRequirement volDataRequirement, ValueRequirement forwardCurveRequirement);
 

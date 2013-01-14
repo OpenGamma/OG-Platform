@@ -25,6 +25,7 @@ public class VolatilitySurfaceDefinition<X, Y> {
   private final X[] _xs;
   private final Y[] _ys;
 
+  // TODO: can we hold a target specification here instead of the UID so that we can preserve any type information
   public VolatilitySurfaceDefinition(final String name, final UniqueIdentifiable target, final X[] xs, final Y[] ys) {
     Validate.notNull(name, "Name");
     Validate.notNull(target, "Target");

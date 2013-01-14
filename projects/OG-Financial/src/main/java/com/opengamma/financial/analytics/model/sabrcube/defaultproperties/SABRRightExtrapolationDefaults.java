@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.sabrcube.defaultproperties;
@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -26,16 +25,14 @@ import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationFunction;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
-import com.opengamma.financial.security.capfloor.CapFloorSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(SABRRightExtrapolationDefaults.class);
@@ -50,22 +47,20 @@ public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.PRESENT_VALUE_SABR_NU_NODE_SENSITIVITY,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
   };
-  private final PriorityClass _priority;
   private final String _fittingMethod;
   private final String _cutoff;
   private final String _mu;
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndCubeNames;
 
-  public SABRRightExtrapolationDefaults(final String priority, final String fittingMethod, final String cutoff, final String mu,
+  public SABRRightExtrapolationDefaults(final String fittingMethod, final String cutoff, final String mu,
       final String... currencyCurveConfigAndCubeNames) {
-    super(ComputationTargetType.SECURITY, true);
-    ArgumentChecker.notNull(priority, "priority");
+    super(FinancialSecurityTypes.SWAPTION_SECURITY.or(FinancialSecurityTypes.SWAP_SECURITY).or(FinancialSecurityTypes.CAP_FLOOR_SECURITY).or(FinancialSecurityTypes.CAP_FLOOR_CMS_SPREAD_SECURITY),
+        true);
     ArgumentChecker.notNull(fittingMethod, "fitting method");
     ArgumentChecker.notNull(fittingMethod, "fitting method");
     ArgumentChecker.notNull(cutoff, "cutoff");
     ArgumentChecker.notNull(mu, "mu");
     ArgumentChecker.notNull(currencyCurveConfigAndCubeNames, "currency, curve config and surface names");
-    _priority = PriorityClass.valueOf(priority);
     _fittingMethod = fittingMethod;
     _cutoff = cutoff;
     _mu = mu;
@@ -80,17 +75,12 @@ public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     final Security security = target.getSecurity();
-    if (!(security instanceof SwaptionSecurity
-        || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
-        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
-        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
-        || security instanceof CapFloorSecurity
-        || security instanceof CapFloorCMSSpreadSecurity)) {
-      return false;
+    if (security instanceof SwapSecurity) {
+      final InterestRateInstrumentType type = SwapSecurityUtils.getSwapType((SwapSecurity) security);
+      if ((type != InterestRateInstrumentType.SWAP_FIXED_CMS) && (type != InterestRateInstrumentType.SWAP_CMS_CMS) && (type != InterestRateInstrumentType.SWAP_IBOR_CMS)) {
+        return false;
+      }
     }
     final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
     return _currencyCurveConfigAndCubeNames.containsKey(currencyName);
@@ -131,11 +121,6 @@ public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
       return Collections.singleton(pair.getSecond());
     }
     return null;
-  }
-
-  @Override
-  public PriorityClass getPriority() {
-    return _priority;
   }
 
   @Override

@@ -7,14 +7,12 @@ package com.opengamma.core;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.time.Instant;
-import javax.time.calendar.Period;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -36,16 +34,14 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
-import com.opengamma.util.map.HashDeepMap2;
 import com.opengamma.util.map.Map2;
-import com.opengamma.util.map.SoftValueHashMap2;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.map.WeakValueHashMap2;
 
 /**
  * A cache decorating a {@code FinancialSecuritySource}.
  * <p>
  * The cache is implemented using {@code EHCache}.
- * 
+ *
  * @param <V> the type returned by the source
  * @param <S> the source
  */
@@ -64,19 +60,13 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
    * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
    * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't requery EHCache for them.
    */
-  private final ConcurrentMap<UniqueId, V> _frontCache = new MapMaker().weakValues().makeMap();
+  private final ConcurrentMap<UniqueId, V> _frontCacheByUID = new MapMaker().weakValues().makeMap();
 
   /**
    * EHCache doesn't like being hammered repeatedly for the same objects. Also, if the window of objects being requested is bigger than the in memory window then new objects get created as the on-disk
    * values get deserialized. The solution is to maintain a soft referenced buffer so that all the while the objects we have previously returned are in use we won't requery EHCache for them.
    */
-  private final Map2<Object, VersionCorrection, V> _frontCache2 = new SoftValueHashMap2<Object, VersionCorrection, V>();
-
-  private final HashDeepMap2<ObjectId, UniqueId, V> _frontCache3 = new HashDeepMap2<ObjectId, UniqueId, V>() {
-    protected MapMaker mapMaker() {
-      return super.mapMaker().softValues();
-    }
-  };
+  private final Map2<ObjectId, VersionCorrection, V> _frontCacheByOID = new WeakValueHashMap2<ObjectId, VersionCorrection, V>();
 
   /**
    * The underlying cache.
@@ -117,12 +107,11 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
     EHCacheUtils.addCache(cacheManager, _uidCacheName);
     _oidCache = EHCacheUtils.getCacheFromManager(cacheManager, _oidCacheName);
     _uidCache = EHCacheUtils.getCacheFromManager(cacheManager, _uidCacheName);
-    
     _manager = cacheManager;
     _changeManager = new BasicChangeManager();
     _changeListener = new ChangeListener() {
       @Override
-      public void entityChanged(ChangeEvent event) {
+      public void entityChanged(final ChangeEvent event) {
         final ObjectId oid = event.getObjectId();
         final Instant versionFrom = event.getVersionFrom();
         final Instant versionTo = event.getVersionTo();
@@ -152,70 +141,45 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
     return _manager;
   }
 
-  /**
-   * Gets the front cache.
-   *
-   * @return the front cache, not null
-   */
-  protected ConcurrentMap<UniqueId, V> getFrontCache() {
-    return _frontCache;
-  }
-
-  /**
-   * Gets the front cache.
-   *
-   * @return the front cache, not null
-   */
-  protected Map2<Object, VersionCorrection, V> getFrontCache2() {
-    return _frontCache2;
-  }
-
-  /**
-   * Gets the oid cache.
-   *
-   * @return the oid cache, not null
-   */
-  protected Cache getOidCache() {
-    return _oidCache;
-  }
-
-  /**
-   * Gets the uid cache.
-   *
-   * @return the uid cache, not null
-   */
-  protected Cache getUidCache() {
-    return _uidCache;
-  }
-
-  //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
   @Override
-  public V get(UniqueId uid) {
+  public V get(final UniqueId uid) {
     ArgumentChecker.notNull(uid, "uid");
-    V result = _frontCache.get(uid);
+    V result = _frontCacheByUID.get(uid);
     if (result != null) {
       return result;
     }
-    Element e = _uidCache.get(uid);
+    final Element e = _uidCache.get(uid);
     if (e != null) {
       result = (V) e.getValue();
       s_logger.debug("retrieved object: {} from uid-cache", result);
-      final V existing = _frontCache.putIfAbsent(uid, result);
+      V existing = _frontCacheByUID.putIfAbsent(uid, result);
       if (existing != null) {
         return existing;
-      } else {
-        return result;
       }
+      if (uid.isLatest()) {
+        existing = _frontCacheByUID.putIfAbsent(result.getUniqueId(), result);
+        if (existing != null) {
+          return existing;
+        }
+      }
+      return result;
     } else {
       result = getUnderlying().get(uid);
-      final V existing = _frontCache.putIfAbsent(uid, result);
+      V existing = _frontCacheByUID.putIfAbsent(uid, result);
       if (existing != null) {
         return existing;
-      } else {
-        _uidCache.put(new Element(uid, result));
-        return result;
       }
+      if (uid.isLatest()) {
+        existing = _frontCacheByUID.putIfAbsent(result.getUniqueId(), result);
+        if (existing != null) {
+          result = existing;
+        } else {
+          _uidCache.put(new Element(result.getUniqueId(), result));
+        }
+      }
+      _uidCache.put(new Element(uid, result));
+      return result;
     }
   }
 
@@ -234,7 +198,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
   public V get(final ObjectId objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    V result = _frontCache2.get(objectId, versionCorrection);
+    V result = _frontCacheByOID.get(objectId, versionCorrection);
     if (result != null) {
       return result;
     }
@@ -242,21 +206,25 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
     if (items != null) {
       result = items.get(versionCorrection);
       if (result != null) {
-        final V existing = _frontCache2.putIfAbsent(objectId, versionCorrection, result);
+        final V existing = _frontCacheByUID.putIfAbsent(result.getUniqueId(), result);
         if (existing != null) {
+          _frontCacheByOID.put(objectId, versionCorrection, result);
           return existing;
         }
+        _frontCacheByOID.put(objectId, versionCorrection, result);
+        _uidCache.put(new Element(result.getUniqueId(), result));
+        return result;
       }
     }
-    if (result == null) {
-      result = getUnderlying().get(objectId, versionCorrection);
-      if (result != null) {
-        final V existing = _frontCache2.putIfAbsent(objectId, versionCorrection, result);
-        if (existing != null) {
-          return existing;
-        }
-        _uidCache.put(new Element(result.getUniqueId(), result));
-      }
+    result = getUnderlying().get(objectId, versionCorrection);
+    final V existing = _frontCacheByUID.putIfAbsent(result.getUniqueId(), result);
+    if (existing != null) {
+      _frontCacheByOID.put(objectId, versionCorrection, existing);
+      return existing;
+    }
+    _frontCacheByOID.put(objectId, versionCorrection, result);
+    _uidCache.put(new Element(result.getUniqueId(), result));
+    if (!versionCorrection.containsLatest()) {
       final Map<VersionCorrection, V> newitems = new HashMap<VersionCorrection, V>();
       synchronized (this) {
         items = getObjectIdCacheEntry(objectId);
@@ -270,19 +238,14 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
     return result;
   }
 
-  static final Period s_versionCorrectionBucketSize = Period.ofDays(1); //This is an attempt to avoid thrashing if we get conflicting queries
-  static final BigInteger s_versionCorrectionBucketSizeInNanos = BigInteger.valueOf(s_versionCorrectionBucketSize.totalNanosWith24HourDays());
-  static final int s_versionCorrectionBucketSizeInSeconds = (int) Period.ofDays(1).totalSecondsWith24HourDays();
-  static final BigInteger s_latestBucket = BigInteger.valueOf(-1);
-
   @Override
-  public Map<UniqueId, V> get(Collection<UniqueId> uniqueIds) {
-    Map<UniqueId, V> result = newHashMap();
-    for (UniqueId uniqueId : uniqueIds) {
+  public Map<UniqueId, V> get(final Collection<UniqueId> uniqueIds) {
+    final Map<UniqueId, V> result = newHashMap();
+    for (final UniqueId uniqueId : uniqueIds) {
       try {
-        V object = get(uniqueId);
+        final V object = get(uniqueId);
         result.put(uniqueId, object);
-      } catch (DataNotFoundException ex) {
+      } catch (final DataNotFoundException ex) {
         // do nothing
       }
     }
@@ -304,37 +267,25 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
   }
 
   //-------------------------------------------------------------------------
-  protected void cleanCaches(ObjectId oid, Instant versionFrom, Instant versionTo) {
-    _frontCache3.remove(oid);
-    
-    // Note: this is very inefficient
-    for (Pair<Object, VersionCorrection> key : _frontCache2.keySet()) {
-      if (key.getFirst() instanceof ObjectId) {
-        ObjectId objectId = (ObjectId) key.getFirst();
-        VersionCorrection vc = key.getSecond();
-        if (objectId.equals(oid) && vc.getCorrectedTo() == null &&
-            !vc.getVersionAsOf().isBefore(versionFrom) && !vc.getVersionAsOf().isAfter(versionTo)) {
-          _frontCache2.remove(key);
-        }
-      } else {
-        _frontCache2.remove(key);
-      }
-    }
-    
-    for (Object key : _uidCache.getKeys()) {
-      if (key instanceof UniqueId && ((UniqueId) key).getObjectId().equals(oid)) {
-        _uidCache.remove(key);
-        _frontCache.remove(key);
-      }
-    }
-    
+  protected void cleanCaches(final ObjectId oid, final Instant versionFrom, final Instant versionTo) {
+    // The only UID we need to flush out is the "latest" one since this might now be valid
+    final UniqueId uid = oid.atLatestVersion();
+    _frontCacheByUID.remove(uid);
+    _uidCache.remove(uid);
     // Destroy all version/correction cached values for the object
+    _frontCacheByOID.removeAllKey1(oid);
     _oidCache.remove(oid);
   }
 
-  protected void cacheItems(Collection<V> items) {
-    for (V security : items) {
-      _uidCache.put(new Element(security.getUniqueId(), security));
+  protected void cacheItem(final V item) {
+    if (_frontCacheByUID.putIfAbsent(item.getUniqueId(), item) == null) {
+      _uidCache.put(new Element(item.getUniqueId(), item));
+    }
+  }
+
+  protected void cacheItems(final Collection<V> items) {
+    for (final V item : items) {
+      cacheItem(item);
     }
   }
 

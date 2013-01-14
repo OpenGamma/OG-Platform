@@ -8,8 +8,8 @@ package com.opengamma.financial.analytics.model.curve.forward;
 import java.util.Collection;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
@@ -19,23 +19,14 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 public class FXForwardCurveFromYieldCurvesPrimitiveDefaults extends FXForwardCurveFromYieldCurvesDefaults {
 
   public FXForwardCurveFromYieldCurvesPrimitiveDefaults(final String... currencyCurveConfigAndDiscountingCurveNames) {
-    super(ComputationTargetType.PRIMITIVE, currencyCurveConfigAndDiscountingCurveNames);
+    super(ComputationTargetType.UNORDERED_CURRENCY_PAIR, currencyCurveConfigAndDiscountingCurveNames);
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    final UniqueId uniqueId = target.getUniqueId();
-    if (!UnorderedCurrencyPair.OBJECT_SCHEME.equals(uniqueId.getScheme())) {
-      return false;
-    }
-    final String currencyPair = uniqueId.getValue();
-    final String firstCurrency = currencyPair.substring(0, 3);
-    final String secondCurrency = currencyPair.substring(3, 6);
+    final UnorderedCurrencyPair ccy = (UnorderedCurrencyPair) target.getValue();
     final Collection<String> currencies = getTargets();
-    return currencies.contains(firstCurrency) && currencies.contains(secondCurrency);
+    return currencies.contains(ccy.getFirstCurrency().getCode()) && currencies.contains(ccy.getSecondCurrency().getCode());
   }
 
   @Override

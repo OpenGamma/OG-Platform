@@ -18,13 +18,14 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -157,7 +158,7 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
    */
   protected Portfolio getPortfolio(UniqueId portfolioId) {
     ArgumentChecker.notNull(portfolioId, "portfolioId");
-    return getPositionSource().getPortfolio(portfolioId);
+    return getPositionSource().getPortfolio(portfolioId, VersionCorrection.LATEST);
   }
 
   /**

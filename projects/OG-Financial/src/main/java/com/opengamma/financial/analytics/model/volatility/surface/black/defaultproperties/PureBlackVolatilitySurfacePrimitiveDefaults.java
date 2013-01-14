@@ -6,8 +6,8 @@
 package com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.id.UniqueId;
 
@@ -22,9 +22,6 @@ public class PureBlackVolatilitySurfacePrimitiveDefaults extends PureBlackVolati
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
     final UniqueId uniqueId = target.getUniqueId();
     final String ticker = EquitySecurityUtils.getIndexOrEquityName(uniqueId);
     if (getAllTickers().contains(ticker)) {

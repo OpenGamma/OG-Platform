@@ -16,15 +16,14 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -102,13 +101,13 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   //-------------------------------------------------------------------------
   @Override
   public ValueSpecification getAvailability(ValueRequirement requirement) {
-    return _lastKnownValues.containsKey(requirement) ? MarketDataUtils.createMarketDataValue(requirement) : null;
+    return _lastKnownValues.containsKey(requirement) ? MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public void addValue(ValueRequirement requirement, Object value) {
-    _lastKnownValues.put(requirement, new ComputedValue(MarketDataUtils.createMarketDataValue(requirement), value));
+    _lastKnownValues.put(requirement, new ComputedValue(MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID), value));
     valueChanged(requirement);
   }
   
@@ -147,7 +146,6 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   private ValueRequirement resolveRequirement(ExternalId identifier, String valueName) {
     ArgumentChecker.notNull(identifier, "identifier");
     ArgumentChecker.notNull(valueName, "valueName");
-    
     Security security = null;
     if (_securitySource != null) {
       // 1 - see if the identifier can be resolved to a security
@@ -162,9 +160,8 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
     if (security != null) {
       return new ValueRequirement(valueName, ComputationTargetType.SECURITY, security.getUniqueId());
     } else {
-      // 3 - treat the identifier as a UniqueId and assume it's a PRIMITIVE
-      UniqueId uniqueIdentifier = UniqueId.of(identifier.getScheme().getName(), identifier.getValue());
-      return new ValueRequirement(valueName, ComputationTargetType.PRIMITIVE, uniqueIdentifier);
+      // 3 - assume it's a PRIMITIVE
+      return new ValueRequirement(valueName, ComputationTargetType.PRIMITIVE, identifier);
     }
   }
 

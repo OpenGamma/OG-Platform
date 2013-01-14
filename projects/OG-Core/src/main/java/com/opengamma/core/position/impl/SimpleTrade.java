@@ -53,11 +53,6 @@ public class SimpleTrade extends DirectBean
   @PropertyDefinition(validate = "notNull")
   private UniqueId _uniqueId;
   /**
-   * The unique identifier of the parent position, null if no parent.
-   */
-  @PropertyDefinition
-  private UniqueId _parentPositionId;
-  /**
    * The number of units in the trade.
    */
   @PropertyDefinition(validate = "notNull")
@@ -121,15 +116,13 @@ public class SimpleTrade extends DirectBean
   /**
    * Creates a trade from a positionId, an amount of a security identified by key, counterparty and tradeinstant.
    * 
-   * @param parentPositionId  the parent position id, not null
    * @param securityLink  the security identifier, not null
    * @param quantity  the amount of the trade, not null
    * @param counterparty  the counterparty, not null
    * @param tradeDate  the trade date, not null
    * @param tradeTime  the trade time with offset, may be null
    */
-  public SimpleTrade(UniqueId parentPositionId, SecurityLink securityLink, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
-    ArgumentChecker.notNull(parentPositionId, "parentPositionId");
+  public SimpleTrade(SecurityLink securityLink, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
     ArgumentChecker.notNull(securityLink, "securityLink");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(counterparty, "counterparty");
@@ -138,22 +131,19 @@ public class SimpleTrade extends DirectBean
     _counterparty = counterparty;
     _tradeDate = tradeDate;
     _tradeTime = tradeTime;
-    _parentPositionId = parentPositionId;
     _securityLink = securityLink;
   }
 
   /**
    * Creates a trade from a positionId, an amount of a security, counterparty and trade instant.
    * 
-   * @param parentPositionId  the parent position id, not null
    * @param security  the security, not null
    * @param quantity  the amount of the trade, not null
    * @param counterparty  the counterparty, not null
    * @param tradeDate  the trade date, not null
    * @param tradeTime  the trade time with offset, may be null
    */
-  public SimpleTrade(UniqueId parentPositionId, Security security, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
-    ArgumentChecker.notNull(parentPositionId, "parentPositionId");
+  public SimpleTrade(Security security, BigDecimal quantity, Counterparty counterparty, LocalDate tradeDate, OffsetTime tradeTime) {
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(quantity, "quantity");
     ArgumentChecker.notNull(counterparty, "counterparty");
@@ -162,7 +152,6 @@ public class SimpleTrade extends DirectBean
     _counterparty = counterparty;
     _tradeDate = tradeDate;
     _tradeTime = tradeTime;
-    _parentPositionId = parentPositionId;
     _securityLink = SimpleSecurityLink.of(security);
   }
 
@@ -178,7 +167,6 @@ public class SimpleTrade extends DirectBean
     _counterparty = copyFrom.getCounterparty();
     _tradeDate = copyFrom.getTradeDate();
     _tradeTime = copyFrom.getTradeTime();
-    _parentPositionId = copyFrom.getParentPositionId();
     _premium = copyFrom.getPremium();
     _premiumCurrency = copyFrom.getPremiumCurrency();
     _premiumDate = copyFrom.getPremiumDate();
@@ -229,11 +217,9 @@ public class SimpleTrade extends DirectBean
         .append(getQuantity())
         .append(' ')
         .append(LinkUtils.best(getSecurityLink()))
-        .append(" PositionID:")
-        .append(getParentPositionId())
-        .append(" ")
+        .append(", ")
         .append(getCounterparty())
-        .append(" ")
+        .append(", ")
         .append(getTradeDate())
         .append(" ")
         .append(getTradeTime())
@@ -264,8 +250,6 @@ public class SimpleTrade extends DirectBean
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         return getUniqueId();
-      case -108882834:  // parentPositionId
-        return getParentPositionId();
       case -1285004149:  // quantity
         return getQuantity();
       case 807992154:  // securityLink
@@ -296,9 +280,6 @@ public class SimpleTrade extends DirectBean
     switch (propertyName.hashCode()) {
       case -294460212:  // uniqueId
         setUniqueId((UniqueId) newValue);
-        return;
-      case -108882834:  // parentPositionId
-        setParentPositionId((UniqueId) newValue);
         return;
       case -1285004149:  // quantity
         setQuantity((BigDecimal) newValue);
@@ -351,7 +332,6 @@ public class SimpleTrade extends DirectBean
     if (obj != null && obj.getClass() == this.getClass()) {
       SimpleTrade other = (SimpleTrade) obj;
       return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getParentPositionId(), other.getParentPositionId()) &&
           JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
           JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
           JodaBeanUtils.equal(getCounterparty(), other.getCounterparty()) &&
@@ -370,7 +350,6 @@ public class SimpleTrade extends DirectBean
   public int hashCode() {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getParentPositionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
@@ -408,31 +387,6 @@ public class SimpleTrade extends DirectBean
    */
   public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the unique identifier of the parent position, null if no parent.
-   * @return the value of the property
-   */
-  public UniqueId getParentPositionId() {
-    return _parentPositionId;
-  }
-
-  /**
-   * Sets the unique identifier of the parent position, null if no parent.
-   * @param parentPositionId  the new value of the property
-   */
-  public void setParentPositionId(UniqueId parentPositionId) {
-    this._parentPositionId = parentPositionId;
-  }
-
-  /**
-   * Gets the the {@code parentPositionId} property.
-   * @return the property, not null
-   */
-  public final Property<UniqueId> parentPositionId() {
-    return metaBean().parentPositionId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -713,11 +667,6 @@ public class SimpleTrade extends DirectBean
     private final MetaProperty<UniqueId> _uniqueId = DirectMetaProperty.ofReadWrite(
         this, "uniqueId", SimpleTrade.class, UniqueId.class);
     /**
-     * The meta-property for the {@code parentPositionId} property.
-     */
-    private final MetaProperty<UniqueId> _parentPositionId = DirectMetaProperty.ofReadWrite(
-        this, "parentPositionId", SimpleTrade.class, UniqueId.class);
-    /**
      * The meta-property for the {@code quantity} property.
      */
     private final MetaProperty<BigDecimal> _quantity = DirectMetaProperty.ofReadWrite(
@@ -774,7 +723,6 @@ public class SimpleTrade extends DirectBean
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "uniqueId",
-        "parentPositionId",
         "quantity",
         "securityLink",
         "counterparty",
@@ -797,8 +745,6 @@ public class SimpleTrade extends DirectBean
       switch (propertyName.hashCode()) {
         case -294460212:  // uniqueId
           return _uniqueId;
-        case -108882834:  // parentPositionId
-          return _parentPositionId;
         case -1285004149:  // quantity
           return _quantity;
         case 807992154:  // securityLink
@@ -845,14 +791,6 @@ public class SimpleTrade extends DirectBean
      */
     public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
-    }
-
-    /**
-     * The meta-property for the {@code parentPositionId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<UniqueId> parentPositionId() {
-      return _parentPositionId;
     }
 
     /**

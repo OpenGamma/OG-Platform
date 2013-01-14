@@ -16,13 +16,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -47,7 +47,7 @@ public class CommodityFutureOptionBlackDefaults extends DefaultPropertyFunction 
   private final Map<String, String> _currencyToInterpolationMethod;
 
   public CommodityFutureOptionBlackDefaults(final String... defaultsPerCurrency) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.COMMODITY_FUTURE_OPTION_SECURITY, true);
     ArgumentChecker.notNull(defaultsPerCurrency, "defaults per currency");
     final int n = defaultsPerCurrency.length;
     ArgumentChecker.isTrue(n % 5 == 0, "Need one discounting curve name, discounting curve calculation config, surface name and surface interpolation method per currency");
@@ -66,13 +66,7 @@ public class CommodityFutureOptionBlackDefaults extends DefaultPropertyFunction 
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     final Security security = target.getSecurity();
-    if (!(security instanceof CommodityFutureOptionSecurity)) {
-      return false;
-    }
     final String currency = ((CommodityFutureOptionSecurity) security).getCurrency().getCode();
     return getAllCurrencies().contains(currency);
   }

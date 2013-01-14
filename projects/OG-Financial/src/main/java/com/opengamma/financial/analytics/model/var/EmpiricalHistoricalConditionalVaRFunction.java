@@ -21,6 +21,7 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -33,7 +34,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * 
  */
-public abstract class EmpiricalHistoricalConditionalVaRFunction extends AbstractFunction.NonCompiledInvoker {
+public class EmpiricalHistoricalConditionalVaRFunction extends AbstractFunction.NonCompiledInvoker {
   private static final EmpiricalDistributionConditionalVaRCalculator CALCULATOR = new EmpiricalDistributionConditionalVaRCalculator(StatisticsCalculatorFactory.MEAN_CALCULATOR);
 
   @Override
@@ -177,6 +178,11 @@ public abstract class EmpiricalHistoricalConditionalVaRFunction extends Abstract
     }
     return new EmpiricalDistributionVaRParameters(Double.valueOf(horizonNames.iterator().next()),
         VaRFunctionUtils.getBusinessDaysPerPeriod(scheduleCalculatorNames.iterator().next()), Double.valueOf(confidenceLevelNames.iterator().next()));
+  }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION);
   }
 
 }

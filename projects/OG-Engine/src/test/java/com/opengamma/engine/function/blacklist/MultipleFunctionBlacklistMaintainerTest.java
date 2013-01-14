@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function.blacklist;
@@ -16,7 +16,6 @@ import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.calcnode.CalculationJobItem;
-import com.opengamma.id.UniqueId;
 
 /**
  * Tests the {@link MultipleFunctionBlacklistMaintainer} class.
@@ -24,11 +23,9 @@ import com.opengamma.id.UniqueId;
 @Test
 public class MultipleFunctionBlacklistMaintainerTest {
 
-  private final CalculationJobItem _item1 = new CalculationJobItem(
-      "F1", new EmptyFunctionParameters(), new ComputationTargetSpecification(UniqueId.of("Test", "Test")),
+  private final CalculationJobItem _item1 = new CalculationJobItem("F1", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL,
       Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS);
-  private final CalculationJobItem _item2 = new CalculationJobItem(
-      "F2", new EmptyFunctionParameters(), new ComputationTargetSpecification(UniqueId.of("Test", "Test")),
+  private final CalculationJobItem _item2 = new CalculationJobItem("F2", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL,
       Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS);
 
   public void testNone() {
