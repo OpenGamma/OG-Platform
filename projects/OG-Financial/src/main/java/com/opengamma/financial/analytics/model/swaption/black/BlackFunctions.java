@@ -15,7 +15,6 @@ import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.horizon.SwaptionBlackThetaDefaults;
-import com.opengamma.financial.analytics.model.swaption.black.BlackFunctions.Defaults.CurrencyInfo;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
@@ -33,13 +32,6 @@ public class BlackFunctions extends AbstractRepositoryConfigurationBean {
     return new BlackFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource defaults(final Map<String, CurrencyInfo> perCurrencyInfo) {
-    final Defaults factory = new Defaults();
-    factory.setPerCurrencyInfo(perCurrencyInfo);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the functions contained in this package.
    */
@@ -52,14 +44,6 @@ public class BlackFunctions extends AbstractRepositoryConfigurationBean {
 
       private String _curveConfig;
       private String _surfaceName;
-
-      public CurrencyInfo() {
-      }
-
-      public CurrencyInfo(final String curveConfig, final String surfaceName) {
-        setCurveConfig(curveConfig);
-        setSurfaceName(surfaceName);
-      }
 
       public void setCurveConfig(final String curveConfig) {
         _curveConfig = curveConfig;

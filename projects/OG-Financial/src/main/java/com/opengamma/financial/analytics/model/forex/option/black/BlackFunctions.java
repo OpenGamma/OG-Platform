@@ -37,20 +37,6 @@ public class BlackFunctions extends AbstractRepositoryConfigurationBean {
     return new DeprecatedFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource defaults() {
-    final Defaults factory = new Defaults();
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
-  public static RepositoryConfigurationSource defaults(final double overhedge, final double relativeStrikeSmoothing) {
-    final Defaults factory = new Defaults();
-    factory.setOverhedge(overhedge);
-    factory.setRelativeStrikeSmoothing(relativeStrikeSmoothing);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the defaults functions contained in this package.
    */

@@ -15,7 +15,6 @@ import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.pnl.ExternallyProvidedSensitivityPnLFunction;
-import com.opengamma.financial.analytics.model.sensitivities.SensitivitiesFunctions.Defaults.CurrencyInfo;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 import com.opengamma.util.ArgumentChecker;
@@ -32,19 +31,6 @@ public class SensitivitiesFunctions extends AbstractRepositoryConfigurationBean 
    */
   public static RepositoryConfigurationSource instance() {
     return new SensitivitiesFunctions().getObjectCreating();
-  }
-
-  public static RepositoryConfigurationSource calculators() {
-    final Calculators factory = new Calculators();
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
-  public static RepositoryConfigurationSource calculators(final String htsResolutionKey) {
-    final Calculators factory = new Calculators();
-    factory.setHtsResolutionKey(htsResolutionKey);
-    factory.afterPropertiesSet();
-    return factory.getObject();
   }
 
   /**
@@ -75,13 +61,6 @@ public class SensitivitiesFunctions extends AbstractRepositoryConfigurationBean 
 
   }
 
-  public static RepositoryConfigurationSource defaults(final Map<String, CurrencyInfo> perCurrencyInfo) {
-    final Defaults factory = new Defaults();
-    factory.setPerCurrencyInfo(perCurrencyInfo);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
@@ -93,13 +72,6 @@ public class SensitivitiesFunctions extends AbstractRepositoryConfigurationBean 
     public static class CurrencyInfo implements InitializingBean {
 
       private String _curveConfiguration;
-
-      public CurrencyInfo() {
-      }
-
-      public CurrencyInfo(final String curveConfiguration) {
-        setCurveConfiguration(curveConfiguration);
-      }
 
       public void setCurveConfiguration(final String curveConfiguration) {
         _curveConfiguration = curveConfiguration;

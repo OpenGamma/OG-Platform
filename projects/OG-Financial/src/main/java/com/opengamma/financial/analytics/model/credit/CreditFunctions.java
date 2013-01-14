@@ -31,25 +31,6 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
     return new CreditFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource defaults(final Map<String, Defaults.CurrencyInfo> perCurrencyInfo) {
-    final Defaults factory = new Defaults();
-    factory.setPerCurrencyInfo(perCurrencyInfo);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
-  public static RepositoryConfigurationSource defaults(final int nIterations, final double tolerance, final double rangeMultiplier, final int nIntegrationPoints,
-      final Map<String, Defaults.CurrencyInfo> perCurrencyInfo) {
-    final Defaults factory = new Defaults();
-    factory.setNIterations(nIterations);
-    factory.setTolerance(tolerance);
-    factory.setRangeMultiplier(rangeMultiplier);
-    factory.setNIntegrationPoints(nIntegrationPoints);
-    factory.setPerCurrencyInfo(perCurrencyInfo);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
@@ -64,20 +45,6 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
       private String _curveName;
       private String _curveCalculationConfig;
       private String _curveCalculationMethod = "ISDA";
-
-      public CurrencyInfo() {
-      }
-
-      public CurrencyInfo(final String curveName, final String curveCalculationConfig) {
-        setCurveName(curveName);
-        setCurveCalculationConfig(curveCalculationConfig);
-      }
-
-      public CurrencyInfo(final int offset, final String curveName, final String curveCalculationConfig, final String curveCalculationMethod) {
-        this(curveName, curveCalculationConfig);
-        setCurveCalculationMethod(curveCalculationMethod);
-        setOffset(offset);
-      }
 
       public void setOffset(final int offset) {
         _offset = offset;
@@ -113,9 +80,9 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
 
       @Override
       public void afterPropertiesSet() {
-        ArgumentChecker.notNullInjected("curveName", getCurveName());
-        ArgumentChecker.notNullInjected("curveCalculationConfig", getCurveCalculationConfig());
-        ArgumentChecker.notNullInjected("curveCalculationMethod", getCurveCalculationMethod());
+        ArgumentChecker.notNullInjected(getCurveName(), "curveName");
+        ArgumentChecker.notNullInjected(getCurveCalculationConfig(), "curveCalculationConfig");
+        ArgumentChecker.notNullInjected(getCurveCalculationMethod(), "curveCalculationMethod");
       }
 
     }

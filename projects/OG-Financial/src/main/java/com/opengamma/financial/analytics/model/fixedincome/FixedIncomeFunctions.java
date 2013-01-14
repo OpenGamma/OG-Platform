@@ -14,7 +14,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.analytics.model.fixedincome.FixedIncomeFunctions.Defaults.CurrencyInfo;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.DeprecatedFunctions;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
@@ -37,21 +36,6 @@ public class FixedIncomeFunctions extends AbstractRepositoryConfigurationBean {
     return new DeprecatedFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource defaults(final Map<String, CurrencyInfo> perCurrencyInfo) {
-    final Defaults factory = new Defaults();
-    factory.setPerCurrencyInfo(perCurrencyInfo);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
-  public static RepositoryConfigurationSource defaults(final Map<String, CurrencyInfo> perCurrencyInfo, final boolean includeIRFutures) {
-    final Defaults factory = new Defaults();
-    factory.setPerCurrencyInfo(perCurrencyInfo);
-    factory.setIncludeIRFutures(includeIRFutures);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
@@ -63,13 +47,6 @@ public class FixedIncomeFunctions extends AbstractRepositoryConfigurationBean {
     public static class CurrencyInfo implements InitializingBean {
 
       private String _curveCalculationConfig;
-
-      public CurrencyInfo() {
-      }
-
-      public CurrencyInfo(final String curveCalculationConfig) {
-        setCurveCalculationConfig(curveCalculationConfig);
-      }
 
       public void setCurveCalculationConfig(final String curveCalculationConfig) {
         _curveCalculationConfig = curveCalculationConfig;

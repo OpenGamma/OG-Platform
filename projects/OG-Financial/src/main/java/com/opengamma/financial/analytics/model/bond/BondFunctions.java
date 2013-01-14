@@ -14,8 +14,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.analytics.model.bond.BondFunctions.Defaults.CurrencyInfo;
-import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,13 +28,6 @@ public class BondFunctions extends AbstractRepositoryConfigurationBean {
    */
   public static RepositoryConfigurationSource instance() {
     return new BondFunctions().getObjectCreating();
-  }
-
-  public static RepositoryConfigurationSource defaults(final Map<String, CurrencyInfo> perCurrencyInfo) {
-    final Defaults factory = new Defaults();
-    factory.setPerCurrencyInfo(perCurrencyInfo);
-    factory.afterPropertiesSet();
-    return factory.getObject();
   }
 
   /**
@@ -98,10 +89,10 @@ public class BondFunctions extends AbstractRepositoryConfigurationBean {
 
       @Override
       public void afterPropertiesSet() {
-        ArgumentChecker.notNullInjected("riskFreeCurveName", getRiskFreeCurveName());
-        ArgumentChecker.notNullInjected("riskFreeCurveCalculationConfig", getRiskFreeCurveCalculationConfig());
-        ArgumentChecker.notNullInjected("creditCurveName", getCreditCurveName());
-        ArgumentChecker.notNullInjected("creditCurveCalculationConfig", getCreditCurveCalculationConfig());
+        ArgumentChecker.notNullInjected(getRiskFreeCurveName(), "riskFreeCurveName");
+        ArgumentChecker.notNullInjected(getRiskFreeCurveCalculationConfig(), "riskFreeCurveCalculationConfig");
+        ArgumentChecker.notNullInjected(getCreditCurveName(), "creditCurveName");
+        ArgumentChecker.notNullInjected(getCreditCurveCalculationConfig(), "creditCurveCalculationConfig");
       }
 
     }
@@ -126,9 +117,8 @@ public class BondFunctions extends AbstractRepositoryConfigurationBean {
     }
 
     protected void addBondCurveDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[1 + getPerCurrencyInfo().size() * 5];
+      final String[] args = new String[getPerCurrencyInfo().size() * 5];
       int i = 0;
-      args[i++] = PriorityClass.NORMAL.name();
       for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
         args[i++] = e.getKey();
         args[i++] = e.getValue().getRiskFreeCurveName();

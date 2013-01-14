@@ -31,14 +31,6 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
     private String _curveConfiguration;
     private String _discountingCurve;
 
-    public CurrencyInfo() {
-    }
-
-    public CurrencyInfo(final String curveConfiguration, final String discountingCurve) {
-      setCurveConfiguration(curveConfiguration);
-      setDiscountingCurve(discountingCurve);
-    }
-
     public String getCurveConfiguration() {
       return _curveConfiguration;
     }
@@ -69,13 +61,6 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
   public static class CurrencyPairInfo implements InitializingBean {
 
     private String _surfaceName;
-
-    public CurrencyPairInfo() {
-    }
-
-    public CurrencyPairInfo(final String surfaceName) {
-      _surfaceName = surfaceName;
-    }
 
     public void setSurfaceName(final String surfaceName) {
       _surfaceName = surfaceName;

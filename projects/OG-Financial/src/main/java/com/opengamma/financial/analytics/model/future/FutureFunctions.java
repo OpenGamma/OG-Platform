@@ -14,7 +14,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.analytics.model.future.FutureFunctions.Defaults.CurrencyInfo;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
@@ -50,13 +49,6 @@ public class FutureFunctions extends AbstractRepositoryConfigurationBean {
 
   }
 
-  public static RepositoryConfigurationSource defaults(final Map<String, CurrencyInfo> perCurrencyInfo) {
-    final Defaults factory = new Defaults();
-    factory.setPerCurrencyInfo(perCurrencyInfo);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
@@ -68,13 +60,6 @@ public class FutureFunctions extends AbstractRepositoryConfigurationBean {
     public static class CurrencyInfo implements InitializingBean {
 
       private String _curveConfiguration;
-
-      public CurrencyInfo() {
-      }
-
-      public CurrencyInfo(final String curveConfiguration) {
-        setCurveConfiguration(curveConfiguration);
-      }
 
       public void setCurveConfiguration(final String curveConfiguration) {
         _curveConfiguration = curveConfiguration;

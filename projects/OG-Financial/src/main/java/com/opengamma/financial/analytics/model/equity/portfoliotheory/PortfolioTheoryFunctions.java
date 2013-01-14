@@ -31,19 +31,6 @@ public class PortfolioTheoryFunctions extends AbstractRepositoryConfigurationBea
     return new PortfolioTheoryFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource calculators() {
-    final Calculators factory = new Calculators();
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
-  public static RepositoryConfigurationSource calculators(final String htsResolutionKey) {
-    final Calculators factory = new Calculators();
-    factory.setHtsResolutionKey(htsResolutionKey);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the functions contained in this package.
    */
@@ -79,18 +66,6 @@ public class PortfolioTheoryFunctions extends AbstractRepositoryConfigurationBea
       functions.add(functionConfiguration(TotalRiskAlphaPortfolioNodeFunction.class, getHtsResolutionKey()));
     }
 
-  }
-
-  public static RepositoryConfigurationSource defaults() {
-    final Defaults factory = new Defaults();
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
-  public static RepositoryConfigurationSource defaults(final Object o) {
-    final Defaults factory = new Defaults();
-    factory.afterPropertiesSet();
-    return factory.getObject();
   }
 
   /**

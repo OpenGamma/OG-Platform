@@ -14,8 +14,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions.Defaults.CurrencyInfo;
-import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions.Defaults.CurrencyPairInfo;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -33,26 +31,6 @@ public class ForwardFunctions extends AbstractRepositoryConfigurationBean {
     return new ForwardFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource defaults(final Map<String, CurrencyInfo> perCurrencyInfo, final Map<Pair<String, String>, CurrencyPairInfo> perCurrencyPairInfo) {
-    final Defaults factory = new Defaults();
-    factory.setPerCurrencyInfo(perCurrencyInfo);
-    factory.setPerCurrencyPairInfo(perCurrencyPairInfo);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
-  public static RepositoryConfigurationSource defaults(final Map<String, CurrencyInfo> perCurrencyInfo, final Map<Pair<String, String>, CurrencyPairInfo> perCurrencyPairInfo,
-      final String interpolator, final String leftExtrapolator, final String rightExtrapolator) {
-    final Defaults factory = new Defaults();
-    factory.setPerCurrencyInfo(perCurrencyInfo);
-    factory.setPerCurrencyPairInfo(perCurrencyPairInfo);
-    factory.setInterpolator(interpolator);
-    factory.setLeftExtrapolator(leftExtrapolator);
-    factory.setRightExtrapolator(rightExtrapolator);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
@@ -65,14 +43,6 @@ public class ForwardFunctions extends AbstractRepositoryConfigurationBean {
 
       private String _curveConfiguration;
       private String _discountingCurve;
-
-      public CurrencyInfo() {
-      }
-
-      public CurrencyInfo(final String curveConfiguration, final String discountingCurve) {
-        setCurveConfiguration(curveConfiguration);
-        setDiscountingCurve(discountingCurve);
-      }
 
       public String getCurveConfiguration() {
         return _curveConfiguration;
@@ -105,18 +75,6 @@ public class ForwardFunctions extends AbstractRepositoryConfigurationBean {
 
       private String _curveName;
       private String _curveCalculationMethod = ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD;
-
-      public CurrencyPairInfo() {
-      }
-
-      public CurrencyPairInfo(final String curveName) {
-        setCurveName(curveName);
-      }
-
-      public CurrencyPairInfo(final String curveName, final String curveCalculationMethod) {
-        this(curveName);
-        setCurveCalculationMethod(curveCalculationMethod);
-      }
 
       public String getCurveName() {
         return _curveName;

@@ -14,7 +14,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions.Defaults.CurrencyInfo;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
@@ -32,13 +31,6 @@ public class BondFutureOptionFunctions extends AbstractRepositoryConfigurationBe
     return new BondFutureOptionFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource defaults(final Map<String, CurrencyInfo> perCurrencyInfo) {
-    final Defaults factory = new Defaults();
-    factory.setPerCurrencyInfo(perCurrencyInfo);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
@@ -51,14 +43,6 @@ public class BondFutureOptionFunctions extends AbstractRepositoryConfigurationBe
 
       private String _curveConfig;
       private String _surfaceName;
-
-      public CurrencyInfo() {
-      }
-
-      public CurrencyInfo(final String curveConfig, final String surfaceName) {
-        setCurveConfig(curveConfig);
-        setSurfaceName(surfaceName);
-      }
 
       public void setCurveConfig(final String curveConfig) {
         _curveConfig = curveConfig;

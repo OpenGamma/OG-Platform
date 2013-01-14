@@ -30,35 +30,6 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
     return new SurfaceFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource defaults() {
-    final Defaults factory = new Defaults();
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
-  public static RepositoryConfigurationSource defaults(final String xInterpolatorName, final String yInterpolatorName, final String leftXExtrapolatorName, final String rightXExtrapolatorName,
-      final String leftYExtrapolatorName, final String rightYExtrapolatorName, final boolean useFixedAlpha, final boolean useFixedBeta, final boolean useFixedRho, final boolean useFixedNu,
-      final double alpha, final double beta, final double rho, final double nu, final double error) {
-    final Defaults factory = new Defaults();
-    factory.setXInterpolatorName(xInterpolatorName);
-    factory.setYInterpolatorName(yInterpolatorName);
-    factory.setLeftXExtrapolatorName(leftXExtrapolatorName);
-    factory.setRightXExtrapolatorName(rightXExtrapolatorName);
-    factory.setLeftYExtrapolatorName(leftYExtrapolatorName);
-    factory.setRightYExtrapolatorName(rightYExtrapolatorName);
-    factory.setUseFixedAlpha(useFixedAlpha);
-    factory.setUseFixedBeta(useFixedBeta);
-    factory.setUseFixedRho(useFixedRho);
-    factory.setUseFixedNu(useFixedNu);
-    factory.setAlpha(alpha);
-    factory.setBeta(beta);
-    factory.setRho(rho);
-    factory.setNu(nu);
-    factory.setError(error);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
@@ -202,12 +173,12 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
 
     @Override
     public void afterPropertiesSet() {
-      ArgumentChecker.notNullInjected("xInterpolatorName", getXInterpolatorName());
-      ArgumentChecker.notNullInjected("yInterpolatorName", getYInterpolatorName());
-      ArgumentChecker.notNullInjected("leftXExtrapolatorName", getLeftXExtrapolatorName());
-      ArgumentChecker.notNullInjected("rightXExtrapolatorName", getRightXExtrapolatorName());
-      ArgumentChecker.notNullInjected("leftYExtrapolatorName", getLeftYExtrapolatorName());
-      ArgumentChecker.notNullInjected("rightYExtrapolatorName", getRightYExtrapolatorName());
+      ArgumentChecker.notNullInjected(getXInterpolatorName(), "xInterpolatorName");
+      ArgumentChecker.notNullInjected(getYInterpolatorName(), "yInterpolatorName");
+      ArgumentChecker.notNullInjected(getLeftXExtrapolatorName(), "leftXExtrapolatorName");
+      ArgumentChecker.notNullInjected(getRightXExtrapolatorName(), "rightXExtrapolatorName");
+      ArgumentChecker.notNullInjected(getLeftYExtrapolatorName(), "leftYExtrapolatorName");
+      ArgumentChecker.notNullInjected(getRightYExtrapolatorName(), "rightYExtrapolatorName");
       super.afterPropertiesSet();
     }
 

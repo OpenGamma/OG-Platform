@@ -14,7 +14,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.analytics.model.futureoption.FutureOptionFunctions.Defaults.CurrencyInfo;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -31,13 +30,6 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
     return new FutureOptionFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource defaults(final Map<String, CurrencyInfo> perCurrencyInfo) {
-    final Defaults factory = new Defaults();
-    factory.setPerCurrencyInfo(perCurrencyInfo);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
@@ -52,20 +44,6 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
       private String _curveCalculationConfig;
       private String _surfaceName;
       private String _interpolationMethod = "Spline";
-
-      public CurrencyInfo() {
-      }
-
-      public CurrencyInfo(final String curveName, final String curveCalculationConfig, final String surfaceName) {
-        setCurveName(curveName);
-        setCurveCalculationConfig(curveCalculationConfig);
-        setSurfaceName(surfaceName);
-      }
-
-      public CurrencyInfo(final String curveName, final String curveCalculationConfig, final String surfaceName, final String interpolationMethod) {
-        this(curveName, curveCalculationConfig, surfaceName);
-        setInterpolationMethod(interpolationMethod);
-      }
 
       public String getCurveName() {
         return _curveName;

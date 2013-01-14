@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.var;
@@ -19,9 +19,10 @@ import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class NormalHistoricalVaRDefaultPropertiesFunction extends DefaultPropertyFunction {
+
   private final String _meanCalculator;
   private final String _stdDevCalculator;
   private final String _confidenceLevel;
@@ -29,10 +30,9 @@ public class NormalHistoricalVaRDefaultPropertiesFunction extends DefaultPropert
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingCalculator;
-  private final PriorityClass _priority;
 
   public NormalHistoricalVaRDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator,
-      final String meanCalculator, final String stdDevCalculator, final String confidenceLevel, final String horizon, final String priority) {
+      final String meanCalculator, final String stdDevCalculator, final String confidenceLevel, final String horizon) {
     super(ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION), true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period name");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator name");
@@ -48,7 +48,6 @@ public class NormalHistoricalVaRDefaultPropertiesFunction extends DefaultPropert
     _stdDevCalculator = stdDevCalculator;
     _confidenceLevel = confidenceLevel;
     _horizon = horizon;
-    _priority = PriorityClass.valueOf(priority);
   }
 
   @Override
@@ -92,12 +91,8 @@ public class NormalHistoricalVaRDefaultPropertiesFunction extends DefaultPropert
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.NORMAL_HISTORICAL_VAR;
   }
+
 }

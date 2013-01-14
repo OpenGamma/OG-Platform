@@ -32,14 +32,6 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
     private String _curveConfiguration;
     private String _cubeName;
 
-    public CurrencyInfo() {
-    }
-
-    public CurrencyInfo(final String curveConfiguration, final String cubeName) {
-      setCurveConfiguration(curveConfiguration);
-      setCubeName(cubeName);
-    }
-
     public String getCurveConfiguration() {
       return _curveConfiguration;
     }

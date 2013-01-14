@@ -30,29 +30,6 @@ public class InterestRateFunctions extends AbstractRepositoryConfigurationBean {
     return new InterestRateFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource defaults(final Set<String> applicableCurrencies) {
-    final Defaults factory = new Defaults();
-    factory.setApplicableCurrencies(applicableCurrencies);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
-  public static RepositoryConfigurationSource defaults(final double absoluteTolerance, final double relativeTolerance, final int maxIterations, final String decomposition,
-      final boolean useFiniteDifference, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName, final Set<String> applicableCurrencies) {
-    final Defaults factory = new Defaults();
-    factory.setAbsoluteTolerance(absoluteTolerance);
-    factory.setRelativeTolerance(relativeTolerance);
-    factory.setMaxIterations(maxIterations);
-    factory.setDecomposition(decomposition);
-    factory.setUseFiniteDifference(useFiniteDifference);
-    factory.setInterpolatorName(interpolatorName);
-    factory.setLeftExtrapolatorName(leftExtrapolatorName);
-    factory.setRightExtrapolatorName(rightExtrapolatorName);
-    factory.setApplicableCurrencies(applicableCurrencies);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the default functions contained in this package.
    */

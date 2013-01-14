@@ -14,7 +14,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionFunctions.Defaults.CurrencyInfo;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
@@ -49,13 +48,6 @@ public class IRFutureOptionFunctions extends AbstractRepositoryConfigurationBean
 
   }
 
-  public static RepositoryConfigurationSource defaults(final Map<String, CurrencyInfo> perCurrencyInfo) {
-    final Defaults factory = new Defaults();
-    factory.setPerCurrencyInfo(perCurrencyInfo);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the default functions contained in this package.
    */
@@ -69,19 +61,6 @@ public class IRFutureOptionFunctions extends AbstractRepositoryConfigurationBean
       private String _curveConfiguration;
       private String _surfaceName;
       private String _smileFittingMethod = SmileFittingProperties.NON_LINEAR_LEAST_SQUARES;
-
-      public CurrencyInfo() {
-      }
-
-      public CurrencyInfo(final String curveConfiguration, final String surfaceName) {
-        setCurveConfiguration(curveConfiguration);
-        setSurfaceName(surfaceName);
-      }
-
-      public CurrencyInfo(final String curveConfiguration, final String surfaceName, final String smileFittingMethod) {
-        this(curveConfiguration, surfaceName);
-        setSmileFittingMethod(smileFittingMethod);
-      }
 
       public String getCurveConfiguration() {
         return _curveConfiguration;

@@ -43,17 +43,14 @@ public class BondDefaultCurveNamesFunction extends DefaultPropertyFunction {
       ValueRequirementNames.NET_BASIS
   };
 
-  private final PriorityClass _priority;
   private final Map<String, Pair<String, String>> _currencyAndRiskFreeCurveNames;
   private final Map<String, Pair<String, String>> _currencyAndCreditCurveNames;
 
-  public BondDefaultCurveNamesFunction(final String priority, final String... currencyAndCurveConfigNames) {
+  public BondDefaultCurveNamesFunction(final String... currencyAndCurveConfigNames) {
     super(FinancialSecurityTypes.BOND_SECURITY.or(FinancialSecurityTypes.BOND_FUTURE_SECURITY), true);
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
     ArgumentChecker.isTrue(currencyAndCurveConfigNames.length % 5 == 0,
         "Must have a risk-free curve name, risk-free curve config, credit curve name and credit curve config per currency");
-    _priority = PriorityClass.valueOf(priority);
     _currencyAndCreditCurveNames = new HashMap<String, Pair<String, String>>();
     _currencyAndRiskFreeCurveNames = new HashMap<String, Pair<String, String>>();
     for (int i = 0; i < currencyAndCurveConfigNames.length; i += 5) {
@@ -111,8 +108,4 @@ public class BondDefaultCurveNamesFunction extends DefaultPropertyFunction {
     return null;
   }
 
-  @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
 }

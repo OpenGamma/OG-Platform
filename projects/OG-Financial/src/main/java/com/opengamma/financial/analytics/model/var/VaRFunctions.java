@@ -30,26 +30,6 @@ public class VaRFunctions extends AbstractRepositoryConfigurationBean {
     return new VaRFunctions().getObjectCreating();
   }
 
-  public static RepositoryConfigurationSource defaults() {
-    final Defaults factory = new Defaults();
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
-  public static RepositoryConfigurationSource defaults(final String samplingPeriodName, final String scheduleName, final String samplingCalculatorName, final String meanCalculatorName,
-      final String stdDevCalculatorName, final double confidenceLevel, final double horizon) {
-    final Defaults factory = new Defaults();
-    factory.setSamplingPeriodName(samplingCalculatorName);
-    factory.setScheduleName(scheduleName);
-    factory.setSamplingCalculatorName(samplingCalculatorName);
-    factory.setMeanCalculatorName(meanCalculatorName);
-    factory.setStdDevCalculatorName(stdDevCalculatorName);
-    factory.setConfidenceLevel(confidenceLevel);
-    factory.setHorizonName(horizon);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the default functions contained in this package.
    */

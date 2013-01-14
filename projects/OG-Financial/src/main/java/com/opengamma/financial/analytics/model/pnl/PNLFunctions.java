@@ -55,24 +55,6 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
 
   }
 
-  public static RepositoryConfigurationSource calculators(final String mark2marketField, final String costOfCarryField) {
-    final Calculators factory = new Calculators();
-    factory.setMark2MarketField(mark2marketField);
-    factory.setCostOfCarryField(costOfCarryField);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
-  public static RepositoryConfigurationSource calculators(final String htsResolutionKey, final String mark2marketField, final String costOfCarryField, final String valueFieldName) {
-    final Calculators factory = new Calculators();
-    factory.setHtsResolutionKey(htsResolutionKey);
-    factory.setMark2MarketField(mark2marketField);
-    factory.setCostOfCarryField(costOfCarryField);
-    factory.setValueFieldName(valueFieldName);
-    factory.afterPropertiesSet();
-    return factory.getObject();
-  }
-
   /**
    * Function repository configuration source for the configurable functions contained in this package.
    */
@@ -148,13 +130,6 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
     public static class CurrencyInfo implements InitializingBean {
 
       private String _curveConfiguration;
-
-      public CurrencyInfo() {
-      }
-
-      public CurrencyInfo(final String curveConfiguration) {
-        setCurveConfiguration(curveConfiguration);
-      }
 
       public void setCurveConfiguration(final String curveConfiguration) {
         _curveConfiguration = curveConfiguration;
