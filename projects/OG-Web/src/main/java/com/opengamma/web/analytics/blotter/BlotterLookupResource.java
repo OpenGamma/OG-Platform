@@ -15,7 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.joda.beans.JodaBeanUtils;
+import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -43,6 +43,7 @@ import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *
@@ -54,9 +55,16 @@ public class BlotterLookupResource {
     JodaBeanConverters.getInstance();
   }
 
+  private final StringConvert _stringConvert;
+
+  /* package */ BlotterLookupResource(StringConvert stringConvert) {
+    ArgumentChecker.notNull(stringConvert, "stringConvert");
+    _stringConvert = stringConvert;
+  }
+
   @SuppressWarnings("unchecked")
   private String convertToJsonArray(Class<?> type, Iterator<?> it) {
-    StringConverter<Object> converter = (StringConverter<Object>) JodaBeanUtils.stringConverter().findConverter(type);
+    StringConverter<Object> converter = (StringConverter<Object>) _stringConvert.findConverter(type);
     List<String> results = Lists.newArrayList();
     while (it.hasNext()) {
       Object item = it.next();

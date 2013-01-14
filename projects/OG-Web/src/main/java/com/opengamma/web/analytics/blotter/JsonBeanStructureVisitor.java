@@ -16,6 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.PropertyDefinition;
+import org.joda.convert.StringConvert;
 import org.json.JSONObject;
 
 import com.google.common.collect.Lists;
@@ -57,10 +58,13 @@ import com.opengamma.util.ArgumentChecker;
 
   private final Map<String, Object> _json = Maps.newHashMap();
   private final BeanHierarchy _beanHierarchy;
+  private final StringConvert _stringConvert;
 
   /* package */ JsonBeanStructureVisitor(Set<MetaBean> metaBeans) {
     ArgumentChecker.notNull(metaBeans, "metaBeans");
     _beanHierarchy = new BeanHierarchy(metaBeans);
+    // TODO parameter for this
+    _stringConvert = JodaBeanUtils.stringConverter();
   }
 
   @Override
@@ -124,21 +128,21 @@ import com.opengamma.util.ArgumentChecker;
     return new JSONObject(_json);
   }
 
-  private static String arrayType(MetaProperty<?> property) {
+  private String arrayType(MetaProperty<?> property) {
     return optional(property, "[" + typeFor(property.propertyType()) + "]");
   }
 
-  private static String typeFor(MetaProperty<?> property) {
+  private String typeFor(MetaProperty<?> property) {
     return typeFor(property.propertyType());
   }
 
-  private static String typeFor(Class<?> type) {
+  private String typeFor(Class<?> type) {
     String typeName = s_types.get(type);
     if (typeName != null) {
       return typeName;
     } else {
       try {
-        JodaBeanUtils.stringConverter().findConverter(type);
+        _stringConvert.findConverter(type);
         return STRING;
       } catch (Exception e) {
         throw new OpenGammaRuntimeException("No type mapping found for class " + type.getName(), e);

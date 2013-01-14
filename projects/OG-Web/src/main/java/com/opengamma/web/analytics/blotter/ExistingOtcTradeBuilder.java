@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.joda.beans.MetaBean;
+import org.joda.convert.StringConvert;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
@@ -31,8 +32,9 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ ExistingOtcTradeBuilder(UniqueId tradeId,
                                         SecurityMaster securityMaster,
                                         PositionMaster positionMaster,
-                                        Set<MetaBean> metaBeans) {
-    super(securityMaster, positionMaster, metaBeans);
+                                        Set<MetaBean> metaBeans,
+                                        StringConvert stringConvert) {
+    super(securityMaster, positionMaster, metaBeans, stringConvert);
     ArgumentChecker.notNull(tradeId, "tradeId");
     _tradeId = tradeId;
   }
@@ -47,6 +49,7 @@ import com.opengamma.util.ArgumentChecker;
     // TODO need to check
     //   security has an ID
     //   previous version of security referred to by ID exists and has the same type - need to load existing
+    // TODO set the externalIdBundle from the previous version. client doesn't use it or pass it to server
     return getSecurityMaster().update(new SecurityDocument(security)).getSecurity();
   }
 

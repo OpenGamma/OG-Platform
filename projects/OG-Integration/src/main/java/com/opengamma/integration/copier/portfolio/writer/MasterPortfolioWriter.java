@@ -77,25 +77,29 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
   private boolean _keepCurrentPositions;
 
+  private boolean _discardIncompleteOptions;
+
 
   /**
    * Create a master portfolio writer
-   * @param portfolioName         The name of the portfolio to create/write to
-   * @param portfolioMaster       The portfolio master to which to write the portfolio
-   * @param positionMaster        The position master to which to write positions
-   * @param securityMaster        The security master to which to write securities
-   * @param overwrite             If true, delete any matching securities/positions before writing new ones;
-   *                              if false, update any matching securities/positions with a new version
-   * @param mergePositions        If true, attempt to roll multiple positions in the same security into one position,
-   *                              for all positions in the same portfolio node;
-   *                              if false, each position is loaded separately
-   * @param keepCurrentPositions  If true, keep the existing portfolio node tree and add new entries;
-   *                              if false, delete the entire existing portfolio node tree before loading the new
-   *                              portfolio
+   * @param portfolioName             The name of the portfolio to create/write to
+   * @param portfolioMaster           The portfolio master to which to write the portfolio
+   * @param positionMaster            The position master to which to write positions
+   * @param securityMaster            The security master to which to write securities
+   * @param overwrite                 If true, delete any matching securities/positions before writing new ones;
+   *                                  if false, update any matching securities/positions with a new version
+   * @param mergePositions            If true, attempt to roll multiple positions in the same security into one position,
+   *                                  for all positions in the same portfolio node;
+   *                                  if false, each position is loaded separately
+   * @param keepCurrentPositions      If true, keep the existing portfolio node tree and add new entries;
+   *                                  if false, delete the entire existing portfolio node tree before loading the new
+   *                                  portfolio
+   * @param discardIncompleteOptions  If true, when an underlying cannot be loaded, the position/trade will be discarded;
+   *                                  if false, the option will be created with a dangling reference to the underlying
    */
   public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
       PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite,
-      boolean mergePositions, boolean keepCurrentPositions)  {
+      boolean mergePositions, boolean keepCurrentPositions, boolean discardIncompleteOptions)  {
 
     ArgumentChecker.notEmpty(portfolioName, "portfolioName");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
@@ -105,6 +109,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     _overwrite = overwrite;
     _mergePositions = mergePositions;
     _keepCurrentPositions = keepCurrentPositions;
+    _discardIncompleteOptions = discardIncompleteOptions;
 
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
@@ -143,14 +148,19 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     // Write securities
     List<ManageableSecurity> writtenSecurities = new ArrayList<ManageableSecurity>();
     for (ManageableSecurity security : securities) {
-      ManageableSecurity writtenSecurity = writeSecurity(security);
-      if (writtenSecurity != null) {
-        writtenSecurities.add(writtenSecurity);
+      if (security == null || !_discardIncompleteOptions) { // latter term preserves old behaviour
+        ManageableSecurity writtenSecurity = writeSecurity(security);
+        if (writtenSecurity != null) {
+          writtenSecurities.add(writtenSecurity);
+        }        
       }
     }
 
     // If no securities were actually written successfully, just skip writing this position entirely
-    if (writtenSecurities.isEmpty()) {
+    if (writtenSecurities.size() != securities.length && _discardIncompleteOptions) {
+      // this does persist the securities that it is given so that we don't keep hitting Bloomberg when there are missing underlyings.
+      return null;
+    } else if (writtenSecurities.isEmpty()) { // preserve old behaviour if _discardIncompleteOptions is false
       return null;
     }
 

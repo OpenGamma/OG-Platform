@@ -26,9 +26,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.WordUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
+import org.joda.convert.StringConvert;
+import org.joda.convert.StringConverter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -42,7 +45,9 @@ import com.opengamma.core.security.Security;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.conversion.JodaBeanConverters;
+import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -68,6 +73,9 @@ import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -81,6 +89,8 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
 import com.opengamma.web.FreemarkerOutputter;
 
 /**
@@ -138,6 +148,8 @@ public class BlotterResource {
   private static final List<String> s_securityTypeNames = Lists.newArrayList();
   private static final Map<String, MetaBean> s_metaBeansByTypeName = Maps.newHashMap();
 
+  private static final StringConvert s_stringConvert;
+
   static {
     JodaBeanConverters.getInstance();
     for (final MetaBean metaBean : s_metaBeans) {
@@ -155,6 +167,37 @@ public class BlotterResource {
     s_otherTypeNames.add(FungibleTradeBuilder.TRADE_TYPE_NAME);
     Collections.sort(s_otherTypeNames);
     Collections.sort(s_securityTypeNames);
+
+    s_stringConvert = new StringConvert();
+    s_stringConvert.register(Frequency.class, new JodaBeanConverters.FrequencyConverter());
+    s_stringConvert.register(Currency.class, new JodaBeanConverters.CurrencyConverter());
+    s_stringConvert.register(DayCount.class, new JodaBeanConverters.DayCountConverter());
+    s_stringConvert.register(ExternalId.class, new JodaBeanConverters.ExternalIdConverter());
+    s_stringConvert.register(ExternalIdBundle.class, new JodaBeanConverters.ExternalIdBundleConverter());
+    s_stringConvert.register(CurrencyPair.class, new JodaBeanConverters.CurrencyPairConverter());
+    s_stringConvert.register(ObjectId.class, new JodaBeanConverters.ObjectIdConverter());
+    s_stringConvert.register(UniqueId.class, new JodaBeanConverters.UniqueIdConverter());
+    s_stringConvert.register(Expiry.class, new JodaBeanConverters.ExpiryConverter());
+    s_stringConvert.register(ExerciseType.class, new JodaBeanConverters.ExerciseTypeConverter());
+    s_stringConvert.register(BusinessDayConvention.class, new JodaBeanConverters.BusinessDayConventionConverter());
+    s_stringConvert.register(YieldConvention.class, new JodaBeanConverters.YieldConventionConverter());
+    s_stringConvert.register(MonitoringType.class, new EnumConverter<MonitoringType>());
+    s_stringConvert.register(BarrierType.class, new EnumConverter<BarrierType>());
+    s_stringConvert.register(BarrierDirection.class, new EnumConverter<BarrierDirection>());
+    s_stringConvert.register(SamplingFrequency.class, new EnumConverter<SamplingFrequency>());
+  }
+
+  private static class EnumConverter<T extends Enum> implements StringConverter<T> {
+
+    @Override
+    public T convertFromString(final Class<? extends T> type, final String str) {
+      return (T) Enum.valueOf(type, str.toUpperCase().replace(' ', '_'));
+    }
+
+    @Override
+    public String convertToString(final T e) {
+      return WordUtils.capitalize(e.name().toLowerCase().replace('_', ' '));
+    }
   }
 
   private final SecurityMaster _securityMaster;
@@ -170,7 +213,11 @@ public class BlotterResource {
     _securityMaster = securityMaster;
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
-    _newTradeBuilder = new NewOtcTradeBuilder(_securityMaster, _positionMaster, s_metaBeans);
+    _newTradeBuilder = new NewOtcTradeBuilder(_securityMaster, _positionMaster, s_metaBeans, s_stringConvert);
+  }
+
+  /* package */ static StringConvert getStringConvert() {
+    return s_stringConvert;
   }
 
   /* package */
@@ -217,7 +264,8 @@ public class BlotterResource {
       }
       final BeanStructureBuilder structureBuilder = new BeanStructureBuilder(s_metaBeans,
                                                                        s_underlyingSecurityTypes,
-                                                                       s_endpoints);
+                                                                       s_endpoints,
+                                                                       s_stringConvert);
       final BeanVisitorDecorator propertyNameFilter = new PropertyNameFilter("externalIdBundle", "securityType");
       final PropertyFilter swaptionUnderlyingFilter = new PropertyFilter(SwaptionSecurity.meta().underlyingId());
       final BeanTraverser traverser = new BeanTraverser(propertyNameFilter, swaptionUnderlyingFilter);
@@ -263,7 +311,7 @@ public class BlotterResource {
         }
         root.put("security", securityJson);
       } else {
-        FungibleTradeBuilder.extractTradeData(trade, tradeSink);
+        FungibleTradeBuilder.extractTradeData(trade, tradeSink, s_stringConvert);
       }
       final JSONObject tradeJson = tradeSink.finish();
       root.put("trade", tradeJson);
@@ -318,7 +366,9 @@ public class BlotterResource {
       if (tradeTypeName.equals(OtcTradeBuilder.TRADE_TYPE_NAME)) {
         updatedTradeId =  createOtcTrade(json, tradeJson, _newTradeBuilder);
       } else if (tradeTypeName.equals(FungibleTradeBuilder.TRADE_TYPE_NAME)) {
-        updatedTradeId =  createFungibleTrade(tradeJson, new NewFungibleTradeBuilder(_positionMaster, _securityMaster, s_metaBeans));
+        final NewFungibleTradeBuilder tradeBuilder =
+            new NewFungibleTradeBuilder(_positionMaster, _securityMaster, s_metaBeans, s_stringConvert);
+        updatedTradeId = createFungibleTrade(tradeJson, tradeBuilder);
       } else {
         throw new IllegalArgumentException("Unknown trade type " + tradeTypeName);
       }
@@ -342,11 +392,12 @@ public class BlotterResource {
       final String tradeTypeName = tradeJson.getString("type");
       // TODO tell don't ask - ask each of the existing trade builders until one of them can handle it?
       if (tradeTypeName.equals(OtcTradeBuilder.TRADE_TYPE_NAME)) {
-        final OtcTradeBuilder tradeBuilder = new ExistingOtcTradeBuilder(tradeId, _securityMaster, _positionMaster, s_metaBeans);
+        final OtcTradeBuilder tradeBuilder =
+            new ExistingOtcTradeBuilder(tradeId, _securityMaster, _positionMaster, s_metaBeans, s_stringConvert);
         createOtcTrade(json, tradeJson, tradeBuilder);
       } else if (tradeTypeName.equals(FungibleTradeBuilder.TRADE_TYPE_NAME)) {
         final ExistingFungibleTradeBuilder tradeBuilder =
-            new ExistingFungibleTradeBuilder(_positionMaster, _securityMaster, s_metaBeans, tradeId);
+            new ExistingFungibleTradeBuilder(_positionMaster, _securityMaster, s_metaBeans, tradeId, s_stringConvert);
         createFungibleTrade(tradeJson, tradeBuilder);
       } else {
         throw new IllegalArgumentException("Unknown trade type " + tradeTypeName);
@@ -389,7 +440,7 @@ public class BlotterResource {
 
   @Path("lookup")
   public BlotterLookupResource getLookupResource() {
-    return new BlotterLookupResource();
+    return new BlotterLookupResource(s_stringConvert);
   }
 
 }

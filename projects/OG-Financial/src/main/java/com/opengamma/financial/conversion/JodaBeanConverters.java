@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
@@ -27,12 +26,9 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
-import com.opengamma.financial.security.option.BarrierDirection;
-import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
-import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
@@ -76,9 +72,6 @@ public final class JodaBeanConverters {
     stringConvert.register(BusinessDayConvention.class, new BusinessDayConventionConverter());
     stringConvert.register(YieldConvention.class, new YieldConventionConverter());
     stringConvert.register(BondFutureDeliverable.class, new BondFutureDeliverableConverter());
-    stringConvert.register(BarrierType.class, new BarrierTypeConverter());
-    stringConvert.register(BarrierDirection.class, new BarrierDirectionConverter());
-    stringConvert.register(SamplingFrequency.class, new SamplingFrequencyConverter());
   }
   
   /**
@@ -97,7 +90,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class FrequencyConverter implements StringConverter<Frequency> {
+  public static class FrequencyConverter implements StringConverter<Frequency> {
 
     @Override
     public String convertToString(Frequency frequency) {
@@ -110,7 +103,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  /* package */ static class DayCountConverter implements StringConverter<DayCount> {
+  public static class DayCountConverter implements StringConverter<DayCount> {
 
     @Override
     public String convertToString(DayCount dayCount) {
@@ -123,14 +116,14 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class CurrencyConverter extends AbstractConverter<Currency> {
+  public static class CurrencyConverter extends AbstractConverter<Currency> {
     @Override
     public Currency convertFromString(Class<? extends Currency> cls, String str) {
       return Currency.of(str);
     }
   }
   
-  private static class ExternalIdConverter extends AbstractConverter<ExternalId> {
+  public static class ExternalIdConverter extends AbstractConverter<ExternalId> {
 
     @Override
     public ExternalId convertFromString(Class<? extends ExternalId> cls, String str) {
@@ -139,7 +132,7 @@ public final class JodaBeanConverters {
     
   }
   
-  private static class ExternalIdBundleConverter extends AbstractConverter<ExternalIdBundle> {
+  public static class ExternalIdBundleConverter extends AbstractConverter<ExternalIdBundle> {
   
     @Override
     public String convertToString(ExternalIdBundle object) {
@@ -161,7 +154,7 @@ public final class JodaBeanConverters {
 
   }
   
-  private static class ObjectIdConverter extends AbstractConverter<ObjectId> {
+  public static class ObjectIdConverter extends AbstractConverter<ObjectId> {
 
     @Override
     public ObjectId convertFromString(Class<? extends ObjectId> cls, String str) {
@@ -170,7 +163,7 @@ public final class JodaBeanConverters {
     
   }
 
-  private static class UniqueIdConverter extends AbstractConverter<UniqueId> {
+  public static class UniqueIdConverter extends AbstractConverter<UniqueId> {
 
     @Override
     public UniqueId convertFromString(Class<? extends UniqueId> cls, String str) {
@@ -184,7 +177,7 @@ public final class JodaBeanConverters {
     
   }
 
-  private static class CurrencyPairConverter implements StringConverter<CurrencyPair> {
+  public static class CurrencyPairConverter implements StringConverter<CurrencyPair> {
 
     @Override
     public String convertToString(CurrencyPair object) {
@@ -198,7 +191,7 @@ public final class JodaBeanConverters {
     
   }
 
-  private static class ExpiryConverter extends AbstractConverter<Expiry> {
+  public static class ExpiryConverter extends AbstractConverter<Expiry> {
 
     @Override
     public String convertToString(Expiry expiry) {
@@ -211,7 +204,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class ExerciseTypeConverter extends AbstractConverter<ExerciseType> {
+  public static class ExerciseTypeConverter extends AbstractConverter<ExerciseType> {
 
     @Override
     public String convertToString(ExerciseType exType) {
@@ -269,7 +262,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class BusinessDayConventionConverter extends AbstractConverter<BusinessDayConvention> {
+  public static class BusinessDayConventionConverter extends AbstractConverter<BusinessDayConvention> {
 
     @Override
     public String convertToString(BusinessDayConvention object) {
@@ -283,7 +276,7 @@ public final class JodaBeanConverters {
     
   }
 
-  private static class YieldConventionConverter extends AbstractConverter<YieldConvention> {
+  public static class YieldConventionConverter extends AbstractConverter<YieldConvention> {
 
     @Override
     public String convertToString(YieldConvention object) {
@@ -320,7 +313,9 @@ public final class JodaBeanConverters {
     
   }
 
-  private static class BarrierTypeConverter implements StringConverter<BarrierType> {
+  // TODO all these can be combined using Enum.valueOf(enumtype, value). single converter for Enum.class?
+  // TODO converter for MonitoringType
+/*  public static class BarrierTypeConverter implements StringConverter<BarrierType> {
 
     @Override
     public BarrierType convertFromString(Class<? extends BarrierType> cls, String str) {
@@ -333,7 +328,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class BarrierDirectionConverter implements StringConverter<BarrierDirection> {
+  public static class BarrierDirectionConverter implements StringConverter<BarrierDirection> {
 
     @Override
     public BarrierDirection convertFromString(Class<? extends BarrierDirection> cls, String str) {
@@ -346,7 +341,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class SamplingFrequencyConverter implements StringConverter<SamplingFrequency> {
+  public static class SamplingFrequencyConverter implements StringConverter<SamplingFrequency> {
 
     @Override
     public SamplingFrequency convertFromString(Class<? extends SamplingFrequency> cls, String str) {
@@ -357,5 +352,5 @@ public final class JodaBeanConverters {
     public String convertToString(SamplingFrequency frequency) {
       return WordUtils.capitalize(frequency.name().toLowerCase().replace('_', ' '));
     }
-  }
+  }*/
 }

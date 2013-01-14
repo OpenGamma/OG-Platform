@@ -14,7 +14,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 
@@ -48,9 +47,7 @@ import com.opengamma.util.ArgumentChecker;
     for (MetaProperty<?> property : metaBean.metaPropertyIterable()) {
       Class<?> propertyType = property.propertyType();
       try {
-        if (isConvertible(propertyType)) {
-          decoratedVisitor.visitProperty(property);
-        } else if (Bean.class.isAssignableFrom(propertyType)) {
+        if (Bean.class.isAssignableFrom(propertyType)) {
           decoratedVisitor.visitBeanProperty(property, this);
         } else if (Set.class.isAssignableFrom(propertyType)) {
           decoratedVisitor.visitSetProperty(property);
@@ -72,17 +69,6 @@ import com.opengamma.util.ArgumentChecker;
     } else {
       throw new TraversalException(metaBean, visitor, failures);
     }
-  }
-
-  private static boolean isConvertible(Class<?> type) {
-    boolean canConvert;
-    try {
-      JodaBeanUtils.stringConverter().findConverter(type);
-      canConvert = true;
-    } catch (Exception e) {
-      canConvert = false;
-    }
-    return canConvert;
   }
 
   private BeanVisitor<?> decorate(BeanVisitor<?> visitor) {
@@ -111,7 +97,8 @@ import com.opengamma.util.ArgumentChecker;
 
     @Override
     public String toString() {
-      return "[" + _property.toString() + ", '" + _exception.getMessage() + "']";
+      String message = _exception.getMessage() == null ? null : "'" + _exception.getMessage() + "'";
+      return "[" + _property.toString() + ", " + message + "]";
     }
   }
 
@@ -124,14 +111,14 @@ import com.opengamma.util.ArgumentChecker;
       }
     }
 
-    private static String buildMessage(MetaBean metaBean,
-                                       BeanVisitor<?> visitor,
-                                       List<TraversalFailure> failures) {
+    private static String buildMessage(MetaBean metaBean, BeanVisitor<?> visitor, List<TraversalFailure> failures) {
       ArgumentChecker.notNull(metaBean, "metaBean");
       ArgumentChecker.notEmpty(failures, "failures");
       ArgumentChecker.notNull(visitor, "visitor");
-      return "Bean traversal failed. bean: " + metaBean + ", visitor: " + visitor + ", failures: [" +
-          StringUtils.join(failures, ", ") + "]";
+      return "Bean traversal failed. " +
+          "bean: " + metaBean + ", " +
+          "visitor: " + visitor + ", " +
+          "failures: [" + StringUtils.join(failures, ", ") + "]";
     }
   }
 }

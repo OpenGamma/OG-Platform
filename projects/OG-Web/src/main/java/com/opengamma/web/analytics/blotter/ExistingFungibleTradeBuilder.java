@@ -8,6 +8,7 @@ package com.opengamma.web.analytics.blotter;
 import java.util.Set;
 
 import org.joda.beans.MetaBean;
+import org.joda.convert.StringConvert;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
@@ -28,8 +29,9 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ ExistingFungibleTradeBuilder(PositionMaster positionMaster,
                                              SecurityMaster securityMaster,
                                              Set<MetaBean> metaBeans,
-                                             UniqueId tradeId) {
-    super(positionMaster, securityMaster, metaBeans);
+                                             UniqueId tradeId,
+                                             StringConvert stringConvert) {
+    super(positionMaster, securityMaster, metaBeans, stringConvert);
     // TODO should the ID come from the JSON? that way the URI can always be the object ID and the JSON ID can have a version
     ArgumentChecker.notNull(tradeId, "tradeId");
     _tradeId = tradeId;

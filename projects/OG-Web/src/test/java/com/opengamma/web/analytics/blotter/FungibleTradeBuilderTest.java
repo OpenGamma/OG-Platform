@@ -12,7 +12,8 @@ import org.testng.annotations.Test;
  */
 public class FungibleTradeBuilderTest {
 
-  // TODO test that the URL ID is always unversioned and the trade ID is always versioned
+  // TODO check the URL ID is always unversioned and the trade ID is always versioned
+  // TODO what happens if an existing trade's security is changed?
 
   @Test
   public void name() {
