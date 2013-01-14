@@ -126,7 +126,7 @@ public class PortfolioLoader {
           toolContext.getPortfolioMaster(),
           toolContext.getPositionMaster(),
           toolContext.getSecurityMaster(),
-          overwrite, false, false);
+          overwrite, false, false, false);
 
     } else {
 
