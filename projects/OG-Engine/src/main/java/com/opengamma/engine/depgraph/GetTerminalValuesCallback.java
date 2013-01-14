@@ -106,13 +106,22 @@ import com.opengamma.util.tuple.Pair;
 
   public ResolvedValue getProduction(final ValueSpecification specification) {
     final ResolvedValue value = _resolvedBuffer.get(specification);
-    if (value == null) {
-      final DependencyNode node = _spec2Node.get(specification);
-      if (node != null) {
+    if (value != null) {
+      return value;
+    }
+    final DependencyNode node = _spec2Node.get(specification);
+    if (node == null) {
+      return null;
+    }
+    // Can only use the specification if it is consumed by another node; i.e. it has been fully resolved
+    // and is not just an advisory used to merge tentative results to give a single node producing multiple
+    // outputs.
+    for (final DependencyNode dependent : node.getDependentNodes()) {
+      if (dependent.hasInputValue(specification)) {
         return new ResolvedValue(specification, node.getFunction(), node.getInputValues(), node.getOutputValues());
       }
     }
-    return value;
+    return null;
   }
 
   public void declareProduction(final ResolvedValue resolvedValue) {
