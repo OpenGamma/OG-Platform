@@ -29,14 +29,11 @@ public class ISDALegacyVanillaCDSDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.CLEAN_PRICE,
     ValueRequirementNames.DIRTY_PRICE
   };
-  private final PriorityClass _priority;
   private final String _nIntegrationPoints;
 
-  public ISDALegacyVanillaCDSDefaults(final String priority, final String nIntegrationPoints) {
+  public ISDALegacyVanillaCDSDefaults(final String nIntegrationPoints) {
     super(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY, true);
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(nIntegrationPoints, "number of integration points");
-    _priority = PriorityClass.valueOf(priority);
     _nIntegrationPoints = nIntegrationPoints;
   }
 
@@ -57,12 +54,8 @@ public class ISDALegacyVanillaCDSDefaults extends DefaultPropertyFunction {
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.ISDA_LEGACY_CDS_PRICING;
   }
+
 }

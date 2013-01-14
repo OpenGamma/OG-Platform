@@ -100,8 +100,4 @@ public class InterestRateFutureOptionBlackDefaultPropertiesFunctionDeprecated ex
     return null;
   }
 
-  @Override
-  public PriorityClass getPriority() {
-    return PriorityClass.NORMAL;
-  }
 }

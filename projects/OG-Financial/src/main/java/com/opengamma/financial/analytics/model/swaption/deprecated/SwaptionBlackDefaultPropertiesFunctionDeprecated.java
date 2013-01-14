@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swaption.deprecated;
@@ -99,12 +99,8 @@ public class SwaptionBlackDefaultPropertiesFunctionDeprecated extends DefaultPro
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return PriorityClass.NORMAL;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.SWAPTION_BLACK_DEFAULTS;
   }
+
 }

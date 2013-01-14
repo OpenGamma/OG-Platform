@@ -135,8 +135,4 @@ public class SABRRightExtrapolationDefaultsDeprecated extends DefaultPropertyFun
     return OpenGammaFunctionExclusions.SABR_FITTING_DEFAULTS;
   }
 
-  @Override
-  public PriorityClass getPriority() {
-    return PriorityClass.NORMAL;
-  }
 }

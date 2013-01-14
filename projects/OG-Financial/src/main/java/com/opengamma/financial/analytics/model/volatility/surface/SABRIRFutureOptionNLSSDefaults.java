@@ -43,7 +43,6 @@ public class SABRIRFutureOptionNLSSDefaults extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.SABR_SURFACES,
     ValueRequirementNames.VOLATILITY_SURFACE_FITTED_POINTS};
-  private final PriorityClass _priority;
   private final String _xInterpolatorName;
   private final String _yInterpolatorName;
   private final String _leftXExtrapolatorName;
@@ -60,12 +59,11 @@ public class SABRIRFutureOptionNLSSDefaults extends DefaultPropertyFunction {
   private final String _nu;
   private final String _error;
 
-  public SABRIRFutureOptionNLSSDefaults(final String priority, final String xInterpolatorName, final String yInterpolatorName,
+  public SABRIRFutureOptionNLSSDefaults(final String xInterpolatorName, final String yInterpolatorName,
       final String leftXExtrapolatorName, final String rightXExtrapolatorName, final String leftYExtrapolatorName, final String rightYExtrapolatorName,
       final String useFixedAlpha, final String useFixedBeta, final String useFixedRho, final String useFixedNu, final String alpha, final String beta,
       final String rho, final String nu, final String error) {
     super(ComputationTargetType.ANYTHING, true); // [PLAT-2286] TODO: Use the correct target type
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(xInterpolatorName, "x interpolator name");
     ArgumentChecker.notNull(yInterpolatorName, "y interpolator name");
     ArgumentChecker.notNull(leftXExtrapolatorName, "left x extrapolator name");
@@ -81,7 +79,6 @@ public class SABRIRFutureOptionNLSSDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(rho, "rho");
     ArgumentChecker.notNull(nu, "nu");
     ArgumentChecker.notNull(error, "error");
-    _priority = PriorityClass.valueOf(priority);
     _xInterpolatorName = xInterpolatorName;
     _yInterpolatorName = yInterpolatorName;
     _leftXExtrapolatorName = leftXExtrapolatorName;
@@ -171,10 +168,6 @@ public class SABRIRFutureOptionNLSSDefaults extends DefaultPropertyFunction {
     return null;
   }
 
-  @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
-
   //TODO exclusion groups
+
 }

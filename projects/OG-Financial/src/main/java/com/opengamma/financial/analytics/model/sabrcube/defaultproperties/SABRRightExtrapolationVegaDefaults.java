@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.sabrcube.defaultproperties;
@@ -18,7 +18,7 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class SABRRightExtrapolationVegaDefaults extends SABRRightExtrapolationDefaults {
   private final String _xInterpolator;
@@ -28,10 +28,10 @@ public class SABRRightExtrapolationVegaDefaults extends SABRRightExtrapolationDe
   private final String _yLeftExtrapolator;
   private final String _yRightExtrapolator;
 
-  public SABRRightExtrapolationVegaDefaults(final String priority, final String fittingMethod, final String cutoff, final String mu,
+  public SABRRightExtrapolationVegaDefaults(final String fittingMethod, final String cutoff, final String mu,
       final String xInterpolator, final String xLeftExtrapolator, final String xRightExtrapolator, final String yInterpolator, final String yLeftExtrapolator,
       final String yRightExtrapolator, final String... currencyCurveConfigAndCubeNames) {
-    super(priority, fittingMethod, cutoff, mu, currencyCurveConfigAndCubeNames);
+    super(fittingMethod, cutoff, mu, currencyCurveConfigAndCubeNames);
     ArgumentChecker.notNull(xInterpolator, "x interpolator");
     ArgumentChecker.notNull(xLeftExtrapolator, "x left extrapolator");
     ArgumentChecker.notNull(xRightExtrapolator, "x right extrapolator");

@@ -154,9 +154,8 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
     }
 
     protected void addISDALegacyCDSHazardCurveDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[4 + getPerCurrencyInfo().size() * 4];
+      final String[] args = new String[3 + getPerCurrencyInfo().size() * 4];
       int i = 0;
-      args[i++] = PriorityClass.NORMAL.name();
       args[i++] = Integer.toString(getNIterations());
       args[i++] = Double.toString(getTolerance());
       args[i++] = Double.toString(getRangeMultiplier());
@@ -170,7 +169,7 @@ public class CreditFunctions extends AbstractRepositoryConfigurationBean {
     }
 
     protected void addISDALegacyVanillaCDSDefaults(final List<FunctionConfiguration> functions) {
-      functions.add(functionConfiguration(ISDALegacyVanillaCDSDefaults.class, PriorityClass.NORMAL.name(), Integer.toString(getNIntegrationPoints())));
+      functions.add(functionConfiguration(ISDALegacyVanillaCDSDefaults.class, Integer.toString(getNIntegrationPoints())));
     }
 
     @Override

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.pnl;
@@ -31,17 +31,16 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class FXForwardPnLDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXForwardPnLDefaults.class);
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingFunction;
-  private final PriorityClass _priority;
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
-  public FXForwardPnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String priority,
+  public FXForwardPnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction,
       final String... currencyCurveConfigAndDiscountingCurveNames) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period");
@@ -50,11 +49,9 @@ public class FXForwardPnLDefaults extends DefaultPropertyFunction {
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingFunction = samplingFunction;
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "currency and curve config names");
     final int nPairs = currencyCurveConfigAndDiscountingCurveNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and discounting curve name per currency");
-    _priority = PriorityClass.valueOf(priority);
     _currencyCurveConfigAndDiscountingCurveNames = new HashMap<String, Pair<String, String>>();
     for (int i = 0; i < currencyCurveConfigAndDiscountingCurveNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
@@ -125,12 +122,8 @@ public class FXForwardPnLDefaults extends DefaultPropertyFunction {
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.PNL_SERIES;
   }
+
 }

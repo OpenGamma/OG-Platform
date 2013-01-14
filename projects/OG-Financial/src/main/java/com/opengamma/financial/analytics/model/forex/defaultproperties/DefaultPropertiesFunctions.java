@@ -14,7 +14,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
-import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -150,9 +149,8 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
   }
 
   protected void addFXForwardDefaults(final List<FunctionConfiguration> functions) {
-    final String[] args = new String[1 + getPerCurrencyInfo().size() * 3];
+    final String[] args = new String[getPerCurrencyInfo().size() * 3];
     int i = 0;
-    args[i++] = PriorityClass.NORMAL.name();
     for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
       args[i++] = e.getKey();
       args[i++] = e.getValue().getCurveConfiguration();
@@ -162,9 +160,8 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
   }
 
   protected void addFXOptionBlackCurveDefaults(final List<FunctionConfiguration> functions) {
-    final String[] args = new String[1 + getPerCurrencyInfo().size() * 3];
+    final String[] args = new String[getPerCurrencyInfo().size() * 3];
     int i = 0;
-    args[i++] = PriorityClass.NORMAL.name();
     for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
       args[i++] = e.getKey();
       args[i++] = e.getValue().getCurveConfiguration();
@@ -174,9 +171,8 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
   }
 
   protected void addFXOptionBlackSurfaceDefaults(final List<FunctionConfiguration> functions) {
-    final String[] args = new String[4 + getPerCurrencyPairInfo().size() * 3];
+    final String[] args = new String[3 + getPerCurrencyPairInfo().size() * 3];
     int i = 0;
-    args[i++] = PriorityClass.NORMAL.name();
     args[i++] = getInterpolatorName();
     args[i++] = getLeftExtrapolatorName();
     args[i++] = getRightExtrapolatorName();

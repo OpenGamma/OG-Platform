@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swaption.black;
@@ -27,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackDefaultPropertiesFunction.class);
@@ -38,16 +38,13 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
   };
-  private final PriorityClass _priority;
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 
-  public SwaptionBlackDefaultPropertiesFunction(final String priority, final String... currencyCurveConfigAndSurfaceNames) {
+  public SwaptionBlackDefaultPropertiesFunction(final String... currencyCurveConfigAndSurfaceNames) {
     super(FinancialSecurityTypes.SWAPTION_SECURITY, true);
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
     final int nPairs = currencyCurveConfigAndSurfaceNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and surface name per currency");
-    _priority = PriorityClass.valueOf(priority);
     _currencyCurveConfigAndSurfaceNames = new HashMap<String, Pair<String, String>>();
     for (int i = 0; i < currencyCurveConfigAndSurfaceNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndSurfaceNames[i + 1], currencyCurveConfigAndSurfaceNames[i + 2]);
@@ -86,11 +83,6 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
       return Collections.singleton(pair.getSecond());
     }
     return null;
-  }
-
-  @Override
-  public PriorityClass getPriority() {
-    return _priority;
   }
 
   @Override

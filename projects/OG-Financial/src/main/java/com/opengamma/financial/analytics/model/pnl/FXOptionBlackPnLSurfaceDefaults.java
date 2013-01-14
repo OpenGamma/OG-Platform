@@ -37,22 +37,19 @@ import com.opengamma.util.tuple.Pair;
  */
 public class FXOptionBlackPnLSurfaceDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackPnLSurfaceDefaults.class);
-  private final PriorityClass _priority;
   private final String _interpolatorName;
   private final String _leftExtrapolatorName;
   private final String _rightExtrapolatorName;
   private final Map<Pair<String, String>, String> _surfaceNameByCurrencyPair;
 
-  public FXOptionBlackPnLSurfaceDefaults(final String priority, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName,
+  public FXOptionBlackPnLSurfaceDefaults(final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName,
       final String... surfaceNameByCurrencyPair) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(interpolatorName, "interpolator name");
     ArgumentChecker.notNull(leftExtrapolatorName, "left extrapolator name");
     ArgumentChecker.notNull(rightExtrapolatorName, "right extrapolator name");
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(surfaceNameByCurrencyPair, "property values by currency");
     ArgumentChecker.isTrue(surfaceNameByCurrencyPair.length % 3 == 0, "Must have one surface name per currency pair");
-    _priority = PriorityClass.valueOf(priority);
     _interpolatorName = interpolatorName;
     _leftExtrapolatorName = leftExtrapolatorName;
     _rightExtrapolatorName = rightExtrapolatorName;
@@ -127,12 +124,8 @@ public class FXOptionBlackPnLSurfaceDefaults extends DefaultPropertyFunction {
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.PNL_SERIES;
   }
+
 }

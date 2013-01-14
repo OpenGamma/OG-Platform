@@ -87,9 +87,4 @@ public class InterestRateFutureDefaultValuesFunctionDeprecated extends DefaultPr
     return null;
   }
 
-  @Override
-  public PriorityClass getPriority() {
-    return PriorityClass.NORMAL;
-  }
-
 }

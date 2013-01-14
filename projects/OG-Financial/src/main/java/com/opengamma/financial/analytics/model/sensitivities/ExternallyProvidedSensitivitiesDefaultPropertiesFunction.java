@@ -35,16 +35,13 @@ public class ExternallyProvidedSensitivitiesDefaultPropertiesFunction extends De
     "PV01",
     "CS01",
     "Yield Curve Node Sensitivities" };
-  private final DefaultPropertyFunction.PriorityClass _priority;
   private final Map<String, String> _currencyAndCurveConfigNames;
 
-  public ExternallyProvidedSensitivitiesDefaultPropertiesFunction(final String priority, final String[] currencyAndCurveConfigNames) {
+  public ExternallyProvidedSensitivitiesDefaultPropertiesFunction(final String[] currencyAndCurveConfigNames) {
     super(ComputationTargetType.POSITION, true);
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
     final int nPairs = currencyAndCurveConfigNames.length;
     ArgumentChecker.isTrue(nPairs % 2 == 0, "Must have one curve config name per currency");
-    _priority = DefaultPropertyFunction.PriorityClass.valueOf(priority);
     _currencyAndCurveConfigNames = new HashMap<String, String>();
     for (int i = 0; i < currencyAndCurveConfigNames.length; i += 2) {
       _currencyAndCurveConfigNames.put(currencyAndCurveConfigNames[i], currencyAndCurveConfigNames[(i + 1)]);
@@ -93,12 +90,8 @@ public class ExternallyProvidedSensitivitiesDefaultPropertiesFunction extends De
   }
 
   @Override
-  public DefaultPropertyFunction.PriorityClass getPriority() {
-    return this._priority;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.EXTERNALLY_PROVIDED_SENSITIVITIES_DEFAULTS;
   }
+
 }

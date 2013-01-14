@@ -34,22 +34,19 @@ public class ISDALegacyCDSHazardCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.CLEAN_PRICE,
     ValueRequirementNames.DIRTY_PRICE
   };
-  private final PriorityClass _priority;
   private final String _nIterations;
   private final String _tolerance;
   private final String _rangeMultiplier;
   private final Map<String, String[]> _yieldCurvePropertiesForCurrency;
 
-  public ISDALegacyCDSHazardCurveDefaults(final String priority, final String nIterations, final String tolerance, final String rangeMultiplier,
+  public ISDALegacyCDSHazardCurveDefaults(final String nIterations, final String tolerance, final String rangeMultiplier,
       final String... yieldCurvePropertiesForCurrency) {
     super(FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY, true);
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(nIterations, "number of iterations");
     ArgumentChecker.notNull(tolerance, "tolerance");
     ArgumentChecker.notNull(rangeMultiplier, "range multiplier");
     ArgumentChecker.notNull(yieldCurvePropertiesForCurrency, "yield curve properties for currency");
     ArgumentChecker.isTrue(yieldCurvePropertiesForCurrency.length % 4 == 0, "must have one yield curve name, yield curve calculation config and yield curve calculation method per currency");
-    _priority = PriorityClass.valueOf(priority);
     _nIterations = nIterations;
     _tolerance = tolerance;
     _rangeMultiplier = rangeMultiplier;
@@ -114,11 +111,6 @@ public class ISDALegacyCDSHazardCurveDefaults extends DefaultPropertyFunction {
     }
     s_logger.warn("Did not have default value for property called {}", propertyName);
     return null;
-  }
-
-  @Override
-  public PriorityClass getPriority() {
-    return _priority;
   }
 
   @Override

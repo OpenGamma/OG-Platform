@@ -50,11 +50,9 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
       ValueRequirementNames.VALUE_VOMMA,
       ValueRequirementNames.VALUE_VANNA
   };
-  private final PriorityClass _priority;
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
   /**
-   * @param priority The priority of the functions
    * @param currencyCurveConfigAndDiscountingCurveNames Values for the properties per currency: an array of strings where the <i>i<sup>th</sup></i> currency has properties:
    *          <ul>
    *          <li><i>i</i> = currency name,
@@ -62,13 +60,11 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
    *          <li><i>i + 2</i> = discounting curve name
    *          </ul>
    */
-  public FXOptionBlackCurveDefaults(final String priority, final String... currencyCurveConfigAndDiscountingCurveNames) {
+  public FXOptionBlackCurveDefaults(final String... currencyCurveConfigAndDiscountingCurveNames) {
     super(FinancialSecurityTypes.FX_OPTION_SECURITY.or(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY).or(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY)
         .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_OPTION_SECURITY).or(FinancialSecurityTypes.NON_DELIVERABLE_FX_DIGITAL_OPTION_SECURITY), true);
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "currency and curve config names");
     ArgumentChecker.isTrue(currencyCurveConfigAndDiscountingCurveNames.length % 3 == 0, "Must have one curve config and discounting curve name per currency");
-    _priority = PriorityClass.valueOf(priority);
     _currencyCurveConfigAndDiscountingCurveNames = new HashMap<String, Pair<String, String>>();
     for (int i = 0; i < currencyCurveConfigAndDiscountingCurveNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndDiscountingCurveNames[i + 1], currencyCurveConfigAndDiscountingCurveNames[i + 2]);
@@ -130,11 +126,6 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.FX_OPTION_BLACK_CURVE_DEFAULTS;
   }
@@ -142,4 +133,5 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
   protected static String[] getRequirementNames() {
     return VALUE_REQUIREMENTS;
   }
+
 }

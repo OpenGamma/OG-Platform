@@ -15,7 +15,6 @@ import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.fixedincome.deprecated.DeprecatedFunctions;
-import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -92,9 +91,8 @@ public class FixedIncomeFunctions extends AbstractRepositoryConfigurationBean {
     }
 
     protected void addInterestRateInstrumentDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[2 + getPerCurrencyInfo().size() * 2];
+      final String[] args = new String[1 + getPerCurrencyInfo().size() * 2];
       int i = 0;
-      args[i++] = PriorityClass.NORMAL.name();
       args[i++] = Boolean.toString(isIncludeIRFutures());
       for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
         args[i++] = e.getKey();

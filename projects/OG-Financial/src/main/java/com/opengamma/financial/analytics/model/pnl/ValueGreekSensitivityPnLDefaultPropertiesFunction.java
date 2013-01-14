@@ -26,14 +26,8 @@ public class ValueGreekSensitivityPnLDefaultPropertiesFunction extends DefaultPr
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingCalculator;
-  private final PriorityClass _priority;
 
   public ValueGreekSensitivityPnLDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator, final String returnCalculator) {
-    this(samplingPeriod, scheduleCalculator, samplingCalculator, returnCalculator, PriorityClass.NORMAL.name());
-  }
-
-  public ValueGreekSensitivityPnLDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator, final String returnCalculator,
-      final String priority) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator");
@@ -43,7 +37,6 @@ public class ValueGreekSensitivityPnLDefaultPropertiesFunction extends DefaultPr
     _scheduleCalculator = scheduleCalculator;
     _samplingCalculator = samplingCalculator;
     _returnCalculator = returnCalculator;
-    _priority = PriorityClass.valueOf(priority);
   }
 
   @Override
@@ -77,8 +70,4 @@ public class ValueGreekSensitivityPnLDefaultPropertiesFunction extends DefaultPr
     return OpenGammaFunctionExclusions.PNL_SERIES;
   }
 
-  @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
 }

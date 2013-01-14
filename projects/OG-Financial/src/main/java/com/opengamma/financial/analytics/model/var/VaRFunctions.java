@@ -13,7 +13,6 @@ import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorF
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -117,7 +116,7 @@ public class VaRFunctions extends AbstractRepositoryConfigurationBean {
       //functions.add(functionConfiguration(PositionValueGreekSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME, startDate, defaultReturnCalculatorName,
       //  defaultScheduleName, defaultSamplingCalculatorName, ValueRequirementNames.VALUE_DELTA));
       functions.add(functionConfiguration(NormalHistoricalVaRDefaultPropertiesFunction.class, getSamplingPeriodName(), getScheduleName(), getSamplingCalculatorName(), getMeanCalculatorName(),
-          getStdDevCalculatorName(), Double.toString(getConfidenceLevel()), Double.toString(getHorizon()), PriorityClass.NORMAL.name()));
+          getStdDevCalculatorName(), Double.toString(getConfidenceLevel()), Double.toString(getHorizon())));
     }
 
   }

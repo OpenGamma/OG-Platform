@@ -128,9 +128,4 @@ public class YieldCurveNodeSensitivityPnLDefaultsDeprecated extends DefaultPrope
     return OpenGammaFunctionExclusions.PNL_SERIES;
   }
 
-  @Override
-  public PriorityClass getPriority() {
-    return PriorityClass.NORMAL;
-  }
-
 }

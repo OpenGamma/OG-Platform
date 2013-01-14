@@ -51,14 +51,12 @@ public class FXOptionBlackSurfaceDefaults extends DefaultPropertyFunction {
       ValueRequirementNames.VALUE_VOMMA,
       ValueRequirementNames.VALUE_VANNA
   };
-  private final PriorityClass _priority;
   private final String _interpolatorName;
   private final String _leftExtrapolatorName;
   private final String _rightExtrapolatorName;
   private final Map<Pair<String, String>, String> _surfaceNameByCurrencyPair;
 
   /**
-   * @param priority The priority of the functions
    * @param interpolatorName The volatility surface interpolator name
    * @param leftExtrapolatorName The volatility surface left extrapolator name
    * @param rightExtrapolatorName The volatility surface right extrapolator name
@@ -69,17 +67,15 @@ public class FXOptionBlackSurfaceDefaults extends DefaultPropertyFunction {
    *          <li><i>i + 2</i> = surface name
    *          </ul>
    */
-  public FXOptionBlackSurfaceDefaults(final String priority, final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName,
+  public FXOptionBlackSurfaceDefaults(final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName,
       final String... surfaceNamesByCurrencyPair) {
     super(FinancialSecurityTypes.FX_OPTION_SECURITY.or(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY).or(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY)
         .or(FinancialSecurityTypes.NON_DELIVERABLE_FX_OPTION_SECURITY).or(FinancialSecurityTypes.NON_DELIVERABLE_FX_DIGITAL_OPTION_SECURITY), true);
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(interpolatorName, "interpolator name");
     ArgumentChecker.notNull(leftExtrapolatorName, "left extrapolator name");
     ArgumentChecker.notNull(rightExtrapolatorName, "right extrapolator name");
     ArgumentChecker.notNull(surfaceNamesByCurrencyPair, "property values by currency");
     ArgumentChecker.isTrue(surfaceNamesByCurrencyPair.length % 3 == 0, "Must have one surface name per currency pair");
-    _priority = PriorityClass.valueOf(priority);
     _interpolatorName = interpolatorName;
     _leftExtrapolatorName = leftExtrapolatorName;
     _rightExtrapolatorName = rightExtrapolatorName;
@@ -144,12 +140,8 @@ public class FXOptionBlackSurfaceDefaults extends DefaultPropertyFunction {
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.FX_OPTION_BLACK_SURFACE_DEFAULTS;
   }
+
 }

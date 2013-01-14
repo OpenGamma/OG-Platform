@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.sabrcube.defaultproperties;
@@ -32,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(SABRRightExtrapolationDefaults.class);
@@ -47,23 +47,20 @@ public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.PRESENT_VALUE_SABR_NU_NODE_SENSITIVITY,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
   };
-  private final PriorityClass _priority;
   private final String _fittingMethod;
   private final String _cutoff;
   private final String _mu;
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndCubeNames;
 
-  public SABRRightExtrapolationDefaults(final String priority, final String fittingMethod, final String cutoff, final String mu,
+  public SABRRightExtrapolationDefaults(final String fittingMethod, final String cutoff, final String mu,
       final String... currencyCurveConfigAndCubeNames) {
     super(FinancialSecurityTypes.SWAPTION_SECURITY.or(FinancialSecurityTypes.SWAP_SECURITY).or(FinancialSecurityTypes.CAP_FLOOR_SECURITY).or(FinancialSecurityTypes.CAP_FLOOR_CMS_SPREAD_SECURITY),
         true);
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(fittingMethod, "fitting method");
     ArgumentChecker.notNull(fittingMethod, "fitting method");
     ArgumentChecker.notNull(cutoff, "cutoff");
     ArgumentChecker.notNull(mu, "mu");
     ArgumentChecker.notNull(currencyCurveConfigAndCubeNames, "currency, curve config and surface names");
-    _priority = PriorityClass.valueOf(priority);
     _fittingMethod = fittingMethod;
     _cutoff = cutoff;
     _mu = mu;
@@ -124,11 +121,6 @@ public class SABRRightExtrapolationDefaults extends DefaultPropertyFunction {
       return Collections.singleton(pair.getSecond());
     }
     return null;
-  }
-
-  @Override
-  public PriorityClass getPriority() {
-    return _priority;
   }
 
   @Override

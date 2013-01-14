@@ -14,7 +14,6 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -96,9 +95,8 @@ public class FutureFunctions extends AbstractRepositoryConfigurationBean {
     }
 
     protected void addInterestRateFutureDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[1 + getPerCurrencyInfo().size() * 2];
+      final String[] args = new String[getPerCurrencyInfo().size() * 2];
       int i = 0;
-      args[i++] = PriorityClass.NORMAL.name();
       for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
         args[i++] = e.getKey();
         args[i++] = e.getValue().getCurveConfiguration();

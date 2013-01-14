@@ -21,7 +21,6 @@ import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.MissingInputsFunction;
 import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
-import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 import com.opengamma.util.ArgumentChecker;
 
@@ -238,12 +237,11 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
     }
 
     protected void addYieldCurveNodePnLDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[4 + getPerCurrencyInfo().size() * 2];
+      final String[] args = new String[3 + getPerCurrencyInfo().size() * 2];
       int i = 0;
       args[i++] = getSamplingPeriodName();
       args[i++] = getScheduleName();
       args[i++] = getSamplingCalculatorName();
-      args[i++] = PriorityClass.ABOVE_NORMAL.name();
       for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
         args[i++] = e.getKey();
         args[i++] = e.getValue().getCurveConfiguration();

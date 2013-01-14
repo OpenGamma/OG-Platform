@@ -13,7 +13,6 @@ import com.opengamma.engine.function.config.CombiningRepositoryConfigurationSour
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackFunctions;
-import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -184,7 +183,7 @@ public class SurfaceFunctions extends AbstractRepositoryConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      functions.add(functionConfiguration(SABRIRFutureOptionNLSSDefaults.class, PriorityClass.ABOVE_NORMAL.name(),
+      functions.add(functionConfiguration(SABRIRFutureOptionNLSSDefaults.class,
           getXInterpolatorName(), getYInterpolatorName(), getLeftXExtrapolatorName(), getRightXExtrapolatorName(), getLeftYExtrapolatorName(), getRightYExtrapolatorName(),
           Boolean.toString(isUseFixedAlpha()), Boolean.toString(isUseFixedBeta()), Boolean.toString(isUseFixedRho()), Boolean.toString(isUseFixedNu()), Double.toString(getAlpha()),
           Double.toString(getBeta()), Double.toString(getRho()), Double.toString(getNu()), Double.toString(getError())));

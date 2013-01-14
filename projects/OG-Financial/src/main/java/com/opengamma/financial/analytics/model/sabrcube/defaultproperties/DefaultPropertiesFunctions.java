@@ -16,7 +16,6 @@ import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingDefaults;
-import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -169,9 +168,8 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
   }
 
   protected void addNoExtrapolationDefaults(final List<FunctionConfiguration> functions) {
-    final String[] args = new String[2 + getPerCurrencyInfo().size() * 3];
+    final String[] args = new String[1 + getPerCurrencyInfo().size() * 3];
     int i = 0;
-    args[i++] = PriorityClass.BELOW_NORMAL.name();
     args[i++] = getFittingMethod();
     for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
       args[i++] = e.getKey();
@@ -182,9 +180,8 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
   }
 
   protected void addNoExtrapolationVegaDefaults(final List<FunctionConfiguration> functions) {
-    final String[] args = new String[8 + getPerCurrencyInfo().size() * 3];
+    final String[] args = new String[7 + getPerCurrencyInfo().size() * 3];
     int i = 0;
-    args[i++] = PriorityClass.BELOW_NORMAL.name();
     args[i++] = getFittingMethod();
     args[i++] = getXInterpolator();
     args[i++] = getXLeftExtrapolator();
@@ -207,9 +204,8 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
   }
 
   protected void addRightExtrapolationDefaults(final List<FunctionConfiguration> functions) {
-    final String[] args = new String[4 + getPerCurrencyInfo().size() * 3];
+    final String[] args = new String[3 + getPerCurrencyInfo().size() * 3];
     int i = 0;
-    args[i++] = PriorityClass.BELOW_NORMAL.name();
     args[i++] = getFittingMethod();
     args[i++] = Double.toString(getCutOff());
     args[i++] = Double.toString(getMu());
@@ -222,9 +218,8 @@ public class DefaultPropertiesFunctions extends AbstractRepositoryConfigurationB
   }
 
   protected void addRightExtrapolationVegaDefaults(final List<FunctionConfiguration> functions) {
-    final String[] args = new String[10 + getPerCurrencyInfo().size() * 3];
+    final String[] args = new String[9 + getPerCurrencyInfo().size() * 3];
     int i = 0;
-    args[i++] = PriorityClass.BELOW_NORMAL.name();
     args[i++] = getFittingMethod();
     args[i++] = Double.toString(getCutOff());
     args[i++] = Double.toString(getMu());
