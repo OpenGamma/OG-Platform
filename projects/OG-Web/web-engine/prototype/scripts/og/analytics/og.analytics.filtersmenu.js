@@ -44,9 +44,7 @@ $.register_module({
                     .html(function (html) {$('#' + id + ' tr.og-js-buttons').before(html);});
             }).on('click', '#' + id + ' .og-js-rem', function (event) {
                 $(event.target).parents('tr.row:first').remove();
-                $('#' + id + ' td.number span').each(function (idx) {
-                    $(this).html(idx + 1);
-                });
+                $('#' + id + ' td.number span').each(function (idx) {$(this).html(idx + 1);});
             });
         };
         FiltersMenu.prototype = new Block; // inherit Block prototype
