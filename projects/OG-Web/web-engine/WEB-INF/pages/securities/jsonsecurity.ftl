@@ -40,6 +40,14 @@
         "rate":"${security.rate}",
         "region":"${security.regionId?replace("_", " ")}",
       <#break>
+      <#case "CASHFLOW">
+        "amount":"${security.amount}",
+        "currency":"${security.currency}",
+        "maturity": {
+              "date": "${security.settlement.toLocalDate()}",
+              "zone": "${security.settlement.zone}"
+          },
+      <#break>
       <#case "EQUITY">
         	"shortName":"${security.shortName}",
         	"exchange":"${security.exchange}",

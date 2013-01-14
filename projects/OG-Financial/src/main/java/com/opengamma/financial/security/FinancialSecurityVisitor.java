@@ -11,6 +11,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -92,6 +93,8 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitCapFloorSecurity(CapFloorSecurity security);
 
   T visitCashSecurity(CashSecurity security);
+
+  T visitCashFlowSecurity(CashFlowSecurity security);
 
   T visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security);
 
