@@ -123,6 +123,9 @@ import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYiel
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldValueRhoFuturesFunction;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionBAWGreeksFunction;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionBAWPresentValueFunction;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionBjerksundStenslandFunction;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionBjerksundStenslandGreeksFunction;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionBjerksundStenslandPresentValueFunction;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionBlackFundingCurveSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionBlackImpliedVolFunction;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionBlackPresentValueFunction;
@@ -945,6 +948,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(EquityOptionBlackRhoFunction.class));
     functionConfigs.add(functionConfiguration(EquityOptionBAWPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(EquityOptionBAWGreeksFunction.class));
+    functionConfigs.add(functionConfiguration(EquityOptionBjerksundStenslandPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(EquityOptionBjerksundStenslandGreeksFunction.class));
     Builder equityOptionSurfaceCalculationMethodDefaults = EquityInstrumentDefaultValues.builder()
         .useIdName()
         .useVolatilitySurfaceCalculationMethodNames();
