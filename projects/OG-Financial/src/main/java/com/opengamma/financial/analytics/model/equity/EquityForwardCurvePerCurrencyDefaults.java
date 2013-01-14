@@ -13,8 +13,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -23,10 +21,8 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -67,7 +63,7 @@ public class EquityForwardCurvePerCurrencyDefaults extends DefaultPropertyFuncti
     }
     final UniqueId id = target.getUniqueId();
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final String currency = getCurrency(securitySource, id);
+    final String currency = EquitySecurityUtils.getCurrency(securitySource, id);
     if (currency == null) {
       return false;
     }
@@ -85,7 +81,7 @@ public class EquityForwardCurvePerCurrencyDefaults extends DefaultPropertyFuncti
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final String currency = getCurrency(securitySource, target.getUniqueId());
+    final String currency = EquitySecurityUtils.getCurrency(securitySource, target.getUniqueId());
     if (currency == null) {
       s_logger.error("Could not get currency for {}; should never happen", target.getUniqueId());
       return null;
@@ -109,28 +105,9 @@ public class EquityForwardCurvePerCurrencyDefaults extends DefaultPropertyFuncti
     return _priority;
   }
 
-  private String getCurrency(final SecuritySource securitySource, final UniqueId id) {
-    final String scheme;
-    final String originalScheme = id.getScheme();
-    if (originalScheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
-      scheme = ExternalSchemes.BLOOMBERG_TICKER.getName();
-    } else if (originalScheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK.getName())) {
-      scheme = ExternalSchemes.BLOOMBERG_BUID.getName();
-    } else {
-      scheme = originalScheme;
-    }
-    final String value = id.getValue();
-    final ExternalId ticker = ExternalId.of(scheme, value);
-    final Security security = securitySource.getSingle(ExternalIdBundle.of(ticker));
-    if (security == null) {
-      return null;
-    }
-    return FinancialSecurityUtils.getCurrency(security).getCode();
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.EQUITY_FORWARD_CURVE_DEFAULTS;
   }
-
-//  @Override
-//  public String getMutualExclusionGroup() {
-//    return OpenGammaFunctionExclusions.EQUITY_FORWARD_CURVE_DEFAULTS;
-//  }
 
 }
