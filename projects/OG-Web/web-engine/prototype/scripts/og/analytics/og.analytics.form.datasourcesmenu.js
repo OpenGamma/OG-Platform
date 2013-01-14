@@ -3,8 +3,8 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.DatasourcesMenu',
-    dependencies: ['og.analytics.DropMenu'],
+    name: 'og.analytics.form.DatasourcesMenu',
+    dependencies: [],
     obj: function () {
         return function (config) {
             if (!config) return og.dev.warn('og.analytics.DatasourcesMenu: Missing param [config] to constructor.');
@@ -351,7 +351,7 @@ $.register_module({
                 }
             };
 
-            return menu = new og.analytics.DropMenu(default_conf, init),
+            return menu = new og.analytics.form.DropMenu(default_conf, init),
 
             // Public
             menu.replay_query = function (conf) {

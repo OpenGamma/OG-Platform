@@ -350,11 +350,11 @@
     <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.portfolios.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.viewdefinitions.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.dropmenu.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.aggregators_menu.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.datasources_menu.js</fragment>
-	<fragment>/scripts/og/analytics/og.analytics.temporalmenu.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.filtersmenu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.aggregatorsmenu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.datasourcesmenu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.temporalmenu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.filtersmenu.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.dropmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.status.js</fragment>
     <!-- <fragment>/scripts/og/analytics/og.analytics.form.js</fragment> -->
     <fragment>/scripts/og/analytics/og.analytics.form2.js</fragment>

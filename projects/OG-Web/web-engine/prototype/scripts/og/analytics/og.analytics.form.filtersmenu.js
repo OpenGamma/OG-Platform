@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.FiltersMenu',
+    name: 'og.analytics.form.FiltersMenu',
     dependencies: [],
     obj: function () {
         var module = this, Block = og.common.util.ui.Block;

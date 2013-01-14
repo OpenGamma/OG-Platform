@@ -45,15 +45,15 @@ $.register_module({
                     providers: compilation.providers,
                     viewdefinition: 'DbCfg~2197901'
                 };
-                callback(query);
+                console.log(compilation);
             });
             form.children.push(
                 (new og.analytics.form.Portfolios({form:form})).block,
                 (new og.analytics.form.ViewDefinitions({form:form})).block,
-                (new og.analytics.DatasourcesMenu({form:form})).block,
-                new og.analytics.TemporalMenu({form:form}),
-                (new og.analytics.AggregatorsMenu({form:form})).block,
-                new og.analytics.FiltersMenu({form:form, index:'filters' })
+                //(new og.analytics.form.DatasourcesMenu({form:form})).block,
+                new og.analytics.form.TemporalMenu({form:form}),
+                new og.analytics.form.AggregatorsMenu({form:form}),
+                new og.analytics.form.FiltersMenu({form:form, index:'filters' })
             );
             form.dom();
             menus.push(
@@ -63,7 +63,7 @@ $.register_module({
         };
 
         constructor = function (callback) {
-            return og.views.common.layout.main.allowOverflow('north'), init(console.log);
+            return og.views.common.layout.main.allowOverflow('north'), init(callback);
         };
 
         constructor.prototype.fire = og.common.events.fire;

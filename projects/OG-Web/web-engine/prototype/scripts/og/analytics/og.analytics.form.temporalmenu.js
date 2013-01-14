@@ -3,8 +3,8 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.TemporalMenu',
-    dependencies: ['og.analytics.DropMenu'],
+    name: 'og.analytics.form.TemporalMenu',
+    dependencies: [],
     obj: function () {
         var module = this, Block = og.common.util.ui.Block;
         var TemporalMenu = function (config) {
