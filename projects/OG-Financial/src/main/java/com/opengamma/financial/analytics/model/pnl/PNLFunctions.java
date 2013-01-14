@@ -14,6 +14,7 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
@@ -23,6 +24,7 @@ import com.opengamma.financial.analytics.MissingInputsFunction;
 import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -129,6 +131,8 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
     public static class CurrencyInfo implements InitializingBean {
 
       private String _curveConfiguration;
+      private String _discountingCurve;
+      private String _surfaceName;
 
       public void setCurveConfiguration(final String curveConfiguration) {
         _curveConfiguration = curveConfiguration;
@@ -138,21 +142,64 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
         return _curveConfiguration;
       }
 
+      public void setDiscountingCurve(final String discountingCurve) {
+        _discountingCurve = discountingCurve;
+      }
+
+      public String getDiscountingCurve() {
+        return _discountingCurve;
+      }
+
+      public void setSurfaceName(final String surfaceName) {
+        _surfaceName = surfaceName;
+      }
+
+      public String getSurfaceName() {
+        return _surfaceName;
+      }
+
       @Override
       public void afterPropertiesSet() {
         ArgumentChecker.notNullInjected(getCurveConfiguration(), "curveConfiguration");
+        ArgumentChecker.notNullInjected(getDiscountingCurve(), "discountingCurve");
+      }
+
+    }
+
+    /**
+     * Per currency-pair information.
+     */
+    public static class CurrencyPairInfo implements InitializingBean {
+
+      private String _surfaceName;
+
+      public void setSurfaceName(final String surfaceName) {
+        _surfaceName = surfaceName;
+      }
+
+      public String getSurfaceName() {
+        return _surfaceName;
+      }
+
+      @Override
+      public void afterPropertiesSet() {
+        ArgumentChecker.notNullInjected(getSurfaceName(), "surfaceName");
       }
 
     }
 
     private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
+    private final Map<Pair<String, String>, CurrencyPairInfo> _perCurrencyPairInfo = new HashMap<Pair<String, String>, CurrencyPairInfo>();
     private String _curveName;
     private String _payCurveName;
     private String _receiveCurveName;
     private String _returnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
-    private final String _samplingPeriodName = "P2Y";
+    private String _samplingPeriodName = "P2Y";
     private String _scheduleName = ScheduleCalculatorFactory.DAILY;
     private String _samplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
+    private String _interpolator = Interpolator1DFactory.DOUBLE_QUADRATIC;
+    private String _leftExtrapolator = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    private String _rightExtrapolator = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 
     public void setPerCurrencyInfo(final Map<String, CurrencyInfo> perCurrencyInfo) {
       _perCurrencyInfo.clear();
@@ -169,6 +216,23 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
 
     public CurrencyInfo getCurrencyInfo(final String currency) {
       return _perCurrencyInfo.get(currency);
+    }
+
+    public void setPerCurrencyPairInfo(final Map<Pair<String, String>, CurrencyPairInfo> perCurrencyPairInfo) {
+      _perCurrencyPairInfo.clear();
+      _perCurrencyPairInfo.putAll(perCurrencyPairInfo);
+    }
+
+    public Map<Pair<String, String>, CurrencyPairInfo> getPerCurrencyPairInfo() {
+      return _perCurrencyPairInfo;
+    }
+
+    public void setCurrencyPairInfo(final Pair<String, String> currencyPair, final CurrencyPairInfo info) {
+      _perCurrencyPairInfo.put(currencyPair, info);
+    }
+
+    public CurrencyPairInfo getCurrencyPairInfo(final Pair<String, String> currencyPair) {
+      return _perCurrencyPairInfo.get(currencyPair);
     }
 
     public void setCurveName(final String curveName) {
@@ -204,7 +268,7 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
     }
 
     public void setSamplingPeriodName(final String samplingPeriodName) {
-      _samplingCalculatorName = samplingPeriodName;
+      _samplingPeriodName = samplingPeriodName;
     }
 
     public String getSamplingPeriodName() {
@@ -227,13 +291,170 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
       return _samplingCalculatorName;
     }
 
+    public void setInterpolator(final String interpolator) {
+      _interpolator = interpolator;
+    }
+
+    public String getInterpolator() {
+      return _interpolator;
+    }
+
+    public void setLeftExtrapolator(final String leftExtrapolator) {
+      _leftExtrapolator = leftExtrapolator;
+    }
+
+    public String getLeftExtrapolator() {
+      return _leftExtrapolator;
+    }
+
+    public void setRightExtrapolator(final String rightExtrapolator) {
+      _rightExtrapolator = rightExtrapolator;
+    }
+
+    public String getRightExtrapolator() {
+      return _rightExtrapolator;
+    }
+
     @Override
     public void afterPropertiesSet() {
       ArgumentChecker.notNullInjected(getReturnCalculatorName(), "returnCalculatorName");
       ArgumentChecker.notNullInjected(getSamplingPeriodName(), "samplingPeriodName");
       ArgumentChecker.notNullInjected(getScheduleName(), "scheduleName");
       ArgumentChecker.notNullInjected(getSamplingCalculatorName(), "samplingCalculatorName");
+      ArgumentChecker.notNullInjected(getInterpolator(), "interpolator");
+      ArgumentChecker.notNullInjected(getLeftExtrapolator(), "leftExtrapolator");
+      ArgumentChecker.notNullInjected(getRightExtrapolator(), "rightExtrapolator");
       super.afterPropertiesSet();
+    }
+
+    protected void addBondFutureOptionBlackYieldCurveNodePnLDefaults(final List<FunctionConfiguration> functions) {
+      int i = 0;
+      for (final CurrencyInfo e : getPerCurrencyInfo().values()) {
+        if (e.getSurfaceName() != null) {
+          i++;
+        }
+      }
+      final String[] args = new String[3 + i * 3];
+      i = 0;
+      args[i++] = getSamplingPeriodName();
+      args[i++] = getScheduleName();
+      args[i++] = getSamplingCalculatorName();
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        if (e.getValue().getSurfaceName() != null) {
+          args[i++] = e.getKey();
+          args[i++] = e.getValue().getCurveConfiguration();
+          args[i++] = e.getValue().getSurfaceName();
+        }
+      }
+      functions.add(functionConfiguration(BondFutureOptionBlackYieldCurveNodePnLDefaults.class, args));
+    }
+
+    protected void addFXForwardPnLDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[3 + getPerCurrencyInfo().size() * 3];
+      int i = 0;
+      args[i++] = getSamplingPeriodName();
+      args[i++] = getScheduleName();
+      args[i++] = getSamplingCalculatorName();
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        args[i++] = e.getKey();
+        args[i++] = e.getValue().getCurveConfiguration();
+        args[i++] = e.getValue().getDiscountingCurve();
+      }
+      functions.add(functionConfiguration(FXForwardPnLDefaults.class, args));
+    }
+
+    protected void addFXOptionBlackPnLCurveDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[getPerCurrencyInfo().size() * 3];
+      int i = 0;
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        args[i++] = e.getKey();
+        args[i++] = e.getValue().getCurveConfiguration();
+        args[i++] = e.getValue().getDiscountingCurve();
+      }
+      functions.add(functionConfiguration(FXOptionBlackPnLCurveDefaults.class, args));
+    }
+
+    protected void addFXOptionBlackPnLSurfaceDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[3 + getPerCurrencyPairInfo().size() * 3];
+      int i = 0;
+      args[i++] = getInterpolator();
+      args[i++] = getLeftExtrapolator();
+      args[i++] = getRightExtrapolator();
+      for (final Map.Entry<Pair<String, String>, CurrencyPairInfo> e : getPerCurrencyPairInfo().entrySet()) {
+        args[i++] = e.getKey().getFirst();
+        args[i++] = e.getKey().getSecond();
+        args[i++] = e.getValue().getSurfaceName();
+      }
+      functions.add(functionConfiguration(FXOptionBlackPnLSurfaceDefaults.class, args));
+    }
+
+    protected void addInterestRateFutureOptionBlackYieldCurveNodePnLDefaults(final List<FunctionConfiguration> functions) {
+      int i = 0;
+      for (final CurrencyInfo e : getPerCurrencyInfo().values()) {
+        if (e.getSurfaceName() != null) {
+          i++;
+        }
+      }
+      final String[] args = new String[3 + i * 3];
+      i = 0;
+      args[i++] = getSamplingPeriodName();
+      args[i++] = getScheduleName();
+      args[i++] = getSamplingCalculatorName();
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        if (e.getValue().getSurfaceName() != null) {
+          args[i++] = e.getKey();
+          args[i++] = e.getValue().getCurveConfiguration();
+          args[i++] = e.getValue().getSurfaceName();
+        }
+      }
+      functions.add(functionConfiguration(InterestRateFutureOptionBlackYieldCurveNodePnLDefaults.class, args));
+    }
+
+    protected void addInterestRateFutureYieldCurveNodePnLDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[3 + getPerCurrencyInfo().size() * 2];
+      int i = 0;
+      args[i++] = getSamplingPeriodName();
+      args[i++] = getScheduleName();
+      args[i++] = getSamplingCalculatorName();
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        args[i++] = e.getKey();
+        args[i++] = e.getValue().getCurveConfiguration();
+      }
+      functions.add(functionConfiguration(InterestRateFutureYieldCurveNodePnLDefaults.class, args));
+    }
+
+    protected void addPositionPnLDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[3 + getPerCurrencyInfo().size()];
+      int i = 0;
+      args[i++] = getSamplingPeriodName();
+      args[i++] = getScheduleName();
+      args[i++] = getSamplingCalculatorName();
+      for (final String currency : getPerCurrencyInfo().keySet()) {
+        args[i++] = currency;
+      }
+      functions.add(functionConfiguration(PositionPnLDefaults.class, args));
+    }
+
+    protected void addSwaptionBlackYieldCurveNodePnLDefaults(final List<FunctionConfiguration> functions) {
+      int i = 0;
+      for (final CurrencyInfo e : getPerCurrencyInfo().values()) {
+        if (e.getSurfaceName() != null) {
+          i++;
+        }
+      }
+      final String[] args = new String[3 + i * 3];
+      i = 0;
+      args[i++] = getSamplingPeriodName();
+      args[i++] = getScheduleName();
+      args[i++] = getSamplingCalculatorName();
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        if (e.getValue().getSurfaceName() != null) {
+          args[i++] = e.getKey();
+          args[i++] = e.getValue().getCurveConfiguration();
+          args[i++] = e.getValue().getSurfaceName();
+        }
+      }
+      functions.add(functionConfiguration(SwaptionBlackYieldCurveNodePnLDefaults.class, args));
     }
 
     protected void addYieldCurveNodePnLDefaults(final List<FunctionConfiguration> functions) {
@@ -249,22 +470,11 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
       functions.add(functionConfiguration(YieldCurveNodePnLDefaults.class, args));
     }
 
-    protected void addPositionPnLDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[3 + getPerCurrencyInfo().size()];
-      int i = 0;
-      args[i++] = getSamplingPeriodName();
-      args[i++] = getScheduleName();
-      args[i++] = getSamplingCalculatorName();
-      for (final String currency : getPerCurrencyInfo().keySet()) {
-        args[i++] = currency;
-      }
-      functions.add(functionConfiguration(PositionPnLDefaults.class, args));
-    }
-
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       functions.add(functionConfiguration(EquityPnLDefaultPropertiesFunction.class, getSamplingPeriodName(), getScheduleName(), getSamplingCalculatorName(),
           getReturnCalculatorName()));
+      functions.add(functionConfiguration(FXOptionBlackPnLDefaults.class, getSamplingPeriodName(), getScheduleName(), getSamplingCalculatorName()));
       functions.add(functionConfiguration(SecurityPriceSeriesDefaultPropertiesFunction.class, getSamplingPeriodName(), getScheduleName(),
           getSamplingCalculatorName()));
       if (getCurveName() != null) {
@@ -278,8 +488,17 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
       functions.add(functionConfiguration(ValueGreekSensitivityPnLDefaultPropertiesFunction.class, getSamplingPeriodName(), getScheduleName(),
           getSamplingCalculatorName(), getReturnCalculatorName()));
       if (!getPerCurrencyInfo().isEmpty()) {
-        addYieldCurveNodePnLDefaults(functions);
+        addBondFutureOptionBlackYieldCurveNodePnLDefaults(functions);
+        addFXForwardPnLDefaults(functions);
+        addFXOptionBlackPnLCurveDefaults(functions);
+        addInterestRateFutureOptionBlackYieldCurveNodePnLDefaults(functions);
+        addInterestRateFutureYieldCurveNodePnLDefaults(functions);
         addPositionPnLDefaults(functions);
+        addSwaptionBlackYieldCurveNodePnLDefaults(functions);
+        addYieldCurveNodePnLDefaults(functions);
+      }
+      if (!getPerCurrencyPairInfo().isEmpty()) {
+        addFXOptionBlackPnLSurfaceDefaults(functions);
       }
     }
 

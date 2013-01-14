@@ -15,7 +15,6 @@ import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
-import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -126,9 +125,8 @@ public class IRFutureOptionFunctions extends AbstractRepositoryConfigurationBean
     }
 
     protected void addIRFutureOptionSABRDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[1 + getPerCurrencyInfo().size() * 4];
+      final String[] args = new String[getPerCurrencyInfo().size() * 4];
       int i = 0;
-      args[i++] = PriorityClass.NORMAL.name();
       for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
         args[i++] = e.getKey();
         args[i++] = e.getValue().getCurveConfiguration();

@@ -264,6 +264,15 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     final Map<Pair<String, String>, T> result = new HashMap<Pair<String, String>, T>();
     for (final Map.Entry<Pair<String, String>, CurrencyPairInfo> e : getPerCurrencyPairInfo().entrySet()) {
       final T entry = filter.execute(e.getValue());
+      if (entry instanceof InitializingBean) {
+        try {
+          ((InitializingBean) entry).afterPropertiesSet();
+        } catch (final Exception ex) {
+          s_logger.debug("Skipping {}", e.getKey());
+          s_logger.trace("Caught exception", e);
+          continue;
+        }
+      }
       if (entry != null) {
         result.put(e.getKey(), entry);
       }
@@ -1063,6 +1072,12 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
 
   protected void setPNLFunctionDefaults(final CurrencyInfo i, final PNLFunctions.Defaults.CurrencyInfo defaults) {
     defaults.setCurveConfiguration(i.getCurveConfiguration("model/pnl"));
+    defaults.setDiscountingCurve(i.getCurveName("model/pnl/discounting"));
+    defaults.setSurfaceName(i.getSurfaceName("model/pnl"));
+  }
+
+  protected void setPNLFunctionDefaults(final CurrencyPairInfo i, final PNLFunctions.Defaults.CurrencyPairInfo defaults) {
+    defaults.setSurfaceName(i.getSurfaceName("model/pnl"));
   }
 
   protected void setPNLFunctionDefaults(final PNLFunctions.Defaults defaults) {
@@ -1070,6 +1085,14 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
       @Override
       public PNLFunctions.Defaults.CurrencyInfo execute(final CurrencyInfo i) {
         final PNLFunctions.Defaults.CurrencyInfo d = new PNLFunctions.Defaults.CurrencyInfo();
+        setPNLFunctionDefaults(i, d);
+        return d;
+      }
+    }));
+    defaults.setPerCurrencyPairInfo(getCurrencyPairInfo(new Function1<CurrencyPairInfo, PNLFunctions.Defaults.CurrencyPairInfo>() {
+      @Override
+      public PNLFunctions.Defaults.CurrencyPairInfo execute(final CurrencyPairInfo i) {
+        final PNLFunctions.Defaults.CurrencyPairInfo d = new PNLFunctions.Defaults.CurrencyPairInfo();
         setPNLFunctionDefaults(i, d);
         return d;
       }
@@ -1178,7 +1201,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
   protected RepositoryConfigurationSource createObject() {
     return CombiningRepositoryConfigurationSource.of(super.createObject(), bondFunctions(), bondFutureOptionFunctions(), cdsFunctions(), deprecatedFunctions(), equityOptionFunctions(),
         externalSensitivitiesFunctions(), fixedIncomeFunctions(), forexFunctions(), forexOptionFunctions(), forwardCurveFunctions(), futureFunctions(), futureOptionFunctions(),
-        interestRateFunctions(), localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions());
+        interestRateFunctions(), irFutureOptionFunctions(), localVolatilityFunctions(), pnlFunctions(), portfolioTheoryFunctions(), swaptionFunctions(), varFunctions(), volatilitySurfaceFunctions());
   }
 
 }
