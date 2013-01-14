@@ -40,7 +40,8 @@ $.register_module({
             }).on('click', '#' + id + ' .og-js-add', function (event) {
                 var $rows = $('#' + id + ' tr.row');
                 event.preventDefault();
-                new_row({key: '', value: ''}, $rows.length).html(function (html) {$rows.filter(':last').after(html);});
+                new_row({key: '', value: ''}, $rows.length)
+                    .html(function (html) {$('#' + id + ' tr.og-js-buttons').before(html);});
             }).on('click', '#' + id + ' .og-js-rem', function (event) {
                 $(event.target).parents('tr.row:first').remove();
                 $('#' + id + ' td.number span').each(function (idx) {
