@@ -21,8 +21,8 @@ $.register_module({
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
                     new form.Block({
-                        module: 'og.blotter.forms.blocks.cap_floor_tash',
-                        extras: {cms:true, start: data.security.startDate, maturity: data.security.maturityDate, 
+                        module: 'og.blotter.forms.blocks.cap_floor_cms_tash',
+                        extras: {start: data.security.startDate, maturity: data.security.maturityDate, 
                             notional: data.security.notional,strike: data.security.strike, longId: data.security.longId, 
                             shortId: data.security.shortId
                         },
