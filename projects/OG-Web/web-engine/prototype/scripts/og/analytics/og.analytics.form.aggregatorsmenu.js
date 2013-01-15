@@ -16,8 +16,8 @@ $.register_module({
                 );
 
             // Private
-            var query = [], sel_val, sel_pos, $parent, form = config.form,
-                aggregators = config.aggregators || [{idx:0}], initialized = false, $select,
+            var query = [], sel_val, sel_pos, $parent, form = config.form, default_aggregation = {idx:0},
+                aggregators = config.aggregators || [default_aggregation], initialized = false, $select,
                 default_sel_txt = 'select aggregation...', del_s = '.og-icon-delete',
                 options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox';
 
@@ -83,7 +83,7 @@ $.register_module({
                     sel_val = $select.val();
                     sel_pos = $parent.data('pos');
                     entry = query.pluck('pos').indexOf(sel_pos);
-                if ($elem.is(menu.$dom.add)) return menu.stop(event), add_handler({idx:0});
+                if ($elem.is(menu.$dom.add)) return menu.stop(event), add_handler(default_aggregation);
                 if ($elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                 if ($elem.is($select)) return select_handler(entry);
                 if ($elem.is('button')) return menu.button_handler($elem.text());

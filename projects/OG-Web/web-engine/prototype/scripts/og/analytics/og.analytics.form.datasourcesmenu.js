@@ -19,30 +19,43 @@ $.register_module({
                 wrapper = '<wrapper>', type_s = '.type', source_s = '.source',  extra_opts_s = '.extra-opts',
                 latest_s = '.latest', custom_s = '.custom', custom_val = 'Custom', date_selected_s = 'date-selected',
                 active_s = 'active', versions_s = '.versions', corrections_s = '.corrections', initialized = false,
-                form = config.form, datasources = config.datasources || [{idx:0, type:'Live', source:'Bloomberg'}]
+                default_datasource = {
+                    type:'Live',
+                    source:'Bloomberg',
+                    datasource: 'livedatasources', //other sources [marketdatasnapshots, configs]
+                    api_opts:{cache_for:5000} //other opts [{type: 'HistoricalTimeSeriesRating'}]
+                },
+                form = config.form, datasources = config.datasources || [default_datasource];
 
-            var add_handler = function (opts) {
-                menu.add_handler();
-                var idx = menu.opts.length-1;
-                set_type_select(idx, {type: 'live'});
-                type_handler(idx, {post_handler: replay_post_handler(idx, {src:{idx:1}})});
+            var add_handler = function (obj) {
+                add_row_handler(obj).html(function (html) {
+                    menu.add_handler($(html));
+                    source_handler(obj.pos);
+                });
             };
 
             var add_row_handler = function (obj) {
                 return new form.Block({
-                    module: 'og.analytics.form_aggregation_row_tash',
-                    children: [new form.Block({})],
+                    module: 'og.analytics.form_datasources_row_tash',
                     extras: {
-                        types: ['Live', 'Snapshot', 'Historical'],
-                        show_default: !(obj.hasOwnProperty('val'))
+                        types: ['Live', 'Snapshot', 'Historical'].map(function (entry) {
+                            return {text: entry, selected: obj.type === entry};
+                        })
                     },
+                    children: [add_source_dropdown(obj)]
+                });
+            };
+
+            var add_source_dropdown = function (obj) {
+                var datasource = obj.datasource.split('.').reduce(function (api, key) {return api[key];}, og.api.rest);
+                return new form.Block({
+                    module: 'og.analytics.form_datasources_source_tash',
                     generator: function (handler, tmpl, data) {
-                        og.api.rest.aggregators.get().pipe(function (resp) {
-                            if (resp.error) return og.dev.warn('og.analytics.DatasourcesMenu: ' + resp.error);
+                        datasource.get(obj.api_opts).pipe(function (resp) {
+                        if (resp.error) return og.dev.warn('og.analytics.DatasourcesMenu: ' + resp.error);
                             data.source = resp.data.map(function (entry) {
-                                return {text: entry, selected: obj.val === entry};
+                                return {text: entry, selected: obj.source === entry};
                             });
-                            data.idx = obj.idx + 1;
                             handler(tmpl(data));
                         });
                     }
@@ -96,7 +109,6 @@ $.register_module({
                         if (i > 0) arr[i++] = $dom.toggle_infix.html() + " ";
                         arr[i++] = entry;
                     });
-
                     $query.html(arr.reduce(function (a, v) {
                         return a += v.type ? menu.capitalize(v.type) + ":" + v.src : menu.capitalize(v);
                     }, ''));
@@ -141,70 +153,28 @@ $.register_module({
             };
 
             var init = function (config) {
-                menu = new og.analytics.form.DropMenu({cntr: $('.OG-analytics-form .og-aggregation')});
+                menu = new og.analytics.form.DropMenu({cntr: $('.OG-analytics-form .og-datasources')});
                 if (menu.$dom) {
                     $query = $('.datasources-query', menu.$dom.toggle);
-                    $.when(og.api.rest.configs.get({type: 'HistoricalTimeSeriesRating'}))
-                     .then(function(res_keys){
-                        if (!res_keys.error &&  'data' in res_keys && res_keys.data &&
-                            'data' in res_keys.data && res_keys.data.data)
-                            res_keys.data.data.forEach(function (entry) {resolver_keys.push(entry.split('|')[1]);});
-                        if (menu.$dom.menu) {
-                            menu.$dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
-                                .on('change', 'select', menu_handler);
-                        }
-                        /*set_type_select(0, {type: 'live'});
-                        type_handler(0, {post_handler: replay_post_handler(0, {src:{idx:1}})});*/
-                        menu.fire('initialized', [initialized = true]);
-                    });
+                    if (menu.$dom.menu)
+                        menu.$dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
+                            .on('change', 'select', menu_handler);
+                    menu.fire('initialized', [initialized = true]);
                 }
             };
 
             var menu_handler = function (event) {
-                var entry, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s);
+                var entry, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s),
+                    source = default_datasource;
                 if (!parent) return;
-                entry = parent.data('pos');
-                if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler({idx:0});
+                source.pos = entry = parent.data('pos');
+                if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler(source);
                 if (elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                 if (elem.is(type_s)) return type_handler(entry);
                 if (elem.is(source_s)) return source_handler(entry);
                 if (elem.is(custom_s)) return display_datepicker(entry);
                 if (elem.is(latest_s)) return remove_date(entry);
                 if (elem.is('button')) return menu.button_handler(elem.text());
-            };
-
-            var populate_historical = function (entry, config) {
-                if (!menu.opts[entry]) return;
-                var source_select = $(source_s, menu.opts[entry]);
-                if (resolver_keys.length && source_select) {
-                    if (config && 'pre_handler' in config && config.pre_handler) config.pre_handler();
-                    populate_src_options(entry, resolver_keys);
-                    // source_select.after($historical_opts.html());
-                    if (config && 'post_handler' in config && config.post_handler) config.post_handler();
-                }
-            };
-
-            var populate_livedatasources = function (entry, config) {
-                if (!menu.opts[entry]) return;
-                og.api.rest.livedatasources.get({cache_for: 5000}).pipe(function (resp) {
-                    if (resp.error) return;
-                    if (config && 'pre_handler' in config && config.pre_handler) config.pre_handler();
-                    if (resp.data) populate_src_options(entry, resp.data);
-                }).pipe(function () {
-                    if (config && 'post_handler' in config && config.post_handler) config.post_handler();
-                });
-            };
-
-            var populate_marketdatasnapshots = function (entry, config) {
-                if (!menu.opts[entry]) return;
-                og.api.rest.marketdatasnapshots.get({cache_for: 5000}).pipe(function (resp) {
-                    if (resp.error) return;
-                    if (config && 'pre_handler' in config && config.pre_handler) config.pre_handler();
-                    if (resp.data && resp.data[0]) populate_src_options(entry, resp.data[0].snapshots);
-                }).pipe(function () {
-                    if (config && 'post_handler' in config && config.post_handler) config.post_handler();
-                     // $source_select.after($snapshot_opts.html());
-                });
             };
 
             var populate_src_options = function (entry, data) {
@@ -256,13 +226,6 @@ $.register_module({
                 return $query.text(default_sel_txt), type_select.val(default_sel_txt).focus(), remove_entry();
             };
 
-            var replay_post_handler = function (entry, src) {
-                if (!menu.opts[entry] || !src) return;
-                return function () {
-                    source_handler(entry, src);
-                };
-            };
-
             var reset_source_select = function (entry) {
                 if (!menu.opts[entry]) return;
                 var source_select = $(source_s, menu.opts[entry]).hide(), options = $('option', source_select), i;
@@ -273,44 +236,19 @@ $.register_module({
                 source_select.show();
             };
 
-            var set_type_select = function (entry, d) {
-                if (!menu.opts[entry] || !d || !$.isPlainObject(d)) return;
-                if (!('type' in d) || !d.type || typeof d.type !== 'string') return;
-                var type_select = $(type_s, menu.opts[entry]);
-                switch (d.type) {
-                    case 'live' :
-                    case 'snapshot': if (type_select) type_select.val(menu.capitalize(d.type)); break;
-                    case 'latestHistorical':
-                    case 'fixedHistorical': if (type_select) type_select.val('Historical'); break;
-                }
-            };
-
-            var source_handler = function (entry, preload) {
+            var source_handler = function (entry) {
                 if (!menu.opts[entry]) return;
                 var val, src, option, sel_pos = menu.opts[entry].data('pos'),
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase(),
                     source_select = $(source_s, menu.opts[entry]),
                     source_val = source_select.val(),
                     idx = query.pluck('pos').indexOf(sel_pos);
-                if (preload) {
-                    src = preload.src;
-                    val = src.snapshotId ? get_snapshot(src.snapshotId) : src.resolverKey ?
-                          src.resolverKey : src.source ? src.source : src.idx ? src.idx : "";
-                    if (typeof val === 'string') source_select.val(val); else if (typeof val === 'number') {
-                        option = $('option:eq('+val+')', source_select) ? $('option:eq('+val+')', source_select) :
-                            $('option:eq(0)', source_select) ? $('option:eq(0)', source_select) : null;
-                        if (option) option.attr('selected', 'selected');
-                    }
-                    source_val = source_select.val();
-                }
-                if (!preload && source_val === default_sel_txt) {
+                if (source_val === default_sel_txt) {
                     return remove_entry(idx), display_query(), enable_extra_options(entry, false);
                 } else if (~idx) query[idx] = {pos:sel_pos, type:type_val, src:source_val};
                 else query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:source_val});
                 enable_extra_options(entry, true);
                 display_query();
-                if (preload && 'date' in src && typeof src.date === 'string') date_handler(entry, src);
-                // fire; dataselected
             };
 
             var type_handler = function (entry, conf) {
@@ -325,15 +263,9 @@ $.register_module({
                 if (parent.hasClass(parent.data('type'))) {
                     remove_entry(idx); remove_ext_opts(entry); display_query();
                 }
-                switch (type_val) {
-                    case 'live': populate_livedatasources(entry, conf); break;
-                    case 'snapshot': populate_marketdatasnapshots(entry, conf); break;
-                    case 'historical': populate_historical(entry, conf); break;
-                    //no default
-                }
             };
 
-            form.Block.call(this, default_conf = {
+            form.Block.call(this, {
                 data: { providers: [] },
                 selector: '.og-datasources',
                 module: 'og.analytics.form_datasources_tash',

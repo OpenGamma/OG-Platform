@@ -2,11 +2,11 @@
   <td class="number"><span>1</span></td>
   <td>
     <select class="type">
-      <option {{/show_default}}selected{{/show_default}}>select type...</option>
-      {{#each types}}<option>{{this}}</option>{{/each}}
+      <option>select type...</option>
+      {{#each types}}<option {{#this.selected}}selected{{/this.selected}}>{{this.text}}</option>{{/each}}
     </select>
   </td>
-  <td>
+  <td class="datasource">
     {{{children}}}
   </td>
   <td>
