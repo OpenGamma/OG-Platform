@@ -44,55 +44,8 @@ $.register_module({
                         extras: {trade: data.swap.tradeDate, maturity: data.swap.maturityDate, 
                             effective: data.swap.effectiveDate}
                     }),
-                    new form.Block({
-                        module: 'og.blotter.forms.blocks.swap_details_fixed_tash',
-                        extras: {rate: data.swap.fixed.rate, notional: data.swap.fixed.notional},
-                        children : [
-                            new form.Block({module:'og.views.forms.currency_tash'}),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.daycountconventions', 
-                                index: fixed + 'dayCount',
-                                value: data.swap.fixed.dayCount, placeholder: 'Select Day Count'
-                            }),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.frequencies', 
-                                index: fixed + 'frequency',
-                                value: data.swap.fixed.frequency, placeholder: 'Select Frequency'
-                            })
-                        ]
-                    }),
-                    new form.Block({
-                        module: 'og.blotter.forms.blocks.swap_details_floating_tash',
-                        extras: {type: floating, initial: data.swap.floating.initialFloatingRate, 
-                            settlement: data.swap.floating.settlementDays, spread: data.swap.floating.spread, 
-                            gearing: data.swap.floating.gearing, notional: data.swap.floating.notional},
-                        children: [
-                            new form.Block({module:'og.views.forms.currency_tash',extras:{name: floating +'currency'}}),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.daycountconventions', index: floating + 'dayCount',
-                                value: data.swap.floating.dayCount, placeholder: 'Select Day Count'
-                            }),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.frequencies', index: floating + 'frequency',
-                                value: data.swap.floating.frequency, placeholder: 'Select Frequency'
-                            }),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.businessdayconventions', 
-                                index: floating + 'businessDayConvention',
-                                value: data.swap.floating.businessDayConvention, 
-                                placeholder: 'Select Business Day Convention'
-                            }),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.floatingratetypes', 
-                                index: floating + 'floatingRateTypes',
-                                value: data.swap.floating.floatingRateType, placeholder: 'Select Floating Rate Type'
-                            }),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.frequencies', index: floating + 'offsetFixing',
-                                value: data.swap.floating.offsetFixing, placeholder: 'Select Offset Fixing'
-                            })
-                        ]
-                    }),
+                    new og.blotter.forms.blocks.Fixedleg({form: form, data: data, leg: 'recieveLeg.'}),
+                    new og.blotter.forms.blocks.Floatingleg({form: form, data: data, leg: 'pagLeg.'}),
                     new og.common.util.ui.Attributes({form: form, attributes: data.attributes})  
                 );
                 form.dom();
