@@ -232,7 +232,7 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return context.getViewCalculationConfiguration().getViewDefinition() != null;
+    return context.getViewCalculationConfiguration() != null;
   }
 
   @Override
