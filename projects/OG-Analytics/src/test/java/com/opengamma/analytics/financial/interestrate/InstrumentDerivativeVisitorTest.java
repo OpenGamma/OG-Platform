@@ -73,6 +73,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
@@ -958,6 +959,16 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public String visitCouponIborCompoundingSpread(CouponIborCompoundingSpread payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborAverage(CouponIborAverage payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborAverage(CouponIborAverage payment) {
       return null;
     }
   }

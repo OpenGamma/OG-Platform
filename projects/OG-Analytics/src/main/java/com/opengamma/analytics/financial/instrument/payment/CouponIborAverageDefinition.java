@@ -344,14 +344,14 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
 
   @Override
   public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
-    // TODO Auto-generated method stub
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitCouponIborAverageDefinition(this, data);
   }
 
   @Override
   public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
-    // TODO Auto-generated method stub
-    return null;
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitCouponIborAverageDefinition(this);
   }
 
   @Override

@@ -73,6 +73,7 @@ import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDef
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
@@ -1000,6 +1001,16 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitCouponIborCompoundingSpreadDefinition(CouponIborCompoundingSpreadDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborAverageDefinition(CouponIborAverageDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborAverageDefinition(CouponIborAverageDefinition payment) {
       return null;
     }
   }

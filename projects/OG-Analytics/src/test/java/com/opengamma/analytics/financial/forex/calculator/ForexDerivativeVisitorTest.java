@@ -72,6 +72,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
@@ -141,7 +142,7 @@ public class ForexDerivativeVisitorTest {
     testException(NDO, o);
     testException(FX_OPTION_DIGITAL);
     testException(FX_OPTION_DIGITAL, o);
-    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP};
+    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP };
     try {
       forexArray[0].accept(VISITOR_ABSTRACT);
       assertTrue(false);
@@ -887,6 +888,16 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitCouponIborCompoundingSpread(CouponIborCompoundingSpread payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborAverage(CouponIborAverage payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborAverage(CouponIborAverage payment) {
       return null;
     }
 

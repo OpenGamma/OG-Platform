@@ -215,6 +215,8 @@ public class CouponIborAverage extends CouponFloating {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_fixingPeriodStartTime2);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_index1 == null) ? 0 : _index1.hashCode());
+    result = prime * result + ((_index2 == null) ? 0 : _index2.hashCode());
     temp = Double.doubleToLongBits(_weight1);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_weight2);
@@ -252,6 +254,20 @@ public class CouponIborAverage extends CouponFloating {
     if (Double.doubleToLongBits(_fixingPeriodStartTime2) != Double.doubleToLongBits(other._fixingPeriodStartTime2)) {
       return false;
     }
+    if (_index1 == null) {
+      if (other._index1 != null) {
+        return false;
+      }
+    } else if (!_index1.equals(other._index1)) {
+      return false;
+    }
+    if (_index2 == null) {
+      if (other._index2 != null) {
+        return false;
+      }
+    } else if (!_index2.equals(other._index2)) {
+      return false;
+    }
     if (Double.doubleToLongBits(_weight1) != Double.doubleToLongBits(other._weight1)) {
       return false;
     }
@@ -263,12 +279,12 @@ public class CouponIborAverage extends CouponFloating {
 
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
-    return null;
+    return visitor.visitCouponIborAverage(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
-    return null;
+    return visitor.visitCouponIborAverage(this);
   }
 
 }
