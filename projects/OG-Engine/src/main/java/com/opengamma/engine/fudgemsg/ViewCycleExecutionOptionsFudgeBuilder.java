@@ -54,6 +54,7 @@ public class ViewCycleExecutionOptionsFudgeBuilder implements FudgeBuilder<ViewC
     for (final FudgeField marketDataSpecificationField : msg.getAllByName(MARKET_DATA_SPECIFICATION)) {
       specs.add(deserializer.fieldValueToObject(MarketDataSpecification.class, marketDataSpecificationField));
     }
+    builder.setMarketDataSpecifications(specs);
     field = msg.getByName(RESOLVER_VERSION_CORRECTION);
     if (field != null) {
       builder.setResolverVersionCorrection(deserializer.fieldValueToObject(VersionCorrection.class, field));
