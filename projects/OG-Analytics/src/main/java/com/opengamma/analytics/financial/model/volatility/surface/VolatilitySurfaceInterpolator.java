@@ -105,7 +105,7 @@ public class VolatilitySurfaceInterpolator {
     }
   }
 
-  //TODO add constructors to set options
+  //TODO add new constructor pattern using builder to set options, as in EquityVarianceSwapPricer 
 
   public Function1D<Double, Double>[] getIndependentSmileFits(final SmileSurfaceDataBundle marketData) {
     ArgumentChecker.notNull(marketData, "market data");
@@ -151,8 +151,7 @@ public class VolatilitySurfaceInterpolator {
   public BlackVolatilitySurfaceMoneynessFcnBackedByGrid combineIndependentSmileFits(final Function1D<Double, Double>[] smileFunctions,
       final SmileSurfaceDataBundle marketData) {
     ArgumentChecker.notNull(marketData, "market data");
-    ArgumentChecker.isTrue(marketData.getNumExpiries() > 3, "Number of expiries in volatility surface must be greater than 3 to perform natural cubic"
-        + " spline interpolation in expiry");
+    ArgumentChecker.isTrue(marketData.getNumExpiries() > 0, "Not a single smile fit has been provided!");
     final int n = marketData.getNumExpiries();
     final double[] forwards = marketData.getForwards();
     final double[] expiries = marketData.getExpiries();
@@ -167,7 +166,6 @@ public class VolatilitySurfaceInterpolator {
       temp = expiries;
     }
     final double[] xValues = temp;
-
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
       @SuppressWarnings("synthetic-access")
@@ -175,27 +173,57 @@ public class VolatilitySurfaceInterpolator {
       public Double evaluate(final Double... tm) {
         final double t = tm[0];
         final double m = tm[1];
-
-        //For time less than the first expiry, linearly extrapolate the variance
-        // FIXME //REVIEW emcleod 14-01-2013 this code assumes that there are at least two expiries. The linear extrapolation behaviour 
-        // is hard-coded into the time interpolator (which should be changed), but what happens when this becomes more 
-        // configurable?
-        if (t <= expiries[0]) {
-          final double k1 = forwards[0] * m;
-          final double k2 = forwards[1] * m;
-          final double var1 = square(smileFunctions[0].evaluate(k1));
-          final double var2 = square(smileFunctions[1].evaluate(k2));
-          final double dt = expiries[1] - expiries[0];
-          final double var = ((expiries[1] - t) * var1 + (t - expiries[0]) * var2) / dt;
-          if (var >= 0.0) {
-            return Math.sqrt(var);
-          }
-          return Math.sqrt(var1);
+        
+        // Case 1: Only a single expiry is available
+        if (n == 1) {
+          return smileFunctions[0].evaluate(forwards[0] * m);
         }
-
-        //FIXME even though the time interpolator hard-coded (which is bad in itself) to be a natural cubic spline with extrapolation
-        // this code breaks if the number of expiries is less than 4
+        
+        // Case 2 & 3: Extrapolation OR Less than 4 Expiries => Linear Extrapolation / Interpolation
+        // FIXME Casey 15-01-2015 Extrapolation is hardcoded, to Linear.Should take input from _timeInterpolator
+        // FIXME If n < 4, time interpolation is hardcoded, also to be linear.
         final int index = SurfaceArrayUtils.getLowerBoundIndex(expiries, t);
+        
+        if (index == 0 || index == (n - 1) || n < 4) {
+          int lowIdx;
+          if (index == 0) {
+            lowIdx = 0;
+          } else if (index == n - 1) {
+            lowIdx = n - 2;
+          } else {
+            lowIdx = index;
+          }
+          final double x = _useLogTime ? Math.log(t) : t;         
+          final double k0 = forwards[lowIdx] * Math.pow(m, Math.sqrt(expiries[lowIdx] / t));
+          final double k1 = forwards[lowIdx + 1] * Math.pow(m, Math.sqrt(expiries[lowIdx + 1] / t));
+          double var0 = square(smileFunctions[lowIdx].evaluate(k0));
+          double var1 = square(smileFunctions[lowIdx + 1].evaluate(k1));
+          if (_useIntegratedVariance) {
+            var0 *= expiries[lowIdx];
+            var1 *= expiries[lowIdx + 1];
+          }
+          if (_useLogVar) {
+            var0 = Math.log(var0);
+            var1 = Math.log(var1);
+          }
+          final double dt = xValues[lowIdx + 1] - xValues[lowIdx];
+          double var = ((xValues[lowIdx + 1] - x) * var0 + (x - xValues[lowIdx]) * var1) / dt;
+          if (_useLogVar) {
+            var = Math.exp(var);
+            if (var < 0.0) {
+              var0 = Math.exp(var0);
+              var1 = Math.exp(var1);
+            }
+          }
+          if (var >= 0.0) {
+            return Math.sqrt(var / (_useIntegratedVariance ? t : 1.0));
+          } else {
+            return Math.sqrt(Math.min(var0, var1) /  (_useIntegratedVariance ? t : 1.0)) ;
+          }
+        }
+        
+        // Case 4: Interpolation when n >= 4
+        //FIXME Time interpolator hard-coded to be a natural cubic spline when n > 3
         int lower;
         if (index == 0) {
           lower = 0;
@@ -225,7 +253,7 @@ public class VolatilitySurfaceInterpolator {
         final Interpolator1DDataBundle db = _timeInterpolator.getDataBundle(xData, yData);
         final double tRes = _timeInterpolator.interpolate(db, x);
         final double yValue = _useLogVar ? Math.exp(tRes) : tRes;
-        final double res = _useIntegratedVariance ? Math.sqrt(yValue / t) : Math.sqrt(yValue);
+        final double res = Math.sqrt(yValue / (_useIntegratedVariance ? t : 1.0));
 
         return res;
       }
