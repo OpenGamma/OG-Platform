@@ -6,22 +6,24 @@
 package com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
-import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -29,9 +31,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class EquityBlackVolatilitySurfacePerTickerDefaults extends DefaultPropertyFunction {
+public class EquityBlackVolatilitySurfacePerExchangeDefaults extends DefaultPropertyFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityBlackVolatilitySurfacePerTickerDefaults.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityBlackVolatilitySurfacePerExchangeDefaults.class);
   /** The value requirements for which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
@@ -57,45 +59,45 @@ public class EquityBlackVolatilitySurfacePerTickerDefaults extends DefaultProper
     ValueRequirementNames.GRID_PRESENT_VALUE
   };
   /** Ids to forward curve names */
-  private final Map<String, String> _idToForwardCurveName;
+  private final Map<String, String> _forwardCurveNames;
   /** Ids to curve calculation method names */
-  private final Map<String, String> _idToForwardCurveCalculationMethodName;
+  private final Map<String, String> _forwardCurveCalculationMethodNames;
   /** Ids to surface names */
-  private final Map<String, String> _idToSurfaceName;
+  private final Map<String, String> _surfaceNames;
   /** The priority of these defaults */
   private final PriorityClass _priority;
 
   /**
    * @param priority The priority of these defaults, not null
-   * @param defaultsPerId The defaults per id, not null.
+   * @param defaults The defaults, not null.
    */
-  public EquityBlackVolatilitySurfacePerTickerDefaults(final String priority, final String... defaultsPerId) {
+  public EquityBlackVolatilitySurfacePerExchangeDefaults(final String priority, final String... defaults) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(priority, "priority");
-    ArgumentChecker.notNull(defaultsPerId, "defaults per id");
-    final int n = defaultsPerId.length;
-    ArgumentChecker.isTrue(n % 4 == 0, "Need one forward curve name, forward curve calculation method and surface name per id value");
+    ArgumentChecker.notNull(defaults, "defaults");
+    final int n = defaults.length;
+    ArgumentChecker.isTrue(n % 4 == 0, "Need one forward curve name, forward curve calculation method and surface name per exhange");
     _priority = PriorityClass.valueOf(priority);
-    _idToForwardCurveName = Maps.newLinkedHashMap();
-    _idToForwardCurveCalculationMethodName = Maps.newLinkedHashMap();
-    _idToSurfaceName = Maps.newLinkedHashMap();
+    _forwardCurveNames = new HashMap<>();
+    _forwardCurveCalculationMethodNames = new HashMap<>();
+    _surfaceNames = new HashMap<>();
     for (int i = 0; i < n; i += 4) {
-      final String id = defaultsPerId[i];
-      _idToForwardCurveName.put(id, defaultsPerId[i + 1]);
-      _idToForwardCurveCalculationMethodName.put(id, defaultsPerId[i + 2]);
-      _idToSurfaceName.put(id, defaultsPerId[i + 3]);
+      final String exchangeName = defaults[i];
+      _forwardCurveNames.put(exchangeName, defaults[i + 1]);
+      _forwardCurveCalculationMethodNames.put(exchangeName, defaults[i + 2]);
+      _surfaceNames.put(exchangeName, defaults[i + 3]);
     }
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final UniqueId id = target.getUniqueId();
-    final String scheme = id.getScheme();
-    if (scheme.equals(ExternalSchemes.BLOOMBERG_TICKER.getName()) || scheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
-      final String ticker = id.getValue();
-      return _idToForwardCurveCalculationMethodName.containsKey(ticker);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final String exchange = EquitySecurityUtils.getExchange(securitySource, id);
+    if (exchange == null) {
+      return false;
     }
-    return false;
+    return _forwardCurveNames.containsKey(exchange);
   }
 
   @Override
@@ -109,20 +111,25 @@ public class EquityBlackVolatilitySurfacePerTickerDefaults extends DefaultProper
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    final String id = target.getUniqueId().getValue();
-    final String curveName = _idToForwardCurveName.get(id);
-    if (curveName == null) {
-      s_logger.error("Could not get forward curve name for {}; should never happen", target.getValue());
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final String exchange = EquitySecurityUtils.getExchange(securitySource, target.getUniqueId());
+    if (exchange == null) {
+      s_logger.error("Could not get exchange for {}; should never happen", target.getUniqueId());
+      return null;
+    }
+    final String forwardCurveName = _forwardCurveNames.get(exchange);
+    if (forwardCurveName == null) {
+      s_logger.error("Could not get defaults for {}; should never happen", exchange);
       return null;
     }
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
-      return Collections.singleton(curveName);
+      return Collections.singleton(forwardCurveName);
     }
     if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_idToForwardCurveCalculationMethodName.get(id));
+      return Collections.singleton(_forwardCurveCalculationMethodNames.get(exchange));
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_idToSurfaceName.get(id));
+      return Collections.singleton(_surfaceNames.get(exchange));
     }
     s_logger.error("Could not find default value for {} in this function", propertyName);
     return null;

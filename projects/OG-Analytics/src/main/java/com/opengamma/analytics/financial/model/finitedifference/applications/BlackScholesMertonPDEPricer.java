@@ -113,7 +113,8 @@ public class BlackScholesMertonPDEPricer {
    * @param timeNodes Number of time nodes 
    * @return The option price 
    */
-  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall, final int spaceNodes, final int timeNodes) {
+  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall, final int spaceNodes,
+      final int timeNodes) {
     return price(s0, k, r, b, t, sigma, isCall, false, spaceNodes, timeNodes);
   }
 
@@ -133,8 +134,8 @@ public class BlackScholesMertonPDEPricer {
    * @param timeNodes Number of time nodes 
    * @return The option price 
    */
-  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall, final boolean isAmerican, final int spaceNodes,
-      final int timeNodes) {
+  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall,
+      final boolean isAmerican, final int spaceNodes, final int timeNodes) {
 
     final double mult = Math.exp(6.0 * sigma * Math.sqrt(t));
     final double sMin = Math.min(0.8 * k, s0 / mult);
@@ -142,7 +143,7 @@ public class BlackScholesMertonPDEPricer {
 
     // set up a near-uniform mesh that includes spot and strike
     final double[] fixedPoints = k == 0.0 ? new double[] {s0} : new double[] {s0, k};
-    MeshingFunction xMesh = new ExponentialMeshing(sMin, sMax, spaceNodes, 0.0, fixedPoints);
+    final MeshingFunction xMesh = new ExponentialMeshing(sMin, sMax, spaceNodes, 0.0, fixedPoints);
 
     PDEGrid1D[] grid;
     double[] theta;
@@ -150,19 +151,20 @@ public class BlackScholesMertonPDEPricer {
       final int tBurnNodes = (int) Math.max(2, timeNodes * _burninFrac);
       final double tBurn = _burninFrac * t * t / timeNodes;
       if (tBurn >= t) { // very unlikely to hit this
-        int minNodes = (int) Math.ceil(_burninFrac * t);
-        double minFrac = timeNodes / t;
-        throw new IllegalArgumentException("burn in period greater than total time. Either increase timeNodes to above " + minNodes + ", or reduce burninFrac to below " + minFrac);
+        final int minNodes = (int) Math.ceil(_burninFrac * t);
+        final double minFrac = timeNodes / t;
+        throw new IllegalArgumentException("burn in period greater than total time. Either increase timeNodes to above " + minNodes + ", or reduce burninFrac to below "
+            + minFrac);
       }
-      MeshingFunction tBurnMesh = new ExponentialMeshing(0.0, tBurn, tBurnNodes, 0.0);
-      MeshingFunction tMesh = new ExponentialMeshing(tBurn, t, timeNodes - tBurnNodes, 0.0);
+      final MeshingFunction tBurnMesh = new ExponentialMeshing(0.0, tBurn, tBurnNodes, 0.0);
+      final MeshingFunction tMesh = new ExponentialMeshing(tBurn, t, timeNodes - tBurnNodes, 0.0);
       grid = new PDEGrid1D[2];
       grid[0] = new PDEGrid1D(tBurnMesh, xMesh);
       grid[1] = new PDEGrid1D(tMesh, xMesh);
       theta = new double[] {_burninTheta, _mainRunTheta};
     } else {
       grid = new PDEGrid1D[1];
-      MeshingFunction tMesh = new ExponentialMeshing(0, t, timeNodes, 0.0);
+      final MeshingFunction tMesh = new ExponentialMeshing(0, t, timeNodes, 0.0);
       grid[0] = new PDEGrid1D(tMesh, xMesh);
       theta = new double[] {_mainRunTheta};
     }
@@ -191,8 +193,8 @@ public class BlackScholesMertonPDEPricer {
    * @param sd The number of standard deviations from s0 to place the boundaries. Values between 3 and 6 are recommended. 
    * @return The option price 
    */
-  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall, final boolean isAmerican, final int spaceNodes,
-      final int timeNodes, final double beta, final double lambda, final double sd) {
+  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall,
+      final boolean isAmerican, final int spaceNodes, final int timeNodes, final double beta, final double lambda, final double sd) {
 
     final double sigmaRootT = sigma * Math.sqrt(t);
     final double mult = Math.exp(sd * sigmaRootT);
@@ -205,7 +207,7 @@ public class BlackScholesMertonPDEPricer {
 
     // centre the nodes around the spot
     final double[] fixedPoints = k == 0.0 ? new double[] {s0} : new double[] {s0, k};
-    MeshingFunction xMesh = new HyperbolicMeshing(sMin, sMax, s0, spaceNodes, beta, fixedPoints);
+    final MeshingFunction xMesh = new HyperbolicMeshing(sMin, sMax, s0, spaceNodes, beta, fixedPoints);
 
     MeshingFunction tMesh = new ExponentialMeshing(0, t, timeNodes, lambda);
     final PDEGrid1D[] grid;
@@ -215,7 +217,7 @@ public class BlackScholesMertonPDEPricer {
       final int tBurnNodes = (int) Math.max(2, timeNodes * _burninFrac);
       final double dt = tMesh.evaluate(1) - tMesh.evaluate(0);
       final double tBurn = tBurnNodes * dt * dt;
-      MeshingFunction tBurnMesh = new ExponentialMeshing(0, tBurn, tBurnNodes, 0.0);
+      final MeshingFunction tBurnMesh = new ExponentialMeshing(0, tBurn, tBurnNodes, 0.0);
       tMesh = new ExponentialMeshing(tBurn, t, timeNodes - tBurnNodes, lambda);
       grid = new PDEGrid1D[2];
       grid[0] = new PDEGrid1D(tBurnMesh, xMesh);
@@ -248,8 +250,8 @@ public class BlackScholesMertonPDEPricer {
    * @param theta the theta to use on different grids
    * @return The option price 
    */
-  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall, final boolean isAmerican, final PDEGrid1D[] grid,
-      final double[] theta) {
+  public double price(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall,
+      final boolean isAmerican, final PDEGrid1D[] grid, final double[] theta) {
 
     final int n = grid.length;
     ArgumentChecker.isTrue(n == theta.length, "#theta does not match #grid");
@@ -292,7 +294,7 @@ public class BlackScholesMertonPDEPricer {
 
       final Function<Double, Double> func = new Function<Double, Double>() {
         @Override
-        public Double evaluate(Double... tx) {
+        public Double evaluate(final Double... tx) {
           final double x = tx[1];
           return payoff.evaluate(x);
         }
@@ -312,18 +314,18 @@ public class BlackScholesMertonPDEPricer {
     } else {
       if (isCall) {
         lower = new NeumannBoundaryCondition(0.0, sMin, true);
-        Function1D<Double, Double> upFunc = new Function1D<Double, Double>() {
+        final Function1D<Double, Double> upFunc = new Function1D<Double, Double>() {
           @Override
-          public Double evaluate(Double t) {
-            return Math.exp(-q * t);
+          public Double evaluate(final Double time) {
+            return Math.exp(-q * time);
           }
         };
         upper = new NeumannBoundaryCondition(upFunc, sMax, false);
       } else {
-        Function1D<Double, Double> downFunc = new Function1D<Double, Double>() {
+        final Function1D<Double, Double> downFunc = new Function1D<Double, Double>() {
           @Override
-          public Double evaluate(Double t) {
-            return -Math.exp(-q * t);
+          public Double evaluate(final Double time) {
+            return -Math.exp(-q * time);
           }
         };
         lower = new NeumannBoundaryCondition(downFunc, sMin, true);

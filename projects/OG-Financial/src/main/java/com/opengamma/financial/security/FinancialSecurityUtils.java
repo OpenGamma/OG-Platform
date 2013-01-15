@@ -936,7 +936,7 @@ public class FinancialSecurityUtils {
   public static ExternalId getUnderlyingId(final Security security) {
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
-      final ExternalId id = finSec.accept(new FinancialSecurityVisitor<ExternalId>() {
+      final ExternalId id = finSec.accept(new FinancialSecurityVisitorAdapter<ExternalId>() {
 
         @Override
         public ExternalId visitEnergyForwardSecurity(final EnergyForwardSecurity security) {
@@ -954,58 +954,8 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public ExternalId visitCDSSecurity(final CDSSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitStandardVanillaCDSSecurity(final StandardVanillaCDSSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitStandardFixedRecoveryCDSSecurity(final StandardFixedRecoveryCDSSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitStandardRecoveryLockCDSSecurity(final StandardRecoveryLockCDSSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitLegacyVanillaCDSSecurity(final LegacyVanillaCDSSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitLegacyFixedRecoveryCDSSecurity(final LegacyFixedRecoveryCDSSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitAgricultureFutureSecurity(final AgricultureFutureSecurity security) {
-          return null; //TODO
-        }
-
-        @Override
-        public ExternalId visitBondFutureSecurity(final BondFutureSecurity security) {
-          return null;
-        }
-
-        @Override
         public ExternalId visitEquityIndexDividendFutureSecurity(final EquityIndexDividendFutureSecurity security) {
           return security.getUnderlyingId();
-        }
-
-        @Override
-        public ExternalId visitFXFutureSecurity(final FXFutureSecurity security) {
-          return null; //TODO
         }
 
         @Override
@@ -1039,21 +989,6 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public ExternalId visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitCapFloorSecurity(final CapFloorSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitCashSecurity(final CashSecurity security) {
-          return null;
-        }
-
-        @Override
         public ExternalId visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity security) {
           return security.getUnderlyingId();
         }
@@ -1061,16 +996,6 @@ public class FinancialSecurityUtils {
         @Override
         public ExternalId visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
           return security.getUnderlyingId();
-        }
-
-        @Override
-        public ExternalId visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitCorporateBondSecurity(final CorporateBondSecurity security) {
-          return null;
         }
 
         @Override
@@ -1099,48 +1024,8 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public ExternalId visitEquitySecurity(final EquitySecurity security) {
-          return null;
-        }
-
-        @Override
         public ExternalId visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
           return security.getSpotUnderlyingId();
-        }
-
-        @Override
-        public ExternalId visitFRASecurity(final FRASecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitFXForwardSecurity(final FXForwardSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitFXOptionSecurity(final FXOptionSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitForwardSwapSecurity(final ForwardSwapSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
-          return null;
         }
 
         @Override
@@ -1148,45 +1033,6 @@ public class FinancialSecurityUtils {
           return security.getUnderlyingId();
         }
 
-        @Override
-        public ExternalId visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitSwapSecurity(final SwapSecurity security) {
-          return null;
-        }
-
-        @Override
-        public ExternalId visitSwaptionSecurity(final SwaptionSecurity security) {
-          return null;
-        }
       });
       return id;
     }

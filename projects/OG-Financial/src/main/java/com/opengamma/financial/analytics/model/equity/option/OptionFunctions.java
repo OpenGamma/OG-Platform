@@ -74,6 +74,8 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(EquityOptionBAWGreeksFunction.class));
     functions.add(functionConfiguration(EquityOptionBAWPresentValueFunction.class));
+    functions.add(functionConfiguration(EquityOptionBjerksundStenslandGreeksFunction.class));
+    functions.add(functionConfiguration(EquityOptionBjerksundStenslandPresentValueFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackFundingCurveSensitivitiesFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackImpliedVolFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackPresentValueFunction.class));

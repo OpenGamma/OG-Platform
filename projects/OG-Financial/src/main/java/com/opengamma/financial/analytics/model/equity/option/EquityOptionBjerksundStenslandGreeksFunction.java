@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.equity.option;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.equity.EqyOptBaroneAdesiWhaleyGreekCalculator;
+import com.opengamma.analytics.financial.equity.EqyOptBjerksundStenslandGreekCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.greeks.Greek;
@@ -24,7 +24,7 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  *
  */
-public class EquityOptionBAWGreeksFunction extends EquityOptionBAWFunction {
+public class EquityOptionBjerksundStenslandGreeksFunction extends EquityOptionBjerksundStenslandFunction {
   /** Value requirement names */
   private static final String[] GREEK_NAMES = new String[] {
     ValueRequirementNames.VALUE_DELTA,
@@ -49,14 +49,14 @@ public class EquityOptionBAWGreeksFunction extends EquityOptionBAWFunction {
   /**
    * Default constructor
    */
-  public EquityOptionBAWGreeksFunction() {
+  public EquityOptionBjerksundStenslandGreeksFunction() {
     super(GREEK_NAMES);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
-    final GreekResultCollection greeks = derivative.accept(EqyOptBaroneAdesiWhaleyGreekCalculator.getInstance(), market);
+    final GreekResultCollection greeks = derivative.accept(EqyOptBjerksundStenslandGreekCalculator.getInstance(), market);
     final Set<ComputedValue> result = new HashSet<>();
     for (int i = 0; i < GREEKS.length; i++) {
       final ValueSpecification spec = new ValueSpecification(GREEK_NAMES[i], targetSpec, resultProperties);

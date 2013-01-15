@@ -203,7 +203,8 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   @Override
   protected RepositoryConfigurationSource deprecatedFunctions() {
     return CombiningRepositoryConfigurationSource.of(super.deprecatedFunctions(), FixedIncomeFunctions.deprecated(), SABRCubeFunctions.deprecated(),
-        com.opengamma.financial.analytics.model.forex.forward.ForwardFunctions.deprecated(), FutureFunctions.deprecated(), PNLFunctions.deprecated());
+        com.opengamma.financial.analytics.model.forex.forward.ForwardFunctions.deprecated(), com.opengamma.financial.analytics.model.forex.option.black.BlackFunctions.deprecated(),
+        FutureFunctions.deprecated(), PNLFunctions.deprecated());
   }
 
   @Override

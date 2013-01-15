@@ -70,7 +70,7 @@ public class EquityVarianceSwapDefaults extends DefaultPropertyFunction {
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getSecurity();
-    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityName(security);
+    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security);
     return _discountingCurveNames.containsKey(underlyingEquity);
   }
 
@@ -89,7 +89,7 @@ public class EquityVarianceSwapDefaults extends DefaultPropertyFunction {
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
-    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityName(target.getSecurity());
+    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(target.getSecurity());
     if (!_discountingCurveNames.containsKey(underlyingEquity)) {
       s_logger.error("Could not get config for underlying equity " + underlyingEquity + "; should never happen");
       return null;

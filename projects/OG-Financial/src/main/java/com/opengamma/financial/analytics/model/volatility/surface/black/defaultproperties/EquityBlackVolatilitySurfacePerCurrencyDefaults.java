@@ -6,19 +6,24 @@
 package com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -26,9 +31,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class EquityBlackVolatilitySurfaceAnyTickerDefaults extends DefaultPropertyFunction {
+public class EquityBlackVolatilitySurfacePerCurrencyDefaults extends DefaultPropertyFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityBlackVolatilitySurfaceAnyTickerDefaults.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityBlackVolatilitySurfacePerCurrencyDefaults.class);
   /** The value requirements for which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.BLACK_VOLATILITY_SURFACE,
@@ -54,11 +59,11 @@ public class EquityBlackVolatilitySurfaceAnyTickerDefaults extends DefaultProper
     ValueRequirementNames.GRID_PRESENT_VALUE
   };
   /** Ids to forward curve names */
-  private final String _forwardCurveName;
+  private final Map<String, String> _forwardCurveNames;
   /** Ids to curve calculation method names */
-  private final String _forwardCurveCalculationMethodName;
+  private final Map<String, String> _forwardCurveCalculationMethodNames;
   /** Ids to surface names */
-  private final String _surfaceName;
+  private final Map<String, String> _surfaceNames;
   /** The priority of these defaults */
   private final PriorityClass _priority;
 
@@ -66,23 +71,36 @@ public class EquityBlackVolatilitySurfaceAnyTickerDefaults extends DefaultProper
    * @param priority The priority of these defaults, not null
    * @param defaults The defaults, not null.
    */
-  public EquityBlackVolatilitySurfaceAnyTickerDefaults(final String priority, final String... defaults) {
+  public EquityBlackVolatilitySurfacePerCurrencyDefaults(final String priority, final String... defaults) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(defaults, "defaults");
     final int n = defaults.length;
-    ArgumentChecker.isTrue(n == 3, "Need one forward curve name, forward curve calculation method, and surface name");
+    ArgumentChecker.isTrue(n % 4 == 0, "Need one forward curve name, forward curve calculation method and surface name per currency");
     _priority = PriorityClass.valueOf(priority);
-    _forwardCurveName = defaults[0];
-    _forwardCurveCalculationMethodName = defaults[1];
-    _surfaceName = defaults[2];
+    _forwardCurveNames = new HashMap<>();
+    _forwardCurveCalculationMethodNames = new HashMap<>();
+    _surfaceNames = new HashMap<>();
+    for (int i = 0; i < n; i += 4) {
+      final String exchangeName = defaults[i];
+      _forwardCurveNames.put(exchangeName, defaults[i + 1]);
+      _forwardCurveCalculationMethodNames.put(exchangeName, defaults[i + 2]);
+      _surfaceNames.put(exchangeName, defaults[i + 3]);
+    }
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() != ComputationTargetType.PRIMITIVE) {
+      return false;
+    }
     final UniqueId id = target.getUniqueId();
-    final String scheme = id.getScheme();
-    return scheme.equals(ExternalSchemes.BLOOMBERG_TICKER.getName()) || scheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName());
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final String currency = EquitySecurityUtils.getCurrency(securitySource, id);
+    if (currency == null) {
+      return false;
+    }
+    return _forwardCurveNames.containsKey(currency);
   }
 
   @Override
@@ -96,14 +114,25 @@ public class EquityBlackVolatilitySurfaceAnyTickerDefaults extends DefaultProper
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final String exchange = EquitySecurityUtils.getCurrency(securitySource, target.getUniqueId());
+    if (exchange == null) {
+      s_logger.error("Could not get exchange for {}; should never happen", target.getUniqueId());
+      return null;
+    }
+    final String forwardCurveName = _forwardCurveNames.get(exchange);
+    if (forwardCurveName == null) {
+      s_logger.error("Could not get defaults for {}; should never happen", exchange);
+      return null;
+    }
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveName);
+      return Collections.singleton(forwardCurveName);
     }
     if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveCalculationMethodName);
+      return Collections.singleton(_forwardCurveCalculationMethodNames.get(exchange));
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
-      return Collections.singleton(_surfaceName);
+      return Collections.singleton(_surfaceNames.get(exchange));
     }
     s_logger.error("Could not find default value for {} in this function", propertyName);
     return null;
@@ -113,10 +142,10 @@ public class EquityBlackVolatilitySurfaceAnyTickerDefaults extends DefaultProper
   public PriorityClass getPriority() {
     return _priority;
   }
-//
-//  @Override
-//  public String getMutualExclusionGroup() {
-//    return OpenGammaFunctionExclusions.EQUITY_BLACK_VOLATILITY_SURFACE_DEFAULTS;
-//  }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.EQUITY_BLACK_VOLATILITY_SURFACE_DEFAULTS;
+  }
 
 }

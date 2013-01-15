@@ -120,7 +120,7 @@ public class EquityOptionBlackFundingCurveSensitivitiesFunction extends EquityOp
     //  We use PresentValueNodeSensitivityCalculator to distribute this risk across the curve
     final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
     // What's left is to package up the inputs to the distributor, a YieldCurveBundle and a Map of Sensitivities
-    final Map<String, List<DoublesPair>> curveSensMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> curveSensMap = new HashMap<>();
     curveSensMap.put(fundingCurveName, Lists.newArrayList(new DoublesPair(settle, rhoSettle)));
     sensVector = distributor.curveToNodeSensitivities(curveSensMap, curveBundle);
 

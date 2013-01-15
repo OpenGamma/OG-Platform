@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -22,7 +23,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.FinancialSecurityTypes;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -30,9 +31,9 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Defaults function for forward values for equity variance swap securities
  */
-public class EquityForwardPerEquityDefaults extends DefaultPropertyFunction {
+public class EquityForwardPerCurrencyDefaults extends DefaultPropertyFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardPerEquityDefaults.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardPerCurrencyDefaults.class);
   /** The value requirements for which these defaults are valid */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.FORWARD
@@ -46,14 +47,14 @@ public class EquityForwardPerEquityDefaults extends DefaultPropertyFunction {
    * @param priority The priority of these defaults, not null
    * @param equityCurveConfigAndDiscountingCurveNames The per-equity curve configuration and discounting curve names, not null
    */
-  public EquityForwardPerEquityDefaults(final String priority, final String... equityCurveConfigAndDiscountingCurveNames) {
-    super(FinancialSecurityTypes.EQUITY_VARIANCE_SWAP_SECURITY, true);
+  public EquityForwardPerCurrencyDefaults(final String priority, final String... equityCurveConfigAndDiscountingCurveNames) {
+    super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(equityCurveConfigAndDiscountingCurveNames, "equity and curve config names");
     final int nPairs = equityCurveConfigAndDiscountingCurveNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and discounting curve name per equity");
     _priority = PriorityClass.valueOf(priority);
-    _equityCurveConfigAndDiscountingCurveNames = new HashMap<>();
+    _equityCurveConfigAndDiscountingCurveNames = new HashMap<String, Pair<String, String>>();
     for (int i = 0; i < equityCurveConfigAndDiscountingCurveNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(equityCurveConfigAndDiscountingCurveNames[i + 1], equityCurveConfigAndDiscountingCurveNames[i + 2]);
       _equityCurveConfigAndDiscountingCurveNames.put(equityCurveConfigAndDiscountingCurveNames[i], pair);
@@ -62,7 +63,16 @@ public class EquityForwardPerEquityDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() != ComputationTargetType.SECURITY) {
+      return false;
+    }
     final Security security = target.getSecurity();
+    if (!(security instanceof FinancialSecurity)) {
+      return false;
+    }
+    if (!(security instanceof EquityVarianceSwapSecurity)) {
+      return false;
+    }
     final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) security;
     final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(varianceSwap);
     return _equityCurveConfigAndDiscountingCurveNames.containsKey(underlyingEquity);

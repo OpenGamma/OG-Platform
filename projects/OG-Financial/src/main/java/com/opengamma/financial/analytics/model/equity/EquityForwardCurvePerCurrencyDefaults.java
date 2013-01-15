@@ -13,53 +13,61 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Triple;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *
  */
-public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction {
+public class EquityForwardCurvePerCurrencyDefaults extends DefaultPropertyFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCurvePerTickerDefaults.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCurvePerCurrencyDefaults.class);
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
-  /** Map from ticker to curve configuration, curve name and currency */
-  private final Map<String, Triple<String, String, String>> _perEquityConfig;
+  /** Map from currency to curve configuration, curve name and currency */
+  private final Map<String, Pair<String, String>> _perCurrencyConfig;
 
   /**
    * @param priority The priority, not null
-   * @param perEquityConfig The default values per equity, not null
+   * @param perCurrencyConfig The default values per currency, not null
    */
-  public EquityForwardCurvePerTickerDefaults(final String priority, final String... perEquityConfig) {
-    super(ComputationTargetType.PRIMITIVE, true); // REVIEW Andrew 2012-11-06 -- Is PRIMITIVE correct, shouldn't it be SECURITY or even EquitySecurity?
+  public EquityForwardCurvePerCurrencyDefaults(final String priority, final String... perCurrencyConfig) {
+    super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(priority, "priority");
-    ArgumentChecker.notNull(perEquityConfig, "per equity config");
-    final int nPairs = perEquityConfig.length;
-    ArgumentChecker.isTrue(nPairs % 4 == 0, "Must have one curve config, discounting curve name and currency per equity");
+    ArgumentChecker.notNull(perCurrencyConfig, "per equity config");
+    final int nPairs = perCurrencyConfig.length;
+    ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and discounting curve name per currency");
     _priority = PriorityClass.valueOf(priority);
-    _perEquityConfig = new HashMap<>();
-    for (int i = 0; i < perEquityConfig.length; i += 4) {
-      final Triple<String, String, String> config = new Triple<>(perEquityConfig[i + 1], perEquityConfig[i + 2], perEquityConfig[i + 3]);
-      _perEquityConfig.put(perEquityConfig[i].toUpperCase(), config);
+    _perCurrencyConfig = new HashMap<>();
+    for (int i = 0; i < perCurrencyConfig.length; i += 3) {
+      final Pair<String, String> config = Pair.of(perCurrencyConfig[i + 1], perCurrencyConfig[i + 2]);
+      _perCurrencyConfig.put(perCurrencyConfig[i].toUpperCase(), config);
     }
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final String equityId = EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
-    if (equityId == null) {
+    if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    return _perEquityConfig.containsKey(equityId.toUpperCase());
+    final UniqueId id = target.getUniqueId();
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final String currency = EquitySecurityUtils.getCurrency(securitySource, id);
+    if (currency == null) {
+      return false;
+    }
+    return _perCurrencyConfig.containsKey(currency);
   }
 
   @Override
@@ -72,12 +80,13 @@ public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
-    final String equityId = EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
-    if (!_perEquityConfig.containsKey(equityId)) {
-      s_logger.error("Could not get config for equity " + equityId + "; should never happen");
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final String currency = EquitySecurityUtils.getCurrency(securitySource, target.getUniqueId());
+    if (currency == null) {
+      s_logger.error("Could not get currency for {}; should never happen", target.getUniqueId());
       return null;
     }
-    final Triple<String, String, String> config = _perEquityConfig.get(equityId);
+    final Pair<String, String> config = _perCurrencyConfig.get(currency);
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
       return Collections.singleton(config.getFirst());
     }
@@ -85,8 +94,9 @@ public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction
       return Collections.singleton(config.getSecond());
     }
     if (ValuePropertyNames.CURVE_CURRENCY.equals(propertyName)) {
-      return Collections.singleton(config.getThird());
+      return Collections.singleton(currency);
     }
+    s_logger.error("Could not find default value for {} in this function", propertyName);
     return null;
   }
 

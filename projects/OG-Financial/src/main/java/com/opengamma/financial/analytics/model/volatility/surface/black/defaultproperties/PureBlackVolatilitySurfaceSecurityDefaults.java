@@ -23,7 +23,7 @@ public class PureBlackVolatilitySurfaceSecurityDefaults extends PureBlackVolatil
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
-    final String underlyingId = EquitySecurityUtils.getIndexOrEquityName(security);
+    final String underlyingId = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security);
     return getAllTickers().contains(underlyingId);
   }
 
