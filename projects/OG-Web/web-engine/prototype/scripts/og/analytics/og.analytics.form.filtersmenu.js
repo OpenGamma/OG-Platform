@@ -8,7 +8,8 @@ $.register_module({
     obj: function () {
         var module = this, Block = og.common.util.ui.Block;
         var FiltersMenu = function (config) {
-            var block = this, form = config.form, id = og.common.id('filters'), filters = config.filters || [];
+            var block = this, form = config.form, id = og.common.id('filters'),
+                filters = config.filters || [{key:'', value:''}];
             var new_row = function (val, idx) {
                 return new form.Block({
                     module: 'og.analytics.form_filters_row_tash',
