@@ -23,7 +23,7 @@ $.register_module({
                     new form.Block({
                         module: 'og.blotter.forms.blocks.equity_variance_swap_tash',
                         extras: {notional: data.security.notional, region: data.security.regionId,
-                            underlying: data.security.spotUnderlyingId, settlement: data.security.settlementDate, 
+                            settlement: data.security.settlementDate, 
                             first: data.security.firstObservationDate, last: data.security.lastObservationDate,
                             annualization: data.security.annualizationFactor, strike: data.security.strike
                          },
@@ -34,6 +34,12 @@ $.register_module({
                         children: [
                             new form.Block({module:'og.views.forms.currency_tash',
                                 extras:{name: "security.currency"}}),
+                            new og.blotter.forms.blocks.Security({
+                                form: form,
+                                label: "Spot Underlying ID",
+                                security: data.security.spotUnderlyingId,
+                                index: "security.spotUnderlyingId"
+                            }), 
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.frequencies', index: 'security.observationFrequency',
                                 value: data.security.observationFrequency, placeholder: 'Frequency'
