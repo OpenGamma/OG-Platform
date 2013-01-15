@@ -18,8 +18,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
@@ -96,9 +97,9 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
-    final InstrumentDefinition<EquityIndexOption> defn = security.accept(_converter);
-    final EquityIndexOption derivative = defn.toDerivative(now);
-    if (derivative.getTimeToSettlement() < 0.0) {
+    final InstrumentDefinition<?> defn = security.accept(_converter);
+    final InstrumentDerivative derivative = defn.toDerivative(now);
+    if (derivative.accept(LastTimeCalculator.getInstance()) < 0.0) {
       throw new OpenGammaRuntimeException("Equity option has already settled; " + security.toString());
     }
 
@@ -116,7 +117,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Constructs a market data bundle
-   * 
+   *
    * @param underlyingId The underlying id of the index option
    * @param executionContext The execution context
    * @param inputs The market data inputs
@@ -158,7 +159,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Calculates the result
-   * 
+   *
    * @param derivative The derivative
    * @param market The market data bundle
    * @param inputs The market data inputs
@@ -167,7 +168,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
    * @param resultProperties The result properties
    * @return The result of the calculation
    */
-  protected abstract Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+  protected abstract Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties);
 
   @Override
@@ -361,7 +362,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the value requirement names
-   * 
+   *
    * @return The value requirement names
    */
   protected String[] getValueRequirementNames() {
@@ -370,14 +371,14 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the calculation method.
-   * 
+   *
    * @return The calculation method
    */
   protected abstract String getCalculationMethod();
 
   /**
    * Gets the model type.
-   * 
+   *
    * @return The model type
    */
   protected abstract String getModelType();

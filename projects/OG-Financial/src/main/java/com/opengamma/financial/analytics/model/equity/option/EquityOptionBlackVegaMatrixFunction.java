@@ -18,7 +18,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
 import com.opengamma.engine.ComputationTarget;
@@ -58,7 +58,7 @@ public class EquityOptionBlackVegaMatrixFunction extends EquityOptionBlackFuncti
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     final NodalDoublesSurface vegaSurface = CALCULATOR.calcBlackVegaForEntireSurface(derivative, market, SHIFT);

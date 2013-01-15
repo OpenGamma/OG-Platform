@@ -30,6 +30,7 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionD
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
+import com.opengamma.analytics.financial.equity.option.EquityOptionDefinition;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwapDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
@@ -971,6 +972,16 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitEquityIndexOptionDefinition(final EquityIndexOptionDefinition option) {
+      return getValue(option, false);
+    }
+
+    @Override
+    public String visitEquityOptionDefinition(final EquityOptionDefinition option, final T data) {
+      return getValue(option, true);
+    }
+
+    @Override
+    public String visitEquityOptionDefinition(final EquityOptionDefinition option) {
       return getValue(option, false);
     }
 
