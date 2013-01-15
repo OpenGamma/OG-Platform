@@ -9,8 +9,7 @@ $.register_module({
         var module = this, Block = og.common.util.ui.Block;
         var Security = function (config) {
             var block = this, scheme_value, id_value, form = config.form, security = config.security,
-                sec_id = og.common.id("og-blotter-security");
-                scheme_id = og.common.id("og-blotter-scheme");
+                sec_id = og.common.id("og-blotter-security"), scheme_id = og.common.id("og-blotter-scheme");
             if(security){
                 scheme_value = security.split(/~(.+)/)[0];
                 id_value  = security.split(/~(.+)/)[1]; 
@@ -38,7 +37,6 @@ $.register_module({
                     path.reduce(function (acc, val) {return acc[val];}, data)[last] = merge;
                     delete data[sec_id];
                     delete data[scheme_id];
-                    console.log(data);
                 }
             });
         };
