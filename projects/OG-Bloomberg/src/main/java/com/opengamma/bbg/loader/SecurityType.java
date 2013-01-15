@@ -60,6 +60,14 @@ public enum SecurityType {
   /**
    *
    */
+  EQUITY_INDEX_DIVIDEND_FUTURE_OPTION,
+  /**
+   *
+   */
+  EQUITY_INDEX_FUTURE_OPTION,
+  /**
+  *
+  */
   EQUITY_INDEX_OPTION,
   /**
    * 

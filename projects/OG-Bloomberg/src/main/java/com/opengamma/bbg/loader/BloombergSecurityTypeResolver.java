@@ -51,6 +51,7 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
   static {
     addValidTypes(s_optionTypes, EquityOptionLoader.VALID_SECURITY_TYPES, SecurityType.EQUITY_OPTION);
     addValidTypes(s_optionTypes, EquityIndexOptionLoader.VALID_SECURITY_TYPES, SecurityType.EQUITY_INDEX_OPTION);
+    addValidTypes(s_optionTypes, EquityIndexFutureOptionLoader.VALID_SECURITY_TYPES, SecurityType.EQUITY_INDEX_FUTURE_OPTION);
     addValidTypes(s_optionTypes, IRFutureOptionLoader.VALID_SECURITY_TYPES, SecurityType.IR_FUTURE_OPTION);
     addValidTypes(s_optionTypes, BondFutureOptionLoader.VALID_SECURITY_TYPES, SecurityType.BOND_FUTURE_OPTION);
     addValidTypes(s_optionTypes, CommodityFutureOptionLoader.VALID_SECURITY_TYPES, SecurityType.COMMODITY_FUTURE_OPTION);
@@ -81,7 +82,7 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
     addValidTypes(s_swapTypes, NonLoadedSecurityTypes.VALID_CDS_TYPES, SecurityType.CREDIT_DEFAULT_SWAP);
   }
 
-  private static final Set<String> BBG_FIELDS = Sets.newHashSet(BloombergConstants.FIELD_SECURITY_TYPE, BloombergConstants.FIELD_FUTURES_CATEGORY);
+  private static final Set<String> BBG_FIELDS = Sets.newHashSet(BloombergConstants.FIELD_SECURITY_TYPE, BloombergConstants.FIELD_FUTURES_CATEGORY, BloombergConstants.FIELD_NAME);
 
   private final ReferenceDataProvider _referenceDataProvider;
 
@@ -119,7 +120,13 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
               s_logger.debug("s_futureTypes {}", s_futureTypes);
               securityType = s_futureTypes.get(futureCategory);
             } else if (bbgSecurityType.toUpperCase().contains(" OPTION")) {
-              securityType = s_optionTypes.get(futureCategory);
+
+              // Special case handling for EQUITY_INDEX_DIVIDEND_FUTURE_OPTION which we
+              // are otherwise unable to distinguish from EQUITY_INDEX_FUTURE_OPTION
+              String name = fudgeMsg.getString(BloombergConstants.FIELD_NAME);
+              securityType = isEquityIndexFutureDividendOption(futureCategory, name) ?
+                  SecurityType.EQUITY_INDEX_DIVIDEND_FUTURE_OPTION :
+                  s_optionTypes.get(futureCategory);
             } else if (bbgSecurityType.toUpperCase().endsWith("SWAP")) {
               securityType = s_swapTypes.get(bbgSecurityType);            
             } else {
@@ -136,6 +143,10 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
       }
     }
     return result;
+  }
+
+  private boolean isEquityIndexFutureDividendOption(String futureCategory, String name) {
+    return name != null && "Equity Index".equals(futureCategory) && name.toUpperCase().contains("DIVIDEND");
   }
 
   private static void addValidTypes(final Map<String, SecurityType> sFuturetypes, final Set<String> validSecurityTypes, final SecurityType securityType) {

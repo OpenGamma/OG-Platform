@@ -70,6 +70,16 @@ public class BloombergSecurityTypeResolverTest {
   }
 
   @Test
+  public void testEquityIndexFutureOption() {
+    assertSecurityType(Collections.singleton("ESH3C 1000 Index"), SecurityType.EQUITY_INDEX_FUTURE_OPTION);
+  }
+
+  @Test
+  public void testEquityIndexDividendFutureOption() {
+    assertSecurityType(Collections.singleton("DEDZ3C 100.00 Index"), SecurityType.EQUITY_INDEX_DIVIDEND_FUTURE_OPTION);
+  }
+
+  @Test
   public void testBondFuture() {
     assertSecurityType(Collections.singleton("USM10 Comdty"), SecurityType.BOND_FUTURE);
   }
