@@ -120,7 +120,7 @@ import com.opengamma.util.tuple.Pair;
   public void resolved(final ResolvedValueCallback callback, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
     s_logger.debug("Resolved {} to {}", valueRequirement, resolvedValue);
     _stackDepth++;
-    // Scheduling failure and resolved callbacks from the run queue is a real headache to debug, so always call them inline 
+    // Scheduling failure and resolved callbacks from the run queue is a real headache to debug, so always call them inline
     callback.resolved(this, valueRequirement, resolvedValue, pump);
     _stackDepth--;
   }
@@ -135,7 +135,7 @@ import com.opengamma.util.tuple.Pair;
   public void failed(final ResolvedValueCallback callback, final ValueRequirement valueRequirement, final ResolutionFailure failure) {
     s_logger.debug("Couldn't resolve {}", valueRequirement);
     _stackDepth++;
-    // Scheduling failure and resolved callbacks from the run queue is a real headache to debug, so always call them inline 
+    // Scheduling failure and resolved callbacks from the run queue is a real headache to debug, so always call them inline
     callback.failed(this, valueRequirement, failure);
     _stackDepth--;
   }
@@ -164,7 +164,7 @@ import com.opengamma.util.tuple.Pair;
     RequirementResolver resolver = null;
     final ResolveTask[] tasks = getTasksResolving(requirement);
     if (tasks != null) {
-      for (ResolveTask task : tasks) {
+      for (final ResolveTask task : tasks) {
         if ((dependent == null) || !dependent.hasParent(task)) {
           if (resolver == null) {
             resolver = new RequirementResolver(requirement, dependent, functionExclusion);
@@ -227,7 +227,7 @@ import com.opengamma.util.tuple.Pair;
         }
         result = new ResolveTask[tasks.size()];
         int i = 0;
-        for (ResolveTask task : tasks.keySet()) {
+        for (final ResolveTask task : tasks.keySet()) {
           result[i++] = task;
           task.addRef();
         }
@@ -253,7 +253,7 @@ import com.opengamma.util.tuple.Pair;
           resultTasks = new ResolveTask[tasks.size()];
           resultProducers = new ResolvedValueProducer[tasks.size()];
           int i = 0;
-          for (Map.Entry<ResolveTask, ResolvedValueProducer> task : (Set<Map.Entry<ResolveTask, ResolvedValueProducer>>) tasks.entrySet()) {
+          for (final Map.Entry<ResolveTask, ResolvedValueProducer> task : (Set<Map.Entry<ResolveTask, ResolvedValueProducer>>) tasks.entrySet()) {
             // Don't ref-count the tasks; they're just used for parent comparisons
             resultTasks[i] = task.getKey();
             resultProducers[i++] = task.getValue();
@@ -376,7 +376,11 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public ComputationTargetSpecification resolveTargetReference(final ComputationTargetReference reference) {
-    return getBuilder().resolveTargetReference(reference);
+    final ComputationTargetSpecification specification = getBuilder().resolveTargetReference(reference);
+    if (specification == null) {
+      s_logger.warn("Couldn't resolve {}", reference);
+    }
+    return specification;
   }
 
   /**
@@ -473,7 +477,7 @@ import com.opengamma.util.tuple.Pair;
       _exceptions = new HashMap<ExceptionWrapper, ExceptionWrapper>();
     }
     if (context._exceptions != null) {
-      for (ExceptionWrapper exception : context._exceptions.keySet()) {
+      for (final ExceptionWrapper exception : context._exceptions.keySet()) {
         final ExceptionWrapper existing = _exceptions.get(exception);
         if (existing != null) {
           existing.incrementCount(exception.getCount());
@@ -489,7 +493,7 @@ import com.opengamma.util.tuple.Pair;
       return Collections.emptyMap();
     }
     final Map<Throwable, Integer> result = new HashMap<Throwable, Integer>();
-    for (ExceptionWrapper exception : _exceptions.keySet()) {
+    for (final ExceptionWrapper exception : _exceptions.keySet()) {
       result.put(exception.getException(), exception.getCount());
     }
     return result;

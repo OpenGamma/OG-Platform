@@ -91,6 +91,9 @@ import com.opengamma.engine.value.ValueSpecification;
 
     protected ComputationTarget getComputationTarget(final GraphBuildingContext context) {
       final ComputationTargetSpecification specification = getTargetSpecification(context);
+      if (specification == null) {
+        return null;
+      }
       final ComputationTarget target = LazyComputationTargetResolver.resolve(context.getCompilationContext().getComputationTargetResolver(), specification);
       if (target == null) {
         s_logger.warn("Computation target {} not found", specification);
@@ -189,12 +192,13 @@ import com.opengamma.engine.value.ValueSpecification;
     assert state != null;
     s_logger.debug("State transition {} to {}", _state, state);
     if (_state == null) {
-      // Increase the ref-count as the state holds a reference to us 
+      // Increase the ref-count as the state holds a reference to us
       addRef();
     }
     _state = state;
   }
 
+  @Override
   public boolean isFinished() {
     return _state == null;
   }
@@ -274,7 +278,7 @@ import com.opengamma.engine.value.ValueSpecification;
     if (!(o instanceof ResolveTask)) {
       return false;
     }
-    ResolveTask other = (ResolveTask) o;
+    final ResolveTask other = (ResolveTask) o;
     if (!getValueRequirement().equals(other.getValueRequirement())) {
       return false;
     }
