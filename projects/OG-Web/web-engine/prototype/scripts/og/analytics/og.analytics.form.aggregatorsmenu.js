@@ -21,12 +21,24 @@ $.register_module({
                 default_sel_txt = 'select aggregation...', del_s = '.og-icon-delete',
                 options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox';
 
+            var add_handler = function (obj) {
+                add_row_handler(obj).html(function (html) {
+                    menu.add_handler($(html));
+                });
+            };
+
             var add_row_handler = function (obj) {
                 return new form.Block({
                     module: 'og.analytics.form_aggregation_row_tash',
-                    generator : function (handler, tmpl, data) {
+                    extras: {
+                        show_default: !(obj.hasOwnProperty('val'))
+                    },
+                    generator: function (handler, tmpl, data) {
                         og.api.rest.aggregators.get().pipe(function (resp) {
-                            data.aggregators = resp.data;
+                            if (resp.error) return og.dev.warn('og.analytics.AggregatorsMenu: ' + resp.error);
+                            data.aggregators = resp.data.map(function (entry) {
+                                return {text: entry, selected: obj.val === entry};
+                            });
                             data.idx = obj.idx + 1;
                             handler(tmpl(data));
                         });
@@ -71,9 +83,7 @@ $.register_module({
                     sel_val = $select.val();
                     sel_pos = $parent.data('pos');
                     entry = query.pluck('pos').indexOf(sel_pos);
-                if ($elem.is(menu.$dom.add)) return menu.stop(event), add_row_handler({idx:0}).html(function (html) {
-                        menu.add_handler($(html));
-                    });
+                if ($elem.is(menu.$dom.add)) return menu.stop(event), add_handler({idx:0});
                 if ($elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                 if ($elem.is($select)) return select_handler(entry);
                 if ($elem.is('button')) return menu.button_handler($elem.text());
