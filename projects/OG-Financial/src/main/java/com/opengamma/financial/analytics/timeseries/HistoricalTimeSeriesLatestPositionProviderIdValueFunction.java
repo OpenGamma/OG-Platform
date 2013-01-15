@@ -35,7 +35,7 @@ import com.opengamma.master.position.ManageablePosition;
  * Function to source the latest historical time-series data point for a position.
  */
 public class HistoricalTimeSeriesLatestPositionProviderIdValueFunction extends AbstractFunction.NonCompiledInvoker {
-  
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -61,10 +61,14 @@ public class HistoricalTimeSeriesLatestPositionProviderIdValueFunction extends A
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final HistoricalTimeSeriesResolver htsResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final Set<String> dataFieldConstraints = desiredValue.getConstraints().getValues(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
-    if (dataFieldConstraints.size() > 1) {
+    final String dataField;
+    if ((dataFieldConstraints == null) || dataFieldConstraints.isEmpty()) {
+      dataField = null;
+    } else if (dataFieldConstraints.size() == 1) {
+      dataField = Iterables.getOnlyElement(dataFieldConstraints);
+    } else {
       return null;
     }
-    final String dataField = dataFieldConstraints.isEmpty() ? null : Iterables.getOnlyElement(dataFieldConstraints);
     final String providerIdValue = target.getPosition().getAttributes().get(ManageablePosition.meta().providerId().name());
     if (providerIdValue == null) {
       return null;
