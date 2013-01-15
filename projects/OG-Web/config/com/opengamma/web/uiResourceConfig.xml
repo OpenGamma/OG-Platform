@@ -403,6 +403,7 @@
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.fxforwardcurvedefinition.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.fxforwardcurvespecification.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.forwardswapcurvedefinition.js</fragment>
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.forwardswapcurvespecification.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.historicaltimeseriesrating.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.viewdefinition.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.volatilitycubedefinition.js</fragment>
