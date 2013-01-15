@@ -200,7 +200,7 @@ public class CouponIborAverageDefinitionTest {
     final double fixingPeriodEndTime2 = actAct.getDayCountFraction(REFERENCE_DATE, IBOR_AVERAGE_COUPON_DEFINITION_1.getFixingPeriodEndDate2());
     final CouponIborAverage couponIborAverage = new CouponIborAverage(CUR, paymentTime, ACCRUAL_FACTOR, NOTIONAL, fixingTime, INDEX_1, fixingPeriodStartTime1, fixingPeriodEndTime1,
         ACCRUAL_FACTOR_FIXING_1,
-        INDEX_1, fixingPeriodStartTime2, fixingPeriodEndTime2, ACCRUAL_FACTOR_FIXING_2, WEIGHT_1, WEIGHT_2);
+        INDEX_2, fixingPeriodStartTime2, fixingPeriodEndTime2, ACCRUAL_FACTOR_FIXING_2, WEIGHT_1, WEIGHT_2);
     CouponIborAverage convertedDefinition = (CouponIborAverage) IBOR_AVERAGE_COUPON_DEFINITION_1.toDerivative(REFERENCE_DATE, "");
     assertEquals(couponIborAverage, convertedDefinition);
     convertedDefinition = (CouponIborAverage) IBOR_AVERAGE_COUPON_DEFINITION_1.toDerivative(REFERENCE_DATE, FIXING_TS, "");
