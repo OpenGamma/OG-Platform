@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +30,7 @@ import com.opengamma.util.tuple.Pair;
  * Grid for displaying analytics data for a portfolio or for calculated values that aren't associated with the
  * portfolio (primitives). This class isn't thread safe.
  */
-/* package */ abstract class MainAnalyticsGrid<V extends MainGridViewport> extends AnalyticsGrid<V> {
+/* package */ abstract class MainAnalyticsGrid extends AnalyticsGrid<MainGridViewport> {
 
   /** Row and column structure of the grid. */
   protected final MainGridStructure _gridStructure;
@@ -111,8 +110,8 @@ import com.opengamma.util.tuple.Pair;
     }
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
-    DependencyGraphGrid grid =
-        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId, _targetResolver, viewportListener);
+    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId,
+                                                          _targetResolver, viewportListener, _cache);
     _depGraphs.put(graphId, grid);
   }
 
@@ -165,6 +164,11 @@ import com.opengamma.util.tuple.Pair;
     return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition);
   }
 
+  @Override
+  MainGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
+    return new MainGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, _cache);
+  }
+
   /**
    * Updates an existing viewport on a dependency graph grid
    *
@@ -203,7 +207,7 @@ import com.opengamma.util.tuple.Pair;
    * @return The IDs for all depdendency graph grids that are sent to listeners when the grid structure changes
    */
   /* package */ List<String> getDependencyGraphCallbackIds() {
-    List<String> gridIds = new ArrayList<String>();
+    List<String> gridIds = Lists.newArrayList();
     for (AnalyticsGrid grid : _depGraphs.values()) {
       gridIds.add(grid.getCallbackId());
     }

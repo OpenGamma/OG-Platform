@@ -5,8 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.List;
-
 import com.opengamma.engine.view.calc.ComputationCycleQuery;
 import com.opengamma.engine.view.calc.ComputationResultsResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
@@ -82,19 +80,7 @@ public class DependencyGraphViewport implements Viewport {
     query.setValueSpecifications(_gridStructure.getValueSpecifications());
     ComputationResultsResponse resultsResponse = cycle.queryResults(query);
     cache.put(_calcConfigName, resultsResponse.getResults(), cycle.getDuration());
-    List<ViewportResults.Cell> gridResults = _gridStructure.createResultsForViewport(_viewportDefinition,
-                                                                                     cache,
-                                                                                     _calcConfigName);
-    ViewportResults newResults = new ViewportResults(gridResults,
-                                                     _viewportDefinition,
-                                                     _gridStructure.getColumnStructure(),
-                                                     cache.getLastCalculationDuration());
-    if (newResults.equals(_latestResults)) {
-      _state = State.STALE_DATA;
-    } else {
-      _state = State.FRESH_DATA;
-    }
-    _latestResults = newResults;
+    _latestResults = _gridStructure.createResults(_viewportDefinition, cache, _latestResults);
   }
 
   @Override
@@ -113,6 +99,10 @@ public class DependencyGraphViewport implements Viewport {
 
   @Override
   public State getState() {
-    return _state;
+    if (_latestResults == null) {
+      return State.EMPTY;
+    } else {
+      return _latestResults.getState();
+    }
   }
 }

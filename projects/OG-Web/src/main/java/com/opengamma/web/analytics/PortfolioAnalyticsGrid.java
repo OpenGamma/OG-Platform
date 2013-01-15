@@ -11,7 +11,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 /**
  * A grid for displaying portfolio analytics data.
  */
-/* package */ class PortfolioAnalyticsGrid extends MainAnalyticsGrid<PortfolioGridViewport> {
+/* package */ class PortfolioAnalyticsGrid extends MainAnalyticsGrid {
 
   /**
    * @param compiledViewDef The view definition whose results the grid will display
@@ -25,7 +25,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
                                        ComputationTargetResolver targetResolver,
                                        ValueMappings valueMappings,
                                        ViewportListener viewportListener) {
-    this(new PortfolioGridStructure(compiledViewDef, valueMappings), gridId, targetResolver, viewportListener);
+    this(PortfolioGridStructure.create(compiledViewDef, valueMappings), gridId, targetResolver, viewportListener);
   }
 
   /* package */ PortfolioAnalyticsGrid(PortfolioGridStructure gridStructure,
@@ -33,16 +33,6 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
                                        ComputationTargetResolver targetResolver,
                                        ViewportListener viewportListener) {
     super(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId, targetResolver, viewportListener);
-  }
-
-  /**
-   * @param viewportDefinition Defines the extent and properties of the viewport
-   * @param callbackId ID that will be passed to listeners when the grid's data changes
-   * @return The viewport
-   */
-  @Override
-  protected PortfolioGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
-    return new PortfolioGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, _cache);
   }
 
   /**

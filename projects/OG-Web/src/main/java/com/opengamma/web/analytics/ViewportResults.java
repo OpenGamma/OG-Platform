@@ -12,7 +12,6 @@ import javax.time.Duration;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
-import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
@@ -22,39 +21,44 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 public class ViewportResults {
 
   /** The result values by row. */
-  private final List<Cell> _allResults;
+  private final List<ResultsCell> _allResults;
   /** The grid columns. */
   private final AnalyticsColumnGroups _columns;
   /** Definition of the viewport. */
   private final ViewportDefinition _viewportDefinition;
   /** Duration of the last calculation cycle. */
   private final Duration _calculationDuration;
+  private final Viewport.State _state;
 
   /**
    * @param allResults Cells in the viewport containing the data, history and the value specification. The outer
    * list contains the data by rows and the inner lists contain the data for each row
    * @param viewportDefinition Definition of the rows and columns in the viewport
    * @param columns The columns in the viewport's grid
+   * @param state
    */
-  /* package */ ViewportResults(List<Cell> allResults,
+  /* package */ ViewportResults(List<ResultsCell> allResults,
                                 ViewportDefinition viewportDefinition,
                                 AnalyticsColumnGroups columns,
-                                Duration calculationDuration) {
+                                Duration calculationDuration,
+                                Viewport.State state) {
     ArgumentChecker.notNull(allResults, "allResults");
     ArgumentChecker.notNull(columns, "columns");
     ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
     ArgumentChecker.notNull(calculationDuration, "calculationDuration");
+    ArgumentChecker.notNull(state, "state");
     _allResults = allResults;
     _viewportDefinition = viewportDefinition;
     _columns = columns;
     _calculationDuration = calculationDuration;
+    _state = state;
   }
 
   /**
    * @return Cells in the viewport containing the data, history and the value specification. The outer
    * list contains the data by rows and the inner lists contain the data for each row
    */
-  /* package */ List<Cell> getResults() {
+  /* package */ List<ResultsCell> getResults() {
     return _allResults;
   }
 
@@ -95,24 +99,27 @@ public class ViewportResults {
    * @param value The cell's value
    * @return A cell for displaying the value
    */
-  /* package */ static Cell objectCell(Object value, int column) {
+  /* package */ static ResultsCell objectCell(Object value, int column) {
     ArgumentChecker.notNull(value, "value");
-    return new Cell(value, null, null, column, null);
+    return new ResultsCell(value, null, null, column, null, false);
   }
 
   /**
    * Factory method that creates a grid cell for displaying a calculated value.
+   *
    * @param value The value
    * @param valueSpecification The value's specification
    * @param history The value's history
+   * @param updated true if the value was updated in the last calculation cycle
    * @return A cell for displaying the value
    */
-  /* package */ static Cell valueCell(Object value,
-                                      ValueSpecification valueSpecification,
-                                      Collection<Object> history,
-                                      AggregatedExecutionLog executionLog,
-                                      int column) {
-    return new Cell(value, valueSpecification, history, column, executionLog);
+  /* package */ static ResultsCell valueCell(Object value,
+                                             ValueSpecification valueSpecification,
+                                             Collection<Object> history,
+                                             AggregatedExecutionLog executionLog,
+                                             int column,
+                                             boolean updated) {
+    return new ResultsCell(value, valueSpecification, history, column, executionLog, updated);
   }
 
   /**
@@ -122,8 +129,12 @@ public class ViewportResults {
    * be an empty collection, for types that don't it should be null.
    * @param colIndex Index of the cell's grid column
    */
-  /* package */ static Cell emptyCell(Collection<Object> emptyHistory, int colIndex) {
-    return new Cell(null, null, emptyHistory, colIndex, null);
+  /* package */ static ResultsCell emptyCell(Collection<Object> emptyHistory, int colIndex) {
+    return new ResultsCell(null, null, emptyHistory, colIndex, null, false);
+  }
+
+  /* package */ Viewport.State getState() {
+    return _state;
   }
 
   @Override
@@ -163,119 +174,5 @@ public class ViewportResults {
         ", _columns=" + _columns +
         ", _viewportDefinition=" + _viewportDefinition +
         "]";
-  }
-
-  /**
-   * A single grid cell in a set of results, including the cell's value, value specification and history.
-   */
-  /* package */ static final class Cell {
-
-    // TODO add execution log to hashCode and equals
-
-    private final Object _value;
-    private final ValueSpecification _valueSpecification;
-    private final Collection<Object> _history;
-    private final int _column;
-    private final AggregatedExecutionLog _executionLog;
-
-    private Cell(Object value,
-                 ValueSpecification valueSpecification,
-                 Collection<Object> history,
-                 int column,
-                 AggregatedExecutionLog executionLog) {
-      _value = value;
-      _valueSpecification = valueSpecification;
-      _history = history;
-      _column = column;
-      _executionLog = executionLog;
-    }
-
-    /**
-     * @return The cell's value, can be null
-     */
-    /* package */ Object getValue() {
-      return _value;
-    }
-
-    /**
-     * @return The cell's value specification, can be null
-     */
-    /* package */ ValueSpecification getValueSpecification() {
-      return _valueSpecification;
-    }
-
-    /**
-     * @return The cell's value history, can be null or empty
-     */
-    /* package */ Collection<Object> getHistory() {
-      return _history;
-    }
-
-    /**
-     * @return true if the cell's value couldn't be calculated because of an error
-     */
-    /* package */ boolean isError() {
-      return _value instanceof MissingInput;
-    }
-
-    /* package */ int getColumn() {
-      return _column;
-    }
-
-    /* package */ AggregatedExecutionLog getExecutionLog() {
-      return _executionLog;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      Cell cell = (Cell) o;
-
-      if (_column != cell._column) {
-        return false;
-      }
-      if (_history != null) {
-        if (!_history.equals(cell._history)) {
-          return false;
-        }
-      } else {
-        if (cell._history != null) {
-          return false;
-        }
-      }
-      if (_value != null) {
-        if (!_value.equals(cell._value)) {
-          return false;
-        }
-      } else {
-        if (cell._value != null) {
-          return false;
-        }
-      }
-      if (_valueSpecification != null) {
-        if (!_valueSpecification.equals(cell._valueSpecification)) {
-          return false;
-        }
-      } else {
-        if (cell._valueSpecification != null) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    @Override
-    public int hashCode() {
-      int result = _value != null ? _value.hashCode() : 0;
-      result = 31 * result + (_valueSpecification != null ? _valueSpecification.hashCode() : 0);
-      result = 31 * result + (_history != null ? _history.hashCode() : 0);
-      result = 31 * result + _column;
-      return result;
-    }
   }
 }

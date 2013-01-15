@@ -61,7 +61,7 @@ public class DependencyGraphGridStructureMessageBodyWriter implements MessageBod
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
     String rootNodeJson = AnalyticsNodeJsonWriter.getJson(gridStructure.getRoot());
-    String columnsJson = _writer.getJson(DependencyGraphGridStructure.COLUMN_GROUPS.getGroups());
+    String columnsJson = _writer.getJson(gridStructure.getColumnStructure().getGroups());
     entityStream.write(("{\"columnSets\":" + columnsJson + ",\"rootNode\":" + rootNodeJson + "}").getBytes());
   }
 }
