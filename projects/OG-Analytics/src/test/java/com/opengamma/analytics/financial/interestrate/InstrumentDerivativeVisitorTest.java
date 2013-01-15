@@ -26,6 +26,7 @@ import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
@@ -97,7 +98,7 @@ import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
  */
 public class InstrumentDerivativeVisitorTest {
   private static final Set<InstrumentDerivative> ALL_DERIVATIVES = TestInstrumentDefinitionsAndDerivatives.getAllDerivatives();
-  private static final MyVisitor<Object> VISITOR = new MyVisitor<Object>();
+  private static final MyVisitor<Object> VISITOR = new MyVisitor<>();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDerivative() {
@@ -141,7 +142,7 @@ public class InstrumentDerivativeVisitorTest {
   public void testDelegate() {
     final String s = "aaaa";
     final String result = s + " + data1";
-    final BondFixedVisitor<Object> visitor = new BondFixedVisitor<Object>(VISITOR, s);
+    final BondFixedVisitor<Object> visitor = new BondFixedVisitor<>(VISITOR, s);
     for (final InstrumentDerivative definition : ALL_DERIVATIVES) {
       if (definition instanceof BondFixedSecurity) {
         assertEquals(definition.accept(visitor), s);
@@ -184,7 +185,7 @@ public class InstrumentDerivativeVisitorTest {
   @Test
   public void testSameValueAdapter() {
     final Double value = Math.PI;
-    final InstrumentDerivativeVisitor<Double, Double> visitor = new InstrumentDerivativeVisitorSameValueAdapter<Double, Double>(value);
+    final InstrumentDerivativeVisitor<Double, Double> visitor = new InstrumentDerivativeVisitorSameValueAdapter<>(value);
     for (final InstrumentDerivative derivative : ALL_DERIVATIVES) {
       assertEquals(value, derivative.accept(visitor));
       assertEquals(value, derivative.accept(visitor, Math.E));
@@ -995,6 +996,16 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public String visitEquityIndexOption(final EquityIndexOption option) {
+      return getValue(option, false);
+    }
+
+    @Override
+    public String visitEquityOption(final EquityOption option, final T data) {
+      return getValue(option, true);
+    }
+
+    @Override
+    public String visitEquityOption(final EquityOption option) {
       return getValue(option, false);
     }
 
