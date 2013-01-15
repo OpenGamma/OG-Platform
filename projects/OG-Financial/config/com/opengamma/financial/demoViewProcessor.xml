@@ -273,7 +273,6 @@
 				    <property name="viewComputationCache" ref="mainComputationCacheSource" />
 				    <property name="functionCompilationService" ref="mainCompiledFunctionService" />
 				    <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />
-				    <property name="computationTargetResolver" ref="mainComputationTargetResolver" />
 				    <property name="viewProcessorQuery" ref="mainViewProcessorQuerySender" />
 				    <property name="writeBehindExecutorService">
 				      <null/> <!-- The cache is so fast, and CPU bound, that write behind just slows us down on many core systems -->
@@ -346,7 +345,6 @@
     <property name="liveMarketDataSourceRegistry" ref="standardLiveMarketDataSourceRegistry" />
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="positionSource" ref="combinedPositionSource" />
-    <property name="computationTargetResolver" ref="mainComputationTargetResolver" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionResolver" ref="mainFunctionResolver" />
     <property name="functionExclusionGroups" ref="mainFunctionExclusionGroups" />

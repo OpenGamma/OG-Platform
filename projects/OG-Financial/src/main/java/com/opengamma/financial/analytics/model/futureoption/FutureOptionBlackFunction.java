@@ -31,11 +31,11 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -48,13 +48,14 @@ import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.money.Currency;
 
 /**
  * Basic Black Futures Option
@@ -153,12 +154,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getSecurity() instanceof CommodityFutureOptionSecurity;
+    return FinancialSecurityTypes.COMMODITY_FUTURE_OPTION_SECURITY;
   }
 
   @Override
@@ -272,16 +268,16 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
   protected ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final Security security,
       final String surfaceName, final String smileInterpolator, final String curveConfig, final String fundingCurveName, final ExternalId underlyingBuid) {
     final String bbgTicker = getBloombergTicker(tsSource, underlyingBuid);
-    final UniqueId newId = UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), bbgTicker);
+    final ExternalId newId = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, bbgTicker);
 
     // Set Forward Curve Currency Property
-    final String curveCurrency = FinancialSecurityUtils.getCurrency(security).toString();
+    final Currency curveCurrency = FinancialSecurityUtils.getCurrency(security);
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolator)
         .with(ValuePropertyNames.CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfig)
-        .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency)
+        .with(ValuePropertyNames.CURVE_CURRENCY, curveCurrency.getCode())
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION)
         .get();
     return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, newId, properties);
@@ -306,7 +302,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
   }
 
   protected ValueRequirement getSpotRequirement(final ExternalId underlyingId) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingId);
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, underlyingId);
   }
 
   protected final String getValueRequirementName() {

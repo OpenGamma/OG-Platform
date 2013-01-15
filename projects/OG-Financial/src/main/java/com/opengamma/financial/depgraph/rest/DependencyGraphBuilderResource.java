@@ -22,11 +22,10 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
+import com.opengamma.engine.depgraph.ResolutionFailureFudgeBuilder;
 import com.opengamma.engine.depgraph.ResolutionFailureGatherer;
-import com.opengamma.engine.fudgemsg.ResolutionFailureFudgeBuilder;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.DefaultCompiledFunctionResolver;
 import com.opengamma.engine.function.resolver.ResolutionRule;
@@ -34,6 +33,7 @@ import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -43,12 +43,11 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * Expose a simple dependency graph building service over the network for debugging/diagnostic purposes.
- * This is intended to be simple to access using hand written URLs - there is not currently a corresponding
- * programatic interface to the service this provides.
+ * Expose a simple dependency graph building service over the network for debugging/diagnostic purposes. This is intended to be simple to access using hand written URLs - there is not currently a
+ * corresponding programatic interface to the service this provides.
  * <p>
- * For example to find out why a graph building configuration can't satisfy a requirement, a URL such
- * as "/value/Present Value/SECURITY/SecDb~1234" will return the failure trace (or the graph if successful).
+ * For example to find out why a graph building configuration can't satisfy a requirement, a URL such as "/value/Present Value/SECURITY/SecDb~1234" will return the failure trace (or the graph if
+ * successful).
  */
 public final class DependencyGraphBuilderResource extends AbstractDataResource {
 
@@ -144,8 +143,9 @@ public final class DependencyGraphBuilderResource extends AbstractDataResource {
       name = valueName;
       constraints = ValueProperties.none();
     }
-    final ValueRequirement requirement = new ValueRequirement(name, new ComputationTargetSpecification(ComputationTargetType.valueOf(targetType), UniqueId.parse(targetId)), constraints);
-    resource._requirements.add(requirement);
+    final ValueRequirement requirement = new ValueRequirement(name, new ComputationTargetSpecification(ComputationTargetType.parse(targetType.replace('-', '/')), UniqueId.parse(targetId)),
+        constraints);
+    resource.getRequirements().add(requirement);
     return resource;
   }
 

@@ -12,9 +12,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -22,8 +20,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -51,7 +49,7 @@ public class FutureOptionBlackDefaults extends DefaultPropertyFunction {
   public FutureOptionBlackDefaults(final String priority, final String volSurface, final String smileInterpolator,
       final String... currencyCurveConfigAndDiscountingCurveNames) {
 
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.COMMODITY_FUTURE_OPTION_SECURITY, true);
     Validate.notNull(priority, "No priority was provided.");
     Validate.notNull(volSurface, "No volSurface name was provided to use as default value.");
     Validate.notNull(smileInterpolator, "No smileInterpolator name was provided to use as default value.");
@@ -98,16 +96,8 @@ public class FutureOptionBlackDefaults extends DefaultPropertyFunction {
   }
 
   @Override
-  /** Applies to EquityIndexOptionSecurity and EquityBarrierOptionSecurity */
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    final Security security = target.getSecurity();
-    if (!(security instanceof CommodityFutureOptionSecurity)) {
-      return false;
-    }
-    final Currency ccy = FinancialSecurityUtils.getCurrency(security);
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final boolean applies = _currencyCurveConfigAndDiscountingCurveNames.containsKey(ccy);
     return applies;
   }

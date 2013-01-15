@@ -254,7 +254,6 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     assertNotNull(trade);
     assertEquals(UniqueId.of("DbPos", "400", "0"), trade.getUniqueId());
     assertEquals(ExternalId.of("B", "400"), trade.getProviderId());
-    assertEquals(uniqueId, trade.getParentPositionId());
     assertEquals(ExternalId.of("CPARTY", "C100"), trade.getCounterpartyExternalId());
     assertEquals(BigDecimal.valueOf(120.987), trade.getQuantity());
     assertEquals(_now.toLocalDate(), trade.getTradeDate());
@@ -287,7 +286,6 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     assertNotNull(trade);
     assertEquals(UniqueId.of("DbPos", "401", "0"), trade.getUniqueId());
     assertEquals(ExternalId.of("B", "401"), trade.getProviderId());
-    assertEquals(uniqueId, trade.getParentPositionId());
     assertEquals(ExternalId.of("CPARTY", "C101"), trade.getCounterpartyExternalId());
     assertEquals(BigDecimal.valueOf(121.987), trade.getQuantity());
     assertEquals(_now.toLocalDate(), trade.getTradeDate());
@@ -337,19 +335,16 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     assertEquals(3, trades.size());
     
     ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(100.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(404), ExternalId.of("CPARTY", "C104"));
-    trade.setParentPositionId(uniqueId);
     trade.setUniqueId(UniqueId.of("DbPos", "404", "0"));
     trade.setProviderId(ExternalId.of("B", "404"));
     assertTrue(trades.contains(trade));
     
     trade = new ManageableTrade(BigDecimal.valueOf(200.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(405), ExternalId.of("CPARTY", "C105"));
-    trade.setParentPositionId(uniqueId);
     trade.setUniqueId(UniqueId.of("DbPos", "405", "0"));
     trade.setProviderId(ExternalId.of("B", "405"));
     assertTrue(trades.contains(trade));
     
     trade = new ManageableTrade(BigDecimal.valueOf(300.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(406),ExternalId.of("CPARTY", "C106"));
-    trade.setParentPositionId(uniqueId);
     trade.setUniqueId(UniqueId.of("DbPos", "406", "0"));
     trade.setProviderId(ExternalId.of("B", "406"));
     assertTrue(trades.contains(trade));
@@ -376,7 +371,6 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     List<ManageableTrade> trades = position.getTrades();
     assertEquals(1, trades.size());
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(221.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(407), ExternalId.of("CPARTY", "C221"));
-    expected.setParentPositionId(uniqueId);
     expected.setUniqueId(UniqueId.of("DbPos", "407", "0"));
     expected.setProviderId(ExternalId.of("B", "407"));
     assertTrue(trades.contains(expected));
@@ -403,7 +397,6 @@ public abstract class AbstractDbPositionMasterWorkerTest extends DbTest {
     List<ManageableTrade> trades = position.getTrades();
     assertEquals(1, trades.size());
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), ExternalId.of("CPARTY", "C222"));
-    expected.setParentPositionId(uniqueId);
     expected.setUniqueId(UniqueId.of("DbPos", "407", "1"));
     expected.setProviderId(ExternalId.of("B", "408"));
     assertTrue(trades.contains(expected));

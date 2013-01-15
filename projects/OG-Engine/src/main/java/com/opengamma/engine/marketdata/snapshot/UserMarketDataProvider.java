@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
+import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
@@ -39,13 +40,15 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   private final MarketDataSnapshotSource _snapshotSource;
   private final MarketDataPermissionProvider _permissionProvider;
   private final MarketDataSnapshotChangeListener _snapshotSourceChangeListener;
+  private final ExternalIdBundleLookup _identifierLookup;
   private final Object _listenerLock = new Object();
   
   private MarketDataAvailabilityProvider _baseMarketDataAvailabilityProvider;
 
-  public UserMarketDataProvider(MarketDataSnapshotSource snapshotSource, UniqueId snapshotId) {
+  public UserMarketDataProvider(MarketDataSnapshotSource snapshotSource, UniqueId snapshotId, ExternalIdBundleLookup identifierLookup) {
     ArgumentChecker.notNull(snapshotSource, "snapshotSource");
     ArgumentChecker.notNull(snapshotId, "snapshotId");
+    ArgumentChecker.notNull(identifierLookup, "identifierLookup");
     _snapshotSource = snapshotSource;
     _snapshotId = snapshotId;
     // Assume no permission issues
@@ -56,6 +59,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
         valuesChanged(_listeningValueRequirements);
       }
     };
+    _identifierLookup = identifierLookup;
   }
   
   //-------------------------------------------------------------------------
@@ -140,7 +144,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
   //-------------------------------------------------------------------------
   private MarketDataSnapshot snapshot() {
-    return new UserMarketDataSnapshot(getSnapshotSource(), getSnapshotId());
+    return new UserMarketDataSnapshot(getSnapshotSource(), getSnapshotId(), _identifierLookup);
   }
   
   private MarketDataSnapshotSource getSnapshotSource() {

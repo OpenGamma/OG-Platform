@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.depgraph.rest;
@@ -27,7 +27,6 @@ import org.testng.annotations.Test;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.function.AbstractFunction;
@@ -45,12 +44,14 @@ import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailability
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
@@ -71,17 +72,17 @@ public class DependencyGraphBuilderResourceTest {
       }
 
       @Override
-      public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
         return true;
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
         throw new OpenGammaRuntimeException("test");
       }
 
       @Override
-      public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         return Collections.singleton(new ValueSpecification(ValueRequirementNames.FAIR_VALUE, target.toSpecification(), ValueProperties.with(
             ValuePropertyNames.FUNCTION, "Test").get()));
       }
@@ -96,7 +97,8 @@ public class DependencyGraphBuilderResourceTest {
     final FunctionCompilationContext context = new FunctionCompilationContext();
     final InMemorySecuritySource securities = new InMemorySecuritySource();
     context.setSecuritySource(securities);
-    context.setComputationTargetResolver(new DefaultComputationTargetResolver(securities));
+    context.setRawComputationTargetResolver(new DefaultComputationTargetResolver(securities));
+    context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST));
     return new CompiledFunctionService(functions, new CachingFunctionRepositoryCompiler(), context);
   }
 
@@ -109,32 +111,32 @@ public class DependencyGraphBuilderResourceTest {
     bean.setMarketDataProviderResolver(new SingleMarketDataProviderResolver(new MarketDataProvider() {
 
       @Override
-      public void addListener(MarketDataListener listener) {
+      public void addListener(final MarketDataListener listener) {
         fail();
       }
 
       @Override
-      public void removeListener(MarketDataListener listener) {
+      public void removeListener(final MarketDataListener listener) {
         fail();
       }
 
       @Override
-      public void subscribe(ValueRequirement valueRequirement) {
+      public void subscribe(final ValueRequirement valueRequirement) {
         fail();
       }
 
       @Override
-      public void subscribe(Set<ValueRequirement> valueRequirements) {
+      public void subscribe(final Set<ValueRequirement> valueRequirements) {
         fail();
       }
 
       @Override
-      public void unsubscribe(ValueRequirement valueRequirement) {
+      public void unsubscribe(final ValueRequirement valueRequirement) {
         fail();
       }
 
       @Override
-      public void unsubscribe(Set<ValueRequirement> valueRequirements) {
+      public void unsubscribe(final Set<ValueRequirement> valueRequirements) {
         fail();
       }
 
@@ -151,19 +153,19 @@ public class DependencyGraphBuilderResourceTest {
       }
 
       @Override
-      public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+      public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
         fail();
         return false;
       }
 
       @Override
-      public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+      public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
         fail();
         return null;
       }
 
       @Override
-      public Duration getRealTimeDuration(Instant fromInstant, Instant toInstant) {
+      public Duration getRealTimeDuration(final Instant fromInstant, final Instant toInstant) {
         fail();
         return null;
       }

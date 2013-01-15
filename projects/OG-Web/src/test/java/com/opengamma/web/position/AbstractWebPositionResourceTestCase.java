@@ -188,7 +188,6 @@ public abstract class AbstractWebPositionResourceTestCase {
     for (ManageableTrade trade : trades) {
       assertEquals(SECURITY_LINK, trade.getSecurityLink());
       trade.setUniqueId(null);
-      trade.setParentPositionId(null);
       trade.setSecurityLink(new ManageableSecurityLink(SEC_ID));
       assertTrue(_trades.contains(trade));
     }

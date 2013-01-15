@@ -35,11 +35,12 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calc.ComputationCycleQuery;
 import com.opengamma.engine.view.calc.ComputationCacheResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Extracts some type of structured object from a cycle 
+ * Extracts some type of structured object from a cycle
+ * 
  * @param <TKey> the key by which these snaps are ided
  * @param <TCalculatedValue> The type of value which comes out of the engine
  * @param <TSnapshot> The type of value which is stored in the snapshots
@@ -47,7 +48,7 @@ import com.opengamma.util.tuple.Pair;
 public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(StructuredSnapper.class);
-  
+
   private final String _requirementName;
 
   public StructuredSnapper(String requirementName) {
@@ -58,7 +59,6 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
   public String getRequirementName() {
     return _requirementName;
   }
-
 
   public Map<TKey, TSnapshot> getValues(final ViewComputationResultModel results, Map<String, DependencyGraph> graphs,
       ViewCycle viewCycle) {
@@ -71,7 +71,7 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
     }
     return ret;
   }
-  
+
   protected static String getSingleProperty(ValueSpecification spec, String propertyName) {
     ValueProperties properties = spec.getProperties();
     Set<String> curves = properties.getValues(propertyName);
@@ -163,19 +163,18 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
   }
 
   protected static ManageableUnstructuredMarketDataSnapshot getUnstructured(SnapshotDataBundle bundle) {
-    Set<Entry<UniqueId, Double>> bundlePoints = bundle.getDataPoints().entrySet();
-    ImmutableMap<MarketDataValueSpecification, Entry<UniqueId, Double>> bySpec =
-      Maps.uniqueIndex(bundlePoints, new Function<Entry<UniqueId, Double>, MarketDataValueSpecification>() {
-        @Override
-        public MarketDataValueSpecification apply(Entry<UniqueId, Double> from) {
-          return new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, from.getKey());
-        }
-      });
-    Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> data = Maps.transformValues(bySpec,
-        new Function<Entry<UniqueId, Double>, Map<String, ValueSnapshot>>() {
-
+    Set<Entry<ExternalId, Double>> bundlePoints = bundle.getDataPoints().entrySet();
+    ImmutableMap<MarketDataValueSpecification, Entry<ExternalId, Double>> bySpec =
+        Maps.uniqueIndex(bundlePoints, new Function<Entry<ExternalId, Double>, MarketDataValueSpecification>() {
           @Override
-          public Map<String, ValueSnapshot> apply(Entry<UniqueId, Double> from) {
+          public MarketDataValueSpecification apply(Entry<ExternalId, Double> from) {
+            return new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, from.getKey());
+          }
+        });
+    Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> data = Maps.transformValues(bySpec,
+        new Function<Entry<ExternalId, Double>, Map<String, ValueSnapshot>>() {
+          @Override
+          public Map<String, ValueSnapshot> apply(Entry<ExternalId, Double> from) {
             HashMap<String, ValueSnapshot> ret = new HashMap<String, ValueSnapshot>();
             ret.put(MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(from.getValue()));
             return ret;
@@ -185,7 +184,7 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
     snapshot.setValues(data);
     return snapshot;
   }
-  
+
   abstract TKey getKey(ValueSpecification spec);
 
   abstract TSnapshot buildSnapshot(ViewComputationResultModel resultModel, TKey key, TCalculatedValue calculated);

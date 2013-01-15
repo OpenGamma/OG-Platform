@@ -27,11 +27,12 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -64,7 +65,6 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -132,14 +132,11 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return InterestRateInstrumentType.FIXED_INCOME_INSTRUMENT_TARGET_TYPE;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
-      return false;
-    }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     //TODO remove this when we've checked that removing IR futures from the fixed income instrument types
     // doesn't break curves
@@ -155,7 +152,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
         return false;
       }
     }
-    return InterestRateInstrumentType.isFixedIncomeInstrumentType(security);
+    return true;
   }
 
   @Override
@@ -182,8 +179,8 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
-    if (!currency.equals(curveCalculationConfig.getUniqueId())) {
-      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+    if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
+      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
@@ -235,10 +232,10 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
       for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {
         final String exogenousConfigName = entry.getKey();
         final MultiCurveCalculationConfig exogenousConfig = configSource.getConfig(exogenousConfigName);
-        final UniqueIdentifiable id = exogenousConfig.getUniqueId();
+        final ComputationTargetSpecification target = exogenousConfig.getTarget();
         final String curveCalculationMethod = exogenousConfig.getCalculationMethod();
         for (final String exogenousCurveName : entry.getValue()) {
-          requirements.add(getCurveRequirement(id, exogenousCurveName, exogenousConfigName, curveCalculationMethod));
+          requirements.add(getCurveRequirement(target, exogenousCurveName, exogenousConfigName, curveCalculationMethod));
         }
         requirements.addAll(getCurveRequirements(exogenousConfig, configSource));
       }
@@ -246,20 +243,20 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final String[] yieldCurveNames = curveConfig.getYieldCurveNames();
     final String curveCalculationConfigName = curveConfig.getCalculationConfigName();
     final String curveCalculationMethod = curveConfig.getCalculationMethod();
-    final UniqueIdentifiable uniqueId = curveConfig.getUniqueId();
+    final ComputationTargetSpecification target = curveConfig.getTarget();
     for (final String yieldCurveName : yieldCurveNames) {
-      requirements.add(getCurveRequirement(uniqueId, yieldCurveName, curveCalculationConfigName, curveCalculationMethod));
+      requirements.add(getCurveRequirement(target, yieldCurveName, curveCalculationConfigName, curveCalculationMethod));
     }
     return requirements;
   }
 
-  protected static ValueRequirement getCurveRequirement(final UniqueIdentifiable id, final String yieldCurveName, final String curveCalculationConfigName,
+  protected static ValueRequirement getCurveRequirement(final ComputationTargetSpecification target, final String yieldCurveName, final String curveCalculationConfigName,
       final String curveCalculationMethod) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, yieldCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, id.getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target, properties);
   }
 
   //TODO won't work if curves have different currencies
@@ -270,10 +267,10 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
       for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {
         final String exogenousConfigName = entry.getKey();
         final MultiCurveCalculationConfig exogenousConfig = configSource.getConfig(exogenousConfigName);
-        final UniqueIdentifiable exogenousId = exogenousConfig.getUniqueId();
+        final ComputationTargetSpecification target = exogenousConfig.getTarget();
         final String exogenousCalculationMethod = exogenousConfig.getCalculationMethod();
         for (final String curveName : entry.getValue()) {
-          final ValueRequirement curveRequirement = getCurveRequirement(exogenousId, curveName, exogenousConfigName, exogenousCalculationMethod);
+          final ValueRequirement curveRequirement = getCurveRequirement(target, curveName, exogenousConfigName, exogenousCalculationMethod);
           final Object curveObject = inputs.getValue(curveRequirement);
           if (curveObject == null) {
             throw new OpenGammaRuntimeException("Could not get curve called " + curveName);
@@ -285,9 +282,9 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
       }
     }
     final String[] curveNames = curveConfig.getYieldCurveNames();
-    final UniqueIdentifiable id = curveConfig.getUniqueId();
+    final ComputationTargetSpecification target = curveConfig.getTarget();
     for (final String curveName : curveNames) {
-      final ValueRequirement curveRequirement = getCurveRequirement(id, curveName, curveConfig.getCalculationConfigName(), curveConfig.getCalculationMethod());
+      final ValueRequirement curveRequirement = getCurveRequirement(target, curveName, curveConfig.getCalculationConfigName(), curveConfig.getCalculationMethod());
       final Object curveObject = inputs.getValue(curveRequirement);
       if (curveObject == null) {
         throw new OpenGammaRuntimeException("Could not get curve called " + curveName);

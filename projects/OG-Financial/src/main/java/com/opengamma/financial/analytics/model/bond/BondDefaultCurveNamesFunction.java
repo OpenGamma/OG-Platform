@@ -12,11 +12,11 @@ import java.util.Set;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -43,17 +43,14 @@ public class BondDefaultCurveNamesFunction extends DefaultPropertyFunction {
       ValueRequirementNames.NET_BASIS
   };
 
-  private final PriorityClass _priority;
   private final Map<String, Pair<String, String>> _currencyAndRiskFreeCurveNames;
   private final Map<String, Pair<String, String>> _currencyAndCreditCurveNames;
 
-  public BondDefaultCurveNamesFunction(final String priority, final String... currencyAndCurveConfigNames) {
-    super(ComputationTargetType.SECURITY, true);
-    ArgumentChecker.notNull(priority, "priority");
+  public BondDefaultCurveNamesFunction(final String... currencyAndCurveConfigNames) {
+    super(FinancialSecurityTypes.BOND_SECURITY.or(FinancialSecurityTypes.BOND_FUTURE_SECURITY), true);
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
     ArgumentChecker.isTrue(currencyAndCurveConfigNames.length % 5 == 0,
         "Must have a risk-free curve name, risk-free curve config, credit curve name and credit curve config per currency");
-    _priority = PriorityClass.valueOf(priority);
     _currencyAndCreditCurveNames = new HashMap<String, Pair<String, String>>();
     _currencyAndRiskFreeCurveNames = new HashMap<String, Pair<String, String>>();
     for (int i = 0; i < currencyAndCurveConfigNames.length; i += 5) {
@@ -69,9 +66,6 @@ public class BondDefaultCurveNamesFunction extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof BondSecurity) && !(target.getSecurity() instanceof BondFutureSecurity)) {
-      return false;
-    }
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     return _currencyAndCreditCurveNames.containsKey(currency);
   }
@@ -114,8 +108,4 @@ public class BondDefaultCurveNamesFunction extends DefaultPropertyFunction {
     return null;
   }
 
-  @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
 }

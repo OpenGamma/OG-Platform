@@ -12,14 +12,18 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -230,8 +234,13 @@ import com.opengamma.util.tuple.Pair;
   protected static class DummyTargetResolver implements ComputationTargetResolver {
 
     @Override
-    public ComputationTarget resolve(ComputationTargetSpecification specification) {
+    public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
       return null;
+    }
+
+    @Override
+    public ComputationTargetType simplifyType(final ComputationTargetType type) {
+      return type;
     }
 
     @Override
@@ -240,8 +249,19 @@ import com.opengamma.util.tuple.Pair;
     }
 
     @Override
-    public PositionSource getPositionSource() {
-      return null;
+    public ComputationTargetSpecificationResolver getSpecificationResolver() {
+      throw new UnsupportedOperationException();
     }
+
+    @Override
+    public AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ChangeManager changeManager() {
+      return DummyChangeManager.INSTANCE;
+    }
+
   }
 }

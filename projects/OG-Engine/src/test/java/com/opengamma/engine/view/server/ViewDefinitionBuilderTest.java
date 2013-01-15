@@ -12,7 +12,7 @@ import org.fudgemsg.FudgeMsgEnvelope;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.NumberDeltaComparer;
 import com.opengamma.engine.view.ResultOutputMode;

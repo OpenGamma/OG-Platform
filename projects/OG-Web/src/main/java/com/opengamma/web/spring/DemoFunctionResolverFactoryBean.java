@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.web.spring;
@@ -17,7 +17,7 @@ import com.opengamma.financial.analytics.model.bond.BondPresentValueCountryCurve
 import com.opengamma.financial.analytics.model.bond.BondPresentValueCurrencyCurveFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
-import com.opengamma.financial.currency.PnlSeriesCurrencyConversionFunction;
+import com.opengamma.financial.currency.CurrencySeriesConversionFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -40,8 +40,7 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
     return new DefaultFunctionResolver(functionCompilationSerice, new FunctionPriority() {
       @Override
       public int getPriority(final CompiledFunctionDefinition function) {
-        if (function instanceof CurrencyConversionFunction || function instanceof PnlSeriesCurrencyConversionFunction) {
-          //TODO set up priorities for the deprecated version of the fixed income P&L function (FixedIncomeInstrumentPnLSeriesCurrencyConversionFunctionDeprecated)
+        if (function instanceof CurrencyConversionFunction || function instanceof CurrencySeriesConversionFunction) {
           return Integer.MIN_VALUE;
         }
         if (function instanceof DefaultPropertyFunction) {

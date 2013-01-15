@@ -19,6 +19,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
+import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -29,13 +30,13 @@ public class LiveMarketDataPermissionProvider implements MarketDataPermissionPro
   private static final Logger s_logger = LoggerFactory.getLogger(LiveMarketDataPermissionProvider.class);
   
   private final LiveDataEntitlementChecker _entitlementChecker;
-  private final SecuritySource _securitySource;
+  private final LiveDataSpecificationLookup _liveDataLookup;
   
   public LiveMarketDataPermissionProvider(LiveDataEntitlementChecker entitlementChecker, SecuritySource securitySource) {
     ArgumentChecker.notNull(entitlementChecker, "entitlementChecker");
     ArgumentChecker.notNull(securitySource, "securitySource");
     _entitlementChecker = entitlementChecker;
-    _securitySource = securitySource;
+    _liveDataLookup = new LiveDataSpecificationLookup(securitySource, StandardRules.getOpenGammaRuleSetId());
   }
   
   //-------------------------------------------------------------------------
@@ -64,11 +65,15 @@ public class LiveMarketDataPermissionProvider implements MarketDataPermissionPro
     }
     return failures;
   }
-
+  
+  private LiveDataSpecificationLookup getSpecificationLookup() {
+    return _liveDataLookup;
+  }
+  
   private Map<LiveDataSpecification, ValueRequirement> getRequiredLiveDataSpecifications(Set<ValueRequirement> requirements) {
-    Map<LiveDataSpecification, ValueRequirement> returnValue = Maps.newHashMap();
+    Map<LiveDataSpecification, ValueRequirement> returnValue = Maps.newHashMapWithExpectedSize(requirements.size());
     for (ValueRequirement requirement : requirements) {
-      LiveDataSpecification liveDataSpec = requirement.getTargetSpecification().getRequiredLiveData(_securitySource);
+      LiveDataSpecification liveDataSpec = getSpecificationLookup().getRequiredLiveData(requirement);
       returnValue.put(liveDataSpec, requirement);
     }
     return returnValue;

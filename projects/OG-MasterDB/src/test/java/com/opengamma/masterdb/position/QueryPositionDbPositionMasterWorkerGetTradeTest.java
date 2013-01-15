@@ -62,7 +62,6 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     
     ExternalIdBundle secKey = ExternalIdBundle.of(ExternalId.of("NASDAQ", "ORCL135"), ExternalId.of("TICKER", "ORCL134"));
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(100.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(404), ExternalId.of("CPARTY", "C104"));
-    expected.setParentPositionId(UniqueId.of("DbPos", "123", "0"));
     expected.setUniqueId(uniqueId);
     expected.setProviderId(ExternalId.of("B", "404"));
     assertEquals(expected, test);
@@ -75,7 +74,6 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     
     ExternalIdBundle secKey = ExternalIdBundle.of(ExternalId.of("NASDAQ", "ORCL135"), ExternalId.of("TICKER", "ORCL134"));
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(200.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(405), ExternalId.of("CPARTY", "C105"));
-    expected.setParentPositionId(UniqueId.of("DbPos", "123", "0"));
     expected.setUniqueId(uniqueId);
     expected.setProviderId(ExternalId.of("B", "405"));
     assertEquals(expected, test);
@@ -88,7 +86,6 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     
     ExternalIdBundle secKey = ExternalIdBundle.of("TICKER", "IBMC");
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(221.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(407), ExternalId.of("CPARTY", "C221"));
-    expected.setParentPositionId(UniqueId.of("DbPos", "221", "0"));
     expected.setUniqueId(uniqueId);
     expected.setProviderId(ExternalId.of("B", "407"));
     assertEquals(expected, test);
@@ -101,7 +98,6 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     
     ExternalIdBundle secKey = ExternalIdBundle.of("TICKER", "IBMC");
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), ExternalId.of("CPARTY", "C222"));
-    expected.setParentPositionId(UniqueId.of("DbPos", "221", "1"));
     expected.setUniqueId(uniqueId);
     expected.setProviderId(ExternalId.of("B", "408"));
     assertEquals(expected, test);
@@ -121,7 +117,6 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     
     ExternalIdBundle secKey = ExternalIdBundle.of("TICKER", "IBMC");
     ManageableTrade expected = new ManageableTrade(BigDecimal.valueOf(222.987), secKey, _now.toLocalDate(), _now.toOffsetTime().minusSeconds(408), ExternalId.of("CPARTY", "C222"));
-    expected.setParentPositionId(UniqueId.of("DbPos", "221", "1"));
     expected.setUniqueId(UniqueId.of("DbPos", "407", "1"));
     expected.setProviderId(ExternalId.of("B", "408"));
     assertEquals(expected, test);

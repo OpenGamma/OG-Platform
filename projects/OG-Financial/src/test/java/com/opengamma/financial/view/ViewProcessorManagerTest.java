@@ -62,7 +62,7 @@ public class ViewProcessorManagerTest {
     public MockViewProcessor() {
       final InMemoryFunctionRepository functions = new InMemoryFunctionRepository();
       _compiledFunctionService = new CompiledFunctionService(functions, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
-      functions.addFunction(new MockFunction("mock", new ComputationTarget("Foo")) {
+      functions.addFunction(new MockFunction("mock", ComputationTarget.NULL) {
 
         @Override
         public void init(final FunctionCompilationContext context) {

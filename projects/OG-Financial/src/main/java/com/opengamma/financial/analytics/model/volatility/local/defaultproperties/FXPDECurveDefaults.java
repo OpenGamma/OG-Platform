@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -23,6 +22,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -58,7 +58,7 @@ public class FXPDECurveDefaults extends DefaultPropertyFunction {
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 
   public FXPDECurveDefaults(final String... currencyCurveConfigAndDiscountingCurveNames) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.FX_OPTION_SECURITY, true);
     ArgumentChecker.notNull(currencyCurveConfigAndDiscountingCurveNames, "currency and curve config names");
     final int nPairs = currencyCurveConfigAndDiscountingCurveNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and discounting curve name per currency");
@@ -71,13 +71,7 @@ public class FXPDECurveDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     final Security security = target.getSecurity();
-    if (!(security instanceof FXOptionSecurity)) {
-      return false;
-    }
     final FXOptionSecurity fxOption = (FXOptionSecurity) security;
     final String callCurrency = fxOption.getCallCurrency().getCode();
     return _currencyCurveConfigAndDiscountingCurveNames.containsKey(callCurrency);

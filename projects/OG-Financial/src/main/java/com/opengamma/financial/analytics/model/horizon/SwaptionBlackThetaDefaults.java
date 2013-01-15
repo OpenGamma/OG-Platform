@@ -21,8 +21,8 @@ import com.opengamma.util.ArgumentChecker;
 public class SwaptionBlackThetaDefaults extends SwaptionBlackDefaultPropertiesFunction {
   private final String _defaultNumberOfDays;
 
-  public SwaptionBlackThetaDefaults(final String priority, final String defaultNumberOfDays, final String[] currencyCurveConfigAndSurfaceNames) {
-    super(priority, currencyCurveConfigAndSurfaceNames);
+  public SwaptionBlackThetaDefaults(final String defaultNumberOfDays, final String[] currencyCurveConfigAndSurfaceNames) {
+    super(currencyCurveConfigAndSurfaceNames);
     ArgumentChecker.notNull(defaultNumberOfDays, "default number of days");
     _defaultNumberOfDays = defaultNumberOfDays;
   }

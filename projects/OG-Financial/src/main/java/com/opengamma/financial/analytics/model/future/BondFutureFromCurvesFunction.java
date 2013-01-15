@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -61,7 +61,7 @@ public abstract class BondFutureFromCurvesFunction extends BondFutureFunction<Yi
         .with(ValuePropertyNames.CURVE, riskFreeCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, riskFreeConfig).get();
     final ValueRequirement riskFreeCurveRequirement =
-        new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), riskFreeCurveProperties);
+        new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), riskFreeCurveProperties);
     final Object riskFreeCurveObject = inputs.getValue(riskFreeCurveRequirement);
     if (riskFreeCurveObject == null) {
       throw new OpenGammaRuntimeException("Risk free curve was null");
@@ -72,7 +72,7 @@ public abstract class BondFutureFromCurvesFunction extends BondFutureFunction<Yi
         .with(ValuePropertyNames.CURVE, creditCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, creditConfig).get();
     final ValueRequirement creditCurveRequirement =
-        new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), creditCurveProperties);
+        new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), creditCurveProperties);
     final Object creditCurveObject = inputs.getValue(creditCurveRequirement);
     if (creditCurveObject == null) {
       throw new OpenGammaRuntimeException("Credit curve was null");
@@ -106,7 +106,7 @@ public abstract class BondFutureFromCurvesFunction extends BondFutureFunction<Yi
     } else {
       riskFreeCurveConstraints.with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, riskFreeCurveConfigs);
     }
-    final ValueRequirement riskFreeCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), riskFreeCurveConstraints.get());
+    final ValueRequirement riskFreeCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), riskFreeCurveConstraints.get());
     final ValueProperties.Builder creditCurveConstraints = ValueProperties.with(ValuePropertyNames.OUTPUT_RESERVED_PREFIX, "credit");
     if ((creditCurves == null) || creditCurves.isEmpty()) {
       creditCurveConstraints.withAny(ValuePropertyNames.CURVE);
@@ -118,7 +118,7 @@ public abstract class BondFutureFromCurvesFunction extends BondFutureFunction<Yi
     } else {
       creditCurveConstraints.with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, creditCurveConfigs);
     }
-    final ValueRequirement creditCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), creditCurveConstraints.get());
+    final ValueRequirement creditCurveRequirement = new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), creditCurveConstraints.get());
     return Sets.newHashSet(riskFreeCurveRequirement, creditCurveRequirement);
   }
 

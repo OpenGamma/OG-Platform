@@ -33,7 +33,7 @@ public class FixedMarketDataAvailabilityProvider implements MarketDataAvailabili
 
   public synchronized void addAvailableRequirement(final ValueRequirement requirement) {
     ArgumentChecker.notNull(requirement, "requirement");
-    _requirements.put(requirement, MarketDataUtils.createMarketDataValue(requirement));
+    _requirements.put(requirement, MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID));
   }
   
   public synchronized void addMissingRequirement(final ValueRequirement requirement) {

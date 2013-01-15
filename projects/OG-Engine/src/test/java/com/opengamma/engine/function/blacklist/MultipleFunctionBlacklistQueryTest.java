@@ -21,6 +21,7 @@ import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
@@ -34,7 +35,7 @@ import com.opengamma.id.UniqueId;
 public class MultipleFunctionBlacklistQueryTest {
 
   private final String _functionIdentifier = "Func";
-  private final ComputationTarget _target = new ComputationTarget(UniqueId.of("Test", "Test"));
+  private final ComputationTarget _target = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "Test"));
   private final CompiledFunctionDefinition _function = new MockFunction(_functionIdentifier, _target);
   private final FunctionParameters _functionParameters = new EmptyFunctionParameters();
   private final ParameterizedFunction _parameterizedFunction = new ParameterizedFunction(_function, _functionParameters);

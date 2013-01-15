@@ -28,9 +28,9 @@ import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver;
@@ -130,10 +130,8 @@ public class ServerSocketRemoteViewComputationCacheTest {
             for (int j = 0; j < NUM_LOOKUPS; j++) {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
-              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value",
-                  new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Kirk",
-                      valueName))), "mockFunctionId");
-
+              ValueSpecification valueSpec = new ValueSpecification("Test Value",
+                  ComputationTargetSpecification.of(UniqueId.of("Kirk", valueName)), ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId").get());
               boolean putValue = true;
               if (j > 0) {
                 // Don't try and get on the first attempt as the cache probably isn't created at the server

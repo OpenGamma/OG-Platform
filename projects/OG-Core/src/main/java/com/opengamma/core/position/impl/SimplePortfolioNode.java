@@ -113,7 +113,6 @@ public class SimplePortfolioNode implements PortfolioNode, MutableUniqueIdentifi
     }
     for (Position position : copyFrom.getPositions()) {
       SimplePosition clonedPosition = new SimplePosition(position);
-      clonedPosition.setParentNodeId(_uniqueId);
       _positions.add(clonedPosition);
     }
   }
@@ -266,11 +265,6 @@ public class SimplePortfolioNode implements PortfolioNode, MutableUniqueIdentifi
    */
   public void addPosition(Position position) {
     ArgumentChecker.notNull(position, "child node");
-    if (!ObjectUtils.equals(getUniqueId(), position.getParentNodeId())) {
-      final SimplePosition newPosition = new SimplePosition(position);
-      newPosition.setParentNodeId(getUniqueId());
-      position = newPosition;
-    }
     _positions.add(position);
   }
 

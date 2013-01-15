@@ -29,11 +29,11 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -206,7 +206,7 @@ public class FXOptionBlackDeltaPnLFunction extends AbstractFunction.NonCompiledI
     }
     final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
     final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(
-        ValueRequirementNames.FX_CURRENCY_EXPOSURE, security, ValueProperties.builder()
+        ValueRequirementNames.FX_CURRENCY_EXPOSURE, ComputationTargetType.SECURITY, security.getUniqueId(), ValueProperties.builder()
             .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
             .with(FXOptionBlackFunction.PUT_CURVE, putCurveNames.iterator().next())
             .with(FXOptionBlackFunction.PUT_CURVE_CALC_CONFIG, putCurveCalculationConfigs.iterator().next())

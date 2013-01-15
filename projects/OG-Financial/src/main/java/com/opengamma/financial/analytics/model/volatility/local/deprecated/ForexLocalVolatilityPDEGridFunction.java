@@ -24,9 +24,9 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.For
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -39,8 +39,8 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
@@ -60,14 +60,14 @@ public abstract class ForexLocalVolatilityPDEGridFunction extends LocalVolatilit
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof FXOptionSecurity;
+  public ComputationTargetType getTargetType() {
+    return FinancialSecurityTypes.FX_OPTION_SECURITY;
   }
 
   @Override
-  protected UniqueId getUniqueIdForUnderlyings(final ComputationTarget target) {
+  protected ComputationTargetReference getTargetForUnderlyings(final ComputationTarget target) {
     final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
-    return UnorderedCurrencyPair.of(fxOption.getCallCurrency(), fxOption.getPutCurrency()).getUniqueId();
+    return ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(UnorderedCurrencyPair.of(fxOption.getCallCurrency(), fxOption.getPutCurrency()));
   }
 
   @Override
@@ -86,9 +86,8 @@ public abstract class ForexLocalVolatilityPDEGridFunction extends LocalVolatilit
   }
 
   @Override
-  protected ValueRequirement getUnderlyingVolatilityDataRequirement(final String surfaceName, final UniqueId id) {
-    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, ComputationTargetType.PRIMITIVE,
-        id,
+  protected ValueRequirement getUnderlyingVolatilityDataRequirement(final String surfaceName, final ComputationTargetReference target) {
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target,
         ValueProperties
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceAndCubeQuoteType.MARKET_STRANGLE_RISK_REVERSAL)

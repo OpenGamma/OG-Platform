@@ -15,7 +15,7 @@ import org.testng.annotations.Test;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;
 
@@ -30,9 +30,9 @@ public class YieldCurveTensorTest {
     final ManageableYieldCurveSnapshot snapshot = new ManageableYieldCurveSnapshot();
     final ManageableUnstructuredMarketDataSnapshot values = new ManageableUnstructuredMarketDataSnapshot();
     values.setValues(new LinkedHashMap());
-    UnstructuredMarketDataSnapshotUtil.setValue(values, "V", UniqueId.of("Test", "A"), null, 0.1, MarketDataValueType.SECURITY);
-    UnstructuredMarketDataSnapshotUtil.setValue(values, "V", UniqueId.of("Test", "B"), 0.25, 0.2, MarketDataValueType.SECURITY);
-    UnstructuredMarketDataSnapshotUtil.setValue(values, "V", UniqueId.of("Test", "C"), 0.35, null, MarketDataValueType.SECURITY);
+    UnstructuredMarketDataSnapshotUtil.setValue(values, "V", ExternalId.of("Test", "A"), null, 0.1, MarketDataValueType.SECURITY);
+    UnstructuredMarketDataSnapshotUtil.setValue(values, "V", ExternalId.of("Test", "B"), 0.25, 0.2, MarketDataValueType.SECURITY);
+    UnstructuredMarketDataSnapshotUtil.setValue(values, "V", ExternalId.of("Test", "C"), 0.35, null, MarketDataValueType.SECURITY);
     snapshot.setValues(values);
     return snapshot;
   }
@@ -62,7 +62,7 @@ public class YieldCurveTensorTest {
   }
 
   private void assertValue(final ManageableYieldCurveSnapshot snapshot, final String identifier, final Double expectedOverride, final Double expectedMarket) {
-    final List<Double> value = UnstructuredMarketDataSnapshotUtil.getValue(snapshot.getValues(), "V", UniqueId.of("Test", identifier));
+    final List<Double> value = UnstructuredMarketDataSnapshotUtil.getValue(snapshot.getValues(), "V", ExternalId.of("Test", identifier));
     assertEquals(value.get(0), expectedOverride);
     assertEquals(value.get(1), expectedMarket);
   }

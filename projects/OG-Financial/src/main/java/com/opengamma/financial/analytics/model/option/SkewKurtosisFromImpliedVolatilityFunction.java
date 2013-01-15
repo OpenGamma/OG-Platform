@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.option;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,21 +13,23 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.function.Function2D;
 import com.opengamma.analytics.math.statistics.descriptive.LognormalPearsonKurtosisFromVolatilityCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.LognormalSkewnessFromVolatilityCalculator;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.time.DateUtils;
@@ -55,26 +58,17 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
     final double pearson = KURTOSIS_CALCULATOR.evaluate(volatility, t);
     final double fisher = pearson - 3;
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueId()), skew));
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()), pearson));
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()), fisher));
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final ValueProperties properties = createValueProperties().get();
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.SKEW, targetSpec, properties), skew));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PEARSON_KURTOSIS, targetSpec, properties), pearson));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.FISHER_KURTOSIS, targetSpec, properties), fisher));
     return results;
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof EquityOptionSecurity) {
-      return true;
-    }
-    return false;
-  }
-
-  @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    if (canApplyTo(context, target)) {
-      return Sets.newHashSet(getVolatilitySurfaceRequirement((EquityOptionSecurity) target.getSecurity()));
-    }
-    return null;
+    return Collections.singleton(getVolatilitySurfaceRequirement((EquityOptionSecurity) target.getSecurity()));
   }
 
   @Override
@@ -88,20 +82,18 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      final UniqueId uid = target.getSecurity().getUniqueId();
-      final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueId()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()));
-      return results;
-    }
-    return null;
+    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final ValueProperties properties = createValueProperties().get();
+    results.add(new ValueSpecification(ValueRequirementNames.SKEW, targetSpec, properties));
+    results.add(new ValueSpecification(ValueRequirementNames.PEARSON_KURTOSIS, targetSpec, properties));
+    results.add(new ValueSpecification(ValueRequirementNames.FISHER_KURTOSIS, targetSpec, properties));
+    return results;
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.EQUITY_OPTION_SECURITY;
   }
 
 }

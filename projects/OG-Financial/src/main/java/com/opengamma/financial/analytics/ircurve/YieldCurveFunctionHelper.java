@@ -5,9 +5,7 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.time.Instant;
 import javax.time.InstantProvider;
@@ -15,16 +13,13 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionInputs;
@@ -34,7 +29,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Triple;
 
@@ -67,6 +61,9 @@ public class YieldCurveFunctionHelper {
       throw new UnsupportedOperationException("No curve definition for " + _curveName + " on " + _currency);
     } else {
       if (_definition.getUniqueId() != null) {
+        // REVIEW 2012-10-23 Andrew -- The initialisation state is no longer appropriate for tasks such as this as job version/correction will never be available at
+        // this point. Most init methods are examples of premature optimisation to avoid work during the other calls. Additional target dependencies should be used
+        // which easily replaces the function reinitialiser mechanism and will result in a proper implementation of version/correction handling.
         context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId().getObjectId());
       } else {
         s_logger.warn("Curve {} on {} has no identifier - cannot subscribe to updates", _curveName, _currency);
@@ -122,13 +119,6 @@ public class YieldCurveFunctionHelper {
      */
   }
 
-  public boolean canApplyTo(final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    return ObjectUtils.equals(target.getUniqueId(), _currency.getUniqueId());
-  }
-
   public Currency getCurrency() {
     return _currency;
   }
@@ -143,29 +133,13 @@ public class YieldCurveFunctionHelper {
 
   public ValueRequirement getMarketDataValueRequirement() {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA,
-        new ComputationTargetSpecification(_currency),
+        ComputationTargetSpecification.of(_currency),
         ValueProperties.with(ValuePropertyNames.CURVE, _curveName).get());
   }
 
-  public Map<ExternalId, Double> buildMarketDataMap(final FunctionInputs inputs) {
+  public Map<ExternalId, Double> getMarketDataMap(final FunctionInputs inputs) {
     final SnapshotDataBundle marketDataBundle = (SnapshotDataBundle) inputs.getValue(getMarketDataValueRequirement());
-    return buildMarketDataMap(marketDataBundle);
-  }
-
-  public static Map<ExternalId, Double> buildMarketDataMap(final SnapshotDataBundle marketDataBundle) {
-    final Map<UniqueId, Double> dataPoints = marketDataBundle.getDataPoints();
-    final HashMap<ExternalId, Double> ret = new HashMap<ExternalId, Double>();
-    for (final Entry<UniqueId, Double> entry : dataPoints.entrySet()) {
-      final UniqueId uid = entry.getKey();
-      final ExternalId identifier = getIdentifier(uid);
-      ret.put(identifier, entry.getValue());
-    }
-    return ret;
-  }
-
-  private static ExternalId getIdentifier(final UniqueId uid) {
-    final ExternalId identifier = new ComputationTargetSpecification(ComputationTargetType.SECURITY, uid).getIdentifier(); // TODO hack after PLAT-966, should the analytics be using UIDs?
-    return identifier;
+    return marketDataBundle.getDataPoints();
   }
 
 }

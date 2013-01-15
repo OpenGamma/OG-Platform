@@ -10,7 +10,7 @@ import java.util.SortedMap;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
@@ -57,8 +57,8 @@ public class VolatilityCubeDataFudgeEncodingTest extends AbstractFudgeBuilderTes
     data.setDataPoints(dataPoints);
     
     SnapshotDataBundle bundle = new SnapshotDataBundle();
-    HashMap<UniqueId, Double> otherDataMap = new HashMap<UniqueId, Double>();
-    otherDataMap.put(UniqueId.of("Test", "Test"), 0.0);
+    HashMap<ExternalId, Double> otherDataMap = new HashMap<ExternalId, Double>();
+    otherDataMap.put(ExternalId.of("Test", "Test"), 0.0);
     bundle.setDataPoints(otherDataMap);
     data.setOtherData(bundle);
     

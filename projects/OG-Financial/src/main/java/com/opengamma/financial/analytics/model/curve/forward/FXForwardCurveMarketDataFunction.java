@@ -22,12 +22,12 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -63,7 +63,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.UNORDERED_CURRENCY_PAIR;
       }
 
       @Override
@@ -104,18 +104,10 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
         final FXForwardCurveInstrumentProvider provider = specification.getCurveInstrumentProvider();
         for (final Tenor tenor : definition.getTenors()) {
           final ExternalId identifier = provider.getInstrument(atInstant.toLocalDate(), tenor);
-          requirements.add(new ValueRequirement(provider.getDataFieldName(), identifier));
+          requirements.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
         }
-        requirements.add(new ValueRequirement(provider.getDataFieldName(), provider.getSpotInstrument()));
+        requirements.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument()));
         return requirements;
-      }
-
-      @Override
-      public boolean canApplyTo(final FunctionCompilationContext myContext, final ComputationTarget target) {
-        if (target.getUniqueId() == null) {
-          return false;
-        }
-        return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
       }
 
       @Override
@@ -135,7 +127,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
           throw new OpenGammaRuntimeException("Couldn't find FX forward curve specification called " + curveName + " for target " + target);
         }
         final FXForwardCurveInstrumentProvider provider = specification.getCurveInstrumentProvider();
-        final ValueRequirement spotRequirement = new ValueRequirement(provider.getDataFieldName(), provider.getSpotInstrument());
+        final ValueRequirement spotRequirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument());
         if (inputs.getValue(spotRequirement) == null) {
           throw new OpenGammaRuntimeException("Could not get value for spot; requirement was " + spotRequirement);
         }
@@ -144,7 +136,7 @@ public class FXForwardCurveMarketDataFunction extends AbstractFunction {
         boolean isRegular = specification.isMarketQuoteConvention();
         for (final Tenor tenor : definition.getTenors()) {
           final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
-          final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
+          final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
           if (inputs.getValue(requirement) != null) {
             final Double value = (Double) inputs.getValue(requirement);
             switch (specification.getQuoteType()) {

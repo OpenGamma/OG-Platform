@@ -19,14 +19,13 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.simpleinstruments.derivative.SimpleInstrument;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundleDeprecated;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFuturePresentValueCalculatorDeprecated;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -35,6 +34,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.SimpleFutureConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
@@ -68,7 +68,7 @@ public class SimpleFuturePresentValueFunctionDeprecated extends AbstractFunction
       throw new OpenGammaRuntimeException("Could not get " + _curveName + " curve");
     }
     final ExternalId underlyingIdentifier = getUnderlyingIdentifier(security);
-    final Object spotObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingIdentifier));
+    final Object spotObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, underlyingIdentifier));
     if (spotObject == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + underlyingIdentifier);
     }
@@ -86,16 +86,7 @@ public class SimpleFuturePresentValueFunctionDeprecated extends AbstractFunction
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    final Security security = target.getSecurity();
-    return security instanceof EnergyFutureSecurity || security instanceof MetalFutureSecurity || security instanceof IndexFutureSecurity;
+    return FinancialSecurityTypes.ENERGY_FUTURE_SECURITY.or(FinancialSecurityTypes.METAL_FUTURE_SECURITY).or(FinancialSecurityTypes.INDEX_FUTURE_SECURITY);
   }
 
   @Override
@@ -111,7 +102,7 @@ public class SimpleFuturePresentValueFunctionDeprecated extends AbstractFunction
     final FutureSecurity future = (FutureSecurity) target.getSecurity();
     final ExternalId underlyingIdentifier = getUnderlyingIdentifier(future);
     final ValueRequirement yieldCurve = YieldCurveFunction.getCurveRequirement(future.getCurrency(), _curveName, null, null);
-    final ValueRequirement spot = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingIdentifier);
+    final ValueRequirement spot = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, underlyingIdentifier);
     return Sets.newHashSet(yieldCurve, spot);
   }
 

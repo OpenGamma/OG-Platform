@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.var;
@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -19,32 +19,29 @@ import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
-public abstract class EmpiricalHistoricalVaRDefaultPropertiesFunction extends DefaultPropertyFunction {
+public class EmpiricalHistoricalVaRDefaultPropertiesFunction extends DefaultPropertyFunction {
   private static final String[] VALUE_REQUIREMENTS = new String[] {ValueRequirementNames.HISTORICAL_VAR, ValueRequirementNames.CONDITIONAL_HISTORICAL_VAR};
   private final String _confidenceLevel;
   private final String _horizon;
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingCalculator;
-  private final PriorityClass _priority;
 
   public EmpiricalHistoricalVaRDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator,
-      final String confidenceLevel, final String horizon, final String priority, final ComputationTargetType target) {
-    super(target, true);
+      final String confidenceLevel, final String horizon) {
+    super(ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION), true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period name");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator name");
     ArgumentChecker.notNull(samplingCalculator, "time series sampling calculator name");
     ArgumentChecker.notNull(confidenceLevel, "confidence level name");
     ArgumentChecker.notNull(horizon, "horizon name");
-    ArgumentChecker.notNull(priority, "priority");
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingCalculator = samplingCalculator;
     _confidenceLevel = confidenceLevel;
     _horizon = horizon;
-    _priority = PriorityClass.valueOf(priority);
   }
 
   @Override
@@ -80,12 +77,8 @@ public abstract class EmpiricalHistoricalVaRDefaultPropertiesFunction extends De
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.NORMAL_HISTORICAL_VAR;
   }
+
 }

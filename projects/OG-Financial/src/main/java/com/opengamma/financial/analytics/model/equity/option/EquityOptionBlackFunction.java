@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.equity.option;
 
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
-import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 
 /**
  *
@@ -30,8 +29,4 @@ public abstract class EquityOptionBlackFunction extends EquityOptionFunction {
     return CalculationPropertyNamesAndValues.ANALYTIC;
   }
 
-  //TODO remove me
-  public PriorityClass getPriority() {
-    return PriorityClass.NORMAL;
-  }
 }
