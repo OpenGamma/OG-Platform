@@ -7,14 +7,11 @@ package com.opengamma.financial.analytics.model.equity.option;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.SecurityExerciseTypeVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
  *
@@ -30,13 +27,7 @@ public abstract class EquityOptionBjerksundStenslandFunction extends EquityOptio
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     final Security security = target.getSecurity();
-    if (!(security instanceof EquityIndexOptionSecurity || security instanceof EquityOptionSecurity)) {
-      return false;
-    }
     return ((FinancialSecurity) security).accept(new SecurityExerciseTypeVisitor()) instanceof AmericanExerciseType;
   }
 

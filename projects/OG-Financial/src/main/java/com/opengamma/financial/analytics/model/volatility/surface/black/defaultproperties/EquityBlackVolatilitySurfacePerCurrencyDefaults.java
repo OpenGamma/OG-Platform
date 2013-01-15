@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -72,7 +72,7 @@ public class EquityBlackVolatilitySurfacePerCurrencyDefaults extends DefaultProp
    * @param defaults The defaults, not null.
    */
   public EquityBlackVolatilitySurfacePerCurrencyDefaults(final String priority, final String... defaults) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.ANYTHING, true); // TODO [PLAT-2286] Use the correct type; should this be SECURITY?
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(defaults, "defaults");
     final int n = defaults.length;
@@ -91,9 +91,8 @@ public class EquityBlackVolatilitySurfacePerCurrencyDefaults extends DefaultProp
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
+    // TODO [PLAT-2286] If the target type is security then the resolver will do half the work that EquitySecurityUtils.getCurrency is doing
+    // and it will just need to apply the currency lookup visitor to the resolved security object
     final UniqueId id = target.getUniqueId();
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final String currency = EquitySecurityUtils.getCurrency(securitySource, id);

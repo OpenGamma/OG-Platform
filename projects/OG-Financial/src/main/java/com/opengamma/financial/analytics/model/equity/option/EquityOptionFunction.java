@@ -54,7 +54,6 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -305,9 +304,9 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     assert forwardCurvePropertiesSet;
     assert surfacePropertiesSet;
     properties
-        .with(PROPERTY_DISCOUNTING_CURVE_NAME, discountingCurveName)
-        .with(PROPERTY_DISCOUNTING_CURVE_CONFIG, discountingCurveConfig)
-        .with(PROPERTY_FORWARD_CURVE_NAME, forwardCurveName);
+    .with(PROPERTY_DISCOUNTING_CURVE_NAME, discountingCurveName)
+    .with(PROPERTY_DISCOUNTING_CURVE_CONFIG, discountingCurveConfig)
+    .with(PROPERTY_FORWARD_CURVE_NAME, forwardCurveName);
     final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirement : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties.get()));
@@ -338,10 +337,8 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
         getWeakUnderlyingId(underlyingBuid, tsSource, securitySource));
   }
 
-  private UniqueId getWeakUnderlyingId(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource) {
-    final String scheme = underlyingId.getScheme().getName();
-    final String value = underlyingId.getValue();
-    if (scheme.equals(ExternalSchemes.BLOOMBERG_BUID.getName())) {
+  private ExternalId getWeakUnderlyingId(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource) {
+    if (ExternalSchemes.BLOOMBERG_BUID.equals(underlyingId.getScheme())) {
       final Security underlyingSecurity = securitySource.getSingle(ExternalIdBundle.of(underlyingId));
       if (underlyingSecurity == null) {
         final HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(underlyingId), null, null, true, null, true, 1);
@@ -350,14 +347,16 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
           return null;
         }
         final ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
-        return UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER).getValue());
+        return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER).getValue());
       }
-      return UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), underlyingSecurity.getUniqueId().getValue());
+      // REVIEW Andrew -- Is this line correct; the use of the unique id will give BLOOMBERG_TICKER_WEAK~12345 since the unique Id from the
+      // sec master might be an arbitrary long from the database?
+      return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, underlyingSecurity.getUniqueId().getValue());
     }
-    if (scheme.equals(ExternalSchemes.BLOOMBERG_TICKER.getName())) {
-      return UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName(), value);
+    if (ExternalSchemes.BLOOMBERG_TICKER.equals(underlyingId.getScheme())) {
+      return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, underlyingId.getValue());
     }
-    return UniqueId.of(scheme, value);
+    return underlyingId;
   }
 
   /**

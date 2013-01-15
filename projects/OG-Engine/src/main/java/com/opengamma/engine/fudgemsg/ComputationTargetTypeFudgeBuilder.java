@@ -42,20 +42,28 @@ import com.opengamma.id.UniqueIdentifiable;
 @GenericFudgeBuilderFor(ComputationTargetType.class)
 public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<ComputationTargetType> {
 
-  private static final Map<String, ComputationTargetType> s_commonByName = new HashMap<String, ComputationTargetType>();
+  private static class CommonByName {
 
-  static {
-    try {
-      final Class<?> c = ComputationTargetType.class;
-      for (Field field : c.getDeclaredFields()) {
-        if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers()) && c.isAssignableFrom(field.getType())) {
-          final ComputationTargetType type = (ComputationTargetType) field.get(null);
-          s_commonByName.put(type.toString(), type);
+    private static final Map<String, ComputationTargetType> s_data = new HashMap<String, ComputationTargetType>();
+
+    static {
+      try {
+        final Class<?> c = ComputationTargetType.class;
+        for (final Field field : c.getDeclaredFields()) {
+          if (Modifier.isPublic(field.getModifiers()) && Modifier.isStatic(field.getModifiers()) && c.isAssignableFrom(field.getType())) {
+            final ComputationTargetType type = (ComputationTargetType) field.get(null);
+            s_data.put(type.toString(), type);
+          }
         }
+      } catch (final IllegalAccessException e) {
+        throw new OpenGammaRuntimeException("Can't initialise", e);
       }
-    } catch (IllegalAccessException e) {
-      throw new OpenGammaRuntimeException("Can't initialise", e);
     }
+
+    public static ComputationTargetType get(final String name) {
+      return s_data.get(name);
+    }
+
   }
 
   /**
@@ -65,13 +73,13 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
 
   @SuppressWarnings("unchecked")
   public static ComputationTargetType fromString(final String str) {
-    final ComputationTargetType common = s_commonByName.get(str);
+    final ComputationTargetType common = CommonByName.get(str);
     if (common != null) {
       return common;
     } else {
       try {
         return ComputationTargetType.of((Class) Class.forName(str));
-      } catch (Exception e) {
+      } catch (final Exception e) {
         throw new OpenGammaRuntimeException("Can't decode " + str);
       }
     }
@@ -83,7 +91,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
     public Boolean visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final MutableFudgeMsg data) {
       // Add a sub-message containing the choices
       final MutableFudgeMsg msg = data.addSubMessage(TYPE_FIELD_NAME, null);
-      for (ComputationTargetType type : types) {
+      for (final ComputationTargetType type : types) {
         if (type.accept(s_choiceEncoder, msg)) {
           msg.add(null, null, FudgeWireType.STRING, type.toString());
         }
@@ -94,7 +102,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
     @Override
     public Boolean visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final MutableFudgeMsg data) {
       // Add fields in order
-      for (ComputationTargetType type : types) {
+      for (final ComputationTargetType type : types) {
         if (type.accept(s_baseEncoder, data)) {
           data.add(TYPE_FIELD_NAME, null, FudgeWireType.STRING, type.toString());
         }
@@ -125,7 +133,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
     public Boolean visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final MutableFudgeMsg data) {
       // Add a sub-message which encodes the types in the correct order
       final MutableFudgeMsg msg = data.addSubMessage(null, null);
-      for (ComputationTargetType type : types) {
+      for (final ComputationTargetType type : types) {
         if (type.accept(s_nestedEncoder, msg)) {
           msg.add(null, null, FudgeWireType.STRING, type.toString());
         }
@@ -139,7 +147,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
     }
 
     @Override
-    public Boolean visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, MutableFudgeMsg data) {
+    public Boolean visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final MutableFudgeMsg data) {
       return Boolean.TRUE;
     }
 
@@ -151,7 +159,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
     public Boolean visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final MutableFudgeMsg data) {
       // Add a sub-message containing the choices
       final MutableFudgeMsg msg = data.addSubMessage(null, null);
-      for (ComputationTargetType type : types) {
+      for (final ComputationTargetType type : types) {
         if (type.accept(s_choiceEncoder, msg)) {
           msg.add(null, null, FudgeWireType.STRING, type.toString());
         }
@@ -162,7 +170,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
     @Override
     public Boolean visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final MutableFudgeMsg data) {
       // Add fields in order
-      for (ComputationTargetType type : types) {
+      for (final ComputationTargetType type : types) {
         if (type.accept(s_baseEncoder, data)) {
           data.add(null, null, FudgeWireType.STRING, type.toString());
         }
@@ -176,7 +184,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
     }
 
     @Override
-    public Boolean visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, MutableFudgeMsg data) {
+    public Boolean visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final MutableFudgeMsg data) {
       return Boolean.TRUE;
     }
 
@@ -199,7 +207,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
   private static ComputationTargetType decodeAlternativeType(final ComputationTargetType current, final FudgeField field) throws Exception {
     if (field.getValue() instanceof String) {
       final String name = (String) field.getValue();
-      final ComputationTargetType common = s_commonByName.get(name);
+      final ComputationTargetType common = CommonByName.get(name);
       if (common != null) {
         if (current == null) {
           return common;
@@ -216,7 +224,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
       }
     } else if (field.getValue() instanceof FudgeMsg) {
       ComputationTargetType type = null;
-      for (FudgeField field2 : (FudgeMsg) field.getValue()) {
+      for (final FudgeField field2 : (FudgeMsg) field.getValue()) {
         type = decodeNestedType(type, field2);
       }
       if (type != null) {
@@ -237,7 +245,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
   private static ComputationTargetType decodeNestedType(final ComputationTargetType outer, final FudgeField field) throws Exception {
     if (field.getValue() instanceof String) {
       final String name = (String) field.getValue();
-      final ComputationTargetType common = s_commonByName.get(name);
+      final ComputationTargetType common = CommonByName.get(name);
       if (common != null) {
         if (outer == null) {
           return common;
@@ -254,7 +262,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
       }
     } else if (field.getValue() instanceof FudgeMsg) {
       ComputationTargetType type = null;
-      for (FudgeField field2 : (FudgeMsg) field.getValue()) {
+      for (final FudgeField field2 : (FudgeMsg) field.getValue()) {
         type = decodeAlternativeType(type, field2);
       }
       if (type != null) {
@@ -274,13 +282,13 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
   public static ComputationTargetType buildObjectImpl(final FudgeMsg msg) {
     try {
       ComputationTargetType result = null;
-      for (FudgeField field : msg) {
+      for (final FudgeField field : msg) {
         if (TYPE_FIELD_NAME.equals(field.getName())) {
           result = decodeNestedType(result, field);
         }
       }
       return result;
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new OpenGammaRuntimeException("Can't decode message - " + e.getMessage());
     }
   }
