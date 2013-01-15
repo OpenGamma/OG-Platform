@@ -106,7 +106,7 @@ $.register_module({
                 if(query.length) {
                     var i = 0, arr = [];
                     query.sort(menu.sort_opts).forEach(function (entry) { // revisit the need for sorting this..
-                        if (i > 0) arr[i++] = $dom.toggle_infix.html() + " ";
+                        if (i > 0) arr[i++] = menu.$dom.toggle_infix.html() + " ";
                         arr[i++] = entry;
                     });
                     $query.html(arr.reduce(function (a, v) {
@@ -159,6 +159,10 @@ $.register_module({
                     if (menu.$dom.menu)
                         menu.$dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                             .on('change', 'select', menu_handler);
+                    if (datasources.length === 1) {
+                        $('.OG-dropmenu-options', menu.$dom.menu).data('pos', 0);
+                        source_handler(0);
+                    }
                     menu.fire('initialized', [initialized = true]);
                 }
             };
@@ -167,7 +171,8 @@ $.register_module({
                 var entry, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s),
                     source = default_datasource;
                 if (!parent) return;
-                source.pos = entry = parent.data('pos');
+                entry = parent.data('pos');
+                source.pos = menu.opts.length;
                 if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler(source);
                 if (elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                 if (elem.is(type_s)) return type_handler(entry);
