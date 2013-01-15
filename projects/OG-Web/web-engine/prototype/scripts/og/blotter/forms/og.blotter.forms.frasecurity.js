@@ -26,9 +26,16 @@ $.register_module({
                             fixing:data.security.fixingDate, underlyingId: data.security.underlyingId, 
                             region: data.security.regionId, amount: data.security.amount, rate: data.security.rate
                         },
-                        children: [new form.Block({module:'og.views.forms.currency_tash',
-                                extras:{name: "security.currency"}})
-                        ],
+                        children: [
+                            new form.Block({module:'og.views.forms.currency_tash',
+                                extras:{name: "security.currency"}}),
+                            new og.blotter.forms.blocks.Security({
+                                form: form,
+                                label: "Underlying ID",
+                                security: data.security.underlyingId,
+                                index: "security.underlyingId"
+                            })
+                        ]
                     }),
                     new og.common.util.ui.Attributes({form: form, attributes: data.security.attributes})
                 );

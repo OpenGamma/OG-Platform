@@ -23,9 +23,9 @@ $.register_module({
                     new form.Block({
                         module: 'og.blotter.forms.blocks.equity_variance_swap_tash',
                         extras: {notional: data.security.notional, region: data.security.regionId,
-                            settlement: data.security.settlementDate, 
+                            settlement: data.security.settlementDate, strike: data.security.strike,
                             first: data.security.firstObservationDate, last: data.security.lastObservationDate,
-                            annualization: data.security.annualizationFactor, strike: data.security.strike
+                            annualization: data.security.annualizationFactor
                          },
                         processor: function (data) {
                             data.security.parameterizedAsVariance = 
