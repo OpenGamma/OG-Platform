@@ -10,16 +10,15 @@ $.register_module({
     ],
     obj: function () {
         var Form = og.common.util.ui.Form, constructor,
-            INDX = '<INDEX>', CVIP = 'curveInstrumentProvider', DFLN = 'dataFieldName', MQCN = 'marketQuoteConvention',
+            INDX = '<INDEX>', CVIP = 'curveInstrumentProvider', MQCN = 'marketQuoteConvention',
             TARG = 'target', QTYP = 'quoteType', NAME = 'name',
             POST = 'postfix', PREF = 'prefix', DFNM = 'dataFieldName', SPPF = 'spotPrefix',
             type_map = [
                 ['0',                            Form.type.STR],
                 [[CVIP, '0'].join('.'),          Form.type.STR],
-                [[CVIP, DFLN].join('.'),         Form.type.STR],
+                [[CVIP, DFNM].join('.'),         Form.type.STR],
                 [[CVIP, POST].join('.'),         Form.type.STR],
                 [[CVIP, PREF].join('.'),         Form.type.STR],
-                [[CVIP, DFNM].join('.'),         Form.type.STR],
                 [[CVIP, SPPF].join('.'),         Form.type.STR],
                 [MQCN,                           Form.type.BOO],
                 [NAME,                           Form.type.STR],
