@@ -35,9 +35,7 @@ $.register_module({
                             new form.Block({module:'og.views.forms.currency_tash',
                                 extras:{name: "security.currency"}}),
                             new og.blotter.forms.blocks.Security({
-                                form: form,
-                                label: "Spot Underlying ID",
-                                security: data.security.spotUnderlyingId,
+                                form: form, label: "Spot Underlying ID", security: data.security.spotUnderlyingId,
                                 index: "security.spotUnderlyingId"
                             }), 
                             new ui.Dropdown({

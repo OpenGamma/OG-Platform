@@ -30,9 +30,7 @@ $.register_module({
                             new form.Block({module:'og.views.forms.currency_tash',
                                 extras:{name: "security.currency"}}),
                             new og.blotter.forms.blocks.Security({
-                                form: form,
-                                label: "Underlying ID",
-                                security: data.security.underlyingId,
+                                form: form, label: "Underlying ID", security: data.security.underlyingId,
                                 index: "security.underlyingId"
                             })
                         ]
