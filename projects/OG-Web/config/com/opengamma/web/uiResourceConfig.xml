@@ -400,6 +400,7 @@
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.curvespecificationbuilderconfiguration.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.futurepricecurvedefinition.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.futurepricecurvespecification.js</fragment>
+    <fragment>/scripts/og/views/config_forms/og.views.config_forms.fxforwardcurvedefinition.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.historicaltimeseriesrating.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.viewdefinition.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.volatilitycubedefinition.js</fragment>
