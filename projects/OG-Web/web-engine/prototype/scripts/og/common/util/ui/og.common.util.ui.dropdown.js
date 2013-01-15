@@ -15,7 +15,6 @@ $.register_module({
                 processor = config.processor, meta = rest_options.meta;
             var generator = function (handler, template, template_data) {
                 var rest_handler = function (result) {
-                    console.log(result);
                     if (result.error) return handler('an error occurred');
                     if (meta) template_data.options = result.data.types // meta results
                         .map(function (datum) {return {value: datum, text: datum, selected: value === datum};});
