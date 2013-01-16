@@ -94,15 +94,18 @@ private:
 	/// write the correct version code to the CurrentVersion value which will be used. In the future we might
 	/// want to load a specific JVM (e.g. if a newer one raises compatability issues)
 	///
+	/// @param[in] hkeyPublisher the JVM publisher key, not NULL
+	/// @param[in] pszVersion the version string, not NULL
 	/// @return the path to the JVM DLL if found, or NULL if there is none
-	static TCHAR *SearchJavaVersion (HKEY hkeyJRE, const TCHAR *pszVersion) {
+	static TCHAR *SearchJavaVersion (HKEY hkeyPublisher, const TCHAR *pszVersion) {
 		TCHAR szPath[MAX_PATH];
 		DWORD cbPath = sizeof (szPath);
 		LOGDEBUG (TEXT ("Trying JRE ") << pszVersion);
-		if (RegGetValue (hkeyJRE, pszVersion, TEXT ("RuntimeLib"), RRF_RT_REG_SZ, NULL, szPath, &cbPath) != ERROR_SUCCESS) {
+		if (RegGetValue (hkeyPublisher, pszVersion, TEXT ("RuntimeLib"), RRF_RT_REG_SZ, NULL, szPath, &cbPath) != ERROR_SUCCESS) {
 			return NULL;
 		}
 		HANDLE hFile = CreateFile (szPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		// DEPRECATED: JRE 1.7 doesn't seem to have this bug. Confirm and replace with just a "break"
 		if (hFile == INVALID_HANDLE_VALUE) {
 			// JDK1.6 puts the wrong path into the registry. It ends \client\jvm.dll but should be \server\jvm.dll
 			int cchPath = _tcslen (szPath);
@@ -124,6 +127,27 @@ private:
 		return _tcsdup (szPath);
 	}
 
+	/// Extracts the numeric version fragment from a string.
+	///
+	/// @param[in] pszVersion the version string, e.g. "1.7"
+	/// @param[in] nFragment the version fragment, e.g. 0 for the major version number, 1 for the minor
+	/// @return the version number
+	static int VersionFragment (const TCHAR *pszVersion, int nFragment) {
+		int nValue;
+		size_t cch = _tcslen (pszVersion), i = 0;
+		do {
+			nValue = 0;
+			while ((i < cch) && (pszVersion[i] != '.')) {
+				if ((pszVersion[i] >= '0') && (pszVersion[i] <= '9')) {
+					nValue = (nValue * 10) + (pszVersion[i] - '0');
+				}
+				i++;
+			}
+			if (i < cch) i++;
+		} while (nFragment-- > 0);
+		return nValue;
+	}
+
 	/// Checks for a JVM library defined in the registry at HKLM\\SOFTWARE\\<publisher>\\Java Runtime Environment.
 	/// Registry mapping under WOW64 will make sure that a 32-bit process sees a 32-bit JVM and a 64-bit process
 	/// sees a 64-bit JVM.
@@ -135,29 +159,49 @@ private:
 		TCHAR sz[256];
 		StringCbPrintf (sz, sizeof (sz), TEXT ("SOFTWARE\\%s\\Java Runtime Environment"), pszPublisher);
 		if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, sz, 0, KEY_READ, &hkeyJRE) != ERROR_SUCCESS) {
-			LOGDEBUG (TEXT ("No JRE registry key"));
+			LOGDEBUG (TEXT ("No JRE registry key for ") << pszPublisher);
 			return NULL;
 		}
-		DWORD cbVersion = sizeof (sz);
+		DWORD cbVersion;
 		TCHAR *pszPath = NULL;
 		do {
 			// Try the published default
+			cbVersion = sizeof (sz);
 			if (RegGetValue (hkeyJRE, NULL, TEXT ("CurrentVersion"), RRF_RT_REG_SZ, NULL, sz, &cbVersion) == ERROR_SUCCESS) {
+				LOGDEBUG (TEXT ("Found JRE v") << sz << TEXT (" from ") << pszPublisher);
+				int nMajorVersion = VersionFragment (sz, 0);
+				if ((nMajorVersion > 1) || ((nMajorVersion == 1) && (VersionFragment (sz, 1) >= 7))) {
+					pszPath = SearchJavaVersion (hkeyJRE, sz);
+					if (pszPath) {
+						LOGINFO (TEXT ("Found default JVM ") << pszPath << TEXT (" from ") << pszPublisher << TEXT (" in registry"));
+						break;
+					} else {
+						LOGWARN (TEXT ("No RuntimeLib found for JRE v") << sz << TEXT (" from ") << pszPublisher);
+					}
+				} else {
+					LOGWARN (TEXT ("Version ") << sz << TEXT (" from ") << pszPublisher << TEXT (" not supported"));
+				}
+			} else {
+				LOGDEBUG (TEXT ("No default JVM installed from ") << pszPublisher);
+			}
+			// Try the Java7 version
+			cbVersion = sizeof (sz);
+			if (RegGetValue (hkeyJRE, NULL, TEXT ("Java7FamilyVersion"), RRF_RT_REG_SZ, NULL, sz, &cbVersion) == ERROR_SUCCESS) {
 				LOGDEBUG (TEXT ("Found JRE v") << sz);
 				pszPath = SearchJavaVersion (hkeyJRE, sz);
 				if (pszPath) {
-					LOGINFO (TEXT ("Found default JVM ") << pszPath << TEXT (" in registry"));
+					LOGINFO (TEXT ("Found default Java7 JVM ") << pszPath << TEXT (" from ") << pszPublisher << TEXT (" in registry"));
 					break;
 				} else {
-					LOGWARN (TEXT ("No RuntimeLib found for JRE v") << sz);
+					LOGWARN (TEXT ("No RuntimeLib found for JRE v") << sz << TEXT (" from ") << pszPublisher);
 				}
 			} else {
-				LOGDEBUG (TEXT ("No default JVM installed"));
+				LOGDEBUG (TEXT ("No default Java7 JVM installed from ") << pszPublisher);
 			}
-			// Try v1.6 regardless
-			pszPath = SearchJavaVersion (hkeyJRE, TEXT ("1.6"));
+			// Try v1.7 regardless
+			pszPath = SearchJavaVersion (hkeyJRE, TEXT ("1.7"));
 			if (pszPath) {
-				LOGINFO (TEXT ("Found non-default JRE v1.6"));
+				LOGINFO (TEXT ("Found non-default JRE v1.7 from ") << pszPublisher);
 				break;
 			}
 		} while (false);

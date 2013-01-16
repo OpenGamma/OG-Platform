@@ -38,6 +38,12 @@ import com.opengamma.util.money.Currency;
 public class OtcTradeBuilderTest {
 
   private static final ImmutableMap<String,String> ATTRIBUTES = ImmutableMap.of("attr1", "val1", "attr2", "val2");
+  private static final OffsetTime PREMIUM_TIME = OffsetTime.of(13, 0, ZoneOffset.of(Period.ZERO));
+  private static final OffsetTime TRADE_TIME = OffsetTime.of(10, 0, ZoneOffset.of(Period.ZERO));
+  private static final LocalDate PREMIUM_DATE = LocalDate.of(2012, 12, 25);
+  private static final LocalDate TRADE_DATE = LocalDate.of(2012, 12, 21);
+  private static final double PREMIUM = 1234d;
+  private static final ExternalId COUNTERPARTY_ID = ExternalId.of("Cpty", "testCpty");
 
   // TODO test that the URL ID is always unversioned and the trade ID is always versioned
   // TODO what happens if an existing trade's security is changed?
@@ -83,13 +89,13 @@ public class OtcTradeBuilderTest {
     assertNotNull(security);
     security.setUniqueId(null); // so it can be tested for equality against the unsaved version
     assertEquals(BlotterTestUtils.FX_FORWARD, security);
-    assertEquals(ExternalId.of("Cpty", "testCpty"), trade.getCounterpartyExternalId());
-    assertEquals(1234d, trade.getPremium());
+    assertEquals(COUNTERPARTY_ID, trade.getCounterpartyExternalId());
+    assertEquals(PREMIUM, trade.getPremium());
     assertEquals(Currency.GBP, trade.getPremiumCurrency());
-    assertEquals(LocalDate.of(2012, 12, 25), trade.getPremiumDate());
-    assertEquals(LocalDate.of(2012, 12, 21), trade.getTradeDate());
-    assertEquals(OffsetTime.of(13, 0, ZoneOffset.of(Period.ZERO)), trade.getPremiumTime());
-    assertEquals(OffsetTime.of(10, 0, ZoneOffset.of(Period.ZERO)), trade.getTradeTime());
+    assertEquals(PREMIUM_DATE, trade.getPremiumDate());
+    assertEquals(TRADE_DATE, trade.getTradeDate());
+    assertEquals(PREMIUM_TIME, trade.getPremiumTime());
+    assertEquals(TRADE_TIME, trade.getTradeTime());
     assertEquals(ATTRIBUTES, trade.getAttributes());
   }
 
@@ -114,13 +120,13 @@ public class OtcTradeBuilderTest {
     security.setUniqueId(null); // so it can be tested for equality against the unsaved version
     assertEquals(BlotterTestUtils.EQUITY_VARIANCE_SWAP, security);
 
-    assertEquals(ExternalId.of("Cpty", "testCpty"), trade.getCounterpartyExternalId());
-    assertEquals(1234d, trade.getPremium());
+    assertEquals(COUNTERPARTY_ID, trade.getCounterpartyExternalId());
+    assertEquals(PREMIUM, trade.getPremium());
     assertEquals(Currency.GBP, trade.getPremiumCurrency());
-    assertEquals(LocalDate.of(2012, 12, 25), trade.getPremiumDate());
-    assertEquals(LocalDate.of(2012, 12, 21), trade.getTradeDate());
-    assertEquals(OffsetTime.of(13, 0, ZoneOffset.of(Period.ZERO)), trade.getPremiumTime());
-    assertEquals(OffsetTime.of(10, 0, ZoneOffset.of(Period.ZERO)), trade.getTradeTime());
+    assertEquals(PREMIUM_DATE, trade.getPremiumDate());
+    assertEquals(TRADE_DATE, trade.getTradeDate());
+    assertEquals(PREMIUM_TIME, trade.getPremiumTime());
+    assertEquals(TRADE_TIME, trade.getTradeTime());
     assertEquals(ATTRIBUTES, trade.getAttributes());
     assertEquals(position.getUniqueId(), trade.getParentPositionId());
   }

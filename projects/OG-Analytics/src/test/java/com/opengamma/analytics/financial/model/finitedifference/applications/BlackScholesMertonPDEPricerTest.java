@@ -60,9 +60,9 @@ public class BlackScholesMertonPDEPricerTest {
 
       // check correct scaling of run time with grid size
       if (i == 0) {
-        scale = duration/size; // time per node (ns/node)
+        scale = duration / size; // time per node (ns/node)
       } else {
-        assertTrue("runtime not scaling linearly with grid size\t" + duration/size + "\t" + scale, Math.abs(duration/size - scale) < 0.4 * scale);
+        assertTrue("runtime not scaling linearly with grid size\t" + duration / size + "\t" + scale, Math.abs(duration / size - scale) < 0.4 * scale);
       }
 
       // check correct scaling of error with grid size
@@ -79,12 +79,12 @@ public class BlackScholesMertonPDEPricerTest {
   @Test
   public void europeanTest() {
     final double s0 = 10.0;
-    final double[] kSet = {7.0, 9.0, 10.0, 13.0, 17.0};
-    final double[] rSet = {0.0, 0.04, 0.2};
-    final double[] qSet = {-0.05, 0.0, 0.1};
-    final double[] tSet = {0.1, 2.0};
+    final double[] kSet = {7.0, 9.0, 10.0, 13.0, 17.0 };
+    final double[] rSet = {0.0, 0.04, 0.2 };
+    final double[] qSet = {-0.05, 0.0, 0.1 };
+    final double[] tSet = {0.1, 2.0 };
     final double sigma = 0.3;
-    final boolean[] isCallSet = {true, false};
+    final boolean[] isCallSet = {true, false };
 
     int tSteps = 100;
     int nu = 80;
@@ -119,12 +119,12 @@ public class BlackScholesMertonPDEPricerTest {
   @Test
   public void americanTest() {
     final double s0 = 10.0;
-    final double[] kSet = {7.0, 9.0, 10.0, 13.0, 17.0};
-    final double[] rSet = {0.0, 0.04, 0.2};
-    final double[] qSet = {-0.05, 0.0, 0.1};
-    final double[] tSet = {0.05, 0.25};
+    final double[] kSet = {7.0, 9.0, 10.0, 13.0, 17.0 };
+    final double[] rSet = {0.0, 0.04, 0.2 };
+    final double[] qSet = {-0.05, 0.0, 0.1 };
+    final double[] tSet = {0.05, 0.25 };
     final double sigma = 0.3;
-    final boolean[] isCallSet = {true, false};
+    final boolean[] isCallSet = {true, false };
 
     // The Bjerksund-Stensland approximation is not that accurate, so there is no point using a fine grid for this test
     int tSteps = 80;
@@ -201,7 +201,7 @@ public class BlackScholesMertonPDEPricerTest {
     int sSteps = (int) (nu * tSteps);
     double pdePDE = PRICER.price(s0, k, r, b, t, sigma, isCall, false, sSteps, tSteps);
 
-    final double[] nuSet = new double[] {1, 2, 5, 10, 20, 40, 60, 80, 100, 125, 150, 200, 500};
+    final double[] nuSet = new double[] {1, 2, 5, 10, 20, 40, 60, 80, 100, 125, 150, 200, 500 };
     final int n = (int) 1e9;
     for (double nu1 : nuSet) {
       tSteps = (int) Math.sqrt(n / nu1);
@@ -248,32 +248,35 @@ public class BlackScholesMertonPDEPricerTest {
     System.out.println(b + "\t" + bsPrice + "\t" + bsPrice2 + "\t" + amAprox + "\t" + pdePrice + "\t" + pdePricePC + "\t" + (1 - pdePrice / bsPrice));
   }
 
-  @Test(enabled = false)
-  public void debugTest() {
+  @Test
+      (enabled = false)
+      public void debugTest() {
+    final BlackScholesMertonPDEPricer pricer = new BlackScholesMertonPDEPricer(false);
     final double s0 = 10.0;
-    final double k = 0.0;
-    final double r = 0.06;
-    final double b = 0.04;
-    final double t = 1.75;
-    final double sigma = 0.5;
+    final double k = 13.0;
+    final double r = 0.2;
+    final double b = 0.1;
+    final double t = 2.0;
+    final double sigma = 0.3;
     final boolean isCall = true;
+    final boolean isAmerican = true;
 
-    // warm-up
-    double nu = 10;
-    int tSteps = 20;
+    double nu = 80;
+    int tSteps = 200;
     int sSteps = (int) (nu * tSteps);
-
+    // warm-up
+    pricer.price(s0, k, r, b, t, sigma, isCall, false, sSteps, tSteps);
 
     final double df = Math.exp(-r * t);
     final double fwd = s0 * Math.exp(b * t);
     final double bsPrice = df * BlackFormulaRepository.price(fwd, k, t, sigma, isCall);
     double startTime = System.nanoTime() / 1e6;
-    double pdePrice = PRICER.price(s0, k, r, b, t, sigma, isCall, false, sSteps, tSteps);
+    double pdePrice = pricer.price(s0, k, r, b, t, sigma, isCall, isAmerican, sSteps, tSteps);
     double endTime = System.nanoTime() / 1e6;
     double duration = endTime - startTime;
 
     double relErr = Math.abs(1 - pdePrice / bsPrice);
-    System.out.println(tSteps + "\t" + sSteps + "\t" + duration + df*fwd+  "\t" + bsPrice + "\t" + pdePrice+ "\t" + relErr);
+    System.out.println(tSteps + "\t" + sSteps + "\t" + duration + df * fwd + "\t" + bsPrice + "\t" + pdePrice + "\t" + relErr);
 
   }
 }

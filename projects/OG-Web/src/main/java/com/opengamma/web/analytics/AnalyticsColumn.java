@@ -13,16 +13,20 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Specifies the header label of a column and the type of data it displays.
+ * TODO name is no longer correct, these aren't just used for analytics data any more
  */
 /* package */ class AnalyticsColumn {
 
   private final String _header;
   private final String _description;
   private final Class<?> _type;
+  private final CellRenderer _renderer;
 
-  /* package */ AnalyticsColumn(String header, String description, Class<?> type) {
+  /* package */ AnalyticsColumn(String header, String description, Class<?> type, CellRenderer renderer) {
     ArgumentChecker.notNull(header, "header");
+    ArgumentChecker.notNull(renderer, "renderer");
     _header = header;
+    _renderer = renderer;
     if (description != null) {
       _description = description;
     } else {
@@ -33,12 +37,17 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Factory method that creates a column for a key based requirement and calculation configutation and a column type.
+   *
    * @param key Column key based on requirement and calculation configuration
    * @param columnType Type of data displayed in the column
    * @return A column for displaying data calculated for the requirement and calculation configuration
    */
-  /* package */ static AnalyticsColumn forKey(ColumnKey key, Class<?> columnType) {
-    return new AnalyticsColumn(createHeader(key), createDescription(key.getValueProperties()), columnType);
+  /* package */ static AnalyticsColumn forKey(ColumnKey key,
+                                              Class<?> columnType,
+                                              int columnIndex,
+                                              MainGridStructure gridStructure) {
+    CellRenderer renderer = new AnalyticsRenderer(gridStructure, columnIndex);
+    return new AnalyticsColumn(createHeader(key), createDescription(key.getValueProperties()), columnType, renderer);
   }
 
   /**
@@ -60,6 +69,10 @@ import com.opengamma.util.ArgumentChecker;
    */
   /* package */ Class<?> getType() {
     return _type;
+  }
+
+  /* package */ ResultsCell getResults(int rowIndex, ResultsCache cache) {
+    return _renderer.getResults(rowIndex, cache);
   }
 
   private static String createHeader(ColumnKey columnKey) {
@@ -122,5 +135,10 @@ import com.opengamma.util.ArgumentChecker;
         ", _type=" + _type +
         ", _description='" + _description + '\'' +
         "]";
+  }
+
+  /* package */ static interface CellRenderer {
+
+    ResultsCell getResults(int rowIndex, ResultsCache cache);
   }
 }
