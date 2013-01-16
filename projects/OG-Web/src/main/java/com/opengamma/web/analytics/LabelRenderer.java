@@ -47,9 +47,9 @@ import com.opengamma.util.ArgumentChecker;
     }
     // TODO end hack
     ComputationTargetType targetType = target.getType();
-    if (targetType == ComputationTargetType.POSITION) {
+    if (targetType.isTargetType(ComputationTargetType.POSITION)) {
       return ViewportResults.objectCell(new PositionTarget(row.getName(), targetId), _colIndex);
-    } else if (targetType == ComputationTargetType.PORTFOLIO_NODE) {
+    } else if (targetType.isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
       return ViewportResults.objectCell(new NodeTarget(row.getName(), targetId), _colIndex);
     }
     throw new IllegalArgumentException("Unexpected target type for row: " + targetType);

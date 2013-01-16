@@ -281,7 +281,7 @@ public class DependencyGraphGridStructure implements GridStructure {
      * @return The name of the target
      */
     private String getTargetName(final ComputationTargetSpecification targetSpec) {
-      // TODO I don't think LATEST will do long term
+      // TODO I don't think LATEST will do long term. resolution time available on the result model
       ComputationTarget target = _computationTargetResolver.resolve(targetSpec, VersionCorrection.LATEST);
       if (target != null) {
         return target.getName();

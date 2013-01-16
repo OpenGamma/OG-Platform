@@ -107,9 +107,10 @@ public class PortfolioGridStructure extends MainGridStructure {
       }
 
       @Override
-      public Row apply(PortfolioNode node, Position position) {
-        ComputationTargetSpecification target =
-            new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId());
+      public Row apply(PortfolioNode parentNode, Position position) {
+        // TODO I don't think toLatest() will do long term. resolution time available on the result model
+        ComputationTargetSpecification target = ComputationTargetSpecification.of(parentNode).containing(
+            ComputationTargetType.POSITION, position.getUniqueId().toLatest());
         return new Row(target, position.getSecurity().getName(), position.getQuantity());
       }
     };

@@ -11,7 +11,6 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Viewport on one of the main analytics grids displaying portfolio or primitives data.
- * TODO is there any need to subclass this now?
  */
 /* package */ class MainGridViewport implements Viewport {
 
