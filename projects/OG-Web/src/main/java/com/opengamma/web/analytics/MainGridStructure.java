@@ -24,7 +24,7 @@ import com.opengamma.util.tuple.Pair;
  */
   /* package */ abstract class MainGridStructure implements GridStructure {
 
-  private final AnalyticsColumnGroups _columnGroups;
+  private final GridColumnGroups _columnGroups;
   /** Column keys in column index order. TODO use Map<Integer, ColumnKey>? nicer than having null entries */
   private final List<ColumnKey> _columnKeys = Lists.newArrayList();
   /** Mappings of column key (based on {@link ValueRequirement}) to column index. */
@@ -34,13 +34,13 @@ import com.opengamma.util.tuple.Pair;
   private final List<Row> _rows;
 
   /* package */ MainGridStructure() {
-    _columnGroups = AnalyticsColumnGroups.empty();
+    _columnGroups = GridColumnGroups.empty();
     _colIndexByRequirement = Collections.emptyMap();
     _valueMappings = new ValueMappings();
     _rows = Collections.emptyList();
   }
 
-  /* package */ MainGridStructure(List<AnalyticsColumnGroup> staticColumns,
+  /* package */ MainGridStructure(List<GridColumnGroup> staticColumns,
                                   Map<String, List<ColumnKey>> analyticsColumns,
                                   CompiledViewDefinition compiledViewDef,
                                   ValueMappings valueMappings,
@@ -53,8 +53,8 @@ import com.opengamma.util.tuple.Pair;
     _colIndexByRequirement = Maps.newHashMap();
     _rows = rows;
     // columns which don't come from the calculation results
-    List<AnalyticsColumnGroup> columnGroups = Lists.newArrayList(staticColumns);
-    for (AnalyticsColumnGroup group : staticColumns) {
+    List<GridColumnGroup> columnGroups = Lists.newArrayList(staticColumns);
+    for (GridColumnGroup group : staticColumns) {
       int colCount = group.getColumns().size();
       // insert null keys for these columns because they aren't referenced by key when analytics results arrive
       for (int i = 0; i < colCount; i++) {
@@ -67,7 +67,7 @@ import com.opengamma.util.tuple.Pair;
     for (Map.Entry<String, List<ColumnKey>> entry : analyticsColumns.entrySet()) {
       String configName = entry.getKey();
       List<ColumnKey> columnKeys = entry.getValue();
-      List<AnalyticsColumn> configColumns = Lists.newArrayList();
+      List<GridColumn> configColumns = Lists.newArrayList();
       for (ColumnKey columnKey : columnKeys) {
         if (!_colIndexByRequirement.containsKey(columnKey)) {
           _colIndexByRequirement.put(columnKey, colIndex);
@@ -75,12 +75,12 @@ import com.opengamma.util.tuple.Pair;
           _columnKeys.add(columnKey);
           String valueName = columnKey.getValueName();
           Class<?> columnType = ValueTypes.getTypeForValueName(valueName);
-          configColumns.add(AnalyticsColumn.forKey(columnKey, columnType, colIndex, this));
+          configColumns.add(GridColumn.forKey(columnKey, columnType, colIndex, this));
         }
       }
-      columnGroups.add(new AnalyticsColumnGroup(configName, configColumns));
+      columnGroups.add(new GridColumnGroup(configName, configColumns));
     }
-    _columnGroups = new AnalyticsColumnGroups(columnGroups);
+    _columnGroups = new GridColumnGroups(columnGroups);
   }
 
   /**
@@ -112,7 +112,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public AnalyticsColumnGroups getColumnStructure() {
+  public GridColumnGroups getColumnStructure() {
     return _columnGroups;
   }
 
@@ -141,7 +141,7 @@ import com.opengamma.util.tuple.Pair;
     boolean hasData = false;
     List<ResultsCell> results = Lists.newArrayList();
     for (GridCell cell : viewportDefinition) {
-      AnalyticsColumn column = _columnGroups.getColumn(cell.getColumn());
+      GridColumn column = _columnGroups.getColumn(cell.getColumn());
       ResultsCell resultsCell = column.getResults(cell.getRow(), cache);
       updated = updated || resultsCell.isUpdated();
       if (resultsCell.getValue() != null) {

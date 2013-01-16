@@ -5,13 +5,10 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.time.Duration;
 
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
@@ -23,7 +20,7 @@ public class ViewportResults {
   /** The result values by row. */
   private final List<ResultsCell> _allResults;
   /** The grid columns. */
-  private final AnalyticsColumnGroups _columns;
+  private final GridColumnGroups _columns;
   /** Definition of the viewport. */
   private final ViewportDefinition _viewportDefinition;
   /** Duration of the last calculation cycle. */
@@ -37,7 +34,7 @@ public class ViewportResults {
    */
   /* package */ ViewportResults(List<ResultsCell> allResults,
                                 ViewportDefinition viewportDefinition,
-                                AnalyticsColumnGroups columns,
+                                GridColumnGroups columns,
                                 Duration calculationDuration) {
     ArgumentChecker.notNull(allResults, "allResults");
     ArgumentChecker.notNull(columns, "columns");
@@ -79,52 +76,6 @@ public class ViewportResults {
    */
   /* package */ Duration getCalculationDuration() {
     return _calculationDuration;
-  }
-
-  // TODO move to ResultsCell.forStaticValue()
-  /**
-   * Factory method that creates a grid cell for displaying a string value.
-   *
-   * @param value The cell's value
-   * @param type TODO remove
-   * @return A cell for displaying the value
-   */
-  /* package */ static ResultsCell objectCell(Object value, Class<?> type) {
-    ArgumentChecker.notNull(value, "value");
-    return new ResultsCell(value, null, null, null, false, type);
-  }
-
-  // TODO move to ResultsCell.forCalculatedValue()
-  /**
-   * Factory method that creates a grid cell for displaying a calculated value.
-   *
-   *
-   * @param value The value
-   * @param valueSpecification The value's specification
-   * @param history The value's history
-   * @param updated true if the value was updated in the last calculation cycle
-   * @param type TODO remove this parameter
-   * @return A cell for displaying the value
-   */
-  /* package */ static ResultsCell valueCell(Object value,
-                                             ValueSpecification valueSpecification,
-                                             Collection<Object> history,
-                                             AggregatedExecutionLog executionLog,
-                                             boolean updated,
-                                             Class<?> type) {
-    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type);
-  }
-
-  // TODO move to ResultsCell.empty()
-  /**
-   * Factory method that returns a grid cell with no value.
-   * @return An empty cell
-   * @param emptyHistory Empty history appropriate for the cell's type. For types that support history it should
-   * be an empty collection, for types that don't it should be null.
-   * @param type TODO remove
-   */
-  /* package */ static ResultsCell emptyCell(Collection<Object> emptyHistory, Class<?> type) {
-    return new ResultsCell(null, null, emptyHistory, null, false, type);
   }
 
   @Override

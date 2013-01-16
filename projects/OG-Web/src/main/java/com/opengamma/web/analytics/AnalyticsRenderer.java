@@ -13,7 +13,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  *
  */
-/* package */ class AnalyticsRenderer implements AnalyticsColumn.CellRenderer {
+/* package */ class AnalyticsRenderer implements GridColumn.CellRenderer {
 
   private final MainGridStructure _gridStructure;
   private final int _colIndex;
@@ -32,14 +32,14 @@ import com.opengamma.util.tuple.Pair;
       ValueSpecification valueSpec = cellTarget.getSecond();
       ResultsCache.Result cacheResult = cache.getResult(calcConfigName, valueSpec, columnType);
       Object value = cacheResult.getValue();
-      return ViewportResults.valueCell(value,
-                                       valueSpec,
-                                       cacheResult.getHistory(),
-                                       cacheResult.getAggregatedExecutionLog(),
-                                       cacheResult.isUpdated(), type);
+      return ResultsCell.forCalculatedValue(value,
+                                            valueSpec,
+                                            cacheResult.getHistory(),
+                                            cacheResult.getAggregatedExecutionLog(),
+                                            cacheResult.isUpdated(), type);
     } else {
       Collection<Object> emptyHistory = cache.emptyHistory(columnType);
-      return ViewportResults.emptyCell(emptyHistory, type);
+      return ResultsCell.empty(emptyHistory, type);
     }
   }
 }

@@ -17,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class LabelRenderer implements AnalyticsColumn.CellRenderer {
+/* package */ class LabelRenderer implements GridColumn.CellRenderer {
 
   private static final Pattern POSITION_ID_PATTERN = Pattern.compile("DbPrt-DbPos~\\d+-(\\d+)~\\d+-(\\d+)");
 
@@ -46,9 +46,9 @@ import com.opengamma.util.ArgumentChecker;
     // TODO end hack
     ComputationTargetType targetType = target.getType();
     if (targetType.isTargetType(ComputationTargetType.POSITION)) {
-      return ViewportResults.objectCell(new PositionTarget(row.getName(), targetId), type);
+      return ResultsCell.forStaticValue(new PositionTarget(row.getName(), targetId), type);
     } else if (targetType.isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
-      return ViewportResults.objectCell(new NodeTarget(row.getName(), targetId), type);
+      return ResultsCell.forStaticValue(new NodeTarget(row.getName(), targetId), type);
     }
     throw new IllegalArgumentException("Unexpected target type for row: " + targetType);
   }

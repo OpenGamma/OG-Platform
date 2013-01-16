@@ -23,17 +23,56 @@ import com.opengamma.engine.view.calcnode.MissingInput;
   private final boolean _updated;
   private final Class<?> _type;
 
-  /* package */ ResultsCell(Object value,
-                            ValueSpecification valueSpecification,
-                            Collection<Object> history,
-                            AggregatedExecutionLog executionLog,
-                            boolean updated, Class<?> type) {
+  private ResultsCell(Object value,
+                      ValueSpecification valueSpecification,
+                      Collection<Object> history,
+                      AggregatedExecutionLog executionLog,
+                      boolean updated, Class<?> type) {
     _value = value;
     _valueSpecification = valueSpecification;
     _history = history;
     _executionLog = executionLog;
     _updated = updated;
     _type = type;
+  }
+
+  /**
+   * Factory method that creates a grid cell for displaying a static value.
+   * @param value The cell's value
+   * @param type TODO remove
+   * @return A cell for displaying the value
+   */
+  /* package */ static ResultsCell forStaticValue(Object value, Class<?> type) {
+    return new ResultsCell(value, null, null, null, false, type);
+  }
+
+  /**
+   * Factory method that creates a grid cell for displaying a calculated value.
+   * @param value The value
+   * @param valueSpecification The value's specification
+   * @param history The value's history
+   * @param updated true if the value was updated in the last calculation cycle
+   * @param type TODO remove this parameter
+   * @return A cell for displaying the value
+   */
+  /* package */ static ResultsCell forCalculatedValue(Object value,
+                                                      ValueSpecification valueSpecification,
+                                                      Collection<Object> history,
+                                                      AggregatedExecutionLog executionLog,
+                                                      boolean updated,
+                                                      Class<?> type) {
+    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type);
+  }
+
+  /**
+   * Factory method that returns a grid cell with no value.
+   * @return An empty cell
+   * @param emptyHistory Empty history appropriate for the cell's type. For types that support history it should
+   * be an empty collection, for types that don't it should be null.
+   * @param type TODO remove
+   */
+  /* package */ static ResultsCell empty(Collection<Object> emptyHistory, Class<?> type) {
+    return new ResultsCell(null, null, emptyHistory, null, false, type);
   }
 
   /**
