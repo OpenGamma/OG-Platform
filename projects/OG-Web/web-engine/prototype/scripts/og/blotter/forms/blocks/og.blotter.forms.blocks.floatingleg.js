@@ -16,28 +16,30 @@ $.register_module({
                     settlement: data.settlementDays, spread: data.spread, 
                     gearing: data.gearing, notional: data.notional, index: config.index},
                 children: [
-                    new form.Block({module:'og.views.forms.currency_tash'}),
+                    new form.Block({module:'og.views.forms.currency_tash', 
+                        extras:{name: leg + "currency"}
+                    }),
                     new ui.Dropdown({
-                        form: form, resource: 'blotter.daycountconventions', index: 'dayCount',
+                        form: form, resource: 'blotter.daycountconventions', index: leg + 'dayCount',
                         value: data.dayCount, placeholder: 'Select Day Count'
                     }),
                     new ui.Dropdown({
-                        form: form, resource: 'blotter.frequencies', index: 'frequency',
+                        form: form, resource: 'blotter.frequencies', index:  leg + 'frequency',
                         value: data.frequency, placeholder: 'Select Frequency'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.businessdayconventions', 
-                        index: 'businessDayConvention',
+                        index:  leg + 'businessDayConvention',
                         value: data.businessDayConvention, 
                         placeholder: 'Select Business Day Convention'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.floatingratetypes', 
-                        index: 'floatingRateTypes',
+                        index:  leg + 'floatingRateTypes',
                         value: data.floatingRateType, placeholder: 'Select Floating Rate Type'
                     }),
                     new ui.Dropdown({
-                        form: form, resource: 'blotter.frequencies', index: 'offsetFixing',
+                        form: form, resource: 'blotter.frequencies', index:  leg + 'offsetFixing',
                         value: data.offsetFixing, placeholder: 'Select Offset Fixing'
                     })
                 ]

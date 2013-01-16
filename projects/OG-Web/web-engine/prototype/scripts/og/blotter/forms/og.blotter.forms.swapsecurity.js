@@ -48,8 +48,8 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("security.effectiveDate");
                     og.blotter.util.add_datetimepicker("security.maturityDate");
                     if(data.length) return;
-                    og.blotter.util.check_checkbox('eom', data.eom);
-                    og.blotter.util.check_checkbox('eom', data.eom);
+                    og.blotter.util.check_checkbox(pay_leg + 'eom', data.eom);
+                    og.blotter.util.check_checkbox(receive_leg + 'eom', data.eom);
                 }); 
                 form.on('form:submit', function (result){
                     og.api.rest.blotter.trades.put(result.data);
@@ -63,27 +63,23 @@ $.register_module({
             };
             swap_leg = function (swap) {
                 var new_block;
-
-                if(!swap.type.length){
+                if(!swap.type.length) {
                     new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});
                 }
                 else if(swap.type.indexOf('floating') == -1){
-                    new_block = new og.blotter.forms.blocks.Fixedleg(
-                        {form: form, data: data, leg: swap.leg, index: swap.index
+                    new_block = new og.blotter.forms.blocks.Fixedleg({
+                        form: form, data: data, leg: swap.leg, index: swap.index
                     });
                 }
-                else
-                {
+                else {
                     new_block = new og.blotter.forms.blocks.Floatingleg({
                         form: form, data: data, leg: swap.leg, type: swap.type, index: swap.index
                     });                    
                 }
-                console.log($('#' + swap.index));
                 new_block.html(function (html) {
                     $('#' + swap.index).replaceWith(html);
                 });
             };
-
             constructor.load();
             constructor.submit = function () {
                 form.submit();

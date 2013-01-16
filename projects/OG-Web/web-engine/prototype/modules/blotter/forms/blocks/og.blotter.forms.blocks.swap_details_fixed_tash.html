@@ -8,7 +8,7 @@
       <td>
       </td>
       <td>
-        <input name="fixedinterestrateleg.eom" type="checkbox" /><span>End Of Month</span>
+        <input name="{{leg}}eom" type="checkbox" /><span>End Of Month</span>
       </td>
     </tr>
     <tr>
@@ -18,7 +18,7 @@
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span>{{{item_0}}}</span><span><input name="notional" type="text" value="{{notional}}"/></span></div>
+        <div><span>{{{item_0}}}</span><span><input name="{{leg}}notional" type="text" value="{{notional}}"/></span></div>
       </td>
     </tr>
     <tr>
@@ -48,7 +48,7 @@
         </label>
       </td>
       <td>
-        <input name="fixedinterestrateleg.rate" type="text" value="{{rate}}"/>
+        <input name="{{leg}}rate" type="text" value="{{rate}}"/>
       </td>
     </tr>
   </tbody>
