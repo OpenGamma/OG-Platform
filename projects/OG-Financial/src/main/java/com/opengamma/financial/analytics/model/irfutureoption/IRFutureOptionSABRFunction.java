@@ -149,7 +149,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = ValueProperties.all();
-    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirement : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties));
     }
@@ -181,7 +181,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     final String surfaceName = Iterables.getOnlyElement(surfaceNames) + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final Trade trade = target.getTrade();
     final Currency currency = FinancialSecurityUtils.getCurrency(trade.getSecurity());
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(getCurveRequirement(trade, curveCalculationConfig, context));
     final ValueRequirement surfaceRequirement = SABRFittingPropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, currency, InstrumentTypeProperties.IR_FUTURE_OPTION);
     if (surfaceRequirement == null) {
@@ -237,7 +237,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     assert curvePropertiesSet;
     assert surfacePropertiesSet;
     properties = properties.with(ValuePropertyNames.SURFACE, surfaceName);
-    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirement : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties.get()));
     }
@@ -264,7 +264,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
   }
 
   private Set<ValueRequirement> getCurveRequirement(final Trade trade, final String curveCalculationConfigName, final FunctionCompilationContext context) {
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
