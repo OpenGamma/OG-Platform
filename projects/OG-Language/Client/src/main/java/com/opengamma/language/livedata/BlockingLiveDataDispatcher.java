@@ -31,7 +31,7 @@ public class BlockingLiveDataDispatcher implements LiveDataDispatcher {
     synchronized (this) {
       final Pair<SessionContext, Integer> key = Pair.of(context, identifier);
       if (value != null) {
-        Object o = _data.remove(key);
+        final Object o = _data.remove(key);
         if (o instanceof ResultCallback) {
           callback = (ResultCallback<Result>) o;
         } else {
@@ -53,10 +53,10 @@ public class BlockingLiveDataDispatcher implements LiveDataDispatcher {
       context.getConnections().cancel(identifier);
       return new Result(identifier, result);
     } else {
-      final AsynchronousOperation<Result> async = new AsynchronousOperation<Result>();
+      final AsynchronousOperation<Result> async = AsynchronousOperation.create(Result.class);
       synchronized (this) {
         final Pair<SessionContext, Integer> key = Pair.of(context, identifier);
-        Object o = _data.remove(key);
+        final Object o = _data.remove(key);
         if (o instanceof Data) {
           context.getConnections().cancel(identifier);
           return new Result(identifier, (Data) o);

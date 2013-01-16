@@ -295,7 +295,7 @@ import com.opengamma.transport.FudgeMessageSender;
             newItems.add(item);
           }
         }
-        return new CalculationJob(job.getSpecification(), job.getFunctionInitializationIdentifier(), job.getRequiredJobIds(), newItems, job.getCacheSelectHint());
+        return new CalculationJob(job.getSpecification(), job.getFunctionInitializationIdentifier(), job.getResolverVersionCorrection(), job.getRequiredJobIds(), newItems, job.getCacheSelectHint());
       }
     }
     return job;

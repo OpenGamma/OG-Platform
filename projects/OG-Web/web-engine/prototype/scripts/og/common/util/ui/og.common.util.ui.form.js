@@ -203,7 +203,7 @@ $.register_module({
          * collection of meta type information for creating metadata to describe config objects for REST API
          * @name Form.type
          */
-        Form.type =  {BOO: 'boolean', BYT: 'byte', DBL: 'double', IND: 'indicator', SHR: 'short', STR: 'string'};
+        Form.type =  {BOO: 'boolean', BYT: 'byte', DBL: 'double', IND: 'indicator', LNG: 'long', SHR: 'short', STR: 'string'};
         ['BYT', 'DBL', 'SHR'].forEach(function (val, idx) {numbers[Form.type[val]] = null;});
         return Form;
     }

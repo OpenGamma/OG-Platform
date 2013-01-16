@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.language.view;
@@ -13,7 +13,6 @@ import java.util.Set;
 import org.apache.commons.lang.BooleanUtils;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -42,9 +41,9 @@ public class ViewPrimitiveCycleValueFunction extends AbstractFunctionInvoker imp
    * Default instance.
    */
   public static final ViewPrimitiveCycleValueFunction INSTANCE = new ViewPrimitiveCycleValueFunction();
-  
+
   private final MetaFunction _meta;
-  
+
   private static List<MetaParameter> parameters() {
     final MetaParameter resultModel = new MetaParameter("resultModel", JavaTypeInfo.builder(ViewComputationResultModel.class).get());
     final MetaParameter targetId = new MetaParameter("targetId", JavaTypeInfo.builder(UniqueId.class).get());
@@ -53,30 +52,31 @@ public class ViewPrimitiveCycleValueFunction extends AbstractFunctionInvoker imp
     final MetaParameter flattenValue = new MetaParameter("flattenValue", JavaTypeInfo.builder(Boolean.class).allowNull().get());
     return Arrays.asList(resultModel, targetId, valueRequirement, notAvailableValue, flattenValue);
   }
-  
+
   private ViewPrimitiveCycleValueFunction(final DefinitionAnnotater info) {
     super(info.annotate(parameters()));
     _meta = info.annotate(new MetaFunction(Categories.VIEW, "ViewPrimitiveCycleValue", getParameters(), this));
   }
-  
+
   protected ViewPrimitiveCycleValueFunction() {
     this(new DefinitionAnnotater(ViewPrimitiveCycleValueFunction.class));
   }
-  
-  public static Object invoke(ViewComputationResultModel resultModel, String calcConfigName, ValueRequirement valueRequirement, String notAvailableValue, boolean flattenValue) {
-    ValueSpecification valueSpec = findValueSpecification(resultModel, valueRequirement);
+
+  public static Object invoke(final ViewComputationResultModel resultModel, final String calcConfigName, final ValueRequirement valueRequirement, final String notAvailableValue,
+      final boolean flattenValue) {
+    final ValueSpecification valueSpec = findValueSpecification(resultModel, valueRequirement);
     if (valueSpec == null) {
       // TODO should return #NA if notAvailableValue is null
       return notAvailableValue;
     }
-    ViewCalculationResultModel calcResultModel = resultModel.getCalculationResult(calcConfigName);
+    final ViewCalculationResultModel calcResultModel = resultModel.getCalculationResult(calcConfigName);
     if (calcResultModel == null) {
-      // TODO should return #NA if notAvailableValue is null 
+      // TODO should return #NA if notAvailableValue is null
       return notAvailableValue;
     }
-    Map<Pair<String, ValueProperties>, ComputedValueResult> targetResults = calcResultModel.getValues(valueSpec.getTargetSpecification());
-    ComputedValueResult result = targetResults.get(Pair.of(valueSpec.getValueName(), valueSpec.getProperties()));
-    Object resultValue = result != null ? result.getValue() : null;
+    final Map<Pair<String, ValueProperties>, ComputedValueResult> targetResults = calcResultModel.getValues(valueSpec.getTargetSpecification());
+    final ComputedValueResult result = targetResults.get(Pair.of(valueSpec.getValueName(), valueSpec.getProperties()));
+    final Object resultValue = result != null ? result.getValue() : null;
     if (resultValue != null) {
       return flattenValue ? resultValue.toString() : resultValue;
     }
@@ -84,25 +84,25 @@ public class ViewPrimitiveCycleValueFunction extends AbstractFunctionInvoker imp
   }
 
   @Override
-  protected Object invokeImpl(SessionContext sessionContext, Object[] parameters) throws AsynchronousExecution {
-    ViewComputationResultModel resultModel = (ViewComputationResultModel) parameters[0];
-    UniqueId targetId = (UniqueId) parameters[1];
-    Triple<String, String, ValueProperties> requirement = ValueRequirementUtils.parseRequirement((String) parameters[2]);
-    String notAvailableValue = (String) parameters[3];
-    boolean flattenValue = BooleanUtils.isTrue((Boolean) parameters[4]);
-    ComputationTargetSpecification target = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, targetId);
+  protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) throws AsynchronousExecution {
+    final ViewComputationResultModel resultModel = (ViewComputationResultModel) parameters[0];
+    final UniqueId targetId = (UniqueId) parameters[1];
+    final Triple<String, String, ValueProperties> requirement = ValueRequirementUtils.parseRequirement((String) parameters[2]);
+    final String notAvailableValue = (String) parameters[3];
+    final boolean flattenValue = BooleanUtils.isTrue((Boolean) parameters[4]);
+    final ComputationTargetSpecification target = ComputationTargetSpecification.of(targetId);
     return invoke(resultModel, requirement.getFirst(), new ValueRequirement(requirement.getSecond(), target, requirement.getThird()),
         notAvailableValue, flattenValue);
   }
-  
+
   @Override
   public MetaFunction getMetaFunction() {
     return _meta;
   }
-  
+
   //-------------------------------------------------------------------------
-  private static ValueSpecification findValueSpecification(ViewComputationResultModel resultModel, ValueRequirement valueRequirement) {
-    for (Map.Entry<ValueSpecification, Set<ValueRequirement>> entry : resultModel.getRequirementToSpecificationMapping().entrySet()) {
+  private static ValueSpecification findValueSpecification(final ViewComputationResultModel resultModel, final ValueRequirement valueRequirement) {
+    for (final Map.Entry<ValueSpecification, Set<ValueRequirement>> entry : resultModel.getRequirementToSpecificationMapping().entrySet()) {
       if (entry.getValue().contains(valueRequirement)) {
         return entry.getKey();
       }

@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -40,21 +40,16 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyConversionFunction.class);
 
-  private final ComputationTargetType _targetType;
   private final Set<String> _valueNames;
   private boolean _allowViewDefaultCurrency; // = false;
 
-  public CurrencyConversionFunction(final ComputationTargetType targetType, final String valueName) {
-    ArgumentChecker.notNull(targetType, "targetType");
+  public CurrencyConversionFunction(final String valueName) {
     ArgumentChecker.notNull(valueName, "valueName");
-    _targetType = targetType;
     _valueNames = Collections.singleton(valueName);
   }
 
-  public CurrencyConversionFunction(final ComputationTargetType targetType, final String... valueNames) {
-    ArgumentChecker.notNull(targetType, "targetType");
+  public CurrencyConversionFunction(final String... valueNames) {
     ArgumentChecker.notEmpty(valueNames, "valueNames");
-    _targetType = targetType;
     _valueNames = new HashSet<String>(Arrays.asList(valueNames));
   }
 
@@ -70,13 +65,13 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     return _allowViewDefaultCurrency;
   }
 
-  private ValueRequirement getInputValueRequirement(final ValueRequirement desiredValue) {
-    return new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints().copy().withoutAny(DEFAULT_CURRENCY_INJECTION)
+  private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
+    return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(DEFAULT_CURRENCY_INJECTION)
         .withAny(ValuePropertyNames.CURRENCY).get());
   }
 
-  private ValueRequirement getInputValueRequirement(final ValueRequirement desiredValue, final String forceCurrency) {
-    return new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints().copy().withoutAny(ValuePropertyNames.CURRENCY).with(
+  private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue, final String forceCurrency) {
+    return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(ValuePropertyNames.CURRENCY).with(
         ValuePropertyNames.CURRENCY, forceCurrency).withOptional(DEFAULT_CURRENCY_INJECTION).get());
   }
 
@@ -148,18 +143,15 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     if (outputCurrency.equals(inputCurrency)) {
       // Don't think this should happen
       return Collections.singleton(inputValue);
+    } else {
+      s_logger.debug("Converting from {} to {}", inputCurrency, outputCurrency);
+      final Object converted = convertValue(inputValue, desiredValue, exchangeRate);
+      if (converted != null) {
+        return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), converted));
+      } else {
+        return null;
+      }
     }
-    s_logger.debug("Converting from {} to {}", inputCurrency, outputCurrency);
-    final Object converted = convertValue(inputValue, desiredValue, exchangeRate);
-    if (converted != null) {
-      return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue, desiredValue.getConstraints()), converted));
-    }
-    return null;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return true;
   }
 
   @Override
@@ -177,13 +169,14 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
           return null;
         }
         s_logger.debug("Injecting view default currency {}", defaultCurrencyISO);
-        return Collections.singleton(getInputValueRequirement(desiredValue, defaultCurrencyISO));
+        return Collections.singleton(getInputValueRequirement(target.toSpecification(), desiredValue, defaultCurrencyISO));
+      } else {
+        s_logger.debug("Cannot satisfy a wildcard currency constraint");
+        return null;
       }
-      s_logger.debug("Cannot satisfy a wildcard currency constraint");
-      return null;
     } else {
       // Actual input requirement is desired requirement with the currency wild-carded
-      return Collections.singleton(getInputValueRequirement(desiredValue));
+      return Collections.singleton(getInputValueRequirement(target.toSpecification(), desiredValue));
     }
   }
 
@@ -247,7 +240,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   @Override
   public ComputationTargetType getTargetType() {
-    return _targetType;
+    return ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION).or(ComputationTargetType.SECURITY).or(ComputationTargetType.TRADE);
   }
 
 }

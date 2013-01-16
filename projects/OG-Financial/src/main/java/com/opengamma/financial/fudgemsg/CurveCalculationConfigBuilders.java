@@ -21,10 +21,13 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
 import com.opengamma.financial.analytics.ircurve.calcconfig.CurveInstrumentConfig;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -38,7 +41,9 @@ import com.opengamma.id.UniqueIdentifiable;
   public static final class MultiCurveCalculationConfigBuilder implements FudgeBuilder<MultiCurveCalculationConfig> {
     private static final String CONFIG_NAME_FIELD = "configurationName";
     private static final String YIELD_CURVE_NAMES_FIELD = "yieldCurveNames";
+    @Deprecated
     private static final String ID_FIELD = "ids";
+    private static final String TARGET_FIELD = "target";
     private static final String CALCULATION_METHOD_FIELD = "calculationMethods";
     private static final String INSTRUMENT_EXPOSURES_CURVE_NAME_FIELD = "instrumentExposureCurveName";
     private static final String INSTRUMENT_EXPOSURES_FOR_CURVE_FIELD = "instrumentExposuresForCurve";
@@ -51,8 +56,7 @@ import com.opengamma.id.UniqueIdentifiable;
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(CONFIG_NAME_FIELD, object.getCalculationConfigName());
       message.add(CALCULATION_METHOD_FIELD, object.getCalculationMethod());
-      final UniqueIdentifiable uniqueIdentifiable = object.getUniqueId();
-      message.add(ID_FIELD, FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(uniqueIdentifiable), uniqueIdentifiable.getClass()));
+      serializer.addToMessage(message, TARGET_FIELD, null, object.getTarget());
       for (int i = 0; i < object.getYieldCurveNames().length; i++) {
         message.add(YIELD_CURVE_NAMES_FIELD, object.getYieldCurveNames()[i]);
       }
@@ -81,7 +85,18 @@ import com.opengamma.id.UniqueIdentifiable;
       final String calculationConfigName = message.getString(CONFIG_NAME_FIELD);
       final String calculationMethod = message.getString(CALCULATION_METHOD_FIELD);
       final List<FudgeField> yieldCurveNamesFields = message.getAllByName(YIELD_CURVE_NAMES_FIELD);
-      final UniqueIdentifiable uniqueId = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName(ID_FIELD));
+      ComputationTargetSpecification target;
+      try {
+        target = (ComputationTargetSpecification) deserializer.fieldValueToObject(ComputationTargetReference.class, message.getByName(TARGET_FIELD));
+      } catch (RuntimeException e) {
+        // [PLAT-2286] Legacy support for UniqueIdentifiable member of the configuration
+        final UniqueIdentifiable targetObject = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName(ID_FIELD));
+        if (targetObject instanceof Currency) {
+          target = ComputationTargetSpecification.of((Currency) targetObject);
+        } else {
+          target = ComputationTargetSpecification.of(targetObject.getUniqueId());
+        }
+      }
       final List<String> yieldCurveNames = new ArrayList<String>();
       for (int i = 0; i < yieldCurveNamesFields.size(); i++) {
         yieldCurveNames.add(deserializer.fieldValueToObject(String.class, yieldCurveNamesFields.get(i)));
@@ -118,11 +133,11 @@ import com.opengamma.id.UniqueIdentifiable;
           exogenousConfig.put(configName, curveNames);
         }
         return new MultiCurveCalculationConfig(calculationConfigName, yieldCurveNames.toArray(ArrayUtils.EMPTY_STRING_ARRAY),
-            uniqueId, calculationMethod, curveInstrumentExposures,
+            target, calculationMethod, curveInstrumentExposures,
             exogenousConfig);
       }
       return new MultiCurveCalculationConfig(calculationConfigName, yieldCurveNames.toArray(ArrayUtils.EMPTY_STRING_ARRAY),
-          uniqueId, calculationMethod, curveInstrumentExposures);
+          target, calculationMethod, curveInstrumentExposures);
     }
 
   }

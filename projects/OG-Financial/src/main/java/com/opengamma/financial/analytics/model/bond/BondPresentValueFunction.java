@@ -19,13 +19,11 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -35,19 +33,21 @@ import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
  * 
  */
 public abstract class BondPresentValueFunction extends AbstractFunction.NonCompiledInvoker {
+
   private static final PresentValueCalculator PV_CALCULATOR = PresentValueCalculator.getInstance();
 
   //TODO get this to work with curve names
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final BondSecurity security = (BondSecurity) target.getSecurity();
+    final BondSecurity security = target.getValue(FinancialSecurityTypes.BOND_SECURITY);
     final Object curveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     String curveName = null;
     for (final ValueRequirement desiredValue : desiredValues) {
@@ -79,17 +79,8 @@ public abstract class BondPresentValueFunction extends AbstractFunction.NonCompi
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.SECURITY) {
-      final Security security = target.getSecurity();
-      return security instanceof BondSecurity;
-    }
-    return false;
-  }
-
-  @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.BOND_SECURITY;
   }
 
 }

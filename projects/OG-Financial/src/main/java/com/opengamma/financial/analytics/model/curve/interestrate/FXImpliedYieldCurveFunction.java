@@ -48,11 +48,12 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -72,7 +73,6 @@ import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
@@ -93,7 +93,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     String domesticCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    final Currency domesticCurrency = Currency.of(target.getUniqueId().getValue());
+    final Currency domesticCurrency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
     Object foreignCurveObject = null;
     Currency foreignCurrency = null;
     String foreignCurveName = null;
@@ -153,7 +153,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       throw new OpenGammaRuntimeException("Couldn't find FX forward curve specification called " + domesticCurveName + " for target " + currencyPair);
     }
     final FXForwardCurveInstrumentProvider provider = specification.getCurveInstrumentProvider();
-    final ValueRequirement spotRequirement = new ValueRequirement(provider.getDataFieldName(), provider.getSpotInstrument());
+    final ValueRequirement spotRequirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument());
     if (inputs.getValue(spotRequirement) == null) {
       throw new OpenGammaRuntimeException("Could not get value for spot; requirement was " + spotRequirement);
     }
@@ -214,15 +214,7 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE || target.getUniqueId() == null) {
-      return false;
-    }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
@@ -295,12 +287,11 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       return null;
     }
     final String domesticCurveName = domesticCurveCalculationConfig.getYieldCurveNames()[0];
-    final UniqueIdentifiable domesticId = domesticCurveCalculationConfig.getUniqueId();
-    if (!(domesticId instanceof Currency)) {
-      s_logger.error("Can only handle curves with currencies as ids at the moment");
+    if (!domesticCurveCalculationConfig.getTarget().equals(target.toSpecification())) {
+      s_logger.error("Invalid target, was {} - expected {}", target, domesticCurveCalculationConfig.getTarget());
       return null;
     }
-    final Currency domesticCurrency = (Currency) domesticId;
+    final Currency domesticCurrency = target.getValue(ComputationTargetType.CURRENCY);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final Map<String, String[]> exogenousConfigs = domesticCurveCalculationConfig.getExogenousConfigData();
     if (exogenousConfigs.size() != 1) {
@@ -313,12 +304,12 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       s_logger.error("Foreign config was null; tried {}", foreignCurveConfigNames.getKey());
       return null;
     }
-    final UniqueIdentifiable foreignId = foreignConfig.getUniqueId();
-    if (!(foreignId instanceof Currency)) {
+    final ComputationTargetSpecification foreignCurrencySpec = foreignConfig.getTarget();
+    if (!foreignCurrencySpec.getType().isTargetType(ComputationTargetType.CURRENCY)) {
       s_logger.error("Can only handle curves with currencies as ids at the moment");
       return null;
     }
-    final Currency foreignCurrency = (Currency) foreignId;
+    final Currency foreignCurrency = ComputationTargetType.CURRENCY.resolve(foreignCurrencySpec.getUniqueId());
     final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(domesticCurrency, foreignCurrency);
     final FXForwardCurveDefinition definition = fxCurveDefinitionSource.getDefinition(domesticCurveName, currencyPair.toString());
     if (definition == null) {
@@ -334,9 +325,9 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final String foreignCurveName = foreignCurveConfigNames.getValue()[0];
     final ValueProperties foreignCurveProperties = getForeignCurveProperties(foreignConfig, foreignCurveName);
     final FXForwardCurveInstrumentProvider provider = fxForwardCurveSpec.getCurveInstrumentProvider();
-    requirements.add(new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, new ComputationTargetSpecification(currencyPair), fxForwardCurveProperties));
-    requirements.add(new ValueRequirement(provider.getDataFieldName(), provider.getSpotInstrument()));
-    requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, new ComputationTargetSpecification(foreignCurrency), foreignCurveProperties));
+    requirements.add(new ValueRequirement(ValueRequirementNames.FX_FORWARD_CURVE_MARKET_DATA, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currencyPair), fxForwardCurveProperties));
+    requirements.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument()));
+    requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(foreignCurrency), foreignCurveProperties));
     return requirements;
   }
 

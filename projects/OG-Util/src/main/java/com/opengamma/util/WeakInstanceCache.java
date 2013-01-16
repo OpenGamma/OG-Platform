@@ -10,7 +10,7 @@ import java.util.WeakHashMap;
 
 /**
  * Reduction of common object values to single instances.
- * 
+ *
  * @param <T> object type to reduce
  */
 public class WeakInstanceCache<T> {
@@ -44,20 +44,7 @@ public class WeakInstanceCache<T> {
   }
 
   public T get(final T value) {
-    final int h = value.hashCode();
-    // Rehash with Fletcher-10 to work out which bucket. Don't know if it's a good hash or not but can easily be adjusted to any number of buckets.
-    int s1 = h, s2 = h;
-    s1 += h >> 5;
-    s2 += s1;
-    s1 = h >> 10;
-    s2 += s1;
-    s1 += h >> 15;
-    s2 += s1;
-    s1 += h >> 21;
-    s2 += s1;
-    s1 += h >> 26;
-    s2 += s1;
-    final WeakHashMap<T, WeakReference<T>> data = _data[(s1 << 5) & 0x3E0 | ((s2 + s1) & 0x1F)];
+    final WeakHashMap<T, WeakReference<T>> data = _data[value.hashCode() & (BUCKETS - 1)];
     return getImpl(data, value);
   }
 

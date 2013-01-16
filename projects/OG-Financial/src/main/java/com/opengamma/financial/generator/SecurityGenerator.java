@@ -6,6 +6,7 @@
 package com.opengamma.financial.generator;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -33,13 +34,16 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.DummyFunctionReinitializer;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputsImpl;
+import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -61,6 +65,7 @@ import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -273,6 +278,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     OpenGammaCompilationContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
     OpenGammaCompilationContext.setHistoricalTimeSeriesResolver(context, new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(getConfigSource()),
         getHistoricalTimeSeriesMaster()));
+    context.setRawComputationTargetResolver(new DefaultComputationTargetResolver(context.getSecuritySource()));
+    context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST));
     OpenGammaCompilationContext.setConfigSource(context, getConfigSource());
     return context;
   }
@@ -285,10 +292,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   private ComputedValue execute(final FunctionExecutionContext context, final CompiledFunctionDefinition function, final ComputationTarget target, final ValueRequirement output,
       final ComputedValue... inputs) {
-    final FunctionInputsImpl functionInputs = new FunctionInputsImpl();
-    for (final ComputedValue input : inputs) {
-      functionInputs.addValue(input);
-    }
+    final FunctionInputsImpl functionInputs = new FunctionInputsImpl(null, Arrays.asList(inputs));
     Set<ComputedValue> result;
     try {
       result = function.getFunctionInvoker().execute(context, functionInputs, target, Collections.singleton(output));
@@ -298,20 +302,23 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return result.iterator().next();
   }
 
-  private ComputedValue findMarketData(final ValueRequirement requirement) {
-    final Pair<LocalDate, Double> value = getHistoricalSource().getLatestDataPoint(MarketDataRequirementNames.MARKET_VALUE, requirement.getTargetSpecification().getIdentifier().toBundle(), null);
+  private ComputedValue findMarketData(final ExternalIdBundleLookup lookup, final ComputationTargetSpecificationResolver.AtVersionCorrection resolver, final ValueRequirement requirement) {
+    final Pair<LocalDate, Double> value = getHistoricalSource().getLatestDataPoint(MarketDataRequirementNames.MARKET_VALUE, lookup.getExternalIds(requirement.getTargetReference()), null);
     if (value == null) {
       return null;
     }
-    return new ComputedValue(new ValueSpecification(requirement, "MARKET DATA"), value.getSecond());
+    return new ComputedValue(new ValueSpecification(requirement.getValueName(), resolver.getTargetSpecification(requirement.getTargetReference()),
+        ValueProperties.with(ValuePropertyNames.FUNCTION, "MARKET_DATA").get()), value.getSecond());
   }
 
-  private ComputedValue[] findMarketData(final Collection<ValueRequirement> requirements) {
+  private ComputedValue[] findMarketData(final FunctionCompilationContext compilationContext, final Collection<ValueRequirement> requirements) {
     s_logger.debug("Resolving {}", requirements);
+    final ExternalIdBundleLookup lookup = new ExternalIdBundleLookup(compilationContext.getSecuritySource());
+    final ComputationTargetSpecificationResolver.AtVersionCorrection resolver = compilationContext.getComputationTargetResolver().getSpecificationResolver();
     final ComputedValue[] values = new ComputedValue[requirements.size()];
     int i = 0;
     for (final ValueRequirement requirement : requirements) {
-      final ComputedValue value = findMarketData(requirement);
+      final ComputedValue value = findMarketData(lookup, resolver, requirement);
       if (value == null) {
         s_logger.debug("Couldn't resolve {}", requirement);
         return null;
@@ -350,9 +357,9 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     final CompiledFunctionDefinition fxForwardCurveFromYieldCurveFunction = createFunction(compContext, execContext, new FXForwardCurveFromYieldCurvesFunction());
     ComputationTarget target;
     // PAY
-    target = new ComputationTarget(payCurrency);
+    target = new ComputationTarget(ComputationTargetType.CURRENCY, payCurrency);
     // PAY - YieldCurveMarketDataFunction
-    final ComputedValue[] payCurveDataRequirements = findMarketData(payYieldCurveMarketDataFunction.getRequirements(compContext, target, null));
+    final ComputedValue[] payCurveDataRequirements = findMarketData(compContext, payYieldCurveMarketDataFunction.getRequirements(compContext, target, null));
     if (payCurveDataRequirements == null) {
       s_logger.debug("Missing market data for curve on {}", payCurrency);
       return null;
@@ -366,9 +373,9 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
             ValueProperties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getCurrencyCurveName()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getCurrencyCurveName())
                 .with(ValuePropertyNames.CURVE, getCurrencyCurveName()).get()), payCurveSpec, payCurveMarketData);
     // RECEIVE
-    target = new ComputationTarget(receiveCurrency);
+    target = new ComputationTarget(ComputationTargetType.CURRENCY, receiveCurrency);
     // RECEIVE - YieldCurveMarketDataFunction
-    final ComputedValue[] receiveCurveDataRequirements = findMarketData(receiveYieldCurveMarketDataFunction.getRequirements(compContext, target, null));
+    final ComputedValue[] receiveCurveDataRequirements = findMarketData(compContext, receiveYieldCurveMarketDataFunction.getRequirements(compContext, target, null));
     if (receiveCurveDataRequirements == null) {
       s_logger.debug("Missing market data for curve on {}", receiveCurrency);
       return null;
@@ -382,7 +389,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
         ValueProperties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getCurrencyCurveName()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getCurrencyCurveName())
             .with(ValuePropertyNames.CURVE, getCurrencyCurveName()).get()), receiveCurveSpec, receiveCurveMarketData);
     // FXForwardCurveFromYieldCurveFunction
-    target = new ComputationTarget(UnorderedCurrencyPair.of(payCurrency, receiveCurrency));
+    target = new ComputationTarget(ComputationTargetType.UNORDERED_CURRENCY_PAIR, UnorderedCurrencyPair.of(payCurrency, receiveCurrency));
     final ForwardCurve fxForwardCurve = (ForwardCurve) execute(
         execContext,
         fxForwardCurveFromYieldCurveFunction,

@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -63,16 +63,14 @@ public class ISDAApproxCDSPriceHazardCurveFunction extends ISDAApproxCDSPriceFun
       
       requirements.add(new ValueRequirement(
         ValueRequirementNames.YIELD_CURVE,
-        ComputationTargetType.PRIMITIVE,
-        cds.getCurrency().getUniqueId(),
+          ComputationTargetSpecification.of(cds.getCurrency()),
         ValueProperties
           .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
           .get()));
       
       requirements.add(new ValueRequirement(
         ValueRequirementNames.YIELD_CURVE,
-        ComputationTargetType.PRIMITIVE,
-        cds.getCurrency().getUniqueId(),
+          ComputationTargetSpecification.of(cds.getCurrency()),
         ValueProperties
           .with(ValuePropertyNames.CURVE, "HAZARD_" + cds.getUnderlyingIssuer() + "_" + cds.getUnderlyingSeniority() + "_" + cds.getRestructuringClause())
           .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)
@@ -102,12 +100,12 @@ public class ISDAApproxCDSPriceHazardCurveFunction extends ISDAApproxCDSPriceFun
 
     // Discount curve
     final ISDACurve discountCurve = (ISDACurve) inputs.getValue(new ValueRequirement(
-      ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, cds.getCurrency().getUniqueId(),
+        ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(cds.getCurrency()),
       ValueProperties.with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME).get()));
     
     // Hazard rate curve
     final ISDACurve hazardRateCurve = (ISDACurve) inputs.getValue(new ValueRequirement(
-      ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, cds.getCurrency().getUniqueId(),
+        ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(cds.getCurrency()),
       ValueProperties
         .with(ValuePropertyNames.CURVE, "HAZARD_" + cds.getUnderlyingIssuer() + "_" + cds.getUnderlyingSeniority() + "_" + cds.getRestructuringClause())
         .with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME)

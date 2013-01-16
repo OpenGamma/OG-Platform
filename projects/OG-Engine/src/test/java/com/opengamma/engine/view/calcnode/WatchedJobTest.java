@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calcnode;
@@ -34,6 +34,7 @@ import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calc.JobIdSource;
 import com.opengamma.engine.view.calcnode.StandardJob.WholeWatchedJob;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -42,16 +43,20 @@ import com.opengamma.util.tuple.Triple;
 @Test
 public class WatchedJobTest {
 
-  private final ComputationTargetSpecification TARGET = new ComputationTargetSpecification("Foo");
-  private final ValueSpecification VS_A = new ValueSpecification("A", TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "A").get());
-  private final ValueSpecification VS_B = new ValueSpecification("B", TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "B").get());
-  private final ValueSpecification VS_C = new ValueSpecification("C", TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "C").get());
-  private final ValueSpecification VS_D = new ValueSpecification("D", TARGET, ValueProperties.with(ValuePropertyNames.FUNCTION, "D").get());
-  private final CalculationJobItem JOB_ITEM_A = new CalculationJobItem("A", new EmptyFunctionParameters(), TARGET, Collections.<ValueSpecification>emptySet(), Arrays.asList(VS_A), ExecutionLogMode.INDICATORS);
-  private final CalculationJobItem JOB_ITEM_AB = new CalculationJobItem("B", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_A), Arrays.asList(VS_B), ExecutionLogMode.INDICATORS);
-  private final CalculationJobItem JOB_ITEM_BC = new CalculationJobItem("C", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_B), Arrays.asList(VS_C), ExecutionLogMode.INDICATORS);
-  private final CalculationJobItem JOB_ITEM_AC = new CalculationJobItem("C", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_A), Arrays.asList(VS_C), ExecutionLogMode.INDICATORS);
-  private final CalculationJobItem JOB_ITEM_BCD = new CalculationJobItem("D", new EmptyFunctionParameters(), TARGET, Arrays.asList(VS_B, VS_C), Arrays.asList(VS_D), ExecutionLogMode.INDICATORS);
+  private final ValueSpecification VS_A = new ValueSpecification("A", ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "A").get());
+  private final ValueSpecification VS_B = new ValueSpecification("B", ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "B").get());
+  private final ValueSpecification VS_C = new ValueSpecification("C", ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "C").get());
+  private final ValueSpecification VS_D = new ValueSpecification("D", ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "D").get());
+  private final CalculationJobItem JOB_ITEM_A = new CalculationJobItem("A", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL, Collections.<ValueSpecification>emptySet(),
+      Arrays.asList(VS_A), ExecutionLogMode.INDICATORS);
+  private final CalculationJobItem JOB_ITEM_AB = new CalculationJobItem("B", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL, Arrays.asList(VS_A), Arrays.asList(VS_B),
+      ExecutionLogMode.INDICATORS);
+  private final CalculationJobItem JOB_ITEM_BC = new CalculationJobItem("C", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL, Arrays.asList(VS_B), Arrays.asList(VS_C),
+      ExecutionLogMode.INDICATORS);
+  private final CalculationJobItem JOB_ITEM_AC = new CalculationJobItem("C", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL, Arrays.asList(VS_A), Arrays.asList(VS_C),
+      ExecutionLogMode.INDICATORS);
+  private final CalculationJobItem JOB_ITEM_BCD = new CalculationJobItem("D", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL, Arrays.asList(VS_B, VS_C), Arrays.asList(VS_D),
+      ExecutionLogMode.INDICATORS);
 
   private static CalculationJobSpecification createJobSpecification() {
     return new CalculationJobSpecification(UniqueId.of("Cycle", "1"), "Default", Instant.now(), JobIdSource.getId());
@@ -61,7 +66,7 @@ public class WatchedJobTest {
     final JobDispatcher dispatcher = new JobDispatcher();
     final FunctionBlacklistMaintainer blacklist = Mockito.mock(FunctionBlacklistMaintainer.class);
     dispatcher.setFunctionBlacklistMaintainer(blacklist);
-    final CalculationJob job = new CalculationJob(createJobSpecification(), 0, null, Arrays.asList(JOB_ITEM_A), CacheSelectHint.allShared());
+    final CalculationJob job = new CalculationJob(createJobSpecification(), 0, VersionCorrection.LATEST, null, Arrays.asList(JOB_ITEM_A), CacheSelectHint.allShared());
     final StandardJob standard = new StandardJob(dispatcher, job, Mockito.mock(JobResultReceiver.class));
     final WatchedJob watched = standard.createWatchedJob();
     assertNull(watched);
@@ -70,7 +75,7 @@ public class WatchedJobTest {
 
   public void testStandardJob_createWatchedJob_noTail() {
     final JobDispatcher dispatcher = new JobDispatcher();
-    final CalculationJob job = new CalculationJob(createJobSpecification(), 0, null, Arrays.asList(JOB_ITEM_AB, JOB_ITEM_BC), CacheSelectHint.allShared());
+    final CalculationJob job = new CalculationJob(createJobSpecification(), 0, VersionCorrection.LATEST, null, Arrays.asList(JOB_ITEM_AB, JOB_ITEM_BC), CacheSelectHint.allShared());
     final StandardJob standard = new StandardJob(dispatcher, job, Mockito.mock(JobResultReceiver.class));
     final WatchedJob watched = standard.createWatchedJob();
     assertTrue(watched instanceof WatchedJob.Whole);
@@ -79,8 +84,8 @@ public class WatchedJobTest {
 
   public void testStandardJob_createWatchedJob_rewrite() {
     final JobDispatcher dispatcher = new JobDispatcher();
-    final CalculationJob job1 = new CalculationJob(createJobSpecification(), 0, null, Arrays.asList(JOB_ITEM_AB), CacheSelectHint.privateValues(Arrays.asList(VS_B)));
-    final CalculationJob job2 = new CalculationJob(createJobSpecification(), 0, new long[] {job1.getSpecification().getJobId() }, Arrays.asList(JOB_ITEM_BC),
+    final CalculationJob job1 = new CalculationJob(createJobSpecification(), 0, VersionCorrection.LATEST, null, Arrays.asList(JOB_ITEM_AB), CacheSelectHint.privateValues(Arrays.asList(VS_B)));
+    final CalculationJob job2 = new CalculationJob(createJobSpecification(), 0, VersionCorrection.LATEST, new long[] {job1.getSpecification().getJobId() }, Arrays.asList(JOB_ITEM_BC),
         CacheSelectHint.privateValues(Arrays.asList(VS_B)));
     job1.addTail(job2);
     final StandardJob standard = new StandardJob(dispatcher, job1, Mockito.mock(JobResultReceiver.class));
@@ -91,8 +96,8 @@ public class WatchedJobTest {
   }
 
   public void testStandardJob_adjustCacheHints() {
-    final CalculationJob job1 = new CalculationJob(createJobSpecification(), 0, null, Arrays.asList(JOB_ITEM_A, JOB_ITEM_AB), CacheSelectHint.allPrivate());
-    final CalculationJob job2 = new CalculationJob(createJobSpecification(), 0, new long[] {job1.getSpecification().getJobId() }, Arrays.asList(JOB_ITEM_BC),
+    final CalculationJob job1 = new CalculationJob(createJobSpecification(), 0, VersionCorrection.LATEST, null, Arrays.asList(JOB_ITEM_A, JOB_ITEM_AB), CacheSelectHint.allPrivate());
+    final CalculationJob job2 = new CalculationJob(createJobSpecification(), 0, VersionCorrection.LATEST, new long[] {job1.getSpecification().getJobId() }, Arrays.asList(JOB_ITEM_BC),
         CacheSelectHint.privateValues(Arrays.asList(VS_B)));
     job1.addTail(job2);
     final CalculationJob adj1 = StandardJob.adjustCacheHints(job1, new HashMap<ValueSpecification, Triple<CalculationJob, ? extends Set<ValueSpecification>, ? extends Set<ValueSpecification>>>());
@@ -107,14 +112,14 @@ public class WatchedJobTest {
   }
 
   public void testStandardJob_WholeWatchedJob() {
-    final CalculationJob job1 = new CalculationJob(createJobSpecification(), 0, null, Arrays.asList(JOB_ITEM_A), CacheSelectHint.allShared());
-    final CalculationJob job2 = new CalculationJob(createJobSpecification(), 0, new long[] {job1.getSpecification().getJobId() },
-        Arrays.asList(JOB_ITEM_AB), CacheSelectHint.allShared());
+    final CalculationJob job1 = new CalculationJob(createJobSpecification(), 0, VersionCorrection.LATEST, null, Arrays.asList(JOB_ITEM_A), CacheSelectHint.allShared());
+    final CalculationJob job2 = new CalculationJob(createJobSpecification(), 0, VersionCorrection.LATEST, new long[] {job1.getSpecification().getJobId() }, Arrays.asList(JOB_ITEM_AB),
+        CacheSelectHint.allShared());
     job1.addTail(job2);
-    final CalculationJob job3 = new CalculationJob(createJobSpecification(), 0, new long[] {job1.getSpecification().getJobId() },
-        Arrays.asList(JOB_ITEM_AC), CacheSelectHint.allShared());
+    final CalculationJob job3 = new CalculationJob(createJobSpecification(), 0, VersionCorrection.LATEST, new long[] {job1.getSpecification().getJobId() }, Arrays.asList(JOB_ITEM_AC),
+        CacheSelectHint.allShared());
     job1.addTail(job3);
-    final CalculationJob job4 = new CalculationJob(createJobSpecification(), 0, new long[] {job2.getSpecification().getJobId(), job3.getSpecification().getJobId() },
+    final CalculationJob job4 = new CalculationJob(createJobSpecification(), 0, VersionCorrection.LATEST, new long[] {job2.getSpecification().getJobId(), job3.getSpecification().getJobId() },
         Arrays.asList(JOB_ITEM_BCD), CacheSelectHint.allShared());
     job3.addTail(job4);
     final JobResultReceiver receiver = Mockito.mock(JobResultReceiver.class);
@@ -155,7 +160,7 @@ public class WatchedJobTest {
     final JobDispatcher dispatcher = new JobDispatcher();
     final FunctionBlacklistMaintainer blacklist = Mockito.mock(FunctionBlacklistMaintainer.class);
     dispatcher.setFunctionBlacklistMaintainer(blacklist);
-    final CalculationJob job = new CalculationJob(createJobSpecification(), 0, null, Arrays.asList(JOB_ITEM_A), CacheSelectHint.allShared());
+    final CalculationJob job = new CalculationJob(createJobSpecification(), 0, VersionCorrection.LATEST, null, Arrays.asList(JOB_ITEM_A), CacheSelectHint.allShared());
     final JobResultReceiver receiver = Mockito.mock(JobResultReceiver.class);
     final StandardJob standard = new StandardJob(dispatcher, job, receiver);
     final WatchedJob watched = new WatchedJob.Whole(standard, job, receiver);
@@ -171,7 +176,8 @@ public class WatchedJobTest {
         dispatched.add(job);
       }
     };
-    final CalculationJob job = new CalculationJob(createJobSpecification(), 0, null, Arrays.asList(JOB_ITEM_A, JOB_ITEM_AB), CacheSelectHint.privateValues(Arrays.asList(VS_A)));
+    final CalculationJob job = new CalculationJob(createJobSpecification(), 0, VersionCorrection.LATEST, null, Arrays.asList(JOB_ITEM_A, JOB_ITEM_AB), CacheSelectHint.privateValues(Arrays
+        .asList(VS_A)));
     final JobResultReceiver receiver = Mockito.mock(JobResultReceiver.class);
     final StandardJob standard = new StandardJob(dispatcher, job, receiver);
     final WatchedJob watched = new WatchedJob.Whole(standard, job, receiver);
@@ -203,8 +209,8 @@ public class WatchedJobTest {
         dispatched.add(job);
       }
     };
-    final CalculationJob job = new CalculationJob(createJobSpecification(), 0, null, Arrays.asList(JOB_ITEM_A, JOB_ITEM_AB, JOB_ITEM_BC, JOB_ITEM_BCD), CacheSelectHint.sharedValues(Arrays
-        .asList(VS_D)));
+    final CalculationJob job = new CalculationJob(createJobSpecification(), 0, VersionCorrection.LATEST, null, Arrays.asList(JOB_ITEM_A, JOB_ITEM_AB, JOB_ITEM_BC, JOB_ITEM_BCD),
+        CacheSelectHint.sharedValues(Arrays.asList(VS_D)));
     final JobResultReceiver receiver = Mockito.mock(JobResultReceiver.class);
     final StandardJob standard = new StandardJob(dispatcher, job, receiver);
     final WatchedJob watched = new WatchedJob.Whole(standard, job, receiver);

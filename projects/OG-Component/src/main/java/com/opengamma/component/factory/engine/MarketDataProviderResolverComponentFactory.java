@@ -24,9 +24,10 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.CombinedMarketDataProviderFactory;
+import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
+import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.historical.LatestHistoricalMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
@@ -106,7 +107,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   }
   
   protected MarketDataProviderFactory initUserMarketDataProviderFactory() {
-    return new UserMarketDataProviderFactory(getMarketDataSnapshotSource(), new OptimisticMarketDataAvailabilityProvider());
+    return new UserMarketDataProviderFactory(getMarketDataSnapshotSource(), new ExternalIdBundleLookup(getSecuritySource()), new OptimisticMarketDataAvailabilityProvider());
   }
   
   protected MarketDataProviderFactory initCombinedMarketDataProviderFactory(MarketDataProviderResolver underlyingResolver) {

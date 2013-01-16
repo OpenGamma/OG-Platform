@@ -11,10 +11,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,18 +29,24 @@ import javax.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeFilter;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessContext;
@@ -59,11 +67,13 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ComputationResultListener;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.monitor.OperationTimer;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * The job which schedules and executes computation cycles for a view process.
@@ -93,9 +103,11 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
   private CountDownLatch _pendingSubscriptionLatch;
 
   private ChangeListener _viewDefinitionChangeListener;
+  private ConcurrentMap<ObjectId, Boolean> _changedTargets;
+  private ChangeListener _targetResolverChangeListener;
 
-  private volatile boolean _wakeOnMarketDataChanged;
-  private volatile boolean _marketDataChanged = true;
+  private volatile boolean _wakeOnCycleRequest;
+  private volatile boolean _cycleRequested;
   private volatile boolean _forceTriggerCycle;
   private volatile boolean _viewDefinitionDirty = true;
   private volatile boolean _compilationDirty;
@@ -120,7 +132,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _executionOptions = executionOptions;
     _processContext = processContext;
     _cycleManager = cycleManager;
-    _marketDataChanged = !executionOptions.getFlags().contains(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
+    _cycleRequested = !executionOptions.getFlags().contains(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
     _compilationExpiryCycleTrigger = new FixedTimeTrigger();
     _masterCycleTrigger = createViewCycleTrigger(executionOptions);
     _executeCycles = !getExecutionOptions().getFlags().contains(ViewExecutionFlags.COMPILE_ONLY);
@@ -250,10 +262,14 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       return;
     }
 
-    final VersionCorrection versionCorrection = getResolvedVersionCorrection();
+    final VersionCorrection versionCorrection = getResolverVersionCorrection(executionOptions);
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
     try {
       compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
+      if (compiledViewDefinition == null) {
+        s_logger.warn("Job terminated during view compilation");
+        return;
+      }
     } catch (final Exception e) {
       final String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1} at version-correction {2}",
           getViewProcess().getDefinitionId(), compilationValuationTime, versionCorrection);
@@ -269,8 +285,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         marketDataSnapshot.init();
       }
       if (executionOptions.getValuationTime() == null) {
-        executionOptions = new ViewCycleExecutionOptions(marketDataSnapshot.getSnapshotTime(),
-                                                         executionOptions.getMarketDataSpecifications());
+        executionOptions = ViewCycleExecutionOptions.builder().setValuationTime(marketDataSnapshot.getSnapshotTime()).setMarketDataSpecifications(executionOptions.getMarketDataSpecifications())
+            .create();
       }
     } catch (final Exception e) {
       s_logger.error("Error initializing snapshot {}", marketDataSnapshot);
@@ -399,8 +415,8 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
         cycleEligibility = ViewCycleEligibility.FORCE;
         _forceTriggerCycle = false;
       }
-      if (cycleEligibility == ViewCycleEligibility.FORCE || cycleEligibility == ViewCycleEligibility.ELIGIBLE && _marketDataChanged) {
-        _marketDataChanged = false;
+      if (cycleEligibility == ViewCycleEligibility.FORCE || cycleEligibility == ViewCycleEligibility.ELIGIBLE && _cycleRequested) {
+        _cycleRequested = false;
         ViewCycleType cycleType = triggerResult.getCycleType();
         if (_previousCycleReference == null) {
           // Cannot do a delta if we have no previous cycle
@@ -417,13 +433,13 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
       // Going to sleep
       final long wakeUpTime = triggerResult.getNextStateChangeNanos();
-      if (_marketDataChanged) {
+      if (_cycleRequested) {
         s_logger.debug("Sleeping until eligible to perform the next computation cycle");
         // No amount of market data can make us eligible for a computation cycle any sooner.
-        _wakeOnMarketDataChanged = false;
+        _wakeOnCycleRequest = false;
       } else {
         s_logger.debug("Sleeping until forced to perform the next computation cycle");
-        _wakeOnMarketDataChanged = cycleEligibility == ViewCycleEligibility.ELIGIBLE;
+        _wakeOnCycleRequest = cycleEligibility == ViewCycleEligibility.ELIGIBLE;
       }
 
       long sleepTime = wakeUpTime - currentTimeNanos;
@@ -488,6 +504,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       _previousCycleReference.release();
     }
     unsubscribeFromViewDefinition();
+    unsubscribeFromTargetResolverChanges();
     removeMarketDataProvider();
     invalidateCachedCompiledViewDefinition();
   }
@@ -528,27 +545,31 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _compilationDirty = true;
   }
 
+  /**
+   * Forces a cycle to run, regardless of how long has elapsed since the previous cycle.
+   */
   public synchronized void triggerCycle() {
     s_logger.debug("Cycle triggered manually");
     _forceTriggerCycle = true;
     notifyAll();
   }
 
-  public synchronized void marketDataChanged() {
+  /**
+   * Requests a cycle to run, honouring minimum times between cycles.
+   */
+  public synchronized void requestCycle() {
     // REVIEW jonathan 2010-10-04 -- this synchronisation is necessary, but it feels very heavyweight for
     // high-frequency market data. See how it goes, but we could take into account the recalc periods and apply a
     // heuristic (e.g. only wake up due to market data if max - min < e, for some e) which tries to see whether it's
     // worth doing all this.
 
-    s_logger.debug("Market Data changed");
-    _marketDataChanged = true;
-    if (!_wakeOnMarketDataChanged) {
+    _cycleRequested = true;
+    if (!_wakeOnCycleRequest) {
       return;
     }
     notifyAll();
   }
 
-  //-------------------------------------------------------------------------
   private EngineResourceReference<SingleComputationCycle> createCycle(final ViewCycleExecutionOptions executionOptions,
       final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, final VersionCorrection versionCorrection) {
     // View definition was compiled based on compilation options, which might have only included an indicative
@@ -569,12 +590,254 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     return getCycleManager().manage(cycle);
   }
 
-  private VersionCorrection getResolvedVersionCorrection() {
-    final VersionCorrection versionCorrection = getExecutionOptions().getVersionCorrection();
-    if (!versionCorrection.containsLatest()) {
-      return versionCorrection;
+  private void subscribeToTargetResolverChanges() {
+    if (_changedTargets == null) {
+      assert _targetResolverChangeListener == null;
+      final ConcurrentMap<ObjectId, Boolean> changed = new ConcurrentHashMap<ObjectId, Boolean>();
+      _changedTargets = changed;
+      _targetResolverChangeListener = new ChangeListener() {
+        @Override
+        public void entityChanged(final ChangeEvent event) {
+          final ObjectId oid = event.getObjectId();
+          if (changed.replace(oid, Boolean.FALSE, Boolean.TRUE)) {
+            s_logger.info("Received change notification for {}", event.getObjectId());
+            requestCycle();
+          }
+        }
+      };
+      getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().addChangeListener(_targetResolverChangeListener);
     }
-    return versionCorrection.withLatestFixed(Instant.now());
+  }
+
+  private void unsubscribeFromTargetResolverChanges() {
+    if (_changedTargets != null) {
+      assert _targetResolverChangeListener != null;
+      getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().changeManager().removeChangeListener(_targetResolverChangeListener);
+      _targetResolverChangeListener = null;
+      _changedTargets = null;
+    }
+  }
+
+  private VersionCorrection getResolverVersionCorrection(final ViewCycleExecutionOptions viewCycleOptions) {
+    VersionCorrection vc = null;
+    do {
+      vc = viewCycleOptions.getResolverVersionCorrection();
+      if (vc != null) {
+        break;
+      }
+      final ViewCycleExecutionOptions options = getExecutionOptions().getDefaultExecutionOptions();
+      if (options != null) {
+        vc = options.getResolverVersionCorrection();
+        if (vc != null) {
+          break;
+        }
+      }
+      vc = VersionCorrection.LATEST;
+    } while (false);
+    // Note: NOW means NOW as the caller has requested LATEST. We should not be using the valuation time.
+    if (vc.getCorrectedTo() == null) {
+      if (vc.getVersionAsOf() == null) {
+        subscribeToTargetResolverChanges();
+        return vc.withLatestFixed(Instant.now());
+      } else {
+        vc = vc.withLatestFixed(Instant.now());
+      }
+    } else if (vc.getVersionAsOf() == null) {
+      vc = vc.withLatestFixed(Instant.now());
+    }
+    unsubscribeFromTargetResolverChanges();
+    return vc;
+  }
+
+  private void removePortfolioTerminalOutputs(final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs, final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
+    for (final ViewCalculationConfiguration calcConfig : compiledViewDefinition.getViewDefinition().getAllCalculationConfigurations()) {
+      final Set<ValueRequirement> specificRequirements = calcConfig.getSpecificRequirements();
+      final Pair<DependencyGraph, Set<ValueRequirement>> previousGraphEntry = previousGraphs.get(calcConfig.getName());
+      if (previousGraphEntry == null) {
+        continue;
+      }
+      final DependencyGraph previousGraph = previousGraphEntry.getFirst();
+      final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs = previousGraph.getTerminalOutputs();
+      final ValueSpecification[] removeSpecifications = new ValueSpecification[terminalOutputs.size()];
+      @SuppressWarnings("unchecked")
+      final List<ValueRequirement>[] removeRequirements = new List[terminalOutputs.size()];
+      int remove = 0;
+      for (final Map.Entry<ValueSpecification, Set<ValueRequirement>> entry : terminalOutputs.entrySet()) {
+        List<ValueRequirement> removal = null;
+        for (final ValueRequirement requirement : entry.getValue()) {
+          if (!specificRequirements.contains(requirement)) {
+            if (removal == null) {
+              removal = new ArrayList<ValueRequirement>(entry.getValue().size());
+            }
+            removal.add(requirement);
+          }
+        }
+        if (removal != null) {
+          removeSpecifications[remove] = entry.getKey();
+          removeRequirements[remove++] = removal;
+        }
+      }
+      for (int i = 0; i < remove; i++) {
+        previousGraph.removeTerminalOutputs(removeRequirements[i], removeSpecifications[i]);
+      }
+    }
+  }
+
+  /**
+   * Returns the set of unique identifiers that were previously used as targets in the dependency graph for object identifiers (or external identifiers) that now resolve differently.
+   *
+   * @param previousResolutions the previous cycle's resolution of identifiers, not null
+   * @param versionCorrection the resolver version correction for this cycle, not null
+   * @return the invalid identifier set, or null if none are invalid
+   */
+  private Set<UniqueId> getInvalidIdentifiers(final Map<ComputationTargetReference, UniqueId> previousResolutions, final VersionCorrection versionCorrection) {
+    long t = -System.nanoTime();
+    // TODO [PLAT-349] Checking all of these identifiers is costly. Can we fork this out as a "job"? Can we use existing infrastructure? Should the bulk resolver operations use a thread pool?
+    final Set<ComputationTargetReference> toCheck;
+    if (_changedTargets == null) {
+      // Change notifications aren't relevant for historical iteration; must recheck all of the resolutions
+      toCheck = previousResolutions.keySet();
+    } else {
+      // Subscribed to LATEST/LATEST so change manager notifications can filter the set to be checked
+      toCheck = Sets.newHashSetWithExpectedSize(previousResolutions.size());
+      final Set<ObjectId> allObjectIds = Sets.newHashSetWithExpectedSize(previousResolutions.size());
+      for (final Map.Entry<ComputationTargetReference, UniqueId> previousResolution : previousResolutions.entrySet()) {
+        final ObjectId oid = previousResolution.getValue().getObjectId();
+        if (_changedTargets.replace(oid, Boolean.TRUE, Boolean.FALSE)) {
+          // A change was seen on this target
+          s_logger.debug("Change observed on {}", oid);
+          toCheck.add(previousResolution.getKey());
+        } else if (_changedTargets.putIfAbsent(oid, Boolean.FALSE) == null) {
+          // We've not been monitoring this target for changes - better start doing so
+          s_logger.debug("Added {} to change observation set", oid);
+          toCheck.add(previousResolution.getKey());
+        }
+        allObjectIds.add(oid);
+      }
+      _changedTargets.keySet().retainAll(allObjectIds);
+      if (toCheck.isEmpty()) {
+        s_logger.debug("No resolutions (from {}) to check", previousResolutions.size());
+        return null;
+      } else {
+        s_logger.debug("Checking {} of {} resolutions for changed objects", toCheck.size(), previousResolutions.size());
+      }
+    }
+    final Map<ComputationTargetReference, ComputationTargetSpecification> specifications = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext()
+        .getRawComputationTargetResolver().getSpecificationResolver().getTargetSpecifications(toCheck, versionCorrection);
+    t += System.nanoTime();
+    Set<UniqueId> invalidIdentifiers = null;
+    for (final Map.Entry<ComputationTargetReference, UniqueId> target : previousResolutions.entrySet()) {
+      final ComputationTargetSpecification resolved = specifications.get(target.getKey());
+      if ((resolved != null) && target.getValue().equals(resolved.getUniqueId())) {
+        // No change
+        s_logger.debug("No change resolving {}", target);
+      } else if (toCheck.contains(target.getKey())) {
+        // Identifier no longer resolved, or resolved differently
+        s_logger.info("New resolution of {} to {}", target, resolved);
+        if (invalidIdentifiers == null) {
+          invalidIdentifiers = new HashSet<UniqueId>();
+        }
+        invalidIdentifiers.add(target.getValue());
+      }
+    }
+    s_logger.debug("{} resolutions checked in {}ms", toCheck.size(), t / 1e6);
+    return invalidIdentifiers;
+  }
+
+  /**
+   * Mark a set of nodes for inclusion (TRUE) or exclusion (FALSE) based on the filter. A node is included if the filter accepts it and all of its inputs are also marked for inclusion. A node is
+   * excluded if the filter rejects it or any of its inputs are rejected. This will operate recursively, processing all nodes to the leaves of the graph.
+   * <p>
+   * The {@link DependencyGraph#subGraph} operation doesn't work for us as it can leave nodes in the sub-graph that have inputs that aren't in the graph. Invalid nodes identified by the filter need to
+   * remove all the graph up to the terminal output root so that we can rebuild it.
+   *
+   * @param include the map to build the result into
+   * @param nodes the nodes to process
+   * @param filter the filter to apply to the nodes
+   */
+  private static boolean includeNodes(final Map<DependencyNode, Boolean> include, final Collection<DependencyNode> nodes, final DependencyNodeFilter filter) {
+    boolean includedAll = true;
+    for (final DependencyNode node : nodes) {
+      final Boolean match = include.get(node);
+      if (match == null) {
+        if (filter.accept(node)) {
+          if (includeNodes(include, node.getInputNodes(), filter)) {
+            include.put(node, Boolean.TRUE);
+          } else {
+            includedAll = false;
+            include.put(node, Boolean.FALSE);
+          }
+        } else {
+          includedAll = false;
+          include.put(node, Boolean.FALSE);
+        }
+      } else {
+        if (match == Boolean.FALSE) {
+          includedAll = false;
+        }
+      }
+    }
+    return includedAll;
+  }
+
+  private Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> getPreviousGraphs(Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs,
+      final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition) {
+    if (previousGraphs == null) {
+      final Map<String, DependencyGraph> graphs = compiledViewDefinition.getDependencyGraphsByConfiguration();
+      previousGraphs = Maps.newHashMapWithExpectedSize(graphs.size());
+      for (final Map.Entry<String, DependencyGraph> graph : graphs.entrySet()) {
+        previousGraphs.put(graph.getKey(), Pair.<DependencyGraph, Set<ValueRequirement>>of(graph.getValue(), new HashSet<ValueRequirement>()));
+      }
+    }
+    return previousGraphs;
+  }
+
+  /**
+   * Maintain the previously used dependency graphs by applying a node filter that identifies invalid nodes that must be recalculated (implying everything dependent on them must also be rebuilt). The
+   * first call will extract the previously compiled graphs, subsequent calls will update the structure invalidating more nodes and increasing the number of missing requirements.
+   *
+   * @param previousGraphs the previously used graphs as a map from calculation configuration name to the graph and the value requirements that need to be recalculated, not null
+   * @param filter the filter to identify invalid nodes, not null
+   */
+  private void filterPreviousGraphs(final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs, final DependencyNodeFilter filter) {
+    final Iterator<Map.Entry<String, Pair<DependencyGraph, Set<ValueRequirement>>>> itr = previousGraphs.entrySet().iterator();
+    while (itr.hasNext()) {
+      final Map.Entry<String, Pair<DependencyGraph, Set<ValueRequirement>>> entry = itr.next();
+      final DependencyGraph graph = entry.getValue().getFirst();
+      if (graph.getSize() == 0) {
+        continue;
+      }
+      final Collection<DependencyNode> nodes = graph.getDependencyNodes();
+      final Map<DependencyNode, Boolean> include = Maps.newHashMapWithExpectedSize(nodes.size());
+      includeNodes(include, nodes, filter);
+      assert nodes.size() == include.size();
+      final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs = graph.getTerminalOutputs();
+      final Set<ValueRequirement> missingRequirements = entry.getValue().getSecond();
+      final DependencyGraph filtered = graph.subGraph(new DependencyNodeFilter() {
+        @Override
+        public boolean accept(final DependencyNode node) {
+          if (include.get(node) == Boolean.TRUE) {
+            return true;
+          } else {
+            s_logger.debug("Discarding {} from dependency graph for {}", node, entry.getKey());
+            for (final ValueSpecification output : node.getOutputValues()) {
+              final Set<ValueRequirement> terminal = terminalOutputs.get(output);
+              if (terminal != null) {
+                missingRequirements.addAll(terminal);
+              }
+            }
+            return false;
+          }
+        }
+      });
+      if (filtered.getSize() == 0) {
+        s_logger.info("Discarded total dependency graph for {}", entry.getKey());
+        itr.remove();
+      } else {
+        s_logger.info("Removed {} nodes from dependency graph for {}", nodes.size() - filtered.getSize(), entry.getKey());
+        entry.setValue(Pair.of(filtered, missingRequirements));
+      }
+    }
   }
 
   private CompiledViewDefinitionWithGraphsImpl getCompiledViewDefinition(final Instant valuationTime, final VersionCorrection versionCorrection) {
@@ -588,15 +851,57 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     } else {
       compiledViewDefinition = getCachedCompiledViewDefinition();
     }
-    if (compiledViewDefinition != null && compiledViewDefinition.isValidFor(valuationTime) && functionInitId == compiledViewDefinition.getFunctionInitId()) {
-      // Existing cached model is valid (an optimisation for the common case of similar, increasing valuation times)
-      return compiledViewDefinition;
+    Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs = null;
+    ConcurrentMap<ComputationTargetReference, UniqueId> previousResolutions = null;
+    boolean portfolioFull = false;
+    if (compiledViewDefinition != null) {
+      do {
+        if (functionInitId != compiledViewDefinition.getFunctionInitId()) {
+          // The function repository has been reinitialized which invalidates any previous graphs
+          // TODO: [PLAT-2237, PLAT-1623, PLAT-2240] Get rid of this
+          break;
+        }
+        final Map<ComputationTargetReference, UniqueId> resolvedIdentifiers = compiledViewDefinition.getResolvedIdentifiers();
+        final Set<UniqueId> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
+        if (invalidIdentifiers != null) {
+          previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
+          if (invalidIdentifiers.contains(compiledViewDefinition.getPortfolio().getUniqueId())) {
+            // The portfolio resolution is different, invalidate all PORTFOLIO and PORTFOLIO_NODE nodes in the graph
+            removePortfolioTerminalOutputs(previousGraphs, compiledViewDefinition);
+            filterPreviousGraphs(previousGraphs, new InvalidPortfolioDependencyNodeFilter());
+            portfolioFull = true;
+          }
+          // Invalidate any dependency graph nodes on the invalid targets
+          filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers));
+          previousResolutions = new ConcurrentHashMap<ComputationTargetReference, UniqueId>(resolvedIdentifiers.size());
+          for (final Map.Entry<ComputationTargetReference, UniqueId> resolvedIdentifier : resolvedIdentifiers.entrySet()) {
+            if (!invalidIdentifiers.contains(resolvedIdentifier.getValue())) {
+              previousResolutions.put(resolvedIdentifier.getKey(), resolvedIdentifier.getValue());
+            }
+          }
+        }
+        if (!compiledViewDefinition.isValidFor(valuationTime)) {
+          // Invalidate any dependency graph nodes that use functions that are no longer valid
+          previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
+          filterPreviousGraphs(previousGraphs, new InvalidFunctionDependencyNodeFilter(valuationTime));
+        }
+        if (previousGraphs == null) {
+          // Existing cached model is valid (an optimization for the common case of similar, increasing valuation times)
+          return compiledViewDefinition;
+        }
+        if (previousResolutions == null) {
+          previousResolutions = new ConcurrentHashMap<ComputationTargetReference, UniqueId>(resolvedIdentifiers);
+        }
+      } while (false);
     }
-
     try {
       final MarketDataAvailabilityProvider availabilityProvider = _marketDataProvider.getAvailabilityProvider();
       final ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
-      _compilationTask = ViewDefinitionCompiler.compileTask(_viewDefinition, compilationServices, valuationTime, versionCorrection);
+      if (previousGraphs != null) {
+        _compilationTask = ViewDefinitionCompiler.incrementalCompileTask(_viewDefinition, compilationServices, valuationTime, versionCorrection, previousGraphs, previousResolutions, portfolioFull);
+      } else {
+        _compilationTask = ViewDefinitionCompiler.fullCompileTask(_viewDefinition, compilationServices, valuationTime, versionCorrection);
+      }
       try {
         if (!isTerminated()) {
           compiledViewDefinition = _compilationTask.get();
@@ -617,10 +922,12 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     // can predict the time to expiry. If this assumption is wrong then the worst we do is trigger an unnecessary
     // cycle. In the predicted case, we trigger a cycle on expiry so that any new market data subscriptions are made
     // straight away.
-    if (compiledViewDefinition.getValidTo() != null) {
+    if ((compiledViewDefinition.getValidTo() != null) && getExecutionOptions().getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED)) {
       final Duration durationToExpiry = _marketDataProvider.getRealTimeDuration(valuationTime, compiledViewDefinition.getValidTo());
       final long expiryNanos = System.nanoTime() + durationToExpiry.toNanosLong();
       _compilationExpiryCycleTrigger.set(expiryNanos, ViewCycleTriggerResult.forceFull());
+      // REVIEW Andrew 2012-11-02 -- If we are ticking live, then this is almost right (System.nanoTime will be close to valuationTime, depending on how
+      // long the compilation took). If we are running through historical data then this is quite a meaningless trigger.
     } else {
       _compilationExpiryCycleTrigger.reset();
     }
@@ -702,7 +1009,6 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     _viewDefinitionChangeListener = null;
   }
 
-  //-------------------------------------------------------------------------
   private void replaceMarketDataProvider(final List<MarketDataSpecification> marketDataSpecs) {
     removeMarketDataProvider();
     // A different market data provider may change the availability of market data, altering the dependency graph
@@ -818,7 +1124,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
     //Since this happens for every tick, for every job, we need to use the quick call here
     if (compiledView.hasAnyMarketDataRequirements(values)) {
-      marketDataChanged();
+      requestCycle();
     }
   }
 

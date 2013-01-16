@@ -53,9 +53,9 @@ public class RemotePositionSource extends AbstractRemoteClient implements Positi
 
   //-------------------------------------------------------------------------
   @Override
-  public Portfolio getPortfolio(final UniqueId uniqueId) {
+  public Portfolio getPortfolio(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     URI uri = DataPositionSourceResource.uriGetPortfolio(getBaseUri(), uniqueId);
     return accessRemote(uri).get(Portfolio.class);
   }
@@ -70,9 +70,9 @@ public class RemotePositionSource extends AbstractRemoteClient implements Positi
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(UniqueId uniqueId) {
+  public PortfolioNode getPortfolioNode(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     URI uri = DataPositionSourceResource.uriGetNode(getBaseUri(), uniqueId);
     return accessRemote(uri).get(PortfolioNode.class);
   }
@@ -82,6 +82,14 @@ public class RemotePositionSource extends AbstractRemoteClient implements Positi
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     URI uri = DataPositionSourceResource.uriGetPosition(getBaseUri(), uniqueId);
+    return accessRemote(uri).get(Position.class);
+  }
+
+  @Override
+  public Position getPosition(final ObjectId objectId, final VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    URI uri = DataPositionSourceResource.uriGetPosition(getBaseUri(), objectId, versionCorrection);
     return accessRemote(uri).get(Position.class);
   }
 

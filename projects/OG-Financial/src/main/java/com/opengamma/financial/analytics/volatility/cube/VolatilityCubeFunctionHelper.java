@@ -11,12 +11,10 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.financial.OpenGammaCompilationContext;
@@ -55,10 +53,7 @@ public class VolatilityCubeFunctionHelper {
   }
 
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    return ObjectUtils.equals(target.getUniqueId(), _currency.getUniqueId());
+    return _currency.equals(target.getValue());
   }
 
   public Currency getCurrency() {

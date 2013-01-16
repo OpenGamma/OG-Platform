@@ -15,13 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -34,7 +33,7 @@ public class ISDAYieldCurveDefaults extends DefaultPropertyFunction {
   private final Map<String, String> _offsetsForCurrency;
 
   public ISDAYieldCurveDefaults(final String priority, final String... currencyAndOffsets) {
-    super(ComputationTargetType.PRIMITIVE, true);
+    super(ComputationTargetType.CURRENCY, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyAndOffsets, "currency and offsets");
     ArgumentChecker.isTrue(currencyAndOffsets.length % 2 == 0, "must have one offset per currency");
@@ -47,14 +46,7 @@ public class ISDAYieldCurveDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    final UniqueId uid = target.getUniqueId();
-    if (!Currency.OBJECT_SCHEME.equals(uid.getScheme())) {
-      return false;
-    }
-    return _offsetsForCurrency.containsKey(uid.getValue());
+    return _offsetsForCurrency.containsKey(((Currency) target.getValue()).getCode());
   }
 
   @Override

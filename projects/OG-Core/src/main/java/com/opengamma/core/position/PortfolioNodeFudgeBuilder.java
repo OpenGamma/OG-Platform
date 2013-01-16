@@ -83,7 +83,6 @@ public class PortfolioNodeFudgeBuilder implements FudgeBuilder<PortfolioNode> {
       for (FudgeField field : message) {
         if (field.getValue() instanceof FudgeMsg) {
           final SimplePosition position = PositionFudgeBuilder.buildObjectImpl(deserializer, (FudgeMsg) field.getValue());
-          position.setParentNodeId(node.getUniqueId());
           node.addPosition(position);
         }
       }

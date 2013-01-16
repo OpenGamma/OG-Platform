@@ -22,7 +22,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bloombergexample.tool.ExampleDatabasePopulator;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -235,26 +235,27 @@ public class ExampleViewsPopulator extends AbstractTool<IntegrationToolContext> 
     defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE,
         ValueProperties.with(CURRENCY, "USD").get());
     for (int i = 0; i < s_swapCurrencies.length; i++) {
-      final String ccy = s_swapCurrencies[i].getCode();
+      final String ccyName = s_swapCurrencies[i].getCode();
+      final ComputationTargetSpecification ccyTarget = ComputationTargetSpecification.of(s_swapCurrencies[i]);
       defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PV01,
-          ValueProperties.with(CURVE, "Discounting").with(CURVE_CURRENCY, ccy).get());
+          ValueProperties.with(CURVE, "Discounting").with(CURVE_CURRENCY, ccyName).get());
       defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
-          ValueProperties.with(CURVE, "Discounting").with(CURVE_CURRENCY, ccy).get());
-      defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, UniqueId.of(Currency.OBJECT_SCHEME, ccy),
+          ValueProperties.with(CURVE, "Discounting").with(CURVE_CURRENCY, ccyName).get());
+      defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ccyTarget,
           ValueProperties.with(CURVE, "Discounting").with(CURVE_CALCULATION_CONFIG, s_curveConfigNames[i]).get()));
-      if (s_swapCurrencies[i].getCode().equals("USD")) {
+      if (ccyName.equals("USD")) {
         defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
-            ValueProperties.with(CURVE, "Forward3M").with(CURVE_CURRENCY, ccy).get());
+            ValueProperties.with(CURVE, "Forward3M").with(CURVE_CURRENCY, ccyName).get());
         defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PV01,
-            ValueProperties.with(CURVE, "Forward3M").with(CURVE_CURRENCY, ccy).get());
-        defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, UniqueId.of(Currency.OBJECT_SCHEME, ccy),
+            ValueProperties.with(CURVE, "Forward3M").with(CURVE_CURRENCY, ccyName).get());
+        defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ccyTarget,
             ValueProperties.with(CURVE, "Forward3M").with(CURVE_CALCULATION_CONFIG, s_curveConfigNames[i]).get()));
       } else {
         defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PV01,
-            ValueProperties.with(CURVE, "Forward6M").with(CURVE_CURRENCY, ccy).get());
+            ValueProperties.with(CURVE, "Forward6M").with(CURVE_CURRENCY, ccyName).get());
         defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
-            ValueProperties.with(CURVE, "Forward6M").with(ValuePropertyNames.CURVE_CURRENCY, ccy).get());
-        defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, UniqueId.of(Currency.OBJECT_SCHEME, ccy),
+            ValueProperties.with(CURVE, "Forward6M").with(ValuePropertyNames.CURVE_CURRENCY, ccyName).get());
+        defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ccyTarget,
             ValueProperties.with(CURVE, "Forward6M").with(CURVE_CALCULATION_CONFIG, s_curveConfigNames[i]).get()));
       }
     }

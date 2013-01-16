@@ -58,7 +58,6 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   public static final String PATH_LATEST_RESULT = "latestResult";
   public static final String PATH_VIEW_DEFINITION = "viewDefinition";
   public static final String PATH_LATEST_COMPILED_VIEW_DEFINITION = "latestCompiledViewDefinition";
-  public static final String PATH_PROCESS_VERSION_CORRECTION = "processVersionCorrection";
   public static final String PATH_VIEW_CYCLE_ACCESS_SUPPORTED = "viewCycleAccessSupported";
   public static final String PATH_CREATE_LATEST_CYCLE_REFERENCE = "createLatestCycleReference";
   public static final String PATH_CREATE_CYCLE_REFERENCE = "createCycleReference";
@@ -264,14 +263,6 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
     return responseOkFudge(getViewClient().getLatestCompiledViewDefinition());
   }
   
-  @GET
-  @Path(PATH_PROCESS_VERSION_CORRECTION) 
-  public Response getProcessVersionCorrection() {
-    updateLastAccessed();
-    return responseOkFudge(getViewClient().getProcessVersionCorrection());
-  }
-  
-  //-------------------------------------------------------------------------
   @GET
   @Path(PATH_VIEW_CYCLE_ACCESS_SUPPORTED)
   public Response isViewCycleAccessSupported() {

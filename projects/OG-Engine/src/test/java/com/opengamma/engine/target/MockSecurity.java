@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.target;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
@@ -13,7 +14,9 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 
-/* package */class MockSecurity implements Security {
+/* package */class MockSecurity implements Security, Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private final UniqueId _uid;
   private final String _name;

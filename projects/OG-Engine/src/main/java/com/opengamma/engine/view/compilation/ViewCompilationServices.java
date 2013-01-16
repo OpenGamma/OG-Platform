@@ -7,7 +7,6 @@ package com.opengamma.engine.view.compilation;
 
 import java.util.concurrent.ExecutorService;
 
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.FunctionResolver;
@@ -26,7 +25,6 @@ public class ViewCompilationServices {
   private final FunctionResolver _functionResolver;
   private final ExecutorService _executorService;
   private final FunctionCompilationContext _compilationContext;
-  private final ComputationTargetResolver _computationTargetResolver;
   private final DependencyGraphBuilderFactory _dependencyGraphBuilder;
 
   /**
@@ -35,7 +33,6 @@ public class ViewCompilationServices {
    * @param marketDataAvailabilityProvider the market data availability provider
    * @param functionResolver the function resolver
    * @param compilationContext the function compilation context
-   * @param computationTargetResolver the computation target resolver
    * @param executorService the executor service
    * @param dependencyGraphBuilder the graph building implementation
    */
@@ -43,20 +40,17 @@ public class ViewCompilationServices {
       MarketDataAvailabilityProvider marketDataAvailabilityProvider,
       FunctionResolver functionResolver,
       FunctionCompilationContext compilationContext,
-      ComputationTargetResolver computationTargetResolver,
       ExecutorService executorService,
       DependencyGraphBuilderFactory dependencyGraphBuilder) {
     ArgumentChecker.notNull(marketDataAvailabilityProvider, "marketDataAvailabilityProvider");
     ArgumentChecker.notNull(functionResolver, "functionResolver");
     ArgumentChecker.notNull(compilationContext, "compilationContext");
-    ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
     ArgumentChecker.notNull(executorService, "executorService");
     ArgumentChecker.notNull(dependencyGraphBuilder, "dependencyGraphBuilder");
     _marketDataAvailabilityProvider = marketDataAvailabilityProvider;
     _functionResolver = functionResolver;
     _compilationContext = compilationContext;
     _executorService = executorService;
-    _computationTargetResolver = computationTargetResolver;
     _dependencyGraphBuilder = dependencyGraphBuilder;
   }
 
@@ -95,15 +89,6 @@ public class ViewCompilationServices {
    */
   public FunctionCompilationContext getFunctionCompilationContext() {
     return _compilationContext;
-  }
-
-  /**
-   * Gets the computation target resolver.
-   * 
-   * @return the computation target resolver, not null
-   */
-  public ComputationTargetResolver getComputationTargetResolver() {
-    return _computationTargetResolver;
   }
 
   /**

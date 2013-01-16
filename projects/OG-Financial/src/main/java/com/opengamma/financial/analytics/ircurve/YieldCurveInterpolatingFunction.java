@@ -19,12 +19,12 @@ import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -55,7 +55,7 @@ public class YieldCurveInterpolatingFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    final ComputationTargetSpecification currencySpec = new ComputationTargetSpecification(_currency);
+    final ComputationTargetSpecification currencySpec = ComputationTargetSpecification.of(_currency);
     
     _interpolatedCurveResult = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INTERPOLATED, currencySpec,
         createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get());
@@ -99,12 +99,12 @@ public class YieldCurveInterpolatingFunction extends AbstractFunction {
     
     @Override
     public ComputationTargetType getTargetType() {
-      return ComputationTargetType.PRIMITIVE;
+      return ComputationTargetType.CURRENCY;
     }
 
     @Override
     public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-      return _currency.getUniqueId().equals(target.getUniqueId());
+      return _currency.equals(target.getValue());
     }
   }
 
@@ -153,7 +153,7 @@ public class YieldCurveInterpolatingFunction extends AbstractFunction {
   @Override
   public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
     ValueRequirement curveReq = new ValueRequirement(ValueRequirementNames.YIELD_CURVE,
-        new ComputationTargetSpecification(_currency),
+        ComputationTargetSpecification.of(_currency),
         ValueProperties.with(ValuePropertyNames.CURVE, _curveName).get());
     return new CompiledImpl(curveReq);
   }

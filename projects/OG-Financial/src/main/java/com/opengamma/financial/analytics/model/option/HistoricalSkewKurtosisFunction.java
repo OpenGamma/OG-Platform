@@ -19,19 +19,20 @@ import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalc
 import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -84,20 +85,15 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiled
       pearson = fisher + 3;
     }
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY), getUniqueId()), skew));
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY), getUniqueId()), pearson));
-    results.add(new ComputedValue(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY), getUniqueId()), fisher));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.SKEW, target.toSpecification(), createValueProperties().get()), skew));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PEARSON_KURTOSIS, target.toSpecification(), createValueProperties().get()), pearson));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.FISHER_KURTOSIS, target.toSpecification(), createValueProperties().get()), fisher));
     return results;
   }
 
   @Override
   public String getShortName() {
     return "HistoricalSkewKurtosisFunction";
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return true;
   }
 
   @Override
@@ -112,15 +108,13 @@ public class HistoricalSkewKurtosisFunction extends AbstractFunction.NonCompiled
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      final UniqueId uid = target.getSecurity().getUniqueId();
-      final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid), getUniqueId()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()));
-      results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.FISHER_KURTOSIS, ComputationTargetType.SECURITY, uid), getUniqueId()));
-      return results;
-    }
-    return null;
+    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final ValueProperties properties = createValueProperties().get();
+    results.add(new ValueSpecification(ValueRequirementNames.SKEW, targetSpec, properties));
+    results.add(new ValueSpecification(ValueRequirementNames.PEARSON_KURTOSIS, targetSpec, properties));
+    results.add(new ValueSpecification(ValueRequirementNames.FISHER_KURTOSIS, targetSpec, properties));
+    return results;
   }
 
   @Override

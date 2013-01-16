@@ -74,11 +74,11 @@ public class DataPositionSourceResource extends AbstractDataResource {
       @QueryParam("versionAsOf") String versionAsOf,
       @QueryParam("correctedTo") String correctedTo) {
     final ObjectId objectId = ObjectId.parse(idStr);
+    final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     if (version != null) {
-      final Portfolio result = getPositionSource().getPortfolio(objectId.atVersion(version));
+      final Portfolio result = getPositionSource().getPortfolio(objectId.atVersion(version), vc);
       return responseOkFudge(result);
     } else {
-      final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
       final Portfolio result = getPositionSource().getPortfolio(objectId, vc);
       return responseOkFudge(result);
     }
@@ -88,9 +88,12 @@ public class DataPositionSourceResource extends AbstractDataResource {
   @Path("nodes/{nodeId}")
   public Response getNode(
       @PathParam("nodeId") String idStr,
-      @QueryParam("version") String version) {
+      @QueryParam("version") String version,
+      @QueryParam("versionAsOf") String versionAsOf,
+      @QueryParam("correctedTo") String correctedTo) {
     final ObjectId objectId = ObjectId.parse(idStr);
-    final PortfolioNode result = getPositionSource().getPortfolioNode(objectId.atVersion(version));
+    final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
+    final PortfolioNode result = getPositionSource().getPortfolioNode(objectId.atVersion(version), vc);
     return responseOkFudge(result);
   }
 
@@ -98,9 +101,16 @@ public class DataPositionSourceResource extends AbstractDataResource {
   @Path("positions/{positionId}")
   public Response getPosition(
       @PathParam("positionId") String idStr,
-      @QueryParam("version") String version) {
+      @QueryParam("version") String version,
+      @QueryParam("versionAsOf") String versionAsOf,
+      @QueryParam("correctedTo") String correctedTo) {
     final ObjectId objectId = ObjectId.parse(idStr);
-    final Position result = getPositionSource().getPosition(objectId.atVersion(version));
+    final Position result;
+    if (version != null) {
+      result = getPositionSource().getPosition(objectId.atVersion(version));
+    } else {
+      result = getPositionSource().getPosition(objectId, VersionCorrection.parse(versionAsOf, correctedTo));
+    }
     return responseOkFudge(result);
   }
 
@@ -175,6 +185,15 @@ public class DataPositionSourceResource extends AbstractDataResource {
       bld.queryParam("version", uniqueId.getVersion());
     }
     return bld.build(uniqueId.getObjectId());
+  }
+
+  public static URI uriGetPosition(final URI baseUri, final ObjectId objectId, final VersionCorrection versionCorrection) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("positions/{positionId}");
+    if (versionCorrection != null) {
+      bld.queryParam("versionAsOf", versionCorrection.getVersionAsOfString());
+      bld.queryParam("correctedTo", versionCorrection.getCorrectedToString());
+    }
+    return bld.build(objectId);
   }
 
   /**

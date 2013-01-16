@@ -7,8 +7,6 @@ package com.opengamma.engine.view;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -41,7 +39,6 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
-
 /**
  * Default implementation of {@link ViewProcess}.
  */
@@ -59,9 +56,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private final AtomicLong _cycleVersion = new AtomicLong();
 
   /**
-   * Manages access to critical regions of the process. Note that the use of {@link Semaphore} rather than, for example,
-   * {@link ReentrantLock} allows one thread to acquire the lock and another thread to release it as part of the same
-   * sequence of operations. This could be important for {@link #suspend()} and {@link #resume()}. 
+   * Manages access to critical regions of the process. Note that the use of {@link Semaphore} rather than, for example, {@link ReentrantLock} allows one thread to acquire the lock and another thread
+   * to release it as part of the same sequence of operations. This could be important for {@link #suspend()} and {@link #resume()}.
    */
   private final Semaphore _processLock = new Semaphore(1);
 
@@ -71,28 +67,26 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
 
   private volatile ViewComputationJob _computationJob;
   private volatile Thread _computationThread;
-  
+
   private final ExecutionLogModeSource _executionLogModeSource = new ExecutionLogModeSource();
 
   private final AtomicReference<Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider>> _latestCompiledViewDefinition =
       new AtomicReference<Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider>>();
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
 
-  private ExecutorService _calcJobResultExecutor = Executors.newSingleThreadExecutor();
-
   /**
    * Constructs an instance.
    *
-   * @param viewProcessId  the unique identifier of the view process, not null
-   * @param viewDefinitionId  the name of the view definition, not null
-   * @param executionOptions  the view execution options, not null
-   * @param viewProcessContext  the process context, not null
-   * @param cycleManager  the view cycle manager, not null
-   * @param cycleObjectId  the object identifier of cycles, not null
+   * @param viewProcessId the unique identifier of the view process, not null
+   * @param viewDefinitionId the name of the view definition, not null
+   * @param executionOptions the view execution options, not null
+   * @param viewProcessContext the process context, not null
+   * @param cycleManager the view cycle manager, not null
+   * @param cycleObjectId the object identifier of cycles, not null
    */
-  public ViewProcessImpl(UniqueId viewProcessId, UniqueId viewDefinitionId, ViewExecutionOptions executionOptions,
-                         ViewProcessContext viewProcessContext,
-                         EngineResourceManagerInternal<SingleComputationCycle> cycleManager, ObjectId cycleObjectId) {
+  public ViewProcessImpl(final UniqueId viewProcessId, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions,
+                         final ViewProcessContext viewProcessContext,
+                         final EngineResourceManagerInternal<SingleComputationCycle> cycleManager, final ObjectId cycleObjectId) {
     ArgumentChecker.notNull(viewProcessId, "viewProcessId");
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionID");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -139,7 +133,29 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     if (getState() == ViewProcessState.TERMINATED) {
       return;
     }
-    shutdownCore();
+    // Caller MUST NOT hold the semaphore
+    final boolean isInterrupting;
+    final ViewResultListener[] listeners;
+    lock();
+    try {
+      isInterrupting = (getState() == ViewProcessState.RUNNING);
+      setState(ViewProcessState.TERMINATED);
+      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
+      _listeners.clear();
+      terminateComputationJob();
+    } finally {
+      unlock();
+    }
+    // [PLAT-1158] The notifications are performed outside of holding the lock which avoids the deadlock problem, but we'll still block
+    // for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
+    // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
+    for (final ViewResultListener listener : listeners) {
+      try {
+        listener.processTerminated(isInterrupting);
+      } catch (final Exception e) {
+        logListenerError(listener, e);
+      }
+    }
   }
 
   public void triggerCycle() {
@@ -183,7 +199,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       try {
         s_logger.debug("Waiting for calculation thread to finish");
         getComputationThread().join();
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         s_logger.warn("Interrupted waiting for calculation thread");
         throw new OpenGammaRuntimeException("Couldn't suspend view process", e);
       } finally {
@@ -214,155 +230,161 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   //-------------------------------------------------------------------------
   /**
    * Gets the execution log mode source.
-   * 
+   *
    * @return the execution log mode source, not null
    */
   public ExecutionLogModeSource getExecutionLogModeSource() {
     return _executionLogModeSource;
   }
-  
+
   //-------------------------------------------------------------------------
   public UniqueId generateCycleId() {
-    String cycleVersion = Long.toString(_cycleVersion.getAndIncrement());
+    final String cycleVersion = Long.toString(_cycleVersion.getAndIncrement());
     return UniqueId.of(_cycleObjectId, cycleVersion);
   }
 
-  public void viewDefinitionCompiled(CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, MarketDataPermissionProvider permissionProvider) {
+  public void viewDefinitionCompiled(final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition, final MarketDataPermissionProvider permissionProvider) {
+    // Caller MUST NOT hold the semaphore
+    final ViewResultListener[] listeners;
     lock();
     try {
       _latestCompiledViewDefinition.set(Pair.of(compiledViewDefinition, permissionProvider));
-      final Set<ValueRequirement> marketDataRequirements = compiledViewDefinition.getMarketDataRequirements().keySet();
-      for (ViewResultListener listener : _listeners) {
-        try {
-          UserPrincipal listenerUser = listener.getUser();
-          boolean hasMarketDataPermissions = listenerUser != null ? permissionProvider.checkMarketDataPermissions(listenerUser, marketDataRequirements).isEmpty() : true;
-          listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
-        } catch (Exception e) {
-          logListenerError(listener, e);
-        }
-      }
-      _executionLogModeSource.viewDefinitionCompiled(compiledViewDefinition);
+      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
     } finally {
       unlock();
     }
+    final Set<ValueRequirement> marketDataRequirements = compiledViewDefinition.getMarketDataRequirements().keySet();
+    // [PLAT-1158] The notifications are performed outside of holding the lock which avoids the deadlock problem, but we'll still block
+    // for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
+    // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
+    for (final ViewResultListener listener : listeners) {
+      try {
+        final UserPrincipal listenerUser = listener.getUser();
+        final boolean hasMarketDataPermissions = permissionProvider.checkMarketDataPermissions(listenerUser, marketDataRequirements).isEmpty();
+        listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
+      } catch (final Exception e) {
+        logListenerError(listener, e);
+      }
+    }
+    _executionLogModeSource.viewDefinitionCompiled(compiledViewDefinition);
   }
 
-  public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
+  public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
+    // Caller MUST NOT hold the semaphore
     s_logger.error("View definition compilation failed for " + valuationTime + ": ", exception);
-    for (ViewResultListener listener : _listeners) {
+    final ViewResultListener[] listeners;
+    lock();
+    try {
+      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
+    } finally {
+      unlock();
+    }
+    // [PLAT-1158] The notifications are performed outside of holding the lock which avoids the deadlock problem, but we'll still block
+    // for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
+    // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
+    for (final ViewResultListener listener : listeners) {
       try {
         listener.viewDefinitionCompilationFailed(valuationTime, exception);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         logListenerError(listener, e);
       }
     }
   }
 
-  public void cycleCompleted(ViewCycle cycle) {
+  public void cycleCompleted(final ViewCycle cycle) {
     // Caller MUST NOT hold the semaphore
     s_logger.debug("View cycle {} completed on view process {}", cycle.getUniqueId(), getUniqueId());
+    final ViewComputationResultModel result;
+    final ViewDeltaResultModel deltaResult;
+    final ViewResultListener[] listeners;
     lock();
     try {
-      cycleCompletedCore(cycle);
+      result = cycle.getResultModel();
+      // We swap these first so that in the callback the process is consistent.
+      final ViewComputationResultModel previousResult = _latestResult.getAndSet(result);
+      // [PLAT-1158] Is the cost of computing the delta going to be high; should we offload that to a slave thread before dispatching to the listeners?
+      deltaResult = ViewDeltaResultCalculator.computeDeltaModel(cycle.getCompiledViewDefinition().getViewDefinition(), previousResult, result);
+      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
     } finally {
       unlock();
     }
-  }
-
-  public void cycleStarted(ViewCycleMetadata cycleInfo) {
-    // Caller MUST NOT hold the semaphore
-    s_logger.debug("View cycle {} initiated on view process {}", cycleInfo, getUniqueId());
-    lock();
-    try {
-      cycleStartedCore(cycleInfo);
-    } finally {
-      unlock();
-    }
-  }
-
-  public void cycleFragmentCompleted(ViewComputationResultModel result, ViewDefinition viewDefinition) {
-    // Caller MUST NOT hold the semaphore
-    s_logger.debug("Result fragment from cycle {} received on view process {}", result.getViewCycleId(), getUniqueId());
-    lock();
-    try {
-      cycleFragmentCompletedCore(result, viewDefinition);
-    } finally {
-      unlock();
-    }
-  }
-
-  private void cycleFragmentCompletedCore(ViewComputationResultModel fullFragment, ViewDefinition viewDefinition) {
-    // Caller MUST hold the semaphore
-
-    // [PLAT-1158]
-    // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
-    // of some kind. It holds the lock and blocks the recalc thread, so a slow
-    // callback implementation (or just the cost of computing the delta model) will
-    // be an unnecessary burden.
-
-    // We swap these first so that in the callback the process is consistent.
-    ViewComputationResultModel previousResult = _latestResult.get();
-
-    ViewDeltaResultModel deltaFragment = ViewDeltaResultCalculator.computeDeltaModel(viewDefinition, previousResult, fullFragment);
-    for (ViewResultListener listener : _listeners) {
-      try {
-        listener.cycleFragmentCompleted(fullFragment, deltaFragment);
-      } catch (Exception e) {
-        logListenerError(listener, e);
-      }
-    }
-  }
-
-
-  private void cycleCompletedCore(ViewCycle cycle) {
-    // Caller MUST hold the semaphore
-
-    // [PLAT-1158]
-    // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
-    // of some kind. It holds the lock and blocks the recalc thread, so a slow
-    // callback implementation (or just the cost of computing the delta model) will
-    // be an unnecessary burden.
-
-    // We swap these first so that in the callback the process is consistent.
-    ViewComputationResultModel result = cycle.getResultModel();
-    ViewComputationResultModel previousResult = _latestResult.get();
-    _latestResult.set(result);
-
-    ViewDeltaResultModel deltaResult = ViewDeltaResultCalculator.computeDeltaModel(cycle.getCompiledViewDefinition().getViewDefinition(), previousResult, result);
-    for (ViewResultListener listener : _listeners) {
+    // [PLAT-1158] The notifications are performed outside of holding the lock which avoids the deadlock problem, but we'll still block
+    // for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
+    // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
+    for (final ViewResultListener listener : listeners) {
       try {
         listener.cycleCompleted(result, deltaResult);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         logListenerError(listener, e);
       }
     }
   }
 
-  private void cycleStartedCore(ViewCycleMetadata cycleMetadata) {
-    // Caller MUST hold the semaphore
-
-    // [PLAT-1158]
-    // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
-    // of some kind. It holds the lock and blocks the recalc thread, so a slow
-    // callback implementation (or just the cost of computing the delta model) will
-    // be an unnecessary burden.
-
-    // We swap these first so that in the callback the process is consistent.
-    for (ViewResultListener listener : _listeners) {
+  public void cycleStarted(final ViewCycleMetadata cycleInfo) {
+    // Caller MUST NOT hold the semaphore
+    s_logger.debug("View cycle {} initiated on view process {}", cycleInfo, getUniqueId());
+    final ViewResultListener[] listeners;
+    lock();
+    try {
+      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
+    } finally {
+      unlock();
+    }
+    // [PLAT-1158] The notifications are performed outside of holding the lock which avoids the deadlock problem, but we'll still block
+    // for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
+    // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
+    for (final ViewResultListener listener : listeners) {
       try {
-        listener.cycleStarted(cycleMetadata);
-      } catch (Exception e) {
+        listener.cycleStarted(cycleInfo);
+      } catch (final Exception e) {
         logListenerError(listener, e);
       }
     }
   }
 
-  public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
+  public void cycleFragmentCompleted(final ViewComputationResultModel fullFragment, final ViewDefinition viewDefinition) {
+    // Caller MUST NOT hold the semaphore
+    s_logger.debug("Result fragment from cycle {} received on view process {}", fullFragment.getViewCycleId(), getUniqueId());
+    final ViewDeltaResultModel deltaFragment;
+    final ViewResultListener[] listeners;
+    lock();
+    try {
+      // [PLAT-1158] Is the cost of computing the delta going to be high; should we offload that to a slave thread before dispatching to the listeners?
+      final ViewComputationResultModel previousResult = _latestResult.get();
+      deltaFragment = ViewDeltaResultCalculator.computeDeltaModel(viewDefinition, previousResult, fullFragment);
+      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
+    } finally {
+      unlock();
+    }
+    // [PLAT-1158] The notifications are performed outside of holding the lock which avoids the deadlock problem, but we'll still block
+    // for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
+    // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
+    for (final ViewResultListener listener : listeners) {
+      try {
+        listener.cycleFragmentCompleted(fullFragment, deltaFragment);
+      } catch (final Exception e) {
+        logListenerError(listener, e);
+      }
+    }
+  }
+
+  public void cycleExecutionFailed(final ViewCycleExecutionOptions executionOptions, final Exception exception) {
+    // Caller MUST NOT hold the semaphore
     s_logger.error("Cycle execution failed for " + executionOptions + ": ", exception);
-    for (ViewResultListener listener : _listeners) {
+    final ViewResultListener[] listeners;
+    lock();
+    try {
+      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
+    } finally {
+      unlock();
+    }
+    // [PLAT-1158] The notifications are performed outside of holding the lock which avoids the deadlock problem, but we'll still block
+    // for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
+    // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
+    for (final ViewResultListener listener : listeners) {
       try {
         listener.cycleExecutionFailed(executionOptions, exception);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         logListenerError(listener, e);
       }
     }
@@ -371,17 +393,21 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   public void processCompleted() {
     // Caller MUST NOT hold the semaphore
     s_logger.debug("Computation job completed on view {}. No further cycles to run.", this);
+    final ViewResultListener[] listeners;
     lock();
     try {
       setState(ViewProcessState.FINISHED);
+      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
     } finally {
       unlock();
     }
-
-    for (ViewResultListener listener : _listeners) {
+    // [PLAT-1158] The notifications are performed outside of holding the lock which avoids the deadlock problem, but we'll still block
+    // for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
+    // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
+    for (final ViewResultListener listener : listeners) {
       try {
         listener.processCompleted();
-      } catch (Exception e) {
+      } catch (final Exception e) {
         logListenerError(listener, e);
       }
     }
@@ -393,7 +419,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       s_logger.debug("Attempt to acquire lock by thread {}", Thread.currentThread().getName());
       _processLock.acquire();
       s_logger.debug("Lock acquired by thread {}", Thread.currentThread().getName());
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       throw new OpenGammaRuntimeException("Interrupted", e);
     }
   }
@@ -406,9 +432,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   /**
    * Sets the current view process state.
    *
-   * @param state  the new view process state
+   * @param state the new view process state
    */
-  private void setState(ViewProcessState state) {
+  private void setState(final ViewProcessState state) {
     _state = state;
   }
 
@@ -417,7 +443,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * <p>
    * External visibility for testing.
    *
-   * @return  the current view computation job
+   * @return the current view computation job
    */
   public ViewComputationJob getComputationJob() {
     return _computationJob;
@@ -426,9 +452,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   /**
    * Sets the current computation job
    *
-   * @param computationJob  the current computation job
+   * @param computationJob the current computation job
    */
-  private void setComputationJob(ViewComputationJob computationJob) {
+  private void setComputationJob(final ViewComputationJob computationJob) {
     _computationJob = computationJob;
   }
 
@@ -437,7 +463,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
    * <p>
    * External visibility for testing.
    *
-   * @return  the current computation job thread
+   * @return the current computation job thread
    */
   public Thread getComputationThread() {
     return _computationThread;
@@ -446,9 +472,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   /**
    * Sets the current computation job's thread
    *
-   * @param computationJobThread  the current computation job thread
+   * @param computationJobThread the current computation job thread
    */
-  private void setComputationThread(Thread computationJobThread) {
+  private void setComputationThread(final Thread computationJobThread) {
     _computationThread = computationJobThread;
   }
 
@@ -459,30 +485,27 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private EngineResourceManagerInternal<SingleComputationCycle> getCycleManager() {
     return _cycleManager;
   }
-  
-  public ExecutorService getCalcJobResultExecutor() {
-    return _calcJobResultExecutor;
-  }
 
-  //-------------------------------------------------------------------------
   /**
    * Attaches a listener to the view process.
    * <p>
    * The method operates with set semantics, so duplicate notifications for the same listener have no effect.
    *
-   * @param listener  the listener, not null
+   * @param listener the listener, not null
    * @return the permission provider for the process, not null
    */
-  public ViewPermissionProvider attachListener(ViewResultListener listener) {
+  public ViewPermissionProvider attachListener(final ViewResultListener listener) {
     ArgumentChecker.notNull(listener, "listener");
     // Caller MUST NOT hold the semaphore
+    Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider> latestCompilation = null;
+    ViewComputationResultModel latestResult = null;
     lock();
     try {
       if (_listeners.add(listener)) {
         if (_listeners.size() == 1) {
           try {
             startComputationJob();
-          } catch (Exception e) {
+          } catch (final Exception e) {
             // Roll-back
             _listeners.remove(listener);
             s_logger.error("Failed to start computation job while adding listener for view process {}", this);
@@ -490,42 +513,46 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
           }
         } else {
           // Push initial state to listener
-          try {
-            Pair<CompiledViewDefinitionWithGraphsImpl, MarketDataPermissionProvider> latestCompilation = _latestCompiledViewDefinition.get();
-            if (latestCompilation != null) {
-              CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = latestCompilation.getFirst();
-              MarketDataPermissionProvider permissionProvider = latestCompilation.getSecond();
-              Set<ValueRequirement> marketDataRequirements = compiledViewDefinition.getMarketDataRequirements().keySet();
-              Set<ValueRequirement> deniedRequirements =
-                  permissionProvider.checkMarketDataPermissions(listener.getUser(), marketDataRequirements);
-              boolean hasMarketDataPermissions = deniedRequirements.isEmpty();
-              listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
-              ViewComputationResultModel latestResult = _latestResult.get();
-              if (latestResult != null) {
-                listener.cycleCompleted(latestResult, null);
-              }
-            }
-          } catch (Exception e) {
-            s_logger.error("Failed to push initial state to listener during attachment");
-            logListenerError(listener, e);
+          latestCompilation = _latestCompiledViewDefinition.get();
+          if (latestCompilation != null) {
+            latestResult = _latestResult.get();
           }
         }
       }
-      return getProcessContext().getViewPermissionProvider();
     } finally {
       unlock();
     }
+    if (latestCompilation != null) {
+      // [PLAT-1158] The initial notification is performed outside of holding the lock which avoids the deadlock problem, but we'll still
+      // block for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
+      // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
+      try {
+        final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = latestCompilation.getFirst();
+        final MarketDataPermissionProvider permissionProvider = latestCompilation.getSecond();
+        final Set<ValueRequirement> marketDataRequirements = compiledViewDefinition.getMarketDataRequirements().keySet();
+        final Set<ValueRequirement> deniedRequirements =
+              permissionProvider.checkMarketDataPermissions(listener.getUser(), marketDataRequirements);
+        final boolean hasMarketDataPermissions = deniedRequirements.isEmpty();
+        listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
+        if (latestResult != null) {
+          listener.cycleCompleted(latestResult, null);
+        }
+      } catch (final Exception e) {
+        s_logger.error("Failed to push initial state to listener during attachment");
+        logListenerError(listener, e);
+      }
+    }
+    return getProcessContext().getViewPermissionProvider();
   }
 
   /**
-   * Removes a listener from the view process. Removal of the last listener generating execution demand will cause the
-   * process to stop.
+   * Removes a listener from the view process. Removal of the last listener generating execution demand will cause the process to stop.
    * <p>
    * The method operates with set semantics, so duplicate notifications for the same listener have no effect.
    *
-   * @param listener  the listener, not null 
+   * @param listener the listener, not null
    */
-  public void detachListener(ViewResultListener listener) {
+  public void detachListener(final ViewResultListener listener) {
     ArgumentChecker.notNull(listener, "listener");
     // Caller MUST NOT hold the semaphore
     lock();
@@ -539,7 +566,13 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   }
 
   public boolean hasExecutionDemand() {
-    return !_listeners.isEmpty();
+    // Caller MUST NOT hold the semaphore
+    lock();
+    try {
+      return !_listeners.isEmpty();
+    } finally {
+      unlock();
+    }
   }
 
   public ViewExecutionOptions getExecutionOptions() {
@@ -549,13 +582,13 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   private void startComputationJobImpl() {
     // Caller MUST hold the semaphore
     try {
-      ViewComputationJob computationJob = new ViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager());
-      Thread computationJobThread = new Thread(computationJob, "Computation job for " + this);
+      final ViewComputationJob computationJob = new ViewComputationJob(this, _executionOptions, getProcessContext(), getCycleManager());
+      final Thread computationJobThread = new Thread(computationJob, "Computation job for " + this);
 
       setComputationJob(computationJob);
       setComputationThread(computationJobThread);
       computationJobThread.start();
-    } catch (Exception e) {
+    } catch (final Exception e) {
       // Roll-back
       terminateComputationJob();
       s_logger.error("Failed to start computation job for view process " + toString(), e);
@@ -586,8 +619,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
   }
 
   /**
-   * Instructs the background computation job to finish. The background job might actually terminate asynchronously,
-   * but any outstanding result will be discarded. A replacement background computation job may be started immediately.
+   * Instructs the background computation job to finish. The background job might actually terminate asynchronously, but any outstanding result will be discarded. A replacement background computation
+   * job may be started immediately.
    */
   private void stopComputationJob() {
     // Caller MUST hold the semaphore
@@ -600,33 +633,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     s_logger.info("Stopped.");
   }
 
-  //-------------------------------------------------------------------------
-  private void shutdownCore() {
-    // Caller MUST NOT hold the semaphore
-    boolean isInterrupting;
-    final Set<ViewResultListener> listeners;
-    lock();
-    try {
-      isInterrupting = getState() == ViewProcessState.RUNNING;
-      setState(ViewProcessState.TERMINATED);
-
-      listeners = new HashSet<ViewResultListener>(_listeners);
-      _listeners.clear();
-      terminateComputationJob();
-    } finally {
-      unlock();
-    }
-
-    for (ViewResultListener listener : listeners) {
-      try {
-        listener.processTerminated(isInterrupting);
-      } catch (Exception e) {
-        logListenerError(listener, e);
-      }
-    }
-  }
-
-  private void logListenerError(ViewResultListener listener, Exception e) {
+  private void logListenerError(final ViewResultListener listener, final Exception e) {
     s_logger.error("Error while calling listener " + listener, e);
   }
 

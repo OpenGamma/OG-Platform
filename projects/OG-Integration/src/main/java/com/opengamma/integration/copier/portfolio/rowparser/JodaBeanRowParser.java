@@ -81,6 +81,7 @@ public class JodaBeanRowParser extends RowParser {
     "com.opengamma.financial.security.bond",
     "com.opengamma.financial.security.capfloor",
     "com.opengamma.financial.security.cash",
+    "com.opengamma.financial.security.cashflow",
     "com.opengamma.financial.security.cds",
     "com.opengamma.financial.security.deposit",
     "com.opengamma.financial.security.equity",
@@ -422,7 +423,7 @@ public class JodaBeanRowParser extends RowParser {
       return builder.build();
   
     } catch (Throwable ex) {
-      s_logger.error("Could not create a " + clazz.getSimpleName() + ": " + ex.getMessage());
+      s_logger.error("Could not create a " + clazz.getSimpleName() + ": " + ex.getMessage(), ex);
       return null;
     }
   }

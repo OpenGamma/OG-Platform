@@ -6,14 +6,8 @@
 package com.opengamma.financial.analytics.model.equity.option;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
  * Populates {@link EquityOptionFunction}, including {@link EquityVanillaBarrierOptionBlackFunction}, with defaults appropriate
@@ -27,19 +21,6 @@ public class EquityOptionInterpolatedBlackLognormalPerCurrencyDefaults extends E
    */
   public EquityOptionInterpolatedBlackLognormalPerCurrencyDefaults(final String priority, final String... perCurrencyConfig) {
     super(priority, perCurrencyConfig);
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    final Security eqSec = target.getSecurity();
-    if (!((eqSec instanceof EquityIndexOptionSecurity) || (eqSec instanceof EquityBarrierOptionSecurity) || (eqSec instanceof EquityOptionSecurity))) {
-      return false;
-    }
-    final String currency = getId(eqSec);
-    return getAllIds().contains(currency);
   }
 
   @Override

@@ -17,11 +17,12 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -38,7 +39,8 @@ public class HistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledIn
 
   private static final Logger s_logger = LoggerFactory.getLogger(HistoricalTimeSeriesFunction.class);
 
-  protected static HistoricalTimeSeries executeImpl(final FunctionExecutionContext executionContext, final HistoricalTimeSeriesSource timeSeriesSource, final ValueRequirement desiredValue) {
+  protected static HistoricalTimeSeries executeImpl(final FunctionExecutionContext executionContext, final HistoricalTimeSeriesSource timeSeriesSource,
+      final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
     final LocalDate startDate = DateConstraint.getLocalDate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY));
     final boolean includeStart = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY));
     LocalDate endDate = DateConstraint.getLocalDate(executionContext, desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY));
@@ -46,7 +48,7 @@ public class HistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledIn
       endDate = executionContext.getValuationClock().today();
     }
     final boolean includeEnd = HistoricalTimeSeriesFunctionUtils.parseBoolean(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY));
-    HistoricalTimeSeries hts = timeSeriesSource.getHistoricalTimeSeries(desiredValue.getTargetSpecification().getUniqueId(), startDate, includeStart, endDate, includeEnd);
+    HistoricalTimeSeries hts = timeSeriesSource.getHistoricalTimeSeries(targetSpec.getUniqueId(), startDate, includeStart, endDate, includeEnd);
     final String adjusterString = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);
     hts = HistoricalTimeSeriesAdjustment.parse(adjusterString).adjust(hts);
     return hts;
@@ -56,22 +58,18 @@ public class HistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledIn
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    Object value = executeImpl(executionContext, timeSeriesSource, desiredValue);
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    Object value = executeImpl(executionContext, timeSeriesSource, targetSpec, desiredValue);
     if (value == null) {
       s_logger.error("Couldn't get time series {}", desiredValue);
       value = MissingMarketDataSentinel.getInstance();
     }
-    return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints()), value));
+    return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints()), value));
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return true;
+    return ComputationTargetType.PRIMITIVE; // UID of the time series
   }
 
   @Override

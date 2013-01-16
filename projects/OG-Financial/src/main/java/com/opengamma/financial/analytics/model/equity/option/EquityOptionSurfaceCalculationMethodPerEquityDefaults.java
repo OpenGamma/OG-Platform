@@ -6,14 +6,8 @@
 package com.opengamma.financial.analytics.model.equity.option;
 
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
-import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
  * Populates {@link EquityOptionFunction}, including {@link EquityVanillaBarrierOptionBlackFunction}, with defaults appropriate
@@ -30,21 +24,8 @@ public class EquityOptionSurfaceCalculationMethodPerEquityDefaults extends Equit
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    final Security eqSec = target.getSecurity();
-    if (!((eqSec instanceof EquityIndexOptionSecurity) || (eqSec instanceof EquityBarrierOptionSecurity) || (eqSec instanceof EquityOptionSecurity))) {
-      return false;
-    }
-    final String equity = EquitySecurityUtils.getIndexOrEquityName(eqSec);
-    return getAllIds().contains(equity);
-  }
-
-  @Override
   protected String getId(final Security security) {
-    return EquitySecurityUtils.getIndexOrEquityName(security).toUpperCase();
+    return EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security).toUpperCase();
   }
 
 }

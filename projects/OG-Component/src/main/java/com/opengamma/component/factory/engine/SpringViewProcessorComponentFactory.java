@@ -25,6 +25,7 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractSpringComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
@@ -96,9 +97,9 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   private MarketDataProviderResolver _marketDataProviderResolver;
 
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     // TODO: Lifecycle beans
-    GenericApplicationContext appContext = createApplicationContext(repo);
+    final GenericApplicationContext appContext = createApplicationContext(repo);
     initViewProcessor(repo, appContext);
     initAvailableOutputs(repo, appContext);
     initCalcNodeSocketConfiguration(repo, appContext);
@@ -111,99 +112,101 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
 
   /**
    * Registers the view processor.
-   * 
+   *
    * @param repo  the repository to register with, not null
    * @param appContext  the Spring application context, not null
    */
-  protected void initViewProcessor(ComponentRepository repo, GenericApplicationContext appContext) {
-    ViewProcessor viewProcessor = appContext.getBean(ViewProcessor.class);
-    ComponentInfo info = new ComponentInfo(ViewProcessor.class, getClassifier());
+  protected void initViewProcessor(final ComponentRepository repo, final GenericApplicationContext appContext) {
+    final ViewProcessor viewProcessor = appContext.getBean(ViewProcessor.class);
+    final ComponentInfo info = new ComponentInfo(ViewProcessor.class, getClassifier());
     if (getJmsBrokerUri() != null) {
       info.addAttribute(ComponentInfoAttributes.JMS_BROKER_URI, getJmsBrokerUri());
     }
     repo.registerComponent(info, viewProcessor);
-    
     if (isPublishRest()) {
-      final DataViewProcessorResource vpResource = new DataViewProcessorResource(viewProcessor, getVolatilityCubeDefinitionSource(), getJmsConnector(), getFudgeContext(), getScheduler());
+      final CompiledFunctionService compiledFunctionService = appContext.getBean(CompiledFunctionService.class);
+      final SecuritySource securitySource = compiledFunctionService.getFunctionCompilationContext().getSecuritySource();
+      final DataViewProcessorResource vpResource = new DataViewProcessorResource(securitySource, viewProcessor, getVolatilityCubeDefinitionSource(), getJmsConnector(), getFudgeContext(),
+          getScheduler());
       repo.getRestComponents().publish(info, vpResource);
     }
   }
 
   /**
    * Registers the available outputs.
-   * 
+   *
    * @param repo  the repository to register with, not null
    * @param appContext  the Spring application context, not null
    */
-  protected void initAvailableOutputs(ComponentRepository repo, GenericApplicationContext appContext) {
-    AvailableOutputsProvider availableOutputs = appContext.getBean(AvailableOutputsProvider.class);
-    ComponentInfo info = new ComponentInfo(AvailableOutputsProvider.class, getClassifier());
+  protected void initAvailableOutputs(final ComponentRepository repo, final GenericApplicationContext appContext) {
+    final AvailableOutputsProvider availableOutputs = appContext.getBean(AvailableOutputsProvider.class);
+    final ComponentInfo info = new ComponentInfo(AvailableOutputsProvider.class, getClassifier());
     repo.registerComponent(info, availableOutputs);
-    
+
     if (isPublishRest()) {
-      DataAvailableOutputsProviderResource aoResource = new DataAvailableOutputsProviderResource(availableOutputs);
+      final DataAvailableOutputsProviderResource aoResource = new DataAvailableOutputsProviderResource(availableOutputs);
       repo.getRestComponents().publish(info, aoResource);
     }
   }
 
   /**
    * Registers the configuration resource.
-   * 
+   *
    * @param repo  the repository to register with, not null
    * @param appContext  the Spring application context, not null
    */
-  protected void initCalcNodeSocketConfiguration(ComponentRepository repo, GenericApplicationContext appContext) {
-    CalcNodeSocketConfiguration calcNodeSocketConfig = appContext.getBean(CalcNodeSocketConfiguration.class);
-    ComponentInfo info = new ComponentInfo(CalcNodeSocketConfiguration.class, getClassifier());
+  protected void initCalcNodeSocketConfiguration(final ComponentRepository repo, final GenericApplicationContext appContext) {
+    final CalcNodeSocketConfiguration calcNodeSocketConfig = appContext.getBean(CalcNodeSocketConfiguration.class);
+    final ComponentInfo info = new ComponentInfo(CalcNodeSocketConfiguration.class, getClassifier());
     repo.registerComponent(info, calcNodeSocketConfig);
   }
 
   /**
    * Registers the aggregators.
-   * 
+   *
    * @param repo  the repository to register with, not null
    * @param appContext  the Spring application context, not null
    */
-  protected void initAggregators(ComponentRepository repo, GenericApplicationContext appContext) {
+  protected void initAggregators(final ComponentRepository repo, final GenericApplicationContext appContext) {
     registerInfrastructureByType(repo, PortfolioAggregationFunctions.class, appContext);
   }
 
   /**
    * Registers the user (used until proper user management present).
-   * 
+   *
    * @param repo  the repository to register with, not null
    * @param appContext  the Spring application context, not null
    */
-  protected void initUserPrincipal(ComponentRepository repo, GenericApplicationContext appContext) {
+  protected void initUserPrincipal(final ComponentRepository repo, final GenericApplicationContext appContext) {
     registerInfrastructureByType(repo, UserPrincipal.class, appContext);
   }
 
   /**
    * Registers the compiled function service and function .
-   * 
+   *
    * @param repo  the repository to register with, not null
    * @param appContext  the Spring application context, not null
    */
-  protected void initFunctions(ComponentRepository repo, GenericApplicationContext appContext) {
-    CompiledFunctionService compiledFunctionService = appContext.getBean(CompiledFunctionService.class);
-    ComponentInfo infoCFS = new ComponentInfo(CompiledFunctionService.class, getClassifier());
+  protected void initFunctions(final ComponentRepository repo, final GenericApplicationContext appContext) {
+    final CompiledFunctionService compiledFunctionService = appContext.getBean(CompiledFunctionService.class);
+    final ComponentInfo infoCFS = new ComponentInfo(CompiledFunctionService.class, getClassifier());
     repo.registerComponent(infoCFS, compiledFunctionService);
-    ComponentInfo infoFR = new ComponentInfo(FunctionRepository.class, getClassifier());
+    final ComponentInfo infoFR = new ComponentInfo(FunctionRepository.class, getClassifier());
     repo.registerComponent(infoFR, compiledFunctionService.getFunctionRepository());
     final FunctionExclusionGroups functionExclusionGroups = appContext.getBean(FunctionExclusionGroups.class);
     repo.registerComponent(new ComponentInfo(FunctionExclusionGroups.class, getClassifier()), functionExclusionGroups);
-    FunctionResolver functionResolver = appContext.getBean(FunctionResolver.class);
+    final FunctionResolver functionResolver = appContext.getBean(FunctionResolver.class);
     repo.registerComponent(new ComponentInfo(FunctionResolver.class, getClassifier()), functionResolver);
     if (isPublishRest()) {
       repo.getRestComponents().publishResource(new DataFunctionRepositoryResource(compiledFunctionService.getFunctionRepository()));
-      DependencyGraphBuilderResourceContextBean bean = new DependencyGraphBuilderResourceContextBean();
+      final DependencyGraphBuilderResourceContextBean bean = new DependencyGraphBuilderResourceContextBean();
       bean.setCompiledFunctionService(compiledFunctionService);
       bean.setFunctionResolver(functionResolver);
       bean.setFunctionExclusionGroups(functionExclusionGroups);
       bean.setMarketDataProviderResolver(getMarketDataProviderResolver());
-      DependencyGraphBuilderResource resource = new DependencyGraphBuilderResource(bean, getFudgeContext());
+      final DependencyGraphBuilderResource resource = new DependencyGraphBuilderResource(bean, getFudgeContext());
       // TODO: not really designed as a "component"
-      ComponentInfo infoDGB = new ComponentInfo(DependencyGraphBuilderResource.class, getClassifier());
+      final ComponentInfo infoDGB = new ComponentInfo(DependencyGraphBuilderResource.class, getClassifier());
       repo.registerComponent(infoDGB, resource);
       repo.getRestComponents().publish(infoDGB, resource);
     }
@@ -211,11 +214,11 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
 
   /**
    * Registers the debugging RESTful artifacts.
-   * 
+   *
    * @param repo  the repository to register with, not null
    * @param appContext  the Spring application context, not null
    */
-  protected void initForDebugging(ComponentRepository repo, GenericApplicationContext appContext) {
+  protected void initForDebugging(final ComponentRepository repo, final GenericApplicationContext appContext) {
     // TODO: These should not really be exposed to the component repository
     registerInfrastructureByType(repo, TotallingNodeStatisticsGatherer.class, appContext);
     registerInfrastructureByType(repo, TotallingGraphStatisticsGathererProvider.class, appContext);
