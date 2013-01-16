@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type) {
+  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
     MainGridStructure.Row row = _rows.get(rowIndex);
     ComputationTargetSpecification target = row.getTarget();
     UniqueId compoundId = target.getUniqueId();
@@ -46,9 +46,9 @@ import com.opengamma.util.ArgumentChecker;
     // TODO end hack
     ComputationTargetType targetType = target.getType();
     if (targetType.isTargetType(ComputationTargetType.POSITION)) {
-      return ResultsCell.forStaticValue(new PositionTarget(row.getName(), targetId), type);
+      return ResultsCell.forStaticValue(new PositionTarget(row.getName(), targetId), columnType);
     } else if (targetType.isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
-      return ResultsCell.forStaticValue(new NodeTarget(row.getName(), targetId), type);
+      return ResultsCell.forStaticValue(new NodeTarget(row.getName(), targetId), columnType);
     }
     throw new IllegalArgumentException("Unexpected target type for row: " + targetType);
   }

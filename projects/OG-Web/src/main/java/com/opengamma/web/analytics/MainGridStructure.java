@@ -40,6 +40,9 @@ import com.opengamma.util.tuple.Pair;
     _rows = Collections.emptyList();
   }
 
+  // TODO refactor this to pass in columns instead of column keys?
+  // column would need to return its key (null for static and blotter columns)
+  // could pass all columns in a single List<GridColumnGroup> or GridColumnGroups instance
   /* package */ MainGridStructure(List<GridColumnGroup> staticColumns,
                                   Map<String, List<ColumnKey>> analyticsColumns,
                                   CompiledViewDefinition compiledViewDef,
@@ -75,7 +78,7 @@ import com.opengamma.util.tuple.Pair;
           _columnKeys.add(columnKey);
           String valueName = columnKey.getValueName();
           Class<?> columnType = ValueTypes.getTypeForValueName(valueName);
-          configColumns.add(GridColumn.forKey(columnKey, columnType, colIndex, this));
+          configColumns.add(GridColumn.forKey(columnKey, columnType, this));
         }
       }
       columnGroups.add(new GridColumnGroup(configName, configColumns));
@@ -83,22 +86,13 @@ import com.opengamma.util.tuple.Pair;
     _columnGroups = new GridColumnGroups(columnGroups);
   }
 
-  /**
-   * Returns the calculation configuration name and value specification for a cell in the grid.
-   * @param rowIndex The row index
-   * @param colIndex The column index
-   * @return Pair of value spec and calculation config name.
-   * TODO need to specify this using a stable target ID to cope with dynamic reaggregation
-   */
-  @Override
-  public Pair<String, ValueSpecification> getTargetForCell(int rowIndex, int colIndex) {
-    if (rowIndex < 0 || rowIndex >= getRowCount() || colIndex < 0 || colIndex >= getColumnCount()) {
-      throw new IllegalArgumentException("Cell is outside grid bounds: row=" + rowIndex + ", col=" + colIndex +
-                                             ", rowCount=" + getRowCount() + ", colCount=" + getColumnCount());
+  /* package */ Pair<String, ValueSpecification> getTargetForCell(int rowIndex, ColumnKey colKey) {
+    if (rowIndex < 0 || rowIndex >= getRowCount()) {
+      throw new IllegalArgumentException("Row is outside grid bounds: row=" + rowIndex + ", rowCount=" + getRowCount());
     }
-    ColumnKey colKey = _columnKeys.get(colIndex);
     if (colKey == null) {
-      return null;
+      throw new IllegalArgumentException("Unknown column key " + colKey);
+      //return null; // TODO is this necessary?
     }
     Row row = _rows.get(rowIndex);
     ValueRequirement valueReq = new ValueRequirement(colKey.getValueName(), row.getTarget(), colKey.getValueProperties());
@@ -109,6 +103,22 @@ import com.opengamma.util.tuple.Pair;
     } else {
       return null;
     }
+  }
+
+    /**
+     * Returns the calculation configuration name and value specification for a cell in the grid.
+     * @param rowIndex The row index
+     * @param colIndex The column index
+     * @return Pair of value spec and calculation config name.
+     * TODO need to specify this using a stable target ID for the row to cope with dynamic reaggregation
+     */
+  @Override
+  public Pair<String, ValueSpecification> getTargetForCell(int rowIndex, int colIndex) {
+    if (rowIndex < 0 || rowIndex >= getRowCount() || colIndex < 0 || colIndex >= getColumnCount()) {
+      throw new IllegalArgumentException("Cell is outside grid bounds: row=" + rowIndex + ", col=" + colIndex +
+                                             ", rowCount=" + getRowCount() + ", colCount=" + getColumnCount());
+    }
+    return getTargetForCell(rowIndex, _columnKeys.get(colIndex));
   }
 
   @Override
@@ -124,10 +134,6 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public int getColumnCount() {
     return _columnGroups.getColumnCount();
-  }
-
-  public Class<?> getColumnType(int colIndex) {
-    return _columnGroups.getColumn(colIndex).getType();
   }
 
   @Override

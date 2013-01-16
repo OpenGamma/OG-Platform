@@ -44,7 +44,7 @@ public class GridColumnsJsonWriterTest {
   private static class TestCellRenderer implements GridColumn.CellRenderer {
 
     @Override
-    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type) {
+    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
       return null;
     }
   }
