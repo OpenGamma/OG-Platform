@@ -215,26 +215,26 @@ public class DependencyGraphGridStructure implements GridStructure {
     }
 
     @Override
-    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type) {
+    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
       ValueSpecification valueSpec = _valueSpecs.get(rowIndex);
       switch (_colIndex) {
         case TARGET_COL:
-          return ResultsCell.forStaticValue(getTargetName(valueSpec.getTargetSpecification()), type);
+          return ResultsCell.forStaticValue(getTargetName(valueSpec.getTargetSpecification()), columnType);
         case TARGET_TYPE_COL:
-          return ResultsCell.forStaticValue(TARGET_TYPE_NAMES.get(valueSpec.getTargetSpecification().getType()), type);
+          return ResultsCell.forStaticValue(TARGET_TYPE_NAMES.get(valueSpec.getTargetSpecification().getType()), columnType);
         case VALUE_NAME_COL:
-          return ResultsCell.forStaticValue(valueSpec.getValueName(), type);
+          return ResultsCell.forStaticValue(valueSpec.getValueName(), columnType);
         case VALUE_COL:
           ResultsCache.Result cacheResult = cache.getResult(_calcConfigName, valueSpec, null);
           Collection<Object> history = cacheResult.getHistory();
           Object value = cacheResult.getValue();
           AggregatedExecutionLog executionLog = cacheResult.getAggregatedExecutionLog();
-          return ResultsCell.forCalculatedValue(value, valueSpec, history, executionLog, cacheResult.isUpdated(), type);
+          return ResultsCell.forCalculatedValue(value, valueSpec, history, executionLog, cacheResult.isUpdated(), columnType);
         case FUNCTION_NAME_COL:
           String fnName = _fnNames.get(rowIndex);
-          return ResultsCell.forStaticValue(fnName, type);
+          return ResultsCell.forStaticValue(fnName, columnType);
         case PROPERTIES_COL:
-          return ResultsCell.forStaticValue(getValuePropertiesForDisplay(valueSpec.getProperties()), type);
+          return ResultsCell.forStaticValue(getValuePropertiesForDisplay(valueSpec.getProperties()), columnType);
         default: // never happen
           throw new IllegalArgumentException("Column index " + _colIndex + " is invalid");
       }

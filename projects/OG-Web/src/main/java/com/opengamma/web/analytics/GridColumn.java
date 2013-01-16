@@ -38,13 +38,13 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * Factory method that creates a column for a key based requirement and calculation configutation and a column type.
    *
-   * @param key Column key based on requirement and calculation configuration
+   * @param columnKey Column key based on requirement and calculation configuration
    * @param columnType Type of data displayed in the column
    * @return A column for displaying data calculated for the requirement and calculation configuration
    */
-  /* package */ static GridColumn forKey(ColumnKey key, Class<?> columnType, int columnIndex, MainGridStructure gridStructure) {
-    CellRenderer renderer = new AnalyticsRenderer(gridStructure, columnIndex);
-    return new GridColumn(createHeader(key), createDescription(key.getValueProperties()), columnType, renderer);
+  /* package */ static GridColumn forKey(ColumnKey columnKey, Class<?> columnType, MainGridStructure gridStructure) {
+    CellRenderer renderer = new AnalyticsRenderer(gridStructure, columnKey);
+    return new GridColumn(createHeader(columnKey), createDescription(columnKey.getValueProperties()), columnType, renderer);
   }
 
   /**
@@ -137,6 +137,6 @@ import com.opengamma.util.ArgumentChecker;
   // TODO merge this into the AnalyticsColumn and create subclasses for each of the renderer classes
   /* package */ static interface CellRenderer {
 
-    ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type);
+    ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType);
   }
 }

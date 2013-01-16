@@ -8,6 +8,7 @@ package com.opengamma.web.analytics;
 import java.util.Collection;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -16,17 +17,18 @@ import com.opengamma.util.tuple.Pair;
 /* package */ class AnalyticsRenderer implements GridColumn.CellRenderer {
 
   private final MainGridStructure _gridStructure;
-  private final int _colIndex;
+  private final ColumnKey _columnKey;
 
-  /* package */ AnalyticsRenderer(MainGridStructure gridStructure, int colIndex) {
+  /* package */ AnalyticsRenderer(MainGridStructure gridStructure, ColumnKey columnKey) {
+    ArgumentChecker.notNull(gridStructure, "gridStructure");
+    ArgumentChecker.notNull(columnKey, "columnKey");
     _gridStructure = gridStructure;
-    _colIndex = colIndex;
+    _columnKey = columnKey;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type) {
-    Pair<String, ValueSpecification> cellTarget = _gridStructure.getTargetForCell(rowIndex, _colIndex);
-    Class<?> columnType = _gridStructure.getColumnType(_colIndex);
+  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
+    Pair<String, ValueSpecification> cellTarget = _gridStructure.getTargetForCell(rowIndex, _columnKey);
     if (cellTarget != null) {
       String calcConfigName = cellTarget.getFirst();
       ValueSpecification valueSpec = cellTarget.getSecond();
@@ -36,10 +38,10 @@ import com.opengamma.util.tuple.Pair;
                                             valueSpec,
                                             cacheResult.getHistory(),
                                             cacheResult.getAggregatedExecutionLog(),
-                                            cacheResult.isUpdated(), type);
+                                            cacheResult.isUpdated(), columnType);
     } else {
       Collection<Object> emptyHistory = cache.emptyHistory(columnType);
-      return ResultsCell.empty(emptyHistory, type);
+      return ResultsCell.empty(emptyHistory, columnType);
     }
   }
 }

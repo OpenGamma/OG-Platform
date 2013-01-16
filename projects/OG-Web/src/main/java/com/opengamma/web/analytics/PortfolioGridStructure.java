@@ -48,7 +48,8 @@ public class PortfolioGridStructure extends MainGridStructure {
     _root = AnalyticsNode.emptyRoot();
   }
 
-  /* package */ static PortfolioGridStructure create(CompiledViewDefinition compiledViewDef, ValueMappings valueMappings) {
+  /* package */ static PortfolioGridStructure forAnalytics(CompiledViewDefinition compiledViewDef,
+                                                           ValueMappings valueMappings) {
     List<MainGridStructure.Row> rows = rows(compiledViewDef);
     GridColumn labelColumn = new GridColumn("Label", "", null, new LabelRenderer(rows));
     GridColumn quantityColumn = new GridColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(rows));
@@ -59,6 +60,10 @@ public class PortfolioGridStructure extends MainGridStructure {
                                       compiledViewDef,
                                       valueMappings,
                                       rows);
+  }
+
+  /* package */ static PortfolioGridStructure forBlotter() {
+    return new PortfolioGridStructure();
   }
 
   /* package */ static PortfolioGridStructure empty() {

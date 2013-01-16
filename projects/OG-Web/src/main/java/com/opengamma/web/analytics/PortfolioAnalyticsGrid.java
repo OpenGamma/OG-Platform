@@ -10,6 +10,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 
 /**
  * A grid for displaying portfolio analytics data.
+ * TODO this subclass doesn't have much reason to exist any more
  */
 /* package */ class PortfolioAnalyticsGrid extends MainAnalyticsGrid {
 
@@ -25,7 +26,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
                                        ComputationTargetResolver targetResolver,
                                        ValueMappings valueMappings,
                                        ViewportListener viewportListener) {
-    this(PortfolioGridStructure.create(compiledViewDef, valueMappings), gridId, targetResolver, viewportListener);
+    this(PortfolioGridStructure.forAnalytics(compiledViewDef, valueMappings), gridId, targetResolver, viewportListener);
   }
 
   /* package */ PortfolioAnalyticsGrid(PortfolioGridStructure gridStructure,
