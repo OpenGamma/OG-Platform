@@ -114,6 +114,24 @@ public class PortfolioLoaderToolTest {
     doPortfolioLoadTest("Cashflow Portfolio", "CashFlow", data, 1, 2);
   }
 
+  @Test
+  public void testLoadCommodityFutureOptionPortfolio() throws IOException {
+
+    String data = "\"currency\",\"tradingExchange\",\"settlementExchange\",\"exerciseType\",\"expiry\",\"externalIdBundle\",\"underlyingId\",\"optionType\",\"position:quantity\",\"securityType\",\"trade:counterpartyExternalId\",\"trade:deal\",\"trade:premium\",\"trade:premiumCurrency\",\"trade:premiumDate\",\"trade:premiumTime\",\"trade:quantity\",\"trade:tradeDate\",\"trade:tradeTime\"\n" +
+        "\"USD\",\"CME\",\"CME\",\"EX_TYPE\",\"2050-01-01T00:00:00+00:00[Europe/London]\",\"EIFO_ID~EIFO1234\",\"UNDERLYING_ID~ul9999\",\"PUT\",\"1264\",\"COMMODITY_FUTUREOPTION\",\"CPID~123\",,,,,,,,\n";
+
+    doPortfolioLoadTest("CommodityFutureOption Portfolio", "CommodityFutureOption", data, 1, 1);
+  }
+
+  @Test
+  public void testLoadFxFutureOptionPortfolio() throws IOException {
+
+    String data = "\"currency\",\"tradingExchange\",\"settlementExchange\",\"exerciseType\",\"expiry\",\"externalIdBundle\",\"underlyingId\",\"optionType\",\"position:quantity\",\"securityType\",\"trade:counterpartyExternalId\",\"trade:deal\",\"trade:premium\",\"trade:premiumCurrency\",\"trade:premiumDate\",\"trade:premiumTime\",\"trade:quantity\",\"trade:tradeDate\",\"trade:tradeTime\"\n" +
+        "\"USD\",\"CME\",\"CME\",\"EX_TYPE\",\"2050-01-01T00:00:00+00:00[Europe/London]\",\"EIFO_ID~EIFO1234\",\"UNDERLYING_ID~ul9999\",\"PUT\",\"1264\",\"FX_FUTUREOPTION\",\"CPID~123\",,,,,,,,\n";
+
+    doPortfolioLoadTest("FxFutureOption Portfolio", "FxFutureOption", data, 1, 1);
+  }
+
   private void doPortfolioLoadTest(String portfolioName, String securityType, String data, int expectedPortfolios, int expectedPositions) {
 
     populateFileWithData(data);
