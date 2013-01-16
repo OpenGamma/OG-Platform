@@ -36,7 +36,7 @@
     <orderEntry type="module" module-name="OG-Core" exported="" />
     <orderEntry type="module" module-name="OG-Util" />
     <orderEntry type="module" module-name="OG-Security" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Engine-default">
         <CLASSES>
           <root url="jar://$USER_HOME$/.ivy2/cache/net.sourceforge.ehcache/ehcache/jars/ehcache-core-1.7.2.jar!/" />
