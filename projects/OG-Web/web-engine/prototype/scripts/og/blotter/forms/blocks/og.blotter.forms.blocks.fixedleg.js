@@ -12,7 +12,7 @@ $.register_module({
                 leg = config.leg, ui = og.common.util.ui;
             form.Block.call(block, {
                 module: 'og.blotter.forms.blocks.swap_details_fixed_tash',
-                extras: {rate: data.rate, notional: data.notional},
+                extras: {rate: data.rate, notional: data.notional, index: config.index},
                 children : [
                     new form.Block({module:'og.views.forms.currency_tash'}),
                     new ui.Dropdown({

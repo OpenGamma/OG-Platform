@@ -14,7 +14,7 @@ $.register_module({
                 module: 'og.blotter.forms.blocks.swap_details_floating_tash',
                 extras: {leg: leg, initial: data.initialFloatingRate, 
                     settlement: data.settlementDays, spread: data.spread, 
-                    gearing: data.gearing, notional: data.notional},
+                    gearing: data.gearing, notional: data.notional, index: config.index},
                 children: [
                     new form.Block({module:'og.views.forms.currency_tash'}),
                     new ui.Dropdown({
