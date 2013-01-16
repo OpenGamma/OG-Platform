@@ -98,7 +98,7 @@
     <constructor-arg ref="cacheManager" />
   </bean>
   
-  <!-- Config Source -->
+  <!-- Config Master and Config Source -->
   <!-- TODO: need a cache; not incredibly high priority as only fetched at function initialisation -->
   <bean id="configSource" class="com.opengamma.core.config.impl.RemoteConfigSource">
     <constructor-arg>
@@ -223,20 +223,6 @@
     <constructor-arg ref="cacheManager" />
   </bean>
   
-  <!-- View processor query -->
-  <bean id="viewProcessorQuery" class="com.opengamma.engine.view.calcnode.ViewProcessorQuerySender">
-    <constructor-arg>
-      <bean class="com.opengamma.transport.FudgeRequestSenderFactoryBean">
-        <property name="fudgeContext" ref="fudgeContext" />
-        <property name="endPointDescription">
-          <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-            <property name="uri" value="${opengamma.engine.configuration.url}/remoteCalcNode/queryServer" />
-          </bean>
-        </property>
-      </bean>
-    </constructor-arg>
-  </bean>
-  
   <!-- Execution statistics -->
   <bean id="statisticsSender" class="com.opengamma.engine.view.calcnode.stats.FunctionInvocationStatisticsSender">
     <property name="serverScalingHint" value="${opengamma.engine.calcnode.scalinghint}" />
@@ -295,8 +281,6 @@
     <property name="viewComputationCache" ref="computationCache" />
     <property name="functionCompilationService" ref="functionCompilation" />
     <property name="functionExecutionContext" ref="functionExecutionContext" />
-    <property name="computationTargetResolver" ref="targetResolver" />
-    <property name="viewProcessorQuery" ref="viewProcessorQuery" />
     <property name="executorService" ref="slaveThreads" />
     <property name="useWriteBehindSharedCache" value="true" />
     <property name="useAsynchronousTargetResolve" value="true" />

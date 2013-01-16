@@ -10,23 +10,27 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
+import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
+import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.expression.CommonSynthetics;
 import com.opengamma.financial.expression.ELExpressionParser;
 import com.opengamma.financial.expression.UserExpression;
 import com.opengamma.financial.expression.UserExpressionParser;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Implementation of {@link OverrideOperationCompiler} that allows market data
- * overrides to be expressed as EL expressions.
+ * Implementation of {@link OverrideOperationCompiler} that allows market data overrides to be expressed as EL expressions.
  */
 public class MarketDataELCompiler implements OverrideOperationCompiler {
 
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataELCompiler.class);
-  
+
   private final class Evaluator implements OverrideOperation {
 
     private final UserExpression _expr;
@@ -46,18 +50,42 @@ public class MarketDataELCompiler implements OverrideOperationCompiler {
         s_logger.debug("Applying {} to {}", _expr, requirement);
         final UserExpression.Evaluator eval = getExpr().evaluator();
         eval.setVariable("x", original);
-        switch (requirement.getTargetSpecification().getType()) {
-          case SECURITY:
-            eval.setVariable("security", getSecuritySource().get(requirement.getTargetSpecification().getUniqueId()));
-            break;
-          case PRIMITIVE:
-            if (requirement.getTargetSpecification().getIdentifier() != null) {
-              eval.setVariable("externalId", requirement.getTargetSpecification().getIdentifier());
+        if (requirement.getTargetReference().getType().isTargetType(ComputationTargetType.SECURITY)) {
+          requirement.getTargetReference().accept(new ComputationTargetReferenceVisitor<Void>() {
+
+            @Override
+            public Void visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
+              eval.setVariable("security", getSecuritySource().getSingle(requirement.getIdentifiers()));
+              return null;
             }
-            if (requirement.getTargetSpecification().getUniqueId() != null) {
-              eval.setVariable("uniqueId", requirement.getTargetSpecification().getUniqueId());
+
+            @Override
+            public Void visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
+              eval.setVariable("security", getSecuritySource().get(specification.getUniqueId()));
+              return null;
             }
-            break;
+
+          });
+        } else if (requirement.getTargetReference().getType().isTargetType(ComputationTargetType.PRIMITIVE)) {
+          requirement.getTargetReference().accept(new ComputationTargetReferenceVisitor<Void>() {
+
+            @Override
+            public Void visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
+              final ExternalIdBundle bundle = requirement.getIdentifiers();
+              eval.setVariable("externalIds", bundle);
+              if (bundle.size() == 1) {
+                eval.setVariable("externalId", bundle.iterator().next());
+              }
+              return null;
+            }
+
+            @Override
+            public Void visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
+              eval.setVariable("uniqueId", specification.getUniqueId());
+              return null;
+            }
+
+          });
         }
         eval.setVariable("value", requirement.getValueName());
         final Object result = eval.evaluate();

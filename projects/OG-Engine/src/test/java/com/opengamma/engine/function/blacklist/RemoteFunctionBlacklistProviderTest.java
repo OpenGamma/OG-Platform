@@ -108,12 +108,12 @@ public class RemoteFunctionBlacklistProviderTest {
   protected static void testRuleUpdates(final ManageableFunctionBlacklist update, final FunctionBlacklist receive) throws InterruptedException {
     assertTrue(update.getRules().isEmpty());
     assertTrue(receive.getRules().isEmpty());
-    final FunctionBlacklistRule rule1 = new FunctionBlacklistRule(new ComputationTargetSpecification(UniqueId.of("Test", "1")));
-    final FunctionBlacklistRule rule2 = new FunctionBlacklistRule(new ComputationTargetSpecification(UniqueId.of("Test", "2")));
-    final FunctionBlacklistRule rule3 = new FunctionBlacklistRule(new ComputationTargetSpecification(UniqueId.of("Test", "3")));
-    final FunctionBlacklistRule rule1b = new FunctionBlacklistRule(new ComputationTargetSpecification(UniqueId.of("Test", "1b")));
-    final FunctionBlacklistRule rule2b = new FunctionBlacklistRule(new ComputationTargetSpecification(UniqueId.of("Test", "2b")));
-    final FunctionBlacklistRule rule3b = new FunctionBlacklistRule(new ComputationTargetSpecification(UniqueId.of("Test", "3b")));
+    final FunctionBlacklistRule rule1 = new FunctionBlacklistRule(ComputationTargetSpecification.of(UniqueId.of("Test", "1")));
+    final FunctionBlacklistRule rule2 = new FunctionBlacklistRule(ComputationTargetSpecification.of(UniqueId.of("Test", "2")));
+    final FunctionBlacklistRule rule3 = new FunctionBlacklistRule(ComputationTargetSpecification.of(UniqueId.of("Test", "3")));
+    final FunctionBlacklistRule rule1b = new FunctionBlacklistRule(ComputationTargetSpecification.of(UniqueId.of("Test", "1b")));
+    final FunctionBlacklistRule rule2b = new FunctionBlacklistRule(ComputationTargetSpecification.of(UniqueId.of("Test", "2b")));
+    final FunctionBlacklistRule rule3b = new FunctionBlacklistRule(ComputationTargetSpecification.of(UniqueId.of("Test", "3b")));
     update.addBlacklistRule(rule1);
     waitForModificationCount(receive, 1);
     assertEquals(receive.getRules().size(), 1);

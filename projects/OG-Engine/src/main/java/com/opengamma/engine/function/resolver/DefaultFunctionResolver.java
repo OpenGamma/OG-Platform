@@ -128,6 +128,7 @@ public class DefaultFunctionResolver implements FunctionResolver {
     if (_defaultRules != null) {
       result.addRules(_defaultRules);
     }
+    result.compileRules();
     return result;
   }
 

@@ -25,11 +25,11 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -122,14 +122,11 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return InterestRateInstrumentType.FIXED_INCOME_INSTRUMENT_TARGET_TYPE;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
-      return false;
-    }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     //TODO remove this when we've checked that removing IR futures from the fixed income instrument types
     // doesn't break curves
@@ -145,7 +142,7 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
         return false;
       }
     }
-    return InterestRateInstrumentType.isFixedIncomeInstrumentType(security);
+    return true;
   }
 
   @Override

@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import com.opengamma.DataNotFoundException;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentServer;
@@ -41,10 +40,9 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.security.impl.RemoteSecuritySource;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
@@ -60,8 +58,8 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.jms.JmsConnector;
@@ -76,14 +74,14 @@ public class WatchListRecorder {
   private static final int VALIDITY_PERIOD_DAYS = 1;
 
   private final ViewProcessor _viewProcessor;
-  private final SecuritySource _securitySource;
+  private final ExternalIdBundleLookup _lookup;
   private final List<String> _schemes; // in order of preference
   private PrintWriter _writer = new PrintWriter(System.out);
 
   public WatchListRecorder(final ViewProcessor viewProcessor, final SecuritySource securitySource) {
     _viewProcessor = viewProcessor;
-    _securitySource = securitySource;
     _schemes = new ArrayList<String>();
+    _lookup = new ExternalIdBundleLookup(securitySource);
   }
 
   public void addWatchScheme(final ExternalScheme scheme) {
@@ -95,49 +93,23 @@ public class WatchListRecorder {
   }
 
   private void emitRequirement(final ValueRequirement requirement, final Set<ExternalId> emitted, final Set<ExternalId> emittedRecently) {
-    UniqueId id = requirement.getTargetSpecification().getUniqueId();
-    if (requirement.getTargetSpecification().getType() == ComputationTargetType.SECURITY) {
-      Security security;
-      try {
-        security = _securitySource.get(id);
-      } catch (DataNotFoundException ex) {
-        s_logger.warn("Couldn't resolve security {}", id);
-        security = null;
-      }
-      if (security != null) {
-      schemeLoop:
-        for (String scheme : _schemes) {
-          for (ExternalId sid : security.getExternalIdBundle()) {
-            if (scheme.equals(sid.getScheme().getName())) {
-              if (emittedRecently != null) {
-                if (emittedRecently.add(sid)) {
-                  if (!emitted.add(sid)) {
-                    _writer.print("# ");
-                  }
-                  _writer.println(sid.toString());
-                }
-              } else {
-                if (emitted.add(sid)) {
-                  _writer.println(sid.toString());
-                }
+    final ExternalIdBundle identifiers = _lookup.getExternalIds(requirement.getTargetReference());
+    schemeLoop: for (String scheme : _schemes) { //CSIGNORE
+      for (ExternalId sid : identifiers) {
+        if (scheme.equals(sid.getScheme().getName())) {
+          if (emittedRecently != null) {
+            if (emittedRecently.add(sid)) {
+              if (!emitted.add(sid)) {
+                _writer.print("# ");
               }
-              break schemeLoop;
+              _writer.println(sid.toString());
+            }
+          } else {
+            if (emitted.add(sid)) {
+              _writer.println(sid.toString());
             }
           }
-        }
-      }
-    } else if (_schemes.contains(id.getScheme())) {
-      final ExternalId sid = id.toExternalId();
-      if (emittedRecently != null) {
-        if (emittedRecently.add(sid)) {
-          if (!emitted.add(sid)) {
-            _writer.print("# ");
-          }
-          _writer.println(sid.toString());
-        }
-      } else {
-        if (emitted.add(sid)) {
-          _writer.println(sid.toString());
+          break schemeLoop;
         }
       }
     }
@@ -248,9 +220,10 @@ public class WatchListRecorder {
 
   private ViewExecutionOptions generateExecutionOptions(Instant now) {
     List<ViewCycleExecutionOptions> executionOptionsList = new ArrayList<ViewCycleExecutionOptions>();
+    final ViewCycleExecutionOptions.Builder builder = ViewCycleExecutionOptions.builder();
     for (int i = 0; i < VALIDITY_PERIOD_DAYS; i++) {
       Instant valuationTime = now.plus(i, TimeUnit.DAYS);
-      executionOptionsList.add(new ViewCycleExecutionOptions(valuationTime));
+      executionOptionsList.add(builder.setValuationTime(valuationTime).create());
     }
     ViewCycleExecutionSequence executionSequence = new ArbitraryViewCycleExecutionSequence(executionOptionsList);
     return ExecutionOptions.of(executionSequence, ExecutionFlags.none().compileOnly().get());

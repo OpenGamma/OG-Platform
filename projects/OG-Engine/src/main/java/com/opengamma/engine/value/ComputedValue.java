@@ -34,7 +34,7 @@ public class ComputedValue implements Serializable {
   //a compelling reason to do so.
 
   private static final long serialVersionUID = 1L;
-  
+
   /**
    * The specification of the value.
    */
@@ -48,11 +48,11 @@ public class ComputedValue implements Serializable {
    * Creates a computed value.
    * <p>
    * This combines the value and its specification.
-   *
-   * @param specification  the specification of the value, not null
-   * @param value  the actual value
+   * 
+   * @param specification the specification of the value, not null
+   * @param value the actual value
    */
-  public ComputedValue(ValueSpecification specification, Object value) {
+  public ComputedValue(final ValueSpecification specification, final Object value) {
     ArgumentChecker.notNull(specification, "value specification");
     if (value instanceof ComputedValue) {
       throw new IllegalArgumentException("Value must not be a ComputedValue instance");
@@ -64,7 +64,7 @@ public class ComputedValue implements Serializable {
   //-------------------------------------------------------------------------
   /**
    * Gets the value specification.
-   *
+   * 
    * @return the specification, not null
    */
   public ValueSpecification getSpecification() {
@@ -73,7 +73,7 @@ public class ComputedValue implements Serializable {
 
   /**
    * Gets the value.
-   *
+   * 
    * @return the value, not null
    */
   public Object getValue() {
@@ -82,14 +82,14 @@ public class ComputedValue implements Serializable {
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
     if (!(obj instanceof ComputedValue)) {
       return false;
     }
-    ComputedValue other = (ComputedValue) obj;
+    final ComputedValue other = (ComputedValue) obj;
     return ObjectUtils.equals(_specification, other._specification)
         && ObjectUtils.equals(_value, other._value);
   }
@@ -103,21 +103,21 @@ public class ComputedValue implements Serializable {
 
   @Override
   public String toString() {
-    StringBuffer sb = new StringBuffer();
-    ToStringStyle style = ToStringStyle.SHORT_PREFIX_STYLE;
+    final StringBuffer sb = new StringBuffer();
+    final ToStringStyle style = ToStringStyle.SHORT_PREFIX_STYLE;
     style.appendStart(sb, this);
     appendFieldsToString(sb, style);
     style.appendEnd(sb, this);
     return sb.toString();
   }
 
-  protected void appendFieldsToString(StringBuffer sb, ToStringStyle style) {
+  protected void appendFieldsToString(final StringBuffer sb, final ToStringStyle style) {
     // carefully select useful fields for toString
-    ValueSpecification spec = getSpecification();
+    final ValueSpecification spec = getSpecification();
     if (spec != null) {
       style.append(sb, "name", spec.getValueName(), null);
-      ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
-      style.append(sb, "targetId", targetSpec.getIdentifier(), null);
+      final ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
+      style.append(sb, "targetId", targetSpec.getUniqueId(), null);
       style.append(sb, "targetType", targetSpec.getType(), null);
       style.append(sb, "properties", spec.getProperties(), null);
     }

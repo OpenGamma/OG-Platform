@@ -7,8 +7,8 @@ package com.opengamma.financial.analytics.model.volatility.surface.black.default
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 
@@ -26,9 +26,6 @@ public class CommodityBlackVolatilitySurfaceTradeDefaults extends CommodityBlack
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
-      return false;
-    }
     final Security security = target.getTrade().getSecurity();
     if (!(security instanceof CommodityFutureOptionSecurity)) {
       return false;

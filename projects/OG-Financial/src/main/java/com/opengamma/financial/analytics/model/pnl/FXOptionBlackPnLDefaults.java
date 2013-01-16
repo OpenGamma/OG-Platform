@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -31,25 +31,19 @@ public class FXOptionBlackPnLDefaults extends DefaultPropertyFunction {
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingFunction;
-  private final PriorityClass _priority;
 
-  public FXOptionBlackPnLDefaults(final String priority, final String samplingPeriod, final String scheduleCalculator, final String samplingFunction) {
+  public FXOptionBlackPnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator");
     ArgumentChecker.notNull(samplingFunction, "sampling function");
-    ArgumentChecker.notNull(priority, "priority");
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingFunction = samplingFunction;
-    _priority = PriorityClass.valueOf(priority);
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.POSITION) {
-      return false;
-    }
     if (!(target.getPosition().getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
@@ -84,12 +78,8 @@ public class FXOptionBlackPnLDefaults extends DefaultPropertyFunction {
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.PNL_SERIES;
   }
+
 }

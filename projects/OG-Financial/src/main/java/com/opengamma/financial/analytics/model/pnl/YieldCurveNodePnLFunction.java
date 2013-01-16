@@ -37,11 +37,11 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -184,9 +184,6 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.POSITION) {
-      return false;
-    }
     final Security security = target.getPosition().getSecurity();
     if (security instanceof InterestRateFutureSecurity || security instanceof IRFutureOptionSecurity) {
       return false;
@@ -255,7 +252,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     if (resultCurrencies != null && resultCurrencies.size() == 1) {
       final ValueProperties.Builder properties = ValueProperties.builder();
       properties.with(ValuePropertyNames.CURRENCY, resultCurrencies);
-      final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(position.getSecurity());
+      final ComputationTargetSpecification targetSpec = ComputationTargetSpecification.of(position.getSecurity());
       requirements.add(new ValueRequirement(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES, targetSpec, properties.get()));
     }
     return requirements;
@@ -421,6 +418,6 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String yieldCurveName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, yieldCurveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, currency, properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), properties);
   }
 }

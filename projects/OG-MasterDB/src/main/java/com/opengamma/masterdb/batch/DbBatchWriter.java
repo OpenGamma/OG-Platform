@@ -409,7 +409,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       attribs.put("id_scheme", targetSpecification.getUniqueId().getScheme());
       attribs.put("id_value", targetSpecification.getUniqueId().getValue());
       attribs.put("id_version", targetSpecification.getUniqueId().getVersion());
-      attribs.put("type", targetSpecification.getType().name());
+      attribs.put("type", targetSpecification.getType().toString());
       computationTargetsData.get(attribs).add(targetSpecification);
     }
 

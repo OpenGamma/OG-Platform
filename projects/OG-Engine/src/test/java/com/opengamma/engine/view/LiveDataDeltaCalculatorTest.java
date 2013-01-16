@@ -16,13 +16,15 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
+import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -44,6 +46,7 @@ public class LiveDataDeltaCalculatorTest {
   DependencyNode _node1;
   DependencyNode _node2;
   DependencyNode _node3;
+  DependencyNode _node4;
   
   ViewComputationCache _cache; 
   ViewComputationCache _previousCache;
@@ -65,52 +68,53 @@ public class LiveDataDeltaCalculatorTest {
     return new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("testdomain", name));
   }
   
-  private ValueRequirement getValueRequirement(String name) {
-    ComputationTargetSpecification spec = getTarget(name).toSpecification();
-    ValueRequirement requirement = new ValueRequirement("LiveData", spec);
-    return requirement;
-  }
-  
   private DependencyNode createNode(String name, Set<DependencyNode> inputNodes) {
     final ComputationTarget target = getTarget(name);
-    final ValueRequirement requirement = getValueRequirement(name);
-    final ValueSpecification specification = new ValueSpecification(requirement.getValueName(), requirement.getTargetSpecification(), requirement.getConstraints().copy()
-        .with(ValuePropertyNames.FUNCTION, "").get());
-    final MarketDataSourcingFunction function = new MarketDataSourcingFunction(requirement, specification);
     final DependencyNode node = new DependencyNode(target);
-    node.setFunction(function);
+    final ValueSpecification output;
+    if (inputNodes.isEmpty()) {
+      final MarketDataSourcingFunction msdf = MarketDataSourcingFunction.INSTANCE;
+      output = new ValueSpecification(name, target.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, msdf.getUniqueId()).get());
+      node.setFunction(new ParameterizedFunction(msdf, msdf.getParameters(new ValueRequirement(name, target.toSpecification()))));
+    } else {
+      final MockFunction mock = new MockFunction(target);
+      output = new ValueSpecification(name, target.toSpecification(), ValueProperties.with(ValuePropertyNames.FUNCTION, mock.getUniqueId()).get());
+      node.setFunction(mock);
+      mock.addResult(new ComputedValue(output, null));
+    }
+    node.addOutputValue(output);
     node.addInputNodes(inputNodes);
     return node;
   }
   
   private void put(ViewComputationCache cache, DependencyNode node, Object value) {
-    ValueSpecification spec = ((MarketDataSourcingFunction) node.getFunction().getFunction()).getMarketDataRequirement().getSecond();
+    ValueSpecification spec = node.getOutputValues().iterator().next();
     cache.putSharedValue(new ComputedValue(spec, value));
   }
-  
+
   /**
-   * @return Diamond-shaped graph
+   * @return The test graph
    * 
-   *              0
-   *             / \
-   *           1     2    
-   *            \   /
-   *              3
-   *              
+   *         <pre>
+   *         0   1
+   *          \ / \
+   *           2   3
+   *            \ /
+   *             4
+   * </pre>
    */
   private DependencyGraph getTestGraph() {
     DependencyGraph graph = new DependencyGraph("test");
-    
-    _node3 = createNode("Node3", Collections.<DependencyNode>emptySet());
-    _node1 = createNode("Node1", Sets.newHashSet(_node3));
-    _node2 = createNode("Node2", Sets.newHashSet(_node3));
-    _node0 = createNode("Node0", Sets.newHashSet(_node1, _node2));
-
+    _node0 = createNode("Node0", Collections.<DependencyNode>emptySet());
+    _node1 = createNode("Node1", Collections.<DependencyNode>emptySet());
+    _node2 = createNode("Node2", Sets.newHashSet(_node0, _node1));
+    _node3 = createNode("Node3", Sets.newHashSet(_node1));
+    _node4 = createNode("Node4", Sets.newHashSet(_node2, _node3));
     graph.addDependencyNode(_node0);
     graph.addDependencyNode(_node1);
     graph.addDependencyNode(_node2);
     graph.addDependencyNode(_node3);
-    
+    graph.addDependencyNode(_node4);
     return graph;
   }
   
@@ -135,8 +139,8 @@ public class LiveDataDeltaCalculatorTest {
   }
   
   public void noChangeC() {
-    put(_cache, _node3, 6.0);
-    put(_previousCache, _node3, 6.0);
+    put(_cache, _node2, 6.0);
+    put(_previousCache, _node2, 6.0);
         
     _deltaCalculator.computeDelta();
     
@@ -150,8 +154,8 @@ public class LiveDataDeltaCalculatorTest {
         
     _deltaCalculator.computeDelta();
     
-    assertEquals(Sets.newHashSet(_node1, _node2, _node3), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Sets.newHashSet(_node0), _deltaCalculator.getChangedNodes());
+    assertEquals(Sets.newHashSet(_node1, _node3), _deltaCalculator.getUnchangedNodes());
+    assertEquals(Sets.newHashSet(_node0, _node2, _node4), _deltaCalculator.getChangedNodes());
   }
   
   public void changeB() {
@@ -160,18 +164,18 @@ public class LiveDataDeltaCalculatorTest {
         
     _deltaCalculator.computeDelta();
     
-    assertEquals(Sets.newHashSet(_node2, _node3), _deltaCalculator.getUnchangedNodes());
-    assertEquals(Sets.newHashSet(_node0, _node1), _deltaCalculator.getChangedNodes());
+    assertEquals(Sets.newHashSet(_node0), _deltaCalculator.getUnchangedNodes());
+    assertEquals(Sets.newHashSet(_node1, _node2, _node3, _node4), _deltaCalculator.getChangedNodes());
   }
   
   public void changeC() {
-    put(_cache, _node3, 6.0);
-    put(_previousCache, _node3, 7.0);
+    put(_cache, _node2, 6.0);
+    put(_previousCache, _node2, 7.0);
         
     _deltaCalculator.computeDelta();
     
-    assertEquals(Collections.emptySet(), _deltaCalculator.getUnchangedNodes());
-    assertEquals(_graph.getDependencyNodes(), _deltaCalculator.getChangedNodes());
+    assertEquals(_graph.getDependencyNodes(), _deltaCalculator.getUnchangedNodes());
+    assertEquals(Collections.emptySet(), _deltaCalculator.getChangedNodes());
   }
 
 }

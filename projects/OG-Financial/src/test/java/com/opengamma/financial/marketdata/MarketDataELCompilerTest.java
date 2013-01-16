@@ -68,7 +68,7 @@ public class MarketDataELCompilerTest {
     final MarketDataELCompiler compiler = new MarketDataELCompiler(new InMemorySecuritySource());
     final OverrideOperation operation = compiler.compile("x * 0.9");
     assertNotNull(operation);
-    final ValueRequirement req = new ValueRequirement("Foo", new ComputationTargetSpecification(UniqueId.of("Test", "Bar")));
+    final ValueRequirement req = new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "Bar")));
     final Object result = operation.apply(req, 42d);
     assertEquals(result, 42d * 0.9);
   }
@@ -77,7 +77,7 @@ public class MarketDataELCompilerTest {
     final MarketDataELCompiler compiler = new MarketDataELCompiler(new InMemorySecuritySource());
     final OverrideOperation operation = compiler.compile("x + 0.42");
     assertNotNull(operation);
-    final ValueRequirement req = new ValueRequirement("Foo", new ComputationTargetSpecification(UniqueId.of("Test", "Bar")));
+    final ValueRequirement req = new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "Bar")));
     final Object result = operation.apply(req, 0.9d);
     assertEquals(result, 0.9 + 0.42);
   }
@@ -89,9 +89,9 @@ public class MarketDataELCompilerTest {
     final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
     final OverrideOperation operation = compiler.compile("if (security.type == \"EQUITY\") x * 0.9");
     assertNotNull(operation);
-    Object result = operation.apply(new ValueRequirement("Foo", new ComputationTargetSpecification(_fooEquity)), 42d);
+    Object result = operation.apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(_fooEquity)), 42d);
     assertEquals (result, 42d * 0.9);
-    result = operation.apply(new ValueRequirement("Foo", new ComputationTargetSpecification(_swap)), 42d);
+    result = operation.apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(_swap)), 42d);
     assertEquals (result, 42d);
   }
 
@@ -105,20 +105,20 @@ public class MarketDataELCompilerTest {
         .compile("if (security.type == \"EQUITY\" && security.name == \"Foo\") x * 0.9; if (security.type == \"EQUITY\") x * 1.1; if (security.cow == 42) x * 0");
     assertNotNull(operation);
     // First rule should match
-    Object result = operation.apply(new ValueRequirement("Foo", new ComputationTargetSpecification(_fooEquity)), 42d);
+    Object result = operation.apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(_fooEquity)), 42d);
     assertEquals (result, 42d * 0.9);
     // Second rule should match
-    result = operation.apply(new ValueRequirement("Foo", new ComputationTargetSpecification(_barEquity)), 42d);
+    result = operation.apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(_barEquity)), 42d);
     assertEquals(result, 42d * 1.1);
     // Third rule won't match but won't throw an error
-    result = operation.apply(new ValueRequirement("Foo", new ComputationTargetSpecification(_swap)), 42d);
+    result = operation.apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(_swap)), 42d);
     assertEquals(result, 42d);
   }
 
   public void testValueExpression() {
     final InMemorySecuritySource securities = new InMemorySecuritySource();
     final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
-    final Object result = compiler.compile("value").apply(new ValueRequirement("Foo", new ComputationTargetSpecification(Currency.USD)), null);
+    final Object result = compiler.compile("value").apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(Currency.USD)), null);
     assertEquals(result, "Foo");
   }
 
@@ -129,9 +129,9 @@ public class MarketDataELCompilerTest {
     fooOption.addExternalId(ExternalId.of("Test", "FooOption"));
     securities.addSecurity(fooOption);
     final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
-    Object result = compiler.compile("security.underlyingId").apply(new ValueRequirement("Foo", new ComputationTargetSpecification(fooOption)), null);
+    Object result = compiler.compile("security.underlyingId").apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(fooOption)), null);
     assertEquals(result, ExternalId.of("Test", "FooEquity"));
-    result = compiler.compile("Security:get(security.underlyingId)").apply(new ValueRequirement("Foo", new ComputationTargetSpecification(fooOption)), null);
+    result = compiler.compile("Security:get(security.underlyingId)").apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(fooOption)), null);
     assertEquals(result, _fooEquity);
   }
 

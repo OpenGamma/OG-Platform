@@ -14,9 +14,9 @@ import com.opengamma.analytics.financial.model.option.definition.SkewKurtosisOpt
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -31,11 +31,11 @@ public abstract class SkewKurtosisDataOptionModelFunction extends StandardOption
   protected SkewKurtosisOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final EquityOptionSecurity option, final FunctionInputs inputs) {
     final StandardOptionDataBundle standardData = super.getDataBundle(secMaster, relevantTime, option, inputs);
     final UniqueId uid = option.getUniqueId();
-    final Object skewObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.SKEW, ComputationTargetType.SECURITY, uid));
+    final Object skewObject = inputs.getValue(ValueRequirementNames.SKEW);
     if (skewObject == null) {
       throw new NullPointerException("Could not get skew");
     }
-    final Object kurtosisObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PEARSON_KURTOSIS, ComputationTargetType.SECURITY, uid));
+    final Object kurtosisObject = inputs.getValue(ValueRequirementNames.PEARSON_KURTOSIS);
     if (kurtosisObject == null) {
       throw new NullPointerException("Could not get Pearson kurtosis");
     }

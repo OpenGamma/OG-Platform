@@ -15,6 +15,7 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -71,7 +72,7 @@ public abstract class CostOfCarryFuturesFunction<T> extends FuturesFunction<T> {
   }
 
   private ValueRequirement getCostOfCarryRequirement(final FutureSecurity security) {
-    return new ValueRequirement(MarketDataRequirementNames.COST_OF_CARRY, getSpotAssetId(security));
+    return new ValueRequirement(MarketDataRequirementNames.COST_OF_CARRY, ComputationTargetType.PRIMITIVE, getSpotAssetId(security)); // [PLAT-2286] Is this PRIMITIVE or SECURITY?
   }
 
   private Double getCostOfCarry(final FutureSecurity security, final FunctionInputs inputs) {

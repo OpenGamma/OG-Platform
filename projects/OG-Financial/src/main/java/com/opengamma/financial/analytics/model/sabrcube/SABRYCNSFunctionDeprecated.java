@@ -29,7 +29,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -160,11 +160,6 @@ public abstract class SABRYCNSFunctionDeprecated extends AbstractFunction.NonCom
   }
 
   @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final ValueProperties properties = getResultProperties(ccy);
@@ -265,7 +260,7 @@ public abstract class SABRYCNSFunctionDeprecated extends AbstractFunction.NonCom
         .with(ValuePropertyNames.CURRENCY, Currency.USD.getCode()) // TODO should be 'currency.getCode()' when non-USD currencies supported
         .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
         .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, fittingMethod).get();
-    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, Currency.USD, properties); // TODO should be 'currency' when non-USD currencies supported
+    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetSpecification.of(Currency.USD), properties); // TODO should be 'currency' when non-USD currencies supported
   }
 
   protected abstract ValueProperties getResultProperties(final Currency currency);
@@ -277,7 +272,7 @@ public abstract class SABRYCNSFunctionDeprecated extends AbstractFunction.NonCom
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), properties);
   }
 
   private ValueRequirement getCouponSensitivitiesRequirement(final Currency currency, final String forwardCurveName, final String fundingCurveName) {

@@ -82,7 +82,8 @@ public final class SecurityLinkResolver {
    * @param versionCorrection  the version-correction, not null
    */
   public SecurityLinkResolver(final ViewCompilationContext viewCompilationContext, VersionCorrection versionCorrection) {
-    this(viewCompilationContext.getServices().getExecutorService(), viewCompilationContext.getServices().getComputationTargetResolver().getSecuritySource(), versionCorrection);
+    this(viewCompilationContext.getServices().getExecutorService(), viewCompilationContext.getServices().getFunctionCompilationContext().getSecuritySource(),
+        versionCorrection);
   }
 
   //-------------------------------------------------------------------------
@@ -224,7 +225,7 @@ public final class SecurityLinkResolver {
     final Collection<SecurityLink> links = new ArrayList<SecurityLink>(256);
     PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
       @Override
-      public void preOrderOperation(Position position) {
+      public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
         if (LinkUtils.isValid(position.getSecurityLink())) {
           links.add(position.getSecurityLink());
         } else {

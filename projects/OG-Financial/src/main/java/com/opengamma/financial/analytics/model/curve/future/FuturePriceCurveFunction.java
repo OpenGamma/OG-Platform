@@ -26,12 +26,13 @@ import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -49,7 +50,6 @@ import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpec
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -79,7 +79,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
     final FuturePriceCurveInstrumentProvider<Object> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Object>) futurePriceCurveSpecification.getCurveInstrumentProvider();
     for (final Object x : futurePriceCurveDefinition.getXs()) {
       final ExternalId identifier = futurePriceCurveProvider.getInstrument(x, atInstant.toLocalDate());
-      result.add(new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier));
+      result.add(new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
     }
     return result;
   }
@@ -96,17 +96,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
-      }
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public final boolean canApplyTo(final FunctionCompilationContext myContext, final ComputationTarget target) {
-        if (target.getUniqueId() == null) {
-          s_logger.error("Target unique id was null; {}", target);
-          return false;
-        }
-        return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+        return ComputationTargetType.CURRENCY;
       }
 
       @SuppressWarnings("synthetic-access")
@@ -167,7 +157,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
           final Set<ValueRequirement> desiredValues) {
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-        final Currency currency = Currency.of(((UniqueId) target.getValue()).getValue());
+        final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
         final Calendar calendar = new HolidaySourceCalendarAdapter(OpenGammaExecutionContext.getHolidaySource(executionContext), currency);
         //TODO use separate definition and specification names?
         final String curveDefinitionName = curveName;
@@ -186,7 +176,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
         for (final Object x : priceCurveDefinition.getXs()) {
           final Number xNum = (Number) x;
           final ExternalId identifier = futurePriceCurveProvider.getInstrument(xNum, valDate);
-          final ValueRequirement requirement = new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier);
+          final ValueRequirement requirement = new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
           Double futurePrice = null;
           if (inputs.getValue(requirement) != null) {
             futurePrice = (Double) inputs.getValue(requirement);
@@ -198,7 +188,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
           }
         }
         final ValueSpecification futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,
-            new ComputationTargetSpecification(priceCurveSpecification.getTarget()),
+            ComputationTargetSpecification.of(priceCurveSpecification.getTarget().getUniqueId()),
             createValueProperties()
             .with(ValuePropertyNames.CURVE, curveName)
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType()).get());

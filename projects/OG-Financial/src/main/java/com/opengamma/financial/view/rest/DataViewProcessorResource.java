@@ -25,6 +25,8 @@ import javax.ws.rs.core.UriInfo;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.config.impl.DataConfigSourceResource;
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
@@ -77,6 +79,10 @@ public class DataViewProcessorResource extends AbstractDataResource {
   public static final String PATH_SNAPSHOTTER = "marketDataSnapshotter";
 
   /**
+   * The identifier lookup.
+   */
+  private final ExternalIdBundleLookup _identifierLookup;
+  /**
    * The view processor.
    */
   private final ViewProcessor _viewProcessor;
@@ -109,14 +115,16 @@ public class DataViewProcessorResource extends AbstractDataResource {
   /**
    * Creates an instance.
    * 
-   * @param viewProcessor  the view processor, not null
-   * @param volatilityCubeDefinitionSource  the volatility cube, not null
-   * @param jmsConnector  the JMS connector, not null
-   * @param fudgeContext  the Fudge context, not null
-   * @param scheduler  the scheduler, not null
+   * @param securitySource a security source to use for resolving things, null to not resolve
+   * @param viewProcessor the view processor, not null
+   * @param volatilityCubeDefinitionSource the volatility cube, not null
+   * @param jmsConnector the JMS connector, not null
+   * @param fudgeContext the Fudge context, not null
+   * @param scheduler the scheduler, not null
    */
-  public DataViewProcessorResource(ViewProcessor viewProcessor, VolatilityCubeDefinitionSource volatilityCubeDefinitionSource,
-      JmsConnector jmsConnector, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
+  public DataViewProcessorResource(final SecuritySource securitySource, final ViewProcessor viewProcessor, final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource,
+      final JmsConnector jmsConnector, final FudgeContext fudgeContext, final ScheduledExecutorService scheduler) {
+    _identifierLookup = new ExternalIdBundleLookup(securitySource);
     _viewProcessor = viewProcessor;
     _volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
     _jmsConnector = jmsConnector;
@@ -139,7 +147,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   @GET
-  public Response getHateaos(@Context UriInfo uriInfo) {
+  public Response getHateaos(@Context final UriInfo uriInfo) {
     return hateoasResponse(uriInfo);
   }
 
@@ -161,74 +169,74 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   @Path(PATH_SNAPSHOTTER)
   public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl() {
-    MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_volatilityCubeDefinitionSource);
+    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_identifierLookup, _volatilityCubeDefinitionSource);
     return new DataMarketDataSnapshotterResource(_viewProcessor, snp);
   }
   
   //-------------------------------------------------------------------------
   @Path(PATH_PROCESSES + "/{viewProcessId}")
-  public DataViewProcessResource getViewProcess(@PathParam("viewProcessId") String viewProcessId) {
-    ViewProcess view = _viewProcessor.getViewProcess(UniqueId.parse(viewProcessId));
+  public DataViewProcessResource getViewProcess(@PathParam("viewProcessId") final String viewProcessId) {
+    final ViewProcess view = _viewProcessor.getViewProcess(UniqueId.parse(viewProcessId));
     return new DataViewProcessResource(view);
   }
 
   //-------------------------------------------------------------------------
   @Path(PATH_CLIENTS + "/{viewClientId}")
-  public DataViewClientResource getViewClient(@Context UriInfo uriInfo, @PathParam("viewClientId") String viewClientIdString) {
-    UniqueId viewClientId = UniqueId.parse(viewClientIdString);
-    DataViewClientResource viewClientResource = _createdViewClients.get(viewClientId);
+  public DataViewClientResource getViewClient(@Context final UriInfo uriInfo, @PathParam("viewClientId") final String viewClientIdString) {
+    final UniqueId viewClientId = UniqueId.parse(viewClientIdString);
+    final DataViewClientResource viewClientResource = _createdViewClients.get(viewClientId);
     if (viewClientResource != null) {
       return viewClientResource;
     }
-    ViewClient viewClient = _viewProcessor.getViewClient(viewClientId);
-    URI viewProcessorUri = getViewProcessorUri(uriInfo);
+    final ViewClient viewClient = _viewProcessor.getViewClient(viewClientId);
+    final URI viewProcessorUri = getViewProcessorUri(uriInfo);
     return createViewClientResource(viewClient, viewProcessorUri);
   }
 
   @POST
   @Path(PATH_CLIENTS)
   @Consumes(FudgeRest.MEDIA)
-  public Response createViewClient(@Context UriInfo uriInfo, UserPrincipal user) {
-    ViewClient client = _viewProcessor.createViewClient(user);
-    URI viewProcessorUri = getViewProcessorUri(uriInfo);
+  public Response createViewClient(@Context final UriInfo uriInfo, final UserPrincipal user) {
+    final ViewClient client = _viewProcessor.createViewClient(user);
+    final URI viewProcessorUri = getViewProcessorUri(uriInfo);
     // Required for heartbeating, but also acts as an optimisation for getViewClient because view clients created
     // through the REST API should be accessed again through the same API, potentially many times.  
-    DataViewClientResource viewClientResource = createViewClientResource(client, viewProcessorUri);
+    final DataViewClientResource viewClientResource = createViewClientResource(client, viewProcessorUri);
     _createdViewClients.put(client.getUniqueId(), viewClientResource);
-    URI createdUri = uriClient(uriInfo.getRequestUri(), client.getUniqueId());
+    final URI createdUri = uriClient(uriInfo.getRequestUri(), client.getUniqueId());
     return responseCreated(createdUri);
   }
 
   //-------------------------------------------------------------------------
   @Path(PATH_CYCLES)
-  public DataViewCycleManagerResource getViewCycleManager(@Context UriInfo uriInfo) {
+  public DataViewCycleManagerResource getViewCycleManager(@Context final UriInfo uriInfo) {
     return getOrCreateDataViewCycleManagerResource(getViewProcessorUri(uriInfo));
   }
 
   //-------------------------------------------------------------------------
-  public static URI uriViewProcess(URI baseUri, UniqueId viewProcessId) {
+  public static URI uriViewProcess(final URI baseUri, final UniqueId viewProcessId) {
     // WARNING: '/' characters could well appear in the view name
     // There is a bug(?) in UriBuilder where, even though segment() is meant to treat the item as a single path segment
     // and therefore encode '/' characters, it does not encode '/' characters which come from a variable substitution.
     return UriBuilder.fromUri(baseUri).path("processes").segment(viewProcessId.toString()).build();
   }
 
-  public static URI uriClient(URI clientsBaseUri, UniqueId viewClientId) {
+  public static URI uriClient(final URI clientsBaseUri, final UniqueId viewClientId) {
     return UriBuilder.fromUri(clientsBaseUri).segment(viewClientId.toString()).build();
   }
 
-  private URI getViewProcessorUri(UriInfo uriInfo) {
+  private URI getViewProcessorUri(final UriInfo uriInfo) {
     return uriInfo.getBaseUri().resolve(UriBuilder.fromUri(uriInfo.getMatchedURIs().get(1)).build());
   }
 
-  private DataViewCycleManagerResource getOrCreateDataViewCycleManagerResource(URI viewProcessorUri) {
+  private DataViewCycleManagerResource getOrCreateDataViewCycleManagerResource(final URI viewProcessorUri) {
     DataViewCycleManagerResource resource = _cycleManagerResource.get();
     if (resource == null) {
-      URI baseUri = UriBuilder.fromUri(viewProcessorUri).path(PATH_CYCLES).build();
-      DataViewCycleManagerResource newResource = new DataViewCycleManagerResource(baseUri, _viewProcessor.getViewCycleManager());
+      final URI baseUri = UriBuilder.fromUri(viewProcessorUri).path(PATH_CYCLES).build();
+      final DataViewCycleManagerResource newResource = new DataViewCycleManagerResource(baseUri, _viewProcessor.getViewCycleManager());
       if (_cycleManagerResource.compareAndSet(null, newResource)) {
         resource = newResource;
-        DataViewCycleManagerResource.ReleaseExpiredReferencesRunnable task = newResource.createReleaseExpiredReferencesTask();
+        final DataViewCycleManagerResource.ReleaseExpiredReferencesRunnable task = newResource.createReleaseExpiredReferencesTask();
         task.setScheduler(_scheduler);
       } else {
         resource = _cycleManagerResource.get();
@@ -237,8 +245,8 @@ public class DataViewProcessorResource extends AbstractDataResource {
     return resource;
   }
 
-  private DataViewClientResource createViewClientResource(ViewClient viewClient, URI viewProcessorUri) {
-    DataViewCycleManagerResource cycleManagerResource = getOrCreateDataViewCycleManagerResource(viewProcessorUri);
+  private DataViewClientResource createViewClientResource(final ViewClient viewClient, final URI viewProcessorUri) {
+    final DataViewCycleManagerResource cycleManagerResource = getOrCreateDataViewCycleManagerResource(viewProcessorUri);
     return new DataViewClientResource(viewClient, cycleManagerResource, _jmsConnector, _scheduler);
   }
 

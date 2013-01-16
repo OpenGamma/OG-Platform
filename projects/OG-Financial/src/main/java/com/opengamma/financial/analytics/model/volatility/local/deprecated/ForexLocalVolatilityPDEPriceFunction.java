@@ -36,11 +36,11 @@ import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -55,8 +55,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
@@ -111,7 +111,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
     ///////////////////////////////
     final double tau = getExpiry(fxOption, now);
     final UnorderedCurrencyPair currencies = UnorderedCurrencyPair.of(fxOption.getCallCurrency(), fxOption.getPutCurrency());
-    final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(forwardCurveCalculationMethod, forwardCurveName, currencies.getUniqueId());
+    final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(forwardCurveCalculationMethod, forwardCurveName, currencies);
     final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
     if (forwardCurveObject == null) {
       throw new OpenGammaRuntimeException("Forward curve was null");
@@ -135,13 +135,8 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof FXOptionSecurity;
-  }
-
-  @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.FX_OPTION_SECURITY;
   }
 
   @Override
@@ -249,10 +244,10 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
     final String maxMoneyness = maxMoneynessNames.iterator().next();
     final String pdeDirection = pdeDirectionNames.iterator().next();
     final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
-    final UniqueId pairUID = UnorderedCurrencyPair.of(fxOption.getCallCurrency(), fxOption.getPutCurrency()).getUniqueId(); //TODO down to subclass
+    final UnorderedCurrencyPair currencies = UnorderedCurrencyPair.of(fxOption.getCallCurrency(), fxOption.getPutCurrency()); //TODO down to subclass
     final ValueRequirement pdeGridRequirement = getPDEGridRequirement(target, surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, h, forwardCurveName,
         theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
-    final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(forwardCurveCalculationMethod, forwardCurveName, pairUID);
+    final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(forwardCurveCalculationMethod, forwardCurveName, currencies);
     return Sets.newHashSet(pdeGridRequirement, forwardCurveRequirement);
   }
 
@@ -500,11 +495,11 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
         .get();
   }
 
-  private ValueRequirement getForwardCurveRequirement(final String calculationMethod, final String forwardCurveName, final UniqueId uid) {
+  private ValueRequirement getForwardCurveRequirement(final String calculationMethod, final String forwardCurveName, final UnorderedCurrencyPair target) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, calculationMethod)
         .with(CURVE, forwardCurveName).get();
-    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, uid, properties);
+    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(target), properties);
   }
 
   private double getExpiry(final FXOptionSecurity fxOption, final ZonedDateTime date) {

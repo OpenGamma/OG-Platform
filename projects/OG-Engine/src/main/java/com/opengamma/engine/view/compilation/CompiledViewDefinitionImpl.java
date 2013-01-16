@@ -37,19 +37,19 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   private final Instant _earliestValidity;
   private final Instant _latestValidity;
 
-  public CompiledViewDefinitionImpl(ViewDefinition viewDefinition, Portfolio portfolio,
-      Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
-      Instant earliestValidity, Instant latestValidity) {
+  public CompiledViewDefinitionImpl(final ViewDefinition viewDefinition, final Portfolio portfolio,
+      final Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
+      final Instant earliestValidity, final Instant latestValidity) {
     _viewDefinition = viewDefinition;
     _portfolio = portfolio;
     _compiledCalculationConfigurations = new HashMap<String, CompiledViewCalculationConfiguration>();
-    for (CompiledViewCalculationConfiguration compiledCalculationConfiguration : compiledCalculationConfigurations) {
+    for (final CompiledViewCalculationConfiguration compiledCalculationConfiguration : compiledCalculationConfigurations) {
       _compiledCalculationConfigurations.put(compiledCalculationConfiguration.getName(), compiledCalculationConfiguration);
     }
     _earliestValidity = earliestValidity;
     _latestValidity = latestValidity;
   }
-  
+
   @Override
   public ViewDefinition getViewDefinition() {
     return _viewDefinition;
@@ -59,13 +59,13 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   public Portfolio getPortfolio() {
     return _portfolio;
   }
-  
+
   @Override
-  public CompiledViewCalculationConfiguration getCompiledCalculationConfiguration(String viewCalculationConfiguration) {
+  public CompiledViewCalculationConfiguration getCompiledCalculationConfiguration(final String viewCalculationConfiguration) {
     ArgumentChecker.notNull(viewCalculationConfiguration, "viewCalculationConfiguration");
     return _compiledCalculationConfigurations.get(viewCalculationConfiguration);
   }
-  
+
   @Override
   public Collection<CompiledViewCalculationConfiguration> getCompiledCalculationConfigurations() {
     return Collections.unmodifiableCollection(_compiledCalculationConfigurations.values());
@@ -73,8 +73,8 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
 
   @Override
   public Map<ValueRequirement, ValueSpecification> getMarketDataRequirements() {
-    Map<ValueRequirement, ValueSpecification> allRequirements = new HashMap<ValueRequirement, ValueSpecification>();
-    for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
+    final Map<ValueRequirement, ValueSpecification> allRequirements = new HashMap<ValueRequirement, ValueSpecification>();
+    for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
       allRequirements.putAll(compiledCalcConfig.getMarketDataRequirements());
     }
     return Collections.unmodifiableMap(allRequirements);
@@ -83,11 +83,11 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   /**
    * Equivalent to getMarketDataRequirements().keySet().containsAny(requirements), but faster
    * @param requirements The requirements to match
-   * @return Whether any of the provider requirements are market data requirements of this view definition 
+   * @return Whether any of the provider requirements are market data requirements of this view definition
    */
-  public boolean hasAnyMarketDataRequirements(Collection<ValueRequirement> requirements)
+  public boolean hasAnyMarketDataRequirements(final Collection<ValueRequirement> requirements)
   {
-    for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
+    for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
       if (CollectionUtils.containsAny(compiledCalcConfig.getMarketDataRequirements().keySet(), requirements))
       {
         return true;
@@ -97,8 +97,8 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   }
   @Override
   public Map<ValueSpecification, Set<ValueRequirement>> getTerminalValuesRequirements() {
-    Map<ValueSpecification, Set<ValueRequirement>> allRequirements = new HashMap<ValueSpecification, Set<ValueRequirement>>();
-    for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
+    final Map<ValueSpecification, Set<ValueRequirement>> allRequirements = new HashMap<ValueSpecification, Set<ValueRequirement>>();
+    for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
       merge(allRequirements, compiledCalcConfig.getTerminalOutputSpecifications());
     }
     return Collections.unmodifiableMap(allRequirements);
@@ -106,8 +106,8 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
 
   @Override
   public Set<ComputationTargetSpecification> getComputationTargets() {
-    Set<ComputationTargetSpecification> allTargets = new HashSet<ComputationTargetSpecification>();
-    for (CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
+    final Set<ComputationTargetSpecification> allTargets = new HashSet<ComputationTargetSpecification>();
+    for (final CompiledViewCalculationConfiguration compiledCalcConfig : getCompiledCalculationConfigurations()) {
       allTargets.addAll(compiledCalcConfig.getComputationTargets());
     }
     return Collections.unmodifiableSet(allTargets);
@@ -127,15 +127,15 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   /**
    * Checks whether the compilation results encapsulated in this instance are valid for a specific cycle. Note that
    * this does not ensure that the view definition used for compilation is still up-to-date.
-   * 
+   *
    * @param valuationTimeProvider  the valuation time, not null
    * @return true if the compilation results are valid for the valuation time
    */
   public boolean isValidFor(final InstantProvider valuationTimeProvider) {
     ArgumentChecker.notNull(valuationTimeProvider, "valuationTimeProvider");
-    Instant valuationTime = valuationTimeProvider.toInstant();
-    return (_earliestValidity == null || !valuationTime.isBefore(_earliestValidity))
-        && (_latestValidity == null || !valuationTime.isAfter(_latestValidity));
+    final Instant valuationTime = valuationTimeProvider.toInstant();
+    return (getValidFrom() == null || !valuationTime.isBefore(getValidFrom()))
+        && (getValidTo() == null || !valuationTime.isAfter(getValidTo()));
   }
 
   //-------------------------------------------------------------------------
@@ -143,7 +143,7 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
   public String toString() {
     return "CompiledViewDefinition[" + getViewDefinition().getName() + ", " + getValidityString() + "]";
   }
-  
+
   protected String getValidityString() {
     if (_earliestValidity == null && _latestValidity == null) {
       return "unrestricted validity";

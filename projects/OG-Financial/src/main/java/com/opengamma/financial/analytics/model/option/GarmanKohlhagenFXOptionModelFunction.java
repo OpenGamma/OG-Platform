@@ -13,12 +13,15 @@ import javax.time.calendar.Clock;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 
 /**
@@ -54,14 +57,11 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
   //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be
     /*
-    if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof OptionSecurity) {
+    if (target.getSecurity() instanceof OptionSecurity) {
       return target.getSecurity() instanceof FXOptionSecurity;
     }
     */
-    if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof EquityOptionSecurity) {
-      return true;
-    }
-    return false;
+    return true;
   }
 
   @Override
@@ -86,15 +86,13 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      final EquityOptionSecurity security = (EquityOptionSecurity) target.getSecurity();
-      final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-      for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-        results.add(new ValueSpecification(new ValueRequirement(valueName, security), getUniqueId()));
-      }
-      return results;
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final ValueProperties properties = createValueProperties().get();
+    for (final String valueName : AvailableGreeks.getAllGreekNames()) {
+      results.add(new ValueSpecification(valueName, targetSpec, properties));
     }
-    return null;
+    return results;
   }
 
   @Override
@@ -104,7 +102,7 @@ public class GarmanKohlhagenFXOptionModelFunction extends BlackScholesMertonMode
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.EQUITY_OPTION_SECURITY;
   }
 
 }

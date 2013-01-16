@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.util.money.Currency;
 
 /**
  * Constructs ATM volatility surface data objects for swaptions if the target is the currency of the swaption.
@@ -28,12 +28,8 @@ public class RawSwaptionATMVolatilitySurfaceDataFunction extends RawVolatilitySu
   }
 
   @Override
-  public boolean isCorrectIdType(final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null; {}", target);
-      return false;
-    }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+  protected ComputationTargetType getTargetType() {
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override

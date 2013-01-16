@@ -30,12 +30,12 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -107,7 +107,7 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
   @Override
   public void init(final FunctionCompilationContext context) {
     _definition = _helper.init(context, this);
-    final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(_definition.getCurrency());
+    final ComputationTargetSpecification targetSpec = ComputationTargetSpecification.of(_definition.getCurrency());
     final ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURVE, _curveName).get();
     _interpolator = new CombinedInterpolatorExtrapolator(Interpolator1DFactory.getInterpolator(_definition.getInterpolatorName()), new FlatExtrapolator1D());
     final String curveReqName = _isYieldCurve ? ValueRequirementNames.YIELD_CURVE : ValueRequirementNames.DISCOUNT_CURVE;
@@ -136,15 +136,17 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.CURRENCY;
+      }
+
+      @Override
+      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+        return _definition.getCurrency().equals(target.getValue());
       }
 
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-        if (canApplyTo(context, target)) {
-          return _results;
-        }
-        return null;
+        return _results;
       }
 
       @Override
@@ -155,13 +157,8 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
       }
 
       @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        return _helper.canApplyTo(target);
-      }
-
-      @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-        final Map<ExternalId, Double> marketDataMap = _helper.buildMarketDataMap(inputs);
+        final Map<ExternalId, Double> marketDataMap = _helper.getMarketDataMap(inputs);
 
         // Gather market data rates
         // Note that this assumes that all strips are priced in decimal percent. We need to resolve

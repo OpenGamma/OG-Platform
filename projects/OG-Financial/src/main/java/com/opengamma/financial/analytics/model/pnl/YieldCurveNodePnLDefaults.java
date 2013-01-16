@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -40,22 +40,19 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingFunction;
-  private final PriorityClass _priority;
   private final Map<String, String> _currencyAndCurveConfigNames;
 
-  public YieldCurveNodePnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String priority, final String... currencyAndCurveConfigNames) {
+  public YieldCurveNodePnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String... currencyAndCurveConfigNames) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator");
     ArgumentChecker.notNull(samplingFunction, "sampling function");
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
     final int nPairs = currencyAndCurveConfigNames.length;
     ArgumentChecker.isTrue(nPairs % 2 == 0, "Must have one curve config name per currency");
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingFunction = samplingFunction;
-    _priority = PriorityClass.valueOf(priority);
     _currencyAndCurveConfigNames = new HashMap<String, String>();
     for (int i = 0; i < currencyAndCurveConfigNames.length; i += 2) {
       _currencyAndCurveConfigNames.put(currencyAndCurveConfigNames[i], currencyAndCurveConfigNames[i + 1]);
@@ -127,11 +124,6 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
       return Collections.singleton(_samplingFunction);
     }
     return null;
-  }
-
-  @Override
-  public PriorityClass getPriority() {
-    return _priority;
   }
 
   @Override

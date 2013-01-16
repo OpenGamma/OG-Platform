@@ -23,12 +23,13 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -65,7 +66,7 @@ public class ForwardSwapCurveMarketDataFunction extends AbstractFunction {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.CURRENCY;
       }
 
       @Override
@@ -88,7 +89,7 @@ public class ForwardSwapCurveMarketDataFunction extends AbstractFunction {
         if (forwardTenorNames == null || forwardTenorNames.size() != 1) {
           return null;
         }
-        final Currency currency = Currency.of(target.getUniqueId().getValue());
+        final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
         final String curveName = curveNames.iterator().next();
         final String forwardTenorName = forwardTenorNames.iterator().next();
         final ForwardSwapCurveDefinition definition = curveDefinitionSource.getDefinition(curveName, currency.toString());
@@ -104,18 +105,10 @@ public class ForwardSwapCurveMarketDataFunction extends AbstractFunction {
         final Tenor forwardTenor = new Tenor(Period.parse(forwardTenorName));
         for (final Tenor tenor : definition.getTenors()) {
           final ExternalId identifier = provider.getInstrument(atInstant.toLocalDate(), tenor, forwardTenor);
-          requirements.add(new ValueRequirement(provider.getDataFieldName(), identifier));
+          requirements.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
         }
-        requirements.add(new ValueRequirement(provider.getDataFieldName(), provider.getSpotInstrument(forwardTenor)));
+        requirements.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument(forwardTenor)));
         return requirements;
-      }
-
-      @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        if (target.getUniqueId() == null) {
-          return false;
-        }
-        return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
       }
 
       @Override
@@ -125,7 +118,7 @@ public class ForwardSwapCurveMarketDataFunction extends AbstractFunction {
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
         final String forwardTenorName = desiredValue.getConstraint(PROPERTY_FORWARD_TENOR);
-        final Currency currencyPair = Currency.of(target.getUniqueId().getValue());
+        final Currency currencyPair = target.getValue(PrimitiveComputationTargetType.CURRENCY);
         final ForwardSwapCurveDefinition definition = curveDefinitionSource.getDefinition(curveName, currencyPair.toString());
         if (definition == null) {
           throw new OpenGammaRuntimeException("Couldn't find a forward swap curve definition called " + curveName + " for target " + target);
@@ -136,7 +129,7 @@ public class ForwardSwapCurveMarketDataFunction extends AbstractFunction {
         }
         final ForwardSwapCurveInstrumentProvider provider = (ForwardSwapCurveInstrumentProvider) specification.getCurveInstrumentProvider();
         final Tenor forwardTenor = new Tenor(Period.parse(forwardTenorName));
-        final ValueRequirement spotRequirement = new ValueRequirement(provider.getDataFieldName(), provider.getSpotInstrument(forwardTenor));
+        final ValueRequirement spotRequirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, provider.getSpotInstrument(forwardTenor));
         if (inputs.getValue(spotRequirement) == null) {
           throw new OpenGammaRuntimeException("Could not get value for spot; requirement was " + spotRequirement);
         }
@@ -144,7 +137,7 @@ public class ForwardSwapCurveMarketDataFunction extends AbstractFunction {
         final Map<ExternalId, Double> data = new HashMap<ExternalId, Double>();
         for (final Tenor tenor : definition.getTenors()) {
           final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor, forwardTenor);
-          final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
+          final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
           if (inputs.getValue(requirement) != null) {
             final Double spread = (Double) inputs.getValue(requirement);
             data.put(identifier, spot + spread);

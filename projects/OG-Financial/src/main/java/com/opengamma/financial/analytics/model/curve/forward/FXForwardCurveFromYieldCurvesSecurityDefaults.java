@@ -8,8 +8,8 @@ package com.opengamma.financial.analytics.model.curve.forward;
 import java.util.Collection;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 
 /**
@@ -18,17 +18,11 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 public class FXForwardCurveFromYieldCurvesSecurityDefaults extends FXForwardCurveFromYieldCurvesDefaults {
 
   public FXForwardCurveFromYieldCurvesSecurityDefaults(final String... currencyCurveConfigAndDiscountingCurveNames) {
-    super(ComputationTargetType.SECURITY, currencyCurveConfigAndDiscountingCurveNames);
+    super(FinancialSecurityTypes.FX_OPTION_SECURITY, currencyCurveConfigAndDiscountingCurveNames);
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    if (!(target.getSecurity() instanceof FXOptionSecurity)) {
-      return false;
-    }
     final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
     final String firstCurrency = fxOption.getPutCurrency().getCode();
     final String secondCurrency = fxOption.getCallCurrency().getCode();

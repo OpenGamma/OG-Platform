@@ -6,9 +6,8 @@
 package com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.id.UniqueId;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
@@ -17,26 +16,18 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 public class FXBlackVolatilitySurfacePrimitiveDefaults extends FXBlackVolatilitySurfaceDefaults {
 
   public FXBlackVolatilitySurfacePrimitiveDefaults(final String... defaultsPerCurrencyPair) {
-    super(ComputationTargetType.PRIMITIVE, defaultsPerCurrencyPair);
+    super(ComputationTargetType.UNORDERED_CURRENCY_PAIR, defaultsPerCurrencyPair);
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
+    final UnorderedCurrencyPair ccy = (UnorderedCurrencyPair) target.getValue();
+    String currencyPair = ccy.getFirstCurrency().getCode() + ccy.getSecondCurrency().getCode();
+    if (getAllCurrencyPairs().contains(currencyPair)) {
+      return true;
     }
-    final UniqueId uniqueId = target.getUniqueId();
-    if (UnorderedCurrencyPair.OBJECT_SCHEME.equals(uniqueId.getScheme())) {
-      final String currencyPair = uniqueId.getValue();
-      if (getAllCurrencyPairs().contains(currencyPair)) {
-        return true;
-      }
-      final String firstCcy = currencyPair.substring(0, 3);
-      final String secondCcy = currencyPair.substring(3, 6);
-      final String reversedCcys = secondCcy + firstCcy;
-      return getAllCurrencyPairs().contains(reversedCcys);
-    }
-    return false;
+    currencyPair = ccy.getSecondCurrency().getCode() + ccy.getFirstCurrency().getCode();
+    return getAllCurrencyPairs().contains(currencyPair);
   }
 
 

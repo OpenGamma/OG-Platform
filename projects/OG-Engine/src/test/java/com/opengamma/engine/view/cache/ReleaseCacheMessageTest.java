@@ -20,13 +20,16 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.money.Currency;
 
 /**
  * Test.
@@ -80,8 +83,10 @@ public class ReleaseCacheMessageTest {
 
   //-------------------------------------------------------------------------
   private void putStuffIntoCache(final ViewComputationCache cache) {
-    cache.putPrivateValue(new ComputedValue(new ValueSpecification(new ValueRequirement("Value", "Foo"), "function ID"), "Bar"));
-    cache.putSharedValue(new ComputedValue(new ValueSpecification(new ValueRequirement("Value", "Foo"), "function ID"), "Bar"));
+    final ComputationTargetSpecification target = ComputationTargetSpecification.of(Currency.USD);
+    final ValueSpecification valueSpec = new ValueSpecification("Value", target, ValueProperties.with(ValuePropertyNames.FUNCTION, "function ID").get());
+    cache.putPrivateValue(new ComputedValue(valueSpec, "Bar"));
+    cache.putSharedValue(new ComputedValue(valueSpec, "Bar"));
   }
 
   private void pause () {

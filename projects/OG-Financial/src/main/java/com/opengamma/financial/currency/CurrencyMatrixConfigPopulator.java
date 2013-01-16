@@ -11,8 +11,9 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -53,7 +54,8 @@ public class CurrencyMatrixConfigPopulator {
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     for (final CurrencyPair pair : currencies.getPairs()) {
       matrix.setLiveData(pair.getCounter(), pair.getBase(),
-          new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.toString(), pair.getBase().getCode() + pair.getCounter().getCode() + " Curncy")));
+          new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER.toString(), pair.getBase().getCode() +
+              pair.getCounter().getCode() + " Curncy")));
     }
     dumpMatrix(matrix);
     return matrix;
@@ -65,7 +67,8 @@ public class CurrencyMatrixConfigPopulator {
     for (final CurrencyPair pair : currencies.getPairs()) {
       if (commonCross.equals(pair.getBase()) || commonCross.equals(pair.getCounter())) {
         matrix.setLiveData(pair.getCounter(), pair.getBase(),
-            new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, UniqueId.of(ExternalSchemes.OG_SYNTHETIC_TICKER.getName(), pair.getBase().getCode() + pair.getCounter().getCode())));
+            new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER.getName(), pair.getBase().getCode() +
+                pair.getCounter().getCode())));
       }
     }
     for (final CurrencyPair pair : currencies.getPairs()) {

@@ -9,14 +9,16 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  *
@@ -26,9 +28,8 @@ public class PositionPnLDefaults extends DefaultPropertyFunction {
   private final String _samplingPeriod;
   private final String _scheduleCalculator;
   private final String _samplingFunction;
-  private final String _currency;
 
-  public PositionPnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction, final String currency) {
+  public PositionPnLDefaults(final String samplingPeriod, final String scheduleCalculator, final String samplingFunction) {
     super(ComputationTargetType.POSITION, true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator");
@@ -36,7 +37,6 @@ public class PositionPnLDefaults extends DefaultPropertyFunction {
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingFunction = samplingFunction;
-    _currency = currency;
   }
 
   @Override
@@ -60,7 +60,19 @@ public class PositionPnLDefaults extends DefaultPropertyFunction {
       return Collections.singleton(_samplingFunction);
     }
     if (ValuePropertyNames.CURRENCY.equals(propertyName)) {
-      return Collections.singleton(_currency);
+      final ViewCalculationConfiguration viewCalc = context.getViewCalculationConfiguration();
+      if (viewCalc == null) {
+        return null;
+      }
+      final Set<String> defaultCurrencies = viewCalc.getDefaultProperties().getValues(ValuePropertyNames.CURRENCY);
+      if (defaultCurrencies != null) {
+        return defaultCurrencies;
+      }
+      final Currency defaultCurrency = viewCalc.getViewDefinition().getDefaultCurrency();
+      if (defaultCurrency != null) {
+        return Collections.singleton(defaultCurrency.getCode());
+      }
+      return null;
     }
     return null;
   }

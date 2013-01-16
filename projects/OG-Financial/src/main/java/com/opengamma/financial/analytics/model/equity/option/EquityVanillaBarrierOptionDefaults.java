@@ -12,15 +12,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
-
 
 /**
  * Default properties to define the choices of overhedge (shift of strike)
@@ -59,7 +57,7 @@ public class EquityVanillaBarrierOptionDefaults extends DefaultPropertyFunction 
    * @param callSpreadFullWidth The call spread width, not null
    */
   public EquityVanillaBarrierOptionDefaults(final String barrierOverhedge, final String callSpreadFullWidth) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.EQUITY_BARRIER_OPTION_SECURITY, true);
     ArgumentChecker.notNull(barrierOverhedge, "barrier overhedge");
     ArgumentChecker.notNull(callSpreadFullWidth, "call spread width");
     _barrierOverhedge = barrierOverhedge;
@@ -85,14 +83,6 @@ public class EquityVanillaBarrierOptionDefaults extends DefaultPropertyFunction 
     }
     s_logger.error("Could not get default value for {}", propertyName);
     return null;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return (target.getSecurity() instanceof EquityBarrierOptionSecurity);
   }
 
 }

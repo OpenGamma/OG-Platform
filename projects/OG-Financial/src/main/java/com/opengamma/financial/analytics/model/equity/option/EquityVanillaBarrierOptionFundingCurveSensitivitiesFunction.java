@@ -25,9 +25,9 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -115,7 +115,7 @@ public class EquityVanillaBarrierOptionFundingCurveSensitivitiesFunction extends
       //  We use PresentValueNodeSensitivityCalculator to distribute this risk across the curve
       final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
       // What's left is to package up the inputs to the distributor, a YieldCurveBundle and a Map of Sensitivities
-      final Map<String, List<DoublesPair>> curveSensMap = new HashMap<String, List<DoublesPair>>();
+      final Map<String, List<DoublesPair>> curveSensMap = new HashMap<>();
       curveSensMap.put(fundingCurveName, Lists.newArrayList(new DoublesPair(settlementTime, rhoSettle)));
       sensVector = distributor.curveToNodeSensitivities(curveSensMap, curveBundle);
     } else {

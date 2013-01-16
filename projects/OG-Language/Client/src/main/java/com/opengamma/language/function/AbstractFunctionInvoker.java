@@ -77,8 +77,8 @@ public abstract class AbstractFunctionInvoker extends AbstractInvoker implements
     final Object resultObject;
     try {
       resultObject = invokeImpl(sessionContext, parameters);
-    } catch (AsynchronousExecution e) {
-      final AsynchronousOperation<Result> async = new AsynchronousOperation<Result>();
+    } catch (final AsynchronousExecution e) {
+      final AsynchronousOperation<Result> async = AsynchronousOperation.create(Result.class);
       final ResultCallback<Result> asyncResult = async.getCallback();
       e.setResultListener(new ResultListener<Object>() {
         @Override
@@ -86,7 +86,7 @@ public abstract class AbstractFunctionInvoker extends AbstractInvoker implements
           try {
             final Object resultObject = result.getResult();
             asyncResult.setResult(invokeResult(sessionContext, resultObject));
-          } catch (RuntimeException e) {
+          } catch (final RuntimeException e) {
             asyncResult.setException(e);
           }
         }

@@ -131,7 +131,7 @@ public class BjerksundStenslandModel {
 
   /**
    * Get the price of an American option by the Bjerksund and Stensland (2002) approximation. We ensure that the price is the maximum of the no early excise (Black-Scholes price), 
-   * the immediate excise value and the Bjerksund-Stenslandm approximation value
+   * the immediate exercise value and the Bjerksund-Stensland approximation value
    * @param s0 The spot
    * @param k The strike
    * @param r The risk-free rate
@@ -148,23 +148,22 @@ public class BjerksundStenslandModel {
     final double bsPrice = df * BlackFormulaRepository.price(fwd, k, t, sigma, isCall);
 
     if (isCall) {
-      if (b >= r) { //no early excise in this case
+      if (b >= r) { //no early exercise in this case
         return bsPrice;
       }
       return Math.max(bsPrice, getCallPrice(s0, k, r, b, t, sigma));
-    } else {
-      //min price is  maximum of immediate excise and Black-Scholes price 
-      final double minPrice = Math.max(k - s0, bsPrice);
-      final double temp = (2 * b + sigma * sigma) / 2 / sigma;
-      final double minR = b - 0.5 * temp * temp;
-      //this does not give the best possible lower bond. Bjerksund-Stensland will give an answer for r < 0, but will fail for r < minR (complex beta) 
-      //TODO review the Bjerksund-Stensland formalisation to see if a general r < 0 (for puts) solution is possible 
-      if (r < minR) {
-        return minPrice;
-      }
-      //put using put-call transformation 
-      return Math.max(minPrice, getCallPrice(k, s0, r - b, -b, t, sigma));
     }
+    //min price is  maximum of immediate exercise and Black-Scholes price 
+    final double minPrice = Math.max(k - s0, bsPrice);
+    final double temp = (2 * b + sigma * sigma) / 2 / sigma;
+    final double minR = b - 0.5 * temp * temp;
+    //this does not give the best possible lower bound. Bjerksund-Stensland will give an answer for r < 0, but will fail for r < minR (complex beta) 
+    //TODO review the Bjerksund-Stensland formalisation to see if a general r < 0 (for puts) solution is possible 
+    if (r < minR) {
+      return minPrice;
+    }
+    //put using put-call transformation 
+    return Math.max(minPrice, getCallPrice(k, s0, r - b, -b, t, sigma));
   }
 
   /**
@@ -215,10 +214,10 @@ public class BjerksundStenslandModel {
 
     final double alpha1 = getAlpha(x1, beta, k);
     final double alpha2 = getAlpha(x2, beta, k);
-    return alpha2 * Math.pow(s0, beta) - alpha2 * getPhi(s0, t1, beta, x2, x2, r, b, sigma) + getPhi(s0, t1, 1, x2, x2, r, b, sigma) - getPhi(s0, t1, 1, x1, x2, r, b, sigma) - k
-        * getPhi(s0, t1, 0, x2, x2, r, b, sigma) + k * getPhi(s0, t1, 0, x1, x2, r, b, sigma) + alpha1 * getPhi(s0, t1, beta, x1, x2, r, b, sigma) - alpha1
-        * getPsi(s0, t1, t, beta, x1, x2, x1, r, b, sigma) + getPsi(s0, t1, t, 1, x1, x2, x1, r, b, sigma) - getPsi(s0, t1, t, 1, k, x2, x1, r, b, sigma) - k
-        * getPsi(s0, t1, t, 0, x1, x2, x1, r, b, sigma) + k * getPsi(s0, t1, t, 0, k, x2, x1, r, b, sigma);
+    return alpha2 * Math.pow(s0, beta) - alpha2 * getPhi(s0, t1, beta, x2, x2, r, b, sigma) + getPhi(s0, t1, 1, x2, x2, r, b, sigma)
+        - getPhi(s0, t1, 1, x1, x2, r, b, sigma) - k * getPhi(s0, t1, 0, x2, x2, r, b, sigma) + k * getPhi(s0, t1, 0, x1, x2, r, b, sigma) + alpha1
+        * getPhi(s0, t1, beta, x1, x2, r, b, sigma) - alpha1 * getPsi(s0, t1, t, beta, x1, x2, x1, r, b, sigma) + getPsi(s0, t1, t, 1, x1, x2, x1, r, b, sigma)
+        - getPsi(s0, t1, t, 1, k, x2, x1, r, b, sigma) - k * getPsi(s0, t1, t, 0, x1, x2, x1, r, b, sigma) + k * getPsi(s0, t1, t, 0, k, x2, x1, r, b, sigma);
   }
 
   private double getH(final double b, final double t, final double sigma, final double k, final double b0, final double bInfinity) {
@@ -244,7 +243,8 @@ public class BjerksundStenslandModel {
     return Math.exp(lambda * t) * Math.pow(s, gamma) * (NORMAL.getCDF(d1) - Math.pow(x / s, kappa) * NORMAL.getCDF(d2));
   }
 
-  protected double getPsi(final double s, final double t1, final double t2, final double gamma, final double h, final double x2, final double x1, final double r, final double b, final double sigma) {
+  protected double getPsi(final double s, final double t1, final double t2, final double gamma, final double h, final double x2, final double x1, final double r,
+      final double b, final double sigma) {
     final double sigmaSq = sigma * sigma;
     final double denom1 = getDenom(t1, sigma);
     final double denom2 = getDenom(t2, sigma);
@@ -263,8 +263,8 @@ public class BjerksundStenslandModel {
     final double rho = Math.sqrt(t1 / t2);
     return Math.exp(lambda * t2)
         * Math.pow(s, gamma)
-        * (BIVARIATE_NORMAL.getCDF(new double[] {d1, e1, rho }) - Math.pow(x2 / s, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d2, e2, rho }) - Math.pow(x1 / s, kappa)
-            * BIVARIATE_NORMAL.getCDF(new double[] {d3, e3, -rho }) + Math.pow(x1 / x2, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d4, e4, -rho }));
+        * (BIVARIATE_NORMAL.getCDF(new double[] {d1, e1, rho}) - Math.pow(x2 / s, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d2, e2, rho}) - Math.pow(x1 / s, kappa)
+            * BIVARIATE_NORMAL.getCDF(new double[] {d3, e3, -rho}) + Math.pow(x1 / x2, kappa) * BIVARIATE_NORMAL.getCDF(new double[] {d4, e4, -rho}));
   }
 
   private double getLambda(final double gamma, final double r, final double b, final double sigmaSq) {
@@ -346,10 +346,9 @@ public class BjerksundStenslandModel {
    * @param isCall true for calls
    * @return length 2 arrays containing the price and vega
    */
-  public double[] getPriceAndVega(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall)
-  {
+  public double[] getPriceAndVega(final double s0, final double k, final double r, final double b, final double t, final double sigma, final boolean isCall) {
     final double[] temp = getPriceAdjoint(s0, k, r, b, t, sigma, isCall);
-    return new double[] {temp[0], temp[6] }; //fairly wasteful to compute all the other Greeks
+    return new double[] {temp[0], temp[6]}; //fairly wasteful to compute all the other Greeks
   }
 
   /**
@@ -452,41 +451,37 @@ public class BjerksundStenslandModel {
     final double alpha2Bar = w1 - w2;
     final double alpha1Bar = phi6Adj[0] - psi1Adj[0];
 
-    final double x2Bar = psi5Adj[5] * psi5Bar + psi4Adj[5] * psi4Bar + psi3Adj[5] * psi3Bar + psi2Adj[5] * psi2Bar + psi1Adj[5] * psi1Bar
-        + phi6Adj[5] * phi6Bar + phi5Adj[5] * phi5Bar + (phi4Adj[4] + phi4Adj[5]) * phi4Bar + +phi3Adj[5] * phi3Bar + (phi2Adj[4] + phi2Adj[5]) * phi2Bar + (phi1Adj[4] + phi1Adj[5]) * phi1Bar
+    final double x2Bar = psi5Adj[5] * psi5Bar + psi4Adj[5] * psi4Bar + psi3Adj[5] * psi3Bar + psi2Adj[5] * psi2Bar + psi1Adj[5] * psi1Bar + phi6Adj[5] * phi6Bar
+        + phi5Adj[5] * phi5Bar + (phi4Adj[4] + phi4Adj[5]) * phi4Bar + +phi3Adj[5] * phi3Bar + (phi2Adj[4] + phi2Adj[5]) * phi2Bar + (phi1Adj[4] + phi1Adj[5]) * phi1Bar
         + alpha2Adj[2] * alpha2Bar;
 
-    final double x1Bar = psi5Adj[6] * psi5Bar + (psi4Adj[4] + psi4Adj[6]) * psi4Bar + psi3Adj[6] * psi3Bar + (psi2Adj[4] + psi2Adj[6]) * psi2Bar + (psi1Adj[4] + psi1Adj[6]) * psi1Bar
-        + phi6Adj[4] * phi6Bar + phi5Adj[4] * phi5Bar + phi3Adj[4] * phi3Bar
-        + alpha1Adj[2] * alpha1Bar;
+    final double x1Bar = psi5Adj[6] * psi5Bar + (psi4Adj[4] + psi4Adj[6]) * psi4Bar + psi3Adj[6] * psi3Bar + (psi2Adj[4] + psi2Adj[6]) * psi2Bar
+        + (psi1Adj[4] + psi1Adj[6]) * psi1Bar + phi6Adj[4] * phi6Bar + phi5Adj[4] * phi5Bar + phi3Adj[4] * phi3Bar + alpha1Adj[2] * alpha1Bar;
 
-    final double betaBar = Math.log(s0) * w1 * w1Bar + psi1Adj[3] * psi1Bar + phi1Adj[3] * phi1Bar + phi6Adj[3] * phi6Bar
-        + alpha2Bar * alpha2Adj[3] + alpha1Bar * alpha1Adj[3];
+    final double betaBar = Math.log(s0) * w1 * w1Bar + psi1Adj[3] * psi1Bar + phi1Adj[3] * phi1Bar + phi6Adj[3] * phi6Bar + alpha2Bar * alpha2Adj[3] + alpha1Bar
+        * alpha1Adj[3];
 
-    final double sBar = betaAdj[0] * w1 / s0 * w1Bar
-        + psi5Adj[1] * psi5Bar + psi4Adj[1] * psi4Bar + psi3Adj[1] * psi3Bar + psi2Adj[1] * psi2Bar + psi1Adj[1] * psi1Bar
+    final double sBar = betaAdj[0] * w1 / s0 * w1Bar + psi5Adj[1] * psi5Bar + psi4Adj[1] * psi4Bar + psi3Adj[1] * psi3Bar + psi2Adj[1] * psi2Bar + psi1Adj[1] * psi1Bar
         + phi6Adj[1] * phi6Bar + phi5Adj[1] * phi5Bar + phi4Adj[1] * phi4Bar + phi3Adj[1] * phi3Bar + phi2Adj[1] * phi2Bar + phi1Adj[1] * phi1Bar;
 
-    final double kBar = -psi4Adj[0] + psi5Adj[0] - phi4Adj[0] + phi5Adj[0]
-        + psi5Adj[4] * psi5Bar + psi3Adj[4] * psi3Bar
-        + x2Adj[1] * x2Bar + x1Adj[1] * x1Bar
+    final double kBar = -psi4Adj[0] + psi5Adj[0] - phi4Adj[0] + phi5Adj[0] + psi5Adj[4] * psi5Bar + psi3Adj[4] * psi3Bar + x2Adj[1] * x2Bar + x1Adj[1] * x1Bar
         + alpha1Adj[1] * alpha1Bar + alpha2Adj[1] * alpha2Bar;
     ;
-    final double rBar = psi5Adj[7] * psi5Bar + psi4Adj[7] * psi4Bar + psi3Adj[7] * psi3Bar + psi2Adj[7] * psi2Bar + psi1Adj[7] * psi1Bar
-        + phi6Adj[6] * phi6Bar + phi5Adj[6] * phi5Bar + phi4Adj[6] * phi4Bar + phi3Adj[6] * phi3Bar + phi2Adj[6] * phi2Bar + phi1Adj[6] * phi1Bar
-        + x2Adj[2] * x2Bar + x1Adj[2] * x1Bar + betaAdj[1] * betaBar;
+    final double rBar = psi5Adj[7] * psi5Bar + psi4Adj[7] * psi4Bar + psi3Adj[7] * psi3Bar + psi2Adj[7] * psi2Bar + psi1Adj[7] * psi1Bar + phi6Adj[6] * phi6Bar
+        + phi5Adj[6] * phi5Bar + phi4Adj[6] * phi4Bar + phi3Adj[6] * phi3Bar + phi2Adj[6] * phi2Bar + phi1Adj[6] * phi1Bar + x2Adj[2] * x2Bar + x1Adj[2] * x1Bar
+        + betaAdj[1] * betaBar;
 
-    final double bBar = psi5Adj[8] * psi5Bar + psi4Adj[8] * psi4Bar + psi3Adj[8] * psi3Bar + psi2Adj[8] * psi2Bar + psi1Adj[8] * psi1Bar
-        + phi6Adj[7] * phi6Bar + phi5Adj[7] * phi5Bar + phi4Adj[7] * phi4Bar + phi3Adj[7] * phi3Bar + phi2Adj[7] * phi2Bar + phi1Adj[7] * phi1Bar
-        + x2Adj[3] * x2Bar + x1Adj[3] * x1Bar + betaAdj[2] * betaBar;
+    final double bBar = psi5Adj[8] * psi5Bar + psi4Adj[8] * psi4Bar + psi3Adj[8] * psi3Bar + psi2Adj[8] * psi2Bar + psi1Adj[8] * psi1Bar + phi6Adj[7] * phi6Bar
+        + phi5Adj[7] * phi5Bar + phi4Adj[7] * phi4Bar + phi3Adj[7] * phi3Bar + phi2Adj[7] * phi2Bar + phi1Adj[7] * phi1Bar + x2Adj[3] * x2Bar + x1Adj[3] * x1Bar
+        + betaAdj[2] * betaBar;
 
     final double tBar = psi5Adj[2] * psi5Bar + psi4Adj[2] * psi4Bar + psi3Adj[2] * psi3Bar + psi2Adj[2] * psi2Bar + psi1Adj[2] * psi1Bar
-        + (phi6Adj[2] * phi6Bar + phi5Adj[2] * phi5Bar + phi4Adj[2] * phi4Bar + phi3Adj[2] * phi3Bar + phi2Adj[2] * phi2Bar + phi1Adj[2] * phi1Bar)
-        + x2Adj[5] * x2Bar + x1Adj[5] * x1Bar;
+        + (phi6Adj[2] * phi6Bar + phi5Adj[2] * phi5Bar + phi4Adj[2] * phi4Bar + phi3Adj[2] * phi3Bar + phi2Adj[2] * phi2Bar + phi1Adj[2] * phi1Bar) + x2Adj[5] * x2Bar
+        + x1Adj[5] * x1Bar;
 
-    final double sigmaBar = psi5Adj[9] * psi5Bar + psi4Adj[9] * psi4Bar + psi3Adj[9] * psi3Bar + psi2Adj[9] * psi2Bar + psi1Adj[9] * psi1Bar
-        + phi6Adj[8] * phi6Bar + phi5Adj[8] * phi5Bar + phi4Adj[8] * phi4Bar + phi3Adj[8] * phi3Bar + phi2Adj[8] * phi2Bar + phi1Adj[8] * phi1Bar
-        + x2Adj[4] * x2Bar + x1Adj[4] * x1Bar + 2 * sigma * betaAdj[3] * betaBar;
+    final double sigmaBar = psi5Adj[9] * psi5Bar + psi4Adj[9] * psi4Bar + psi3Adj[9] * psi3Bar + psi2Adj[9] * psi2Bar + psi1Adj[9] * psi1Bar + phi6Adj[8] * phi6Bar
+        + phi5Adj[8] * phi5Bar + phi4Adj[8] * phi4Bar + phi3Adj[8] * phi3Bar + phi2Adj[8] * phi2Bar + phi1Adj[8] * phi1Bar + x2Adj[4] * x2Bar + x1Adj[4] * x1Bar + 2
+        * sigma * betaAdj[3] * betaBar;
 
     res[0] = w9;
     res[1] = sBar;
@@ -509,24 +504,21 @@ public class BjerksundStenslandModel {
     final double minR = b - 0.5 * temp * temp;
     if (r <= minR) { // this will correspond to a complex beta - i.e. the model breaks down. The best we can do is return min price
       return minPriceAdjoint(s0, k, r, b, t, sigma, bsPrice);
-    } else {
-      final double minPrice = Math.max(k - s0, bsPrice);
-      final double[] cAdjoint = getCallPriceAdjoint(k, s0, r - b, -b, t, sigma);
-      if (cAdjoint[0] > minPrice) {
-        final double[] res = new double[7];
-        res[0] = cAdjoint[0];
-        res[1] = cAdjoint[2];
-        res[2] = cAdjoint[1];
-        res[3] = cAdjoint[3];
-        res[4] = -cAdjoint[3] - cAdjoint[4];
-        res[5] = cAdjoint[5];
-        res[6] = cAdjoint[6];
-        return res;
-      } else {
-        return minPriceAdjoint(s0, k, r, b, t, sigma, bsPrice);
-      }
     }
-
+    final double minPrice = Math.max(k - s0, bsPrice);
+    final double[] cAdjoint = getCallPriceAdjoint(k, s0, r - b, -b, t, sigma);
+    if (cAdjoint[0] > minPrice) {
+      final double[] res = new double[7];
+      res[0] = cAdjoint[0];
+      res[1] = cAdjoint[2];
+      res[2] = cAdjoint[1];
+      res[3] = cAdjoint[3];
+      res[4] = -cAdjoint[3] - cAdjoint[4];
+      res[5] = cAdjoint[5];
+      res[6] = cAdjoint[6];
+      return res;
+    }
+    return minPriceAdjoint(s0, k, r, b, t, sigma, bsPrice);
   }
 
   private double[] minPriceAdjoint(final double s0, final double k, final double r, final double b, final double t, final double sigma, final double bsPrice) {
@@ -536,10 +528,9 @@ public class BjerksundStenslandModel {
       res[1] = -1.0;
       res[2] = 1.0;
       return res;
-    } else {
-      final BaroneAdesiWhaleyModel mod = new BaroneAdesiWhaleyModel();
-      return mod.getPriceAdjoint(s0, k, r, b, t, sigma, false);
     }
+    final BaroneAdesiWhaleyModel mod = new BaroneAdesiWhaleyModel();
+    return mod.getPriceAdjoint(s0, k, r, b, t, sigma, false);
   }
 
   protected double[] getCallDeltaGamma(final double s0, final double k, final double r, final double b, final double t, final double sigma) {
@@ -721,8 +712,7 @@ public class BjerksundStenslandModel {
    * @param sigma volatility 
    * @return length 9 array of  phi and its sensitivity to s, t, gamma, h, x (I), r, b & sigma 
    */
-  protected double[] getPhiAdjoint(final double s, final double t, final double gamma, final double h, final double x, final double r, final double b,
-      final double sigma) {
+  protected double[] getPhiAdjoint(final double s, final double t, final double gamma, final double h, final double x, final double r, final double b, final double sigma) {
 
     final double t1 = RHO2 * t;
     final double sigmaSq = sigma * sigma;
@@ -774,8 +764,7 @@ public class BjerksundStenslandModel {
     res[5] = (2 * w3Bar + kappaAdj[0] * w10 * w10Bar) / x; //xBar
     res[6] = lambdaAdj[2] * lammbaBar; //rBar
     res[7] = t1 * w1Bar + lambdaAdj[3] * lammbaBar + kappaAdj[2] * kappaBar; //bBar
-    res[8] = 2 * sigma * ((gamma - 0.5) * t1 * w1Bar + lambdaAdj[4] * lammbaBar + kappaAdj[3] * kappaBar)
-        - (w6 * w6Bar + w7 * w7Bar) / sigma; //sigmaBar
+    res[8] = 2 * sigma * ((gamma - 0.5) * t1 * w1Bar + lambdaAdj[4] * lammbaBar + kappaAdj[3] * kappaBar) - (w6 * w6Bar + w7 * w7Bar) / sigma; //sigmaBar
 
     return res;
   }
@@ -791,8 +780,7 @@ public class BjerksundStenslandModel {
    * @param sigma The volatility
    * @return The phi delta array
    */
-  protected double[] getPhiDelta(final double s, final double t, final double gamma, final double h, final double x, final double r, final double b,
-      final double sigma) {
+  protected double[] getPhiDelta(final double s, final double t, final double gamma, final double h, final double x, final double r, final double b, final double sigma) {
 
     final double t1 = RHO2 * t;
     final double sigmaSq = sigma * sigma;
@@ -864,8 +852,8 @@ public class BjerksundStenslandModel {
    * @param sigma volatility 
    * @return array of length 10 of Psi and its sensitivity to s, t, gamma, h, x2, x1, r, b and sigma
    */
-  protected double[] getPsiAdjoint(final double s, final double t, final double gamma, final double h, final double x2, final double x1,
-      final double r, final double b, final double sigma) {
+  protected double[] getPsiAdjoint(final double s, final double t, final double gamma, final double h, final double x2, final double x1, final double r, final double b,
+      final double sigma) {
 
     //TODO all of this could be pre-calculated
     final double rootT = Math.sqrt(t);
@@ -901,10 +889,10 @@ public class BjerksundStenslandModel {
     final double f3 = (w5 + w9) / sigmarootT;
     final double f4 = (w7 + w9) / sigmarootT;
 
-    final double w15 = BIVARIATE_NORMAL.getCDF(new double[] {-e1, -f1, RHO });
-    final double w16 = BIVARIATE_NORMAL.getCDF(new double[] {-e2, -f2, RHO });
-    final double w17 = BIVARIATE_NORMAL.getCDF(new double[] {-e3, -f3, -RHO });
-    final double w18 = BIVARIATE_NORMAL.getCDF(new double[] {-e4, -f4, -RHO });
+    final double w15 = BIVARIATE_NORMAL.getCDF(new double[] {-e1, -f1, RHO});
+    final double w16 = BIVARIATE_NORMAL.getCDF(new double[] {-e2, -f2, RHO});
+    final double w17 = BIVARIATE_NORMAL.getCDF(new double[] {-e3, -f3, -RHO});
+    final double w18 = BIVARIATE_NORMAL.getCDF(new double[] {-e4, -f4, -RHO});
     final double w19 = w15 - w12 * w16 - w13 * w17 + w14 * w18;
     final double w20 = w10 * w11 * w19;
 
@@ -945,16 +933,16 @@ public class BjerksundStenslandModel {
     final double[] res = new double[10];
     res[0] = w20; //Psi
     res[1] = (-kappaAdj[0] * (w13 * w13Bar + w12 * w12Bar) + gamma * w11 * w11Bar + w7Bar - w6Bar - w5Bar - w4Bar + w3Bar + w2Bar) / s; //sBar
-    res[2] = lambdaAdj[0] * w10 * w10Bar + w1 * (RHO2 * w8Bar + w9Bar)
-        - 0.5 * (f4 * f4Bar + f3 * f3Bar + f2 * f2Bar + f1 * f1Bar + e4 * e4Bar + e3 * e3Bar + e2 * e2Bar + e1 * e1Bar) / t; //tBar
+    res[2] = lambdaAdj[0] * w10 * w10Bar + w1 * (RHO2 * w8Bar + w9Bar) - 0.5
+        * (f4 * f4Bar + f3 * f3Bar + f2 * f2Bar + f1 * f1Bar + e4 * e4Bar + e3 * e3Bar + e2 * e2Bar + e1 * e1Bar) / t; //tBar
     res[3] = sigmaSq * w1Bar + Math.log(s) * w11 * w11Bar + lambdaAdj[1] * lambdaBar + kappaAdj[1] * kappaBar; //gammaBar
     res[4] = (-w7Bar - w6Bar - w5Bar - w3Bar) / h; //hBar
     res[5] = (kappaAdj[0] * (-w14 * w14Bar + w12 * w12Bar) + 2 * (-w7Bar + w6Bar + w4Bar)) / x2; //x2bar
     res[6] = (kappaAdj[0] * (w14 * w14Bar + w13 * w13Bar) + 2 * (w7Bar + w5Bar) - w4Bar - w2Bar) / x1; //x1Bar
     res[7] = lambdaAdj[2] * lambdaBar; //rBar
     res[8] = w1Bar + lambdaAdj[3] * lambdaBar + kappaAdj[2] * kappaBar; //bBar
-    res[9] = -(f4 * f4Bar + f3 * f3Bar + f2 * f2Bar + f1 * f1Bar + e4 * e4Bar + e3 * e3Bar + e2 * e2Bar + e1 * e1Bar) / sigma
-        + 2 * sigma * ((gamma - 0.5) * w1Bar + lambdaAdj[4] * lambdaBar + kappaAdj[3] * kappaBar); //sigmaBar
+    res[9] = -(f4 * f4Bar + f3 * f3Bar + f2 * f2Bar + f1 * f1Bar + e4 * e4Bar + e3 * e3Bar + e2 * e2Bar + e1 * e1Bar) / sigma + 2 * sigma
+        * ((gamma - 0.5) * w1Bar + lambdaAdj[4] * lambdaBar + kappaAdj[3] * kappaBar); //sigmaBar
 
     return res;
   }
@@ -971,8 +959,8 @@ public class BjerksundStenslandModel {
    * @param sigma The volatility
    * @return The array of psi delta
    */
-  protected double[] getPsiDelta(final double s, final double t, final double gamma, final double h, final double x2, final double x1,
-      final double r, final double b, final double sigma) {
+  protected double[] getPsiDelta(final double s, final double t, final double gamma, final double h, final double x2, final double x1, final double r, final double b,
+      final double sigma) {
 
     //TODO all of this could be precalculated
     final double rootT = Math.sqrt(t);
@@ -1037,19 +1025,19 @@ public class BjerksundStenslandModel {
     final double f4Dot = -blah3;
     final double f4DDot = blah4;
 
-    final double w15 = BIVARIATE_NORMAL.getCDF(new double[] {e1, f1, RHO });
+    final double w15 = BIVARIATE_NORMAL.getCDF(new double[] {e1, f1, RHO});
     double[] temp = bivariateNormDiv(e1, f1, true);
     final double w15Dot = temp[0] * e1Dot + temp[1] * f1Dot;
     final double w15DDot = temp[0] * e1DDot + temp[1] * f1DDot + temp[2] * e1Dot * e1Dot + temp[3] * f1Dot * f1Dot + 2 * temp[4] * e1Dot * f1Dot;
-    final double w16 = BIVARIATE_NORMAL.getCDF(new double[] {e2, f2, RHO });
+    final double w16 = BIVARIATE_NORMAL.getCDF(new double[] {e2, f2, RHO});
     temp = bivariateNormDiv(e2, f2, true);
     final double w16Dot = temp[0] * e2Dot + temp[1] * f2Dot;
     final double w16DDot = temp[0] * e2DDot + temp[1] * f2DDot + temp[2] * e2Dot * e2Dot + temp[3] * f2Dot * f2Dot + 2 * temp[4] * e2Dot * f2Dot;
-    final double w17 = BIVARIATE_NORMAL.getCDF(new double[] {e3, f3, -RHO });
+    final double w17 = BIVARIATE_NORMAL.getCDF(new double[] {e3, f3, -RHO});
     temp = bivariateNormDiv(e3, f3, false);
     final double w17Dot = temp[0] * e3Dot + temp[1] * f3Dot;
     final double w17DDot = temp[0] * e3DDot + temp[1] * f3DDot + temp[2] * e3Dot * e3Dot + temp[3] * f3Dot * f3Dot + 2 * temp[4] * e3Dot * f3Dot;
-    final double w18 = BIVARIATE_NORMAL.getCDF(new double[] {e4, f4, -RHO });
+    final double w18 = BIVARIATE_NORMAL.getCDF(new double[] {e4, f4, -RHO});
     temp = bivariateNormDiv(e4, f4, false);
     final double w18Dot = temp[0] * e4Dot + temp[1] * f4Dot;
     final double w18DDot = temp[0] * e4DDot + temp[1] * f4DDot + temp[2] * e4Dot * e4Dot + temp[3] * f4Dot * f4Dot + 2 * temp[4] * e4Dot * f4Dot;
@@ -1062,7 +1050,7 @@ public class BjerksundStenslandModel {
     final double w20Dot = w10 * (w19 * w11Dot + w11 * w19Dot);
     final double w20DDot = w10 * (w19 * w11DDot + w11 * w19DDot + 2 * w11Dot * w19Dot);
 
-    return new double[] {w20, w20Dot, w20DDot };
+    return new double[] {w20, w20Dot, w20DDot};
   }
 
   /**
@@ -1179,10 +1167,9 @@ public class BjerksundStenslandModel {
         res[5] = k * (b + sigma / rootT) * (isT1 ? RHO2 : 1.0);
         ;
         return res;
-      } else {
-        z = 1;
-        close = true;
       }
+      z = 1;
+      close = true;
     } else {
       z = r / denom;
       close = false;

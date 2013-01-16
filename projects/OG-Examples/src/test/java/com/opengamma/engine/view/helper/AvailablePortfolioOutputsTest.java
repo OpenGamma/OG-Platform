@@ -24,12 +24,13 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
@@ -79,7 +80,7 @@ public class AvailablePortfolioOutputsTest {
     final PortfolioSearchResult searchResult = _portfolioMaster.search(searchRequest);
     assertNotNull(searchResult.getFirstDocument());
     // Master doesn't return a Portfolio (a ManageablePortfolio), so use the position source
-    return _positionSource.getPortfolio(searchResult.getFirstDocument().getUniqueId());
+    return _positionSource.getPortfolio(searchResult.getFirstDocument().getUniqueId(), VersionCorrection.LATEST);
   }
 
   private AvailableOutputs testPortfolio(final String portfolioName) {

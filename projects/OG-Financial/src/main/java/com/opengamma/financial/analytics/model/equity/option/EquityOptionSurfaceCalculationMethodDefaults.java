@@ -15,13 +15,13 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -60,7 +60,7 @@ public abstract class EquityOptionSurfaceCalculationMethodDefaults extends Defau
    * @param perIdConfig Default values of curve configuration, discounting curve, surface name and interpolation method per id, not null
    */
   public EquityOptionSurfaceCalculationMethodDefaults(final String priority, final String... perIdConfig) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.EQUITY_INDEX_OPTION_SECURITY.or(FinancialSecurityTypes.EQUITY_BARRIER_OPTION_SECURITY).or(FinancialSecurityTypes.EQUITY_OPTION_SECURITY), true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perIdConfig, "per id configuration");
     _priority = PriorityClass.valueOf(priority);
@@ -75,7 +75,11 @@ public abstract class EquityOptionSurfaceCalculationMethodDefaults extends Defau
   }
 
   @Override
-  public abstract boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target);
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    final Security eqSec = target.getSecurity();
+    final String currency = getId(eqSec);
+    return getAllIds().contains(currency);
+  }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {

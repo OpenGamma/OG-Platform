@@ -26,7 +26,6 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -88,7 +87,7 @@ public class EquityOptionBlackFundingCurveSensitivitiesFunction extends EquityOp
   // Need to do this to get labels for the output
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), properties);
   }
 
   @Override
@@ -121,7 +120,7 @@ public class EquityOptionBlackFundingCurveSensitivitiesFunction extends EquityOp
     //  We use PresentValueNodeSensitivityCalculator to distribute this risk across the curve
     final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
     // What's left is to package up the inputs to the distributor, a YieldCurveBundle and a Map of Sensitivities
-    final Map<String, List<DoublesPair>> curveSensMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> curveSensMap = new HashMap<>();
     curveSensMap.put(fundingCurveName, Lists.newArrayList(new DoublesPair(settle, rhoSettle)));
     sensVector = distributor.curveToNodeSensitivities(curveSensMap, curveBundle);
 
