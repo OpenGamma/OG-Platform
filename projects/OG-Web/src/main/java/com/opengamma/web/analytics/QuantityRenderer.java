@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.util.ArgumentChecker;
@@ -13,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class QuantityRenderer implements AnalyticsColumn.CellRenderer {
+/* package */ class QuantityRenderer implements GridColumn.CellRenderer {
 
   private final List<MainGridStructure.Row> _rows;
 
@@ -25,6 +24,6 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type) {
     MainGridStructure.Row row = _rows.get(rowIndex);
-    return ViewportResults.valueCell(row.getQuantity(), null, Collections.emptyList(), null, false, type);
+    return ResultsCell.forStaticValue(row.getQuantity(), type);
   }
 }

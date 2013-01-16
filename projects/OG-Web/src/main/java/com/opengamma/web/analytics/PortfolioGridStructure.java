@@ -34,7 +34,7 @@ public class PortfolioGridStructure extends MainGridStructure {
 
   private final AnalyticsNode _root;
 
-  private PortfolioGridStructure(AnalyticsColumnGroup fixedColumns,
+  private PortfolioGridStructure(GridColumnGroup fixedColumns,
                                  Map<String, List<ColumnKey>> analyticsColumns,
                                  CompiledViewDefinition compiledViewDef,
                                  ValueMappings valueMappings,
@@ -50,9 +50,9 @@ public class PortfolioGridStructure extends MainGridStructure {
 
   /* package */ static PortfolioGridStructure create(CompiledViewDefinition compiledViewDef, ValueMappings valueMappings) {
     List<MainGridStructure.Row> rows = rows(compiledViewDef);
-    AnalyticsColumn labelColumn = new AnalyticsColumn("Label", "", null, new LabelRenderer(rows));
-    AnalyticsColumn quantityColumn = new AnalyticsColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(rows));
-    AnalyticsColumnGroup fixedColumns = new AnalyticsColumnGroup("fixed", ImmutableList.of(labelColumn, quantityColumn));
+    GridColumn labelColumn = new GridColumn("Label", "", null, new LabelRenderer(rows));
+    GridColumn quantityColumn = new GridColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(rows));
+    GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn, quantityColumn));
     Map<String, List<ColumnKey>> analyticsColumns = buildColumns(compiledViewDef.getViewDefinition());
     return new PortfolioGridStructure(fixedColumns,
                                       analyticsColumns,

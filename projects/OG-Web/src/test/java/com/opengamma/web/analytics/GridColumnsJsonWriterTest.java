@@ -17,19 +17,19 @@ import com.opengamma.web.analytics.formatting.ResultsFormatter;
 /**
  *
  */
-public class AnalyticsColumnsJsonWriterTest {
+public class GridColumnsJsonWriterTest {
 
   @Test
   public void getJson() throws JSONException {
     TestCellRenderer renderer = new TestCellRenderer();
-    AnalyticsColumn col1 = new AnalyticsColumn("col1", "col1 desc", Double.class, renderer);
-    AnalyticsColumn col2 = new AnalyticsColumn("col2", "col2 desc", String.class, renderer);
-    AnalyticsColumn col3 = new AnalyticsColumn("col3", "col3 desc", Double.class, renderer);
-    AnalyticsColumn col4 = new AnalyticsColumn("col4", "col4 desc", String.class, renderer);
-    AnalyticsColumnGroup group1 = new AnalyticsColumnGroup("group1", ImmutableList.of(col1, col2));
-    AnalyticsColumnGroup group2 = new AnalyticsColumnGroup("group2", ImmutableList.of(col3, col4));
-    ImmutableList<AnalyticsColumnGroup> groups = ImmutableList.of(group1, group2);
-    AnalyticsColumnsJsonWriter writer = new AnalyticsColumnsJsonWriter(new ResultsFormatter());
+    GridColumn col1 = new GridColumn("col1", "col1 desc", Double.class, renderer);
+    GridColumn col2 = new GridColumn("col2", "col2 desc", String.class, renderer);
+    GridColumn col3 = new GridColumn("col3", "col3 desc", Double.class, renderer);
+    GridColumn col4 = new GridColumn("col4", "col4 desc", String.class, renderer);
+    GridColumnGroup group1 = new GridColumnGroup("group1", ImmutableList.of(col1, col2));
+    GridColumnGroup group2 = new GridColumnGroup("group2", ImmutableList.of(col3, col4));
+    ImmutableList<GridColumnGroup> groups = ImmutableList.of(group1, group2);
+    GridColumnsJsonWriter writer = new GridColumnsJsonWriter(new ResultsFormatter());
     String json = writer.getJson(groups);
     String expectedJson =
         "[{\"name\":\"group1\",\"columns\":[" +
@@ -41,7 +41,7 @@ public class AnalyticsColumnsJsonWriterTest {
     assertTrue(JsonTestUtils.equal(new JSONArray(expectedJson), new JSONArray(json)));
   }
 
-  private static class TestCellRenderer implements AnalyticsColumn.CellRenderer {
+  private static class TestCellRenderer implements GridColumn.CellRenderer {
 
     @Override
     public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type) {

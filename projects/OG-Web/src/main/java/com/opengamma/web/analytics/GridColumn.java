@@ -15,14 +15,14 @@ import com.opengamma.util.ArgumentChecker;
  * Specifies the header label of a column and the type of data it displays.
  * TODO name is no longer correct, these aren't just used for analytics data any more
  */
-/* package */ class AnalyticsColumn {
+/* package */ class GridColumn {
 
   private final String _header;
   private final String _description;
   private final Class<?> _type;
   private final CellRenderer _renderer;
 
-  /* package */ AnalyticsColumn(String header, String description, Class<?> type, CellRenderer renderer) {
+  /* package */ GridColumn(String header, String description, Class<?> type, CellRenderer renderer) {
     ArgumentChecker.notNull(header, "header");
     ArgumentChecker.notNull(renderer, "renderer");
     _header = header;
@@ -42,12 +42,9 @@ import com.opengamma.util.ArgumentChecker;
    * @param columnType Type of data displayed in the column
    * @return A column for displaying data calculated for the requirement and calculation configuration
    */
-  /* package */ static AnalyticsColumn forKey(ColumnKey key,
-                                              Class<?> columnType,
-                                              int columnIndex,
-                                              MainGridStructure gridStructure) {
+  /* package */ static GridColumn forKey(ColumnKey key, Class<?> columnType, int columnIndex, MainGridStructure gridStructure) {
     CellRenderer renderer = new AnalyticsRenderer(gridStructure, columnIndex);
-    return new AnalyticsColumn(createHeader(key), createDescription(key.getValueProperties()), columnType, renderer);
+    return new GridColumn(createHeader(key), createDescription(key.getValueProperties()), columnType, renderer);
   }
 
   /**
@@ -137,9 +134,9 @@ import com.opengamma.util.ArgumentChecker;
         "]";
   }
 
+  // TODO merge this into the AnalyticsColumn and create subclasses for each of the renderer classes
   /* package */ static interface CellRenderer {
 
-    // TODO remove type, renderer should know its type (or it should be absorbed into column)
     ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type);
   }
 }

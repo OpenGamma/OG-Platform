@@ -45,14 +45,14 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.web.analytics.AnalyticsColumnsJsonWriter;
 import com.opengamma.web.analytics.AnalyticsViewManager;
+import com.opengamma.web.analytics.GridColumnsJsonWriter;
 import com.opengamma.web.analytics.ViewportResultsJsonWriter;
 import com.opengamma.web.analytics.blotter.BlotterResource;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
-import com.opengamma.web.analytics.json.AnalyticsColumnGroupsMessageBodyWriter;
 import com.opengamma.web.analytics.json.Compressor;
 import com.opengamma.web.analytics.json.DependencyGraphGridStructureMessageBodyWriter;
+import com.opengamma.web.analytics.json.GridColumnGroupsMessageBodyWriter;
 import com.opengamma.web.analytics.json.PortfolioGridStructureMessageBodyWriter;
 import com.opengamma.web.analytics.json.PrimitivesGridStructureMessageBodyWriter;
 import com.opengamma.web.analytics.json.ViewportResultsMessageBodyWriter;
@@ -187,7 +187,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
                                                                          getComputationTargetResolver(),
                                                                          getMarketDataSpecificationRepository());
     ResultsFormatter resultsFormatter = new ResultsFormatter();
-    AnalyticsColumnsJsonWriter columnWriter = new AnalyticsColumnsJsonWriter(resultsFormatter);
+    GridColumnsJsonWriter columnWriter = new GridColumnsJsonWriter(resultsFormatter);
     ViewportResultsJsonWriter viewportResultsWriter = new ViewportResultsJsonWriter(resultsFormatter);
 
     repo.getRestComponents().publishResource(aggregatorsResource);
@@ -201,7 +201,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishHelper(new PrimitivesGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new PortfolioGridStructureMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new DependencyGraphGridStructureMessageBodyWriter(columnWriter));
-    repo.getRestComponents().publishHelper(new AnalyticsColumnGroupsMessageBodyWriter(columnWriter));
+    repo.getRestComponents().publishHelper(new GridColumnGroupsMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new ViewportResultsMessageBodyWriter(viewportResultsWriter));
     repo.getRestComponents().publishHelper(new ViewDefinitionEntriesResource(configSource));
 

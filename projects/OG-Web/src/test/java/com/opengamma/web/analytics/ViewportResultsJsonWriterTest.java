@@ -46,14 +46,14 @@ public class ViewportResultsJsonWriterTest {
                              ValueProperties.builder().with(ValuePropertyNames.FUNCTION, "fnName").get());
   private final ViewportResultsJsonWriter _writer = new ViewportResultsJsonWriter(new ResultsFormatter());
 
-  private static AnalyticsColumnGroups createColumns(Class<?> type) {
-    AnalyticsColumn.CellRenderer renderer = new TestCellRenderer();
-    AnalyticsColumn column = new AnalyticsColumn("header", "desc", type, renderer);
-    return new AnalyticsColumnGroups(ImmutableList.of(new AnalyticsColumnGroup("grp", ImmutableList.of(column))));
+  private static GridColumnGroups createColumns(Class<?> type) {
+    GridColumn.CellRenderer renderer = new TestCellRenderer();
+    GridColumn column = new GridColumn("header", "desc", type, renderer);
+    return new GridColumnGroups(ImmutableList.of(new GridColumnGroup("grp", ImmutableList.of(column))));
   }
 
   private List<ResultsCell> createResults(Object value, List<Object> history) {
-    return ImmutableList.of(ViewportResults.valueCell(value, _valueSpec, history, null, false, null));
+    return ImmutableList.of(ResultsCell.forCalculatedValue(value, _valueSpec, history, null, false, null));
   }
 
   @Test
@@ -130,7 +130,7 @@ public class ViewportResultsJsonWriterTest {
     assertTrue(JsonTestUtils.equal(new JSONObject(expectedJson), new JSONObject(json)));
   }
 
-  private static class TestCellRenderer implements AnalyticsColumn.CellRenderer {
+  private static class TestCellRenderer implements GridColumn.CellRenderer {
 
     @Override
     public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type) {

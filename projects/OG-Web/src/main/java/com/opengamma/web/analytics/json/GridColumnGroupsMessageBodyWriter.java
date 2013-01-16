@@ -18,30 +18,30 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.AnalyticsColumnGroups;
-import com.opengamma.web.analytics.AnalyticsColumnsJsonWriter;
+import com.opengamma.web.analytics.GridColumnGroups;
+import com.opengamma.web.analytics.GridColumnsJsonWriter;
 
 /**
  *
  */
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
-/* package */ public class AnalyticsColumnGroupsMessageBodyWriter implements MessageBodyWriter<AnalyticsColumnGroups> {
+/* package */ public class GridColumnGroupsMessageBodyWriter implements MessageBodyWriter<GridColumnGroups> {
 
-  private final AnalyticsColumnsJsonWriter _writer;
+  private final GridColumnsJsonWriter _writer;
 
-  public AnalyticsColumnGroupsMessageBodyWriter(AnalyticsColumnsJsonWriter writer) {
+  public GridColumnGroupsMessageBodyWriter(GridColumnsJsonWriter writer) {
     ArgumentChecker.notNull(writer, "writer");
     _writer = writer;
   }
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type.equals(AnalyticsColumnGroups.class);
+    return type.equals(GridColumnGroups.class);
   }
 
   @Override
-  public long getSize(AnalyticsColumnGroups analyticsColumnGroups,
+  public long getSize(GridColumnGroups gridColumnGroups,
                       Class<?> type,
                       Type genericType,
                       Annotation[] annotations,
@@ -50,14 +50,14 @@ import com.opengamma.web.analytics.AnalyticsColumnsJsonWriter;
   }
 
   @Override
-  public void writeTo(AnalyticsColumnGroups analyticsColumnGroups,
+  public void writeTo(GridColumnGroups gridColumnGroups,
                       Class<?> type,
                       Type genericType,
                       Annotation[] annotations,
                       MediaType mediaType,
                       MultivaluedMap<String, Object> httpHeaders,
                       OutputStream entityStream) throws IOException, WebApplicationException {
-    String json = _writer.getJson(analyticsColumnGroups.getGroups());
+    String json = _writer.getJson(gridColumnGroups.getGroups());
     entityStream.write(json.getBytes());
   }
 }
