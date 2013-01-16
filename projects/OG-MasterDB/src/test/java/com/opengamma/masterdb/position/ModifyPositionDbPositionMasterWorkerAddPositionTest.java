@@ -250,7 +250,6 @@ public class ModifyPositionDbPositionMasterWorkerAddPositionTest extends Abstrac
       assertTrue(portfolioId.isVersioned());
       assertTrue(Long.parseLong(portfolioId.getValue()) >= 1000);
       assertEquals("0", portfolioId.getVersion());
-      assertEquals(portfolioId, testTrade.getParentPositionId());
     }
   }
 

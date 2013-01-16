@@ -13,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -41,17 +41,13 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     ValueRequirementNames.UNDERLYING_MODEL_PRICE,
     ValueRequirementNames.DAILY_PRICE
   };
-  private final PriorityClass _priority;
   private final HashMap<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 
-  public InterestRateFutureOptionBlackDefaults(final String priority,
-      final String... currencyCurveConfigAndSurfaceNames) {
+  public InterestRateFutureOptionBlackDefaults(final String... currencyCurveConfigAndSurfaceNames) {
     super(ComputationTargetType.TRADE, true);
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
     final int nPairs = currencyCurveConfigAndSurfaceNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config name per currency");
-    _priority = PriorityClass.valueOf(priority);
     _currencyCurveConfigAndSurfaceNames = new HashMap<String, Pair<String, String>>();
     for (int i = 0; i < currencyCurveConfigAndSurfaceNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndSurfaceNames[i + 1], currencyCurveConfigAndSurfaceNames[i + 2]);
@@ -95,12 +91,8 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.FUTURE_OPTION_BLACK;
   }
+
 }

@@ -11,10 +11,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.text.StrBuilder;
 
-import com.opengamma.core.position.Position;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -39,14 +41,18 @@ public final class ValueRequirement implements Serializable {
    * Default serial version ID
    */
   private static final long serialVersionUID = 1L;
+
   /**
    * The name of the value being requested.
    */
   private final String _valueName;
+
   /**
-   * The specification of the object that the value refers to.
+   * The object that the value refers to. This may be either a {@link ComputationTargetRequirement} or {@link ComputationTargetSpecification}. If the former, then it will be resolved into a stricter
+   * form of value requirement during graph construction so that the target can be fully identified.
    */
-  private final ComputationTargetSpecification _targetSpecification;
+  private final ComputationTargetReference _targetReference;
+
   /**
    * The constraints or additional parameters about the target.
    * For example, a currency constraint.
@@ -86,55 +92,82 @@ public final class ValueRequirement implements Serializable {
   }
 
   /**
-   * Creates a requirement from a target object with no value constraints.
+   * Creates a requirement with no value constraints.
    * <p>
-   * This builds a {@link ComputationTargetSpecification} from the target.
-   * Example objects are {@link Position} and {@link Security}.
+   * This builds a {@link ComputationTargetRequirement} from the target type and id.
    * 
-   * @param valueName  the value to load, not null
-   * @param target  the target object, may be null
+   * @param valueName the name of the value to load, not null
+   * @param targetType the target type, not null
+   * @param targetId the external identifier of the target, not null
    */
-  public ValueRequirement(String valueName, Object target) {
-    this(valueName, new ComputationTargetSpecification(target));
+  public ValueRequirement(String valueName, ComputationTargetType targetType, ExternalId targetId) {
+    this(valueName, new ComputationTargetRequirement(targetType, targetId));
   }
 
   /**
-   * Creates a requirement from a target object with value constraints.
+   * Creates a requirement with value constraints.
    * <p>
-   * This builds a {@link ComputationTargetSpecification} from the target.
-   * Example objects are {@link Position} and {@link Security}.
+   * This builds a {@link ComputationTargetRequirement} from the target type and id.
    * 
-   * @param valueName  the name of the value to load, not null
-   * @param target  the target object, may be null
-   * @param constraints  the value constraints that must be satisfied
+   * @param valueName the name of the value to load, not null
+   * @param targetType the target type, not null
+   * @param targetId the external identifier of the target, not null
+   * @param constraints the value constraints that must be satisfied
    */
-  public ValueRequirement(String valueName, Object target, ValueProperties constraints) {
-    this(valueName, new ComputationTargetSpecification(target), constraints);
+  public ValueRequirement(String valueName, ComputationTargetType targetType, ExternalId targetId, ValueProperties constraints) {
+    this(valueName, new ComputationTargetRequirement(targetType, targetId), constraints);
+  }
+
+  /**
+   * Creates a requirement with no value constraints.
+   * <p>
+   * This builds a {@link ComputationTargetRequirement} from the target type and id bundle.
+   * 
+   * @param valueName the name of the value to load, not null
+   * @param targetType the target type, not null
+   * @param targetIds the external identifiers of the target, not null
+   */
+  public ValueRequirement(String valueName, ComputationTargetType targetType, ExternalIdBundle targetIds) {
+    this(valueName, new ComputationTargetRequirement(targetType, targetIds));
+  }
+
+  /**
+   * Creates a requirement with value constraints.
+   * <p>
+   * This builds a {@link ComputationTargetRequirement} from the target type and id bundle.
+   * 
+   * @param valueName the name of the value to load, not null
+   * @param targetType the target type, not null
+   * @param targetIds the external identifiers of the target, not null
+   * @param constraints the value constraints that must be satisfied
+   */
+  public ValueRequirement(String valueName, ComputationTargetType targetType, ExternalIdBundle targetIds, ValueProperties constraints) {
+    this(valueName, new ComputationTargetRequirement(targetType, targetIds), constraints);
   }
 
   /**
    * Creates a requirement from a target specification with no value constraints.
    * 
-   * @param valueName  the value to load, not null
-   * @param targetSpecification  the target specification, not null
+   * @param valueName the value to load, not null
+   * @param targetReference the target reference, not null
    */
-  public ValueRequirement(String valueName, ComputationTargetSpecification targetSpecification) {
-    this(valueName, targetSpecification, ValueProperties.none());
+  public ValueRequirement(String valueName, ComputationTargetReference targetReference) {
+    this(valueName, targetReference, ValueProperties.none());
   }
 
   /**
    * Creates a requirement from a target specification with value constraints.
    * 
-   * @param valueName  the name of the value to load, not null
-   * @param targetSpecification  the target specification, not null
-   * @param constraints  the value constraints that must be satisfied
+   * @param valueName the name of the value to load, not null
+   * @param targetReference the target specification, not null
+   * @param constraints the value constraints that must be satisfied
    */
-  public ValueRequirement(String valueName, ComputationTargetSpecification targetSpecification, ValueProperties constraints) {
+  public ValueRequirement(String valueName, ComputationTargetReference targetReference, ValueProperties constraints) {
     ArgumentChecker.notNull(valueName, "Value name");
-    ArgumentChecker.notNull(targetSpecification, "Computation target specification");
+    ArgumentChecker.notNull(targetReference, "Computation target specification");
     ArgumentChecker.notNull(constraints, "constraints");
     _valueName = getInterned(valueName);
-    _targetSpecification = targetSpecification;
+    _targetReference = targetReference;
     _constraints = constraints;
   }
 
@@ -162,12 +195,12 @@ public final class ValueRequirement implements Serializable {
   }
 
   /**
-   * Gets the specification of the target that is to be loaded.
+   * Gets the reference of the target that is to be loaded.
    * 
-   * @return the target specification, not null
+   * @return the target reference, not null
    */
-  public ComputationTargetSpecification getTargetSpecification() {
-    return _targetSpecification;
+  public ComputationTargetReference getTargetReference() {
+    return _targetReference;
   }
 
   /**
@@ -200,33 +233,6 @@ public final class ValueRequirement implements Serializable {
     }
   }
 
-  /**
-   * Tests if this requirement can be satisfied by a given value specification.
-   * <p>
-   * A {@link ValueSpecification} can satisfy a requirement if both of the following are true:
-   * <ul>
-   * <li>it is for the same value on the same computation target
-   * <li>the properties associated with the value satisfy the constraints on the requirement
-   * </ul>
-   * 
-   * @param valueSpecification  the value specification to test, not null
-   * @return true if this requirement is satisfied by the specification
-   */
-  public boolean isSatisfiedBy(final ValueSpecification valueSpecification) {
-    // value names are interned by this and specifications
-    if (getValueName() != valueSpecification.getValueName()) {
-      return false;
-    }
-    if (!getTargetSpecification().equals(valueSpecification.getTargetSpecification())) {
-      return false;
-    }
-    if (!getConstraints().isSatisfiedBy(valueSpecification.getProperties())) {
-      return false;
-    }
-    return true;
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -235,7 +241,7 @@ public final class ValueRequirement implements Serializable {
     if (obj instanceof ValueRequirement) {
       ValueRequirement other = (ValueRequirement) obj;
       return _valueName == other._valueName && // values are interned
-          _targetSpecification.equals(other._targetSpecification) &&
+          _targetReference.equals(other._targetReference) &&
           _constraints.equals(other._constraints);
     }
     return false;
@@ -247,7 +253,7 @@ public final class ValueRequirement implements Serializable {
       final int prime = 31;
       int result = 1;
       result = prime * result + _valueName.hashCode();
-      result = prime * result + _targetSpecification.hashCode();
+      result = prime * result + _targetReference.hashCode();
       result = prime * result + _constraints.hashCode();
       _hashCode = result;
     }
@@ -256,7 +262,7 @@ public final class ValueRequirement implements Serializable {
 
   @Override
   public String toString() {
-    return new StrBuilder().append("ValueReq[").append(getValueName()).append(", ").append(getTargetSpecification()).append(", ").append(getConstraints()).append(']').toString();
+    return new StrBuilder().append("ValueReq[").append(getValueName()).append(", ").append(getTargetReference()).append(", ").append(getConstraints()).append(']').toString();
   }
 
 }

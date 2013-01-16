@@ -13,7 +13,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /* package */ class SnapshotDataBundleFormatter extends AbstractFormatter<SnapshotDataBundle> {
@@ -25,30 +25,30 @@ import com.opengamma.util.ArgumentChecker;
 
   private final DoubleFormatter _doubleFormatter;
 
-  /* package */ SnapshotDataBundleFormatter(DoubleFormatter doubleFormatter) {
+  /* package */ SnapshotDataBundleFormatter(final DoubleFormatter doubleFormatter) {
     super(SnapshotDataBundle.class);
     ArgumentChecker.notNull(doubleFormatter, "doubleFormatter");
     _doubleFormatter = doubleFormatter;
     addFormatter(new Formatter<SnapshotDataBundle>(Format.EXPANDED) {
       @Override
-      Map<String, Object> format(SnapshotDataBundle value, ValueSpecification valueSpec) {
+      Map<String, Object> format(final SnapshotDataBundle value, final ValueSpecification valueSpec) {
         return formatExpanded(value, valueSpec);
       }
     });
   }
 
   @Override
-  public String formatCell(SnapshotDataBundle bundle, ValueSpecification valueSpec) {
+  public String formatCell(final SnapshotDataBundle bundle, final ValueSpecification valueSpec) {
     return "Data Bundle (" + bundle.getDataPoints().size() + " points)";
   }
 
-  private Map<String, Object> formatExpanded(SnapshotDataBundle bundle, ValueSpecification valueSpec) {
-    Map<String, Object> resultsMap = Maps.newHashMap();
-    Map<UniqueId, Double> dataPoints = bundle.getDataPoints();
-    List<List<String>> results = Lists.newArrayListWithCapacity(dataPoints.size());
-    for (Map.Entry<UniqueId, Double> entry : dataPoints.entrySet()) {
-      String idStr = entry.getKey().toString();
-      String formattedValue = _doubleFormatter.formatCell(entry.getValue(), valueSpec);
+  private Map<String, Object> formatExpanded(final SnapshotDataBundle bundle, final ValueSpecification valueSpec) {
+    final Map<ExternalId, Double> dataPoints = bundle.getDataPoints();
+    final List<List<String>> results = Lists.newArrayListWithCapacity(dataPoints.size());
+    final Map<String, Object> resultsMap = Maps.newHashMap();
+    for (final Map.Entry<ExternalId, Double> entry : dataPoints.entrySet()) {
+      final String idStr = entry.getKey().toString();
+      final String formattedValue = _doubleFormatter.formatCell(entry.getValue(), valueSpec);
       results.add(ImmutableList.of(idStr, formattedValue));
     }
     resultsMap.put(DATA, results);

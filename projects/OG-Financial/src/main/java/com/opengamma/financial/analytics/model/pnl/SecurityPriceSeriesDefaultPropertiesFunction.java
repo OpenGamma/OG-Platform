@@ -9,12 +9,12 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.ArgumentChecker;
 
@@ -27,7 +27,7 @@ public class SecurityPriceSeriesDefaultPropertiesFunction extends DefaultPropert
   private final String _samplingCalculator;
   
   public SecurityPriceSeriesDefaultPropertiesFunction(final String samplingPeriod, final String scheduleCalculator, final String samplingCalculator) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.FINANCIAL_SECURITY.or(FinancialSecurityTypes.RAW_SECURITY), true);
     ArgumentChecker.notNull(samplingPeriod, "sampling period name");
     ArgumentChecker.notNull(scheduleCalculator, "schedule calculator name");
     ArgumentChecker.notNull(samplingCalculator, "time series sampling calculator name");
@@ -38,9 +38,6 @@ public class SecurityPriceSeriesDefaultPropertiesFunction extends DefaultPropert
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     try {
       return FinancialSecurityUtils.getCurrency(target.getSecurity()) != null;
     } catch (UnsupportedOperationException e) {

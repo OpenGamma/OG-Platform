@@ -6,11 +6,9 @@
 package com.opengamma.web.analytics;
 
 import java.util.Collections;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.id.UniqueId;
 
@@ -19,42 +17,29 @@ import com.opengamma.id.UniqueId;
  */
 /* package */ class PortfolioGridViewport extends MainGridViewport {
 
-  // TODO this is a *temporary* hack
-  private static final Pattern POSITION_ID_PATTERN = Pattern.compile("DbPrt-DbPos~\\d+-(\\d+)~\\d+-(\\d+)");
   private static final int QUANTITY_COLUMN = 1;
 
   /**
    * @param gridStructure Row and column structure of the grid
    * @param callbackId ID that's passed to listeners when the grid structure changes
    */
-  /* package */ PortfolioGridViewport(MainGridStructure gridStructure,
-                                      String callbackId,
-                                      ViewportDefinition viewportDefinition,
-                                      ViewCycle cycle,
-                                      ResultsCache cache) {
+  /* package */ PortfolioGridViewport(final MainGridStructure gridStructure,
+                                      final String callbackId,
+                                      final ViewportDefinition viewportDefinition,
+                                      final ViewCycle cycle,
+                                      final ResultsCache cache) {
     super(gridStructure, callbackId, viewportDefinition, cycle, cache);
   }
 
   @Override
-  protected ViewportResults.Cell getFixedColumnResult(int rowIndex, int colIndex, MainGridStructure.Row row) {
+  protected ViewportResults.Cell getFixedColumnResult(final int rowIndex, final int colIndex, final MainGridStructure.Row row) {
     if (colIndex == LABEL_COLUMN) {
-      ComputationTargetSpecification target = row.getTarget();
-      UniqueId compoundId = target.getUniqueId();
-      // TODO this is a *temporary* hack
-      Matcher idMatcher = POSITION_ID_PATTERN.matcher(compoundId.toString());
-      UniqueId targetId;
-      if (idMatcher.matches()) {
-        String posId = idMatcher.group(1);
-        String version = idMatcher.group(2);
-        targetId = UniqueId.of("DbPos", posId, version);
-      } else {
-        targetId = compoundId;
-      }
-      // TODO end hack
-      ComputationTargetType targetType = target.getType();
-      if (targetType == ComputationTargetType.POSITION) {
+      final ComputationTargetSpecification target = row.getTarget();
+      final UniqueId targetId = target.getUniqueId();
+      final ComputationTargetType targetType = target.getType();
+      if (targetType.isTargetType(ComputationTargetType.POSITION)) {
         return ViewportResults.objectCell(new PositionTarget(row.getName(), targetId), colIndex);
-      } else if (targetType == ComputationTargetType.PORTFOLIO_NODE) {
+      } else if (targetType.isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
         return ViewportResults.objectCell(new NodeTarget(row.getName(), targetId), colIndex);
       }
       throw new IllegalArgumentException("Unexpected target type for row: " + targetType);

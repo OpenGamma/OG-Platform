@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -63,9 +63,9 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulator.class);
 
-  private static final Currency[] s_swapCurrencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF};
+  private static final Currency[] s_swapCurrencies = new Currency[] {Currency.USD, Currency.GBP, Currency.EUR, Currency.JPY, Currency.CHF };
   private static final String[] s_curveConfigNames = new String[] {"DefaultTwoCurveUSDConfig", "DefaultTwoCurveGBPConfig", "DefaultTwoCurveEURConfig",
-    "DefaultTwoCurveJPYConfig", "DefaultTwoCurveCHFConfig"};
+      "DefaultTwoCurveJPYConfig", "DefaultTwoCurveCHFConfig" };
 
   //-------------------------------------------------------------------------
   /**
@@ -126,12 +126,11 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     defaultCalConfig.setDefaultProperties(defaultProperties);
     defaultCalConfig.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE);
     defaultCalConfig.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, PAR_RATE);
-    addValueRequirements(defaultCalConfig, SwapSecurity.SECURITY_TYPE, new String[] {PV01}, ValueProperties.with(CURVE, "SECONDARY").get());
+    addValueRequirements(defaultCalConfig, SwapSecurity.SECURITY_TYPE, new String[] {PV01 }, ValueProperties.with(CURVE, "SECONDARY").get());
     for (final Currency ccy : s_swapCurrencies) {
       defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
           ValueProperties.with(CURVE, "SECONDARY").with(CURVE_CURRENCY, ccy.getCode()).get());
-      defaultCalConfig.addSpecificRequirement(
-          new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, UniqueId.of(Currency.OBJECT_SCHEME, ccy.getCode()), ValueProperties.with(CURVE, "SECONDARY").get()));
+      defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(ccy), ValueProperties.with(CURVE, "SECONDARY").get()));
     }
     viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
     return viewDefinition;
@@ -151,26 +150,27 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PRESENT_VALUE,
         ValueProperties.with(CURRENCY, "USD").get());
     for (int i = 0; i < s_swapCurrencies.length; i++) {
-      final String ccy = s_swapCurrencies[i].getCode();
+      final Currency ccy = s_swapCurrencies[i];
+      final String ccyCode = ccy.getCode();
       defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PV01,
-          ValueProperties.with(CURVE, "Discounting").with(CURVE_CURRENCY, ccy).get());
+          ValueProperties.with(CURVE, "Discounting").with(CURVE_CURRENCY, ccyCode).get());
       defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
-          ValueProperties.with(CURVE, "Discounting").with(CURVE_CURRENCY, ccy).get());
-      defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, UniqueId.of(Currency.OBJECT_SCHEME, ccy),
+          ValueProperties.with(CURVE, "Discounting").with(CURVE_CURRENCY, ccyCode).get());
+      defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(ccy),
           ValueProperties.with(CURVE, "Discounting").with(CURVE_CALCULATION_CONFIG, s_curveConfigNames[i]).get()));
-      if (s_swapCurrencies[i].getCode().equals("USD")) {
+      if (ccyCode.equals("USD")) {
         defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
-            ValueProperties.with(CURVE, "Forward3M").with(CURVE_CURRENCY, ccy).get());
+            ValueProperties.with(CURVE, "Forward3M").with(CURVE_CURRENCY, ccyCode).get());
         defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PV01,
-            ValueProperties.with(CURVE, "Forward3M").with(CURVE_CURRENCY, ccy).get());
-        defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, UniqueId.of(Currency.OBJECT_SCHEME, ccy),
+            ValueProperties.with(CURVE, "Forward3M").with(CURVE_CURRENCY, ccyCode).get());
+        defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(ccy),
             ValueProperties.with(CURVE, "Forward3M").with(CURVE_CALCULATION_CONFIG, s_curveConfigNames[i]).get()));
       } else {
         defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, PV01,
-            ValueProperties.with(CURVE, "Forward6M").with(CURVE_CURRENCY, ccy).get());
+            ValueProperties.with(CURVE, "Forward6M").with(CURVE_CURRENCY, ccyCode).get());
         defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
-            ValueProperties.with(CURVE, "Forward6M").with(ValuePropertyNames.CURVE_CURRENCY, ccy).get());
-        defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, UniqueId.of(Currency.OBJECT_SCHEME, ccy),
+            ValueProperties.with(CURVE, "Forward6M").with(ValuePropertyNames.CURVE_CURRENCY, ccyCode).get());
+        defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(ccy),
             ValueProperties.with(CURVE, "Forward6M").with(CURVE_CALCULATION_CONFIG, s_curveConfigNames[i]).get()));
       }
     }
@@ -196,13 +196,13 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
         ValueProperties.with(CURVE, "ForwardBasis3M").with(CURVE_CALCULATION_CONFIG, curveConfig).get());
     defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
         ValueProperties.with(CURVE, "ForwardBasis6M").with(CURVE_CALCULATION_CONFIG, curveConfig).get());
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, Currency.AUD.getUniqueId(),
+    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(Currency.AUD),
         ValueProperties.with(CURVE, "Discounting").with(CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(CURVE_CALCULATION_CONFIG, curveConfig).get()));
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, Currency.AUD.getUniqueId(),
+    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(Currency.AUD),
         ValueProperties.with(CURVE, "ForwardBasis3M").with(CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(CURVE_CALCULATION_CONFIG, curveConfig).get()));
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, Currency.AUD.getUniqueId(),
+    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(Currency.AUD),
         ValueProperties.with(CURVE, "ForwardBasis6M").with(CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(CURVE_CALCULATION_CONFIG, curveConfig).get()));
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, Currency.AUD.getUniqueId(),
+    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE_JACOBIAN, ComputationTargetSpecification.of(Currency.AUD),
         ValueProperties.with(CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(CURVE_CALCULATION_CONFIG, curveConfig).get()));
     viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
     return viewDefinition;
@@ -224,13 +224,13 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
         ValueProperties.with(CURVE, "ForwardBasis3M").with(CURVE_CALCULATION_CONFIG, curveConfig).get());
     defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
         ValueProperties.with(CURVE, "ForwardBasis6M").with(CURVE_CALCULATION_CONFIG, curveConfig).get());
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, Currency.AUD.getUniqueId(),
+    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(Currency.AUD),
         ValueProperties.with(CURVE, "Discounting").with(CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(CURVE_CALCULATION_CONFIG, curveConfig).get()));
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, Currency.AUD.getUniqueId(),
+    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(Currency.AUD),
         ValueProperties.with(CURVE, "ForwardBasis3M").with(CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(CURVE_CALCULATION_CONFIG, curveConfig).get()));
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, Currency.AUD.getUniqueId(),
+    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(Currency.AUD),
         ValueProperties.with(CURVE, "ForwardBasis6M").with(CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(CURVE_CALCULATION_CONFIG, curveConfig).get()));
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, Currency.AUD.getUniqueId(),
+    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE_JACOBIAN, ComputationTargetSpecification.of(Currency.AUD),
         ValueProperties.with(CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(CURVE_CALCULATION_CONFIG, curveConfig).get()));
     viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
     return viewDefinition;
@@ -250,9 +250,9 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
         ValueProperties.with(CURVE_CALCULATION_CONFIG, curveConfig).get());
     defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
         ValueProperties.with(CURVE, "Single").with(CURVE_CALCULATION_CONFIG, curveConfig).get());
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, Currency.AUD.getUniqueId(),
+    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(Currency.AUD),
         ValueProperties.with(CURVE, "Single").with(CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(CURVE_CALCULATION_CONFIG, curveConfig).get()));
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE_JACOBIAN, ComputationTargetType.PRIMITIVE, Currency.AUD.getUniqueId(),
+    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE_JACOBIAN, ComputationTargetSpecification.of(Currency.AUD),
         ValueProperties.with(CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(CURVE_CALCULATION_CONFIG, curveConfig).get()));
     viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
     return viewDefinition;
@@ -269,7 +269,7 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     final String curveConfig = "DefaultTwoCurveUSDConfig";
     final ViewCalculationConfiguration noExtrapolationConfig = new ViewCalculationConfiguration(viewDefinition, "No Extrapolation");
     final ViewCalculationConfiguration rightExtrapolationConfig = new ViewCalculationConfiguration(viewDefinition, "Right Extrapolation");
-    final String[] securityTypes = new String[] {CapFloorCMSSpreadSecurity.SECURITY_TYPE, CapFloorSecurity.SECURITY_TYPE, SwapSecurity.SECURITY_TYPE};
+    final String[] securityTypes = new String[] {CapFloorCMSSpreadSecurity.SECURITY_TYPE, CapFloorSecurity.SECURITY_TYPE, SwapSecurity.SECURITY_TYPE };
     for (final String securityType : securityTypes) {
       noExtrapolationConfig.addPortfolioRequirement(securityType, PRESENT_VALUE,
           ValueProperties.with(CURVE_CALCULATION_CONFIG, curveConfig).with(CALCULATION_METHOD, SABRFunction.SABR_NO_EXTRAPOLATION).get());
@@ -334,50 +334,50 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     defaultCalConfig.addPortfolioRequirement(SwaptionSecurity.SECURITY_TYPE, YIELD_CURVE_NODE_SENSITIVITIES,
         ValueProperties.with(CURVE, "Forward3M").with(CURVE_CALCULATION_CONFIG, curveConfig).with(CALCULATION_METHOD, SABRFunction.SABR_RIGHT_EXTRAPOLATION).withOptional(CALCULATION_METHOD).get());
 
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, Currency.USD.getUniqueId(),
+    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(Currency.USD),
         ValueProperties.with(CURVE, "Discounting").with(CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(CURVE_CALCULATION_CONFIG, curveConfig).get()));
-    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetType.PRIMITIVE, Currency.USD.getUniqueId(),
+    defaultCalConfig.addSpecificRequirement(new ValueRequirement(YIELD_CURVE, ComputationTargetSpecification.of(Currency.USD),
         ValueProperties.with(CURVE, "Forward3M").with(CURVE_CALCULATION_METHOD, PAR_RATE_STRING).with(CURVE_CALCULATION_CONFIG, curveConfig).get()));
     return viewDefinition;
   }
 
-//  private ViewDefinition getFXLocalVolatilityViewDefinition(final String portfolioName) {
-//    final UniqueId portfolioId = getPortfolioId(portfolioName);
-//    final ViewDefinition viewDefinition = new ViewDefinition("Local Volatility", portfolioId, UserPrincipal.getTestUser());
-//    viewDefinition.setDefaultCurrency(Currency.USD);
-//    viewDefinition.setMaxDeltaCalculationPeriod(500L);
-//    viewDefinition.setMaxFullCalculationPeriod(500L);
-//    viewDefinition.setMinDeltaCalculationPeriod(500L);
-//    viewDefinition.setMinFullCalculationPeriod(500L);
-//    final ViewCalculationConfiguration defaultCalConfig = new ViewCalculationConfiguration(viewDefinition, "LV");
-//    final UniqueId pairId = UnorderedCurrencyPair.of(Currency.USD, Currency.EUR).getUniqueId();
-//    final ValueProperties properties = ValueProperties.builder()
-//        .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR)
-//        .with(CALCULATION_METHOD, "LocalVolatilityPDE")
-//        .with("PDEDirection", "Forward").get();
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, PRESENT_VALUE, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_PRESENT_VALUE, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_DELTA, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_DELTA, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_GAMMA, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_GAMMA, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_VEGA, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_VEGA, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_VANNA, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_VANNA, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_VOMMA, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_VOMMA, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DUAL_DELTA, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_DUAL_DELTA, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DUAL_GAMMA, properties);
-//    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_DUAL_GAMMA, properties);
-//    defaultCalConfig.addSpecificRequirement(new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, pairId,
-//        ValueProperties.with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR).get()));
-//    defaultCalConfig.addSpecificRequirement(new ValueRequirement(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, pairId,
-//        ValueProperties.with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR).get()));
-//    viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
-//    return viewDefinition;
-//  }
+  //  private ViewDefinition getFXLocalVolatilityViewDefinition(final String portfolioName) {
+  //    final UniqueId portfolioId = getPortfolioId(portfolioName);
+  //    final ViewDefinition viewDefinition = new ViewDefinition("Local Volatility", portfolioId, UserPrincipal.getTestUser());
+  //    viewDefinition.setDefaultCurrency(Currency.USD);
+  //    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+  //    viewDefinition.setMaxFullCalculationPeriod(500L);
+  //    viewDefinition.setMinDeltaCalculationPeriod(500L);
+  //    viewDefinition.setMinFullCalculationPeriod(500L);
+  //    final ViewCalculationConfiguration defaultCalConfig = new ViewCalculationConfiguration(viewDefinition, "LV");
+  //    final UniqueId pairId = UnorderedCurrencyPair.of(Currency.USD, Currency.EUR).getUniqueId();
+  //    final ValueProperties properties = ValueProperties.builder()
+  //        .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR)
+  //        .with(CALCULATION_METHOD, "LocalVolatilityPDE")
+  //        .with("PDEDirection", "Forward").get();
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, PRESENT_VALUE, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_PRESENT_VALUE, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_DELTA, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_DELTA, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_GAMMA, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_GAMMA, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_VEGA, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_VEGA, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_VANNA, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_VANNA, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FORWARD_VOMMA, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_FORWARD_VOMMA, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DUAL_DELTA, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_DUAL_DELTA, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.DUAL_GAMMA, properties);
+  //    defaultCalConfig.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.GRID_DUAL_GAMMA, properties);
+  //    defaultCalConfig.addSpecificRequirement(new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, pairId,
+  //        ValueProperties.with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR).get()));
+  //    defaultCalConfig.addSpecificRequirement(new ValueRequirement(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, pairId,
+  //        ValueProperties.with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, BlackVolatilitySurfacePropertyNamesAndValues.SABR).get()));
+  //    viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
+  //    return viewDefinition;
+  //  }
 
   private void addValueRequirements(final ViewCalculationConfiguration calcConfiguration, final String securityType, final String[] valueRequirementNames) {
     for (final String valueRequirementName : valueRequirementNames) {

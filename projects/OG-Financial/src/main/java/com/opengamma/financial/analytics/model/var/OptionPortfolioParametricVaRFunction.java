@@ -103,17 +103,14 @@ public class OptionPortfolioParametricVaRFunction { /* extends AbstractFunction.
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final HbComputationTargetSpecification target) {
-    if (target.getType() == ComputationTargetType.PORTFOLIO_NODE) {
-      final PortfolioNode node = target.getPortfolioNode();
-      final List<Position> allPositions = getAllPositions(new ArrayList<Position>(), node);
-      for (final Position p : allPositions) {
-        if (!(p.getSecurity() instanceof EquityOptionSecurity)) {
-          return false;
-        }
+    final PortfolioNode node = target.getPortfolioNode();
+    final List<Position> allPositions = getAllPositions(new ArrayList<Position>(), node);
+    for (final Position p : allPositions) {
+      if (!(p.getSecurity() instanceof EquityOptionSecurity)) {
+        return false;
       }
-      return true;
     }
-    return false;
+    return true;
   }
 
   private List<Position> getAllPositions(final List<Position> positions, final PortfolioNode node) {

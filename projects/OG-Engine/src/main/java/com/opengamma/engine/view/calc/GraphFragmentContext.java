@@ -29,6 +29,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobResult;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.Cancelable;
 
 /**
@@ -45,6 +46,7 @@ import com.opengamma.util.async.Cancelable;
   private final int _objectId = s_nextObjectId.incrementAndGet();
   private final AtomicInteger _graphFragmentIdentifiers = new AtomicInteger();
   private final long _functionInitializationTimestamp;
+  private final VersionCorrection _resolverVersionCorrection;
   private final AtomicLong _executionTime = new AtomicLong();
   private final MultipleNodeExecutor _executor;
   private final DependencyGraph _graph;
@@ -64,6 +66,7 @@ import com.opengamma.util.async.Cancelable;
     _executor = executor;
     _graph = graph;
     _functionInitializationTimestamp = executor.getFunctionInitId();
+    _resolverVersionCorrection = executor.getResolverVersionCorrection();
     _executionResultQueue = executionResultQueue;
     _logModeSource = logModeSource;
   }
@@ -157,6 +160,10 @@ import com.opengamma.util.async.Cancelable;
 
   public long getFunctionInitId() {
     return _functionInitializationTimestamp;
+  }
+
+  public VersionCorrection getResolverVersionCorrection() {
+    return _resolverVersionCorrection;
   }
 
   protected PrintStream openDebugStream(final String name) {

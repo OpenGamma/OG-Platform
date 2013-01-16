@@ -33,7 +33,7 @@ $.register_module({
                 return result;
             };
             return function (meta) {
-                nodes = meta.nodes
+                nodes = meta.nodes;
                 return meta.structure.length ? unravel(meta.structure, []) : all(meta.data_rows);
             };
         })();
@@ -336,7 +336,7 @@ $.register_module({
                     i, j, len = children.length, child, curr_start, curr_end, html;
                 html = '<span data-row="' + start + '" class="node {{state}}"></span>&nbsp;'
                 prefix = cache[rep(indent) + html] = counter++;
-                result.push({prefix: prefix, node: true, length: end - start});
+                result.push({prefix: prefix, node: true, indent: indent, length: end - start});
                 for (i = 0; i < len; i += 1) {
                     child = children[i]; curr_start = child[0]; curr_end = child[1]; j = (last_end || start) + 1;
                     if (j < curr_start) prefix = (str = rep(indent + 2)) in cache ? cache[str] : cache[str] = counter++;
@@ -353,9 +353,13 @@ $.register_module({
                 cache = {}; counter = 0; grid.meta.unraveled_cache = [];
                 unraveled = meta.structure.length ? unravel(meta.structure, [], 0) : all(meta.data_rows);
                 meta.nodes = unraveled.reduce(function (acc, val, idx) {
-                    if (val.node) (acc[idx] = true), (acc.all.push(idx)), (acc.ranges.push(val.length));
+                    if (!val.node) return acc;
+                    acc[idx] = true;
+                    acc.all.push(idx);
+                    acc.ranges.push(val.length);
+                    if (val.indent > 1) acc.collapse.push(idx);
                     return acc;
-                }, {all: [], ranges: []});
+                }, {all: [], ranges: [], collapse: []});
                 for (prefix in cache) meta.unraveled_cache[+cache[prefix]] = Handlebars.compile(prefix);
                 meta.unraveled = unraveled.pluck('prefix');
             };
@@ -481,7 +485,7 @@ $.register_module({
             columns.scan.all = columns.scan.fixed
                 .concat(columns.scan.scroll.map(function (val) {return val + columns.width.fixed;}));
             data_width = columns.scan.all[columns.scan.all.length - 1] + scrollbar;
-            if (collapse) meta.nodes.all.forEach(function (node) {if (node) meta.nodes[node] = false;});
+            if (collapse) meta.nodes.collapse.forEach(function (node) {meta.nodes[node] = false;});
             meta.rows = (meta.available = available(grid.meta)).length;
             meta.inner = {
                 scroll_height: height - header_height, height: meta.rows * row_height,

@@ -42,8 +42,10 @@ import com.opengamma.engine.value.ValueRequirement;
 
   /**
    * Increment the reference count on the object.
+   * 
+   * @return true if the reference count was increased, false if this is a "dead" object that has already been counted to zero.
    */
-  void addRef();
+  boolean addRef();
 
   /**
    * Decrement the reference count on the object. An implementation may perform cleanup actions on the count reaching zero.

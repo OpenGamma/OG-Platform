@@ -19,9 +19,11 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
@@ -30,6 +32,7 @@ import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
+import com.opengamma.util.functional.Function2;
 
 /**
  * Expands a Fudge representation of a {@link List} of {@link ComputedValue} objects into a 2D structure.
@@ -42,6 +45,8 @@ public class ExpandComputedValuesFunction extends AbstractFunctionInvoker implem
    * Default instance.
    */
   public static final ExpandComputedValuesFunction INSTANCE = new ExpandComputedValuesFunction();
+
+  private static final ComputationTargetTypeMap<Function2<SessionContext, ComputationTargetSpecification, String>> s_getName = getName();
 
   private final MetaFunction _meta;
 
@@ -68,20 +73,25 @@ public class ExpandComputedValuesFunction extends AbstractFunctionInvoker implem
     return _meta;
   }
 
-  private static String getName(final SessionContext sessionContext, final ComputationTargetSpecification targetSpec) {
-    switch (targetSpec.getType()) {
-      case PORTFOLIO_NODE: {
+  private static ComputationTargetTypeMap<Function2<SessionContext, ComputationTargetSpecification, String>> getName() {
+    final ComputationTargetTypeMap<Function2<SessionContext, ComputationTargetSpecification, String>> map = new ComputationTargetTypeMap<Function2<SessionContext, ComputationTargetSpecification, String>>();
+    map.put(ComputationTargetType.PORTFOLIO_NODE, new Function2<SessionContext, ComputationTargetSpecification, String>() {
+      @Override
+      public String execute(final SessionContext sessionContext, final ComputationTargetSpecification targetSpec) {
         final PositionSource positions = sessionContext.getGlobalContext().getPositionSource();
         if (positions != null) {
           try {
-            return positions.getPortfolioNode(targetSpec.getUniqueId()).getName();
+            return positions.getPortfolioNode(targetSpec.getUniqueId(), VersionCorrection.LATEST).getName();
           } catch (DataNotFoundException ex) {
             s_logger.warn("Node {} not found in position source", targetSpec);
           }
         }
         return "Node " + targetSpec.getUniqueId();
       }
-      case POSITION: {
+    });
+    map.put(ComputationTargetType.POSITION, new Function2<SessionContext, ComputationTargetSpecification, String>() {
+      @Override
+      public String execute(final SessionContext sessionContext, final ComputationTargetSpecification targetSpec) {
         final PositionSource positions = sessionContext.getGlobalContext().getPositionSource();
         final SecuritySource securities = sessionContext.getGlobalContext().getSecuritySource();
         if ((positions != null) && (securities != null)) {
@@ -90,7 +100,7 @@ public class ExpandComputedValuesFunction extends AbstractFunctionInvoker implem
             try {
               final Security security = position.getSecurityLink().resolve(securities);
               return position.getQuantity() + " x " + security.getName();
-              
+
             } catch (DataNotFoundException ex) {
               s_logger.warn("Security {} not found in security source for position {}", position.getSecurityLink(), targetSpec);
             }
@@ -100,7 +110,32 @@ public class ExpandComputedValuesFunction extends AbstractFunctionInvoker implem
         }
         return "Position " + targetSpec.getUniqueId();
       }
-      case SECURITY: {
+    });
+    map.put(ComputationTargetType.TRADE, new Function2<SessionContext, ComputationTargetSpecification, String>() {
+      @Override
+      public String execute(final SessionContext sessionContext, final ComputationTargetSpecification targetSpec) {
+        final PositionSource positions = sessionContext.getGlobalContext().getPositionSource();
+        final SecuritySource securities = sessionContext.getGlobalContext().getSecuritySource();
+        if ((positions != null) && (securities != null)) {
+          try {
+            final Trade trade = positions.getTrade(targetSpec.getUniqueId());
+            try {
+              final Security security = trade.getSecurityLink().resolve(securities);
+              return trade.getQuantity() + " x " + security.getName() + " (" + trade.getTradeDate() + ")";
+
+            } catch (DataNotFoundException ex) {
+              s_logger.warn("Security {} not found in security source for trade {}", trade.getSecurityLink(), targetSpec);
+            }
+          } catch (DataNotFoundException ex) {
+            s_logger.warn("Trade {} not found in position source", targetSpec);
+          }
+        }
+        return "Trade " + targetSpec.getUniqueId();
+      }
+    });
+    map.put(ComputationTargetType.SECURITY, new Function2<SessionContext, ComputationTargetSpecification, String>() {
+      @Override
+      public String execute(final SessionContext sessionContext, final ComputationTargetSpecification targetSpec) {
         final SecuritySource securities = sessionContext.getGlobalContext().getSecuritySource();
         if (securities != null) {
           final Security security = securities.get(targetSpec.getUniqueId());
@@ -112,29 +147,28 @@ public class ExpandComputedValuesFunction extends AbstractFunctionInvoker implem
         }
         return "Security " + targetSpec.getUniqueId();
       }
-      case PRIMITIVE:
-        return "PRIMITIVE";
-      case TRADE: {
-        final PositionSource positions = sessionContext.getGlobalContext().getPositionSource();
-        final SecuritySource securities = sessionContext.getGlobalContext().getSecuritySource();
-        if ((positions != null) && (securities != null)) {
-          try {
-            final Trade trade = positions.getTrade(targetSpec.getUniqueId());
-            try {
-              final Security security = trade.getSecurityLink().resolve(securities);
-              return trade.getQuantity() + " x " + security.getName() + " (" + trade.getTradeDate() + ")";
-              
-            } catch (DataNotFoundException ex) {
-              s_logger.warn("Security {} not found in security source for trade {}", trade.getSecurityLink(), targetSpec);
-            }
-          } catch (DataNotFoundException ex) {
-            s_logger.warn("Trade {} not found in position source", targetSpec);
-          }
-        }
-        return "Trade " + targetSpec.getUniqueId();
+    });
+    map.put(ComputationTargetType.NULL, new Function2<SessionContext, ComputationTargetSpecification, String>() {
+      @Override
+      public String execute(final SessionContext sessionContext, final ComputationTargetSpecification targetSpec) {
+        return "NULL";
       }
-      default:
-        throw new IllegalStateException();
+    });
+    map.put(ComputationTargetType.ANYTHING, new Function2<SessionContext, ComputationTargetSpecification, String>() {
+      @Override
+      public String execute(final SessionContext sessionContext, final ComputationTargetSpecification targetSpec) {
+        return targetSpec.getType().getName() + " " + targetSpec.getUniqueId();
+      }
+    });
+    return map;
+  }
+
+  private static String getName(final SessionContext sessionContext, final ComputationTargetSpecification targetSpec) {
+    final Function2<SessionContext, ComputationTargetSpecification, String> operation = s_getName.get(targetSpec.getType());
+    if (operation != null) {
+      return operation.execute(sessionContext, targetSpec);
+    } else {
+      throw new IllegalStateException();
     }
   }
 
@@ -166,16 +200,7 @@ public class ExpandComputedValuesFunction extends AbstractFunctionInvoker implem
       columns = 0;
       if (includeIdentifier) {
         final UniqueId uid = value.getSpecification().getTargetSpecification().getUniqueId();
-        if (uid != null) {
-          resultRow[columns++] = uid;
-        } else {
-          final ExternalId eid = value.getSpecification().getTargetSpecification().getIdentifier();
-          if (eid != null) {
-            resultRow[columns++] = eid;
-          } else {
-            resultRow[columns++] = null;
-          }
-        }
+        resultRow[columns++] = uid;
       }
       if (includeName) {
         resultRow[columns++] = getName(sessionContext, value.getSpecification().getTargetSpecification());

@@ -32,6 +32,7 @@ import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -47,8 +48,8 @@ public class SABRFittingPropertyUtils {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SABRFittingPropertyUtils.class);
 
-  public static ValueProperties.Builder addNLSSFittingProperties(final ValueProperties properties) {
-    final ValueProperties.Builder result = properties.copy()
+  public static ValueProperties.Builder addNLSSFittingProperties(final ValueProperties.Builder properties) {
+    return properties
       .withAny(X_INTERPOLATOR_NAME)
       .withAny(Y_INTERPOLATOR_NAME)
       .withAny(LEFT_X_EXTRAPOLATOR_NAME)
@@ -64,7 +65,6 @@ public class SABRFittingPropertyUtils {
       .withAny(PROPERTY_USE_FIXED_NU)
       .withAny(PROPERTY_USE_FIXED_RHO)
       .withAny(PROPERTY_ERROR);
-    return result;
   }
 
   public static boolean ensureNLSSFittingProperties(final ValueRequirement desiredValue) {
@@ -141,7 +141,7 @@ public class SABRFittingPropertyUtils {
       return null;
     }
     if (fittingMethod.equals(SmileFittingProperties.NON_LINEAR_LEAST_SQUARES)) {
-      final ValueProperties.Builder allProperties = addNLSSFittingProperties(ValueProperties.none())
+      final ValueProperties.Builder allProperties = addNLSSFittingProperties(ValueProperties.builder())
           .with(ValuePropertyNames.CURRENCY, currency.getCode())
           .with(ValuePropertyNames.SURFACE, surfaceName)
           .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
@@ -154,7 +154,7 @@ public class SABRFittingPropertyUtils {
               .with(constraint, constraints.getValues(constraint));
         }
       }
-      return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, allProperties.get());
+      return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, ComputationTargetSpecification.of(currency), allProperties.get());
     }
     s_logger.error("Could not handle fitting method {}", fittingMethod);
     return null;

@@ -41,11 +41,11 @@ import com.opengamma.analytics.financial.model.volatility.surface.Moneyness;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -60,7 +60,6 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
-import com.opengamma.id.UniqueId;
 
 /**
  *
@@ -122,7 +121,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
         hName, forwardCurveName, thetaName, timeStepsName, spaceStepsName,
         timeGridBunchingName, spaceGridBunchingName, maxMoneynessName, pdeDirection);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final UniqueId id = getUniqueIdForUnderlyings(target);
+    final ComputationTargetReference id = getTargetForUnderlyings(target);
     final ValueRequirement surfaceRequirement = getVolatilitySurfaceRequirement(surfaceName, surfaceType, xAxis, yAxis, yAxisType, hName, forwardCurveCalculationMethod, forwardCurveName, id);
     final Object localVolatilitySurfaceObject = inputs.getValue(surfaceRequirement);
     if (localVolatilitySurfaceObject == null) {
@@ -144,11 +143,6 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(fxOption.getPutCurrency(), fxOption.getCallCurrency());
     final EuropeanVanillaOption option = getOption(security, now, currencyPair);
     return Collections.singleton(new ComputedValue(spec, getResult(calculator, localVolatilitySurface, forwardCurve, data, option)));
-  }
-
-  @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
   }
 
   @Override
@@ -217,7 +211,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     final String h = hNames.iterator().next();
     final String forwardCurveName = forwardCurveNames.iterator().next();
     final String surfaceName = surfaceNames.iterator().next();
-    final UniqueId id = getUniqueIdForUnderlyings(target);
+    final ComputationTargetReference id = getTargetForUnderlyings(target);
     final ValueRequirement volDataRequirement = getUnderlyingVolatilityDataRequirement(surfaceName, id);
     return Sets.newHashSet(getVolatilitySurfaceRequirement(surfaceName, surfaceType, xAxis, yAxis, yAxisType, h,
         forwardCurveCalculationMethod, forwardCurveName, id),
@@ -308,7 +302,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
     return Collections.singleton(getResultSpec(target, surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, h, forwardCurveName));
   }
 
-  protected abstract UniqueId getUniqueIdForUnderlyings(final ComputationTarget target);
+  protected abstract ComputationTargetReference getTargetForUnderlyings(final ComputationTarget target);
 
   protected abstract EuropeanVanillaOption getOption(final FinancialSecurity security, final ZonedDateTime date, final CurrencyPair currencyPair);
 
@@ -320,10 +314,10 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
 
   protected abstract String getResultName();
 
-  protected abstract ValueRequirement getUnderlyingVolatilityDataRequirement(final String surfaceName, final UniqueId id);
+  protected abstract ValueRequirement getUnderlyingVolatilityDataRequirement(final String surfaceName, final ComputationTargetReference id);
 
   private ValueRequirement getVolatilitySurfaceRequirement(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
-      final String h, final String forwardCurveCalculationMethod, final String forwardCurveName, final UniqueId uid) {
+      final String h, final String forwardCurveCalculationMethod, final String forwardCurveName, final ComputationTargetReference target) {
     final ValueProperties properties = ValueProperties.builder()
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
         .with(SURFACE, surfaceName)
@@ -334,14 +328,14 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .with(CURVE, forwardCurveName)
         .with(PROPERTY_H, h).get();
-    return new ValueRequirement(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, uid, properties);
+    return new ValueRequirement(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, target, properties);
   }
 
-  private ValueRequirement getForwardCurveRequirement(final String calculationMethod, final String forwardCurveName, final UniqueId uid) {
+  private ValueRequirement getForwardCurveRequirement(final String calculationMethod, final String forwardCurveName, final ComputationTargetReference target) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, calculationMethod)
         .with(CURVE, forwardCurveName).get();
-    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, uid, properties);
+    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target, properties);
   }
 
   private ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,

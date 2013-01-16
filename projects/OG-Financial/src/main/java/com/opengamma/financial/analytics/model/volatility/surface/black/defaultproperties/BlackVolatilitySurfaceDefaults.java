@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
@@ -56,9 +56,9 @@ public abstract class BlackVolatilitySurfaceDefaults extends DefaultPropertyFunc
   private final String _timeLeftExtrapolator;
   private final String _timeRightExtrapolator;
 
-  public BlackVolatilitySurfaceDefaults(final ComputationTargetType target, final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public BlackVolatilitySurfaceDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator) {
-    super(target, true);
+  super(ComputationTargetType.ANYTHING, true); // [PLAT-2286]: change to correct type
     ArgumentChecker.notNull(timeAxis, "time axis");
     ArgumentChecker.notNull(yAxis, "y axis");
     ArgumentChecker.notNull(volatilityTransform, "volatility transform");

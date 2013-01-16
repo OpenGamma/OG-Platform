@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -42,18 +41,15 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.VALUE_THETA};
-  private final PriorityClass _priority;
   private final boolean _includeIRFutures;
   private final Map<String, String> _currencyAndCurveConfigNames;
 
-  public InterestRateInstrumentDefaultPropertiesFunction(final String priority, final String includeIRFutures, final String... currencyAndCurveConfigNames) {
-    super(ComputationTargetType.SECURITY, true);
-    ArgumentChecker.notNull(priority, "priority");
+  public InterestRateInstrumentDefaultPropertiesFunction(final String includeIRFutures, final String... currencyAndCurveConfigNames) {
+    super(InterestRateInstrumentType.FIXED_INCOME_INSTRUMENT_TARGET_TYPE, true);
     ArgumentChecker.notNull(includeIRFutures, "include IR futures field");
     ArgumentChecker.notNull(currencyAndCurveConfigNames, "currency and curve config names");
     final int nPairs = currencyAndCurveConfigNames.length;
     ArgumentChecker.isTrue(nPairs % 2 == 0, "Must have one curve config name per currency");
-    _priority = PriorityClass.valueOf(priority);
     _includeIRFutures = Boolean.parseBoolean(includeIRFutures);
     _currencyAndCurveConfigNames = new HashMap<String, String>();
     for (int i = 0; i < currencyAndCurveConfigNames.length; i += 2) {
@@ -63,14 +59,8 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
-      return false;
-    }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     if (!_includeIRFutures && security instanceof InterestRateFutureSecurity) {
-      return false;
-    }
-    if (!InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {
       return false;
     }
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
@@ -113,12 +103,8 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.INTEREST_RATE_INSTRUMENT_DEFAULTS;
   }
+
 }

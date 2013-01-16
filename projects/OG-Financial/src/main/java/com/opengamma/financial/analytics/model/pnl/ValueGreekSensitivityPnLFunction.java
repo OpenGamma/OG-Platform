@@ -35,11 +35,12 @@ import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalc
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -90,6 +91,7 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
       }
     }
     final Position position = target.getPosition();
+    final ComputationTargetSpecification positionSpec = target.toSpecification();
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -127,8 +129,7 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
         .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorName.iterator().next())
         .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta")
         .get();
-    final ValueRequirement resultRequirements = new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, properties);
-    final ValueSpecification resultSpecification = new ValueSpecification(resultRequirements, getUniqueId());
+    final ValueSpecification resultSpecification = new ValueSpecification(ValueRequirementNames.PNL_SERIES, positionSpec, properties);
     final ComputedValue resultValue = new ComputedValue(resultSpecification, result);
     return Collections.singleton(resultValue);
   }
@@ -140,9 +141,6 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    if (!canApplyTo(context, target)) {
-      return null;
-    }
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> samplingPeriodName = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
     if (samplingPeriodName == null || samplingPeriodName.isEmpty() || samplingPeriodName.size() != 1) {
@@ -161,7 +159,7 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.add(new ValueRequirement(REQUIREMENT_NAME, target.getPosition()));
+    requirements.add(new ValueRequirement(REQUIREMENT_NAME, target.toSpecification()));
     final UnderlyingTimeSeriesProvider timeSeriesProvider = new UnderlyingTimeSeriesProvider(OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context), _resolutionKey,
         context.getSecuritySource());
     requirements.add(timeSeriesProvider.getSeriesRequirement(GREEK, (FinancialSecurity) target.getPosition().getSecurity(), DateConstraint.VALUATION_TIME.minus(samplingPeriodName.iterator().next()),
@@ -171,9 +169,6 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!canApplyTo(context, target)) {
-      return null;
-    }
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about the PROPERTY_PNL_CONTRIBUTIONS constant
     final ValueProperties properties = createValueProperties()
@@ -183,7 +178,7 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.RETURN_CALCULATOR)
         .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
-    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), properties), getUniqueId()));
+    results.add(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
     return results;
   }
 
@@ -213,7 +208,7 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
         .withAny(ValuePropertyNames.RETURN_CALCULATOR)
         .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-    results.add(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), properties), getUniqueId()));
+    results.add(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
     return results;
   }
 

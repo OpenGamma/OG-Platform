@@ -19,12 +19,13 @@ import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 
@@ -50,16 +51,13 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() == ComputationTargetType.SECURITY && target.getSecurity() instanceof EquityOptionSecurity) {
-      //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be 
-      /*
-      if (target.getSecurity() instanceof FutureOptionSecurity) {
-        return ((FutureOptionSecurity) target.getSecurity()).getIsMargined();
-      }
-      */
-      return true;
+    //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be 
+    /*
+    if (target.getSecurity() instanceof FutureOptionSecurity) {
+      return ((FutureOptionSecurity) target.getSecurity()).getIsMargined();
     }
-    return false;
+    */
+    return true;
   }
 
   @Override
@@ -85,7 +83,7 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.EQUITY_OPTION_SECURITY;
   }
 
 }

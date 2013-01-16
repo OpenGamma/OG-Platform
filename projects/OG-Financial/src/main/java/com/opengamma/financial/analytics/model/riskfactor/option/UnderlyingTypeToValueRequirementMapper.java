@@ -12,7 +12,7 @@ import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -38,7 +38,7 @@ public class UnderlyingTypeToValueRequirementMapper {
         case IMPLIED_VOLATILITY:
           throw new NotImplementedException("Don't know how to get implied volatility for " + option.getUniqueId());
         case INTEREST_RATE:
-          return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, option.getUniqueId());
+          return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.SECURITY, option.getUniqueId());
         case COST_OF_CARRY:
           throw new NotImplementedException("Don't know how to get cost of carry for " + option.getUniqueId());
         default:

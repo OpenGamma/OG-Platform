@@ -16,7 +16,6 @@ import javax.time.InstantProvider;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,12 +36,12 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -83,7 +82,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
 
   @Override
   public void init(final FunctionCompilationContext context) {
-    _result = new ValueSpecification(ValueRequirementNames.NSS_BOND_CURVE, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, CURRENCY.getUniqueId()), createValueProperties().with(
+    _result = new ValueSpecification(ValueRequirementNames.NSS_BOND_CURVE, ComputationTargetSpecification.of(CURRENCY), createValueProperties().with(
         PROPERTY_CURVE_CALCULATION_TYPE, PROPERTY_PREFIX + "_" + CURRENCY.getCode()).get());
     _results = Sets.newHashSet(_result);
   }
@@ -152,16 +151,13 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.CURRENCY;
       }
 
       @SuppressWarnings("synthetic-access")
       @Override
       public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        if (target.getType() != ComputationTargetType.PRIMITIVE) {
-          return false;
-        }
-        return ObjectUtils.equals(target.getUniqueId(), CURRENCY.getUniqueId());
+        return CURRENCY.equals(target.getValue());
       }
 
       @SuppressWarnings("synthetic-access")

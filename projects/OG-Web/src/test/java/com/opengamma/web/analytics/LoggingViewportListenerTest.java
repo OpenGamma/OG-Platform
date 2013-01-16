@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -48,9 +48,9 @@ public class LoggingViewportListenerTest {
    */
   @Test
   public void createDeleteWithLogging() {
-    ViewClient viewClient = mock(ViewClient.class);
-    LoggingViewportListener listener = new LoggingViewportListener(viewClient);
-    ViewportDefinition viewportDef = viewportDef(true, _cells12);
+    final ViewClient viewClient = mock(ViewClient.class);
+    final LoggingViewportListener listener = new LoggingViewportListener(viewClient);
+    final ViewportDefinition viewportDef = viewportDef(true, _cells12);
     listener.viewportCreated(viewportDef, _gridStructure);
     verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, resultSpecs(_cells12));
     listener.viewportDeleted(viewportDef, _gridStructure);
@@ -63,9 +63,9 @@ public class LoggingViewportListenerTest {
   @Test
   @SuppressWarnings("unchecked")
   public void createDeleteNoLogging() {
-    ViewClient viewClient = mock(ViewClient.class);
-    LoggingViewportListener listener = new LoggingViewportListener(viewClient);
-    ViewportDefinition viewportDef = viewportDef(false, _cells12);
+    final ViewClient viewClient = mock(ViewClient.class);
+    final LoggingViewportListener listener = new LoggingViewportListener(viewClient);
+    final ViewportDefinition viewportDef = viewportDef(false, _cells12);
     listener.viewportCreated(viewportDef, _gridStructure);
     listener.viewportDeleted(viewportDef, _gridStructure);
     verify(viewClient, never()).setMinimumLogMode(any(ExecutionLogMode.class), anySet());
@@ -73,13 +73,13 @@ public class LoggingViewportListenerTest {
 
   @Test
   public void createUpdateDeleteWithLogging() {
-    ViewClient viewClient = mock(ViewClient.class);
-    LoggingViewportListener listener = new LoggingViewportListener(viewClient);
-    ViewportDefinition viewportDef1 = viewportDef(true, _cells12);
+    final ViewClient viewClient = mock(ViewClient.class);
+    final LoggingViewportListener listener = new LoggingViewportListener(viewClient);
+    final ViewportDefinition viewportDef1 = viewportDef(true, _cells12);
     listener.viewportCreated(viewportDef1, _gridStructure);
     verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, resultSpecs(_cells12));
 
-    ViewportDefinition viewportDef2 = viewportDef(true, _cells23);
+    final ViewportDefinition viewportDef2 = viewportDef(true, _cells23);
     listener.viewportUpdated(viewportDef1, viewportDef2, _gridStructure);
     verify(viewClient).setMinimumLogMode(ExecutionLogMode.INDICATORS, resultSpecs(_cell1));
     verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, resultSpecs(_cell3));
@@ -91,11 +91,11 @@ public class LoggingViewportListenerTest {
   @Test
   @SuppressWarnings("unchecked")
   public void createUpdateDeleteNoLogging() {
-    ViewClient viewClient = mock(ViewClient.class);
-    LoggingViewportListener listener = new LoggingViewportListener(viewClient);
-    ViewportDefinition viewportDef1 = viewportDef(false, _cells12);
+    final ViewClient viewClient = mock(ViewClient.class);
+    final LoggingViewportListener listener = new LoggingViewportListener(viewClient);
+    final ViewportDefinition viewportDef1 = viewportDef(false, _cells12);
     listener.viewportCreated(viewportDef1, _gridStructure);
-    ViewportDefinition viewportDef2 = viewportDef(false, _cells23);
+    final ViewportDefinition viewportDef2 = viewportDef(false, _cells23);
     listener.viewportUpdated(viewportDef1, viewportDef2, _gridStructure);
     listener.viewportDeleted(viewportDef2, _gridStructure);
     verify(viewClient, never()).setMinimumLogMode(any(ExecutionLogMode.class), anySet());
@@ -103,10 +103,10 @@ public class LoggingViewportListenerTest {
 
   @Test
   public void twoViewportsWithLoggingAndOverlappingCells() {
-    ViewClient viewClient = mock(ViewClient.class);
-    LoggingViewportListener listener = new LoggingViewportListener(viewClient);
-    ViewportDefinition viewportDef1 = viewportDef(true, _cells12);
-    ViewportDefinition viewportDef2 = viewportDef(true, _cells23);
+    final ViewClient viewClient = mock(ViewClient.class);
+    final LoggingViewportListener listener = new LoggingViewportListener(viewClient);
+    final ViewportDefinition viewportDef1 = viewportDef(true, _cells12);
+    final ViewportDefinition viewportDef2 = viewportDef(true, _cells23);
     listener.viewportCreated(viewportDef1, _gridStructure);
     verify(viewClient).setMinimumLogMode(ExecutionLogMode.FULL, resultSpecs(_cell1, _cell2));
     listener.viewportCreated(viewportDef2, _gridStructure);
@@ -118,42 +118,42 @@ public class LoggingViewportListenerTest {
   }
 // -----------------------------------------------------------------------------------
 
-  private static ViewportDefinition viewportDef(boolean enableLogging, GridCell... cells) {
+  private static ViewportDefinition viewportDef(final boolean enableLogging, final GridCell... cells) {
     return viewportDef(enableLogging, Arrays.asList(cells));
   }
 
-  private static ViewportDefinition viewportDef(boolean enableLogging, List<GridCell> cells) {
+  private static ViewportDefinition viewportDef(final boolean enableLogging, final List<GridCell> cells) {
     return new ArbitraryViewportDefinition(0, cells, TypeFormatter.Format.CELL, enableLogging);
   }
 
-  private static GridStructure gridStructure(GridCell... cells) {
+  private static GridStructure gridStructure(final GridCell... cells) {
     return gridStructure(Arrays.asList(cells));
   }
 
-  private static GridStructure gridStructure(List<GridCell> cells) {
-    GridStructure mock = mock(GridStructure.class);
-    for (GridCell cell : cells) {
+  private static GridStructure gridStructure(final List<GridCell> cells) {
+    final GridStructure mock = mock(GridStructure.class);
+    for (final GridCell cell : cells) {
       when(mock.getTargetForCell(cell.getRow(), cell.getColumn())).thenReturn(target(cell));
     }
     return mock;
   }
 
-  private static Pair<String, ValueSpecification> target(GridCell cell) {
-    int row = cell.getRow();
-    int col = cell.getColumn();
-    ComputationTargetSpecification target = new ComputationTargetSpecification(ComputationTargetType.POSITION,
+  private static Pair<String, ValueSpecification> target(final GridCell cell) {
+    final int row = cell.getRow();
+    final int col = cell.getColumn();
+    final ComputationTargetSpecification target = new ComputationTargetSpecification(ComputationTargetType.POSITION,
                                                                                UniqueId.of("Cell", row + "," + col));
-    ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "fnName").get();
+    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "fnName").get();
     return Pair.of("Default", new ValueSpecification("valueName(" + row + "," + col + ")", target, properties));
   }
 
-  private Set<Pair<String, ValueSpecification>> resultSpecs(GridCell... cells) {
+  private Set<Pair<String, ValueSpecification>> resultSpecs(final GridCell... cells) {
     return resultSpecs(Arrays.asList(cells));
   }
 
-  private Set<Pair<String, ValueSpecification>> resultSpecs(List<GridCell> cells) {
-    Set<Pair<String, ValueSpecification>> specs = Sets.newHashSet();
-    for (GridCell cell : cells) {
+  private Set<Pair<String, ValueSpecification>> resultSpecs(final List<GridCell> cells) {
+    final Set<Pair<String, ValueSpecification>> specs = Sets.newHashSet();
+    for (final GridCell cell : cells) {
       specs.add(target(cell));
     }
     return specs;

@@ -21,7 +21,6 @@ import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -32,13 +31,11 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.VegaMatrixHelper;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.id.ExternalId;
 
 /**
  * Calculates the bucketed vega of an equity index or equity option using the Black formula.
@@ -71,7 +68,7 @@ public class EquityOptionBlackVegaMatrixFunction extends EquityOptionBlackFuncti
       final BlackVolatilitySurfaceMoneynessFcnBackedByGrid volDataBundle = (BlackVolatilitySurfaceMoneynessFcnBackedByGrid) market.getVolatilitySurface();
       xValues = ArrayUtils.toObject(volDataBundle.getGridData().getExpiries());
       final double[][] strikes2d = volDataBundle.getGridData().getStrikes();
-      final Set<Double> strikeSet = new HashSet<Double>();
+      final Set<Double> strikeSet = new HashSet<>();
       for (final double[] element : strikes2d) {
         strikeSet.addAll(Arrays.asList(ArrayUtils.toObject(element)));
       }
@@ -81,8 +78,8 @@ public class EquityOptionBlackVegaMatrixFunction extends EquityOptionBlackFuncti
       yValues = vegaSurface.getYData();
     }
 
-    final Set<Double> xSet = new HashSet<Double>(Arrays.asList(xValues));
-    final Set<Double> ySet = new HashSet<Double>(Arrays.asList(yValues));
+    final Set<Double> xSet = new HashSet<>(Arrays.asList(xValues));
+    final Set<Double> ySet = new HashSet<>(Arrays.asList(yValues));
     final Double[] uniqueX = xSet.toArray(new Double[0]);
     final String[] expLabels = new String[uniqueX.length];
     // Format the expiries for display
@@ -117,10 +114,8 @@ public class EquityOptionBlackVegaMatrixFunction extends EquityOptionBlackFuncti
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final Set<ValueSpecification> results = super.getResults(context, target, inputs);
-    final HistoricalTimeSeriesSource tsSource = OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
-    final String bbgTicker = getBloombergTicker(tsSource, underlyingId);
+    final String bbgTicker = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security);
     final Set<ValueSpecification> resultsWithExtraProperties = Sets.newHashSetWithExpectedSize(results.size());
     for (final ValueSpecification spec : results) {
       final String name = spec.getValueName();

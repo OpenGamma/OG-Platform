@@ -22,16 +22,11 @@ public class CalcNodeSocketConfiguration {
    */
   public static final String CACHE_SERVER_KEY = "cacheServer";
   /**
-   * The end point for dependency queries.
-   */
-  public static final String QUERY_SERVER_KEY = "queryServer";
-  /**
    * The end point for the remote node job dispatcher.
    */
   public static final String JOB_SERVER_KEY = "jobServer";
 
   private EndPointDescriptionProvider _cacheServer;
-  private EndPointDescriptionProvider _queryServer;
   private EndPointDescriptionProvider _jobServer;
 
   public void setCacheServer(final EndPointDescriptionProvider cacheServer) {
@@ -40,14 +35,6 @@ public class CalcNodeSocketConfiguration {
 
   public EndPointDescriptionProvider getCacheServer() {
     return _cacheServer;
-  }
-
-  public void setQueryServer(final EndPointDescriptionProvider queryServer) {
-    _queryServer = queryServer;
-  }
-
-  public EndPointDescriptionProvider getQueryServer() {
-    return _queryServer;
   }
 
   public void setJobServer(final EndPointDescriptionProvider jobServer) {
@@ -62,9 +49,6 @@ public class CalcNodeSocketConfiguration {
     final MutableFudgeMsg message = fudgeContext.newMessage();
     if (getCacheServer() != null) {
       message.add(CACHE_SERVER_KEY, getCacheServer().getEndPointDescription(fudgeContext));
-    }
-    if (getQueryServer() != null) {
-      message.add(QUERY_SERVER_KEY, getQueryServer().getEndPointDescription(fudgeContext));
     }
     if (getJobServer() != null) {
       message.add(JOB_SERVER_KEY, getJobServer().getEndPointDescription(fudgeContext));

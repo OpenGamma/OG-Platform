@@ -91,20 +91,22 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
 
   //-------------------------------------------------------------------------
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     PositionSource source = initUnderlying(repo, configuration);
-    
+
     // add user level if requested
-    PositionSource userSource = initUser(repo, configuration);
-    Map<String, PositionSource> map = new HashMap<String, PositionSource>();
+    final PositionSource userSource = initUser(repo, configuration);
+    final Map<String, PositionSource> map = new HashMap<String, PositionSource>();
     if (userSource != null) {
       String scheme = repo.getInfo(getUserPortfolioMaster()).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
       map.put(scheme, userSource);
+      scheme = repo.getInfo(getUserPositionMaster()).getAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME);
+      map.put(scheme, userSource);
       source = new DelegatingPositionSource(source, map);
     }
-    
+
     // register
-    ComponentInfo info = new ComponentInfo(PositionSource.class, getClassifier());
+    final ComponentInfo info = new ComponentInfo(PositionSource.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 2);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionSource.class);
     repo.registerComponent(info, source);
@@ -113,13 +115,13 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     }
   }
 
-  protected PositionSource initUnderlying(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+  protected PositionSource initUnderlying(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     PositionSource source = new MasterPositionSource(getUnderlyingPortfolioMaster(), getUnderlyingPositionMaster());
     if (getCacheManager() != null) {
       source = new EHCachingPositionSource(source, getCacheManager());
     }
     if (getUnderlyingClassifier() != null) {
-      ComponentInfo info = new ComponentInfo(PositionSource.class, getUnderlyingClassifier());
+      final ComponentInfo info = new ComponentInfo(PositionSource.class, getUnderlyingClassifier());
       info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
       info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionSource.class);
       repo.registerComponent(info, source);
@@ -130,13 +132,13 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     return source;
   }
 
-  protected PositionSource initUser(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+  protected PositionSource initUser(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     if (getUserPortfolioMaster() == null || getUserPositionMaster() == null) {
       return null;
     }
-    PositionSource source = new MasterPositionSource(getUserPortfolioMaster(), getUserPositionMaster());
+    final PositionSource source = new MasterPositionSource(getUserPortfolioMaster(), getUserPositionMaster());
     if (getUserClassifier() != null) {
-      ComponentInfo info = new ComponentInfo(PositionSource.class, getUserClassifier());
+      final ComponentInfo info = new ComponentInfo(PositionSource.class, getUserClassifier());
       info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
       info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePositionSource.class);
       repo.registerComponent(info, source);
@@ -166,7 +168,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
@@ -191,7 +193,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
@@ -233,12 +235,12 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      UserFinancialPositionSourceComponentFactory other = (UserFinancialPositionSourceComponentFactory) obj;
+      final UserFinancialPositionSourceComponentFactory other = (UserFinancialPositionSourceComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
@@ -281,7 +283,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the classifier that the factory should publish under.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(String classifier) {
+  public void setClassifier(final String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -307,7 +309,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the flag determining whether the component should be published by REST (default true).
    * @param publishRest  the new value of the property
    */
-  public void setPublishRest(boolean publishRest) {
+  public void setPublishRest(final boolean publishRest) {
     this._publishRest = publishRest;
   }
 
@@ -332,7 +334,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the cache manager.
    * @param cacheManager  the new value of the property
    */
-  public void setCacheManager(CacheManager cacheManager) {
+  public void setCacheManager(final CacheManager cacheManager) {
     this._cacheManager = cacheManager;
   }
 
@@ -357,7 +359,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the classifier that the factory should publish under (underlying master).
    * @param underlyingClassifier  the new value of the property
    */
-  public void setUnderlyingClassifier(String underlyingClassifier) {
+  public void setUnderlyingClassifier(final String underlyingClassifier) {
     this._underlyingClassifier = underlyingClassifier;
   }
 
@@ -382,7 +384,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the portfolio master (underlying master).
    * @param underlyingPortfolioMaster  the new value of the property, not null
    */
-  public void setUnderlyingPortfolioMaster(PortfolioMaster underlyingPortfolioMaster) {
+  public void setUnderlyingPortfolioMaster(final PortfolioMaster underlyingPortfolioMaster) {
     JodaBeanUtils.notNull(underlyingPortfolioMaster, "underlyingPortfolioMaster");
     this._underlyingPortfolioMaster = underlyingPortfolioMaster;
   }
@@ -408,7 +410,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the position master (underlying master).
    * @param underlyingPositionMaster  the new value of the property, not null
    */
-  public void setUnderlyingPositionMaster(PositionMaster underlyingPositionMaster) {
+  public void setUnderlyingPositionMaster(final PositionMaster underlyingPositionMaster) {
     JodaBeanUtils.notNull(underlyingPositionMaster, "underlyingPositionMaster");
     this._underlyingPositionMaster = underlyingPositionMaster;
   }
@@ -434,7 +436,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the classifier that the factory should publish under (user master).
    * @param userClassifier  the new value of the property
    */
-  public void setUserClassifier(String userClassifier) {
+  public void setUserClassifier(final String userClassifier) {
     this._userClassifier = userClassifier;
   }
 
@@ -459,7 +461,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the portfolio master (user master).
    * @param userPortfolioMaster  the new value of the property
    */
-  public void setUserPortfolioMaster(PortfolioMaster userPortfolioMaster) {
+  public void setUserPortfolioMaster(final PortfolioMaster userPortfolioMaster) {
     this._userPortfolioMaster = userPortfolioMaster;
   }
 
@@ -484,7 +486,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
    * Sets the position master (user master).
    * @param userPositionMaster  the new value of the property
    */
-  public void setUserPositionMaster(PositionMaster userPositionMaster) {
+  public void setUserPositionMaster(final PositionMaster userPositionMaster) {
     this._userPositionMaster = userPositionMaster;
   }
 
@@ -555,7 +557,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
         "cacheManager",
@@ -573,7 +575,7 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;

@@ -38,12 +38,12 @@ import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -108,7 +108,7 @@ public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends Abstrac
     if (_specification == null) {
       throw new OpenGammaRuntimeException("Couldn't find Equity Option Volatility Surface Specification " + _specificationName);
     }
-    _result = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget().getUniqueId()),
+    _result = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, ComputationTargetSpecification.of(_definition.getTarget().getUniqueId()),
         createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
         .withAny(EquityVarianceSwapStaticReplicationFunction.STRIKE_PARAMETERIZATION_METHOD/*, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()*/).get());
@@ -206,15 +206,15 @@ public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends Abstrac
       for (final Object y : strikes) { // FIXME Was: definition.getYs()) {
         provider.init(true); // generate puts
         final ExternalId putIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
-        result.add(new ValueRequirement(provider.getDataFieldName(), putIdentifier));
+        result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, putIdentifier));
         provider.init(false);
         final ExternalId callIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
-        result.add(new ValueRequirement(provider.getDataFieldName(), callIdentifier));
+        result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, callIdentifier));
       }
     }
     // add the underlying
     final ExternalId temp = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, definition.getTarget().getUniqueId().getValue());
-    result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, temp));
+    result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, temp));
     return result;
   }
 
@@ -227,7 +227,7 @@ public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends Abstrac
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.ANYTHING; // [PLAT-2286]: something more specific; the definition's target could be any unique identifiable though
       }
 
       @SuppressWarnings("synthetic-access")
@@ -250,9 +250,6 @@ public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends Abstrac
       @SuppressWarnings("synthetic-access")
       @Override
       public boolean canApplyTo(final FunctionCompilationContext myContext, final ComputationTarget target) {
-        if (target.getType() != ComputationTargetType.PRIMITIVE) {
-          return false;
-        }
         return ObjectUtils.equals(target.getUniqueId(), _definition.getTarget().getUniqueId());
       }
 
@@ -262,7 +259,7 @@ public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends Abstrac
           final Set<ValueRequirement> desiredValues) {
         final Clock snapshotClock = executionContext.getValuationClock();
         final ExternalId temp = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, _definition.getTarget().getUniqueId().getValue());
-        final ValueRequirement underlyingSpotValueRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, temp);
+        final ValueRequirement underlyingSpotValueRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, temp);
         final Double underlyingSpot = (Double) inputs.getValue(underlyingSpotValueRequirement);
         if (underlyingSpot == null) {
           s_logger.error("Could not get underlying spot value for " + _definition.getTarget().getUniqueId());
@@ -283,7 +280,7 @@ public class EquityOptionVolatilitySurfaceDataFunctionDeprecated extends Abstrac
               provider.init(true); // generate identifiers for put options
             }
             final ExternalId identifier = provider.getInstrument(expiry, strike, now.toLocalDate());
-            final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
+            final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);
               volatilityValues.put(Pair.of((Object) expiry, (Object) strike), volatility / 100);

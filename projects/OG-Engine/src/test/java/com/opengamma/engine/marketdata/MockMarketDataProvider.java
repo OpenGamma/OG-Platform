@@ -91,7 +91,7 @@ public class MockMarketDataProvider extends AbstractMarketDataProvider {
   }
   
   public void put(ValueRequirement requirement, Object value) {
-    _values.put(requirement, new ComputedValue(MarketDataUtils.createMarketDataValue(requirement), value));
+    _values.put(requirement, new ComputedValue(MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID), value));
   }
   
   /*package*/ void incrementQueryCount() {

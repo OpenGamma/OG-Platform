@@ -163,7 +163,9 @@ public class ViewProcessorTest {
     final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     final CycleCountingViewResultListener listener = new CycleCountingViewResultListener(10);
     client.setResultListener(listener);
-    final ViewExecutionOptions executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), new ViewCycleExecutionOptions(MarketData.live()), ExecutionFlags.none().runAsFastAsPossible().get());
+    final ViewExecutionOptions executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live())
+        .create(),
+        ExecutionFlags.none().runAsFastAsPossible().get());
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     listener.awaitCycles(10 * Timeout.standardTimeoutMillis());
 
@@ -185,7 +187,7 @@ public class ViewProcessorTest {
     vp.start();
 
     final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), new ViewCycleExecutionOptions(MarketData.live()));
+    final ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create());
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     waitForCompletionAndShutdown(vp, client, env);
     assertEquals(0, vp.getViewCycleManager().getResourceCount());
@@ -219,7 +221,7 @@ public class ViewProcessorTest {
 
     };
     client.setResultListener(resultListener);
-    final ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), new ViewCycleExecutionOptions(MarketData.live()));
+    final ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create());
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
