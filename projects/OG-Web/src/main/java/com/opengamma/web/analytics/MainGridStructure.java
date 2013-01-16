@@ -62,6 +62,7 @@ import com.opengamma.util.tuple.Pair;
       }
     }
     // start the column index after the static columns
+    // TODO could the columns be passed in? would need a column subclass with a columnKey property
     int colIndex = _columnKeys.size() - 1;
     for (Map.Entry<String, List<ColumnKey>> entry : analyticsColumns.entrySet()) {
       String configName = entry.getKey();
@@ -134,7 +135,8 @@ import com.opengamma.util.tuple.Pair;
     return "MainGridStructure [_columnGroups=" + _columnGroups + "]";
   }
 
-  /* package */ ViewportResults createResults(ViewportDefinition viewportDefinition, ResultsCache cache) {
+  /* package */ Pair<ViewportResults, Viewport.State> createResults(ViewportDefinition viewportDefinition,
+                                                                    ResultsCache cache) {
     boolean updated = false;
     boolean hasData = false;
     List<ResultsCell> results = Lists.newArrayList();
@@ -155,7 +157,11 @@ import com.opengamma.util.tuple.Pair;
     } else {
       state = Viewport.State.EMPTY;
     }
-    return new ViewportResults(results, viewportDefinition, _columnGroups, cache.getLastCalculationDuration(), state);
+    ViewportResults viewportResults = new ViewportResults(results,
+                                                          viewportDefinition,
+                                                          _columnGroups,
+                                                          cache.getLastCalculationDuration());
+    return Pair.of(viewportResults, state);
   }
 
   /* package */ static class Row {

@@ -14,7 +14,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -52,7 +52,7 @@ public class PrimitivesGridStructure extends MainGridStructure {
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
       List<ColumnKey> columnKeys = Lists.newArrayList();
       for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
-        if (specificRequirement.getTargetSpecification().getType() == ComputationTargetType.PRIMITIVE) {
+        if (specificRequirement.getTargetReference().getType().isTargetType(ComputationTargetType.PRIMITIVE)) {
           String valueName = specificRequirement.getValueName();
           ValueProperties constraints = specificRequirement.getConstraints();
           ColumnKey columnKey = new ColumnKey(calcConfig.getName(), valueName, constraints);
@@ -76,7 +76,7 @@ public class PrimitivesGridStructure extends MainGridStructure {
     }
     List<MainGridStructure.Row> rows = Lists.newArrayList();
     for (ComputationTargetSpecification spec : specs) {
-      rows.add(new MainGridStructure.Row(spec, spec.getIdentifier().toString()));
+      rows.add(new Row(spec, spec.getUniqueId().toString()));
     }
     return rows;
   }

@@ -9,6 +9,7 @@ import com.opengamma.engine.view.calc.ComputationCycleQuery;
 import com.opengamma.engine.view.calc.ComputationResultsResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Viewport on a grid displaying the dependency graph showing how a value is calculated. This class isn't thread safe.
@@ -80,7 +81,9 @@ public class DependencyGraphViewport implements Viewport {
     query.setValueSpecifications(_gridStructure.getValueSpecifications());
     ComputationResultsResponse resultsResponse = cycle.queryResults(query);
     cache.put(_calcConfigName, resultsResponse.getResults(), cycle.getDuration());
-    _latestResults = _gridStructure.createResults(_viewportDefinition, cache, _latestResults);
+    Pair<ViewportResults,State> resultsAndState = _gridStructure.createResults(_viewportDefinition, cache, _latestResults);
+    _latestResults = resultsAndState.getFirst();
+    _state = resultsAndState.getSecond();
   }
 
   @Override
@@ -99,10 +102,6 @@ public class DependencyGraphViewport implements Viewport {
 
   @Override
   public State getState() {
-    if (_latestResults == null) {
-      return State.EMPTY;
-    } else {
-      return _latestResults.getState();
-    }
+    return _state;
   }
 }

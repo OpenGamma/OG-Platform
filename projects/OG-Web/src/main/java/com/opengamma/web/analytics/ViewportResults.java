@@ -28,30 +28,25 @@ public class ViewportResults {
   private final ViewportDefinition _viewportDefinition;
   /** Duration of the last calculation cycle. */
   private final Duration _calculationDuration;
-  private final Viewport.State _state;
 
   /**
    * @param allResults Cells in the viewport containing the data, history and the value specification. The outer
    * list contains the data by rows and the inner lists contain the data for each row
    * @param viewportDefinition Definition of the rows and columns in the viewport
    * @param columns The columns in the viewport's grid
-   * @param state
    */
   /* package */ ViewportResults(List<ResultsCell> allResults,
                                 ViewportDefinition viewportDefinition,
                                 AnalyticsColumnGroups columns,
-                                Duration calculationDuration,
-                                Viewport.State state) {
+                                Duration calculationDuration) {
     ArgumentChecker.notNull(allResults, "allResults");
     ArgumentChecker.notNull(columns, "columns");
     ArgumentChecker.notNull(viewportDefinition, "viewportDefinition");
     ArgumentChecker.notNull(calculationDuration, "calculationDuration");
-    ArgumentChecker.notNull(state, "state");
     _allResults = allResults;
     _viewportDefinition = viewportDefinition;
     _columns = columns;
     _calculationDuration = calculationDuration;
-    _state = state;
   }
 
   /**
@@ -131,10 +126,6 @@ public class ViewportResults {
    */
   /* package */ static ResultsCell emptyCell(Collection<Object> emptyHistory, int colIndex) {
     return new ResultsCell(null, null, emptyHistory, colIndex, null, false);
-  }
-
-  /* package */ Viewport.State getState() {
-    return _state;
   }
 
   @Override

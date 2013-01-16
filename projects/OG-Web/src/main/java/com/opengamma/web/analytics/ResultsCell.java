@@ -16,8 +16,6 @@ import com.opengamma.engine.view.calcnode.MissingInput;
  */
 /* package */ final class ResultsCell {
 
-  // TODO add execution log to hashCode and equals
-
   private final Object _value;
   private final ValueSpecification _valueSpecification;
   private final Collection<Object> _history;
@@ -87,35 +85,47 @@ import com.opengamma.engine.view.calcnode.MissingInput;
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ResultsCell cell = (ResultsCell) o;
+    ResultsCell that = (ResultsCell) o;
 
-    if (_column != cell._column) {
+    if (_column != that._column) {
       return false;
     }
-    if (_history != null) {
-      if (!_history.equals(cell._history)) {
+    if (_updated != that._updated) {
+      return false;
+    }
+    if (_executionLog != null) {
+      if (!_executionLog.equals(that._executionLog)) {
         return false;
       }
     } else {
-      if (cell._history != null) {
+      if (that._executionLog != null) {
+        return false;
+      }
+    }
+    if (_history != null) {
+      if (!_history.equals(that._history)) {
+        return false;
+      }
+    } else {
+      if (that._history != null) {
         return false;
       }
     }
     if (_value != null) {
-      if (!_value.equals(cell._value)) {
+      if (!_value.equals(that._value)) {
         return false;
       }
     } else {
-      if (cell._value != null) {
+      if (that._value != null) {
         return false;
       }
     }
     if (_valueSpecification != null) {
-      if (!_valueSpecification.equals(cell._valueSpecification)) {
+      if (!_valueSpecification.equals(that._valueSpecification)) {
         return false;
       }
     } else {
-      if (cell._valueSpecification != null) {
+      if (that._valueSpecification != null) {
         return false;
       }
     }
@@ -128,6 +138,8 @@ import com.opengamma.engine.view.calcnode.MissingInput;
     result = 31 * result + (_valueSpecification != null ? _valueSpecification.hashCode() : 0);
     result = 31 * result + (_history != null ? _history.hashCode() : 0);
     result = 31 * result + _column;
+    result = 31 * result + (_executionLog != null ? _executionLog.hashCode() : 0);
+    result = 31 * result + (_updated ? 1 : 0);
     return result;
   }
 }

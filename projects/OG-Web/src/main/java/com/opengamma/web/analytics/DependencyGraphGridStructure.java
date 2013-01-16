@@ -15,12 +15,14 @@ import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -38,6 +40,8 @@ public class DependencyGraphGridStructure implements GridStructure {
   private static final int FUNCTION_NAME_COL = 4;
   private static final int PROPERTIES_COL = 5;
 
+  /** Map of target types to displayable names. */
+  private static final ComputationTargetTypeMap<String> TARGET_TYPE_NAMES = createTargetTypeNames();
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
   private final List<ValueSpecification> _valueSpecs;
   /** Function names for all rows in the grid in row index order. */
@@ -92,23 +96,27 @@ public class DependencyGraphGridStructure implements GridStructure {
    * @param viewportDefinition Defines the viewport
    * @param cache Cache of results for the grid
    * @param previousResults The results before the latest calculation cycle, possibly null
-   * @return The results for the cells in the viewport
+   * @return The results for the cells in the viewport and the new viewport state
    */
-  /* package */ ViewportResults createResults(ViewportDefinition viewportDefinition,
-                                              ResultsCache cache,
-                                              ViewportResults previousResults) {
+  /* package */ Pair<ViewportResults, Viewport.State> createResults(ViewportDefinition viewportDefinition,
+                                                                    ResultsCache cache,
+                                                                    ViewportResults previousResults) {
     List<ResultsCell> results = Lists.newArrayList();
     for (GridCell cell : viewportDefinition) {
       AnalyticsColumn column = _columnGroups.getColumn(cell.getColumn());
       results.add(column.getResults(cell.getRow(), cache));
     }
+    ViewportResults newResults = new ViewportResults(results,
+                                                     viewportDefinition,
+                                                     _columnGroups,
+                                                     cache.getLastCalculationDuration());
     Viewport.State state;
-    if (results.equals(previousResults)) {
+    if (previousResults != null && results.equals(previousResults.getResults())) {
       state = Viewport.State.STALE_DATA;
     } else {
       state = Viewport.State.FRESH_DATA;
     }
-    return new ViewportResults(results, viewportDefinition, _columnGroups, cache.getLastCalculationDuration(), state);
+    return Pair.of(newResults, state);
   }
 
   /**
@@ -168,6 +176,17 @@ public class DependencyGraphGridStructure implements GridStructure {
     return _root;
   }
 
+  private static ComputationTargetTypeMap<String> createTargetTypeNames() {
+    ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<>();
+    map.put(ComputationTargetType.PORTFOLIO_NODE, "Agg");
+    map.put(ComputationTargetType.POSITION, "Pos");
+    map.put(ComputationTargetType.SECURITY, "Sec");
+    map.put(ComputationTargetType.ANYTHING, "Prim");
+    map.put(ComputationTargetType.NULL, "Prim");
+    map.put(ComputationTargetType.TRADE, "Trade");
+    return map;
+  }
+
   private static class DependencyGraphCellRenderer implements AnalyticsColumn.CellRenderer {
 
     private final int _colIndex;
@@ -201,7 +220,7 @@ public class DependencyGraphGridStructure implements GridStructure {
         case TARGET_COL:
           return ViewportResults.objectCell(getTargetName(valueSpec.getTargetSpecification()), _colIndex);
         case TARGET_TYPE_COL:
-          return ViewportResults.objectCell(getTargetTypeName(valueSpec.getTargetSpecification().getType()), _colIndex);
+          return ViewportResults.objectCell(TARGET_TYPE_NAMES.get(valueSpec.getTargetSpecification().getType()), _colIndex);
         case VALUE_NAME_COL:
           return ViewportResults.objectCell(valueSpec.getValueName(), _colIndex);
         case VALUE_COL:
@@ -262,7 +281,8 @@ public class DependencyGraphGridStructure implements GridStructure {
      * @return The name of the target
      */
     private String getTargetName(final ComputationTargetSpecification targetSpec) {
-      ComputationTarget target = _computationTargetResolver.resolve(targetSpec);
+      // TODO I don't think LATEST will do long term
+      ComputationTarget target = _computationTargetResolver.resolve(targetSpec, VersionCorrection.LATEST);
       if (target != null) {
         return target.getName();
       } else {
@@ -272,28 +292,6 @@ public class DependencyGraphGridStructure implements GridStructure {
         } else {
           return targetSpec.getType().toString();
         }
-      }
-    }
-
-
-    /**
-     * @param targetType The type of the row's target
-     * @return The string to display in the target type column
-     */
-    private String getTargetTypeName(ComputationTargetType targetType) {
-      switch (targetType) {
-        case PORTFOLIO_NODE:
-          return "Agg";
-        case POSITION:
-          return "Pos";
-        case SECURITY:
-          return "Sec";
-        case PRIMITIVE:
-          return "Prim";
-        case TRADE:
-          return "Trade";
-        default:
-          return null;
       }
     }
   }

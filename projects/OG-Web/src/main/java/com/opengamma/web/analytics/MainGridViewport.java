@@ -7,6 +7,7 @@ package com.opengamma.web.analytics;
 
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Viewport on one of the main analytics grids displaying portfolio or primitives data.
@@ -23,6 +24,8 @@ import com.opengamma.util.ArgumentChecker;
   private ViewportDefinition _viewportDefinition;
   /** The current viewport data. */
   private ViewportResults _latestResults;
+  /** The current state. */
+  private State _state = State.EMPTY;
 
   /**
    * @param gridStructure Row and column structure of the grid
@@ -48,7 +51,9 @@ import com.opengamma.util.ArgumentChecker;
    * @param cache The latest results
    */
   /* package */ void updateResults(ResultsCache cache) {
-    _latestResults = _gridStructure.createResults(_viewportDefinition, cache);
+    Pair<ViewportResults,State> resultsAndState = _gridStructure.createResults(_viewportDefinition, cache);
+    _latestResults = resultsAndState.getFirst();
+    _state = resultsAndState.getSecond();
   }
 
   /**
@@ -85,10 +90,6 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public State getState() {
-    if (_latestResults == null) {
-      return State.EMPTY;
-    } else {
-      return _latestResults.getState();
-    }
+    return _state;
   }
 }
