@@ -24,7 +24,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache) {
+  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type) {
     Pair<String, ValueSpecification> cellTarget = _gridStructure.getTargetForCell(rowIndex, _colIndex);
     Class<?> columnType = _gridStructure.getColumnType(_colIndex);
     if (cellTarget != null) {
@@ -36,11 +36,10 @@ import com.opengamma.util.tuple.Pair;
                                        valueSpec,
                                        cacheResult.getHistory(),
                                        cacheResult.getAggregatedExecutionLog(),
-                                       _colIndex,
-                                       cacheResult.isUpdated());
+                                       cacheResult.isUpdated(), type);
     } else {
       Collection<Object> emptyHistory = cache.emptyHistory(columnType);
-      return ViewportResults.emptyCell(emptyHistory, _colIndex);
+      return ViewportResults.emptyCell(emptyHistory, type);
     }
   }
 }

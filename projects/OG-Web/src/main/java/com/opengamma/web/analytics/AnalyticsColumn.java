@@ -72,7 +72,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /* package */ ResultsCell getResults(int rowIndex, ResultsCache cache) {
-    return _renderer.getResults(rowIndex, cache);
+    return _renderer.getResults(rowIndex, cache, _type);
   }
 
   private static String createHeader(ColumnKey columnKey) {
@@ -139,6 +139,7 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ static interface CellRenderer {
 
-    ResultsCell getResults(int rowIndex, ResultsCache cache);
+    // TODO remove type, renderer should know its type (or it should be absorbed into column)
+    ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type);
   }
 }

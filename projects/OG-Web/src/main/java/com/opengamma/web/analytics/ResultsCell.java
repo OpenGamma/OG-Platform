@@ -19,22 +19,21 @@ import com.opengamma.engine.view.calcnode.MissingInput;
   private final Object _value;
   private final ValueSpecification _valueSpecification;
   private final Collection<Object> _history;
-  private final int _column;
   private final AggregatedExecutionLog _executionLog;
   private final boolean _updated;
+  private final Class<?> _type;
 
   /* package */ ResultsCell(Object value,
                             ValueSpecification valueSpecification,
                             Collection<Object> history,
-                            int column,
                             AggregatedExecutionLog executionLog,
-                            boolean updated) {
+                            boolean updated, Class<?> type) {
     _value = value;
     _valueSpecification = valueSpecification;
     _history = history;
-    _column = column;
     _executionLog = executionLog;
     _updated = updated;
+    _type = type;
   }
 
   /**
@@ -65,16 +64,16 @@ import com.opengamma.engine.view.calcnode.MissingInput;
     return _value instanceof MissingInput;
   }
 
-  /* package */ int getColumn() {
-    return _column;
-  }
-
   /* package */ AggregatedExecutionLog getExecutionLog() {
     return _executionLog;
   }
 
   /* package */ boolean isUpdated() {
     return _updated;
+  }
+
+  /* package */ Class<?> getType() {
+    return _type;
   }
 
   @Override
@@ -87,9 +86,6 @@ import com.opengamma.engine.view.calcnode.MissingInput;
     }
     ResultsCell that = (ResultsCell) o;
 
-    if (_column != that._column) {
-      return false;
-    }
     if (_updated != that._updated) {
       return false;
     }
@@ -137,7 +133,6 @@ import com.opengamma.engine.view.calcnode.MissingInput;
     int result = _value != null ? _value.hashCode() : 0;
     result = 31 * result + (_valueSpecification != null ? _valueSpecification.hashCode() : 0);
     result = 31 * result + (_history != null ? _history.hashCode() : 0);
-    result = 31 * result + _column;
     result = 31 * result + (_executionLog != null ? _executionLog.hashCode() : 0);
     result = 31 * result + (_updated ? 1 : 0);
     return result;

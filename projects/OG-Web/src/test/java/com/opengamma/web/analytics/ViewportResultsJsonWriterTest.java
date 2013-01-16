@@ -53,7 +53,7 @@ public class ViewportResultsJsonWriterTest {
   }
 
   private List<ResultsCell> createResults(Object value, List<Object> history) {
-    return ImmutableList.of(ViewportResults.valueCell(value, _valueSpec, history, null, 0, false));
+    return ImmutableList.of(ViewportResults.valueCell(value, _valueSpec, history, null, false, null));
   }
 
   @Test
@@ -133,7 +133,7 @@ public class ViewportResultsJsonWriterTest {
   private static class TestCellRenderer implements AnalyticsColumn.CellRenderer {
 
     @Override
-    public ResultsCell getResults(int rowIndex, ResultsCache cache) {
+    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type) {
       return null;
     }
   }

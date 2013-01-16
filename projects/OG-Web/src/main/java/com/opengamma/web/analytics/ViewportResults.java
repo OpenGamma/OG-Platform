@@ -75,14 +75,6 @@ public class ViewportResults {
   }
 
   /**
-   * @param colIndex The column index in the grid (zero based)
-   * @return The type of the specified column
-   */
-  /* package */ Class<?> getColumnType(int colIndex) {
-    return _columns.getColumn(colIndex).getType();
-  }
-
-  /**
    * @return The duration of the last calculation cycle.
    */
   /* package */ Duration getCalculationDuration() {
@@ -92,31 +84,35 @@ public class ViewportResults {
   // TODO move to ResultsCell.forStaticValue()
   /**
    * Factory method that creates a grid cell for displaying a string value.
+   *
    * @param value The cell's value
+   * @param type TODO remove
    * @return A cell for displaying the value
    */
-  /* package */ static ResultsCell objectCell(Object value, int column) {
+  /* package */ static ResultsCell objectCell(Object value, Class<?> type) {
     ArgumentChecker.notNull(value, "value");
-    return new ResultsCell(value, null, null, column, null, false);
+    return new ResultsCell(value, null, null, null, false, type);
   }
 
   // TODO move to ResultsCell.forCalculatedValue()
   /**
    * Factory method that creates a grid cell for displaying a calculated value.
    *
+   *
    * @param value The value
    * @param valueSpecification The value's specification
    * @param history The value's history
    * @param updated true if the value was updated in the last calculation cycle
+   * @param type TODO remove this parameter
    * @return A cell for displaying the value
    */
   /* package */ static ResultsCell valueCell(Object value,
                                              ValueSpecification valueSpecification,
                                              Collection<Object> history,
                                              AggregatedExecutionLog executionLog,
-                                             int column,
-                                             boolean updated) {
-    return new ResultsCell(value, valueSpecification, history, column, executionLog, updated);
+                                             boolean updated,
+                                             Class<?> type) {
+    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type);
   }
 
   // TODO move to ResultsCell.empty()
@@ -125,10 +121,10 @@ public class ViewportResults {
    * @return An empty cell
    * @param emptyHistory Empty history appropriate for the cell's type. For types that support history it should
    * be an empty collection, for types that don't it should be null.
-   * @param colIndex Index of the cell's grid column
+   * @param type TODO remove
    */
-  /* package */ static ResultsCell emptyCell(Collection<Object> emptyHistory, int colIndex) {
-    return new ResultsCell(null, null, emptyHistory, colIndex, null, false);
+  /* package */ static ResultsCell emptyCell(Collection<Object> emptyHistory, Class<?> type) {
+    return new ResultsCell(null, null, emptyHistory, null, false, type);
   }
 
   @Override
