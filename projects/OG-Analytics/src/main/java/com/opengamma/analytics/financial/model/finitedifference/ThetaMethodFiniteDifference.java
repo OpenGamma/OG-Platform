@@ -27,6 +27,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver {
   private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
+  // private static final DEFAULT 
   private final double _theta;
   private final boolean _showFullResults;
 
@@ -284,23 +285,27 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
       final int n = b.length;
       double errSqr = 1.0;
+      double maxErr = 1.0;
       int count = 0;
       double temp;
 
-      while (count < maxInt && errSqr > 1e-9) {
+      while (count < maxInt && maxErr > 1e-12) {
         temp = Math.max(minVal[0], (1 - omega) * x[0] + omega * invD[0] * (b[0] - u[0] * x[1]));
-        errSqr = (temp - x[0]) * (temp - x[0]);
+        // errSqr = (temp - x[0]) * (temp - x[0]);
+        maxErr = Math.abs(temp - x[0]);
         x[0] = temp;
         for (int ii = 1; ii < n - 1; ii++) {
           temp = Math.max(minVal[ii], (1 - omega) * x[ii] + omega * invD[ii] * (b[ii] - l[ii - 1] * x[ii - 1] - u[ii] * x[ii + 1]));
-          errSqr = (temp - x[ii]) * (temp - x[ii]);
+          // errSqr += (temp - x[ii]) * (temp - x[ii]);
+          maxErr = Math.max(Math.abs(temp - x[ii]), maxErr);
           x[ii] = temp;
         }
         temp = Math.max(minVal[n - 1], (1 - omega) * x[n - 1] + omega * invD[n - 1] * (b[n - 1] - l[n - 2] * x[n - 2]));
-        errSqr = (temp - x[n - 1]) * (temp - x[n - 1]);
+        maxErr = Math.max(Math.abs(temp - x[n - 1]), maxErr);
+        //errSqr += (temp - x[n - 1]) * (temp - x[n - 1]);
         x[n - 1] = temp;
 
-        errSqr = Math.sqrt(errSqr);
+        //   errSqr = Math.sqrt(errSqr);
         count++;
       }
 

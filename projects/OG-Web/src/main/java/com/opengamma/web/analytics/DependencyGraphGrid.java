@@ -50,6 +50,7 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
   /**
    * Creates a new grid for displaying a dependency graph of calculations.
    *
+   *
    * @param compiledViewDef The view definition from which the graph and calculations were derived
    * @param target The object whose dependency graph is being displayed
    * @param calcConfigName The calculation configuration used for the calculations
@@ -57,6 +58,7 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
    * @param callbackId ID that's passed to listeners when the row and column structure of the grid changes
    * @param targetResolver For looking up the target of the calculation given its specification
    * @param viewportListener Receives notifications when any viewport changes
+   * @param cache
    * @return The grid
    */
   /* package */ static DependencyGraphGrid create(CompiledViewDefinition compiledViewDef,
@@ -65,9 +67,10 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
                                                   ViewCycle cycle,
                                                   String callbackId,
                                                   ComputationTargetResolver targetResolver,
-                                                  ViewportListener viewportListener) {
+                                                  ViewportListener viewportListener,
+                                                  ResultsCache cache) {
     DependencyGraphStructureBuilder builder =
-        new DependencyGraphStructureBuilder(compiledViewDef, target, calcConfigName, targetResolver);
+        new DependencyGraphStructureBuilder(compiledViewDef, target, calcConfigName, targetResolver, cache);
     return new DependencyGraphGrid(builder.getStructure(), calcConfigName, callbackId, cycle, viewportListener);
   }
 

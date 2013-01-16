@@ -5,11 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.Collection;
-import java.util.List;
-
-import com.google.common.collect.Lists;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -17,9 +12,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Viewport on one of the main analytics grids displaying portfolio or primitives data.
  */
-/* package */ abstract class MainGridViewport implements Viewport {
-
-  static final int LABEL_COLUMN = 0;
+/* package */ class MainGridViewport implements Viewport {
 
   /** Row and column structure of the grid. */
   private final MainGridStructure _gridStructure;
@@ -57,59 +50,10 @@ import com.opengamma.util.tuple.Pair;
    * @param cache The latest results
    */
   /* package */ void updateResults(ResultsCache cache) {
-    boolean updated = false;
-    boolean hasData = false;
-    List<ViewportResults.Cell> results = Lists.newArrayList();
-    for (GridCell cell : _viewportDefinition) {
-      int rowIndex = cell.getRow();
-      int colIndex = cell.getColumn();
-      if (_gridStructure.isColumnFixed(colIndex)) {
-        MainGridStructure.Row row = _gridStructure.getRowAtIndex(rowIndex);
-        results.add(getFixedColumnResult(rowIndex, colIndex, row));
-      } else {
-        Pair<String, ValueSpecification> cellTarget = _gridStructure.getTargetForCell(rowIndex, colIndex);
-        Class<?> columnType = _gridStructure.getColumnType(colIndex);
-        if (cellTarget != null) {
-          String calcConfigName = cellTarget.getFirst();
-          ValueSpecification valueSpec = cellTarget.getSecond();
-          ResultsCache.Result cacheResult = cache.getResult(calcConfigName, valueSpec, columnType);
-          updated = updated || cacheResult.isUpdated();
-          Object value = cacheResult.getValue();
-          if (value != null) {
-            hasData = true;
-          }
-          results.add(ViewportResults.valueCell(value,
-                                                valueSpec,
-                                                cacheResult.getHistory(),
-                                                cacheResult.getAggregatedExecutionLog(),
-                                                colIndex));
-        } else {
-          Collection<Object> emptyHistory = cache.emptyHistory(columnType);
-          results.add(ViewportResults.emptyCell(emptyHistory, colIndex));
-        }
-      }
-    }
-    _latestResults = new ViewportResults(results,
-                                         _viewportDefinition,
-                                         _gridStructure.getColumnStructure(),
-                                         cache.getLastCalculationDuration());
-    if (updated) {
-      _state = State.FRESH_DATA;
-    } else if (hasData) {
-      _state = State.STALE_DATA;
-    } else {
-      _state = State.EMPTY;
-    }
+    Pair<ViewportResults,State> resultsAndState = _gridStructure.createResults(_viewportDefinition, cache);
+    _latestResults = resultsAndState.getFirst();
+    _state = resultsAndState.getSecond();
   }
-
-  /**
-   * Returns a result for the specified row and column.
-   * @param rowIndex Index of the row
-   * @param colIndex Index of the column
-   * @param row Contains the row's target and quantity (if applicable)
-   * @return The result value
-   */
-  protected abstract ViewportResults.Cell getFixedColumnResult(int rowIndex, int colIndex, MainGridStructure.Row row);
 
   /**
    * Updates the viewport definition (e.g. in reponse to the user scrolling the grid and changing the visible area).
