@@ -305,9 +305,9 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     assert forwardCurvePropertiesSet;
     assert surfacePropertiesSet;
     properties
-    .with(PROPERTY_DISCOUNTING_CURVE_NAME, discountingCurveName)
-    .with(PROPERTY_DISCOUNTING_CURVE_CONFIG, discountingCurveConfig)
-    .with(PROPERTY_FORWARD_CURVE_NAME, forwardCurveName);
+      .with(PROPERTY_DISCOUNTING_CURVE_NAME, discountingCurveName)
+      .with(PROPERTY_DISCOUNTING_CURVE_CONFIG, discountingCurveConfig)
+      .with(PROPERTY_FORWARD_CURVE_NAME, forwardCurveName);
     final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirement : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties.get()));
