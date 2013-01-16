@@ -1,6 +1,8 @@
 <select class="source">
-  <option>select data source...</option>
-  {{#each source}}<option {{#this.selected}}selected{{/this.selected}}>{{this.text}}</option>{{/each}}
+  <option {{#unless this.selected}}selected{{/unless}}>select data source...</option>
+  {{#each source}}
+    <option {{#if this.selected}}selected{{/if}} value="{{this.value}}">{{this.text}}</option>
+  {{/each}}
 </select>
 {{#if historical}}
   <div class="extra-opts">

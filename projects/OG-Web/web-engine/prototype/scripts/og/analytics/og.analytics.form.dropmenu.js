@@ -22,7 +22,11 @@ $.register_module({
                 if (menu.$dom.menu) {
                     menu.$dom.menu_actions = $('.og-menu-actions', menu.$dom.menu);
                     menu.$dom.opt = $('.OG-dropmenu-options', menu.$dom.menu);
-                    menu.$dom.opt.data('pos', ((menu.opts = []).push(menu.$dom.opt), menu.opts.length-1));
+                    menu.$dom.opt.each(function (idx, elem){
+                        var $elem = $(elem), cl = $elem.attr('class').replace(/\s*OG-dropmenu-options\s*/, "");
+                        $elem.find('.number span').text(idx+1);
+                        menu.opts.push($elem.data({ 'pos': idx, 'type': cl }));
+                    });
                     menu.$dom.add = $('.OG-link-add', menu.$dom.menu);
                     menu.$dom.opt_cp = menu.$dom.opt.clone(true);
                 }

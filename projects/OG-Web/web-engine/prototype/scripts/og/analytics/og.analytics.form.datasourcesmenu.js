@@ -19,13 +19,30 @@ $.register_module({
                 wrapper = '<wrapper>', type_s = '.type', source_s = '.source',  extra_opts_s = '.extra-opts',
                 latest_s = '.latest', custom_s = '.custom', custom_val = 'Custom', date_selected_s = 'date-selected',
                 active_s = 'active', versions_s = '.versions', corrections_s = '.corrections', initialized = false,
-                default_datasource = {
-                    type:'Live',
-                    source:'Bloomberg',
-                    datasource: 'livedatasources', //other sources [marketdatasnapshots, configs]
-                    api_opts:{cache_for:5000} //other opts [{type: 'HistoricalTimeSeriesRating'}]
+                form = config.form, datasources,
+                sources = {
+                    live: {
+                        type:'Live',
+                        source:'',
+                        datasource: 'livedatasources',
+                        api_opts:{ cache_for:5000 }
+                    },
+                    snapshot: {
+                        type:'Snapshot',
+                        source:'',
+                        datasource: 'marketdatasnapshots',
+                        api_opts:{ cache_for:5000 }
+                    },
+                    historical: {
+                        type:'Historical',
+                        source:'',
+                        datasource: 'configs',
+                        api_opts:{ type: 'HistoricalTimeSeriesRating' }
+                    }
                 },
-                form = config.form, datasources = config.datasources || [default_datasource];
+                default_datasource = $.extend({}, sources.live);
+                default_datasource.source = 'Bloomberg';
+                datasources = config.datasources || [default_datasource];
 
             var add_handler = function (obj) {
                 add_row_handler(obj).html(function (html) {
@@ -38,7 +55,8 @@ $.register_module({
                 return new form.Block({
                     module: 'og.analytics.form_datasources_row_tash',
                     extras: {
-                        types: ['Live', 'Snapshot', 'Historical'].map(function (entry) {
+                        type: obj.type.toLowerCase(),
+                        type_list: ['Live', 'Snapshot', 'Historical'].map(function (entry) {
                             return {text: entry, selected: obj.type === entry};
                         })
                     },
@@ -52,10 +70,12 @@ $.register_module({
                     module: 'og.analytics.form_datasources_source_tash',
                     generator: function (handler, tmpl, data) {
                         datasource.get(obj.api_opts).pipe(function (resp) {
-                        if (resp.error) return og.dev.warn('og.analytics.DatasourcesMenu: ' + resp.error);
-                            data.source = resp.data.map(function (entry) {
-                                return {text: entry, selected: obj.source === entry};
-                            });
+                            if (resp.error) return og.dev.warn('og.analytics.DatasourcesMenu: ' + resp.error);
+                            data.source = obj.type === 'Live' ? resp.data.map(function (entry) {
+                                return { text: entry, value: entry, selected: obj.source === entry };
+                            }) : obj.type === 'Snapshot' ? resp.data[0].snapshots.map(function (entry) {
+                                return { text: entry.name, value: entry.id, selected: obj.source === entry.name };
+                            }) : {};
                             handler(tmpl(data));
                         });
                     }
@@ -159,10 +179,7 @@ $.register_module({
                     if (menu.$dom.menu)
                         menu.$dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                             .on('change', 'select', menu_handler);
-                    if (datasources.length === 1) {
-                        $('.OG-dropmenu-options', menu.$dom.menu).data('pos', 0);
-                        source_handler(0);
-                    }
+                    menu.opts.forEach(function (entry, idx) { source_handler(idx); });
                     menu.fire('initialized', [initialized = true]);
                 }
             };
@@ -180,20 +197,6 @@ $.register_module({
                 if (elem.is(custom_s)) return display_datepicker(entry);
                 if (elem.is(latest_s)) return remove_date(entry);
                 if (elem.is('button')) return menu.button_handler(elem.text());
-            };
-
-            var populate_src_options = function (entry, data) {
-                if (!menu.opts[entry]) return;
-                var source_select = $(source_s, menu.opts[entry]),
-                    type_val = $(type_s, menu.opts[entry]).val().toLowerCase();
-                if (!source_select) return;
-                if (type_val) menu.opts[entry].data('type', type_val).addClass(type_val);
-                source_select.hide();
-                (data || []).forEach(function (d) {
-                    if ($.isPlainObject(d) && 'name' in d && typeof d.name === 'string') snapshots[d.name] = d.id;
-                    // source_select.append($($option.html()).text(d.name || d));
-                });
-                source_select.show();
             };
 
             var remove_date = function (entry) {
@@ -256,9 +259,9 @@ $.register_module({
                 display_query();
             };
 
-            var type_handler = function (entry, conf) {
+            var type_handler = function (entry) {
                 if (!menu.opts[entry]) return;
-                var parent = menu.opts[entry], type_select = $(type_s, parent),
+                var parent = menu.opts[entry], type_select = $(type_s, parent), src_parent = $('.datasource', parent),
                     type_val = type_select.val().toLowerCase(), idx = query.pluck('pos').indexOf(parent.data('pos'));
                 if (type_val === default_type_txt.toLowerCase()){
                     if (menu.opts.length === 1 && query.length === 1) return remove_ext_opts(entry), reset_query(entry);
@@ -268,6 +271,13 @@ $.register_module({
                 if (parent.hasClass(parent.data('type'))) {
                     remove_entry(idx); remove_ext_opts(entry); display_query();
                 }
+                add_source_dropdown(sources[type_val]).html(function (html) {
+                    src_parent.html($(html));
+                    parent.removeClass(parent.data('type'));
+                    menu.opts[entry].data('type', type_val);
+                    parent.addClass(parent.data('type'));
+                    source_handler(parent.data('pos'));
+                });
             };
 
             form.Block.call(this, {
