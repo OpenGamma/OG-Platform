@@ -89,6 +89,7 @@ public class ViewportResults {
     return _calculationDuration;
   }
 
+  // TODO move to ResultsCell.forStaticValue()
   /**
    * Factory method that creates a grid cell for displaying a string value.
    * @param value The cell's value
@@ -99,6 +100,7 @@ public class ViewportResults {
     return new ResultsCell(value, null, null, column, null, false);
   }
 
+  // TODO move to ResultsCell.forCalculatedValue()
   /**
    * Factory method that creates a grid cell for displaying a calculated value.
    *
@@ -117,6 +119,7 @@ public class ViewportResults {
     return new ResultsCell(value, valueSpecification, history, column, executionLog, updated);
   }
 
+  // TODO move to ResultsCell.empty()
   /**
    * Factory method that returns a grid cell with no value.
    * @return An empty cell
