@@ -203,10 +203,11 @@ public class DependencyGraphGridStructure implements GridStructure {
                                         List<String> fnNames,
                                         ComputationTargetResolver computationTargetResolver,
                                         String calcConfigName) {
-      _calcConfigName = calcConfigName;
       ArgumentChecker.notNull(valueSpecs, "valueSpecs");
       ArgumentChecker.notNull(fnNames, "fnNames");
       ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
+      ArgumentChecker.notNull(calcConfigName, "calcConfigName");
+      _calcConfigName = calcConfigName;
       _computationTargetResolver = computationTargetResolver;
       _colIndex = colIndex;
       _valueSpecs = valueSpecs;
@@ -214,26 +215,26 @@ public class DependencyGraphGridStructure implements GridStructure {
     }
 
     @Override
-    public ResultsCell getResults(int rowIndex, ResultsCache cache) {
+    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type) {
       ValueSpecification valueSpec = _valueSpecs.get(rowIndex);
       switch (_colIndex) {
         case TARGET_COL:
-          return ViewportResults.objectCell(getTargetName(valueSpec.getTargetSpecification()), _colIndex);
+          return ViewportResults.objectCell(getTargetName(valueSpec.getTargetSpecification()), type);
         case TARGET_TYPE_COL:
-          return ViewportResults.objectCell(TARGET_TYPE_NAMES.get(valueSpec.getTargetSpecification().getType()), _colIndex);
+          return ViewportResults.objectCell(TARGET_TYPE_NAMES.get(valueSpec.getTargetSpecification().getType()), type);
         case VALUE_NAME_COL:
-          return ViewportResults.objectCell(valueSpec.getValueName(), _colIndex);
+          return ViewportResults.objectCell(valueSpec.getValueName(), type);
         case VALUE_COL:
           ResultsCache.Result cacheResult = cache.getResult(_calcConfigName, valueSpec, null);
           Collection<Object> history = cacheResult.getHistory();
           Object value = cacheResult.getValue();
           AggregatedExecutionLog executionLog = cacheResult.getAggregatedExecutionLog();
-          return ViewportResults.valueCell(value, valueSpec, history, executionLog, _colIndex, cacheResult.isUpdated());
+          return ViewportResults.valueCell(value, valueSpec, history, executionLog,cacheResult.isUpdated(), type);
         case FUNCTION_NAME_COL:
           String fnName = _fnNames.get(rowIndex);
-          return ViewportResults.objectCell(fnName, _colIndex);
+          return ViewportResults.objectCell(fnName, type);
         case PROPERTIES_COL:
-          return ViewportResults.objectCell(getValuePropertiesForDisplay(valueSpec.getProperties()), _colIndex);
+          return ViewportResults.objectCell(getValuePropertiesForDisplay(valueSpec.getProperties()), type);
         default: // never happen
           throw new IllegalArgumentException("Column index " + _colIndex + " is invalid");
       }

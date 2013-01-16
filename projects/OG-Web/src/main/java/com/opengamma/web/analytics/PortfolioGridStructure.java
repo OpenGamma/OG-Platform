@@ -50,8 +50,8 @@ public class PortfolioGridStructure extends MainGridStructure {
 
   /* package */ static PortfolioGridStructure create(CompiledViewDefinition compiledViewDef, ValueMappings valueMappings) {
     List<MainGridStructure.Row> rows = rows(compiledViewDef);
-    AnalyticsColumn labelColumn = new AnalyticsColumn("Label", "", null, new LabelRenderer(0, rows));
-    AnalyticsColumn quantityColumn = new AnalyticsColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(1, rows));
+    AnalyticsColumn labelColumn = new AnalyticsColumn("Label", "", null, new LabelRenderer(rows));
+    AnalyticsColumn quantityColumn = new AnalyticsColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(rows));
     AnalyticsColumnGroup fixedColumns = new AnalyticsColumnGroup("fixed", ImmutableList.of(labelColumn, quantityColumn));
     Map<String, List<ColumnKey>> analyticsColumns = buildColumns(compiledViewDef.getViewDefinition());
     return new PortfolioGridStructure(fixedColumns,

@@ -44,7 +44,7 @@ public class AnalyticsColumnsJsonWriterTest {
   private static class TestCellRenderer implements AnalyticsColumn.CellRenderer {
 
     @Override
-    public ResultsCell getResults(int rowIndex, ResultsCache cache) {
+    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> type) {
       return null;
     }
   }

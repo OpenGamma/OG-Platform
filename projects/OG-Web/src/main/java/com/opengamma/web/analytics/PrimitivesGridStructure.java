@@ -41,7 +41,7 @@ public class PrimitivesGridStructure extends MainGridStructure {
 
   /* package */ static PrimitivesGridStructure create(CompiledViewDefinition compiledViewDef, ValueMappings valueMappings) {
     List<MainGridStructure.Row> rows = rows(compiledViewDef);
-    AnalyticsColumn labelColumn = new AnalyticsColumn("Label", "", String.class, new LabelRenderer(0, rows));
+    AnalyticsColumn labelColumn = new AnalyticsColumn("Label", "", String.class, new LabelRenderer(rows));
     AnalyticsColumnGroup columnGroup = new AnalyticsColumnGroup("fixed", ImmutableList.of(labelColumn));
     Map<String, List<ColumnKey>> columns = buildColumns(compiledViewDef.getViewDefinition());
     return new PrimitivesGridStructure(ImmutableList.of(columnGroup), columns, compiledViewDef, valueMappings, rows);
