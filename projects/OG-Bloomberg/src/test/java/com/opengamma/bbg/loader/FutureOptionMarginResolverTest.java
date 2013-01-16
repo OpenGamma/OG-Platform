@@ -28,13 +28,13 @@ public class FutureOptionMarginResolverTest {
   }
 
   @Test
-  public void testLiffeIsNotMargined() {
-    checkResult("LIF", false);
+  public void testLiffeIsMargined() {
+    checkResult("LIF", true);
   }
 
   @Test
-  public void testEurexIsNotMargined() {
-    checkResult("EUX", false);
+  public void testEurexIsMargined() {
+    checkResult("EUX", true);
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)

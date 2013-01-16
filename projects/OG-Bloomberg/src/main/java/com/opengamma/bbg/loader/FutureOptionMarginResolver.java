@@ -20,11 +20,11 @@ public class FutureOptionMarginResolver {
       "CME", true);
 
   /**
-   * European exchange codes - none should be margined
+   * European exchange codes - should all be margined
    */
   private static final Map<String, Boolean> EU_EXCHANGE_CODE_MARGIN_MAPPING = ImmutableMap.of(
-      "LIF", false,
-      "EUX", false);
+      "LIF", true,
+      "EUX", true);
 
   /**
    * Combined mapping of US & EU exchange codes. (Note we can't use ImmutableMap.of(...) directly
