@@ -175,12 +175,17 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
    * @return The spot asset value requirement if the future has a spot asset id, null otherwise
    */
   protected ValueRequirement getSpotAssetRequirement(final FutureSecurity security) {
-    final ExternalId spotAssetId = getSpotAssetId(security);
-    if (spotAssetId == null) {
+    try {
+      final ExternalId spotAssetId = getSpotAssetId(security);
+      if (spotAssetId == null) {
+        return null;
+      }
+      final ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, spotAssetId);
+      return req;
+    } catch (final UnsupportedOperationException e) {
+      s_logger.info(e.getMessage());
       return null;
     }
-    final ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, spotAssetId);
-    return req;
   }
 
   /**
