@@ -7,8 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, floating = "floatingspreadirleg." ,
-            fixed = "fixedinterestrateleg.";
+            var constructor = this, form, ui = og.common.util.ui, pay_block, receive_block, pay_select, recieve_select;
             if(config) {data = config; data.id = config.trade.uniqueId;}
             else {data = {security: {type: "SwapSecurity", name: "SwapSecurity ABC", 
                 regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};} 
@@ -29,8 +28,16 @@ $.register_module({
                         extras: {trade: data.security.tradeDate, maturity: data.security.maturityDate, 
                             effective: data.security.effectiveDate}
                     }),
-                    new og.blotter.forms.blocks.Fixedleg({form: form, data: data, leg: 'recieveLeg.'}),
-                    new og.blotter.forms.blocks.Floatingleg({form: form, data: data, leg: 'pagLeg.'}),
+                    pay_select = new ui.Dropdown({
+                        form: form, placeholder: 'Select Swap Type',
+                        data_generator: function (handler) {handler(og.blotter.util.swap_types);}
+                    }),
+                    pay_block = new og.blotter.forms.blocks.Fixedleg({form: form, data: data, leg: 'receiveLeg.'}),
+                    recieve_select = new ui.Dropdown({
+                        form: form, placeholder: 'Select Swap Type',
+                        data_generator: function (handler) {handler(og.blotter.util.swap_types);}
+                    }),
+                    receive_block = new og.blotter.forms.blocks.Floatingleg({form: form, data: data, leg: 'pagLeg.'}),
                     new og.common.util.ui.Attributes({form: form, attributes: data.attributes})
                 );
                 form.dom();

@@ -66,6 +66,12 @@ $.register_module({
                 type: "OtcTrade",
                 counterparty: 'ABC Counterparty'
             },
+            swap_types : [
+                {text:'FLoating Interest Rate Leg', value:'floatingInterestRateLeg'},
+                {text:'FLoating Gearing Interest Rate Leg', value:'floatingGearingIRLeg'},
+                {text:'FLoating Spread Interest Rate Leg', value:'floatingSpreadIRLeg'},
+                {text:'Fixed Interest Rate Leg', value:'fixedInterestRateLeg'},
+            ],
             /*Util fake data */
             IDS : [
                 {name: 'ActivFeed Ticker', value: 'ACTIVFEED_TICKER'},
