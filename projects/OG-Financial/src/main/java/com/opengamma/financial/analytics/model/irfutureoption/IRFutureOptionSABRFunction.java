@@ -28,6 +28,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -61,8 +62,10 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -180,6 +183,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     final String curveCalculationConfig = Iterables.getOnlyElement(curveCalculationConfigs);
     final String surfaceName = Iterables.getOnlyElement(surfaceNames) + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final Trade trade = target.getTrade();
+    Security security = trade.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(trade.getSecurity());
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(getCurveRequirement(trade, curveCalculationConfig, context));
@@ -188,6 +192,17 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
       return null;
     }
     requirements.add(surfaceRequirement);
+    final SecuritySource secSource = context.getSecuritySource();
+    Security secFromIdBundle = secSource.getSingle(security.getExternalIdBundle());
+    if (!(secFromIdBundle instanceof IRFutureOptionSecurity)) {
+      //  s_logger.error("Loader error: " + secFromIdBundle.toString() + " has been loaded as an InterestRateFutureOption.");
+      return null;
+    }
+    Security underlyingSecurityFromIdBundle = secSource.getSingle(ExternalIdBundle.of(((IRFutureOptionSecurity) security).getUnderlyingId()));
+    if (!(underlyingSecurityFromIdBundle instanceof InterestRateFutureSecurity)) {
+      // s_logger.error("Loader error: " + security.getName() + ", supposedly an IRateFutureOption has an underlying that is not an IRFuture: " + underlyingSecurityFromIdBundle.getName());
+      return null;
+    }    
     final Set<ValueRequirement> timeSeriesRequirement = getTimeSeriesRequirement(trade);
     if (timeSeriesRequirement == null) {
       return null;
