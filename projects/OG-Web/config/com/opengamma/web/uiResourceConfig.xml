@@ -288,6 +288,7 @@
     <fragment>/scripts/og/common/util/og.common.util.hashqueue.js</fragment>
     <fragment>/scripts/og/common/util/og.common.util.history.js</fragment>
     <fragment>/scripts/og/common/util/og.common.util.date.js</fragment>
+    <fragment>/scripts/og/common/util/og.common.util.scrollbar_size.js</fragment>
   </bundle>
   <bundle id="util_ui.js">
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.block.js</fragment>
