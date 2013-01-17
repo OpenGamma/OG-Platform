@@ -8,19 +8,6 @@ $.register_module({
     obj: function () {
         var module = this, constructor, menus = [], portfolios_dropdown, viewdefinitions_dropdown, datasources_menu,
             temporal_menu, aggregation_menu, filters_menu, query, url_config,
-            events = {
-                focus: 'focus',
-                focused:'focused',
-                open: 'open',
-                opened: 'opened',
-                close: 'close',
-                closed: 'closed',
-                closeall: 'closeall',
-                selected: 'selected',
-                cancelled: 'cancelled',
-                replay: 'replay',
-                reset:'reset'
-            },
             tashes = {
                 form_container:  'og.analytics.form_tash'
             },
@@ -33,7 +20,7 @@ $.register_module({
                 selector: '.' + selectors.form_container
             });
 
-        var init = function (callback) {
+        var init = function (config) {
             form.on('form:load', function () {
                 (new og.common.util.ui.DropMenu({cntr: $('.og-temporal', dom.form_container)}));
                 (new og.common.util.ui.DropMenu({cntr: $('.og-filters', dom.form_container)}));
@@ -41,12 +28,13 @@ $.register_module({
             form.on('click', '.og-load', function () {
                 var compilation = form.compile();
                 query = {
-                    aggregators: compilation.aggregators,
-                    providers: compilation.providers,
+                    aggregators: compilation.data.aggregators,
+                    providers: compilation.data.providers,
                     viewdefinition: 'DbCfg~2197901'
                 };
-                console.log(compilation);
+                console.log(query.providers);
             });
+
             form.children.push(
                 (new og.analytics.form.Portfolios({form:form})).block,
                 (new og.analytics.form.ViewDefinitions({form:form})).block,
@@ -62,8 +50,8 @@ $.register_module({
             );
         };
 
-        constructor = function (callback) {
-            return og.views.common.layout.main.allowOverflow('north'), init(callback);
+        constructor = function (config) {
+            return og.views.common.layout.main.allowOverflow('north'), init(config);
         };
 
         constructor.prototype.fire = og.common.events.fire;

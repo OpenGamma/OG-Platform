@@ -36,17 +36,16 @@ $.register_module({
                     historical: {
                         type:'Historical',
                         source:'',
+                        date:'',
                         datasource: 'configs',
                         api_opts:{ type: 'HistoricalTimeSeriesRating' }
                     }
-                },
-                default_datasource = $.extend({}, sources.live);
-                default_datasource.source = 'Bloomberg';
-                datasources = config.datasources || [default_datasource];
+                };
 
             var add_handler = function (obj) {
                 add_row_handler(obj).html(function (html) {
                     menu.add_handler($(html));
+                    menu.opts[obj.pos].data('type', obj.type.toLowerCase());
                     source_handler(obj.pos);
                 });
             };
@@ -74,8 +73,14 @@ $.register_module({
                             data.source = obj.type === 'Live' ? resp.data.map(function (entry) {
                                 return { text: entry, value: entry, selected: obj.source === entry };
                             }) : obj.type === 'Snapshot' ? resp.data[0].snapshots.map(function (entry) {
-                                return { text: entry.name, value: entry.id, selected: obj.source === entry.name };
-                            }) : {};
+                                return { text: entry.name, value: entry.id, selected: obj.source === entry.id };
+                            }) : obj.type === 'Historical' ? ((data.historical = true), resp.data.data.map(
+                                function (entry) {
+                                    var arr = entry.split('|');
+                                    return { text: arr[1], value: arr[0], selected: obj.source === arr[0]};
+                            })) : {};
+                            data.select_default = obj.source === '';
+                            data.date = 'date' in obj ? obj.date : null;
                             handler(tmpl(data));
                         });
                     }
@@ -113,12 +118,12 @@ $.register_module({
                     dateFormat:'yy-mm-dd',
                     onSelect: function () {
                         date_handler(entry);
-                        widget.off(events.preventblurkill);
+                        widget.off('mouseup.prevent_blurkill');
                     }
                 })
                 .datepicker('show');
-                widget = custom_dp.datepicker('widget').on(events.preventblurkill, function(event) {
-                    menu.fire(events.open);
+                widget = custom_dp.datepicker('widget').on('mouseup.prevent_blurkill', function(event) {
+                    menu.fire('dropmenu:open');
                 });
             };
 
@@ -130,7 +135,7 @@ $.register_module({
                         arr[i++] = entry;
                     });
                     $query.html(arr.reduce(function (a, v) {
-                        return a += v.type ? menu.capitalize(v.type) + ":" + v.src : menu.capitalize(v);
+                        return a += v.type ? menu.capitalize(v.type) + ":" + v.txt : menu.capitalize(v);
                     }, ''));
                 } else $query.text(default_sel_txt);
             };
@@ -151,7 +156,7 @@ $.register_module({
                     var obj = {}, val = entry.type.toLowerCase();
                     switch (val) {
                         case 'live': obj['marketDataType'] = val, obj['source'] = entry.src; break;
-                        case 'snapshot': obj['marketDataType'] = val, obj['snapshotId'] = snapshots[entry.src]; break;
+                        case 'snapshot': obj['marketDataType'] = val, obj['snapshotId'] = entry.src; break;
                         case 'historical':
                             if (entry.date) {
                                 obj['marketDataType'] = 'fixedHistorical';
@@ -165,13 +170,6 @@ $.register_module({
                 return arr;
             };
 
-            var get_snapshot = function (id) {
-                if (!id) return;
-                return Object.keys(snapshots).filter(function(key) {
-                    return snapshots[key] === id;
-                })[0];
-            };
-
             var init = function (config) {
                 menu = new og.analytics.form.DropMenu({cntr: $('.OG-analytics-form .og-datasources')});
                 if (menu.$dom) {
@@ -179,7 +177,7 @@ $.register_module({
                     if (menu.$dom.menu)
                         menu.$dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                             .on('change', 'select', menu_handler);
-                    menu.opts.forEach(function (entry, idx) { source_handler(idx); });
+                    menu.opts.forEach(function (entry, idx) { source_handler(idx, true); });
                     menu.fire('initialized', [initialized = true]);
                 }
             };
@@ -244,18 +242,36 @@ $.register_module({
                 source_select.show();
             };
 
-            var source_handler = function (entry) {
+            var reconstruct_datasources = function (data) {
+                return data.map(function (entry) { // TODO AG: refactor.
+                    var obj;
+                    switch (entry.marketDataType) {
+                        case 'live': obj = $.extend({}, sources['live'], { source: entry.source }); break;
+                        case 'snapshot': obj = $.extend({}, sources['snapshot'], { source: entry.snapshotId }); break;
+                        case 'latestHistorical':
+                            obj = $.extend({}, sources['historical'], { source: entry.resolverKey }); break;
+                        case 'fixedHistorical':
+                            obj = $.extend({}, sources['historical'], {source: entry.resolverKey, date: entry.date});
+                            break;
+                        //no default
+                    }
+                    return obj;
+                });
+            };
+
+            var source_handler = function (entry, preload) {
                 if (!menu.opts[entry]) return;
                 var val, src, option, sel_pos = menu.opts[entry].data('pos'),
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase(),
                     source_select = $(source_s, menu.opts[entry]),
                     source_val = source_select.val(),
+                    source_txt = source_select.find("option:selected").text();
                     idx = query.pluck('pos').indexOf(sel_pos);
                 if (source_val === default_sel_txt) {
                     return remove_entry(idx), display_query(), enable_extra_options(entry, false);
-                } else if (~idx) query[idx] = {pos:sel_pos, type:type_val, src:source_val};
-                else query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:source_val});
-                enable_extra_options(entry, true);
+                } else if (~idx) query[idx] = {pos:sel_pos, type:type_val, src:source_val, txt: source_txt};
+                else query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:source_val, txt: source_txt});
+                if (!preload) enable_extra_options(entry, true);
                 display_query();
             };
 
@@ -273,12 +289,33 @@ $.register_module({
                 }
                 add_source_dropdown(sources[type_val]).html(function (html) {
                     src_parent.html($(html));
-                    parent.removeClass(parent.data('type'));
                     menu.opts[entry].data('type', type_val);
                     parent.addClass(parent.data('type'));
                     source_handler(parent.data('pos'));
                 });
             };
+
+            default_datasource = $.extend({}, sources.live);
+            default_datasource.source = 'Bloomberg';
+            // datasources = config.datasource ? config.datasource : [default_datasource]
+            datasources = config.datasource ? config.datasource : reconstruct_datasources([{
+                    marketDataType:'live',
+                    source: 'Bloomberg'
+                },
+                {
+                    marketDataType:'snapshot',
+                    snapshotId:'DbSnp~35365~1'
+                },
+                {
+                    marketDataType:'latestHistorical',
+                    resolverKey:'DbCfg~1047577'
+                },
+                {
+                    date:'2013-01-04',
+                    marketDataType:'fixedHistorical',
+                    resolverKey:'DbCfg~991626'
+                }
+            ]);
 
             form.Block.call(this, {
                 data: { providers: [] },

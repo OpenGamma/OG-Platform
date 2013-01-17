@@ -1,12 +1,14 @@
 <select class="source">
-  <option {{#unless this.selected}}selected{{/unless}}>select data source...</option>
+  <option>select data source...</option>
   {{#each source}}
     <option {{#if this.selected}}selected{{/if}} value="{{this.value}}">{{this.text}}</option>
   {{/each}}
 </select>
-{{#if historical}}
+{{#if this.historical}}
   <div class="extra-opts">
-    <input class="latest" type="button" value="Latest" disabled="true" />
-    <input class="OG-js-datetimepicker custom" type="button" value="{{date}}" disabled="true" />
+    <input class="latest {{#unless date}}active{{/unless}}"
+      type="button" value="Latest" />
+    <input class="OG-js-datetimepicker custom {{#if date}}active date-selected{{/if}}" type="button"
+      {{#if date}}value="{{date}}"{{else}}value="Custom"{{/if}} />
   </div>
 {{/if}}
