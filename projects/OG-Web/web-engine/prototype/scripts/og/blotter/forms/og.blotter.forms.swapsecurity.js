@@ -8,8 +8,8 @@ $.register_module({
     obj: function () {   
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, pay_block, receive_block, pay_select, receive_select,
-                pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), pay_leg = 'pagLeg.', 
-                receive_leg = 'receiveLeg.', $pay_select, $receive_select;
+                pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), pay_leg = 'security.payLeg.', 
+                receive_leg = 'security.receiveLeg.', $pay_select, $receive_select;
             if(config) {data = config; data.id = config.trade.uniqueId;}
             else {data = {security: {type: "SwapSecurity", name: "SwapSecurity ABC", 
                 regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};} 
@@ -59,12 +59,12 @@ $.register_module({
                     og.api.rest.blotter.trades.put(result.data);
                 });
                 form.on('change', '#' + pay_select.id, function (event) {
-                    swap_leg({type: event.target.value, index: pay_index, leg: pay_leg});
+                    swap_leg({type: event.target.value, index: pay_index, leg: pay_leg, child: 4});
                     og.blotter.util.toggle_fixed($receive_select, event.target.value);
 
                 });
                 form.on('change', '#' + receive_select.id,  function (event) {
-                    swap_leg({type: event.target.value, index: receive_index, leg: receive_leg});
+                    swap_leg({type: event.target.value, index: receive_index, leg: receive_leg, child: 6});
                     og.blotter.util.toggle_fixed($pay_select, event.target.value);
                 });
             };
@@ -73,7 +73,7 @@ $.register_module({
                 if(!swap.type.length) {
                     new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});
                 }
-                else if(swap.type.indexOf('floating') == -1){
+                else if(!~swap.type.indexOf('floating')){
                     new_block = new og.blotter.forms.blocks.Fixedleg({
                         form: form, data: data, leg: swap.leg, index: swap.index
                     });
@@ -86,6 +86,7 @@ $.register_module({
                 new_block.html(function (html) {
                     $('#' + swap.index).replaceWith(html);
                 });
+                form.children[swap.child] = new_block;
             };
             constructor.load();
             constructor.submit = function () {

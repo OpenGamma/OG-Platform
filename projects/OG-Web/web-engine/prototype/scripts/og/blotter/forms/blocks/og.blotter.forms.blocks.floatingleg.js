@@ -42,7 +42,13 @@ $.register_module({
                         form: form, resource: 'blotter.frequencies', index:  leg + 'offsetFixing',
                         value: data.offsetFixing, placeholder: 'Select Offset Fixing'
                     })
-                ]
+                ],
+                processor: function (data) {
+                    var path = leg.split('.');
+                    path.pop();
+                    path.reduce(function (acc, val) {return acc[val];},data)['eom'] = 
+                        og.blotter.util.get_checkbox(leg + 'eom');
+                }
             });
         };
         Floatingleg.prototype = new Block(); // inherit Block prototype

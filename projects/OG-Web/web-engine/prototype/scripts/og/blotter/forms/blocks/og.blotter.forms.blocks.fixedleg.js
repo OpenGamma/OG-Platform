@@ -27,7 +27,13 @@ $.register_module({
                         index: leg + 'frequency',
                         value: data.frequency, placeholder: 'Select Frequency'
                     })
-                ]
+                ],
+                processor: function (data) {
+                    var path = leg.split('.');
+                    path.pop();
+                    path.reduce(function (acc, val) {return acc[val];},data)['eom'] = 
+                        og.blotter.util.get_checkbox(leg + 'eom');
+                }
             });
         };
         Fixedleg.prototype = new Block(); // inherit Block prototype
