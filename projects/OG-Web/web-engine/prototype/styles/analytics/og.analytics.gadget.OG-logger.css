@@ -34,3 +34,21 @@
 .OG-logger .og-WARN {
     color: #e58600;
 }
+
+/* notification */
+.OG-logger .og-message {
+    background-color: #fdf080;
+    color: #656033;
+    display: none;
+    left: 0;
+    margin: 1px 0 1px 1px;
+    padding: 2px 5px;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.OG-logger .og-message .og-link {
+    cursor: pointer;
+    text-decoration: underline;
+}
