@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.ExerciseDecisionType;
+import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -31,6 +33,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.ExerciseTypeAnalyticsVisitorAdapter;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
@@ -222,26 +225,27 @@ public abstract class EquityVanillaBarrierOptionBlackFunction extends EquityOpti
     }
 
     // Switch  on type
+    final ExerciseDecisionType exerciseType = barrierOption.getExerciseType().accept(ExerciseTypeAnalyticsVisitorAdapter.getInstance());
     switch (bInOut) {
       case KNOCK_OUT:
         // Long a linear at strike, short a linear at barrier
-        final EquityIndexOption longlinearK = new EquityIndexOption(ttm, ttm, strike, isCall, ccy, ptVal);
-        final EquityIndexOption shortLinearB = new EquityIndexOption(ttm, ttm, barrier, isCall, ccy, -ptVal);
+        final EquityIndexOption longlinearK = new EquityIndexOption(ttm, ttm, strike, isCall, ccy, ptVal, exerciseType, SettlementType.PHYSICAL);
+        final EquityIndexOption shortLinearB = new EquityIndexOption(ttm, ttm, barrier, isCall, ccy, -ptVal, exerciseType, SettlementType.PHYSICAL);
         vanillas.add(longlinearK);
         vanillas.add(shortLinearB);
         // Short a binary of size, barrier - strike. Modelled as call spread struck around strike + oh, with spread of 2*eps
-        final EquityIndexOption shortNear = new EquityIndexOption(ttm, ttm, nearStrike, isCall, ccy, -1 * ptVal * size);
-        final EquityIndexOption longFar = new EquityIndexOption(ttm, ttm, farStrike, isCall, ccy, ptVal * size);
+        final EquityIndexOption shortNear = new EquityIndexOption(ttm, ttm, nearStrike, isCall, ccy, -1 * ptVal * size, exerciseType, SettlementType.PHYSICAL);
+        final EquityIndexOption longFar = new EquityIndexOption(ttm, ttm, farStrike, isCall, ccy, ptVal * size, exerciseType, SettlementType.PHYSICAL);
         vanillas.add(shortNear);
         vanillas.add(longFar);
         break;
       case KNOCK_IN:
         // Long a linear at barrier
-        final EquityIndexOption longLinearB = new EquityIndexOption(ttm, ttm, barrier, isCall, ccy, ptVal);
+        final EquityIndexOption longLinearB = new EquityIndexOption(ttm, ttm, barrier, isCall, ccy, ptVal, exerciseType, SettlementType.PHYSICAL);
         vanillas.add(longLinearB);
         // Long a binary of size, barrier - strike. Modelled as call spread struck around strike + oh, with spread of 2*eps
-        final EquityIndexOption longNear = new EquityIndexOption(ttm, ttm, nearStrike, isCall, ccy, ptVal * size);
-        final EquityIndexOption shortFar = new EquityIndexOption(ttm, ttm, farStrike, isCall, ccy, -1 * ptVal * size);
+        final EquityIndexOption longNear = new EquityIndexOption(ttm, ttm, nearStrike, isCall, ccy, ptVal * size, exerciseType, SettlementType.PHYSICAL);
+        final EquityIndexOption shortFar = new EquityIndexOption(ttm, ttm, farStrike, isCall, ccy, -1 * ptVal * size, exerciseType, SettlementType.PHYSICAL);
         vanillas.add(longNear);
         vanillas.add(shortFar);
         break;

@@ -40,24 +40,8 @@ public class DependencyGraphGridStructure implements GridStructure {
   private static final int FUNCTION_NAME_COL = 4;
   private static final int PROPERTIES_COL = 5;
 
-  /** The fixed set of columns used in all dependency graph grids. */
-  public static final AnalyticsColumnGroups COLUMN_GROUPS = new AnalyticsColumnGroups(ImmutableList.of(
-      // fixed column group with one column for the row label
-      new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
-          column("Target"))),
-      // non-fixed columns
-      new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
-          column("Type"),
-          column("Value Name"),
-          column("Value", null),
-          column("Function"),
-          column("Properties")))));
-
-  /**
-   * Map of target types to displayable names.
-   */
-  public static final ComputationTargetTypeMap<String> TARGET_TYPE_NAMES = createTargetTypeNames();
-
+  /** Map of target types to displayable names. */
+  private static final ComputationTargetTypeMap<String> TARGET_TYPE_NAMES = createTargetTypeNames();
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
   private final List<ValueSpecification> _valueSpecs;
   /** Function names for all rows in the grid in row index order. */
@@ -68,13 +52,14 @@ public class DependencyGraphGridStructure implements GridStructure {
   private final AnalyticsNode _root;
   /** The calculation configuration name. */
   private final String _calcConfigName;
+  /** The columns in the grid. */
+  private final AnalyticsColumnGroups _columnGroups;
 
-  /* package */ DependencyGraphGridStructure(final AnalyticsNode root,
-                                             final String calcConfigName,
-                                             final List<ValueSpecification> valueSpecs,
-                                             final List<String> fnNames,
-                                             final ComputationTargetResolver targetResolver) {
-
+  /* package */ DependencyGraphGridStructure(AnalyticsNode root,
+                                             String calcConfigName,
+                                             List<ValueSpecification> valueSpecs,
+                                             List<String> fnNames,
+                                             ComputationTargetResolver targetResolver) {
     ArgumentChecker.notNull(root, "root");
     ArgumentChecker.notNull(valueSpecs, "valueSpecs");
     ArgumentChecker.notNull(fnNames, "fnNames");
@@ -84,6 +69,17 @@ public class DependencyGraphGridStructure implements GridStructure {
     _valueSpecs = Collections.unmodifiableList(valueSpecs);
     _fnNames = Collections.unmodifiableList(fnNames);
     _computationTargetResolver = targetResolver;
+    _columnGroups = new AnalyticsColumnGroups(ImmutableList.of(
+        // fixed column group with one column for the row label
+        new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
+            column("Target", 0))),
+        // non-fixed columns
+        new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
+            column("Type", 1),
+            column("Value Name", 2),
+            column("Value", null, 3),
+            column("Function", 4),
+            column("Properties", 5)))));
   }
 
   /**
@@ -95,143 +91,58 @@ public class DependencyGraphGridStructure implements GridStructure {
   }
 
   /**
-   * Builds the results for a viewport given a set of results for the entire grid and a definition of the viewport.
+   * Builds the results for a viewport.
+   *
    * @param viewportDefinition Defines the viewport
    * @param cache Cache of results for the grid
-   * @param calcConfigName Calculation configuration used when calculating the dependency graph
-   * @return The results for the rows in the viewport
+   * @param previousResults The results before the latest calculation cycle, possibly null
+   * @return The results for the cells in the viewport and the new viewport state
    */
-  /* package */ List<ViewportResults.Cell> createResultsForViewport(final ViewportDefinition viewportDefinition,
-                                                                    final ResultsCache cache,
-                                                                    final String calcConfigName) {
-    final List<ViewportResults.Cell> results = Lists.newArrayList();
-    for (final GridCell cell : viewportDefinition) {
-      final int rowIndex = cell.getRow();
-      final ValueSpecification spec = _valueSpecs.get(rowIndex);
-      final ResultsCache.Result cacheResult = cache.getResult(calcConfigName, spec, null);
-      final Collection<Object> history = cacheResult.getHistory();
-      final Object value = cacheResult.getValue();
-      final AggregatedExecutionLog executionLog = cacheResult.getAggregatedExecutionLog();
-      final String fnName = _fnNames.get(rowIndex);
-      results.add(createValueForColumn(cell.getColumn(), spec, fnName, value, history, executionLog));
+  /* package */ Pair<ViewportResults, Viewport.State> createResults(ViewportDefinition viewportDefinition,
+                                                                    ResultsCache cache,
+                                                                    ViewportResults previousResults) {
+    List<ResultsCell> results = Lists.newArrayList();
+    for (GridCell cell : viewportDefinition) {
+      AnalyticsColumn column = _columnGroups.getColumn(cell.getColumn());
+      results.add(column.getResults(cell.getRow(), cache));
     }
-    return results;
-  }
-
-  /**
-   * Builds a the result for a single grid cell.
-   *
-   * @param colIndex Index of the column in the grid
-   * @param valueSpec The specifications of the cell's value
-   * @param fnName The name of the function that calculated the cell's value
-   * @param value The cell's value
-   * @param executionLog Log generated when the value was calculated
-   * @return Cell containing the result and possibly history
-   */
-  /* package */ ViewportResults.Cell createValueForColumn(final int colIndex,
-                                                          final ValueSpecification valueSpec,
-                                                          final String fnName,
-                                                          final Object value,
-                                                          final Collection<Object> history,
-                                                          final AggregatedExecutionLog executionLog) {
-    switch (colIndex) {
-      case TARGET_COL:
-        return ViewportResults.objectCell(getTargetName(valueSpec.getTargetSpecification()), colIndex);
-      case TARGET_TYPE_COL:
-        return ViewportResults.objectCell(TARGET_TYPE_NAMES.get(valueSpec.getTargetSpecification().getType()), colIndex);
-      case VALUE_NAME_COL:
-        return ViewportResults.objectCell(valueSpec.getValueName(), colIndex);
-      case VALUE_COL:
-        return ViewportResults.valueCell(value, valueSpec, history, executionLog, colIndex);
-      case FUNCTION_NAME_COL:
-        return ViewportResults.objectCell(fnName, colIndex);
-      case PROPERTIES_COL:
-        return ViewportResults.objectCell(getValuePropertiesForDisplay(valueSpec.getProperties()), colIndex);
-      default: // never happen
-        throw new IllegalArgumentException("Column index " + colIndex + " is invalid");
-    }
-  }
-
-  private static ComputationTargetTypeMap<String> createTargetTypeNames() {
-    final ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<String>();
-    map.put(ComputationTargetType.PORTFOLIO_NODE, "Agg");
-    map.put(ComputationTargetType.POSITION, "Pos");
-    map.put(ComputationTargetType.SECURITY, "Sec");
-    map.put(ComputationTargetType.ANYTHING, "Prim");
-    map.put(ComputationTargetType.NULL, "Prim");
-    map.put(ComputationTargetType.TRADE, "Trade");
-    return map;
-  }
-
-  /**
-   * @param targetSpec Specification of the target for a grid row
-   * @return The name of the target
-   */
-  private String getTargetName(final ComputationTargetSpecification targetSpec) {
-    final ComputationTarget target = _computationTargetResolver.resolve(targetSpec, VersionCorrection.LATEST);
-    if (target != null) {
-      return target.getName();
+    ViewportResults newResults = new ViewportResults(results,
+                                                     viewportDefinition,
+                                                     _columnGroups,
+                                                     cache.getLastCalculationDuration());
+    Viewport.State state;
+    if (previousResults != null && results.equals(previousResults.getResults())) {
+      state = Viewport.State.STALE_DATA;
     } else {
-      final UniqueId uid = targetSpec.getUniqueId();
-      if (uid != null) {
-        return uid.toString();
-      } else {
-        return targetSpec.getType().toString();
-      }
+      state = Viewport.State.FRESH_DATA;
     }
+    return Pair.of(newResults, state);
   }
 
   /**
-   * Formats a set of {@link ValueProperties} for display in the grid
-   * @param properties The value properties
-   * @return A formatted version of the properties
-   */
-  /* package */ static String getValuePropertiesForDisplay(final ValueProperties properties) {
-    final StringBuilder sb = new StringBuilder();
-    boolean isFirst = true;
-    for (final String property : properties.getProperties()) {
-      if (ValuePropertyNames.FUNCTION.equals(property)) {
-        continue;
-      }
-      if (isFirst) {
-        isFirst = false;
-      } else {
-        sb.append("; ");
-      }
-      sb.append(property).append("=");
-      final Set<String> propertyValues = properties.getValues(property);
-      if (propertyValues.isEmpty()) {
-        sb.append("*");
-      } else {
-        boolean isFirstValue = true;
-        for (final String value : propertyValues) {
-          if (isFirstValue) {
-            isFirstValue = false;
-          } else {
-            sb.append(", ");
-          }
-          sb.append(value);
-        }
-      }
-    }
-    return sb.toString();
-  }
-
-  /**
+   *
    * @param header The column header string
+   * @param colIndex The column index
    * @return A column for displaying a string value
    */
-  private static AnalyticsColumn column(final String header) {
-    return column(header, String.class);
+  private AnalyticsColumn column(String header, int colIndex) {
+    return column(header, String.class, colIndex);
   }
 
   /**
+   *
    * @param header The column header string
    * @param type The type of value the column contains
+   * @param colIndex The column index
    * @return A column for displaying values of the specified type
    */
-  private static AnalyticsColumn column(final String header, final Class<?> type) {
-    return new AnalyticsColumn(header, header, type);
+  private AnalyticsColumn column(String header, Class<?> type, int colIndex) {
+    DependencyGraphCellRenderer renderer = new DependencyGraphCellRenderer(colIndex,
+                                                                           _valueSpecs,
+                                                                           _fnNames,
+                                                                           _computationTargetResolver,
+                                                                           _calcConfigName);
+    return new AnalyticsColumn(header, header, type, renderer);
   }
 
   @Override
@@ -241,20 +152,20 @@ public class DependencyGraphGridStructure implements GridStructure {
 
   @Override
   public int getColumnCount() {
-    return COLUMN_GROUPS.getColumnCount();
+    return _columnGroups.getColumnCount();
   }
 
   @Override
   public AnalyticsColumnGroups getColumnStructure() {
-    return COLUMN_GROUPS;
+    return _columnGroups;
   }
 
   @Override
-  public Pair<String, ValueSpecification> getTargetForCell(final int row, final int col) {
+  public Pair<String, ValueSpecification> getTargetForCell(int row, int col) {
     if (_calcConfigName == null || col != VALUE_COL) {
       return null;
     }
-    final ValueSpecification valueSpec = _valueSpecs.get(row);
+    ValueSpecification valueSpec = _valueSpecs.get(row);
     return valueSpec != null ? Pair.of(_calcConfigName, valueSpec) : null;
   }
 
@@ -263,5 +174,125 @@ public class DependencyGraphGridStructure implements GridStructure {
    */
   public AnalyticsNode getRoot() {
     return _root;
+  }
+
+  private static ComputationTargetTypeMap<String> createTargetTypeNames() {
+    ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<>();
+    map.put(ComputationTargetType.PORTFOLIO_NODE, "Agg");
+    map.put(ComputationTargetType.POSITION, "Pos");
+    map.put(ComputationTargetType.SECURITY, "Sec");
+    map.put(ComputationTargetType.ANYTHING, "Prim");
+    map.put(ComputationTargetType.NULL, "Prim");
+    map.put(ComputationTargetType.TRADE, "Trade");
+    return map;
+  }
+
+  private static class DependencyGraphCellRenderer implements AnalyticsColumn.CellRenderer {
+
+    private final int _colIndex;
+    private final List<ValueSpecification> _valueSpecs;
+    private final List<String> _fnNames;
+    /** For looking up calculation targets using their specification. */
+    private final ComputationTargetResolver _computationTargetResolver;
+    /** The calculation configuration name. */
+    private final String _calcConfigName;
+
+
+    private DependencyGraphCellRenderer(int colIndex,
+                                        List<ValueSpecification> valueSpecs,
+                                        List<String> fnNames,
+                                        ComputationTargetResolver computationTargetResolver,
+                                        String calcConfigName) {
+      _calcConfigName = calcConfigName;
+      ArgumentChecker.notNull(valueSpecs, "valueSpecs");
+      ArgumentChecker.notNull(fnNames, "fnNames");
+      ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
+      _computationTargetResolver = computationTargetResolver;
+      _colIndex = colIndex;
+      _valueSpecs = valueSpecs;
+      _fnNames = fnNames;
+    }
+
+    @Override
+    public ResultsCell getResults(int rowIndex, ResultsCache cache) {
+      ValueSpecification valueSpec = _valueSpecs.get(rowIndex);
+      switch (_colIndex) {
+        case TARGET_COL:
+          return ViewportResults.objectCell(getTargetName(valueSpec.getTargetSpecification()), _colIndex);
+        case TARGET_TYPE_COL:
+          return ViewportResults.objectCell(TARGET_TYPE_NAMES.get(valueSpec.getTargetSpecification().getType()), _colIndex);
+        case VALUE_NAME_COL:
+          return ViewportResults.objectCell(valueSpec.getValueName(), _colIndex);
+        case VALUE_COL:
+          ResultsCache.Result cacheResult = cache.getResult(_calcConfigName, valueSpec, null);
+          Collection<Object> history = cacheResult.getHistory();
+          Object value = cacheResult.getValue();
+          AggregatedExecutionLog executionLog = cacheResult.getAggregatedExecutionLog();
+          return ViewportResults.valueCell(value, valueSpec, history, executionLog, _colIndex, cacheResult.isUpdated());
+        case FUNCTION_NAME_COL:
+          String fnName = _fnNames.get(rowIndex);
+          return ViewportResults.objectCell(fnName, _colIndex);
+        case PROPERTIES_COL:
+          return ViewportResults.objectCell(getValuePropertiesForDisplay(valueSpec.getProperties()), _colIndex);
+        default: // never happen
+          throw new IllegalArgumentException("Column index " + _colIndex + " is invalid");
+      }
+    }
+
+    /**
+     * Formats a set of {@link ValueProperties} for display in the grid
+     * @param properties The value properties
+     * @return A formatted version of the properties
+     */
+    private String getValuePropertiesForDisplay(ValueProperties properties) {
+      StringBuilder sb = new StringBuilder();
+      boolean isFirst = true;
+      for (String property : properties.getProperties()) {
+        if (ValuePropertyNames.FUNCTION.equals(property)) {
+          continue;
+        }
+        if (isFirst) {
+          isFirst = false;
+        } else {
+          sb.append("; ");
+        }
+        sb.append(property).append("=");
+        Set<String> propertyValues = properties.getValues(property);
+        if (propertyValues.isEmpty()) {
+          sb.append("*");
+        } else {
+          boolean isFirstValue = true;
+          for (String value : propertyValues) {
+            if (isFirstValue) {
+              isFirstValue = false;
+            } else {
+              sb.append(", ");
+            }
+            sb.append(value);
+          }
+        }
+      }
+      return sb.toString();
+    }
+
+
+    /**
+     * @param targetSpec Specification of the target for a grid row
+     * @return The name of the target
+     */
+    private String getTargetName(final ComputationTargetSpecification targetSpec) {
+      // TODO I don't think LATEST will do long term. resolution time available on the result model
+      ComputationTarget target = _computationTargetResolver.resolve(targetSpec, VersionCorrection.LATEST);
+      if (target != null) {
+        return target.getName();
+      } else {
+        UniqueId uid = targetSpec.getUniqueId();
+        if (uid != null) {
+          return uid.toString();
+        } else {
+          return targetSpec.getType().toString();
+        }
+      }
+    }
   }
 }

@@ -32,6 +32,10 @@ $.register_module({
                         children: [
                             new form.Block({module:'og.views.forms.currency_tash',
                                 extras:{name: "security.currency"}}),
+                            new og.blotter.forms.blocks.Security({
+                                form: form, label: "Underlying ID", security: data.security.underlyingId,
+                                index: "security.underlyingId"
+                            }),
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.frequencies', index: 'security.frequency',
                                 value: data.security.frequency, placeholder: 'Select Frequency'

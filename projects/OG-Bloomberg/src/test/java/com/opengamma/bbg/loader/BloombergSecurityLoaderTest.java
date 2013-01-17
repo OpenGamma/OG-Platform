@@ -42,6 +42,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -170,6 +171,12 @@ public class BloombergSecurityLoaderTest extends DbTest {
 
       @Override
       public Void visitCashSecurity(CashSecurity security) {
+        assertSecurity();
+        return null;
+      }
+
+      @Override
+      public Void visitCashFlowSecurity(CashFlowSecurity security) {
         assertSecurity();
         return null;
       }

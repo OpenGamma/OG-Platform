@@ -423,18 +423,6 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
       functions.add(functionConfiguration(InterestRateFutureYieldCurveNodePnLDefaults.class, args));
     }
 
-    protected void addPositionPnLDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[3 + getPerCurrencyInfo().size()];
-      int i = 0;
-      args[i++] = getSamplingPeriodName();
-      args[i++] = getScheduleName();
-      args[i++] = getSamplingCalculatorName();
-      for (final String currency : getPerCurrencyInfo().keySet()) {
-        args[i++] = currency;
-      }
-      functions.add(functionConfiguration(PositionPnLDefaults.class, args));
-    }
-
     protected void addSwaptionBlackYieldCurveNodePnLDefaults(final List<FunctionConfiguration> functions) {
       int i = 0;
       for (final CurrencyInfo e : getPerCurrencyInfo().values()) {
@@ -475,6 +463,7 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
       functions.add(functionConfiguration(EquityPnLDefaultPropertiesFunction.class, getSamplingPeriodName(), getScheduleName(), getSamplingCalculatorName(),
           getReturnCalculatorName()));
       functions.add(functionConfiguration(FXOptionBlackPnLDefaults.class, getSamplingPeriodName(), getScheduleName(), getSamplingCalculatorName()));
+      functions.add(functionConfiguration(PositionPnLDefaults.class, getSamplingPeriodName(), getScheduleName(), getSamplingCalculatorName()));
       functions.add(functionConfiguration(SecurityPriceSeriesDefaultPropertiesFunction.class, getSamplingPeriodName(), getScheduleName(),
           getSamplingCalculatorName()));
       if (getCurveName() != null) {
@@ -493,7 +482,6 @@ public class PNLFunctions extends AbstractRepositoryConfigurationBean {
         addFXOptionBlackPnLCurveDefaults(functions);
         addInterestRateFutureOptionBlackYieldCurveNodePnLDefaults(functions);
         addInterestRateFutureYieldCurveNodePnLDefaults(functions);
-        addPositionPnLDefaults(functions);
         addSwaptionBlackYieldCurveNodePnLDefaults(functions);
         addYieldCurveNodePnLDefaults(functions);
       }

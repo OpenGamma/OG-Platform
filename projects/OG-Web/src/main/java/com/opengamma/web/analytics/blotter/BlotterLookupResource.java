@@ -32,11 +32,8 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.conversion.JodaBeanConverters;
 import com.opengamma.financial.security.LongShort;
-import com.opengamma.financial.security.option.AmericanExerciseType;
-import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
-import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.MonitoringType;
@@ -86,9 +83,9 @@ public class BlotterLookupResource {
   @Path("exercisetypes")
   @Produces(MediaType.APPLICATION_JSON)
   public String getExerciseTypes() {
-    ImmutableList<ExerciseType> exerciseTypes = ImmutableList.of(new AmericanExerciseType(),
+    ImmutableList<ExerciseType> exerciseTypes = ImmutableList.<ExerciseType>of(/*new AmericanExerciseType(),
                                                                  new AsianExerciseType(),
-                                                                 new BermudanExerciseType(),
+                                                                 new BermudanExerciseType(),*/
                                                                  new EuropeanExerciseType());
     return convertToJsonArray(ExerciseType.class, exerciseTypes.iterator());
   }

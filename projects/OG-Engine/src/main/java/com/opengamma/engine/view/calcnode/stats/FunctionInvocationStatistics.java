@@ -5,14 +5,16 @@
  */
 package com.opengamma.engine.view.calcnode.stats;
 
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeMsgFactory;
+import org.fudgemsg.MutableFudgeMsg;
+
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Records statistics about invocations of a function.
  * <p>
- * This is run centrally to aggregate statistics.
- * The statistics recorded include the time taken and the data volume.
- * Old data is decayed to be less relevant.
+ * This is run centrally to aggregate statistics. The statistics recorded include the time taken and the data volume. Old data is decayed to be less relevant.
  * <p>
  * This class is mutable and thread-safe via synchronization.
  */
@@ -57,7 +59,7 @@ public class FunctionInvocationStatistics {
   /**
    * Creates an instance for a specific function.
    * 
-   * @param functionId  the function id, not null
+   * @param functionId the function id, not null
    */
   public FunctionInvocationStatistics(final String functionId) {
     ArgumentChecker.notNull(functionId, "functionId");
@@ -67,7 +69,7 @@ public class FunctionInvocationStatistics {
   /**
    * Creates an instance from a document.
    * 
-   * @param doc  the document, not null
+   * @param doc the document, not null
    */
   public FunctionInvocationStatistics(final FunctionCostsDocument doc) {
     ArgumentChecker.notNull(doc, "doc");
@@ -81,11 +83,11 @@ public class FunctionInvocationStatistics {
    * <p>
    * This may be called directly, but is more typically called via {@link #recordInvocation}.
    * 
-   * @param invocationCost  the invocation cost
-   * @param dataInputCost  the data input cost
-   * @param dataOutputCost  the data output cost
+   * @param invocationCost the invocation cost
+   * @param dataInputCost the data input cost
+   * @param dataOutputCost the data output cost
    */
-  /* package */ synchronized void setCosts(final double invocationCost, final double dataInputCost, final double dataOutputCost) {
+  /* package */synchronized void setCosts(final double invocationCost, final double dataInputCost, final double dataOutputCost) {
     _invocationCost = invocationCost;
     _dataInputCost = dataInputCost;
     _dataOutputCost = dataOutputCost;
@@ -97,12 +99,12 @@ public class FunctionInvocationStatistics {
    * <p>
    * The data passed in is used to update the long-running cost values.
    * 
-   * @param invocationCount  the number of invocations the data is for
-   * @param invocationNanos  the execution time, in nanoseconds, of the invocation(s)
-   * @param dataInputBytes  the mean data input, bytes per input node, or {@code NaN} if unavailable
-   * @param dataOutputBytes  the mean data output, bytes per output node, or {@code NaN} if unavailable
+   * @param invocationCount the number of invocations the data is for
+   * @param invocationNanos the execution time, in nanoseconds, of the invocation(s)
+   * @param dataInputBytes the mean data input, bytes per input node, or {@code NaN} if unavailable
+   * @param dataOutputBytes the mean data output, bytes per output node, or {@code NaN} if unavailable
    */
-  /* package */ synchronized void recordInvocation(
+  /* package */synchronized void recordInvocation(
       final int invocationCount, final double invocationNanos, final double dataInputBytes, final double dataOutputBytes) {
     _invocations += invocationCount;
     _invocationTime += invocationNanos;
@@ -169,7 +171,7 @@ public class FunctionInvocationStatistics {
   /**
    * Populates the document with a snapshot of the values from this class.
    * 
-   * @param document  the document to populate, not null
+   * @param document the document to populate, not null
    */
   public synchronized void populateDocument(final FunctionCostsDocument document) {
     document.setInvocationCost(_invocationCost);
@@ -186,7 +188,20 @@ public class FunctionInvocationStatistics {
   @Override
   public String toString() {
     return getFunctionId() + " = " + getInvocationCost() + "ns, " + getDataInputCost() + " bytes/input, " +
-      getDataOutputCost() + " bytes/output, at " + getLastUpdateNanos();
+        getDataOutputCost() + " bytes/output, at " + getLastUpdateNanos();
+  }
+
+  // For debug purposes only, remove when PLAT-882 is complete
+  /* package */synchronized FudgeMsg toFudgeMsg(final FudgeMsgFactory factory) { ///CSIGNORE
+    final MutableFudgeMsg message = factory.newMessage();
+    message.add("invocationCost", _invocationCost);
+    message.add("dataInputCost", _dataInputCost);
+    message.add("dataOutputCost", _dataOutputCost);
+    message.add("invocationCount", _invocations);
+    message.add("invocationTime", _invocationTime);
+    message.add("dataInputSize", _dataInput);
+    message.add("dataOutputSize", _dataOutput);
+    return message;
   }
 
 }

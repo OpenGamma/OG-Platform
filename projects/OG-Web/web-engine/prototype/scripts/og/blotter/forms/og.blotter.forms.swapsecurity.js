@@ -7,89 +7,51 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function (config) {
-            config = og.blotter.util.FAKE_SWAP;
-            config.floating = og.blotter.util.FAKE_FLOATING;
-            config.fixed = og.blotter.util.FAKE_FIXED;
-            var constructor = this, ui = og.common.util.ui, data = config || {}, 
-            floating = "floatingspreadirleg.";
+            var constructor = this, form, ui = og.common.util.ui, floating = "floatingspreadirleg." ,
             fixed = "fixedinterestrateleg.";
+            if(config) {data = config; data.id = config.trade.uniqueId;}
+            else {data = {security: {type: "SwapSecurity", name: "SwapSecurity ABC", 
+                regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};} 
             constructor.load = function () {
                 constructor.title = 'Swap';
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.swap_tash',
-                    selector: '.OG-blotter-form-block'
+                    selector: '.OG-blotter-form-block',
+                    data: data
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
                     new form.Block({
-                        module: 'og.blotter.forms.blocks.swap_quick_entry_tash',
-                        extras: {}
+                        module: 'og.blotter.forms.blocks.swap_quick_entry_tash'
                     }),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_details_tash',
-                        extras: {trade: data.tradeDate, maturity: data.maturityDate, effective: data.effectiveDate}
+                        extras: {trade: data.security.tradeDate, maturity: data.security.maturityDate, 
+                            effective: data.security.effectiveDate}
                     }),
-                    new form.Block({
-                        module: 'og.blotter.forms.blocks.swap_details_fixed_tash',
-                        extras: {rate: data.fixed.rate, notional: data.fixed.notional},
-                        children : [
-                            new form.Block({module:'og.views.forms.currency_tash'}),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.daycountconventions', 
-                                index: fixed + 'dayCount',
-                                value: data.fixed.dayCount, placeholder: 'Select Day Count'
-                            }),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.frequencies', 
-                                index: fixed + 'frequency',
-                                value: data.fixed.frequency, placeholder: 'Select Frequency'
-                            })
-                        ]
-                    }),
-                    new form.Block({
-                        module: 'og.blotter.forms.blocks.swap_details_floating_tash',
-                        extras: {type: floating, initial: data.floating.initialFloatingRate, 
-                            settlement: data.floating.settlementDays, spread: data.floating.spread, 
-                            gearing: data.floating.gearing, notional: data.floating.notional},
-                        children: [
-                            new form.Block({module:'og.views.forms.currency_tash'}),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.daycountconventions', index: floating + 'dayCount',
-                                value: data.floating.dayCount, placeholder: 'Select Day Count'
-                            }),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.frequencies', index: floating + 'frequency',
-                                value: data.floating.frequency, placeholder: 'Select Frequency'
-                            }),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.businessdayconventions', 
-                                index: floating + 'businessDayConvention',
-                                value: data.floating.businessDayConvention, 
-                                placeholder: 'Select Business Day Convention'
-                            }),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.floatingratetypes', 
-                                index: floating + 'floatingRateTypes',
-                                value: data.floating.floatingRateType, placeholder: 'Select Floating Rate Type'
-                            }),
-                            new ui.Dropdown({
-                                form: form, resource: 'blotter.frequencies', index: floating + 'offsetFixing',
-                                value: data.floating.offsetFixing, placeholder: 'Select Offset Fixing'
-                            })
-                        ]
-                    }),
+                    new og.blotter.forms.blocks.Fixedleg({form: form, data: data, leg: 'recieveLeg.'}),
+                    new og.blotter.forms.blocks.Floatingleg({form: form, data: data, leg: 'pagLeg.'}),
                     new og.common.util.ui.Attributes({form: form, attributes: data.attributes})
                 );
                 form.dom();
                 form.on('form:load', function (){
+                    og.blotter.util.add_datetimepicker("security.tradeDate");
+                    og.blotter.util.add_datetimepicker("security.effectiveDate");
+                    og.blotter.util.add_datetimepicker("security.maturityDate");
                     if(data.length) return;
-                    og.blotter.util.check_checkbox(floating + 'eom', data.floating.eom);
-                    og.blotter.util.check_checkbox(fixed + 'eom', data.fixed.eom);
+                    og.blotter.util.check_checkbox(floating + 'eom', data.eom);
+                    og.blotter.util.check_checkbox(fixed + 'eom', data.eom);
                 }); 
+                form.on('form:submit', function (result){
+                    og.api.rest.blotter.trades.put(result.data);
+                });
             }; 
+            constructor.load();
+            constructor.submit = function () {
+                form.submit();
+            };
             constructor.kill = function () {
             };
-            constructor.load();
         };
     }
 });

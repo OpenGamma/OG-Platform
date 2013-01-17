@@ -231,6 +231,11 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
   }
 
   @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    return context.getViewCalculationConfiguration() != null;
+  }
+
+  @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.HISTORICAL_TIME_SERIES, target.toSpecification(), ValueProperties.all()));
   }

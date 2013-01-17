@@ -22,7 +22,7 @@ $.register_module({
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
                     security.block = new form.Block({
-                        module: 'og.blotter.forms.blocks.security_tash',
+                        module: 'og.blotter.forms.blocks.fungible_security_tash',
                         extras: {}
                     }),
                     trade.block = new form.Block({

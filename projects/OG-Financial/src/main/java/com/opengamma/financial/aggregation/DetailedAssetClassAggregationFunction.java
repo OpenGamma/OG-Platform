@@ -20,6 +20,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
 import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
@@ -87,6 +88,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   private static final String FX_BARRIER_OPTIONS = "FX Barrier Options";
   private static final String SWAPTIONS = "Swaptions";
   private static final String CASH = "Cash";
+  private static final String CASHFLOW = "CashFlow";
   private static final String FRAS = "FRAs";
   private static final String SWAPS = "Swaps";
   private static final String FORWARD_SWAPS = "Forward Swaps";
@@ -141,6 +143,11 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         @Override
         public String visitCashSecurity(final CashSecurity security) {
           return CASH;
+        }
+
+        @Override
+        public String visitCashFlowSecurity(final CashFlowSecurity security) {
+          return CASHFLOW;
         }
 
         @Override

@@ -276,5 +276,9 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   public void testLegacyVanillaCDSSecurity() {
     _testCase.testLegacyVanillaCDSSecurity();
   }
-  
+
+  @Override
+  public void testCashFlowSecurity() {
+    _testCase.testCashFlowSecurity();
+  }
 }

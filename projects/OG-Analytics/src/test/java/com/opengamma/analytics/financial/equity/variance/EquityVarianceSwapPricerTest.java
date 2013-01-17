@@ -34,10 +34,10 @@ public class EquityVarianceSwapPricerTest {
   private static final boolean PRINT = false;
 
   private static final double SPOT = 65.4;
-  private static final String[] EXPIRY_LABELS = new String[] {"1W", "2W", "1M", "3M", "6M", "1Y", "2Y" };
-  private static final double[] EXPIRIES = new double[] {1. / 52, 2. / 52, 1. / 12, 3. / 12, 6. / 12, 1.0, 2.0 };
-  private static final double[][] STRIKES = new double[][] { {50, 55, 60, 65, 70, 75, 80 }, {50, 55, 60, 65, 70, 75, 80 }, {50, 55, 60, 65, 70, 75, 80 },
-      {40, 50, 60, 70, 80, 90 }, {40, 50, 60, 70, 80, 90, 100 }, {30, 50, 60, 70, 80, 90, 100 }, {20, 40, 55, 65, 75, 90, 105, 125 } };
+  private static final String[] EXPIRY_LABELS = new String[] {"1W", "2W", "1M", "3M", "6M", "1Y", "2Y"};
+  private static final double[] EXPIRIES = new double[] {1. / 52, 2. / 52, 1. / 12, 3. / 12, 6. / 12, 1.0, 2.0};
+  private static final double[][] STRIKES = new double[][] { {50, 55, 60, 65, 70, 75, 80}, {50, 55, 60, 65, 70, 75, 80}, {50, 55, 60, 65, 70, 75, 80},
+      {40, 50, 60, 70, 80, 90}, {40, 50, 60, 70, 80, 90, 100}, {30, 50, 60, 70, 80, 90, 100}, {20, 40, 55, 65, 75, 90, 105, 125}};
   //  private static final double[][] OTM_PRICES_FLAT;
   //  private static final double[][] OTM_PRICES;
   //  private static final SmileSurfaceDataBundle MARKET_VOLS_FLAT_NODIVS;
@@ -45,9 +45,9 @@ public class EquityVarianceSwapPricerTest {
   //  private static final SmileSurfaceDataBundle MARKET_VOLS;
   private static final double PURE_VOL = 0.45;
   private static final PureImpliedVolatilitySurface PURE_VOL_SURFACE;
-  private static final double[] TAU = new double[] {5. / 12, 11. / 12, 17. / 12, 23. / 12, 29. / 12 };
-  private static final double[] ALPHA = new double[] {3.0, 2.0, 1.0, 0.0, 0.0 };
-  private static final double[] BETA = new double[] {0.0, 0.02, 0.03, 0.04, 0.05 };
+  private static final double[] TAU = new double[] {5. / 12, 11. / 12, 17. / 12, 23. / 12, 29. / 12};
+  private static final double[] ALPHA = new double[] {3.0, 2.0, 1.0, 0.0, 0.0};
+  private static final double[] BETA = new double[] {0.0, 0.02, 0.03, 0.04, 0.05};
   private static final AffineDividends NULL_DIVIDENDS = AffineDividends.noDividends();
   private static final AffineDividends ZERO_DIVIDENDS = new AffineDividends(TAU, new double[5], new double[5]);
   private static final AffineDividends DIVIDENDS = new AffineDividends(TAU, ALPHA, BETA);
@@ -64,9 +64,9 @@ public class EquityVarianceSwapPricerTest {
     //find "market" prices if the pure implied volatility surface was flat
     //   OTM_PRICES_FLAT = getOptionPrices(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, flat);
 
-    final double[] weights = new double[] {0.15, 0.8, 0.05 };
-    final double[] sigma = new double[] {0.15, 0.3, 0.8 };
-    final double[] mu = new double[] {0.04, 0.02, -0.2 };
+    final double[] weights = new double[] {0.15, 0.8, 0.05};
+    final double[] sigma = new double[] {0.15, 0.3, 0.8};
+    final double[] mu = new double[] {0.04, 0.02, -0.2};
 
     final MultiHorizonMixedLogNormalModelData data = new MultiHorizonMixedLogNormalModelData(weights, sigma, mu);
     final BlackVolatilitySurfaceStrike temp = MixedLogNormalVolatilitySurface.getImpliedVolatilitySurface(new ForwardCurve(1.0), data);

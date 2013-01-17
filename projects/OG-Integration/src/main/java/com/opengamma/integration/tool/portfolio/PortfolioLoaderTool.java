@@ -11,10 +11,6 @@ import org.apache.commons.cli.Options;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
-import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
-import com.opengamma.integration.copier.portfolio.SimplePortfolioCopier;
-import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.SingleSheetSimplePortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.ZippedPortfolioReader;
@@ -45,8 +41,6 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
   /** Ignore versioning flag */
   private static final String IGNORE_VERSION_OPT = "i";
 
-  private static ToolContext s_context;
-  
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool.
@@ -64,93 +58,29 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
    */
   @Override
   protected void doRun() {
-    s_context = getToolContext();
 
-    // Create portfolio writer
-    PortfolioWriter portfolioWriter = constructPortfolioWriter(
-        getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT), 
-        getCommandLine().hasOption(WRITE_OPT),
-        getCommandLine().hasOption(OVERWRITE_OPT)
-    );
+    String portfolioName = getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT);
+    boolean write = getCommandLine().hasOption(WRITE_OPT);
+    boolean overwrite = getCommandLine().hasOption(OVERWRITE_OPT);
 
-    // Construct portfolio reader
-    PortfolioReader portfolioReader = constructPortfolioReader(
-        getCommandLine().getOptionValue(FILE_NAME_OPT), 
-        getCommandLine().getOptionValue(SECURITY_TYPE_OPT)
-    );
-
-    // Construct portfolio copier
-    SimplePortfolioCopier portfolioCopier = new SimplePortfolioCopier();
-        
-    // Create visitor for verbose/quiet mode
-    PortfolioCopierVisitor portfolioCopierVisitor; 
-    if (getCommandLine().hasOption(VERBOSE_OPT)) {
-      portfolioCopierVisitor = new VerbosePortfolioCopierVisitor();
-    } else {
-      portfolioCopierVisitor = new QuietPortfolioCopierVisitor();
-    }
-    
-    // Call the portfolio loader with the supplied arguments
-    portfolioCopier.copy(portfolioReader, portfolioWriter, portfolioCopierVisitor);
-
-    // close stuff
-    portfolioReader.close();
-    portfolioWriter.close();
-  }
- 
-  private static PortfolioWriter constructPortfolioWriter(String portfolioName, boolean write, boolean overwrite) {
-    if (write) {  
+    if (write) {
       if (overwrite) {
-        System.out.println("Write and overwrite options specified, will persist to portfolio '" + portfolioName + "'"); 
+        System.out.println("Write and overwrite options specified, will persist to portfolio '" + portfolioName + "'");
       } else {
         System.out.println("Write option specified, will persist to portfolio '" + portfolioName + "'");
-
       }
-      // Check that the portfolio name was specified on the command line
-      if (portfolioName == null) {
-        throw new OpenGammaRuntimeException("Portfolio name omitted, cannot persist to OpenGamma masters");
-      }
-      // Create a portfolio writer to persist imported positions, trades and securities to the OG masters
-      return new MasterPortfolioWriter(
-          portfolioName, 
-          s_context.getPortfolioMaster(), 
-          s_context.getPositionMaster(), 
-          s_context.getSecurityMaster(),
-          overwrite, false, false, false);
     } else {
       System.out.println("Write option not specified, not persisting to OpenGamma masters");
-
-      // Create a dummy portfolio writer to pretty-print instead of persisting
-      return new PrettyPrintingPortfolioWriter(true);         
-    }  
-  }
-
-  private PortfolioReader constructPortfolioReader(String filename, String securityType) {
-
-    SheetFormat sheetFormat = SheetFormat.of(filename);
-    switch (sheetFormat) {
-      
-      case CSV:
-      case XLS:
-        // Check that the asset class was specified on the command line
-        if (securityType == null) {
-          throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename);
-        } else {
-//          if (securityType.equalsIgnoreCase("exchangetraded")) {
-//            return new SingleSheetSimplePortfolioReader(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));            
-//          } else {
-          return new SingleSheetSimplePortfolioReader(filename, securityType);
-//          }
-        }
-      
-      case ZIP:
-        // Create zipped multi-asset class loader
-        return new ZippedPortfolioReader(filename, getCommandLine().hasOption(IGNORE_VERSION_OPT));
-        
-      default:
-        throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
     }
+
+    new PortfolioLoader(getToolContext(), portfolioName,
+                        getCommandLine().getOptionValue(SECURITY_TYPE_OPT),
+                        getCommandLine().getOptionValue(FILE_NAME_OPT),
+                        write, overwrite,
+                        getCommandLine().hasOption(VERBOSE_OPT),
+                        getCommandLine().hasOption(IGNORE_VERSION_OPT)).execute();
   }
+
 
   @Override
   protected Options createOptions(boolean contextProvided) {
@@ -193,5 +123,4 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
 
     return options;
   }
-
 }

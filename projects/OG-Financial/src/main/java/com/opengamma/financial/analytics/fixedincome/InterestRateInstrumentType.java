@@ -16,6 +16,7 @@ import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -43,6 +44,8 @@ public enum InterestRateInstrumentType {
   SWAP_CROSS_CURRENCY,
   /** Cash */
   CASH, //TODO do we need ibor, deposit, OIS?
+  /** Cashflow */
+  CASHFLOW,
   /** FRA */
   FRA,
   /** Interest rate future */
@@ -95,6 +98,11 @@ public enum InterestRateInstrumentType {
     @Override
     public InterestRateInstrumentType visitCashSecurity(final CashSecurity security) {
       return CASH;
+    }
+
+    @Override
+    public InterestRateInstrumentType visitCashFlowSecurity(final CashFlowSecurity security) {
+      return CASHFLOW;
     }
 
     @Override

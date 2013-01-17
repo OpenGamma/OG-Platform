@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.testng.eclipse.launchconfig">
 <listAttribute key="com.mountainminds.eclemma.core.SCOPE_IDS">
-<listEntry value="=OG-Analytics/src"/>
-<listEntry value="=OG-Analytics/tests\/unit"/>
+<listEntry value="=OG-Analytics/src\/test\/java"/>
+<listEntry value="=OG-Analytics/src\/main\/java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="com.mountainminds.eclemma.ui.launchGroup.coverage"/>
@@ -22,6 +22,7 @@
 <listEntry value="com.opengamma.analytics.financial.covariance"/>
 <listEntry value="com.opengamma.analytics.financial.equity.capm"/>
 <listEntry value="com.opengamma.analytics.financial.equity.future"/>
+<listEntry value="com.opengamma.analytics.financial.equity.option"/>
 <listEntry value="com.opengamma.analytics.financial.equity.variance"/>
 <listEntry value="com.opengamma.analytics.financial.forex.calculator"/>
 <listEntry value="com.opengamma.analytics.financial.forex.definition"/>

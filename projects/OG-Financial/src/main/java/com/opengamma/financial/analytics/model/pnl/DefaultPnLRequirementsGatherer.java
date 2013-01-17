@@ -29,6 +29,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
@@ -341,7 +342,15 @@ public class DefaultPnLRequirementsGatherer implements PnLRequirementsGatherer {
 
       @Override
       public Set<ValueRequirement> visitCashSecurity(final CashSecurity security) {
-        final String currency = security.getCurrency().getCode();
+        return createValueRequirementsForCashLikeSecurity(security.getCurrency());
+      }
+
+      @Override
+      public Set<ValueRequirement> visitCashFlowSecurity(final CashFlowSecurity security) {
+        return createValueRequirementsForCashLikeSecurity(security.getCurrency());
+      }
+
+      private Set<ValueRequirement> createValueRequirementsForCashLikeSecurity(Currency currency) {
         final String config = _curveCalculationConfigs.get(currency);
         if (config == null) {
           throw new OpenGammaRuntimeException("Could not get curve calculation configuration for " + currency);

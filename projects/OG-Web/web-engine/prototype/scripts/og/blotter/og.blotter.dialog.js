@@ -42,7 +42,7 @@ $.register_module({
             };
             dialog.create = function () {
                 og.common.util.ui.dialog({
-                    type: 'input', title: title, width: 530, height: 700, custom: $selector,
+                    type: 'input', title: title, width: 530, height: 1200, custom: $selector,
                     buttons: {
                         'Create': function () {form_wrapper.submit(); $(this).dialog('close');},
                         'Cancel': function () {$(this).dialog('close');}

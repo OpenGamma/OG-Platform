@@ -7,9 +7,9 @@ $.register_module({
     name: 'og.common.util.ui.Form',
     dependencies: ['og.api.text'],
     obj: function () {
-        var module = this, STALL = 500 /* 500ms */, api_text = og.api.text, numbers = {},
-            has = 'hasOwnProperty', form_template = Handlebars.compile('<form action="." id="{{id}}">' +
-                '<div class="OG-form">{{{html}}}<input type="submit" style="display: none;"></div></form>');
+        var module = this, numbers = {}, has = 'hasOwnProperty';
+        var form_template = Handlebars.compile('<form action="." id="{{id}}">' +
+            '<div class="OG-form">{{{html}}}<input type="submit" style="display: none;"></div></form>');
         /** @private */
         var delegator = function (event) {
             var form = this, $target = $(event.target), results = [];

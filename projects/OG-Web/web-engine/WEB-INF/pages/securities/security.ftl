@@ -33,6 +33,11 @@
         <@rowout label="Rate">${security.rate}</@rowout>
         <@rowout label="Region">${security.regionId?replace("_", " ")}</@rowout>
         <#break>
+      <#case "CASHFLOW">
+        <@rowout label="Amount">${security.amount}</@rowout>
+        <@rowout label="Currency">${security.currency}</@rowout>
+        <@rowout label="Settlement">${security.settlement.toLocalDate()} - ${security.settlement.zone}</@rowout>
+        <#break>
       <#case "EQUITY">
         <@rowout label="Short name">${security.shortName}</@rowout>
         <@rowout label="Exchange">${security.exchange}</@rowout>
