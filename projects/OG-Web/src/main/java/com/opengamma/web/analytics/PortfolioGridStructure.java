@@ -45,7 +45,7 @@ public class PortfolioGridStructure extends MainGridStructure {
   /* package */ static PortfolioGridStructure forAnalytics(CompiledViewDefinition compiledViewDef,
                                                            ValueMappings valueMappings) {
     List<MainGridStructure.Row> rows = rows(compiledViewDef);
-    GridColumn labelColumn = new GridColumn("Label", "", null, new LabelRenderer(rows));
+    GridColumn labelColumn = new GridColumn("Label", "", null, new PortfolioLabelRenderer(rows));
     GridColumn quantityColumn = new GridColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(rows), null);
     GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn, quantityColumn));
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);

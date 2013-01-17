@@ -43,7 +43,7 @@ import com.opengamma.util.tuple.Pair;
      * @param rowIndex The row index
      * @param colIndex The column index
      * @return Pair of value spec and calculation config name.
-     * TODO need to specify this using a stable target ID for the row to cope with dynamic reaggregation
+     * TODO need to specify row using a stable target ID for the row to cope with dynamic reaggregation
      */
   @Override
   public Pair<String, ValueSpecification> getTargetForCell(int rowIndex, int colIndex) {
