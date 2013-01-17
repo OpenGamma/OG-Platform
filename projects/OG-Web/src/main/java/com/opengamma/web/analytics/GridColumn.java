@@ -21,10 +21,20 @@ import com.opengamma.util.ArgumentChecker;
   private final String _description;
   private final Class<?> _type;
   private final CellRenderer _renderer;
+  private final ColumnSpecification _columnSpec;
 
   /* package */ GridColumn(String header, String description, Class<?> type, CellRenderer renderer) {
+    this(header, description, type, renderer, null);
+  }
+
+  /* package */ GridColumn(String header,
+                           String description,
+                           Class<?> type,
+                           CellRenderer renderer,
+                           ColumnSpecification columnSpec) {
     ArgumentChecker.notNull(header, "header");
     ArgumentChecker.notNull(renderer, "renderer");
+    _columnSpec = columnSpec;
     _header = header;
     _renderer = renderer;
     if (description != null) {
@@ -38,13 +48,20 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * Factory method that creates a column for a key based requirement and calculation configutation and a column type.
    *
-   * @param columnKey Column key based on requirement and calculation configuration
+   *
+   * @param columnSpec
    * @param columnType Type of data displayed in the column
    * @return A column for displaying data calculated for the requirement and calculation configuration
    */
-  /* package */ static GridColumn forKey(ColumnKey columnKey, Class<?> columnType, MainGridStructure gridStructure) {
-    CellRenderer renderer = new AnalyticsRenderer(gridStructure, columnKey);
-    return new GridColumn(createHeader(columnKey), createDescription(columnKey.getValueProperties()), columnType, renderer);
+  /* package */ static GridColumn forKey(ColumnSpecification columnSpec,
+                                         Class<?> columnType,
+                                         TargetLookup targetLookup) {
+    CellRenderer renderer = new AnalyticsRenderer(columnSpec, targetLookup);
+    return new GridColumn(createHeader(columnSpec),
+                          createDescription(columnSpec.getValueProperties()),
+                          columnType,
+                          renderer,
+                          columnSpec);
   }
 
   /**
@@ -68,11 +85,18 @@ import com.opengamma.util.ArgumentChecker;
     return _type;
   }
 
+  /**
+   * @return The specification of this column's analytics data or null if it displays static data.
+   */
+  /* package */ ColumnSpecification getSpecification() {
+    return _columnSpec;
+  }
+
   /* package */ ResultsCell getResults(int rowIndex, ResultsCache cache) {
     return _renderer.getResults(rowIndex, cache, _type);
   }
 
-  private static String createHeader(ColumnKey columnKey) {
+  private static String createHeader(ColumnSpecification columnKey) {
     String header;
     String normalizedConfigName = columnKey.getCalcConfigName().toLowerCase().trim();
     if ("default".equals(normalizedConfigName) || "portfolio".equals(normalizedConfigName)) {

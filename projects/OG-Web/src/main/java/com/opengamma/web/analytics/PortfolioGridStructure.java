@@ -8,11 +8,9 @@ package com.opengamma.web.analytics;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -24,7 +22,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -34,13 +31,10 @@ public class PortfolioGridStructure extends MainGridStructure {
 
   private final AnalyticsNode _root;
 
-  private PortfolioGridStructure(GridColumnGroup fixedColumns,
-                                 Map<String, List<ColumnKey>> analyticsColumns,
+  private PortfolioGridStructure(GridColumnGroups columnGroups,
                                  CompiledViewDefinition compiledViewDef,
-                                 ValueMappings valueMappings,
-                                 List<Row> rows) {
-    super(ImmutableList.of(fixedColumns), analyticsColumns, compiledViewDef, valueMappings, rows);
-    ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
+                                 TargetLookup targetLookup) {
+    super(columnGroups, targetLookup);
     _root = AnalyticsNode.portoflioRoot(compiledViewDef);
   }
 
@@ -52,17 +46,19 @@ public class PortfolioGridStructure extends MainGridStructure {
                                                            ValueMappings valueMappings) {
     List<MainGridStructure.Row> rows = rows(compiledViewDef);
     GridColumn labelColumn = new GridColumn("Label", "", null, new LabelRenderer(rows));
-    GridColumn quantityColumn = new GridColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(rows));
+    GridColumn quantityColumn = new GridColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(rows), null);
     GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn, quantityColumn));
-    Map<String, List<ColumnKey>> analyticsColumns = buildColumns(compiledViewDef.getViewDefinition());
-    return new PortfolioGridStructure(fixedColumns,
-                                      analyticsColumns,
-                                      compiledViewDef,
-                                      valueMappings,
-                                      rows);
+    TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
+    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), targetLookup);
+    List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
+    groups.addAll(analyticsColumns);
+    GridColumnGroups columnGroups = new GridColumnGroups(groups);
+    return new PortfolioGridStructure(columnGroups, compiledViewDef, targetLookup);
   }
 
-  /* package */ static PortfolioGridStructure forBlotter() {
+  /* package */
+  @SuppressWarnings("UnusedDeclaration")
+  static PortfolioGridStructure forBlotter() {
     return new PortfolioGridStructure();
   }
 
@@ -74,19 +70,25 @@ public class PortfolioGridStructure extends MainGridStructure {
     return _root;
   }
 
-  private static Map<String, List<ColumnKey>> buildColumns(ViewDefinition viewDef) {
-    Map<String, List<ColumnKey>> columnsByCalcConfig = Maps.newHashMap();
+  /**
+   * @param viewDef The view definition
+   * @return Columns for displaying calculated analytics data, one group per calculation configuration
+   */
+  private static List<GridColumnGroup> buildAnalyticsColumns(ViewDefinition viewDef, TargetLookup targetLookup) {
+    List<GridColumnGroup> columnGroups = Lists.newArrayList();
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
-      List<ColumnKey> columnKeys = Lists.newArrayList();
+      List<GridColumn> columns = Lists.newArrayList();
       for (Pair<String, ValueProperties> portfolioOutput : calcConfig.getAllPortfolioRequirements()) {
         String valueName = portfolioOutput.getFirst();
+        Class<?> columnType = ValueTypes.getTypeForValueName(valueName);
         ValueProperties constraints = portfolioOutput.getSecond();
-        ColumnKey columnKey = new ColumnKey(calcConfig.getName(), valueName, constraints);
-        columnKeys.add(columnKey);
+        ColumnSpecification columnSpec = new ColumnSpecification(calcConfig.getName(), valueName, constraints);
+        // TODO ensure columnSpec isn't a duplicate
+        columns.add(GridColumn.forKey(columnSpec, columnType, targetLookup));
       }
-      columnsByCalcConfig.put(calcConfig.getName(), columnKeys);
+      columnGroups.add(new GridColumnGroup(calcConfig.getName(), columns));
     }
-    return columnsByCalcConfig;
+    return columnGroups;
   }
 
   private static List<Row> rows(final CompiledViewDefinition viewDef) {
