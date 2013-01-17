@@ -48,6 +48,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
@@ -83,6 +84,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   private static final String EQUITY_VARIANCE_SWAPS = "Equity Variance Swaps";
   private static final String IRFUTURE_OPTIONS = "IRFuture Options";
   private static final String COMMODITY_FUTURE_OPTIONS = "Commodity Future Options";
+  private static final String FX_FUTURE_OPTIONS = "FX Future Options";
   private static final String FX_OPTIONS = "FX Options";
   private static final String NONDELIVERABLE_FX_OPTIONS = "Non-deliverable FX Options";
   private static final String FX_BARRIER_OPTIONS = "FX Barrier Options";
@@ -268,6 +270,11 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         @Override
         public String visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity security) {
           return COMMODITY_FUTURE_OPTIONS;
+        }
+
+        @Override
+        public String visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
+          return FX_FUTURE_OPTIONS;
         }
 
         @Override

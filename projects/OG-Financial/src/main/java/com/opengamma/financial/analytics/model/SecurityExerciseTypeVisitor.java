@@ -14,6 +14,7 @@ import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 
@@ -30,6 +31,11 @@ public class SecurityExerciseTypeVisitor extends FinancialSecurityVisitorAdapter
 
   @Override
   public ExerciseType visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity security) {
+    return security.getExerciseType();
+  }
+
+  @Override
+  public ExerciseType visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
     return security.getExerciseType();
   }
 
