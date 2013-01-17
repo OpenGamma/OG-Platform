@@ -8,14 +8,10 @@ package com.opengamma.web.analytics;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
@@ -25,84 +21,21 @@ import com.opengamma.util.tuple.Pair;
   /* package */ abstract class MainGridStructure implements GridStructure {
 
   private final GridColumnGroups _columnGroups;
-  /** Column keys in column index order. TODO use Map<Integer, ColumnKey>? nicer than having null entries */
-  private final List<ColumnKey> _columnKeys = Lists.newArrayList();
-  /** Mappings of column key (based on {@link ValueRequirement}) to column index. */
-  private final Map<ColumnKey, Integer> _colIndexByRequirement;
-  /** Mappings of requirements to specifications. */
-  private final ValueMappings _valueMappings;
-  private final List<Row> _rows;
+  private final TargetLookup _targetLookup;
 
   /* package */ MainGridStructure() {
     _columnGroups = GridColumnGroups.empty();
-    _colIndexByRequirement = Collections.emptyMap();
-    _valueMappings = new ValueMappings();
-    _rows = Collections.emptyList();
+    _targetLookup = new TargetLookup(new ValueMappings(), Collections.<Row>emptyList());
   }
 
   // TODO refactor this to pass in columns instead of column keys?
   // column would need to return its key (null for static and blotter columns)
   // could pass all columns in a single List<GridColumnGroup> or GridColumnGroups instance
-  /* package */ MainGridStructure(List<GridColumnGroup> staticColumns,
-                                  Map<String, List<ColumnKey>> analyticsColumns,
-                                  CompiledViewDefinition compiledViewDef,
-                                  ValueMappings valueMappings,
-                                  List<Row> rows) {
-    ArgumentChecker.notNull(valueMappings, "valueMappings");
-    ArgumentChecker.notNull(staticColumns, "staticColumns");
-    ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
-    ArgumentChecker.notNull(rows, "rows");
-    _valueMappings = valueMappings;
-    _colIndexByRequirement = Maps.newHashMap();
-    _rows = rows;
-    // columns which don't come from the calculation results
-    List<GridColumnGroup> columnGroups = Lists.newArrayList(staticColumns);
-    for (GridColumnGroup group : staticColumns) {
-      int colCount = group.getColumns().size();
-      // insert null keys for these columns because they aren't referenced by key when analytics results arrive
-      for (int i = 0; i < colCount; i++) {
-        _columnKeys.add(null);
-      }
-    }
-    // start the column index after the static columns
-    // TODO could the columns be passed in? would need a column subclass with a columnKey property
-    int colIndex = _columnKeys.size() - 1;
-    for (Map.Entry<String, List<ColumnKey>> entry : analyticsColumns.entrySet()) {
-      String configName = entry.getKey();
-      List<ColumnKey> columnKeys = entry.getValue();
-      List<GridColumn> configColumns = Lists.newArrayList();
-      for (ColumnKey columnKey : columnKeys) {
-        if (!_colIndexByRequirement.containsKey(columnKey)) {
-          _colIndexByRequirement.put(columnKey, colIndex);
-          colIndex++;
-          _columnKeys.add(columnKey);
-          String valueName = columnKey.getValueName();
-          Class<?> columnType = ValueTypes.getTypeForValueName(valueName);
-          configColumns.add(GridColumn.forKey(columnKey, columnType, this));
-        }
-      }
-      columnGroups.add(new GridColumnGroup(configName, configColumns));
-    }
-    _columnGroups = new GridColumnGroups(columnGroups);
-  }
-
-  /* package */ Pair<String, ValueSpecification> getTargetForCell(int rowIndex, ColumnKey colKey) {
-    if (rowIndex < 0 || rowIndex >= getRowCount()) {
-      throw new IllegalArgumentException("Row is outside grid bounds: row=" + rowIndex + ", rowCount=" + getRowCount());
-    }
-    if (colKey == null) {
-      throw new IllegalArgumentException("Unknown column key " + colKey);
-      //return null; // TODO is this necessary?
-    }
-    Row row = _rows.get(rowIndex);
-    ValueRequirement valueReq = new ValueRequirement(colKey.getValueName(), row.getTarget(), colKey.getValueProperties());
-    String calcConfigName = colKey.getCalcConfigName();
-    ValueSpecification valueSpec = _valueMappings.getValueSpecification(calcConfigName, valueReq);
-    if (valueSpec != null) {
-      return Pair.of(calcConfigName, valueSpec);
-    } else {
-      return null;
-    }
+  /* package */ MainGridStructure(GridColumnGroups columnGroups, TargetLookup targetLookup) {
+    ArgumentChecker.notNull(targetLookup, "targetLookup");
+    ArgumentChecker.notNull(columnGroups, "columnGroups");
+    _columnGroups = columnGroups;
+    _targetLookup = targetLookup;
   }
 
     /**
@@ -118,7 +51,7 @@ import com.opengamma.util.tuple.Pair;
       throw new IllegalArgumentException("Cell is outside grid bounds: row=" + rowIndex + ", col=" + colIndex +
                                              ", rowCount=" + getRowCount() + ", colCount=" + getColumnCount());
     }
-    return getTargetForCell(rowIndex, _columnKeys.get(colIndex));
+    return _targetLookup.getTargetForCell(rowIndex, _columnGroups.getColumn(colIndex).getSpecification());
   }
 
   @Override
@@ -128,7 +61,7 @@ import com.opengamma.util.tuple.Pair;
 
   @Override
   public int getRowCount() {
-    return _rows.size();
+    return _targetLookup.getRowCount();
   }
 
   @Override

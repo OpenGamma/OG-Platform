@@ -16,19 +16,19 @@ import com.opengamma.util.tuple.Pair;
  */
 /* package */ class AnalyticsRenderer implements GridColumn.CellRenderer {
 
-  private final MainGridStructure _gridStructure;
-  private final ColumnKey _columnKey;
+  private final ColumnSpecification _columnKey;
+  private final TargetLookup _targetLookup;
 
-  /* package */ AnalyticsRenderer(MainGridStructure gridStructure, ColumnKey columnKey) {
-    ArgumentChecker.notNull(gridStructure, "gridStructure");
+  /* package */ AnalyticsRenderer(ColumnSpecification columnKey, TargetLookup targetLookup) {
     ArgumentChecker.notNull(columnKey, "columnKey");
-    _gridStructure = gridStructure;
+    ArgumentChecker.notNull(targetLookup, "targetLookup");
+    _targetLookup = targetLookup;
     _columnKey = columnKey;
   }
 
   @Override
   public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
-    Pair<String, ValueSpecification> cellTarget = _gridStructure.getTargetForCell(rowIndex, _columnKey);
+    Pair<String, ValueSpecification> cellTarget = _targetLookup.getTargetForCell(rowIndex, _columnKey);
     if (cellTarget != null) {
       String calcConfigName = cellTarget.getFirst();
       ValueSpecification valueSpec = cellTarget.getSecond();
