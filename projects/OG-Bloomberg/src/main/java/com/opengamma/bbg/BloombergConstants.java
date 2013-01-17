@@ -188,8 +188,6 @@ public final class BloombergConstants {
   public static final String BLOOMBERG_FINANCIAL_COMMODITY_OPTION_TYPE = "Financial commodity option.";
   public static final String BLOOMBERG_CURRENCY_TYPE = "Currency";
 
-  public static final String BBG_FX_FUTURE_OPTION_TYPE = "Currency option.";
-
   //Bloomberg equity dividend future type
   public static final String BBG_STOCK_FUTURE_TYPE = "STOCK FUTURE";
   public static final String BLOOMBERG_EQUITY_DIVIDEND_TYPE = "SINGLE STOCK DIVIDEND FUTURE";

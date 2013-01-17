@@ -5,7 +5,7 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.BBG_FX_FUTURE_OPTION_TYPE;
+import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_CURRENCY_TYPE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_EXCH_CODE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
@@ -34,7 +34,7 @@ import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -70,7 +70,7 @@ public class FxFutureOptionLoader extends SecurityLoader {
   /**
    * The valid Bloomberg security types for Commodity Future Option
    */
-  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(BBG_FX_FUTURE_OPTION_TYPE);
+  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(BLOOMBERG_CURRENCY_TYPE);
 
   /**
    * Creates an instance.
@@ -153,7 +153,7 @@ public class FxFutureOptionLoader extends SecurityLoader {
       identifiers.add(ExternalSchemes.bloombergTickerSecurityId(secDes));
     }
 
-    final CommodityFutureOptionSecurity security = new CommodityFutureOptionSecurity(
+    final FxFutureOptionSecurity security = new FxFutureOptionSecurity(
       exchangeCode,
       exchangeCode,
       expiry,
