@@ -146,7 +146,18 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getTrade().getSecurity() instanceof IRFutureOptionSecurity;
+    final Security security = target.getTrade().getSecurity();
+    if (!(security instanceof IRFutureOptionSecurity)) {
+      return false;
+    }
+    // REVIEW Andrew 2012-01-17 -- This shouldn't be necessary; the securities in the master should be logically correct and not refer to incorrect or missing underlyings
+    // REVIEW Andrew 2012-01-17 -- This call is wrong; getSingle won't observe the view cycle's object resolution time
+    final Security underlyingSecurity = context.getSecuritySource().getSingle(ExternalIdBundle.of(((IRFutureOptionSecurity) security).getUnderlyingId()));
+    if (!(underlyingSecurity instanceof InterestRateFutureSecurity)) {
+      s_logger.error("Loader error: " + security.getName() + ", supposedly an IRateFutureOption has an underlying that is not an IRFuture: " + underlyingSecurity.getName());
+      return false;
+    }
+    return true;
   }
 
   @Override
@@ -183,7 +194,6 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     final String curveCalculationConfig = Iterables.getOnlyElement(curveCalculationConfigs);
     final String surfaceName = Iterables.getOnlyElement(surfaceNames) + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final Trade trade = target.getTrade();
-    Security security = trade.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(trade.getSecurity());
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(getCurveRequirement(trade, curveCalculationConfig, context));
@@ -192,17 +202,15 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
       return null;
     }
     requirements.add(surfaceRequirement);
+    // REVIEW Andrew 2012-01-17 -- This check shouldn't be necessary; we know the security is a IRFutureOptionSecurity because of #canApplyTo
+    /*
     final SecuritySource secSource = context.getSecuritySource();
-    Security secFromIdBundle = secSource.getSingle(security.getExternalIdBundle());
+    final Security secFromIdBundle = secSource.getSingle(security.getExternalIdBundle());
     if (!(secFromIdBundle instanceof IRFutureOptionSecurity)) {
       //  s_logger.error("Loader error: " + secFromIdBundle.toString() + " has been loaded as an InterestRateFutureOption.");
       return null;
     }
-    Security underlyingSecurityFromIdBundle = secSource.getSingle(ExternalIdBundle.of(((IRFutureOptionSecurity) security).getUnderlyingId()));
-    if (!(underlyingSecurityFromIdBundle instanceof InterestRateFutureSecurity)) {
-      // s_logger.error("Loader error: " + security.getName() + ", supposedly an IRateFutureOption has an underlying that is not an IRFuture: " + underlyingSecurityFromIdBundle.getName());
-      return null;
-    }    
+     */
     final Set<ValueRequirement> timeSeriesRequirement = getTimeSeriesRequirement(trade);
     if (timeSeriesRequirement == null) {
       return null;
