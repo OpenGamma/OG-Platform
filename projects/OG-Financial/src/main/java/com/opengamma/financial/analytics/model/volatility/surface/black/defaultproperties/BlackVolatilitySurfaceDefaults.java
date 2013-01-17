@@ -58,7 +58,7 @@ public abstract class BlackVolatilitySurfaceDefaults extends DefaultPropertyFunc
 
   public BlackVolatilitySurfaceDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator) {
-  super(ComputationTargetType.ANYTHING, true); // [PLAT-2286]: change to correct type
+    super(ComputationTargetType.LEGACY_PRIMITIVE, true); // // [PLAT-2286]: change to correct type
     ArgumentChecker.notNull(timeAxis, "time axis");
     ArgumentChecker.notNull(yAxis, "y axis");
     ArgumentChecker.notNull(volatilityTransform, "volatility transform");

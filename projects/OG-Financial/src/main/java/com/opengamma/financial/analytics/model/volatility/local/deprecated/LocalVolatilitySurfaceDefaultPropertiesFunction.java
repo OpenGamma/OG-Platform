@@ -35,7 +35,7 @@ public class LocalVolatilitySurfaceDefaultPropertiesFunction extends DefaultProp
 
   public LocalVolatilitySurfaceDefaultPropertiesFunction(final String forwardCurveCalculationMethod, final String forwardCurveName, final String surfaceType, final String xAxis, final String yAxis,
       final String yAxisType, final String surfaceName, final String hName) {
-    super(ComputationTargetType.ANYTHING, true); // TODO: [PLAT-2286] Set the correct type for this
+    super(ComputationTargetType.LEGACY_PRIMITIVE, true); // // [PLAT-2286]: change to correct type
     ArgumentChecker.notNull(forwardCurveCalculationMethod, "forward curve calculation method");
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
     ArgumentChecker.notNull(surfaceType, "surface type");
