@@ -95,6 +95,16 @@ public class BloombergSecurityTypeResolverTest {
   }
 
   @Test
+  public void testCommodityFutureOptionSecurity() {
+    assertSecurityType(Collections.singleton("CHH3C 24.25 Comdty"), SecurityType.COMMODITY_FUTURE_OPTION);
+  }
+
+  @Test
+  public void testFxFutureOptionSecurity() {
+    assertSecurityType(Collections.singleton("JYH3P 105.0 Curncy"), SecurityType.FX_FUTURE_OPTION);
+  }
+
+  @Test
   public void testBondSecurity() {
     assertSecurityType(Collections.singleton("GV912810EL8"), ExternalSchemes.BLOOMBERG_BUID, SecurityType.BOND);
   }
