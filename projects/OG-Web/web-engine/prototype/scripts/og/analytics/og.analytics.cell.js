@@ -28,9 +28,13 @@ $.register_module({
                     throw error; // let og.analytics.Data catch it
                 }
             }).on('fatal', fatal_handler);
+            cell.id = cell.dataman.id;
         };
         Cell.prototype.fire = events.fire;
-        Cell.prototype.kill = function () {this.dataman.kill();};
+        Cell.prototype.kill = function () {
+            var cell = this;
+            cell.dataman.kill();
+        };
         Cell.prototype.off = events.off;
         Cell.prototype.on = events.on;
         return Cell;

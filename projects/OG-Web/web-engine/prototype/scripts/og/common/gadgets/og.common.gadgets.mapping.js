@@ -31,7 +31,7 @@ $.register_module({
                 gadget_options = {
                     gadget: 'og.common.gadgets.' + gadget_type,
                     options: {
-                        source: source, child: true, col: cell.col, row: cell.row,
+                        source: source, child: true, col: cell.col, row: cell.row, type: cell.type,
                         menu: false, datapoints_link: false, /* ONLY RELEVANT FOR TIMESERIES (be wary) */
                         id: cell.value.v.id, editable: false, external_links: true /* ONLY EXPANDED POSITIONS */
                     },

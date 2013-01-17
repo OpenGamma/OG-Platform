@@ -70,11 +70,12 @@ $.register_module({
                 return value.v.data.join(line);
             }
         };
-        var Clipboard = function (grid) {
+        var Clipboard = function (grid, local) {
             var clipboard = this;
             clipboard.data = clipboard.selection = null;
-            clipboard.dataman = new og.analytics.Data(grid.source, {label: 'clipboard', parent: grid.dataman})
-                .on('data', data_handler, clipboard);
+            clipboard.dataman = local ? {viewport: $.noop, meta: {viewport: null}} // fake dataman
+                : new og.analytics.Data(grid.source, {label: 'clipboard', parent: grid.dataman})
+                    .on('data', data_handler, clipboard);
             clipboard.grid = grid
                 .on('select', function (selection) {clipboard.viewport(selection);})
                 .on('deselect', function () {clipboard.clear();});
