@@ -104,9 +104,13 @@ public class HashMap2<K1, K2, V> implements Map2<K1, K2, V> {
     } while (true);
   }
 
+  protected void removeAllKey1NoHousekeep(final K1 key1) {
+    _values.remove(key1);
+  }
+
   @Override
   public void removeAllKey1(final K1 key1) {
-    _values.remove(key1);
+    removeAllKey1NoHousekeep(key1);
     housekeep();
   }
 

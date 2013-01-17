@@ -45,17 +45,17 @@ import java.util.concurrent.ConcurrentMap;
     }
 
     @Override
-    public boolean containsKey(Object key) {
+    public boolean containsKey(final Object key) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean containsValue(Object value) {
+    public boolean containsValue(final Object value) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public V get(Object key) {
+    public V get(final Object key) {
       final Reference<? extends V> reference = _underlying.get(key);
       if (reference != null) {
         return reference.get();
@@ -64,7 +64,7 @@ import java.util.concurrent.ConcurrentMap;
     }
 
     @Override
-    public V put(K2 key, V value) {
+    public V put(final K2 key, final V value) {
       final Reference<? extends V> reference = _underlying.put(key, createReference(this, key, value));
       if (reference != null) {
         return reference.get();
@@ -73,7 +73,7 @@ import java.util.concurrent.ConcurrentMap;
     }
 
     @Override
-    public V remove(Object key) {
+    public V remove(final Object key) {
       final Reference<? extends V> reference = _underlying.remove(key);
       if (reference != null) {
         return reference.get();
@@ -82,7 +82,7 @@ import java.util.concurrent.ConcurrentMap;
     }
 
     @Override
-    public void putAll(Map<? extends K2, ? extends V> m) {
+    public void putAll(final Map<? extends K2, ? extends V> m) {
       throw new UnsupportedOperationException();
     }
 
@@ -107,7 +107,7 @@ import java.util.concurrent.ConcurrentMap;
     }
 
     @Override
-    public V putIfAbsent(K2 key, V value) {
+    public V putIfAbsent(final K2 key, final V value) {
       final Reference<? extends V> newValue = createReference(this, key, value);
       final Reference<? extends V> reference = _underlying.putIfAbsent(key, newValue);
       if (reference != null) {
@@ -124,17 +124,17 @@ import java.util.concurrent.ConcurrentMap;
     }
 
     @Override
-    public boolean remove(Object key, Object value) {
+    public boolean remove(final Object key, final Object value) {
       return _underlying.remove(key, value);
     }
 
     @Override
-    public boolean replace(K2 key, V oldValue, V newValue) {
+    public boolean replace(final K2 key, final V oldValue, final V newValue) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public V replace(K2 key, V value) {
+    public V replace(final K2 key, final V value) {
       throw new UnsupportedOperationException();
     }
 
@@ -144,7 +144,7 @@ import java.util.concurrent.ConcurrentMap;
           return;
         }
       }
-      removeAllKey1(_key1);
+      removeAllKey1NoHousekeep(_key1);
     }
 
   }
