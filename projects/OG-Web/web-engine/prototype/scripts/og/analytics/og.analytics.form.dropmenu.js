@@ -25,7 +25,7 @@ $.register_module({
                     menu.$dom.opt.each(function (idx, elem){
                         var $elem = $(elem), cl = $elem.attr('class').replace(/\s*OG-dropmenu-options\s*/, "");
                         $elem.find('.number span').text(idx+1);
-                        menu.opts.push($elem.data({ 'pos': idx, 'type': cl }));
+                        menu.opts.push($elem.data({ 'pos': idx, 'type': cl || null }));
                     });
                     menu.$dom.add = $('.OG-link-add', menu.$dom.menu);
                     menu.$dom.opt_cp = menu.$dom.opt.clone(true);
