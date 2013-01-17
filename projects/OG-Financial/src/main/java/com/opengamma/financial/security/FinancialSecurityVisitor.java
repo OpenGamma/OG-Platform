@@ -40,6 +40,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
@@ -97,6 +98,8 @@ public interface FinancialSecurityVisitor<T> extends FutureSecurityVisitor<T>, C
   T visitCashFlowSecurity(CashFlowSecurity security);
 
   T visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security);
+
+  T visitFxFutureOptionSecurity(FxFutureOptionSecurity security);
 
   T visitBondFutureOptionSecurity(BondFutureOptionSecurity security);
 

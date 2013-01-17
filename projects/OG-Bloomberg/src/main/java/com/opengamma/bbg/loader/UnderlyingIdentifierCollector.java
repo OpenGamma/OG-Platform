@@ -29,6 +29,7 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -176,6 +177,15 @@ public final class UnderlyingIdentifierCollector {
 
       @Override
       public Void visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
+        ExternalId underlyingIdentifier = security.getUnderlyingId();
+        if (underlyingIdentifier != null) {
+          _underlyings.add(ExternalIdBundle.of(underlyingIdentifier));
+        }
+        return null;
+      }
+
+      @Override
+      public Void visitFxFutureOptionSecurity(FxFutureOptionSecurity security) {
         ExternalId underlyingIdentifier = security.getUnderlyingId();
         if (underlyingIdentifier != null) {
           _underlyings.add(ExternalIdBundle.of(underlyingIdentifier));

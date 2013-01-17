@@ -266,10 +266,10 @@ public class BloombergSecurityLoaderTest extends DbTest {
 
           @Override
           public Void visitBondFutureSecurity(BondFutureSecurity security) {
-            assertTrue(fromSecMaster instanceof BondFutureSecurity);
+            assertTrue("Security is instance of: " + fromSecMaster.getClass().getName(), fromSecMaster instanceof BondFutureSecurity);
             BondFutureSecurity actual = (BondFutureSecurity) fromSecMaster;
 
-            assertEquals(new HashSet<BondFutureDeliverable>(security.getBasket()), new HashSet<BondFutureDeliverable>(actual.getBasket()));
+            assertEquals(new HashSet<>(security.getBasket()), new HashSet<>(actual.getBasket()));
 
             assertEquals(security.getContractCategory(), actual.getContractCategory());
             assertEquals(security.getCurrency(), actual.getCurrency());
