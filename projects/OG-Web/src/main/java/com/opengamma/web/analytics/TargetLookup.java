@@ -28,6 +28,7 @@ import com.opengamma.util.tuple.Pair;
     _rows = rows;
   }
 
+  // TODO need to specify row using a stable target ID for the row to cope with dynamic reaggregation
   /* package */ Pair<String, ValueSpecification> getTargetForCell(int rowIndex, ColumnSpecification colKey) {
     if (rowIndex < 0 || rowIndex >= _rows.size()) {
       throw new IllegalArgumentException("Row is outside grid bounds: row=" + rowIndex + ", rowCount=" + _rows.size());

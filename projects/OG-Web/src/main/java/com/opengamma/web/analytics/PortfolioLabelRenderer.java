@@ -17,13 +17,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class LabelRenderer implements GridColumn.CellRenderer {
+/* package */ class PortfolioLabelRenderer implements GridColumn.CellRenderer {
 
   private static final Pattern POSITION_ID_PATTERN = Pattern.compile("DbPrt-DbPos~\\d+-(\\d+)~\\d+-(\\d+)");
 
   private final List<MainGridStructure.Row> _rows;
 
-  /* package */ LabelRenderer(List<MainGridStructure.Row> rows) {
+  /* package */ PortfolioLabelRenderer(List<MainGridStructure.Row> rows) {
     ArgumentChecker.notNull(rows, "rows");
     _rows = rows;
   }
