@@ -76,7 +76,7 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
 //    UniqueId uniqueId = UniqueId("DbHol", "201", "0");
 //    ManageableHoliday holiday = new ManageableHoliday(uniqueId, "Name", "Type", ExternalIdBundle.of("A", "B"));
 //    HolidayDocument doc = new HolidayDocument(holiday);
-//    _holMaster.correct(doc);
+//    _orgMaster.correct(doc);
 //  }
 
   @Test
