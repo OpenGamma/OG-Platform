@@ -5,14 +5,7 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.BBG_BASE_METAL_TYPE;
-import static com.opengamma.bbg.BloombergConstants.BBG_COAL;
-import static com.opengamma.bbg.BloombergConstants.BBG_CRUDE_OIL;
-import static com.opengamma.bbg.BloombergConstants.BBG_ELECTRICITY;
-import static com.opengamma.bbg.BloombergConstants.BBG_PRECIOUS_METAL_TYPE;
-import static com.opengamma.bbg.BloombergConstants.BBG_REFINED_PRODUCTS;
-import static com.opengamma.bbg.BloombergConstants.BBG_SOY;
-import static com.opengamma.bbg.BloombergConstants.BBG_WHEAT;
+import static com.opengamma.bbg.BloombergConstants.BBG_FX_FUTURE_OPTION_TYPE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_EXCH_CODE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
@@ -53,10 +46,10 @@ import com.opengamma.util.time.Expiry;
 /**
  * Loads the data for an Commodity Future Option from Bloomberg.
  */
-public class CommodityFutureOptionLoader extends SecurityLoader {
+public class FxFutureOptionLoader extends SecurityLoader {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(CommodityFutureOptionLoader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(FxFutureOptionLoader.class);
   /**
    * The fields to load from Bloomberg.
    */
@@ -77,21 +70,13 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
   /**
    * The valid Bloomberg security types for Commodity Future Option
    */
-  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(
-      BBG_PRECIOUS_METAL_TYPE,
-      BBG_BASE_METAL_TYPE,
-      BBG_REFINED_PRODUCTS,
-      BBG_ELECTRICITY,
-      BBG_COAL,
-      BBG_CRUDE_OIL,
-      BBG_WHEAT,
-      BBG_SOY);
+  public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(BBG_FX_FUTURE_OPTION_TYPE);
 
   /**
    * Creates an instance.
    * @param referenceDataProvider  the provider, not null
    */
-  public CommodityFutureOptionLoader(ReferenceDataProvider referenceDataProvider) {
+  public FxFutureOptionLoader(ReferenceDataProvider referenceDataProvider) {
     super(s_logger, referenceDataProvider, SecurityType.COMMODITY_FUTURE_OPTION);
   }
 

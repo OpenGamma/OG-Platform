@@ -55,6 +55,7 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
     addValidTypes(s_optionTypes, IRFutureOptionLoader.VALID_SECURITY_TYPES, SecurityType.IR_FUTURE_OPTION);
     addValidTypes(s_optionTypes, BondFutureOptionLoader.VALID_SECURITY_TYPES, SecurityType.BOND_FUTURE_OPTION);
     addValidTypes(s_optionTypes, CommodityFutureOptionLoader.VALID_SECURITY_TYPES, SecurityType.COMMODITY_FUTURE_OPTION);
+    addValidTypes(s_optionTypes, FxFutureOptionLoader.VALID_SECURITY_TYPES, SecurityType.FX_FUTURE_OPTION);
   }
 
   private static final Map<String, SecurityType> s_swapTypes = Maps.newConcurrentMap();
