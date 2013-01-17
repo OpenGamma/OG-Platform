@@ -75,8 +75,7 @@ public class GeneratorCurveAddYieldFixed extends GeneratorYDCurve {
 
   @Override
   public double[] initialGuess(double[] rates) {
-    ArgumentChecker.isTrue(rates.length == _generator.getNumberOfParameter(), "Rates of incorrect length.");
-    return rates;
+    return _generator.initialGuess(rates);
   }
 
 }

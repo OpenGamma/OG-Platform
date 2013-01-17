@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.provider.calculator.generic;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -42,6 +43,11 @@ public final class LastFixingTimeCalculator extends InstrumentDerivativeVisitorA
   }
 
   // -----     Deposit     ------
+
+  @Override
+  public Double visitCash(final Cash cash) {
+    return cash.getEndTime();
+  }
 
   @Override
   public Double visitDepositIbor(final DepositIbor deposit) {
