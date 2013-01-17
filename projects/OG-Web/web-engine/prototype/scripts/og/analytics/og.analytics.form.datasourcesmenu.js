@@ -297,25 +297,7 @@ $.register_module({
 
             default_datasource = $.extend({}, sources.live);
             default_datasource.source = 'Bloomberg';
-            // datasources = config.datasource ? config.datasource : [default_datasource]
-            datasources = config.datasource ? config.datasource : reconstruct_datasources([{
-                    marketDataType:'live',
-                    source: 'Bloomberg'
-                },
-                {
-                    marketDataType:'snapshot',
-                    snapshotId:'DbSnp~35365~1'
-                },
-                {
-                    marketDataType:'latestHistorical',
-                    resolverKey:'DbCfg~1047577'
-                },
-                {
-                    date:'2013-01-04',
-                    marketDataType:'fixedHistorical',
-                    resolverKey:'DbCfg~991626'
-                }
-            ]);
+            datasources = config.datasource ? reconstruct_datasources(config.datasource) : [default_datasource];
 
             form.Block.call(this, {
                 data: { providers: [] },

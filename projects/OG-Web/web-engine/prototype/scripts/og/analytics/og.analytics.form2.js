@@ -35,10 +35,30 @@ $.register_module({
                 console.log(query.providers);
             });
 
+            var mockproviders = [
+                {
+                    marketDataType:'live',
+                    source: 'Bloomberg'
+                },
+                {
+                    marketDataType:'snapshot',
+                    snapshotId:'DbSnp~35365~1'
+                },
+                {
+                    marketDataType:'latestHistorical',
+                    resolverKey:'DbCfg~1047577'
+                },
+                {
+                    date:'2013-01-04',
+                    marketDataType:'fixedHistorical',
+                    resolverKey:'DbCfg~991626'
+                }
+            ];
+
             form.children.push(
                 (new og.analytics.form.Portfolios({form:form})).block,
                 (new og.analytics.form.ViewDefinitions({form:form})).block,
-                new og.analytics.form.DatasourcesMenu({form:form}),
+                new og.analytics.form.DatasourcesMenu({form:form, datasource: mockproviders}),
                 new og.analytics.form.TemporalMenu({form:form}),
                 new og.analytics.form.AggregatorsMenu({form:form}),
                 new og.analytics.form.FiltersMenu({form:form, index:'filters' })
