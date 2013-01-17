@@ -44,13 +44,20 @@ $.register_module({
             set_datetime : function (name, value){
                 $('input[name="'+ name +'"]').datetimepicker('setDate', value);
             },
-            get_attributes : function (){
+            get_attributes : function () {
                 var attributes = {};
                 $('.og-attributes-add-list li').each(function (i, elm) {
                     var arr = $(elm).text().split(' = ');
                     attributes[arr[0]] = arr[1];
                 });
                 return attributes;
+            },
+            toggle_fixed : function (ele, selection) {
+                var option = ele.find("option[value='fixedInterestRateLeg']");
+                if(selection == 'fixedInterestRateLeg')
+                    option.attr("disabled", "disabled");
+                else
+                    option.removeAttr("disabled");
             },
             
             option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),

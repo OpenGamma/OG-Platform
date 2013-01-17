@@ -9,7 +9,7 @@ $.register_module({
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, pay_block, receive_block, pay_select, receive_select,
                 pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), pay_leg = 'pagLeg.', 
-                receive_leg = 'receiveLeg.';
+                receive_leg = 'receiveLeg.', $pay_select, $receive_select;
             if(config) {data = config; data.id = config.trade.uniqueId;}
             else {data = {security: {type: "SwapSecurity", name: "SwapSecurity ABC", 
                 regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};} 
@@ -44,6 +44,8 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function (){
+                    $pay_select = $('#' + pay_select.id);
+                    $receive_select = $('#' + receive_select.id);
                     og.blotter.util.add_datetimepicker("security.tradeDate");
                     og.blotter.util.add_datetimepicker("security.effectiveDate");
                     og.blotter.util.add_datetimepicker("security.maturityDate");
@@ -56,9 +58,12 @@ $.register_module({
                 });
                 form.on('change', '#' + pay_select.id, function (event) {
                     swap_leg({type: event.target.value, index: pay_index, leg: pay_leg});
+                    og.blotter.util.toggle_fixed($receive_select, event.target.value);
+
                 });
                 form.on('change', '#' + receive_select.id,  function (event) {
                     swap_leg({type: event.target.value, index: receive_index, leg: receive_leg});
+                    og.blotter.util.toggle_fixed($pay_select, event.target.value);
                 });
             };
             swap_leg = function (swap) {
