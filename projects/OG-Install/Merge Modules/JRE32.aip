@@ -131,7 +131,7 @@
     <ROW Component="jsound.dll" ComponentId="{951EA165-A0A7-4B8E-9750-47DE0526626B}" Directory_="bin_Dir" Attributes="0" KeyPath="jsound.dll"/>
     <ROW Component="jsoundds.dll" ComponentId="{61DBD82C-B032-43C8-A40F-833F8C0C656F}" Directory_="bin_Dir" Attributes="0" KeyPath="jsoundds.dll"/>
     <ROW Component="jvm.cfg" ComponentId="{6F9EB547-02CF-479A-8BC2-41B45722FDE5}" Directory_="i386_Dir" Attributes="0" KeyPath="jvm.cfg" Type="0"/>
-    <ROW Component="jvm.dll" ComponentId="{6D4919CA-951A-48D5-BC0F-7B0BC0D49B05}" Directory_="client_Dir" Attributes="0" KeyPath="jvm.dll"/>
+    <ROW Component="jvm.dll" ComponentId="{2256FB44-D599-4F55-A6C4-0DBA840D92FF}" Directory_="client_Dir" Attributes="0" KeyPath="jvm.dll"/>
     <ROW Component="kcms.dll" ComponentId="{46AB0647-D627-447B-A1CF-9A0DCBFA3D48}" Directory_="bin_Dir" Attributes="0" KeyPath="kcms.dll"/>
     <ROW Component="keytool.exe" ComponentId="{C7B1169A-AD81-4C08-83BF-0B3BA012BD16}" Directory_="bin_Dir" Attributes="0" KeyPath="keytool.exe"/>
     <ROW Component="kinit.exe" ComponentId="{9F8E354A-0F22-4EAE-80D6-3EF5E909D325}" Directory_="bin_Dir" Attributes="0" KeyPath="kinit.exe"/>
@@ -638,7 +638,7 @@
     <ROW File="Wake" Component_="Apia" FileName="Wake" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\lib\zi\Pacific\Wake" SelfReg="false" NextFile="Wallis"/>
     <ROW File="Wallis" Component_="Apia" FileName="Wallis" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\lib\zi\Pacific\Wallis" SelfReg="false" NextFile="AST4"/>
     <ROW File="Warsaw" Component_="Amsterdam" FileName="Warsaw" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\lib\zi\Europe\Warsaw" SelfReg="false" NextFile="Zaporozhye"/>
-    <ROW File="Welcome.html" Component_="COPYRIGHT" FileName="Welcom~1.htm|Welcome.html" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\Welcome.html" SelfReg="false"/>
+    <ROW File="Welcome.html" Component_="COPYRIGHT" FileName="Welcom~1.htm|Welcome.html" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\Welcome.html" SelfReg="false" NextFile="jvm.dll"/>
     <ROW File="Whitehorse" Component_="Adak" FileName="Whiteh~1|Whitehorse" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\lib\zi\America\Whitehorse" SelfReg="false" NextFile="Winnipeg"/>
     <ROW File="Winamac" Component_="Indianapolis" FileName="Winamac" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\lib\zi\America\Indiana\Winamac" SelfReg="false" NextFile="Louisville"/>
     <ROW File="Windhoek" Component_="Abidjan" FileName="Windhoek" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\lib\zi\Africa\Windhoek" SelfReg="false" NextFile="Buenos_Aires"/>
@@ -742,7 +742,7 @@
     <ROW File="jsoundds.dll" Component_="jsoundds.dll" FileName="jsoundds.dll" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\bin\jsoundds.dll" SelfReg="false" NextFile="keytool.exe"/>
     <ROW File="jsse.jar" Component_="calendars.properties" FileName="jsse.jar" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\lib\jsse.jar" SelfReg="false" NextFile="jvm.hprof.txt"/>
     <ROW File="jvm.cfg" Component_="jvm.cfg" FileName="jvm.cfg" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\lib\i386\jvm.cfg" SelfReg="false" NextFile="cursors.properties"/>
-    <ROW File="jvm.dll" Component_="jvm.dll" FileName="jvm.dll" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre6\bin\client\jvm.dll" SelfReg="false" NextFile="classes.jsa"/>
+    <ROW File="jvm.dll" Component_="jvm.dll" FileName="jvm.dll" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\bin\client\jvm.dll" SelfReg="false"/>
     <ROW File="jvm.hprof.txt" Component_="calendars.properties" FileName="jvmhpr~1.txt|jvm.hprof.txt" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\lib\jvm.hprof.txt" SelfReg="false" NextFile="logging.properties"/>
     <ROW File="kcms.dll" Component_="kcms.dll" FileName="kcms.dll" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\bin\kcms.dll" SelfReg="false" NextFile="libxml2.dll"/>
     <ROW File="keytool.exe" Component_="keytool.exe" FileName="keytool.exe" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre7\bin\keytool.exe" SelfReg="false" NextFile="kinit.exe"/>
