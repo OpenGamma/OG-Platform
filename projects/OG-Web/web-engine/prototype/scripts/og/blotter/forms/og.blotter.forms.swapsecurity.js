@@ -40,7 +40,9 @@ $.register_module({
                         data_generator: function (handler) {handler(og.blotter.util.swap_types);}
                     }),
                     receive_block = new form.Block({content:"<div id='" + receive_index + "'></div>"}),
-                    new og.common.util.ui.Attributes({form: form, attributes: data.attributes})
+                    new og.common.util.ui.Attributes({
+                        form: form, attributes: data.trade.attributes, index: 'trade.attributes'
+                    })
                 );
                 form.dom();
                 form.on('form:load', function (){
