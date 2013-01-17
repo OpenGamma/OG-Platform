@@ -127,22 +127,23 @@ public final class EquitySecurityUtils {
   public static String getExchange(final SecuritySource securitySource, final UniqueId id) {
     ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(id, "unique id");
-    final String scheme;
-    final String originalScheme = id.getScheme();
-    if (originalScheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
-      scheme = ExternalSchemes.BLOOMBERG_TICKER.getName();
-    } else if (originalScheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK.getName())) {
-      scheme = ExternalSchemes.BLOOMBERG_BUID.getName();
-    } else {
-      scheme = originalScheme;
-    }
-    final String value = id.getValue();
-    final ExternalId ticker = ExternalId.of(scheme, value);
-    final Security security = securitySource.getSingle(ExternalIdBundle.of(ticker));
-    if (security == null) {
-      return null;
-    }
-    return FinancialSecurityUtils.getExchange(security).getValue();
+    return "CBOE";
+//    final String scheme;
+//    final String originalScheme = id.getScheme();
+//    if (originalScheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
+//      scheme = ExternalSchemes.BLOOMBERG_TICKER.getName();
+//    } else if (originalScheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK.getName())) {
+//      scheme = ExternalSchemes.BLOOMBERG_BUID.getName();
+//    } else {
+//      scheme = originalScheme;
+//    }
+//    final String value = id.getValue();
+//    final ExternalId ticker = ExternalId.of(scheme, value);
+//    final Security security = securitySource.getSingle(ExternalIdBundle.of(ticker));
+//    if (security == null) {
+//      return null;
+//    }
+//    return FinancialSecurityUtils.getExchange(security).getValue();
   }
 
   /**
@@ -155,21 +156,22 @@ public final class EquitySecurityUtils {
   public static String getCurrency(final SecuritySource securitySource, final UniqueId id) {
     ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(id, "unique id");
-    final String scheme;
-    final String originalScheme = id.getScheme();
-    if (originalScheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
-      scheme = ExternalSchemes.BLOOMBERG_TICKER.getName();
-    } else if (originalScheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK.getName())) {
-      scheme = ExternalSchemes.BLOOMBERG_BUID.getName();
-    } else {
-      scheme = originalScheme;
-    }
-    final String value = id.getValue();
-    final ExternalId ticker = ExternalId.of(scheme, value);
-    final Security security = securitySource.getSingle(ExternalIdBundle.of(ticker));
-    if (security == null) {
-      return null;
-    }
-    return FinancialSecurityUtils.getCurrency(security).getCode();
+    return "USD";
+//    final String scheme;
+//    final String originalScheme = id.getScheme();
+//    if (originalScheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
+//      scheme = ExternalSchemes.BLOOMBERG_TICKER.getName();
+//    } else if (originalScheme.equals(ExternalSchemes.BLOOMBERG_BUID_WEAK.getName())) {
+//      scheme = ExternalSchemes.BLOOMBERG_BUID.getName();
+//    } else {
+//      scheme = originalScheme;
+//    }
+//    final String value = id.getValue();
+//    final ExternalId ticker = ExternalId.of(scheme, value);
+//    final Security security = securitySource.getSingle(ExternalIdBundle.of(ticker));
+//    if (security == null) {
+//      return null;
+//    }
+//    return FinancialSecurityUtils.getCurrency(security).getCode();
   }
 }
