@@ -367,7 +367,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommittee2Test {
     }
   }
 
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Analyzes the shape of the forward curve.
    */
