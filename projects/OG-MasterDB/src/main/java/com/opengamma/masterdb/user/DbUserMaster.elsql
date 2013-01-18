@@ -88,7 +88,8 @@
     LEFT JOIN usr_idkey ik ON (ik.id = ui.idkey_id)
     LEFT JOIN usr_entitlement ent on (ent.oguser_id = main.id)
   ORDER BY
-    main.@INCLUDE(:sort_order)
+    main.@INCLUDE(:sort_order),
+    main.id
 
 
 -- ==========================================================================

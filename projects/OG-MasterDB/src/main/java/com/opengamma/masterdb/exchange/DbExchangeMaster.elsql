@@ -48,7 +48,8 @@
     exg_exchange main
     INNER JOIN cte_docs ON main.id = cte_docs.id
   ORDER BY
-    main.@INCLUDE(:sort_order)
+    main.@INCLUDE(:sort_order),
+    main.id
 
 
 -- ==========================================================================
