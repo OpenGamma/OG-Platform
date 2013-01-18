@@ -13,6 +13,7 @@ $.register_module({
             if(config) {data = config; data.id = config.trade.uniqueId;}
             else {data = {security: {type: "SwapSecurity", name: "SwapSecurity ABC", 
                 regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};} 
+            console.log(data);
             constructor.load = function () {
                 constructor.title = 'Swap';
                 form = new og.common.util.ui.Form({
@@ -61,9 +62,13 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("security.tradeDate");
                     og.blotter.util.add_datetimepicker("security.effectiveDate");
                     og.blotter.util.add_datetimepicker("security.maturityDate");
-                    if(data.length) return;
                     og.blotter.util.check_checkbox(pay_leg + 'eom', data.eom);
                     og.blotter.util.check_checkbox(receive_leg + 'eom', data.eom);
+                    if(typeof data.security.payLeg != 'undefined')
+                        swap_leg({type: data.security.payLeg.type, index: pay_index, leg: pay_leg, child: 4});
+                    if(typeof data.security.receiveLeg != 'undefined')
+                        swap_leg({type: data.security.receiveLeg.type,index: receive_index, leg: receive_leg,child: 6});
+
                 }); 
                 form.on('form:submit', function (result){
                     og.api.rest.blotter.trades.put(result.data);
@@ -79,6 +84,7 @@ $.register_module({
                 });
             };
             swap_leg = function (swap) {
+                console.log(swap);
                 var new_block;
                 if(!swap.type.length) {
                     new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});
