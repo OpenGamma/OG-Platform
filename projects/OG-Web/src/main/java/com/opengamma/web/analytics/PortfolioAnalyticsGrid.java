@@ -7,6 +7,7 @@ package com.opengamma.web.analytics;
 
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
 
 /**
  * A grid for displaying portfolio analytics data.
@@ -25,8 +26,24 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
                                        String gridId,
                                        ComputationTargetResolver targetResolver,
                                        ValueMappings valueMappings,
-                                       ViewportListener viewportListener) {
-    this(PortfolioGridStructure.forAnalytics(compiledViewDef, valueMappings), gridId, targetResolver, viewportListener);
+                                       ViewportListener viewportListener,
+                                       BlotterColumnMappings blotterColumnMappings,
+                                       boolean blotter) {
+    this(buildGridStructure(compiledViewDef, valueMappings, blotterColumnMappings, blotter),
+         gridId,
+         targetResolver,
+         viewportListener);
+  }
+
+  private static PortfolioGridStructure buildGridStructure(CompiledViewDefinition compiledViewDef,
+                                                           ValueMappings valueMappings,
+                                                           BlotterColumnMappings blotterColumnMappings,
+                                                           boolean blotter) {
+    if (!blotter) {
+      return PortfolioGridStructure.forAnalytics(compiledViewDef, valueMappings);
+    } else {
+      return PortfolioGridStructure.forBlotter(compiledViewDef, valueMappings, blotterColumnMappings);
+    }
   }
 
   /* package */ PortfolioAnalyticsGrid(PortfolioGridStructure gridStructure,
@@ -35,6 +52,8 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
                                        ViewportListener viewportListener) {
     super(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId, targetResolver, viewportListener);
   }
+
+  
 
   /**
    * Factory method for creating a portfolio grid that doesn't contain any data.

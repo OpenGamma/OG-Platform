@@ -14,9 +14,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ class QuantityRenderer implements GridColumn.CellRenderer {
 
-  private final List<MainGridStructure.Row> _rows;
+  private final List<? extends MainGridStructure.Row> _rows;
 
-  /* package */ QuantityRenderer(List<MainGridStructure.Row> rows) {
+  /* package */ QuantityRenderer(List<? extends MainGridStructure.Row> rows) {
     ArgumentChecker.notNull(rows, "rows");
     _rows = rows;
   }

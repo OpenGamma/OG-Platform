@@ -34,7 +34,7 @@ public class PrimitivesGridStructure extends MainGridStructure {
   }
 
   /* package */ static PrimitivesGridStructure create(CompiledViewDefinition compiledViewDef, ValueMappings valueMappings) {
-    List<MainGridStructure.Row> rows = rows(compiledViewDef);
+    List<MainGridStructure.Row> rows = buildRows(compiledViewDef);
     GridColumn labelColumn = new GridColumn("Label", "", String.class, new PrimitivesLabelRenderer(rows));
     GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn));
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
@@ -62,7 +62,7 @@ public class PrimitivesGridStructure extends MainGridStructure {
     return columnGroups;
   }
 
-  private static List<MainGridStructure.Row> rows(CompiledViewDefinition compiledViewDef) {
+  private static List<MainGridStructure.Row> buildRows(CompiledViewDefinition compiledViewDef) {
     Set<ComputationTargetSpecification> specs = Sets.newLinkedHashSet();
     for (CompiledViewCalculationConfiguration compiledCalcConfig : compiledViewDef.getCompiledCalculationConfigurations()) {
       for (ValueSpecification valueSpec : compiledCalcConfig.getTerminalOutputSpecifications().keySet()) {

@@ -103,6 +103,7 @@ import com.opengamma.util.tuple.Pair;
     return Pair.of(viewportResults, state);
   }
 
+  // TODO do I need different subclasses for portfolios and primitives, primitives version has security?
   /* package */ static class Row {
 
     private final ComputationTargetSpecification _target;
