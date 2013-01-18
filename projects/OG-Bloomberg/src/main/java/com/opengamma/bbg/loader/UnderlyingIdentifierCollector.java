@@ -27,6 +27,8 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FxFutureOptionSecurity;
@@ -168,6 +170,24 @@ public final class UnderlyingIdentifierCollector {
 
       @Override
       public Void visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+        ExternalId underlyingIdentifier = security.getUnderlyingId();
+        if (underlyingIdentifier != null) {
+          _underlyings.add(ExternalIdBundle.of(underlyingIdentifier));
+        }
+        return null;
+      }
+
+      @Override
+      public Void visitEquityIndexFutureOptionSecurity(final EquityIndexFutureOptionSecurity security) {
+        ExternalId underlyingIdentifier = security.getUnderlyingId();
+        if (underlyingIdentifier != null) {
+          _underlyings.add(ExternalIdBundle.of(underlyingIdentifier));
+        }
+        return null;
+      }
+
+      @Override
+      public Void visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
         ExternalId underlyingIdentifier = security.getUnderlyingId();
         if (underlyingIdentifier != null) {
           _underlyings.add(ExternalIdBundle.of(underlyingIdentifier));
