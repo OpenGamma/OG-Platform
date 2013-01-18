@@ -14,20 +14,37 @@ $.register_module({
                 return og.dev.warn('og.analytics.TemporalMenu: Missing param key [config.form] to constructor.');
 
             // Private
-            var menu = this, initialized = false, form = config.form;
+            var block = this, menu, initialized = false, form = config.form;
 
-            form.Block.call(menu, { selector: '.og-temporal', module: 'og.analytics.form_temporal_tash' });
-
-            var init = function (conf) {
-                 menu.fire('initialized', [initialized = true]);
+            var display_date_time = function (event) {
+                // $dom.date_input.datepicker('show');
             };
 
             var menu_handler = function (event) {
-                var $elem = $(event.srcElement || event.target), entry;
+                var $elem = $(event.srcElement || event.target);
+                if ($elem.is('.custom') || $elem.is('.custom input'))
+                    return $elem.parents('fieldset').find('.custom-date-time').focus(0);
             };
 
+            form.Block.call(block, { selector: '.og-temporal', module: 'og.analytics.form_temporal_tash' });
+
+            form.on('form:load', function (event) {
+                var menu = new og.common.util.ui.DropMenu({cntr: $('.og-temporal')});
+                menu.$dom.menu = $('.og-menu', '.og-temporal').on('click', '.custom, .custom input', menu_handler);
+                menu.$dom.date_input = $('.custom-date-time', menu.$dom.menu);
+                menu.$dom.date_input.datetimepicker({
+                    dateFormat:'yy-mm-dd',
+                    onSelect: function () {
+                        menu.$dom.date_input.off('mouseup.prevent_blurkill');
+                    }
+                }).datetimepicker('widget').on('mouseup.prevent_blurkill', function(event) {
+                    menu.fire('dropmenu:open');
+                });
+            });
         };
+
         TemporalMenu.prototype = new Block;
+
         return TemporalMenu;
     }
 });

@@ -16,7 +16,7 @@ $.register_module({
                 );
 
             // Private
-            var query = [], sel_val, sel_pos, $parent, form = config.form, default_aggregation = {idx:0},
+            var block = this, form = config.form, query = [], sel_val, sel_pos, $parent, default_aggregation = {idx:0},
                 aggregators = config.aggregators || [default_aggregation], initialized = false, $select,
                 default_sel_txt = 'select aggregation...', del_s = '.og-icon-delete',
                 options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox';
@@ -58,7 +58,7 @@ $.register_module({
                 }
             };
 
-            var get_query = function () {
+            var serialize = function () {
                 return remove_orphans(), query.pluck('val');
             };
 
@@ -123,13 +123,13 @@ $.register_module({
                 else query.splice(sel_pos, 0, {pos:sel_pos, val:sel_val, required_field:false});
             };
 
-            form.Block.call(this, {
+            form.Block.call(block, {
                 data: { aggregators:[] },
                 selector: '.og-aggregation',
                 module: 'og.analytics.form_aggregation_tash',
                 children: aggregators.map(add_row_handler),
                 processor: function (data) {
-                    data.aggregators = get_query();
+                    data.aggregators = serialize();
                 }
             });
 

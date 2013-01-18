@@ -14,12 +14,12 @@ $.register_module({
                 return og.dev.warn('og.analytics.DatasourcesMenu: Missing param key [config.form] to constructor.');
 
             // Private
-            var menu, query = [], resolver_keys = [], snapshots = {}, $query, default_type_txt = 'select type...',
-                default_sel_txt = 'select data source...', del_s = '.og-icon-delete', parent_s = '.OG-dropmenu-options',
-                wrapper = '<wrapper>', type_s = '.type', source_s = '.source',  extra_opts_s = '.extra-opts',
-                latest_s = '.latest', custom_s = '.custom', custom_val = 'Custom', date_selected_s = 'date-selected',
-                active_s = 'active', versions_s = '.versions', corrections_s = '.corrections', initialized = false,
-                form = config.form, datasources,
+            var block = this, form = config.form, menu, query = [], resolver_keys = [], snapshots = {}, $query,
+                default_type_txt = 'select type...', default_sel_txt = 'select data source...',
+                del_s = '.og-icon-delete', parent_s = '.OG-dropmenu-options', type_s = '.type', source_s = '.source',
+                extra_opts_s = '.extra-opts', latest_s = '.latest', custom_s = '.custom', custom_val = 'Custom',
+                date_selected_s = 'date-selected', active_s = 'active', versions_s = '.versions',
+                corrections_s = '.corrections', initialized = false, datasources,
                 sources = {
                     live: {
                         type:'Live',
@@ -111,6 +111,23 @@ $.register_module({
                 }
             };
 
+            var deserialize = function (data) {
+                return data.map(function (entry) { // TODO AG: refactor.
+                    var obj;
+                    switch (entry.marketDataType) {
+                        case 'live': obj = $.extend({}, sources['live'], { source: entry.source }); break;
+                        case 'snapshot': obj = $.extend({}, sources['snapshot'], { source: entry.snapshotId }); break;
+                        case 'latestHistorical':
+                            obj = $.extend({}, sources['historical'], { source: entry.resolverKey }); break;
+                        case 'fixedHistorical':
+                            obj = $.extend({}, sources['historical'], {source: entry.resolverKey, date: entry.date});
+                            break;
+                        //no default
+                    }
+                    return obj;
+                });
+            };
+
             var display_datepicker = function (entry) {
                 if (!menu.opts[entry]) return;
                 var custom_dp = $(custom_s, menu.opts[entry]), widget;
@@ -149,7 +166,7 @@ $.register_module({
                 inputs.filter(custom_s).removeClass(active_s+ ' ' +date_selected_s).val(custom_val);
             };
 
-            var get_query = function () {
+            var serialize = function () {
                 if (!query.length) return;
                 var arr = [];
                 query.forEach(function (entry) {
@@ -184,7 +201,7 @@ $.register_module({
 
             var menu_handler = function (event) {
                 var entry, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s),
-                    source = default_datasource;
+                    source = default_source;
                 if (!parent) return;
                 entry = parent.data('pos');
                 source.pos = menu.opts.length;
@@ -242,21 +259,25 @@ $.register_module({
                 source_select.show();
             };
 
-            var reconstruct_datasources = function (data) {
-                return data.map(function (entry) { // TODO AG: refactor.
-                    var obj;
-                    switch (entry.marketDataType) {
-                        case 'live': obj = $.extend({}, sources['live'], { source: entry.source }); break;
-                        case 'snapshot': obj = $.extend({}, sources['snapshot'], { source: entry.snapshotId }); break;
-                        case 'latestHistorical':
-                            obj = $.extend({}, sources['historical'], { source: entry.resolverKey }); break;
-                        case 'fixedHistorical':
-                            obj = $.extend({}, sources['historical'], {source: entry.resolverKey, date: entry.date});
-                            break;
+            var serialize = function () {
+                if (!query.length) return;
+                var arr = [];
+                query.forEach(function (entry) {
+                    var obj = {}, val = entry.type.toLowerCase();
+                    switch (val) {
+                        case 'live': obj['marketDataType'] = val, obj['source'] = entry.src; break;
+                        case 'snapshot': obj['marketDataType'] = val, obj['snapshotId'] = entry.src; break;
+                        case 'historical':
+                            if (entry.date) {
+                                obj['marketDataType'] = 'fixedHistorical';
+                                obj['date'] = entry.date;
+                            } else obj['marketDataType'] = 'latestHistorical';
+                            obj['resolverKey'] = entry.src; break;
                         //no default
                     }
-                    return obj;
+                    arr.push(obj);
                 });
+                return arr;
             };
 
             var source_handler = function (entry, preload) {
@@ -295,19 +316,19 @@ $.register_module({
                 });
             };
 
-            default_datasource = $.extend({}, sources.live);
-            default_datasource.source = 'Bloomberg';
-            datasources = config.datasource ? reconstruct_datasources(config.datasource) : [default_datasource];
+            default_source = $.extend({}, sources.live);
+            default_source.source = 'Bloomberg';
+            datasources = config.source ? deserialize(config.source) : [default_source];
 
-            form.Block.call(this, {
+            form.Block.call(block, {
                 data: { providers: [] },
                 selector: '.og-datasources',
                 module: 'og.analytics.form_datasources_tash',
                 children: datasources.map(add_row_handler),
                 processor: function (data) {
-                    data.providers = get_query();
+                    data.providers = serialize();
                 }
-            });
+            })
 
             form.on('form:load', init);
         };

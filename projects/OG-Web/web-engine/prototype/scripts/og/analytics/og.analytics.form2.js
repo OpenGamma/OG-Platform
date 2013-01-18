@@ -22,7 +22,6 @@ $.register_module({
 
         var init = function (config) {
             form.on('form:load', function () {
-                (new og.common.util.ui.DropMenu({cntr: $('.og-temporal', dom.form_container)}));
                 (new og.common.util.ui.DropMenu({cntr: $('.og-filters', dom.form_container)}));
             });
             form.on('click', '.og-load', function () {
