@@ -44,7 +44,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Loads the data for an Commodity Future Option from Bloomberg.
+ * Loads the data for an FX Future Option from Bloomberg.
  */
 public class FxFutureOptionLoader extends SecurityLoader {
 
@@ -68,7 +68,7 @@ public class FxFutureOptionLoader extends SecurityLoader {
     FIELD_UNDL_ID_BB_UNIQUE);
 
   /**
-   * The valid Bloomberg security types for Commodity Future Option
+   * The valid Bloomberg security types for FX Future Option
    */
   public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(BLOOMBERG_CURRENCY_TYPE);
 
@@ -77,7 +77,7 @@ public class FxFutureOptionLoader extends SecurityLoader {
    * @param referenceDataProvider  the provider, not null
    */
   public FxFutureOptionLoader(ReferenceDataProvider referenceDataProvider) {
-    super(s_logger, referenceDataProvider, SecurityType.COMMODITY_FUTURE_OPTION);
+    super(s_logger, referenceDataProvider, SecurityType.FX_FUTURE_OPTION);
   }
 
   //-------------------------------------------------------------------------

@@ -31,11 +31,13 @@ import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
+import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
@@ -489,7 +491,8 @@ public final class BloombergSecurityUtils {
     Expiry expiry = new Expiry(DateUtils.getUTCDate(2011, 9, 19));
     ExternalId underlyingID = ExternalSchemes.bloombergTickerSecurityId("FPU11 Comdty");
     final String exchange = "EUX";
-    final IRFutureOptionSecurity security = new IRFutureOptionSecurity(exchange, expiry, new AmericanExerciseType(), underlyingID, pointValue, true, EUR, strike, optionType);
+    final IRFutureOptionSecurity security = new IRFutureOptionSecurity(
+        exchange, expiry, new AmericanExerciseType(), underlyingID, pointValue, true, EUR, strike, optionType);
 
     Set<ExternalId> identifiers = new HashSet<>();
     identifiers.add(ExternalSchemes.bloombergBuidSecurityId("IX10090132-0-8B9C"));
@@ -497,6 +500,46 @@ public final class BloombergSecurityUtils {
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
     security.setUniqueId(BloombergSecurityProvider.createUniqueId("IX10090132-0-8B9C"));
     security.setName("FPU1C 2011-09-19 C 92.875");
+    return security;
+  }
+
+  public static CommodityFutureOptionSecurity makeCommodityFutureOptionSecurity() {
+
+    OptionType optionType = OptionType.CALL;
+    double strike = 0.2425;
+    double pointValue = 1000;
+    Expiry expiry = new Expiry(DateUtils.getUTCDate(2013, 2, 19));
+    ExternalId underlyingID = ExternalSchemes.bloombergTickerSecurityId("CHH3 Comdty");
+    final String exchange = "NYM";
+    final CommodityFutureOptionSecurity security = new CommodityFutureOptionSecurity(
+        exchange, exchange, expiry, new AmericanExerciseType(), underlyingID, pointValue, USD, strike, optionType);
+
+    Set<ExternalId> identifiers = ImmutableSet.of(
+        ExternalSchemes.bloombergBuidSecurityId("IX12576261-0-8308"),
+        ExternalSchemes.bloombergTickerSecurityId("CHH3C 24.25 Comdty"));
+    security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
+    security.setUniqueId(BloombergSecurityProvider.createUniqueId("IX12576261-0-8308"));
+    security.setName("CHH3C 2013-02-19 C 24.25");
+    return security;
+  }
+
+  public static FxFutureOptionSecurity makeFxFutureOptionSecurity() {
+
+    OptionType optionType = OptionType.PUT;
+    double strike = 1.05;
+    double pointValue = 1250;
+    Expiry expiry = new Expiry(DateUtils.getUTCDate(2013, 3, 8));
+    ExternalId underlyingID = ExternalSchemes.bloombergTickerSecurityId("JYH3 Curncy");
+    final String exchange = "CME";
+    final FxFutureOptionSecurity security = new FxFutureOptionSecurity(
+        exchange, exchange, expiry, new AmericanExerciseType(), underlyingID, pointValue, USD, strike, optionType);
+
+    Set<ExternalId> identifiers = ImmutableSet.of(
+        ExternalSchemes.bloombergBuidSecurityId("IX14844402-0-0D20"),
+        ExternalSchemes.bloombergTickerSecurityId("JYH3P 105.0 Curncy"));
+    security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
+    security.setUniqueId(BloombergSecurityProvider.createUniqueId("IX14844402-0-0D20"));
+    security.setName("JYH3P 2013-03-08 P 105.0");
     return security;
   }
 }
