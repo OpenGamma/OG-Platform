@@ -131,7 +131,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   }
 
   /**
-   * Calculated the Jacobian of the transform from fitting parameters to function parameters - the i,j element will be the partial derivative of i^th function parameter with respect
+   * Calculates the Jacobian of the transform from fitting parameters to function parameters - the i,j element will be the partial derivative of i^th function parameter with respect
    * to the j^th  fitting parameter
    * @param fittingParameters  The fitting parameters
    * @return  matrix of partial derivative of function parameter with respect to fitting parameters
@@ -140,7 +140,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   @Override
   public DoubleMatrix2D inverseJacobian(final DoubleMatrix1D fittingParameters) {
     Validate.notNull(fittingParameters, "fitting parameters");
-    Validate.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fititngParameter wrong dimension");
+    Validate.isTrue(fittingParameters.getNumberOfElements() == _nFP, "fitting parameters wrong dimension");
     final double[][] jac = new double[_nMP][_nFP];
     for (int i = 0, j = 0; i < _nMP; i++) {
       if (!_fixed.get(i)) {
