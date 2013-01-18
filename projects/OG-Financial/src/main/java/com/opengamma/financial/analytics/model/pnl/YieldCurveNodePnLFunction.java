@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.pnl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +69,6 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -238,7 +236,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       return null;
     }
     final String[] yieldCurveNames = curveCalculationConfig.getYieldCurveNames();
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     for (final String yieldCurveName : yieldCurveNames) {
@@ -273,7 +271,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final Set<String> curveNames = new HashSet<String>();
+    final Set<String> curveNames = new HashSet<>();
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       if (entry.getKey().getValueName().equals(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)) {
         curveNames.add(entry.getValue().getConstraint(ValuePropertyNames.CURVE));
@@ -331,12 +329,10 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       final HistoricalTimeSeries fxSeries, final boolean isInverse) {
     DoubleTimeSeries<?> pnlSeries = null;
     final int n = curveSensitivities.size();
-    final Object[] labels = curveSensitivities.getLabels();
-    final List<Object> labelsList = Arrays.asList(labels);
     final double[] values = curveSensitivities.getValues();
     final SortedSet<FixedIncomeStripWithSecurity> strips = (SortedSet<FixedIncomeStripWithSecurity>) spec.getStrips();
     final FixedIncomeStripWithSecurity[] stripsArray = strips.toArray(new FixedIncomeStripWithSecurity[] {});
-    final List<StripInstrumentType> stripList = new ArrayList<StripInstrumentType>(n);
+    final List<StripInstrumentType> stripList = new ArrayList<>(n);
     int stripCount = 0;
     for (final FixedIncomeStripWithSecurity strip : strips) {
       final int index = stripCount++; //labelsList.indexOf(strip.getSecurityIdentifier());

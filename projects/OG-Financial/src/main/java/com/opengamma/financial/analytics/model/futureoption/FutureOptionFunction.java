@@ -165,7 +165,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirementName : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirementName, target.toSpecification(), createValueProperties(target).get()));
     }
