@@ -12,6 +12,8 @@ public class StatisticsCalculator {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // TODO : 
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   public StatisticsCalculator() {
@@ -21,6 +23,7 @@ public class StatisticsCalculator {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Method to compute the number of simulated defaults in each simulation
+
   public int[] getNumberOfDefaultsPerScenario(final ScenarioGenerator scenarioGenerator, final SimulatedObligorDefaultState[][] simulatedDefaultScenarios) {
 
     int numberOfSimulations = scenarioGenerator.getNumberofSimulations();

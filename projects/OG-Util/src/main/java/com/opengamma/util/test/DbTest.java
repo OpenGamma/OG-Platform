@@ -179,7 +179,7 @@ public abstract class DbTest implements TableCreationCallback {
     return array;
   }
 
-  protected static Object[][] getParametersForDatabase(final String databaseType) {
+  public static Object[][] getParametersForDatabase(final String databaseType) {
     ArrayList<Object[]> parameters = new ArrayList<Object[]>();
     for (String db : TestProperties.getDatabaseTypes(databaseType)) {
       parameters.add(new Object[]{db, "latest"});

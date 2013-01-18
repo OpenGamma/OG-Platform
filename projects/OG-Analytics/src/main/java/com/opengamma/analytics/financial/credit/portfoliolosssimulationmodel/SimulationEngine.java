@@ -32,18 +32,34 @@ public class SimulationEngine {
 
   public void runSimulation(final ScenarioGenerator scenarioGenerator, final boolean outputResults) {
 
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Step I - Scenario generation
+
     // Generate the simulated defaults
     final SimulatedObligorDefaultState[][] simulatedDefaultScenarios = scenarioGenerator.generateDefaultScenarios(scenarioGenerator);
-
-    // Compute the number of simulated defaults per scenario
-    final int[] numberOfDefaultsPerScenario = statisticsCalculator.getNumberOfDefaultsPerScenario(scenarioGenerator, simulatedDefaultScenarios);
 
     // Generate the simulated recovery rates per default
     final double[][] simulatedRecoveryRateScenarios = scenarioGenerator.generateRecoveryRateScenarios(scenarioGenerator, simulatedDefaultScenarios);
 
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Step II - Position revaluation
+
     // Reval the portfolio of trades given the simulated scenarios
 
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Step III - Analysis
+
     // Compute the simulated P/L statistics
+
+    // Compute the number of simulated defaults per scenario
+    final int[] numberOfDefaultsPerScenario = statisticsCalculator.getNumberOfDefaultsPerScenario(scenarioGenerator, simulatedDefaultScenarios);
+
+    // ----------------------------------------------------------------------------------------------------------------------------------------
+
+    // Step IV - Reporting
 
     final int numberOfSimulations = scenarioGenerator.getNumberofSimulations();
     final int numberOfObligors = scenarioGenerator.getObligorUniverse().getNumberOfObligors();
@@ -73,6 +89,7 @@ public class SimulationEngine {
       }
     }
 
+    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

@@ -13,16 +13,16 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Named group of columns in a grid displaying analytics data.
  */
-public class AnalyticsColumnGroup {
+public class GridColumnGroup {
 
   private final String _name;
-  private final List<AnalyticsColumn> _columns;
+  private final List<GridColumn> _columns;
 
   /**
    * @param name The name of the group
    * @param columns The columns in the group
    */
-  /* package */ AnalyticsColumnGroup(String name, List<AnalyticsColumn> columns) {
+  /* package */ GridColumnGroup(String name, List<GridColumn> columns) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(columns, "cols");
     _name = name;
@@ -39,7 +39,7 @@ public class AnalyticsColumnGroup {
   /**
    * @return The columns in the group
    */
-  public List<AnalyticsColumn> getColumns() {
+  public List<GridColumn> getColumns() {
     return _columns;
   }
 

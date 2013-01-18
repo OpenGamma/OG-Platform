@@ -18,11 +18,11 @@ import com.opengamma.web.analytics.formatting.ResultsFormatter;
 /**
  *
  */
-public class AnalyticsColumnsJsonWriter {
+public class GridColumnsJsonWriter {
 
   private final ResultsFormatter _formatter;
 
-  public AnalyticsColumnsJsonWriter(ResultsFormatter formatter) {
+  public GridColumnsJsonWriter(ResultsFormatter formatter) {
     ArgumentChecker.notNull(formatter, "converters");
     _formatter = formatter;
   }
@@ -32,13 +32,13 @@ public class AnalyticsColumnsJsonWriter {
    * @param groups Column groups to render to JSON.
    * @return groups as JSON
    */
-  public String getJson(List<AnalyticsColumnGroup> groups) {
+  public String getJson(List<GridColumnGroup> groups) {
     List<Map<String, Object>> groupList = Lists.newArrayList();
-    for (AnalyticsColumnGroup group : groups) {
+    for (GridColumnGroup group : groups) {
       Map<String, Object> groupMap = Maps.newHashMap();
       groupMap.put("name", group.getName());
       List<Map<String, String>> columnList = Lists.newArrayList();
-      for (AnalyticsColumn column : group.getColumns()) {
+      for (GridColumn column : group.getColumns()) {
         Map<String, String> columnMap = Maps.newHashMap();
         columnMap.put("header", column.getHeader());
         columnMap.put("description", column.getDescription());

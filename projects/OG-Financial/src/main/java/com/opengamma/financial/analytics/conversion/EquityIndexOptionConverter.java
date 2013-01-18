@@ -10,8 +10,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.definition.SettlementType;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
+import com.opengamma.analytics.financial.equity.option.EquityOptionDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.ExerciseTypeAnalyticsVisitorAdapter;
@@ -23,9 +23,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Converts an EquityIndexOptionSecurity into OG-Financial's version of one: EquityIndexOptionDefinition
+ * Converts equity index options and equity options into something that OG-Analytics can use
  */
-public class EquityIndexOptionConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<EquityIndexOption>> {
+public class EquityIndexOptionConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   private final ConventionBundleSource _conventionSource;
 
   public EquityIndexOptionConverter(final ConventionBundleSource conventionSource) {
@@ -34,7 +34,7 @@ public class EquityIndexOptionConverter extends FinancialSecurityVisitorAdapter<
   }
 
   @Override
-  public InstrumentDefinition<EquityIndexOption> visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
+  public InstrumentDefinition<?> visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final boolean isCall = security.getOptionType() == OptionType.CALL;
     final double strike = security.getStrike();
@@ -45,13 +45,13 @@ public class EquityIndexOptionConverter extends FinancialSecurityVisitorAdapter<
     // TODO !!! We need to know how long after expiry does settlement occur?
     // IndexOptions are obviously Cash Settled
     final LocalDate settlementDate = expiryDT.toLocalDate(); // FIXME !!! Needs to come from convention !!!
-
+    //TODO settlement type needs to come from trade or convention
     return new EquityIndexOptionDefinition(isCall, strike, ccy, exerciseType, expiryDT, settlementDate, unitNotional, SettlementType.CASH);
   }
 
   //TODO this should call into a specific type
   @Override
-  public InstrumentDefinition<EquityIndexOption> visitEquityOptionSecurity(final EquityOptionSecurity security) {
+  public InstrumentDefinition<?> visitEquityOptionSecurity(final EquityOptionSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final boolean isCall = security.getOptionType() == OptionType.CALL;
     final double strike = security.getStrike();
@@ -62,8 +62,8 @@ public class EquityIndexOptionConverter extends FinancialSecurityVisitorAdapter<
     // TODO !!! We need to know how long after expiry does settlement occur?
     // IndexOptions are obviously Cash Settled
     final LocalDate settlementDate = expiryDT.toLocalDate(); // FIXME !!! Needs to come from convention !!!
-
-    return new EquityIndexOptionDefinition(isCall, strike, ccy, exerciseType, expiryDT, settlementDate, unitNotional, SettlementType.PHYSICAL);
+    //TODO settlement type needs to come from trade or convention
+    return new EquityOptionDefinition(isCall, strike, ccy, exerciseType, expiryDT, settlementDate, unitNotional, SettlementType.PHYSICAL);
   }
 }
 

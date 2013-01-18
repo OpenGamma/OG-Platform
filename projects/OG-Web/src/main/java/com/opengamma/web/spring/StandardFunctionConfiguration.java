@@ -87,7 +87,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
    */
   public static class Value {
 
-    private final Map<String, String> _values = new HashMap<String, String>();
+    private final Map<String, String> _values = new HashMap<>();
 
     public void set(final String key, final String value) {
       _values.put(key, value);
@@ -199,8 +199,8 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
 
   }
 
-  private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
-  private final Map<Pair<String, String>, CurrencyPairInfo> _perCurrencyPairInfo = new HashMap<Pair<String, String>, CurrencyPairInfo>();
+  private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<>();
+  private final Map<Pair<String, String>, CurrencyPairInfo> _perCurrencyPairInfo = new HashMap<>();
   private String _mark2MarketField;
   private String _costOfCarryField;
 
@@ -602,7 +602,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
         .useDiscountingCurveCalculationConfigNames()
         .useDiscountingCurveNames()
         .createPerEquityDefaults();
-    final List<String> equityFutureDefaultsWithPriority = new ArrayList<String>();
+    final List<String> equityFutureDefaultsWithPriority = new ArrayList<>();
     equityFutureDefaultsWithPriority.add(PriorityClass.NORMAL.name());
     equityFutureDefaultsWithPriority.addAll(equityFutureDefaults);
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityDividendYieldPricingDefaults.class.getName(), equityFutureDefaultsWithPriority));
@@ -710,7 +710,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
         .useDiscountingCurveCalculationConfigNames()
         .useVolatilitySurfaceNames()
         .createPerEquityDefaults();
-    final List<String> equityVarianceSwapStaticReplicationDefaultsWithPriority = new ArrayList<String>();
+    final List<String> equityVarianceSwapStaticReplicationDefaultsWithPriority = new ArrayList<>();
     equityVarianceSwapStaticReplicationDefaultsWithPriority.add(PriorityClass.NORMAL.name());
     equityVarianceSwapStaticReplicationDefaultsWithPriority.addAll(equityVarianceSwapStaticReplicationDefaults);
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityVarianceSwapStaticReplicationDefaults.class.getName(), equityVarianceSwapStaticReplicationDefaultsWithPriority));
@@ -723,7 +723,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
         .useDiscountingCurveCurrency()
         .useVolatilitySurfaceNames()
         .createPerEquityDefaults();
-    final List<String> equityVarianceSwapDefaultsWithPriority = new ArrayList<String>();
+    final List<String> equityVarianceSwapDefaultsWithPriority = new ArrayList<>();
     equityVarianceSwapDefaultsWithPriority.add(PriorityClass.NORMAL.name());
     equityVarianceSwapDefaultsWithPriority.addAll(equityVarianceSwapDefaults);
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityVarianceSwapDefaults.class.getName(), equityVarianceSwapDefaultsWithPriority));

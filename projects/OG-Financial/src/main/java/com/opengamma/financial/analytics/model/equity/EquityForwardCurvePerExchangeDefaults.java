@@ -43,7 +43,7 @@ public class EquityForwardCurvePerExchangeDefaults extends DefaultPropertyFuncti
    * @param perExchangeConfig The default values per exchange, not null
    */
   public EquityForwardCurvePerExchangeDefaults(final String priority, final String... perExchangeConfig) {
-    super(ComputationTargetType.ANYTHING, true); // TODO [PLAT-2286] Use the correct type; should this be SECURITY?
+    super(ComputationTargetType.LEGACY_PRIMITIVE, true); // // [PLAT-2286]: change to correct type; should this be SECURITY?
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perExchangeConfig, "per equity config");
     final int nPairs = perExchangeConfig.length;
