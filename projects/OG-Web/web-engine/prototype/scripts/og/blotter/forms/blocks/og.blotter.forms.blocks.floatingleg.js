@@ -9,12 +9,14 @@ $.register_module({
         var module = this, Block = og.common.util.ui.Block;
         var Floatingleg = function (config) {
             var block = this, id = og.common.id('attributes'), form = config.form, data = config.data,
-                leg = config.leg, ui = og.common.util.ui;
+                leg = config.leg, ui = og.common.util.ui, type = config.type, gear = ~type.indexOf('Gearing'),
+                spre = ~type.indexOf('Spread');
             form.Block.call(block, {
                 module: 'og.blotter.forms.blocks.swap_details_floating_tash',
-                extras: {leg: leg, initial: data.initialFloatingRate, 
-                    settlement: data.settlementDays, spread: data.spread, 
-                    gearing: data.gearing, notional: data.notional, index: config.index},
+                extras: {leg: leg, initial: data.initialFloatingRate, settlement: data.settlementDays, 
+                    spread: data.spread, gearing: data.gearing, notional: data.notional, index: config.index, 
+                    gear: gear, spre: spre
+                },
                 children: [
                     new form.Block({module:'og.views.forms.currency_tash', 
                         extras:{name: leg + "notional.currency"}
