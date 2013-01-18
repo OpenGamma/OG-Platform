@@ -6,11 +6,13 @@
 package com.opengamma.bbg.loader;
 
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeAPVLEquityOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeCommodityFutureOptionSecurity;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEURIBORFutureOptionSecurity;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEURODOLLARFutureOptionSecurity;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEquityIndexDividendFutureOptionSecurity;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEquityIndexFutureOptionSecurity;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeExpectedAAPLEquitySecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeFxFutureOptionSecurity;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeInterestRateFuture;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeLIBORFutureOptionSecurity;
 import static com.opengamma.bbg.util.BloombergSecurityUtils.makeSPXIndexOptionSecurity;
@@ -75,6 +77,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
@@ -461,10 +464,9 @@ public class BloombergSecurityLoaderTest extends DbTest {
         return null;           
       }
 
-
       @Override
       public Void visitCommodityFutureOptionSecurity(CommodityFutureOptionSecurity security) {
-        assertTrue(fromSecMaster instanceof IRFutureOptionSecurity);
+        assertTrue(fromSecMaster instanceof CommodityFutureOptionSecurity);
         CommodityFutureOptionSecurity actual = (CommodityFutureOptionSecurity) fromSecMaster;
 
         assertEquals(security.getCurrency(), actual.getCurrency());
@@ -478,6 +480,33 @@ public class BloombergSecurityLoaderTest extends DbTest {
         assertEquals(security.getStrike(), actual.getStrike());
         assertEquals(security.getUnderlyingId(), actual.getUnderlyingId());
         
+        assertEquals(security.getExternalIdBundle(), actual.getExternalIdBundle());
+        assertEquals(security.getName(), actual.getName());
+        assertEquals(security.getSecurityType(), actual.getSecurityType());
+        assertNotNull(actual.getUniqueId());
+
+        //test underlying is loaded as well
+        ExternalId underlyingIdentifier = security.getUnderlyingId();
+        assertUnderlyingIsLoaded(underlyingIdentifier);
+        return null;
+      }
+
+      @Override
+      public Void visitFxFutureOptionSecurity(FxFutureOptionSecurity security) {
+        assertTrue(fromSecMaster instanceof FxFutureOptionSecurity);
+        FxFutureOptionSecurity actual = (FxFutureOptionSecurity) fromSecMaster;
+
+        assertEquals(security.getCurrency(), actual.getCurrency());
+
+        assertEquals(security.getTradingExchange(), actual.getTradingExchange());
+        assertEquals(security.getSettlementExchange(), actual.getSettlementExchange());
+        assertEquals(security.getExerciseType(), actual.getExerciseType());
+        assertEquals(security.getExpiry(), actual.getExpiry());
+        assertEquals(security.getOptionType(), actual.getOptionType());
+        assertEquals(security.getPointValue(), actual.getPointValue());
+        assertEquals(security.getStrike(), actual.getStrike());
+        assertEquals(security.getUnderlyingId(), actual.getUnderlyingId());
+
         assertEquals(security.getExternalIdBundle(), actual.getExternalIdBundle());
         assertEquals(security.getName(), actual.getName());
         assertEquals(security.getSecurityType(), actual.getSecurityType());
@@ -658,6 +687,16 @@ public class BloombergSecurityLoaderTest extends DbTest {
     assertLoadAndSaveSecurity(makeEURODOLLARFutureOptionSecurity());
     assertLoadAndSaveSecurity(makeLIBORFutureOptionSecurity());
     assertLoadAndSaveSecurity(makeEURIBORFutureOptionSecurity());
+  }
+
+  @Test(groups={"bbgSecurityLoaderTests"})
+  public void testCommodityFutureOptionSecurity() {
+    assertLoadAndSaveSecurity(makeCommodityFutureOptionSecurity());
+  }
+
+  @Test(groups={"bbgSecurityLoaderTests"})
+  public void testFxFutureOptionSecurity() {
+    assertLoadAndSaveSecurity(makeFxFutureOptionSecurity());
   }
 
   private void assertUnderlyingIsLoaded(final ExternalId underlyingIdentifier) {
