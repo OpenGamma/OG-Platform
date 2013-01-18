@@ -86,7 +86,8 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     if (y > TANH_MAX || y < -TANH_MAX) {
       return 0.0;
     }
-    return _scale * (1 - FunctionUtils.square(TrigonometricFunctionUtils.tanh(y)));
+    double tanh = Math.tanh(y);
+    return _scale * (1 - tanh * tanh);
   }
 
   /**
