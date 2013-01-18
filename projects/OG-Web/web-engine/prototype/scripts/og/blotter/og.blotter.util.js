@@ -7,13 +7,13 @@ $.register_module({
     dependencies: [],
     obj: function () {
 
-         var FAKE_ATTRIBUTES = [
+        var bools = {"false": false, "true": true},
+            FAKE_ATTRIBUTES = [
                 {key: 'what',value: 'that'},
                 {key: 'colour',value: 'white'},
                 {key: 'moral',value: 'bad'},
                 {key: 'direction',value: 'down'},
-                {key: 'speed',value: 'fast'}],
-            bools = {"false": false, "true": true};  
+                {key: 'speed',value: 'fast'}]; 
         return {
             /* Util methods */
             update_block : function (section, extras){
@@ -57,8 +57,6 @@ $.register_module({
                 else
                     option.removeAttr("disabled");
             },
-            
-            option : Handlebars.compile('<option value="{{{value}}}">{{{name}}}</option>'),
             /* Util data */
             otc_trade : {                
                 tradeDate: "2013-01-01",
@@ -72,10 +70,10 @@ $.register_module({
                 counterparty: 'ABC Counterparty'
             },
             swap_types : [
-                {text:'FLoating Interest Rate Leg', value:'floatingInterestRateLeg'},
-                {text:'FLoating Gearing Interest Rate Leg', value:'floatingGearingIRLeg'},
-                {text:'FLoating Spread Interest Rate Leg', value:'floatingSpreadIRLeg'},
-                {text:'Fixed Interest Rate Leg', value:'fixedInterestRateLeg'}
+                {text:'FLoating Interest Rate Leg', value:'FloatingInterestRateLeg'},
+                {text:'FLoating Gearing Interest Rate Leg', value:'FloatingGearingIRLeg'},
+                {text:'FLoating Spread Interest Rate Leg', value:'FloatingSpreadIRLeg'},
+                {text:'Fixed Interest Rate Leg', value:'FixedInterestRateLeg'}
             ]
         };
     }

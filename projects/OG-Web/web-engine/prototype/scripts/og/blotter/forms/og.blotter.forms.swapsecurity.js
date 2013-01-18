@@ -18,7 +18,17 @@ $.register_module({
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.swap_tash',
                     selector: '.OG-blotter-form-block',
-                    data: data
+                    data: data,
+                    processor: function (data) {
+                        data.security.payLeg.type = $pay_select.val();
+                        data.security.receiveLeg.type = $receive_select.val();
+                        data.security.counterparty = data.trade.counterparty;
+                        data.security.attributes = {};
+                        data.security.payLeg.regionId = data.security.regionId;
+                        data.security.receiveLeg.regionId = data.security.regionId;
+                        data.security.payLeg.notional.type = 'InterestRateNotional';
+                        data.security.receiveLeg.notional.type = 'InterestRateNotional';
+                    }
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
@@ -73,7 +83,7 @@ $.register_module({
                 if(!swap.type.length) {
                     new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});
                 }
-                else if(!~swap.type.indexOf('floating')){
+                else if(!~swap.type.indexOf('Floating')){
                     new_block = new og.blotter.forms.blocks.Fixedleg({
                         form: form, data: data, leg: swap.leg, index: swap.index
                     });

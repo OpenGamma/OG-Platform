@@ -15,12 +15,18 @@ $.register_module({
                 extras: {rate: data.rate, notional: data.notional, index: config.index, leg: leg},
                 children : [
                     new form.Block({module:'og.views.forms.currency_tash', 
-                        extras:{name: leg + "currency"}
+                        extras:{name: leg + "notional.currency"}
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.daycountconventions', 
                         index: leg + 'dayCount',
                         value: data.dayCount, placeholder: 'Select Day Count'
+                    }),
+                    new ui.Dropdown({
+                        form: form, resource: 'blotter.businessdayconventions', 
+                        index:  leg + 'businessDayConvention',
+                        value: data.businessDayConvention, 
+                        placeholder: 'Select Business Day Convention'
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.frequencies', 

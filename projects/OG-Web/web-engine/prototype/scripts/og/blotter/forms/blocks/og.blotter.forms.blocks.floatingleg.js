@@ -17,8 +17,12 @@ $.register_module({
                     gearing: data.gearing, notional: data.notional, index: config.index},
                 children: [
                     new form.Block({module:'og.views.forms.currency_tash', 
-                        extras:{name: leg + "currency"}
+                        extras:{name: leg + "notional.currency"}
                     }),
+                    new og.blotter.forms.blocks.Security({
+                        form: form, label: "Short Underlying ID", security: data.floatingReferenceRateId,
+                        index: leg + "floatingReferenceRateId"
+                    }),    
                     new ui.Dropdown({
                         form: form, resource: 'blotter.daycountconventions', index: leg + 'dayCount',
                         value: data.dayCount, placeholder: 'Select Day Count'
@@ -35,7 +39,7 @@ $.register_module({
                     }),
                     new ui.Dropdown({
                         form: form, resource: 'blotter.floatingratetypes', 
-                        index:  leg + 'floatingRateTypes',
+                        index:  leg + 'floatingRateType',
                         value: data.floatingRateType, placeholder: 'Select Floating Rate Type'
                     }),
                     new ui.Dropdown({
