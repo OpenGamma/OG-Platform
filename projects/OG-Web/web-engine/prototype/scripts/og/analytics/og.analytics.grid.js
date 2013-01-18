@@ -87,14 +87,17 @@ $.register_module({
             if (templates) init_data.call(grid); else compile_templates.call(grid, init_data);
         };
         var init_data = function () {
-            var grid = this, config = grid.config;
+            var grid = this, config = grid.config, label = grid.config.label || 'grid';
             grid.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             grid.elements.parent.html(templates.loading({text: 'creating view client...'}));
-            grid.dataman = new (config.dataman || og.analytics.Data)(grid.source, {bypass: false, label: 'grid'})
+            grid.dataman = new (config.dataman || og.analytics.Data)(grid.source, {bypass: false, label: label})
                 .on('meta', init_grid, grid).on('data', render_rows, grid)
-                .on('disconnect', function () {grid.selector.clear(); grid.clipboard.clear();})
+                .on('disconnect', function () {
+                    if (grid.selector) grid.selector.clear(); // may not have been instantiated yet
+                    grid.clipboard.clear();
+                })
                 .on('fatal', function (error) {
                     grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), grid.fire('fatal');
                 })
@@ -104,7 +107,7 @@ $.register_module({
                         .filter(function (key) {return types[key] && key !== grid.views.selected;});
                     if (grid.elements.empty) return; else render_header.call(grid);
                 });
-            grid.clipboard = new og.analytics.Clipboard(grid, config.local_clipboard);
+            grid.clipboard = new og.analytics.Clipboard(grid);
         };
         var init_elements = function () {
             var grid = this, config = grid.config, elements, in_timeout, out_timeout, stall = 15,

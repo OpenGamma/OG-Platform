@@ -31,9 +31,13 @@ $.register_module({
             },
             griddata: function (args) {
                 var options = {
-                    selector: content, row: 0, col: 3, child: true, type: 'LABELLED_MATRIX_2D', source: {
-                        aggregators: [], providers: [{marketDataType: 'live', source: 'Bloomberg'}],
-                        viewdefinition: 'DbCfg~1260', type: 'portfolio'
+                    selector: content, row: 136, col: 3, child: true, type: 'LABELLED_MATRIX_2D', source: {
+                        aggregators: [], providers: [
+                            {marketDataType: 'live', source: 'Bloomberg'},
+                            {marketDataType: 'live', source: 'Activ'},
+                            {marketDataType: 'live', source: 'TullettPrebon'}
+                        ],
+                        viewdefinition: 'DbCfg~1569', type: 'portfolio', depgraph: true, row: 5, col: 4
                     }
                     };
                 new og.common.gadgets.GridData(options);
