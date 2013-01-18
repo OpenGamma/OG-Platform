@@ -28,6 +28,7 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -61,8 +62,10 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -143,13 +146,24 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getTrade().getSecurity() instanceof IRFutureOptionSecurity;
+    final Security security = target.getTrade().getSecurity();
+    if (!(security instanceof IRFutureOptionSecurity)) {
+      return false;
+    }
+    // REVIEW Andrew 2012-01-17 -- This shouldn't be necessary; the securities in the master should be logically correct and not refer to incorrect or missing underlyings
+    // REVIEW Andrew 2012-01-17 -- This call is wrong; getSingle won't observe the view cycle's object resolution time
+    final Security underlyingSecurity = context.getSecuritySource().getSingle(ExternalIdBundle.of(((IRFutureOptionSecurity) security).getUnderlyingId()));
+    if (!(underlyingSecurity instanceof InterestRateFutureSecurity)) {
+      s_logger.error("Loader error: " + security.getName() + ", supposedly an IRateFutureOption has an underlying that is not an IRFuture: " + underlyingSecurity.getName());
+      return false;
+    }
+    return true;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = ValueProperties.all();
-    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirement : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties));
     }
@@ -181,13 +195,22 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     final String surfaceName = Iterables.getOnlyElement(surfaceNames) + "_" + IRFutureOptionFunctionHelper.getFutureOptionPrefix(target);
     final Trade trade = target.getTrade();
     final Currency currency = FinancialSecurityUtils.getCurrency(trade.getSecurity());
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(getCurveRequirement(trade, curveCalculationConfig, context));
     final ValueRequirement surfaceRequirement = SABRFittingPropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, currency, InstrumentTypeProperties.IR_FUTURE_OPTION);
     if (surfaceRequirement == null) {
       return null;
     }
     requirements.add(surfaceRequirement);
+    // REVIEW Andrew 2012-01-17 -- This check shouldn't be necessary; we know the security is a IRFutureOptionSecurity because of #canApplyTo
+    /*
+    final SecuritySource secSource = context.getSecuritySource();
+    final Security secFromIdBundle = secSource.getSingle(security.getExternalIdBundle());
+    if (!(secFromIdBundle instanceof IRFutureOptionSecurity)) {
+      //  s_logger.error("Loader error: " + secFromIdBundle.toString() + " has been loaded as an InterestRateFutureOption.");
+      return null;
+    }
+     */
     final Set<ValueRequirement> timeSeriesRequirement = getTimeSeriesRequirement(trade);
     if (timeSeriesRequirement == null) {
       return null;
@@ -237,7 +260,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
     assert curvePropertiesSet;
     assert surfacePropertiesSet;
     properties = properties.with(ValuePropertyNames.SURFACE, surfaceName);
-    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirement : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties.get()));
     }
@@ -264,7 +287,7 @@ public abstract class IRFutureOptionSABRFunction extends AbstractFunction.NonCom
   }
 
   private Set<ValueRequirement> getCurveRequirement(final Trade trade, final String curveCalculationConfigName, final FunctionCompilationContext context) {
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);

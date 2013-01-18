@@ -332,7 +332,7 @@ public class WebView {
     final long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
 
     if (getPrimitivesGrid() != null) {
-      final ComputationTargetSpecification[] targets = getPortfolioGrid().getGridStructure().getTargets();
+      final ComputationTargetSpecification[] targets = getPrimitivesGrid().getGridStructure().getTargets();
       for (int i = 0; i < targets.length; i++) {
         final ComputationTargetSpecification target = targets[i];
         getPrimitivesGrid().processTargetResult(i, target, resultModel.getTargetResult(target), resultTimestamp);

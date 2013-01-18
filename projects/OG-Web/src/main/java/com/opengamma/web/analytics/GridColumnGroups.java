@@ -13,17 +13,17 @@ import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Collection of {@link AnalyticsColumnGroup}s that make up the columns in a grid.
+ * Collection of {@link GridColumnGroup}s that make up the columns in a grid.
  */
-public class AnalyticsColumnGroups {
+public class GridColumnGroups {
 
-  private final List<AnalyticsColumn> _columns = Lists.newArrayList();
-  private final List<AnalyticsColumnGroup> _columnGroups;
+  private final List<GridColumn> _columns = Lists.newArrayList();
+  private final List<GridColumnGroup> _columnGroups;
 
-  /* package */ AnalyticsColumnGroups(List<AnalyticsColumnGroup> columnGroups) {
+  /* package */ GridColumnGroups(List<GridColumnGroup> columnGroups) {
     ArgumentChecker.notNull(columnGroups, "columnGroups");
     ArgumentChecker.notNull(columnGroups, "columnGroups");
-    for (AnalyticsColumnGroup group : columnGroups) {
+    for (GridColumnGroup group : columnGroups) {
       _columns.addAll(group.getColumns());
     }
     _columnGroups = ImmutableList.copyOf(columnGroups);
@@ -32,8 +32,8 @@ public class AnalyticsColumnGroups {
   /**
    * @return A instance containing no column groups
    */
-  /* package */ static AnalyticsColumnGroups empty() {
-    return new AnalyticsColumnGroups(Collections.<AnalyticsColumnGroup>emptyList());
+  /* package */ static GridColumnGroups empty() {
+    return new GridColumnGroups(Collections.<GridColumnGroup>emptyList());
   }
 
   /**
@@ -48,14 +48,14 @@ public class AnalyticsColumnGroups {
    * @param index The column index, zero based
    * @return The column at the specified index
    */
-  public AnalyticsColumn getColumn(int index) {
+  public GridColumn getColumn(int index) {
     return _columns.get(index);
   }
 
   /**
    * @return The column groups in the order they should be displayed
    */
-  public List<AnalyticsColumnGroup> getGroups() {
+  public List<GridColumnGroup> getGroups() {
     return _columnGroups;
   }
 

@@ -10,9 +10,9 @@ import java.util.Set;
 
 import com.opengamma.analytics.financial.equity.EqyOptBjerksundStenslandGreekCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -54,7 +54,7 @@ public class EquityOptionBjerksundStenslandGreeksFunction extends EquityOptionBj
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final GreekResultCollection greeks = derivative.accept(EqyOptBjerksundStenslandGreekCalculator.getInstance(), market);
     final Set<ComputedValue> result = new HashSet<>();

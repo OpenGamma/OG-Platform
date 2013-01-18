@@ -218,7 +218,7 @@ public class BlotterResource {
     _newTradeBuilder = new NewOtcTradeBuilder(_securityMaster, _positionMaster, s_metaBeans, s_stringConvert);
   }
 
-  /* package */ static StringConvert getStringConvert() {
+  public static StringConvert getStringConvert() {
     return s_stringConvert;
   }
 

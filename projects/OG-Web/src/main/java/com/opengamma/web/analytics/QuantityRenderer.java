@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.opengamma.util.ArgumentChecker;
@@ -13,20 +12,18 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class QuantityRenderer implements AnalyticsColumn.CellRenderer {
+/* package */ class QuantityRenderer implements GridColumn.CellRenderer {
 
-  private final int _colIndex;
-  private final List<MainGridStructure.Row> _rows;
+  private final List<? extends MainGridStructure.Row> _rows;
 
-  /* package */ QuantityRenderer(int colIndex, List<MainGridStructure.Row> rows) {
+  /* package */ QuantityRenderer(List<? extends MainGridStructure.Row> rows) {
     ArgumentChecker.notNull(rows, "rows");
-    _colIndex = colIndex;
     _rows = rows;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache) {
+  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
     MainGridStructure.Row row = _rows.get(rowIndex);
-    return ViewportResults.valueCell(row.getQuantity(), null, Collections.emptyList(), null, _colIndex, false);
+    return ResultsCell.forStaticValue(row.getQuantity(), columnType);
   }
 }

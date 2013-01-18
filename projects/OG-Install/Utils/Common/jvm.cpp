@@ -153,7 +153,7 @@ static HMODULE _findJavaFromRegistry (HKEY hkeyPublisher, PCSTR pszVersion) {
 		hFile = CreateFile (sz, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		size_t cch = strlen (sz);
 		if (hFile == INVALID_HANDLE_VALUE) {
-			// DEPRECATED: JRE 1.7 doesn't seem to have this bug. Confirm and replace with just a "break"
+			// JRE 1.7, 32-bit doesn't seem to have this bug but 64-bit does.
 			if ((cch > 15) && !strcmp (sz + cch - 15, "\\client\\jvm.dll")) {
 				memcpy (sz + cch - 14, "server", 6);
 				hFile = CreateFile (sz, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);

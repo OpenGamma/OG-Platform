@@ -17,6 +17,7 @@ import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
 
 /**
  * Default implementation of {@link AnalyticsView}. This class isn't meant to be thread safe. A thread calling any
@@ -33,6 +34,7 @@ import com.opengamma.util.ArgumentChecker;
   private final ComputationTargetResolver _targetResolver;
   private final String _viewId;
   private final ViewportListener _viewportListener;
+  private final BlotterColumnMappings _blotterColumnMappings;
 
   private MainAnalyticsGrid _portfolioGrid;
   private MainAnalyticsGrid _primitivesGrid;
@@ -43,15 +45,18 @@ import com.opengamma.util.ArgumentChecker;
    * @param portoflioCallbackId ID that is passed to the listener when the structure of the portfolio grid changes.
    * This class makes no assumptions about its value
    * @param primitivesCallbackId ID that is passed to the listener when the structure of the primitives grid changes.
-   * This class makes no assumptions about its value
+ * This class makes no assumptions about its value
    * @param targetResolver For looking up calculation targets by specification
    * @param viewportListener
+   * @param blotterColumnMappings
    */
   /* package */ SimpleAnalyticsView(String viewId,
                                     String portoflioCallbackId,
                                     String primitivesCallbackId,
                                     ComputationTargetResolver targetResolver,
-                                    ViewportListener viewportListener) {
+                                    ViewportListener viewportListener,
+                                    BlotterColumnMappings blotterColumnMappings) {
+    _blotterColumnMappings = blotterColumnMappings;
     ArgumentChecker.notEmpty(viewId, "viewId");
     ArgumentChecker.notEmpty(portoflioCallbackId, "portoflioGridId");
     ArgumentChecker.notEmpty(primitivesCallbackId, "primitivesGridId");
@@ -73,7 +78,10 @@ import com.opengamma.util.ArgumentChecker;
                                                 _portfolioGrid.getCallbackId(),
                                                 _targetResolver,
                                                 valueMappings,
-                                                _viewportListener);
+                                                _viewportListener,
+                                                _blotterColumnMappings,
+                                                false); // TODO option to create blotter columns
+                                                //true); // TODO option to create blotter columns
     _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition,
                                                   _primitivesGrid.getCallbackId(),
                                                   _targetResolver,
