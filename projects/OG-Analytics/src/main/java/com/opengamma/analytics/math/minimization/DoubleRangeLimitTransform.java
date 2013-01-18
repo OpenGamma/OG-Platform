@@ -86,8 +86,10 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     if (y > TANH_MAX || y < -TANH_MAX) {
       return 0.0;
     }
-    double tanh = Math.tanh(y);
-    return _scale * (1 - tanh * tanh);
+    double p = 2 * y;
+    double ep = Math.exp(p);
+    double epp1 = ep + 1;
+    return 4 * ep / (epp1 * epp1);
   }
 
   /**
