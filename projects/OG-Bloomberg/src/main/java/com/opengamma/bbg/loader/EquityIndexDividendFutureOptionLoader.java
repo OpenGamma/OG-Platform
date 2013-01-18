@@ -6,6 +6,7 @@
 package com.opengamma.bbg.loader;
 
 import static com.opengamma.bbg.BloombergConstants.FIELD_EXCH_CODE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MARKET_SECTOR_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPTION_ROOT_TICKER;
@@ -17,7 +18,9 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_TICK_VAL;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDERLYING_SECURITY_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDL_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_VAL_PT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_UNDL_ID_BB_UNIQUE;
 
 import java.util.HashSet;
@@ -56,9 +59,9 @@ public class EquityIndexDividendFutureOptionLoader extends SecurityLoader {
    * The fields to load from Bloomberg.
    */
   private static final Set<String> BLOOMBERG_EQUITY_DIVIDEND_FUTURE_OPTION_FIELDS = ImmutableSet.of(
-      FIELD_OPTION_ROOT_TICKER,
+      FIELD_TICKER,
       FIELD_EXCH_CODE,
-      FIELD_SECURITY_DES,
+      FIELD_PARSEKYABLE_DES,
       FIELD_MARKET_SECTOR_DES,
       FIELD_OPT_EXERCISE_TYP,
       FIELD_OPT_STRIKE_PX,
@@ -68,7 +71,7 @@ public class EquityIndexDividendFutureOptionLoader extends SecurityLoader {
       FIELD_OPT_EXPIRE_DT,
       FIELD_ID_BBG_UNIQUE,
       FIELD_OPT_TICK_VAL,
-      FIELD_OPT_VAL_PT,
+      FIELD_FUT_VAL_PT,
       FIELD_UNDL_ID_BB_UNIQUE);
 
   /**
@@ -90,19 +93,18 @@ public class EquityIndexDividendFutureOptionLoader extends SecurityLoader {
   //-------------------------------------------------------------------------
   @Override
   protected ManageableSecurity createSecurity(FudgeMsg fieldData) {
-    String rootTicker = fieldData.getString(FIELD_OPTION_ROOT_TICKER);
+    String rootTicker = fieldData.getString(FIELD_TICKER);
     String exchange = fieldData.getString(FIELD_EXCH_CODE);
     String optionExerciseType = fieldData.getString(FIELD_OPT_EXERCISE_TYP);
     double optionStrikePrice = fieldData.getDouble(FIELD_OPT_STRIKE_PX);
-    double pointValue = fieldData.getDouble(FIELD_OPT_VAL_PT);
+    double pointValue = fieldData.getDouble(FIELD_FUT_VAL_PT);
     String putOrCall = fieldData.getString(FIELD_OPT_PUT_CALL);
     String underlingTicker = fieldData.getString(FIELD_OPT_UNDERLYING_SECURITY_DES);
     String currency = fieldData.getString(FIELD_OPT_UNDL_CRNCY);
     String expiryDate = fieldData.getString(FIELD_OPT_EXPIRE_DT);
     String bbgUniqueID = fieldData.getString(FIELD_ID_BBG_UNIQUE);
     String underlyingUniqueID = fieldData.getString(FIELD_UNDL_ID_BB_UNIQUE);
-    String secDes = fieldData.getString(FIELD_SECURITY_DES);
-    String marketSector = fieldData.getString(FIELD_MARKET_SECTOR_DES);
+    String secDes = fieldData.getString(FIELD_PARSEKYABLE_DES);
     
     if (!BloombergDataUtils.isValidField(bbgUniqueID)) {
       s_logger.warn("bloomberg UniqueID is missing, cannot construct equityIndexOption security");
@@ -167,11 +169,11 @@ public class EquityIndexDividendFutureOptionLoader extends SecurityLoader {
     SecurityKey underlingKey = new SecurityKeyImpl(Collections.unmodifiableSet(underlyingIdentifiers));
     */
     Currency ogCurrency = Currency.parse(currency);
-    
+
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
     identifiers.add(ExternalSchemes.bloombergBuidSecurityId(bbgUniqueID));
-    if (BloombergDataUtils.isValidField(secDes) && BloombergDataUtils.isValidField(marketSector)) {
-      identifiers.add(ExternalSchemes.bloombergTickerSecurityId(secDes + " " + marketSector));
+    if (BloombergDataUtils.isValidField(secDes)) {
+      identifiers.add(ExternalSchemes.bloombergTickerSecurityId(secDes));
     }
     
     final ExerciseType exerciseType = getExerciseType(optionExerciseType);
