@@ -8,13 +8,14 @@ $.register_module({
     obj: function () {
         var module = this, Block = og.common.util.ui.Block;
         var Floatingleg = function (config) {
-            var block = this, id = og.common.id('attributes'), form = config.form, data = config.data,
-                leg = config.leg, ui = og.common.util.ui, type = config.type, gear = ~type.indexOf('Gearing'),
-                spre = ~type.indexOf('Spread');
+            var block = this, id = og.common.id('attributes'), form = config.form,leg = config.leg,
+                ui = og.common.util.ui, type = config.type, gear = ~type.indexOf('Gearing'),
+                spre = ~type.indexOf('Spread'), leg_path = (leg.slice(0,leg.length-1)).split('.'),
+                data = leg_path.reduce(function (acc, val) {return acc[val];},config.data);
             form.Block.call(block, {
                 module: 'og.blotter.forms.blocks.swap_details_floating_tash',
                 extras: {leg: leg, initial: data.initialFloatingRate, settlement: data.settlementDays, 
-                    spread: data.spread, gearing: data.gearing, notional: data.notional, index: config.index, 
+                    spread: data.spread, gearing: data.gearing, notional: data.notional.amount, index: config.index, 
                     gear: gear, spre: spre
                 },
                 children: [
@@ -50,9 +51,7 @@ $.register_module({
                     })
                 ],
                 processor: function (data) {
-                    var path = leg.split('.');
-                    path.pop();
-                    path.reduce(function (acc, val) {return acc[val];},data)['eom'] = 
+                    leg_path.reduce(function (acc, val) {return acc[val];},data)['eom'] = 
                         og.blotter.util.get_checkbox(leg + 'eom');
                 }
             });

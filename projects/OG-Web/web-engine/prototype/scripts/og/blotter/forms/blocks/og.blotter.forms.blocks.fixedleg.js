@@ -8,11 +8,13 @@ $.register_module({
     obj: function () {
         var module = this, Block = og.common.util.ui.Block;
         var Fixedleg = function (config) {
-            var block = this, id = og.common.id('attributes'), form = config.form, data = config.data,
-                leg = config.leg, ui = og.common.util.ui;
+            var block = this, id = og.common.id('attributes'), form = config.form, leg = config.leg,
+                ui = og.common.util.ui, leg_path = (leg.slice(0,leg.length-1)).split('.'),
+                data = leg_path.reduce(function (acc, val) {return acc[val];},config.data);
+            console.log(data);   
             form.Block.call(block, {
                 module: 'og.blotter.forms.blocks.swap_details_fixed_tash',
-                extras: {rate: data.rate, notional: data.notional, index: config.index, leg: leg},
+                extras: {rate: data.rate, notional: data.notional.amount, index: config.index, leg: leg},
                 children : [
                     new form.Block({module:'og.views.forms.currency_tash', 
                         extras:{name: leg + "notional.currency"}
@@ -35,9 +37,7 @@ $.register_module({
                     })
                 ],
                 processor: function (data) {
-                    var path = leg.split('.');
-                    path.pop();
-                    path.reduce(function (acc, val) {return acc[val];},data)['eom'] = 
+                    leg_path.reduce(function (acc, val) {return acc[val];},data)['eom'] = 
                         og.blotter.util.get_checkbox(leg + 'eom');
                 }
             });
