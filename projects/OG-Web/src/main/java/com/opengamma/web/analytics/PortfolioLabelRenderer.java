@@ -21,9 +21,9 @@ import com.opengamma.util.ArgumentChecker;
 
   private static final Pattern POSITION_ID_PATTERN = Pattern.compile("DbPrt-DbPos~\\d+-(\\d+)~\\d+-(\\d+)");
 
-  private final List<MainGridStructure.Row> _rows;
+  private final List<? extends MainGridStructure.Row> _rows;
 
-  /* package */ PortfolioLabelRenderer(List<MainGridStructure.Row> rows) {
+  /* package */ PortfolioLabelRenderer(List<? extends MainGridStructure.Row> rows) {
     ArgumentChecker.notNull(rows, "rows");
     _rows = rows;
   }

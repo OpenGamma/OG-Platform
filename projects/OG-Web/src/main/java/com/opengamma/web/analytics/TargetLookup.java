@@ -19,9 +19,9 @@ import com.opengamma.util.tuple.Pair;
 
   /** Mappings of requirements to specifications. */
   private final ValueMappings _valueMappings;
-  private final List<MainGridStructure.Row> _rows;
+  private final List<? extends MainGridStructure.Row> _rows;
 
-  /* package */ TargetLookup(ValueMappings valueMappings, List<MainGridStructure.Row> rows) {
+  /* package */ TargetLookup(ValueMappings valueMappings, List<? extends MainGridStructure.Row> rows) {
     ArgumentChecker.notNull(valueMappings, "valueMappings");
     ArgumentChecker.notNull(rows, "rows");
     _valueMappings = valueMappings;

@@ -5,11 +5,11 @@
  */
 package com.opengamma.web.analytics.blotter;
 
-import static com.opengamma.web.analytics.blotter.BlotterSummaryColumnMappings.BlotterSummaryColumn.MATURITY;
-import static com.opengamma.web.analytics.blotter.BlotterSummaryColumnMappings.BlotterSummaryColumn.PRODUCT;
-import static com.opengamma.web.analytics.blotter.BlotterSummaryColumnMappings.BlotterSummaryColumn.QUANTITY;
-import static com.opengamma.web.analytics.blotter.BlotterSummaryColumnMappings.BlotterSummaryColumn.RATE;
-import static com.opengamma.web.analytics.blotter.BlotterSummaryColumnMappings.BlotterSummaryColumn.TYPE;
+import static com.opengamma.web.analytics.blotter.BlotterColumn.MATURITY;
+import static com.opengamma.web.analytics.blotter.BlotterColumn.PRODUCT;
+import static com.opengamma.web.analytics.blotter.BlotterColumn.QUANTITY;
+import static com.opengamma.web.analytics.blotter.BlotterColumn.RATE;
+import static com.opengamma.web.analytics.blotter.BlotterColumn.TYPE;
 import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.calendar.TimeZone;
@@ -28,10 +28,10 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public class BlotterSummaryColumnMappingsTest {
+public class BlotterColumnMappingsTest {
 
-  private static final BlotterSummaryColumnMappings s_mappings =
-      new BlotterSummaryColumnMappings(BlotterResource.getStringConvert(),
+  private static final BlotterColumnMappings s_mappings =
+      new BlotterColumnMappings(BlotterResource.getStringConvert(),
                                        CurrencyPairs.of(ImmutableSet.of(CurrencyPair.of(Currency.GBP, Currency.USD))));
 
   /**

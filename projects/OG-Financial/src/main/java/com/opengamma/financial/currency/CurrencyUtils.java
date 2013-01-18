@@ -52,6 +52,8 @@ public final class CurrencyUtils {
     }
   }
 
+  // TODO should the methods below here move to CurrencyPairs?
+
   /**
    * Returns the rate required to convert the amounts between the specified currencies using their market
    * convention currency pair.
@@ -86,11 +88,11 @@ public final class CurrencyUtils {
     }
   }
 
-  public static Double getBaseCurrencyAmount(Currency currency1,
-                                             Currency currency2,
-                                             double amount1,
-                                             double amount2,
-                                             CurrencyPairs currencyPairs) {
+  public static Double getBaseAmount(Currency currency1,
+                                     Currency currency2,
+                                     double amount1,
+                                     double amount2,
+                                     CurrencyPairs currencyPairs) {
     ArgumentChecker.notNull(currency1, "currency1");
     ArgumentChecker.notNull(currency2, "currency2");
     ArgumentChecker.notNull(currencyPairs, "currencyPairs");
@@ -105,11 +107,11 @@ public final class CurrencyUtils {
     }
   }
 
-  public static Double getCounterCurrencyAmount(Currency currency1,
-                                                Currency currency2,
-                                                double amount1,
-                                                double amount2,
-                                                CurrencyPairs currencyPairs) {
+  public static Double getCounterAmount(Currency currency1,
+                                        Currency currency2,
+                                        double amount1,
+                                        double amount2,
+                                        CurrencyPairs currencyPairs) {
     ArgumentChecker.notNull(currency1, "currency1");
     ArgumentChecker.notNull(currency2, "currency2");
     ArgumentChecker.notNull(currencyPairs, "currencyPairs");
