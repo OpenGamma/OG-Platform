@@ -15,9 +15,11 @@ import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
@@ -29,6 +31,8 @@ import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
@@ -89,7 +93,7 @@ public final class BloombergSecurityUtils {
    */
   public static final String ATT_EQUITY_TICKER = "T US Equity";
 
-  private static int s_dst = java.util.TimeZone.getDefault().inDaylightTime(new Date()) ? 1 : 0; // this is a here until time-zones are implemented properly
+  private static int s_dst = 1;//java.util.TimeZone.getDefault().inDaylightTime(new Date()) ? 1 : 0; // this is a here until time-zones are implemented properly
 
   private BloombergSecurityUtils() {
   }
@@ -310,6 +314,46 @@ public final class BloombergSecurityUtils {
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
     security.setUniqueId(BloombergSecurityProvider.createUniqueId("IX5801809-0-8980"));
     security.setName("SPX 2010-12-18 C 1100.0");
+    return security;
+  }
+
+
+  public static EquityIndexFutureOptionSecurity makeEquityIndexFutureOptionSecurity() {
+
+    OptionType optionType = OptionType.CALL;
+    double strike = 1000.0;
+    Expiry expiry = new Expiry(DateUtils.getUTCDate(2013, 3, 15));
+    ExternalId underlyingUniqueID = ExternalSchemes.bloombergBuidSecurityId("IX14248603-0");
+
+    final EquityIndexFutureOptionSecurity security = new EquityIndexFutureOptionSecurity(
+        "CME", expiry, new AmericanExerciseType(), underlyingUniqueID, 50.0, true, USD, strike, optionType);
+
+    Set<ExternalId> identifiers = ImmutableSet.of(
+      ExternalSchemes.bloombergBuidSecurityId("IX15354067-0-FD00"),
+      ExternalSchemes.bloombergTickerSecurityId("ESH3C 1000 Index"));
+    security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
+    security.setUniqueId(BloombergSecurityProvider.createUniqueId("IX15354067-0-FD00"));
+    security.setName("ESH3C 2013-03-15 C 1000.0");
+    return security;
+  }
+
+
+  public static EquityIndexDividendFutureOptionSecurity makeEquityIndexDividendFutureOptionSecurity() {
+
+    OptionType optionType = OptionType.CALL;
+    double strike = 100.0;
+    Expiry expiry = new Expiry(DateUtils.getUTCDate(2013, 12, 20));
+    ExternalId underlyingUniqueID = ExternalSchemes.bloombergBuidSecurityId("IX6817069-0");
+
+    final EquityIndexDividendFutureOptionSecurity security = new EquityIndexDividendFutureOptionSecurity(
+        "EUX", expiry, new EuropeanExerciseType(), underlyingUniqueID, 100.0, true, EUR, strike, optionType);
+
+    Set<ExternalId> identifiers = ImmutableSet.of(
+        ExternalSchemes.bloombergBuidSecurityId("IX10363934-0-8C80"),
+        ExternalSchemes.bloombergTickerSecurityId("DEDZ3C 100.00 Index"));
+    security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
+    security.setUniqueId(BloombergSecurityProvider.createUniqueId("IX10363934-0-8C80"));
+    security.setName("DEDZ3C 2013-12-20 C 100.0");
     return security;
   }
 

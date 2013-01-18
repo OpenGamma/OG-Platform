@@ -6,6 +6,7 @@
 package com.opengamma.bbg.loader;
 
 import static com.opengamma.bbg.BloombergConstants.FIELD_EXCH_CODE;
+import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_ID_BBG_UNIQUE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_MARKET_SECTOR_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPTION_ROOT_TICKER;
@@ -17,7 +18,9 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_TICK_VAL;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDERLYING_SECURITY_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDL_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_VAL_PT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_DES;
+import static com.opengamma.bbg.BloombergConstants.FIELD_TICKER;
 import static com.opengamma.bbg.BloombergConstants.FIELD_UNDL_ID_BB_UNIQUE;
 
 import java.util.Collections;
@@ -33,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.security.BloombergSecurityProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
@@ -57,10 +61,10 @@ public class EquityIndexFutureOptionLoader extends SecurityLoader {
   /**
    * The fields to load from Bloomberg.
    */
-  private static final Set<String> BLOOMBERG_EQUITY_FUTURE_OPTION_FIELDS = Collections.unmodifiableSet(Sets.newHashSet(
-      FIELD_OPTION_ROOT_TICKER,
+  private static final Set<String> BLOOMBERG_EQUITY_FUTURE_OPTION_FIELDS = ImmutableSet.of(
+      FIELD_TICKER,
       FIELD_EXCH_CODE,
-      FIELD_SECURITY_DES,
+      FIELD_PARSEKYABLE_DES,
       FIELD_MARKET_SECTOR_DES,
       FIELD_OPT_EXERCISE_TYP,
       FIELD_OPT_STRIKE_PX,
@@ -70,8 +74,8 @@ public class EquityIndexFutureOptionLoader extends SecurityLoader {
       FIELD_OPT_EXPIRE_DT,
       FIELD_ID_BBG_UNIQUE,
       FIELD_OPT_TICK_VAL,
-      FIELD_OPT_VAL_PT,
-      FIELD_UNDL_ID_BB_UNIQUE));
+      FIELD_FUT_VAL_PT,
+      FIELD_UNDL_ID_BB_UNIQUE);
 
   /**
    * The valid Bloomberg security types for Equity Index Future Option
@@ -92,54 +96,53 @@ public class EquityIndexFutureOptionLoader extends SecurityLoader {
   //-------------------------------------------------------------------------
   @Override
   protected ManageableSecurity createSecurity(FudgeMsg fieldData) {
-    String rootTicker = fieldData.getString(FIELD_OPTION_ROOT_TICKER);
+    String rootTicker = fieldData.getString(FIELD_TICKER);
     String exchange = fieldData.getString(FIELD_EXCH_CODE);
     String optionExerciseType = fieldData.getString(FIELD_OPT_EXERCISE_TYP);
     double optionStrikePrice = fieldData.getDouble(FIELD_OPT_STRIKE_PX);
-    double pointValue = fieldData.getDouble(FIELD_OPT_VAL_PT);
+    double pointValue = fieldData.getDouble(FIELD_FUT_VAL_PT);
     String putOrCall = fieldData.getString(FIELD_OPT_PUT_CALL);
     String underlingTicker = fieldData.getString(FIELD_OPT_UNDERLYING_SECURITY_DES);
     String currency = fieldData.getString(FIELD_OPT_UNDL_CRNCY);
     String expiryDate = fieldData.getString(FIELD_OPT_EXPIRE_DT);
     String bbgUniqueID = fieldData.getString(FIELD_ID_BBG_UNIQUE);
     String underlyingUniqueID = fieldData.getString(FIELD_UNDL_ID_BB_UNIQUE);
-    String secDes = fieldData.getString(FIELD_SECURITY_DES);
-    String marketSector = fieldData.getString(FIELD_MARKET_SECTOR_DES);
-    
-    if (!BloombergDataUtils.isValidField(bbgUniqueID)) {
-      s_logger.warn("bloomberg UniqueID is missing, cannot construct equityIndexOption security");
+    String secDes = fieldData.getString(FIELD_PARSEKYABLE_DES);
+
+    if (!BloombergDataUtils.isValidField(rootTicker)) {
+      s_logger.warn("option root ticker is missing, cannot construct irFutureOption security");
       return null;
     }
-    if (!BloombergDataUtils.isValidField(rootTicker)) {
-      s_logger.warn("option root ticker is missing, cannot construct equityIndexOption security");
+    if (!BloombergDataUtils.isValidField(bbgUniqueID)) {
+      s_logger.warn("bloomberg UniqueID is missing, cannot construct EquityIndexFutureOption security");
       return null;
     }
     if (!BloombergDataUtils.isValidField(underlyingUniqueID)) {
-      s_logger.warn("bloomberg UniqueID for Underlying Security is missing, cannot construct equityOption security");
+      s_logger.warn("bloomberg UniqueID for Underlying Security is missing, cannot construct EquityIndexFutureOption security");
       return null;
     }
     if (!BloombergDataUtils.isValidField(putOrCall)) {
-      s_logger.warn("option type is missing, cannot construct equityOption security");
+      s_logger.warn("option type is missing, cannot construct EquityIndexFutureOption security");
       return null;
     }
     if (!BloombergDataUtils.isValidField(exchange)) {
-      s_logger.warn("exchange is missing, cannot construct equityOption security");
+      s_logger.warn("exchange is missing, cannot construct EquityIndexFutureOption security");
       return null;
     }
     if (!BloombergDataUtils.isValidField(expiryDate)) {
-      s_logger.warn("option expiry date is missing, cannot construct equityOption security");
+      s_logger.warn("option expiry date is missing, cannot construct EquityIndexFutureOption security");
       return null;
     }
     if (!BloombergDataUtils.isValidField(underlingTicker)) {
-      s_logger.warn("option underlying ticker is missing, cannot construct equityOption security");
+      s_logger.warn("option underlying ticker is missing, cannot construct EquityIndexFutureOption security");
       return null;
     }
     if (!BloombergDataUtils.isValidField(currency)) {
-      s_logger.warn("option currency is missing, cannot construct equityOption security");
+      s_logger.warn("option currency is missing, cannot construct EquityIndexFutureOption security");
       return null;
     }
     if (!BloombergDataUtils.isValidField(optionExerciseType)) {
-      s_logger.warn("option exercise type is missing, cannot construct equityOption security");
+      s_logger.warn("option exercise type is missing, cannot construct EquityIndexFutureOption security");
       return null;
     }
     OptionType optionType = getOptionType(putOrCall);
@@ -172,8 +175,8 @@ public class EquityIndexFutureOptionLoader extends SecurityLoader {
     
     Set<ExternalId> identifiers = new HashSet<ExternalId>();
     identifiers.add(ExternalSchemes.bloombergBuidSecurityId(bbgUniqueID));
-    if (BloombergDataUtils.isValidField(secDes) && BloombergDataUtils.isValidField(marketSector)) {
-      identifiers.add(ExternalSchemes.bloombergTickerSecurityId(secDes + " " + marketSector));
+    if (BloombergDataUtils.isValidField(secDes)) {
+      identifiers.add(ExternalSchemes.bloombergTickerSecurityId(secDes));
     }
     
     final ExerciseType exerciseType = getExerciseType(optionExerciseType);
@@ -192,15 +195,11 @@ public class EquityIndexFutureOptionLoader extends SecurityLoader {
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
     security.setUniqueId(BloombergSecurityProvider.createUniqueId(bbgUniqueID));
     //build option display name
-    StringBuilder buf = new StringBuilder(rootTicker);
-    buf.append(" ");
-    buf.append(expiryDate);
-    if (optionType == OptionType.CALL) {
-      buf.append(" C ");
-    } else {
-      buf.append(" P ");
-    }
-    buf.append(optionStrikePrice);
+    StringBuilder buf = new StringBuilder(rootTicker)
+        .append(" ")
+        .append(expiryDate)
+        .append(optionType == OptionType.CALL ? " C " : " P ")
+        .append(optionStrikePrice);
     security.setName(buf.toString());
     return security;
   }
