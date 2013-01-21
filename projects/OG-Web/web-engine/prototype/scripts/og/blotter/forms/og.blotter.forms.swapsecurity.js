@@ -62,13 +62,14 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("security.tradeDate");
                     og.blotter.util.add_datetimepicker("security.effectiveDate");
                     og.blotter.util.add_datetimepicker("security.maturityDate");
-                    og.blotter.util.check_checkbox(pay_leg + 'eom', data.security.payLeg.eom);
-                    og.blotter.util.check_checkbox(receive_leg + 'eom', data.security.receiveLeg.eom);
-                    if(typeof data.security.payLeg != 'undefined')
+                    if(typeof data.security.payLeg != 'undefined') {
                         swap_leg({type: data.security.payLeg.type, index: pay_index, leg: pay_leg, child: 4});
-                    if(typeof data.security.receiveLeg != 'undefined')
+                        og.blotter.util.check_checkbox(pay_leg + 'eom', data.security.payLeg.eom);
+                    }   
+                    if(typeof data.security.receiveLeg != 'undefined'){
                         swap_leg({type: data.security.receiveLeg.type,index: receive_index, leg: receive_leg,child: 6});
-
+                        og.blotter.util.check_checkbox(receive_leg + 'eom', data.security.receiveLeg.eom);
+                    }
                 }); 
                 form.on('form:submit', function (result){
                     og.api.rest.blotter.trades.put(result.data);
