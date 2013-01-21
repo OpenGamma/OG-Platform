@@ -27,9 +27,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 
 /**
  *
@@ -95,16 +93,9 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
     return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE_INTERPOLATOR, ComputationTargetSpecification.NULL,
         BlackVolatilitySurfacePropertyUtils.addVolatilityInterpolatorProperties(ValueProperties.builder().get(), desiredValue).get());
   }
+
   protected abstract ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue);
 
-  protected ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName) {
-    final ValueRequirement volDataRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
-        ValueProperties.builder()
-        .with(SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType())
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, getSurfaceQuoteType())
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, getSurfaceQuoteUnits()).get());
-    return volDataRequirement;
-  }
+  protected abstract ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName);
 
 }
