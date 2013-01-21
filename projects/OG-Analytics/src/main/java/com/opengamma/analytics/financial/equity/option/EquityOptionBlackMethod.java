@@ -12,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Pricing method for vanilla Equity Index Option transactions with Black function.
  */
-//TODO there is a lot of repeated code in this class and EquityOptionBlackMethod
+//TODO there is a lot of repeated code in this class and EquityIndexOptionBlackMethod
 //TODO the javadocs are out of date
 public final class EquityOptionBlackMethod {
 
