@@ -70,7 +70,7 @@ $.register_module({
         var Grid = function (config) {
             if (!config) return;
             var grid = this;
-            grid.config = config || {};
+            grid.config = config;
             grid.elements = {empty: true, parent: $(config.selector).html('&nbsp;instantiating grid...')};
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#' + og.common.id('grid');
@@ -84,12 +84,12 @@ $.register_module({
             if (templates) init_data.call(grid); else compile_templates.call(grid, init_data);
         };
         var init_data = function () {
-            var grid = this, config = grid.config, label = grid.config.label || 'grid';
+            var grid = this, config = grid.config;
             grid.busy = (function (busy) {
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             grid.elements.parent.html(templates.loading({text: 'creating view client...'}));
-            grid.dataman = new (config.dataman || og.analytics.Data)(grid.source, {bypass: false, label: label})
+            grid.dataman = new (config.dataman || og.analytics.Data)(grid.source, {bypass: false, label: grid.label})
                 .on('meta', init_grid, grid).on('data', render_rows, grid)
                 .on('disconnect', function () {
                     if (grid.selector) grid.selector.clear(); // may not have been instantiated yet
@@ -437,6 +437,7 @@ $.register_module({
             try {grid.dataman.kill();} catch (error) {}
             try {grid.elements.style.remove();} catch (error) {}
         };
+        Grid.prototype.label = 'grid';
         Grid.prototype.nearest_cell = function (x, y) {
             var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length,
                 row_height = grid.meta.row_height, grid_height = grid.meta.inner.height;

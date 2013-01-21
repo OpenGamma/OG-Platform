@@ -44,7 +44,7 @@ $.register_module({
                     data.labels[0].length * char_width
                 );
                 return {
-                    meta: meta(dataman, data.data.length / cols.length, cols, fixed_width, true),
+                    meta: meta(dataman, data.data.length, cols, fixed_width, true),
                     data: data.data.reduce(function (acc, val) {return acc.concat(val.map(cell_value));}, []),
                 };
             },
@@ -78,12 +78,11 @@ $.register_module({
                 var message;
                 if (raw.error || !raw.v) return;
                 try {dataman.formatted = format(raw.v);} catch (error) {
+                    if (config.parent) return;
                     og.dev.warn(message = module.name + ': formatting ' + type + ' failed, ' + error.message);
                     return dataman.kill(), dataman.fire('fatal', message);
                 }
-                if (dataman.formatted.meta) {
-                    dataman.fire('meta', dataman.meta);
-                }
+                if (dataman.formatted.meta) dataman.fire('meta', dataman.meta);
                 if (dataman.formatted.data && dataman.meta.viewport) dataman
                     .fire('data', viewport(dataman.formatted.data, dataman.meta.viewport, dataman.meta.columns.total));
             });
@@ -100,25 +99,23 @@ $.register_module({
         DataMan.prototype.on = og.common.events.on;
         DataMan.prototype.viewport = function (new_viewport) {
             var dataman = this;
-            if (!new_viewport) return (dataman.meta.viewport.cols = []), (dataman.meta.viewport.rows = []);
+            if (!new_viewport) return (dataman.meta.viewport.cols = []), (dataman.meta.viewport.rows = []), dataman;
             dataman.meta.viewport = new_viewport;
-            setTimeout(function () {
+            if (dataman.formatted.data) setTimeout(function () {
                 dataman.fire('data', viewport(dataman.formatted.data, new_viewport, dataman.meta.columns.total));
             });
+            return dataman;
         };
-        var GridData = function (config) {
-            var grid = this;
-            if (!formatters[config.type]) {
-                $(config.selector).html('GridData cannot render: ' + config.type);
-                return;
-            }
+        var Gadget = function (config) {
+            grid = this;
+            if (!formatters[config.type]) return $(config.selector).html('GridData cannot render ' + config.type), null;
             og.analytics.Grid.call(grid, {
-                selector: config.selector, child: config.child, label: 'datagadget',
-                dataman: DataMan.partial(config.row, config.col, config.type),
-                show_sets: false, show_views: false, source: config.source
+                selector: config.selector, child: config.child, show_sets: false, show_views: false,
+                source: config.source, dataman: DataMan.partial(config.row, config.col, config.type),
             });
         };
-        GridData.prototype = new og.analytics.Grid;
-        return GridData;
+        Gadget.prototype = new og.analytics.Grid;
+        Gadget.prototype.label = 'datagadget';
+        return Gadget;
     }
 });

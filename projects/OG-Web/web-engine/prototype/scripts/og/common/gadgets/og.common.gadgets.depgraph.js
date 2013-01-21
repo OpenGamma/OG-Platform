@@ -8,12 +8,13 @@ $.register_module({
     obj: function () {
         var Depgraph = function (config) {
             og.analytics.Grid.call(this, {
-                selector: config.selector, child: config.child, label: 'depgraph', show_sets: false, show_views: false,
-                start_expanded: false, cellmenu: !~config.selector.indexOf('inplace'),
+                selector: config.selector, child: config.child, cellmenu: !~config.selector.indexOf('inplace'),
+                show_sets: false, show_views: false, start_expanded: false,
                 source: $.extend({depgraph: true, row: config.row, col: config.col}, config.source)
             });
         };
         Depgraph.prototype = new og.analytics.Grid;
+        Depgraph.prototype.label = 'depgraph';
         return Depgraph;
     }
 });
