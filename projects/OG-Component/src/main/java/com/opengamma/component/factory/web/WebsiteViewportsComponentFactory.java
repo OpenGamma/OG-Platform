@@ -188,8 +188,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     CurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
     // TODO should be able to configure the currency pairs
     CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
-    BlotterColumnMappings blotterColumnMappings = new BlotterColumnMappings(BlotterResource.getStringConvert(),
-                                                                            currencyPairs);
+    BlotterColumnMappings blotterColumnMappings = new BlotterColumnMappings(currencyPairs);
     AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(),
                                                                          aggregatedViewDefManager,
                                                                          getMarketDataSnapshotMaster(),

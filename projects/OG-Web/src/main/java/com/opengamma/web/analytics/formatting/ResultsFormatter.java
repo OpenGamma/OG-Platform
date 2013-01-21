@@ -26,7 +26,7 @@ public class ResultsFormatter {
   /** For formatting values with no specific formatter. */
   private final TypeFormatter _defaultFormatter = new DefaultFormatter();
   /** Formatters keyed on the type of value they can format. */
-  private final ClassMap<TypeFormatter<?>> _formatters = new ClassMap<TypeFormatter<?>>();
+  private final ClassMap<TypeFormatter<?>> _formatters = new ClassMap<>();
   /** Formatter for values whose type isn't know in advance or whose type can changes between calculation cycles. */
   private final UnknownTypeFormatter _unknownTypeFormatter = new UnknownTypeFormatter();
 
@@ -67,7 +67,9 @@ public class ResultsFormatter {
                   new CurrencyPairsFormatter(),
                   new NodeTargetFormatter(),
                   new PositionTargetFormatter(),
-                  new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter());
+                  new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter(),
+                  new FrequencyFormatter(),
+                  new ZonedDateTimeFormatter());
   }
 
   private void addFormatters(TypeFormatter<?>... formatters) {

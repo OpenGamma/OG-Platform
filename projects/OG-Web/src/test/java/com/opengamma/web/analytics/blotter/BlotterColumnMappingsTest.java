@@ -31,8 +31,7 @@ import com.opengamma.util.money.Currency;
 public class BlotterColumnMappingsTest {
 
   private static final BlotterColumnMappings s_mappings =
-      new BlotterColumnMappings(BlotterResource.getStringConvert(),
-                                       CurrencyPairs.of(ImmutableSet.of(CurrencyPair.of(Currency.GBP, Currency.USD))));
+      new BlotterColumnMappings(CurrencyPairs.of(ImmutableSet.of(CurrencyPair.of(Currency.GBP, Currency.USD))));
 
   /**
    * Simple security where fields are mapped using bean properties
