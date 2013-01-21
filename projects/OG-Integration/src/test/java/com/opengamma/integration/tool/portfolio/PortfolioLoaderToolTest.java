@@ -11,6 +11,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
@@ -23,7 +24,6 @@ import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
 
 /**
@@ -54,7 +54,7 @@ public class PortfolioLoaderToolTest extends DbTest{
     _tempFile = File.createTempFile("portfolio-", ".csv");
     s_logger.info("Created temp file: " + _tempFile.getAbsolutePath());
 
-    _context = DbMasterTestUtils.getContext(getDatabaseType());
+    _context = new FileSystemXmlApplicationContext("config/test-master-context.xml");
     _context.start();
 
     _portfolioMaster = getDbMaster("DbPortfolioMaster", PortfolioMaster.class);
@@ -75,6 +75,7 @@ public class PortfolioLoaderToolTest extends DbTest{
   public void tearDown() throws Exception {
     if (_context != null) {
       _context.stop();
+      _context.close();
       _context = null;
     }
     _toolContext = null;

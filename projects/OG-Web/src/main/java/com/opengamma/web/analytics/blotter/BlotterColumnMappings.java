@@ -5,7 +5,10 @@
  */
 package com.opengamma.web.analytics.blotter;
 
+import static com.opengamma.web.analytics.blotter.BlotterColumn.DIRECTION;
+import static com.opengamma.web.analytics.blotter.BlotterColumn.FLOAT_FREQUENCY;
 import static com.opengamma.web.analytics.blotter.BlotterColumn.FREQUENCY;
+import static com.opengamma.web.analytics.blotter.BlotterColumn.INDEX;
 import static com.opengamma.web.analytics.blotter.BlotterColumn.MATURITY;
 import static com.opengamma.web.analytics.blotter.BlotterColumn.PRODUCT;
 import static com.opengamma.web.analytics.blotter.BlotterColumn.QUANTITY;
@@ -16,8 +19,6 @@ import static com.opengamma.web.analytics.blotter.BlotterColumn.TYPE;
 import java.util.Map;
 
 import org.joda.beans.MetaProperty;
-import org.joda.convert.StringConvert;
-import org.joda.convert.StringConverter;
 
 import com.google.common.collect.Maps;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -26,22 +27,28 @@ import com.opengamma.financial.currency.CurrencyUtils;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.analytics.blotter.swap.FloatFrequencyProvider;
+import com.opengamma.web.analytics.blotter.swap.FrequencyProvider;
+import com.opengamma.web.analytics.blotter.swap.IndexProvider;
+import com.opengamma.web.analytics.blotter.swap.PayReceiveProvider;
+import com.opengamma.web.analytics.blotter.swap.ProductProvider;
+import com.opengamma.web.analytics.blotter.swap.QuantityProvider;
+import com.opengamma.web.analytics.blotter.swap.RateProvider;
+import com.opengamma.web.analytics.blotter.swap.SwapTypeProvider;
 
 /**
- * Maps the properties of each
+ * Maps the properties of each blotter column to properties in each supported security type.
  */
 @SuppressWarnings("unchecked")
 public class BlotterColumnMappings {
 
   private final Map<Class<? extends ManageableSecurity>, Map<BlotterColumn, ValueProvider>> _mappings = Maps.newHashMap();
-  private final StringConvert _stringConvert;
 
   // TODO make this static and use BlotterResource converters
-  public BlotterColumnMappings(StringConvert stringConvert, final CurrencyPairs currencyPairs) {
-    ArgumentChecker.notNull(stringConvert, "stringConvert");
-    _stringConvert = stringConvert;
+  public BlotterColumnMappings(final CurrencyPairs currencyPairs) {
 
     // ------------------- CapFloor
     mapColumn(TYPE, CapFloorSecurity.class, "Cap/Floor");
@@ -66,7 +73,21 @@ public class BlotterColumnMappings {
     mapColumn(PRODUCT, );
     mapColumn(QUANTITY, );*/
 
-    // ------------------- FXForward
+    // ------------------- Swap
+    // TODO basis swap for float/float swaps
+    // TODO XCCY swap if the currencies are different
+    mapColumn(TYPE, SwapSecurity.class, new SwapTypeProvider());
+    mapColumn(PRODUCT, SwapSecurity.class, new ProductProvider());
+    mapColumn(START, SwapSecurity.meta().effectiveDate());
+    mapColumn(MATURITY, SwapSecurity.meta().maturityDate());
+    mapColumn(FREQUENCY, SwapSecurity.class, new FrequencyProvider());
+    mapColumn(FLOAT_FREQUENCY, SwapSecurity.class, new FloatFrequencyProvider());
+    mapColumn(QUANTITY, SwapSecurity.class, new QuantityProvider());
+    mapColumn(INDEX, SwapSecurity.class, new IndexProvider());
+    mapColumn(RATE, SwapSecurity.class, new RateProvider());
+    mapColumn(DIRECTION, SwapSecurity.class, new PayReceiveProvider());
+
+    // ------------------- FXForward TODO move to separate class?
     ValueProvider<FXForwardSecurity> fxForwardProductProvider = new ValueProvider<FXForwardSecurity>() {
       @Override
       public String getValue(FXForwardSecurity security) {
@@ -74,7 +95,7 @@ public class BlotterColumnMappings {
         return pair.getBase() + "/" + pair.getCounter() + " FX Forward";
       }
     };
-    // TODO format amounts
+    // TODO FXAmounts class and formatter so individual amounts get formatted at the right time
     ValueProvider<FXForwardSecurity> fxForwardAmountProvider = new ValueProvider<FXForwardSecurity>() {
       @Override
       public String getValue(FXForwardSecurity security) {
@@ -100,13 +121,12 @@ public class BlotterColumnMappings {
     // TODO format rate
     ValueProvider<FXForwardSecurity> fxForwardRateProvider = new ValueProvider<FXForwardSecurity>() {
       @Override
-      public String getValue(FXForwardSecurity security) {
-        Double rate = CurrencyUtils.getRate(security.getPayCurrency(),
-                                            security.getReceiveCurrency(),
-                                            security.getPayAmount(),
-                                            security.getReceiveAmount(),
-                                            currencyPairs);
-        return Double.toString(rate);
+      public Double getValue(FXForwardSecurity security) {
+        return CurrencyUtils.getRate(security.getPayCurrency(),
+                                     security.getReceiveCurrency(),
+                                     security.getPayAmount(),
+                                     security.getReceiveAmount(),
+                                     currencyPairs);
       }
     };
     mapColumn(TYPE, FXForwardSecurity.class, "FX Forward");
@@ -159,12 +179,11 @@ public class BlotterColumnMappings {
     if (property == null) { // for securities where it doesn't make sense to populate a particular column
       return new StaticValueProvider("");
     } else {
-      StringConverter<?> converter = _stringConvert.findConverter(property.propertyType());
-      return new PropertyValueProvider(property, converter);
+      return new PropertyValueProvider(property);
     }
   }
 
-  public String valueFor(BlotterColumn column, ManageableSecurity security) {
+  public Object valueFor(BlotterColumn column, ManageableSecurity security) {
     // position rows have no security
     if (security == null) {
       return "";
@@ -182,50 +201,40 @@ public class BlotterColumnMappings {
     }
   }
 
-  private interface ValueProvider<T extends ManageableSecurity> {
+  public interface ValueProvider<T extends ManageableSecurity> {
 
-    String getValue(T security);
+    Object getValue(T security);
   }
 
   private static class PropertyValueProvider<T extends ManageableSecurity> implements ValueProvider<T> {
 
     private final MetaProperty<?> _property;
-    private final StringConverter _converter;
 
-    private PropertyValueProvider(MetaProperty<?> property, StringConverter converter) {
+    private PropertyValueProvider(MetaProperty<?> property) {
       ArgumentChecker.notNull(property, "property");
-      ArgumentChecker.notNull(converter, "converter");
-      _converter = converter;
       _property = property;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public String getValue(T security) {
-      Object value = _property.get(security);
-      if (value == null) {
-        return "";
-      } else {
-        return _converter.convertToString(value);
-      }
+    public Object getValue(T security) {
+      return _property.get(security);
     }
   }
 
   private static class StaticValueProvider implements ValueProvider {
 
-    private final String _value;
+    private final Object _value;
 
-    private StaticValueProvider(String value) {
+    private StaticValueProvider(Object value) {
       ArgumentChecker.notNull(value, "value");
       _value = value;
     }
 
     @Override
-    public String getValue(ManageableSecurity security) {
+    public Object getValue(ManageableSecurity security) {
       return _value;
     }
   }
 
 }
-
 
