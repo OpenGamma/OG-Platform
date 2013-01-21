@@ -7,11 +7,8 @@ $.register_module({
     dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data', 'og.analytics.CellMenu'],
     obj: function () {
         var module = this, row_height = 21, title_height = 31, set_height = 24, logging = 'logLevel',
-            templates = null, default_col_width = 175, HTML = 'innerHTML', scrollbar = (function () {
-                var html = '<div style="width: 100px; height: 100px; position: absolute; \
-                    visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
-                return 100 - $(html).appendTo('body').append('<div />').find('div').css('height', '200px').width();
-            })(), do_not_expand = {DOUBLE: null, NODE_ID: null, POSITION_ID: null, STRING: null};
+            templates = null, default_col_width = 175, HTML = 'innerHTML', scrollbar = og.common.util.scrollbar_size,
+            do_not_expand = {DOUBLE: null, NODE_ID: null, POSITION_ID: null, STRING: null};
         var available = (function () {
             var nodes;
             var all = function (total) {
@@ -222,8 +219,8 @@ $.register_module({
                 col_fields = ['description', 'header', 'type', 'width'];
             var populate = function (col) {col_fields.forEach(function (key) {columns[key + 's'].push(col[key]);});};
             grid.meta = meta;
-            ['show_sets', 'show_views']
-                .forEach(function (key) {meta[key] = key in config ? config[key] : !config.source.depgraph;});
+            ['show_sets', 'show_views', 'start_expanded']
+                .forEach(function (key) {meta[key] = key in config ? config[key] : true;});
             meta.viewport = {format: 'CELL'};
             meta.row_height = row_height;
             meta.header_height =  (meta.show_sets ? set_height : 0) + title_height;
@@ -235,7 +232,7 @@ $.register_module({
             unravel_structure.call(grid);
             meta.row_class = {}; // TODO populate with added, deleted, edited by data row index
             if (grid.elements.empty) init_elements.call(grid);
-            grid.resize(grid.config.source.depgraph); // set collapse to true if depgraph
+            grid.resize(!meta.start_expanded);
             render_rows.call(grid, null, true);
         };
         var render_header = (function () {
