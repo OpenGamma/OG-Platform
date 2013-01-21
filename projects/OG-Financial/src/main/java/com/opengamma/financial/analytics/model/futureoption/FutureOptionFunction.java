@@ -257,7 +257,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
       .with(ValuePropertyNames.CURVE, fundingCurveName)
       .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
       .get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, FinancialSecurityUtils.getCurrency(security).getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.CURRENCY.specification(FinancialSecurityUtils.getCurrency(security)), properties);
   }
 
   /**

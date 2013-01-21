@@ -25,7 +25,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -188,7 +187,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
           }
         }
         final ValueSpecification futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,
-            ComputationTargetSpecification.of(priceCurveSpecification.getTarget().getUniqueId()),
+            target.toSpecification(),
             createValueProperties()
             .with(ValuePropertyNames.CURVE, curveName)
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType()).get());
