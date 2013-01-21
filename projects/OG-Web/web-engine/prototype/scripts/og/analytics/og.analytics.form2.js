@@ -57,7 +57,7 @@ $.register_module({
             form.children.push(
                 (new og.analytics.form.Portfolios({form:form})).block,
                 (new og.analytics.form.ViewDefinitions({form:form})).block,
-                new og.analytics.form.DatasourcesMenu({form:form, datasource: mockproviders}),
+                new og.analytics.form.DatasourcesMenu({form:form, source: mockproviders}),
                 new og.analytics.form.TemporalMenu({form:form}),
                 new og.analytics.form.AggregatorsMenu({form:form}),
                 new og.analytics.form.FiltersMenu({form:form, index:'filters' })

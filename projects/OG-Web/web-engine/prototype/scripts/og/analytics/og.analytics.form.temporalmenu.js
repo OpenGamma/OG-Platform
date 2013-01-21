@@ -14,32 +14,39 @@ $.register_module({
                 return og.dev.warn('og.analytics.TemporalMenu: Missing param key [config.form] to constructor.');
 
             // Private
-            var block = this, menu, initialized = false, form = config.form;
+            var block = this, menu, initialized = false, form = config.form, temporals = config.temporals || [];
 
             var display_date_time = function (event) {
                 // $dom.date_input.datepicker('show');
             };
 
             var menu_handler = function (event) {
-                var $elem = $(event.srcElement || event.target);
-                if ($elem.is('.custom') || $elem.is('.custom input'))
+                var $elem = $(event.srcElement || event.target), $custom;
+                if ($elem.is('.custom') || $elem.is('.custom input') || $elem.is('.custom-date-time')) {
+                    if ($elem.is('.custom-date-time')) {
+                        $custom = $elem.siblings('.custom').find('input');
+                        if (!($custom.attr('checked'))) $custom.attr('checked', 'checked');
+                    }
                     return $elem.parents('fieldset').find('.custom-date-time').focus(0);
+                }
+
+                if ($elem.is('.latest') || $elem.is('.latest input')) {
+                    $custom = $elem.parents('fieldset').find('.custom-date-time');
+                    if ($custom.attr('value') !== '') return $custom.attr('value', '');
+                }
             };
 
             form.Block.call(block, { selector: '.og-temporal', module: 'og.analytics.form_temporal_tash' });
 
             form.on('form:load', function (event) {
                 var menu = new og.common.util.ui.DropMenu({cntr: $('.og-temporal')});
-                menu.$dom.menu = $('.og-menu', '.og-temporal').on('click', '.custom, .custom input', menu_handler);
-                menu.$dom.date_input = $('.custom-date-time', menu.$dom.menu);
-                menu.$dom.date_input.datetimepicker({
-                    dateFormat:'yy-mm-dd',
-                    onSelect: function () {
-                        menu.$dom.date_input.off('mouseup.prevent_blurkill');
-                    }
-                }).datetimepicker('widget').on('mouseup.prevent_blurkill', function(event) {
-                    menu.fire('dropmenu:open');
-                });
+                menu.$dom.menu = $('.og-menu', '.og-temporal').on('click', '.custom, .latest', menu_handler);
+                menu.$dom.date_input = $('.custom-date-time', menu.$dom.menu).on('click', menu_handler)
+                    .datetimepicker({
+                        dateFormat:'yy-mm-dd',
+                        onSelect: function () { menu.fire('dropmenu:open'); },
+                        onClose: function () { menu.fire('dropmenu:open'); }
+                    });
             });
         };
 
