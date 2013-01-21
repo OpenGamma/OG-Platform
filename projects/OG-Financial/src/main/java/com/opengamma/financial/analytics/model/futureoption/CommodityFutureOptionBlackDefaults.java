@@ -5,26 +5,25 @@
  */
 package com.opengamma.financial.analytics.model.futureoption;
 
-import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
@@ -44,26 +43,36 @@ public class CommodityFutureOptionBlackDefaults extends DefaultPropertyFunction 
     ValueRequirementNames.FORWARD_DELTA,
     ValueRequirementNames.FORWARD_GAMMA
   };
+  private final PriorityClass _priority;
   private final Map<String, String> _currencyToCurveName;
   private final Map<String, String> _currencyToCurveCalculationConfigName;
   private final Map<String, String> _currencyToSurfaceName;
   private final Map<String, String> _currencyToInterpolationMethod;
+  private final Map<String, String> _currencyToForwardCurveName;
+  private final Map<String, String> _currencyToForwardCurveCalculationMethod;
 
-  public CommodityFutureOptionBlackDefaults(final String... defaultsPerCurrency) {
+  public CommodityFutureOptionBlackDefaults(final String priority, final String... defaultsPerCurrency) {
     super(FinancialSecurityTypes.COMMODITY_FUTURE_OPTION_SECURITY, true);
+    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(defaultsPerCurrency, "defaults per currency");
     final int n = defaultsPerCurrency.length;
-    ArgumentChecker.isTrue(n % 5 == 0, "Need one discounting curve name, discounting curve calculation config, surface name and surface interpolation method per currency");
-    _currencyToCurveName = Maps.newLinkedHashMap();
-    _currencyToCurveCalculationConfigName = Maps.newLinkedHashMap();
-    _currencyToSurfaceName = Maps.newLinkedHashMap();
-    _currencyToInterpolationMethod = Maps.newLinkedHashMap();
-    for (int i = 0; i < n; i += 5) {
-      final String currencyPair = defaultsPerCurrency[i];
-      _currencyToCurveName.put(currencyPair, defaultsPerCurrency[i + 1]);
-      _currencyToCurveCalculationConfigName.put(currencyPair, defaultsPerCurrency[i + 2]);
-      _currencyToSurfaceName.put(currencyPair, defaultsPerCurrency[i + 3]);
-      _currencyToInterpolationMethod.put(currencyPair, defaultsPerCurrency[i + 4]);
+    ArgumentChecker.isTrue(n % 7 == 0, "Need one discounting curve name, discounting curve calculation config, surface name, surface interpolation method," +
+        "forward curve name and forward curve calculation method per currency");
+    _priority = PriorityClass.valueOf(priority);
+    _currencyToCurveName = new LinkedHashMap<>();
+    _currencyToCurveCalculationConfigName = new LinkedHashMap<>();
+    _currencyToSurfaceName = new LinkedHashMap<>();
+    _currencyToInterpolationMethod = new LinkedHashMap<>();
+    _currencyToForwardCurveName = new LinkedHashMap<>();
+    _currencyToForwardCurveCalculationMethod = new LinkedHashMap<>();
+    for (int i = 0; i < n; i += 7) {
+      final String currency = defaultsPerCurrency[i];
+      _currencyToCurveName.put(currency, defaultsPerCurrency[i + 1]);
+      _currencyToCurveCalculationConfigName.put(currency, defaultsPerCurrency[i + 2]);
+      _currencyToSurfaceName.put(currency, defaultsPerCurrency[i + 3]);
+      _currencyToInterpolationMethod.put(currency, defaultsPerCurrency[i + 4]);
+      _currencyToForwardCurveName.put(currency, defaultsPerCurrency[i + 5]);
+      _currencyToForwardCurveCalculationMethod.put(currency, defaultsPerCurrency[i + 6]);
     }
   }
 
@@ -71,7 +80,7 @@ public class CommodityFutureOptionBlackDefaults extends DefaultPropertyFunction 
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getSecurity();
     final String currency = ((CommodityFutureOptionSecurity) security).getCurrency().getCode();
-    return getAllCurrencies().contains(currency);
+    return _currencyToCurveCalculationConfigName.containsKey(currency);
   }
 
   @Override
@@ -104,11 +113,10 @@ public class CommodityFutureOptionBlackDefaults extends DefaultPropertyFunction 
       return Collections.singleton(_currencyToSurfaceName.get(currency));
     }
     if (EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME.equals(propertyName)) {
-      final String fullForwardCurveName = CommodityFutureOptionUtils.getSurfaceName((FinancialSecurity) target.getSecurity(), _currencyToSurfaceName.get(currency));
-      return Collections.singleton(fullForwardCurveName);
+      return Collections.singleton(_currencyToForwardCurveName.get(currency));
     }
     if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
-      return Collections.singleton(ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
+      return Collections.singleton(_currencyToForwardCurveCalculationMethod.get(currency));
     }
     if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR.equals(propertyName)) {
       return Collections.singleton(_currencyToInterpolationMethod.get(currency));
@@ -117,13 +125,14 @@ public class CommodityFutureOptionBlackDefaults extends DefaultPropertyFunction 
     return null;
   }
 
-  protected Collection<String> getAllCurrencies() {
-    return _currencyToCurveName.keySet();
+  @Override
+  public PriorityClass getPriority() {
+    return _priority;
   }
 
-//  @Override
-//  public String getMutualExclusionGroup() {
-//    return OpenGammaFunctionExclusions.COMMODITY_BLACK_VOLATILITY_SURFACE_DEFAULTS;
-//  }
+  @Override
+  public String getMutualExclusionGroup() {
+    return OpenGammaFunctionExclusions.COMMODITY_BLACK_VOLATILITY_SURFACE_DEFAULTS;
+  }
 
 }

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.InitializingBean;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -44,6 +45,8 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
       private String _curveCalculationConfig;
       private String _surfaceName;
       private String _interpolationMethod = "Spline";
+      private String _forwardCurveName;
+      private String _forwardCurveCalculationMethod;
 
       public String getCurveName() {
         return _curveName;
@@ -77,12 +80,30 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
         _interpolationMethod = interpolationMethod;
       }
 
+      public String getForwardCurveName() {
+        return _forwardCurveName;
+      }
+
+      public void setForwardCurveName(final String forwardCurveName) {
+        _forwardCurveName = forwardCurveName;
+      }
+
+      public String getForwardCurveCalculationMethodName() {
+        return _forwardCurveCalculationMethod;
+      }
+
+      public void setForwardCurveCalculationMethodName(final String forwardCurveCalculationMethod) {
+        _forwardCurveCalculationMethod = forwardCurveCalculationMethod;
+      }
+
       @Override
       public void afterPropertiesSet() {
         ArgumentChecker.notNullInjected(getCurveName(), "curveName");
         ArgumentChecker.notNullInjected(getCurveCalculationConfig(), "curveCalculationConfig");
         ArgumentChecker.notNullInjected(getSurfaceName(), "surfaceName");
         ArgumentChecker.notNullInjected(getInterpolationMethod(), "interpolationMethod");
+        ArgumentChecker.notNullInjected(getForwardCurveName(), "forward curve name");
+        ArgumentChecker.notNullInjected(getForwardCurveCalculationMethodName(), "forward curve calculation method name");
       }
 
     }
@@ -107,14 +128,18 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
     }
 
     protected void addCommodityFutureOptionBlackDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[getPerCurrencyInfo().size() * 5];
-      int i = 0;
+      final String[] args = new String[getPerCurrencyInfo().size() * 7 + 1];
+      args[0] = PriorityClass.NORMAL.name();
+      int i = 1;
       for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
         args[i++] = e.getKey();
-        args[i++] = e.getValue().getCurveName();
-        args[i++] = e.getValue().getCurveCalculationConfig();
-        args[i++] = e.getValue().getSurfaceName();
-        args[i++] = e.getValue().getInterpolationMethod();
+        final CurrencyInfo value = e.getValue();
+        args[i++] = value.getCurveName();
+        args[i++] = value.getCurveCalculationConfig();
+        args[i++] = value.getSurfaceName();
+        args[i++] = value.getInterpolationMethod();
+        args[i++] = value.getForwardCurveName();
+        args[i++] = value.getForwardCurveCalculationMethodName();
       }
       functions.add(functionConfiguration(CommodityFutureOptionBlackDefaults.class, args));
     }

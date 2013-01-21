@@ -77,16 +77,42 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
     return Sets.newHashSet(forwardCurveRequirement, volatilitySurfaceRequirement, interpolatorRequirement);
   }
 
+  /**
+   * Gets the data in a form that the analytics library can understand
+   * @param inputs The inputs
+   * @return The data
+   */
   protected abstract SmileSurfaceDataBundle getData(final FunctionInputs inputs);
 
+  /**
+   * Gets the instrument type supported by the function
+   * @return The instrument type
+   */
   protected abstract String getInstrumentType();
 
+  /**
+   * Gets the surface quote units (e.g. volatilities, prices) supported by the function
+   * @return The surface quote units
+   */
   protected abstract String getSurfaceQuoteUnits();
 
+  /**
+   * Gets the surface quote type (e.g. call delta, put delta0 supported by the function
+   * @return The surface quote type
+   */
   protected abstract String getSurfaceQuoteType();
 
+  /**
+   * Gets general result properties
+   * @return The result properties
+   */
   protected abstract ValueProperties getResultProperties();
 
+  /**
+   * Gets result properties with the constraints set
+   * @param desiredValue The desired value
+   * @return The result properties
+   */
   protected abstract ValueProperties getResultProperties(final ValueRequirement desiredValue);
 
   private ValueRequirement getInterpolatorRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
@@ -94,8 +120,20 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
         BlackVolatilitySurfacePropertyUtils.addVolatilityInterpolatorProperties(ValueProperties.builder().get(), desiredValue).get());
   }
 
+  /**
+   * Gets the forward curve requirement
+   * @param target The target
+   * @param desiredValue The desired value
+   * @return The forward curve requirement
+   */
   protected abstract ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue);
 
+  /**
+   * Gets the volatility surface data requirement
+   * @param target The target
+   * @param surfaceName The surface name
+   * @return The volatility surface data requirement
+   */
   protected abstract ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName);
 
 }

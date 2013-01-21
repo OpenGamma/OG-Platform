@@ -168,7 +168,6 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-
     final ValueProperties constraints = desiredValue.getConstraints();
     final CommodityFutureOptionSecurity security = (CommodityFutureOptionSecurity) target.getSecurity();
     final ExternalId underlyingId = security.getUnderlyingId();
@@ -192,7 +191,6 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
       return null;
     }
     final String smileInterpolator = interpolators.iterator().next();
-    final ValueRequirement volReq = getVolatilitySurfaceRequirement(security, volSurfaceName, smileInterpolator);
     final Set<String> forwardCurveNames = constraints.getValues(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME);
     if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
       return null;
@@ -203,7 +201,8 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     }
     final String forwardCurveCalculationMethod = Iterables.getOnlyElement(forwardCurveCalculationMethods);
     final String forwardCurveName = Iterables.getOnlyElement(forwardCurveNames);
-    final ValueRequirement forwardCurveReq = getForwardCurveRequirement(forwardCurveCalculationMethod, forwardCurveName, security);
+    final ValueRequirement volReq = getVolatilitySurfaceRequirement(security, volSurfaceName, smileInterpolator, forwardCurveName, forwardCurveCalculationMethod);
+    final ValueRequirement forwardCurveReq = getForwardCurveRequirement(security, forwardCurveName, forwardCurveCalculationMethod);
     return Sets.newHashSet(underlyingFutureReq, fundingReq, volReq, forwardCurveReq);
   }
 
@@ -272,9 +271,10 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
    * @param smileInterpolator The interpolation method used
    * @return The volatility surface requirement
    */
-  protected abstract ValueRequirement getVolatilitySurfaceRequirement(FinancialSecurity security, String surfaceName, String smileInterpolator);
+  protected abstract ValueRequirement getVolatilitySurfaceRequirement(FinancialSecurity security, String surfaceName, String smileInterpolator,
+      String forwardCurveName, String forwardCurveCalculationMethod);
 
-  protected abstract ValueRequirement getForwardCurveRequirement(final String forwardCurveCalculationMethod, final String forwardCurveName, final Security security);
+  protected abstract ValueRequirement getForwardCurveRequirement(FinancialSecurity security, String forwardCurveName, String forwardCurveCalculationMethod);
 
   protected abstract String getCalculationMethod();
 

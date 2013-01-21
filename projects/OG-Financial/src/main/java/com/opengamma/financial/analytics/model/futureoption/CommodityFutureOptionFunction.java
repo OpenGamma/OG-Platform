@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.futureoption;
 
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
@@ -38,23 +37,28 @@ public abstract class CommodityFutureOptionFunction extends FutureOptionFunction
   }
 
   @Override
-  protected ValueRequirement getVolatilitySurfaceRequirement(final FinancialSecurity security, final String surfaceName, final String smileInterpolator) {
+  protected ValueRequirement getVolatilitySurfaceRequirement(final FinancialSecurity security, final String surfaceName, final String smileInterpolator,
+      final String forwardCurveName, final String forwardCurveCalculationMethod) {
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final String fullSurfaceName = CommodityFutureOptionUtils.getSurfaceName(security, surfaceName);
+    final String fullCurveName = CommodityFutureOptionUtils.getSurfaceName(security, forwardCurveName);
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, fullSurfaceName)
         .with(ValuePropertyNames.CURVE, fullSurfaceName)
         .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolator)
+        .with(ValuePropertyNames.CURVE, fullCurveName)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION)
         .get();
     return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetSpecification.of(currency), properties);
   }
 
   @Override
-  protected ValueRequirement getForwardCurveRequirement(final String forwardCurveCalculationMethod, final String forwardCurveName, final Security security) {
+  protected ValueRequirement getForwardCurveRequirement(final FinancialSecurity security, final String forwardCurveName, final String forwardCurveCalculationMethod) {
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
+    final String fullCurveName = CommodityFutureOptionUtils.getSurfaceName(security, forwardCurveName);
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, forwardCurveName)
+        .with(ValuePropertyNames.CURVE, fullCurveName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetSpecification.of(currency), properties);

@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
@@ -148,6 +149,8 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     i.setSurfaceName("model/futureoption", "BBG");
     i.setSurfaceName("model/irfutureoption", "DEFAULT_PRICE");
     i.setCubeName(null, "BLOOMBERG");
+    i.setForwardCurveName("model/futureoption", "BBG");
+    i.setForwardCurveCalculationMethod("model/futureoption", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
     return i;
   }
 
