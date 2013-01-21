@@ -36,7 +36,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
  * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient}, connecting it to a view process, handling events from the engine and forwarding data to the
  * {@code ViewClient}.
  */
-/* package */class AnalyticsViewClientConnection {
+/* package */ class AnalyticsViewClientConnection {
 
   private final AnalyticsView _view;
   private final ViewClient _viewClient;
@@ -54,7 +54,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
    * @param aggregatedViewDefManager For looking up view definitions
    * @param snapshotMaster For looking up snapshots
    */
-  /* package */AnalyticsViewClientConnection(ViewRequest viewRequest,
+  /* package */ AnalyticsViewClientConnection(ViewRequest viewRequest,
                                               ViewClient viewClient,
                                               AnalyticsView view,
                                               NamedMarketDataSpecificationRepository marketDataSpecRepo,
@@ -107,7 +107,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   /**
    * Connects to the engine in order to start receiving results. This should only be called once.
    */
-  /* package */void start() {
+  /* package */ void start() {
     _viewClient.setResultListener(new Listener());
     _viewClient.setViewCycleAccessSupported(true);
     _viewClient.setResultMode(ViewResultMode.FULL_THEN_DELTA);
@@ -122,7 +122,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   /**
    * Disconects from the engine and releases all resources. This should only be called once.
    */
-  /* package */void close() {
+  /* package */ void close() {
     try {
       _viewClient.detachFromViewProcess();
     } finally {
@@ -134,7 +134,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   /**
    * @return The view to which this object sends data received from the engine.
    */
-  /* package */AnalyticsView getView() {
+  /* package */ AnalyticsView getView() {
     return _view;
   }
 

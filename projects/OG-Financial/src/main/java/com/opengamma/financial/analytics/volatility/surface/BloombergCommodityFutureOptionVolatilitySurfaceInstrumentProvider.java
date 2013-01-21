@@ -88,6 +88,14 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
     return ExternalId.of(getScheme(), ticker.toString());
   }
 
+  /**
+   * Gets the expiryRules.
+   * @return the expiryRules
+   */
+  public static Map<String, ExchangeTradedInstrumentExpiryCalculator> getExpiryRules() {
+    return EXPIRY_RULES;
+  }
+
   ExchangeTradedInstrumentExpiryCalculator getExpiryCalculator() {
     final ExchangeTradedInstrumentExpiryCalculator expiryRule = EXPIRY_RULES.get(getFutureOptionPrefix());
     if (expiryRule == null) {

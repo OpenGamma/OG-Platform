@@ -10,7 +10,7 @@ import java.util.Set;
 
 import com.opengamma.analytics.financial.equity.EqyOptBaroneAdesiWhaleyPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -34,10 +34,10 @@ public class EquityOptionBAWPresentValueFunction extends EquityOptionBAWFunction
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    final double pv = s_calculator.visitEquityIndexOption(derivative, market);
+    final double pv = derivative.accept(s_calculator, market);
     return Collections.singleton(new ComputedValue(resultSpec, pv));
   }
 

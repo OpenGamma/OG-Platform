@@ -229,7 +229,7 @@ public class ViewDefinition implements Serializable, UniqueIdentifiable, Mutable
    * @return a copy of the base view definition with its immutable fields set to the new values, not null
    */
   public ViewDefinition copyWith(final String name, final UniqueId portfolioId, final UserPrincipal marketDataUser) {
-    final ViewDefinition result = new ViewDefinition(name, portfolioId, marketDataUser);
+    final ViewDefinition result = new ViewDefinition(name, portfolioId, marketDataUser, getResultModelDefinition());
     result.setDefaultCurrency(getDefaultCurrency());
     result.setDumpComputationCacheToDisk(isDumpComputationCacheToDisk());
     result.setMinDeltaCalculationPeriod(getMinDeltaCalculationPeriod());

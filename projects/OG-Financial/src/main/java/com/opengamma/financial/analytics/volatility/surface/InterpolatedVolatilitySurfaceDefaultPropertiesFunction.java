@@ -30,7 +30,7 @@ public class InterpolatedVolatilitySurfaceDefaultPropertiesFunction extends Defa
 
   public InterpolatedVolatilitySurfaceDefaultPropertiesFunction(final String leftXExtrapolatorName, final String rightXExtrapolatorName, final String xInterpolatorName,
       final String leftYExtrapolatorName, final String rightYExtrapolatorName, final String yInterpolatorName) {
-    super(ComputationTargetType.ANYTHING, true); // TODO: [PLAT-2286] Set the correct type for this
+    super(ComputationTargetType.LEGACY_PRIMITIVE, true); // // [PLAT-2286]: change to correct type
     ArgumentChecker.notNull(leftXExtrapolatorName, "left x extrapolator name");
     ArgumentChecker.notNull(rightXExtrapolatorName, "right x extrapolator name");
     ArgumentChecker.notNull(xInterpolatorName, "x interpolator name");

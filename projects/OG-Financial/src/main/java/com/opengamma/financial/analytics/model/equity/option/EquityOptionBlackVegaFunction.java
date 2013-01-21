@@ -11,6 +11,9 @@ import java.util.Set;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.analytics.financial.equity.option.EquityOption;
+import com.opengamma.analytics.financial.equity.option.EquityOptionBlackMethod;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -24,7 +27,9 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class EquityOptionBlackVegaFunction extends EquityOptionBlackFunction {
   /** The Black calculator */
-  private static final EquityIndexOptionBlackMethod MODEL = EquityIndexOptionBlackMethod.getInstance();
+  private static final EquityIndexOptionBlackMethod INDEX_MODEL = EquityIndexOptionBlackMethod.getInstance();
+  /** The Black calculator */
+  private static final EquityOptionBlackMethod EQUITY_MODEL = EquityOptionBlackMethod.getInstance();
 
   /**
    * Default constructor
@@ -34,9 +39,12 @@ public class EquityOptionBlackVegaFunction extends EquityOptionBlackFunction {
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    return Collections.singleton(new ComputedValue(resultSpec, MODEL.vega(derivative, market)));
+    if (derivative instanceof EquityIndexOption) {
+      return Collections.singleton(new ComputedValue(resultSpec, INDEX_MODEL.vega((EquityIndexOption) derivative, market)));
+    }
+    return Collections.singleton(new ComputedValue(resultSpec, EQUITY_MODEL.vega((EquityOption) derivative, market)));
   }
 }

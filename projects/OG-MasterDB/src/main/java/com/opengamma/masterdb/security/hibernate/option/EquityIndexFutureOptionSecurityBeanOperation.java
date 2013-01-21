@@ -44,7 +44,7 @@ public final class EquityIndexFutureOptionSecurityBeanOperation  extends Abstrac
     bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode()));
     bean.setExchange(secMasterSession.getOrCreateExchangeBean(security.getExchange(), ""));
     bean.setPointValue(security.getPointValue());
-    bean.setIsMargined(security.isMargined());
+    bean.setMargined(security.isMargined());
     return bean;
   }
 
@@ -57,7 +57,7 @@ public final class EquityIndexFutureOptionSecurityBeanOperation  extends Abstrac
         exerciseType, 
         externalIdBeanToExternalId(bean.getUnderlying()), 
         bean.getPointValue(), 
-        bean.getIsMargined(), 
+        bean.getMargined(),
         currencyBeanToCurrency(bean.getCurrency()), 
         bean.getStrike(), bean.getOptionType());
     return sec;

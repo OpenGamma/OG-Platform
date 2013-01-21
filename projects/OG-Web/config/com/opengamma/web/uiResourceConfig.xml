@@ -291,6 +291,7 @@
     <fragment>/scripts/og/common/util/og.common.util.hashqueue.js</fragment>
     <fragment>/scripts/og/common/util/og.common.util.history.js</fragment>
     <fragment>/scripts/og/common/util/og.common.util.date.js</fragment>
+    <fragment>/scripts/og/common/util/og.common.util.scrollbar_size.js</fragment>
   </bundle>
   <bundle id="util_ui.js">
     <fragment>/scripts/og/common/util/ui/og.common.util.ui.block.js</fragment>
@@ -347,6 +348,7 @@
     <fragment>/scripts/og/analytics/og.analytics.formatter.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.clipboard.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.griddata.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.portfolios.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.viewdefinitions.js</fragment>

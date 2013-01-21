@@ -29,8 +29,11 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.conversion.JodaBeanConverters;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
@@ -155,6 +158,11 @@ public class JodaBeanRowParser extends RowParser {
     FloatingVarianceSwapLeg.meta();
     EquitySecurity.meta();
     SwapSecurity.meta();
+    InterestRateFutureSecurity.meta();
+    MetalFutureSecurity.meta();
+    AgricultureFutureSecurity.meta();
+    FXFutureSecurity.meta();
+    SwaptionSecurity.meta();
   }
   
   protected JodaBeanRowParser(String securityName) throws OpenGammaRuntimeException {

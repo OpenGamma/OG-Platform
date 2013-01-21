@@ -122,7 +122,7 @@
     <ROW Component="jsound.dll" ComponentId="{A6B496E8-F4F2-47B0-A6A9-2B264DA7CCB0}" Directory_="bin_Dir" Attributes="256" KeyPath="jsound.dll"/>
     <ROW Component="jsoundds.dll" ComponentId="{DE7A29F4-0513-4150-937A-1601E4868F1A}" Directory_="bin_Dir" Attributes="256" KeyPath="jsoundds.dll"/>
     <ROW Component="jvm.cfg" ComponentId="{26122F1F-D601-4952-8287-02671EC824D3}" Directory_="amd64_Dir" Attributes="0" KeyPath="jvm.cfg" Type="0"/>
-    <ROW Component="jvm.dll_1" ComponentId="{124A801E-9D15-468B-97A6-A9B9E3570527}" Directory_="server_Dir" Attributes="256" KeyPath="jvm.dll_1"/>
+    <ROW Component="jvm.dll" ComponentId="{07245160-3396-4764-9A99-94C763A02E38}" Directory_="server_Dir" Attributes="256" KeyPath="jvm.dll"/>
     <ROW Component="kcms.dll" ComponentId="{60520327-82DB-4D02-8741-CC2A1ADA7424}" Directory_="bin_Dir" Attributes="256" KeyPath="kcms.dll"/>
     <ROW Component="keytool.exe" ComponentId="{DBF4BC58-6EB5-4E6C-A106-6D2795A07A71}" Directory_="bin_Dir" Attributes="256" KeyPath="keytool.exe"/>
     <ROW Component="kinit.exe" ComponentId="{F72009CE-6BD6-4E09-B2F7-2189F2F499B7}" Directory_="bin_Dir" Attributes="256" KeyPath="kinit.exe"/>
@@ -162,7 +162,7 @@
     <ROW Component="zip.dll" ComponentId="{DE357295-BA06-4627-96DE-9D9D9B8553BD}" Directory_="bin_Dir" Attributes="256" KeyPath="zip.dll"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
-    <ROW Feature="TargetFeature" Title="TargetFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="AST4 Abidjan Adak Adelaide Aden Amsterdam Antananarivo Apia Azores Beulah Buenos_Aires CET CIEXYZ.pf COPYRIGHT Casey GMT Indianapolis JAWTAccessBridge64.dll JavaAccessBridge64.dll JdbcOdbc.dll Louisville LucidaBrightDemiBold.ttf RegJS1.7 RegJSCurrentVersion RegOG1.7 RegOGCurrentVersion WindowsAccessBridge64.dll applet awt.dll blacklist calendars.properties classes.jsa cursors.properties dcpr.dll decorad3d.dll decorasse.dll deploy.dll deployJava1.dll_1 dnsns.jar dt_shmem.dll dt_socket.dll eula.dll ffjcext.zip fontmanager.dll fxplugins.dll glass.dll gliblite.dll gstreamerlite.dll hprof.dll installer.dll instrument.dll j2pcsc.dll jaas_nt.dll jabswitch.exe java.dll java.exe java_crw_demo.dll javacpl.exe javafxfont.dll javafxiio.dll javarmi.exe javaw.exe javaws.exe jawt.dll jdk_header.png jdwp.dll jfr.dll jfxmedia.dll jfxwebkit.dll jli.dll jmxremote.access jp2iexp.dll jp2launcher.exe jp2native.dll jp2ssv.dll jpeg.dll jsdt.dll jsound.dll jsoundds.dll jvm.cfg jvm.dll_1 kcms.dll keytool.exe kinit.exe klist.exe ktab.exe libxml2.dll libxslt.dll management.dll mlib_image.dll msvcr100.dll msvcr100.dll_1 net.dll nio.dll npdeployJava1.dll_1 npjp2.dll npt.dll orbd.exe pack200.exe policytool.exe prismd3d.dll rmi.dll rmid.exe rmiregistry.exe servertool.exe splashscreen.dll ssv.dll ssvagent.exe sunec.dll sunmscapi.dll t2k.dll tnameserv.exe unpack.dll unpack200.exe verify.dll w2k_lsa_auth.dll wsdetect.dll zip.dll"/>
+    <ROW Feature="TargetFeature" Title="TargetFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0" Components="AST4 Abidjan Adak Adelaide Aden Amsterdam Antananarivo Apia Azores Beulah Buenos_Aires CET CIEXYZ.pf COPYRIGHT Casey GMT Indianapolis JAWTAccessBridge64.dll JavaAccessBridge64.dll JdbcOdbc.dll Louisville LucidaBrightDemiBold.ttf RegJS1.7 RegJSCurrentVersion RegOG1.7 RegOGCurrentVersion WindowsAccessBridge64.dll applet awt.dll blacklist calendars.properties classes.jsa cursors.properties dcpr.dll decorad3d.dll decorasse.dll deploy.dll deployJava1.dll_1 dnsns.jar dt_shmem.dll dt_socket.dll eula.dll ffjcext.zip fontmanager.dll fxplugins.dll glass.dll gliblite.dll gstreamerlite.dll hprof.dll installer.dll instrument.dll j2pcsc.dll jaas_nt.dll jabswitch.exe java.dll java.exe java_crw_demo.dll javacpl.exe javafxfont.dll javafxiio.dll javarmi.exe javaw.exe javaws.exe jawt.dll jdk_header.png jdwp.dll jfr.dll jfxmedia.dll jfxwebkit.dll jli.dll jmxremote.access jp2iexp.dll jp2launcher.exe jp2native.dll jp2ssv.dll jpeg.dll jsdt.dll jsound.dll jsoundds.dll jvm.cfg jvm.dll kcms.dll keytool.exe kinit.exe klist.exe ktab.exe libxml2.dll libxslt.dll management.dll mlib_image.dll msvcr100.dll msvcr100.dll_1 net.dll nio.dll npdeployJava1.dll_1 npjp2.dll npt.dll orbd.exe pack200.exe policytool.exe prismd3d.dll rmi.dll rmid.exe rmiregistry.exe servertool.exe splashscreen.dll ssv.dll ssvagent.exe sunec.dll sunmscapi.dll t2k.dll tnameserv.exe unpack.dll unpack200.exe verify.dll w2k_lsa_auth.dll wsdetect.dll zip.dll"/>
     <ATTRIBUTE name="CurrentFeature" value="TargetFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
@@ -627,7 +627,7 @@
     <ROW File="Wake" Component_="Apia" FileName="Wake" Attributes="0" SourcePath="C:\Program Files\Java\jre7\lib\zi\Pacific\Wake" SelfReg="false" NextFile="Wallis"/>
     <ROW File="Wallis" Component_="Apia" FileName="Wallis" Attributes="0" SourcePath="C:\Program Files\Java\jre7\lib\zi\Pacific\Wallis" SelfReg="false" NextFile="AST4"/>
     <ROW File="Warsaw" Component_="Amsterdam" FileName="Warsaw" Attributes="0" SourcePath="C:\Program Files\Java\jre7\lib\zi\Europe\Warsaw" SelfReg="false" NextFile="Zaporozhye"/>
-    <ROW File="Welcome.html" Component_="COPYRIGHT" FileName="Welcom~1.htm|Welcome.html" Attributes="0" SourcePath="C:\Program Files\Java\jre7\Welcome.html" SelfReg="false"/>
+    <ROW File="Welcome.html" Component_="COPYRIGHT" FileName="Welcom~1.htm|Welcome.html" Attributes="0" SourcePath="C:\Program Files\Java\jre7\Welcome.html" SelfReg="false" NextFile="jvm.dll"/>
     <ROW File="Whitehorse" Component_="Adak" FileName="Whiteh~1|Whitehorse" Attributes="0" SourcePath="C:\Program Files\Java\jre7\lib\zi\America\Whitehorse" SelfReg="false" NextFile="Winnipeg"/>
     <ROW File="Winamac" Component_="Indianapolis" FileName="Winamac" Attributes="0" SourcePath="C:\Program Files\Java\jre7\lib\zi\America\Indiana\Winamac" SelfReg="false" NextFile="Louisville"/>
     <ROW File="Windhoek" Component_="Abidjan" FileName="Windhoek" Attributes="0" SourcePath="C:\Program Files\Java\jre7\lib\zi\Africa\Windhoek" SelfReg="false" NextFile="Buenos_Aires"/>
@@ -721,7 +721,7 @@
     <ROW File="jsoundds.dll" Component_="jsoundds.dll" FileName="jsoundds.dll" Attributes="0" SourcePath="C:\Program Files\Java\jre7\bin\jsoundds.dll" SelfReg="false" NextFile="kcms.dll"/>
     <ROW File="jsse.jar" Component_="calendars.properties" FileName="jsse.jar" Attributes="0" SourcePath="C:\Program Files\Java\jre7\lib\jsse.jar" SelfReg="false" NextFile="jvm.hprof.txt"/>
     <ROW File="jvm.cfg" Component_="jvm.cfg" FileName="jvm.cfg" Attributes="0" SourcePath="C:\Program Files\Java\jre7\lib\amd64\jvm.cfg" SelfReg="false" NextFile="CIEXYZ.pf"/>
-    <ROW File="jvm.dll_1" Component_="jvm.dll_1" FileName="jvm.dll" Attributes="0" SourcePath="C:\Program Files\Java\jre6\bin\server\jvm.dll" SelfReg="false" NextFile="decorad3d.dll"/>
+    <ROW File="jvm.dll" Component_="jvm.dll" FileName="jvm.dll" Attributes="0" SourcePath="C:\Program Files\Java\jre7\bin\server\jvm.dll" SelfReg="false"/>
     <ROW File="jvm.hprof.txt" Component_="calendars.properties" FileName="jvmhpr~1.txt|jvm.hprof.txt" Attributes="0" SourcePath="C:\Program Files\Java\jre7\lib\jvm.hprof.txt" SelfReg="false" NextFile="logging.properties"/>
     <ROW File="kcms.dll" Component_="kcms.dll" FileName="kcms.dll" Attributes="0" SourcePath="C:\Program Files\Java\jre7\bin\kcms.dll" SelfReg="false" NextFile="libxml2.dll"/>
     <ROW File="keytool.exe" Component_="keytool.exe" FileName="keytool.exe" Attributes="0" SourcePath="C:\Program Files\Java\jre7\bin\keytool.exe" SelfReg="false" NextFile="kinit.exe"/>
@@ -838,8 +838,8 @@
     <ROW Registry="JavaHome_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.7" Name="JavaHome" Value="#%[jre_Dir]" Component_="RegJS1.7"/>
     <ROW Registry="MicroVersion" Root="2" Key="SOFTWARE\[M_REG64]\Java Runtime Environment\1.7" Name="MicroVersion" Value="#%0" Component_="RegOG1.7"/>
     <ROW Registry="MicroVersion_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.7" Name="MicroVersion" Value="#%0" Component_="RegJS1.7"/>
-    <ROW Registry="RuntimeLib" Root="2" Key="SOFTWARE\[M_REG64]\Java Runtime Environment\1.7" Name="RuntimeLib" Value="[#jvm.dll_1]" Component_="RegOG1.7"/>
-    <ROW Registry="RuntimeLib_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.7" Name="RuntimeLib" Value="[#jvm.dll_1]" Component_="RegJS1.7"/>
+    <ROW Registry="RuntimeLib" Root="2" Key="SOFTWARE\[M_REG64]\Java Runtime Environment\1.7" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RegOG1.7"/>
+    <ROW Registry="RuntimeLib_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.7" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RegJS1.7"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsmModuleSignatureComponent">
     <ROW ModuleID="JRE64" Version="1.7.0" GUID="9F5E8EDB_DEB5_4768_99C7_ED548093D043" Name="64-bit Java Runtime Environment" Manufacturer="OpenGamma Ltd" Comments="This merge module repackages the 64-bit JRE"/>

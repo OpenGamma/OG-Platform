@@ -53,7 +53,8 @@ public class BlotterLookupResourceTest {
 
   @Test
   public void getExerciseTypes() throws JSONException {
-    JSONArray expected = new JSONArray(Lists.newArrayList("American", "Asian", "Bermudan", "European"));
+    JSONArray expected = new JSONArray(Lists.newArrayList("European"));
+    //JSONArray expected = new JSONArray(Lists.newArrayList("American", "Asian", "Bermudan", "European"));
     assertTrue(JsonTestUtils.equal(expected, new JSONArray(_resource.getExerciseTypes())));
   }
 

@@ -7,6 +7,7 @@ package com.opengamma.financial.view.rest;
 
 import java.net.URI;
 
+import javax.time.Instant;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -79,13 +80,15 @@ public class DataCompiledViewDefinitionResource extends AbstractDataResource {
   @GET
   @Path(PATH_VALID_FROM)
   public Response getValidFrom() {
-    return responseOkFudge(_compiledViewDefinition.getValidFrom());
+    Instant validFrom = _compiledViewDefinition.getValidFrom();
+    return validFrom != null ? responseOkFudge(validFrom) : responseOkNoContent();
   }
   
   @GET
   @Path(PATH_VALID_TO)
   public Response getValidTo() {
-    return responseOkFudge(_compiledViewDefinition.getValidTo());
+    Instant validTo = _compiledViewDefinition.getValidTo();
+    return validTo != null ? responseOkFudge(validTo) : responseOkNoContent();
   }
   
   @Path(PATH_GRAPHS + "/{calcConfigName}")

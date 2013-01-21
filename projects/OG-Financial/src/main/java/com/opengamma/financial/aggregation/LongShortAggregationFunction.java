@@ -60,6 +60,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
@@ -183,6 +184,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
         @Override
         public String visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
+        }
+
+        @Override
+        public String visitFxFutureOptionSecurity(FxFutureOptionSecurity security) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
 

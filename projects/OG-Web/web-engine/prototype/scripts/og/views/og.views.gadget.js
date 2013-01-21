@@ -29,6 +29,19 @@ $.register_module({
                     new og.analytics.Grid({selector: content, sparklines: false, source: result.data.data});
                 });
             },
+            griddata: function (args) {
+                var options = {
+                    selector: content, row: 136, col: 3, child: true, type: 'LABELLED_MATRIX_2D', source: {
+                        aggregators: [], providers: [
+                            {marketDataType: 'live', source: 'Bloomberg'},
+                            {marketDataType: 'live', source: 'Activ'},
+                            {marketDataType: 'live', source: 'TullettPrebon'}
+                        ],
+                        viewdefinition: 'DbCfg~1569', type: 'portfolio', depgraph: true, row: 5, col: 4
+                    }
+                    };
+                new og.common.gadgets.GridData(options);
+            },
             positions: function (args) {
                 $content.html('\
                     <section class="OG-gadgets-positions-container og-js-positions"></section>\
@@ -58,6 +71,7 @@ $.register_module({
                 block: {route: '/block/:block', method: module.name + '.block'},
                 gadgetscontainer: {route: '/gadgetscontainer/:data', method: module.name + '.gadgetscontainer'},
                 grid: {route: '/grid/:data', method: module.name + '.grid'},
+                grid: {route: '/griddata/:data?', method: module.name + '.griddata'},
                 positions: {route: '/positions/:id/trades:?', method: module.name + '.positions'},
                 securities: {route: '/securities/:id', method: module.name + '.securities'},
                 timeseries: {route: '/timeseries/id:?/key:?', method: module.name + '.timeseries'}

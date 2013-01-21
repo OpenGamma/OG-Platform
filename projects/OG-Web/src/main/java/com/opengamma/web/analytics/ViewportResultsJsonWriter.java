@@ -71,7 +71,7 @@ public class ViewportResultsJsonWriter {
       ValueSpecification cellValueSpec = cell.getValueSpecification();
       Object formattedValue = _formatter.format(cellValue, cellValueSpec, viewportResults.getFormat());
       Collection<Object> history = cell.getHistory();
-      Class<?> columnType = viewportResults.getColumnType(cell.getColumn());
+      Class<?> columnType = cell.getType();
       DataType columnFormat = _formatter.getDataType(columnType);
       Map<String, Object> valueMap = Maps.newHashMap();
       AggregatedExecutionLog executionLog = cell.getExecutionLog();
