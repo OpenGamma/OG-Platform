@@ -13,7 +13,6 @@ $.register_module({
             if(config) {data = config; data.id = config.trade.uniqueId;}
             else {data = {security: {type: "SwapSecurity", name: "SwapSecurity ABC", 
                 regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};} 
-            console.log(data);
             constructor.load = function () {
                 constructor.title = 'Swap';
                 form = new og.common.util.ui.Form({
@@ -64,11 +63,11 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("security.maturityDate");
                     if(typeof data.security.payLeg != 'undefined') {
                         swap_leg({type: data.security.payLeg.type, index: pay_index, leg: pay_leg, child: 4});
-                        og.blotter.util.check_checkbox(pay_leg + 'eom', data.security.payLeg.eom);
+                        $pay_select.val(data.security.payLeg.type);
                     }   
                     if(typeof data.security.receiveLeg != 'undefined'){
-                        swap_leg({type: data.security.receiveLeg.type,index: receive_index, leg: receive_leg,child: 6});
-                        og.blotter.util.check_checkbox(receive_leg + 'eom', data.security.receiveLeg.eom);
+                        swap_leg({type: data.security.receiveLeg.type, index: receive_index,leg: receive_leg,child: 6});
+                        $receive_select.val(data.security.receiveLeg.type);
                     }
                 }); 
                 form.on('form:submit', function (result){
@@ -85,11 +84,8 @@ $.register_module({
                 });
             };
             swap_leg = function (swap) {
-                console.log(swap);
                 var new_block;
-                if(!swap.type.length) {
-                    new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});
-                }
+                if(!swap.type.length) {new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});}
                 else if(!~swap.type.indexOf('Floating')){
                     new_block = new og.blotter.forms.blocks.Fixedleg({
                         form: form, data: data, leg: swap.leg, index: swap.index
@@ -102,8 +98,15 @@ $.register_module({
                 }
                 new_block.html(function (html) {
                     $('#' + swap.index).replaceWith(html);
+                    if(typeof data.security.recieveLeg != 'undefined')
+                        og.blotter.util.check_checkbox(receive_leg + 'eom', data.security.receiveLeg.eom);
+                    if(typeof data.security.payLeg != 'undefined')
+                        og.blotter.util.check_checkbox(pay_leg + 'eom', data.security.payLeg.eom);
+
                 });
                 form.children[swap.child] = new_block;
+                
+
             };
             constructor.load();
             constructor.submit = function () {
