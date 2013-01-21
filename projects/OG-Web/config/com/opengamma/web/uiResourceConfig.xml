@@ -443,6 +443,9 @@
   </bundle>
   <bundle id="og_admin.js">
     <bundle idref="views_admin.js" />
+    <fragment>/scripts/lib/ace/ace.js</fragment>
+    <fragment>/scripts/lib/ace/theme-textmate.js</fragment>
+    <fragment>/scripts/lib/ace/mode-xml.js</fragment>
   </bundle>
   <bundle id="og_blotter.js">
     <bundle idref="common_analytics.js" />

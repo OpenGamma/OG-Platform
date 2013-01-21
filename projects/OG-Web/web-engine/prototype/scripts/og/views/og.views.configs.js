@@ -166,6 +166,7 @@ $.register_module({
                     };
                     if (render_type !== config_type)
                         render_options.type_map = og.views.config_forms[config_type].type_map;
+                    $(render_options.selector).css({'overflow': 'auto'});
                     og.views.config_forms[render_type](render_options);
                 };
                 view.layout.inner.options.south.onclose = null;
