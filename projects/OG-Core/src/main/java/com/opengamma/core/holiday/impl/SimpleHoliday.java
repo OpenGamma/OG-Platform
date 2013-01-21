@@ -6,7 +6,6 @@
 package com.opengamma.core.holiday.impl;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Lists;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
@@ -79,7 +79,7 @@ public class SimpleHoliday extends DirectBean
    * The list of dates that the target (currency/region/exchange) is on holiday, not null.
    */
   @PropertyDefinition
-  private final List<LocalDate> _holidayDates = new ArrayList<LocalDate>();
+  private final List<LocalDate> _holidayDates = Lists.newArrayList();
 
   /**
    * Creates an instance.

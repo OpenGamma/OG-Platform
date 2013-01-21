@@ -16,6 +16,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.IndicatorType;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.util.tuple.Pair;
@@ -90,7 +91,7 @@ public class ManageableVolatilitySurfaceSnapshot implements VolatilitySurfaceSna
    */
   @SuppressWarnings("unchecked")
   public static ManageableVolatilitySurfaceSnapshot fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    final HashMap<Pair<Object, Object>, ValueSnapshot> values = new HashMap<Pair<Object, Object>, ValueSnapshot>();
+    final HashMap<Pair<Object, Object>, ValueSnapshot> values = Maps.newHashMap();
     Pair<Object, Object> key = null;
     for (FudgeField fudgeField : msg.getMessage("values")) {
       Integer ordinal = fudgeField.getOrdinal();
