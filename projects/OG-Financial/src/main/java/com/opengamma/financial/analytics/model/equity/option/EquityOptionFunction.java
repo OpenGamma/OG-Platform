@@ -10,9 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
-import javax.time.TimeSource;
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
@@ -346,7 +343,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   private ExternalId getWeakUnderlyingId(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource) {
     if (ExternalSchemes.BLOOMBERG_BUID.equals(underlyingId.getScheme())) {
       // this is a hack so it doesn't hammer the db.
-      Instant futureHour = Instant.ofEpochMillis(((System.currentTimeMillis() / 3600_000) * 3600_000) + 3600_000);
+      final Instant futureHour = Instant.ofEpochMillis(((System.currentTimeMillis() / 3600_000) * 3600_000) + 3600_000);
       final Security underlyingSecurity = securitySource.getSingle(ExternalIdBundle.of(underlyingId), VersionCorrection.of(futureHour, futureHour));
       if (underlyingSecurity == null) {
         final HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(underlyingId), null, null, true, null, true, 1);
