@@ -18,7 +18,7 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.AnalyticsColumnsJsonWriter;
+import com.opengamma.web.analytics.GridColumnsJsonWriter;
 import com.opengamma.web.analytics.PortfolioGridStructure;
 import com.opengamma.web.analytics.PrimitivesGridStructure;
 
@@ -29,9 +29,9 @@ import com.opengamma.web.analytics.PrimitivesGridStructure;
 @Produces(MediaType.APPLICATION_JSON)
 public class PrimitivesGridStructureMessageBodyWriter implements MessageBodyWriter<PrimitivesGridStructure> {
 
-  private final AnalyticsColumnsJsonWriter _writer;
+  private final GridColumnsJsonWriter _writer;
 
-  public PrimitivesGridStructureMessageBodyWriter(AnalyticsColumnsJsonWriter writer) {
+  public PrimitivesGridStructureMessageBodyWriter(GridColumnsJsonWriter writer) {
     ArgumentChecker.notNull(writer, "writer");
     _writer = writer;
   }

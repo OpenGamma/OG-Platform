@@ -15,9 +15,6 @@ import javax.time.calendar.format.DateTimeFormatters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.id.ExternalId;
@@ -97,7 +94,7 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
       //throw new OpenGammaRuntimeException("No expiry rule has been setup for " + prefix + ". Determine week and day pattern and add to EXPIRY_RULES.");
       expiryRule = EXPIRY_RULES.get("DEFAULT");
     }
-    final LocalDate expiry = expiryRule.getFutureOptionExpiry(futureOptionNumber.intValue(), surfaceDate);
+    final LocalDate expiry = expiryRule.getEquityFutureOptionExpiry(futureOptionNumber.intValue(), surfaceDate);
     ticker.append(FORMAT.print(expiry));
     ticker.append(" ");
     ticker.append(strike > useCallAboveStrike() ? "C" : "P");
@@ -108,4 +105,12 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider exte
   }
 
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityFutureOptionVolatilitySurfaceInstrumentProvider.class);
+
+  /**
+   * Gets the expiryRules.
+   * @return the expiryRules
+   */
+  public static HashMap<String, FutureOptionExpiries> getExpiryRules() {
+    return EXPIRY_RULES;
+  }
 }

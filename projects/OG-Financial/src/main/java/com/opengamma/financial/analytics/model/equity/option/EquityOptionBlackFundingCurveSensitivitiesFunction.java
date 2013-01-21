@@ -17,6 +17,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.analytics.financial.equity.option.EquityOption;
+import com.opengamma.analytics.financial.equity.option.EquityOptionBlackMethod;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -91,7 +94,7 @@ public class EquityOptionBlackFundingCurveSensitivitiesFunction extends EquityOp
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties properties) {
     final YieldAndDiscountCurve fundingCurve = market.getDiscountCurve();
     if (!(fundingCurve instanceof YieldCurve)) {
@@ -114,9 +117,18 @@ public class EquityOptionBlackFundingCurveSensitivitiesFunction extends EquityOp
     // Sensitivity to the rate to expiry might be used to estimate the underlying's forward, but we don't include this here.
     // The sensitivity to settlement rate is in the discounting, the ZeroBond price: PV = Z(t,S) * C(F,K,sig,T)
     //REVIEW emcleod 21-12-2012 calculations of analytic values does not belong in OG-Financial - this logic should be moved into OG-Analytics
-    final double settle = derivative.getTimeToSettlement();
-    final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    final double rhoSettle = -1 * settle * model.presentValue(derivative, market);
+    final double settle;
+    final double rhoSettle;
+    //FIXME
+    if (derivative instanceof EquityIndexOption) {
+      settle = ((EquityIndexOption) derivative).getTimeToSettlement();
+      final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
+      rhoSettle = -1 * settle * model.presentValue((EquityIndexOption) derivative, market);
+    } else {
+      settle = ((EquityOption) derivative).getTimeToSettlement();
+      final EquityOptionBlackMethod model = EquityOptionBlackMethod.getInstance();
+      rhoSettle = -1 * settle * model.presentValue((EquityOption) derivative, market);
+    }
     //  We use PresentValueNodeSensitivityCalculator to distribute this risk across the curve
     final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
     // What's left is to package up the inputs to the distributor, a YieldCurveBundle and a Map of Sensitivities

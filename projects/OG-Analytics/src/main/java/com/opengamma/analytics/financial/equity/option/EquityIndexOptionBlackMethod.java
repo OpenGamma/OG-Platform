@@ -5,16 +5,16 @@
  */
 package com.opengamma.analytics.financial.equity.option;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Pricing method for vanilla Equity Index Option transactions with Black function.
  */
+//TODO there is a lot of repeated code in this class and EquityOptionBlackMethod
 public final class EquityIndexOptionBlackMethod {
 
   // TODO What else?
@@ -46,9 +46,9 @@ public final class EquityIndexOptionBlackMethod {
    * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
    * @return The <b>forward</b> price of an option using the Black formula. PV / ZeroBond(timeToSettlement) 
    */
-  public double forwardPrice(EquityIndexOption derivative, StaticReplicationDataBundle marketData) {
-    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
-    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+  public double forwardPrice(final EquityIndexOption derivative, final StaticReplicationDataBundle marketData) {
+    ArgumentChecker.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    ArgumentChecker.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
     final double expiry = derivative.getTimeToExpiry();
     final double strike = derivative.getStrike();
     final double notional = derivative.getUnitAmount();
@@ -63,7 +63,7 @@ public final class EquityIndexOptionBlackMethod {
    * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
    * @return Current DiscountBond or ZeroBond price for payment at the settlement date 
    */
-  public double discountToSettlement(EquityIndexOption derivative, StaticReplicationDataBundle marketData) {
+  public double discountToSettlement(final EquityIndexOption derivative, final StaticReplicationDataBundle marketData) {
     final double df = marketData.getDiscountCurve().getDiscountFactor(derivative.getTimeToSettlement());
     return df;
   }
@@ -73,9 +73,9 @@ public final class EquityIndexOptionBlackMethod {
    * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
    * @return The <b>forward</b> value of the index, ie the fair strike of a forward agreement paying the index value at maturity 
    */
-  public double forwardIndexValue(EquityIndexOption derivative, StaticReplicationDataBundle marketData) {
-    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
-    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+  public double forwardIndexValue(final EquityIndexOption derivative, final StaticReplicationDataBundle marketData) {
+    ArgumentChecker.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    ArgumentChecker.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
     final double expiry = derivative.getTimeToExpiry();
     final double forward = marketData.getForwardCurve().getForward(expiry);
     return forward;
@@ -85,8 +85,8 @@ public final class EquityIndexOptionBlackMethod {
    * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
    * @return The <b>spot</b> value of the index, i.e. the current market value 
    */
-  public double spotIndexValue(StaticReplicationDataBundle marketData) {
-    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+  public double spotIndexValue(final StaticReplicationDataBundle marketData) {
+    ArgumentChecker.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
     final double spot = marketData.getForwardCurve().getSpot();
     return spot;
   }
@@ -96,7 +96,7 @@ public final class EquityIndexOptionBlackMethod {
    * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
    * @return The present value of the option 
    */
-  public double presentValue(EquityIndexOption derivative, StaticReplicationDataBundle marketData) {
+  public double presentValue(final EquityIndexOption derivative, final StaticReplicationDataBundle marketData) {
     final double fwdPrice = forwardPrice(derivative, marketData);
     final double df = discountToSettlement(derivative, marketData);
     return df * fwdPrice;
@@ -108,8 +108,8 @@ public final class EquityIndexOptionBlackMethod {
    * @return OpenGammaRuntimeException
    */
   public double presentValue(final EquityIndexOption derivative, final YieldCurveBundle marketData) {
-    Validate.notNull(derivative, "The derivative, EquityIndexOption, was null.");
-    Validate.notNull(marketData, "DataBundle was null. Expecting an EquityOptionDataBundle");
+    ArgumentChecker.notNull(derivative, "The derivative, EquityIndexOption, was null.");
+    ArgumentChecker.notNull(marketData, "DataBundle was null. Expecting an EquityOptionDataBundle");
     throw new OpenGammaRuntimeException("EquityIndexOptionBlackMethod requires a data bundle of type EquityOptionDataBundle. Found a YieldCurveBundle.");
   }
 
@@ -130,8 +130,8 @@ public final class EquityIndexOptionBlackMethod {
    * @return The forward delta wrt the forward underlying, ie the sensitivity of the undiscounted price to the forward value of the underlying, d(PV/Z)/d(fwdUnderlying)
    */
   public double forwardDelta(final EquityIndexOption derivative, final StaticReplicationDataBundle marketData) {
-    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
-    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    ArgumentChecker.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    ArgumentChecker.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
     final double expiry = derivative.getTimeToExpiry();
     final double strike = derivative.getStrike();
     final boolean isCall = derivative.isCall();
@@ -173,8 +173,8 @@ public final class EquityIndexOptionBlackMethod {
    *          $\frac{\partial^2 (PV/Z)}{\partial F^2}$
    */
   public double forwardGamma(final EquityIndexOption derivative, final StaticReplicationDataBundle marketData) {
-    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
-    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    ArgumentChecker.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    ArgumentChecker.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
     final double expiry = derivative.getTimeToExpiry();
     final double strike = derivative.getStrike();
     final double forward = marketData.getForwardCurve().getForward(expiry);
@@ -215,8 +215,8 @@ public final class EquityIndexOptionBlackMethod {
    * @return The simple vega, d(PV)/d(blackVol) 
    */
   public double vega(final EquityIndexOption derivative, final StaticReplicationDataBundle marketData) {
-    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
-    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    ArgumentChecker.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    ArgumentChecker.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
     final double expiry = derivative.getTimeToExpiry();
     final double strike = derivative.getStrike();
     final double forward = marketData.getForwardCurve().getForward(expiry);
@@ -233,8 +233,8 @@ public final class EquityIndexOptionBlackMethod {
    * @return The lognormal Black Volatility 
    */
   public double impliedVol(final EquityIndexOption derivative, final StaticReplicationDataBundle marketData) {
-    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
-    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    ArgumentChecker.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    ArgumentChecker.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
     final double expiry = derivative.getTimeToExpiry();
     final double strike = derivative.getStrike();
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
@@ -248,8 +248,8 @@ public final class EquityIndexOptionBlackMethod {
    *          $\frac{\partial^2 (PV/Z)}{\partial \sigma^2}$
    */
   public double forwardVomma(final EquityIndexOption derivative, final StaticReplicationDataBundle marketData) {
-    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
-    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    ArgumentChecker.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    ArgumentChecker.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
     final double expiry = derivative.getTimeToExpiry();
     final double strike = derivative.getStrike();
     final double forward = marketData.getForwardCurve().getForward(expiry);
@@ -289,8 +289,8 @@ public final class EquityIndexOptionBlackMethod {
    *          $\frac{\partial^2 (PV/Z)}{\partial F \partial \sigma}$
    */
   public double forwardVanna(final EquityIndexOption derivative, final StaticReplicationDataBundle marketData) {
-    Validate.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
-    Validate.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
+    ArgumentChecker.notNull(derivative, "derivative was null. Expecting EquityIndexOption");
+    ArgumentChecker.notNull(marketData, "market was null. Expecting EquityOptionDataBundle");
     final double expiry = derivative.getTimeToExpiry();
     final double strike = derivative.getStrike();
     final double forward = marketData.getForwardCurve().getForward(expiry);

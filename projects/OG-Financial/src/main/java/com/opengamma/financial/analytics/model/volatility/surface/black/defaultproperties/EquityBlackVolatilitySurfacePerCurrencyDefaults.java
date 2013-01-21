@@ -72,7 +72,7 @@ public class EquityBlackVolatilitySurfacePerCurrencyDefaults extends DefaultProp
    * @param defaults The defaults, not null.
    */
   public EquityBlackVolatilitySurfacePerCurrencyDefaults(final String priority, final String... defaults) {
-    super(ComputationTargetType.ANYTHING, true); // TODO [PLAT-2286] Use the correct type; should this be SECURITY?
+    super(ComputationTargetType.LEGACY_PRIMITIVE, true); // // [PLAT-2286]: change to correct type; should this be SECURITY?
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(defaults, "defaults");
     final int n = defaults.length;

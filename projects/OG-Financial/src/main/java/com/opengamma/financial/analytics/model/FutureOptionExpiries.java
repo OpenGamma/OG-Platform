@@ -101,6 +101,25 @@ public final class FutureOptionExpiries {
     return getQuarterlyExpiry(nthExpiryAfterSixMonths, sixMonthsForward);
   }
 
+  /**
+   * Get monthly expiries for the first 6 expires then look for January yearly ones
+   * CME options seem to follow no clear pattern some switch to yearly after 4 monthly options and some have 8 or more
+   * pick a value in the middle so hopefully we get a reasonable number of valid expires for all options
+   * @param nthFuture nth future in the future
+   * @param valDate date to start from
+   * @return expiry the expiry date of the nth option
+   */
+  public LocalDate getEquityFutureOptionExpiry(final int nthFuture, final LocalDate valDate) {
+    Validate.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
+    if (nthFuture <= 6) { // We look for expiries in the first 6 serial months after curveDate
+      return getMonthlyExpiry(nthFuture, valDate);
+    }
+    // And for yearly January expiry after that
+    final int nExpiryDone = nthFuture - 6;
+    final LocalDate nextYear = LocalDate.of(valDate.getYear() + nExpiryDone, 1, 1);
+    return getMonthlyExpiry(1, nextYear);
+  }
+
   public LocalDate getMonthlyExpiry(final int nthMonth, final LocalDate valDate) {
     Validate.isTrue(nthMonth > 0, "nthFuture must be greater than 0.");
     LocalDate expiry = valDate.with(_nextExpiryAdjuster.getDayOfMonthAdjuster()); // Compute the expiry of valuationDate's month

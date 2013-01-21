@@ -53,7 +53,7 @@ public class LocalVolatilitySurfaceDefaults extends DefaultPropertyFunction {
   private final String _eps;
 
   public LocalVolatilitySurfaceDefaults(final String eps) {
-    super(ComputationTargetType.ANYTHING, true);
+    super(ComputationTargetType.LEGACY_PRIMITIVE.or(ComputationTargetType.SECURITY).or(ComputationTargetType.TRADE), true); // // [PLAT-2286]: change to correct type
     ArgumentChecker.notNull(eps, "eps");
     _eps = eps;
   }

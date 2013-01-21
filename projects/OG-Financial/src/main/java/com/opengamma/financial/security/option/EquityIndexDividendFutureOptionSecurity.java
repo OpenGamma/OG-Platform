@@ -35,7 +35,7 @@ public class EquityIndexDividendFutureOptionSecurity extends FinancialSecurity {
   /**
    * The security type.
    */
-  public static final String SECURITY_TYPE = "EQUITY_INDEX_FUTURE_OPTION";
+  public static final String SECURITY_TYPE = "EQUITY_INDEX_DIVIDEND_FUTURE_OPTION";
 
   /**
    * The exchange.

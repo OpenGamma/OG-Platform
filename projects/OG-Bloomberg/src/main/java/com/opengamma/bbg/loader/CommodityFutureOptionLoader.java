@@ -75,7 +75,7 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
     FIELD_UNDL_ID_BB_UNIQUE);
 
   /**
-   * The valid Bloomberg security types for Interest Rate Future Option
+   * The valid Bloomberg security types for Commodity Future Option
    */
   public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(
       BBG_PRECIOUS_METAL_TYPE,

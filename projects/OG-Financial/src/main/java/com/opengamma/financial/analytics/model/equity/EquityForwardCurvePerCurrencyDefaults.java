@@ -43,7 +43,7 @@ public class EquityForwardCurvePerCurrencyDefaults extends DefaultPropertyFuncti
    * @param perCurrencyConfig The default values per currency, not null
    */
   public EquityForwardCurvePerCurrencyDefaults(final String priority, final String... perCurrencyConfig) {
-    super(ComputationTargetType.ANYTHING, true); // TODO [PLAT-2286] Use the correct type; should this be SECURITY?
+    super(ComputationTargetType.LEGACY_PRIMITIVE, true); // // [PLAT-2286]: change to correct type; should this be SECURITY?
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyConfig, "per equity config");
     final int nPairs = perCurrencyConfig.length;

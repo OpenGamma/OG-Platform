@@ -18,9 +18,9 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.AnalyticsColumnsJsonWriter;
 import com.opengamma.web.analytics.AnalyticsNodeJsonWriter;
 import com.opengamma.web.analytics.DependencyGraphGridStructure;
+import com.opengamma.web.analytics.GridColumnsJsonWriter;
 import com.opengamma.web.analytics.PortfolioGridStructure;
 
 /**
@@ -30,9 +30,9 @@ import com.opengamma.web.analytics.PortfolioGridStructure;
 @Produces(MediaType.APPLICATION_JSON)
 public class DependencyGraphGridStructureMessageBodyWriter implements MessageBodyWriter<DependencyGraphGridStructure> {
 
-  private final AnalyticsColumnsJsonWriter _writer;
+  private final GridColumnsJsonWriter _writer;
 
-  public DependencyGraphGridStructureMessageBodyWriter(AnalyticsColumnsJsonWriter writer) {
+  public DependencyGraphGridStructureMessageBodyWriter(GridColumnsJsonWriter writer) {
     ArgumentChecker.notNull(writer, "writer");
     _writer = writer;
   }

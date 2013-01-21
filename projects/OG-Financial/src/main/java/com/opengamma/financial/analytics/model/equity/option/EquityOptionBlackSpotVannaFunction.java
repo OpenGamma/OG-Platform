@@ -11,6 +11,9 @@ import java.util.Set;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.analytics.financial.equity.option.EquityOption;
+import com.opengamma.analytics.financial.equity.option.EquityOptionBlackMethod;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -33,11 +36,15 @@ public class EquityOptionBlackSpotVannaFunction extends EquityOptionBlackFunctio
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    return Collections.singleton(new ComputedValue(resultSpec, model.vannaWrtSpot(derivative, market)));
+    if (derivative instanceof EquityIndexOption) {
+      final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
+      return Collections.singleton(new ComputedValue(resultSpec, model.vannaWrtSpot((EquityIndexOption) derivative, market)));
+    }
+    final EquityOptionBlackMethod model = EquityOptionBlackMethod.getInstance();
+    return Collections.singleton(new ComputedValue(resultSpec, model.vannaWrtSpot((EquityOption) derivative, market)));
   }
 
 }

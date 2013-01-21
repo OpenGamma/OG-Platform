@@ -19,22 +19,60 @@ import com.opengamma.engine.view.calcnode.MissingInput;
   private final Object _value;
   private final ValueSpecification _valueSpecification;
   private final Collection<Object> _history;
-  private final int _column;
   private final AggregatedExecutionLog _executionLog;
   private final boolean _updated;
+  private final Class<?> _type;
 
-  /* package */ ResultsCell(Object value,
-                            ValueSpecification valueSpecification,
-                            Collection<Object> history,
-                            int column,
-                            AggregatedExecutionLog executionLog,
-                            boolean updated) {
+  private ResultsCell(Object value,
+                      ValueSpecification valueSpecification,
+                      Collection<Object> history,
+                      AggregatedExecutionLog executionLog,
+                      boolean updated, Class<?> type) {
     _value = value;
     _valueSpecification = valueSpecification;
     _history = history;
-    _column = column;
     _executionLog = executionLog;
     _updated = updated;
+    _type = type;
+  }
+
+  /**
+   * Factory method that creates a grid cell for displaying a static value.
+   * @param value The cell's value
+   * @param type TODO remove
+   * @return A cell for displaying the value
+   */
+  /* package */ static ResultsCell forStaticValue(Object value, Class<?> type) {
+    return new ResultsCell(value, null, null, null, false, type);
+  }
+
+  /**
+   * Factory method that creates a grid cell for displaying a calculated value.
+   * @param value The value
+   * @param valueSpecification The value's specification
+   * @param history The value's history
+   * @param updated true if the value was updated in the last calculation cycle
+   * @param type TODO remove this parameter
+   * @return A cell for displaying the value
+   */
+  /* package */ static ResultsCell forCalculatedValue(Object value,
+                                                      ValueSpecification valueSpecification,
+                                                      Collection<Object> history,
+                                                      AggregatedExecutionLog executionLog,
+                                                      boolean updated,
+                                                      Class<?> type) {
+    return new ResultsCell(value, valueSpecification, history, executionLog, updated, type);
+  }
+
+  /**
+   * Factory method that returns a grid cell with no value.
+   * @return An empty cell
+   * @param emptyHistory Empty history appropriate for the cell's type. For types that support history it should
+   * be an empty collection, for types that don't it should be null.
+   * @param type TODO remove
+   */
+  /* package */ static ResultsCell empty(Collection<Object> emptyHistory, Class<?> type) {
+    return new ResultsCell(null, null, emptyHistory, null, false, type);
   }
 
   /**
@@ -65,16 +103,16 @@ import com.opengamma.engine.view.calcnode.MissingInput;
     return _value instanceof MissingInput;
   }
 
-  /* package */ int getColumn() {
-    return _column;
-  }
-
   /* package */ AggregatedExecutionLog getExecutionLog() {
     return _executionLog;
   }
 
   /* package */ boolean isUpdated() {
     return _updated;
+  }
+
+  /* package */ Class<?> getType() {
+    return _type;
   }
 
   @Override
@@ -87,9 +125,6 @@ import com.opengamma.engine.view.calcnode.MissingInput;
     }
     ResultsCell that = (ResultsCell) o;
 
-    if (_column != that._column) {
-      return false;
-    }
     if (_updated != that._updated) {
       return false;
     }
@@ -137,7 +172,6 @@ import com.opengamma.engine.view.calcnode.MissingInput;
     int result = _value != null ? _value.hashCode() : 0;
     result = 31 * result + (_valueSpecification != null ? _valueSpecification.hashCode() : 0);
     result = 31 * result + (_history != null ? _history.hashCode() : 0);
-    result = 31 * result + _column;
     result = 31 * result + (_executionLog != null ? _executionLog.hashCode() : 0);
     result = 31 * result + (_updated ? 1 : 0);
     return result;

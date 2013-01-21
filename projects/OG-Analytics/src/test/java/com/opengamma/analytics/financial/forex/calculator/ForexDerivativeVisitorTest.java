@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
@@ -146,7 +147,7 @@ public class ForexDerivativeVisitorTest {
     testException(NDO, o);
     testException(FX_OPTION_DIGITAL);
     testException(FX_OPTION_DIGITAL, o);
-    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP };
+    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP};
     try {
       forexArray[0].accept(VISITOR_ABSTRACT);
       assertTrue(false);
@@ -942,6 +943,16 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEquityOption(final EquityOption option, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEquityOption(final EquityOption option) {
       return null;
     }
 
