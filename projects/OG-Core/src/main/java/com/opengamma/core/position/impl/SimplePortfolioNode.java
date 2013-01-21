@@ -133,6 +133,7 @@ public class SimplePortfolioNode implements PortfolioNode, MutableUniqueIdentifi
    * 
    * @param uniqueId  the new unique identifier, not null
    */
+  @Override
   public void setUniqueId(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     _uniqueId = uniqueId;

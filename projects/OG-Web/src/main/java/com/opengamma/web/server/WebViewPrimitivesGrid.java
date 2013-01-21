@@ -25,7 +25,7 @@ public class WebViewPrimitivesGrid extends RequirementBasedWebViewGrid {
 
   protected WebViewPrimitivesGrid(ViewClient viewClient, CompiledViewDefinition compiledViewDefinition, ResultConverterCache resultConverterCache, Client local, Client remote,
       ComputationTargetResolver computationTargetResolver) {
-    super("primitives", viewClient, compiledViewDefinition, null, ImmutableSet.of(ComputationTargetType.PRIMITIVE),
+    super("primitives", viewClient, compiledViewDefinition, null, ImmutableSet.of(ComputationTargetType.PRIMITIVE, ComputationTargetType.CURRENCY, ComputationTargetType.UNORDERED_CURRENCY_PAIR),
         resultConverterCache, local, remote, "", computationTargetResolver);
   }
 
