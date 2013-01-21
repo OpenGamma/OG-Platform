@@ -20,8 +20,11 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
@@ -78,6 +81,8 @@ public class CommodityFutureOptionBlackDefaults extends DefaultPropertyFunction 
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
       defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
+      defaults.addValuePropertyName(valueRequirement, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
+      defaults.addValuePropertyName(valueRequirement, EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME);
     }
   }
 
@@ -97,6 +102,13 @@ public class CommodityFutureOptionBlackDefaults extends DefaultPropertyFunction 
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_currencyToSurfaceName.get(currency));
+    }
+    if (EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME.equals(propertyName)) {
+      final String fullForwardCurveName = CommodityFutureOptionUtils.getSurfaceName((FinancialSecurity) target.getSecurity(), _currencyToSurfaceName.get(currency));
+      return Collections.singleton(fullForwardCurveName);
+    }
+    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
+      return Collections.singleton(ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
     }
     if (BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR.equals(propertyName)) {
       return Collections.singleton(_currencyToInterpolationMethod.get(currency));

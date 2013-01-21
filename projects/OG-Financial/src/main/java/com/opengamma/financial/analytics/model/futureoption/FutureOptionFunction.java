@@ -20,7 +20,6 @@ import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -40,10 +39,11 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.CommodityFutureOptionConverter;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -136,13 +136,12 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     }
     final BlackVolatilitySurface<?> blackVolSurf = (BlackVolatilitySurface<?>) volSurfaceObject;
 
-    // d. Forward Curve
-    final ForwardCurve forwardCurve;
-    if (blackVolSurf instanceof BlackVolatilitySurfaceMoneyness) { // Use forwards tied to vols if available
-      forwardCurve = ((BlackVolatilitySurfaceMoneyness) blackVolSurf).getForwardCurve();
-    } else {
-      forwardCurve = new ForwardCurve(spot, fundingCurve.getCurve()); // else build from spot and funding curve
+    // 3. Forward Curve
+    final Object forwardCurveObject = inputs.getValue(ValueRequirementNames.FORWARD_CURVE);
+    if (forwardCurveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get forward curve");
     }
+    final ForwardCurve forwardCurve = (ForwardCurve) forwardCurveObject;
     final StaticReplicationDataBundle market = new StaticReplicationDataBundle(blackVolSurf, fundingCurve, forwardCurve);
     return market;
   }
@@ -157,11 +156,6 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
    */
   protected abstract Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final Set<ValueRequirement> desiredValue,
       final ComputationTarget target);
-
-  @Override
-  public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.COMMODITY_FUTURE_OPTION_SECURITY;
-  }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
@@ -199,7 +193,18 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     }
     final String smileInterpolator = interpolators.iterator().next();
     final ValueRequirement volReq = getVolatilitySurfaceRequirement(security, volSurfaceName, smileInterpolator);
-    return Sets.newHashSet(underlyingFutureReq, fundingReq, volReq);
+    final Set<String> forwardCurveNames = constraints.getValues(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME);
+    if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
+      return null;
+    }
+    final Set<String> forwardCurveCalculationMethods = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
+    if (forwardCurveCalculationMethods == null || forwardCurveCalculationMethods.size() != 1) {
+      return null;
+    }
+    final String forwardCurveCalculationMethod = Iterables.getOnlyElement(forwardCurveCalculationMethods);
+    final String forwardCurveName = Iterables.getOnlyElement(forwardCurveNames);
+    final ValueRequirement forwardCurveReq = getForwardCurveRequirement(forwardCurveCalculationMethod, forwardCurveName, security);
+    return Sets.newHashSet(underlyingFutureReq, fundingReq, volReq, forwardCurveReq);
   }
 
   /**
@@ -267,7 +272,13 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
    * @param smileInterpolator The interpolation method used
    * @return The volatility surface requirement
    */
-  protected abstract ValueRequirement getVolatilitySurfaceRequirement(FinancialSecurity security, final String surfaceName, final String smileInterpolator);
+  protected abstract ValueRequirement getVolatilitySurfaceRequirement(FinancialSecurity security, String surfaceName, String smileInterpolator);
+
+  protected abstract ValueRequirement getForwardCurveRequirement(final String forwardCurveCalculationMethod, final String forwardCurveName, final Security security);
+
+  protected abstract String getCalculationMethod();
+
+  protected abstract String getModelType();
 
   /**
    * Constructs the underlying future price requirement
