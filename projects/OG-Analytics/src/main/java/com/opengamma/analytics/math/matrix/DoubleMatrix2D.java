@@ -74,7 +74,9 @@ public class DoubleMatrix2D implements Matrix<Double> {
       _columns = data[0].length;
       _data = new double[_rows][_columns];
       for (int i = 0; i < _rows; i++) {
-        System.arraycopy(data[i], 0, _data[i], 0, data[i].length);
+        for (int j = 0; j < _columns; j++) {
+          _data[i][j] = data[i][j];
+        }
       }
       _elements = _rows * _columns;
     }

@@ -121,7 +121,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
       s_logger.error("Volatility surface definition called {} for instrument type {} was null", surfaceName, instrumentType);
       return null;
     }
-    final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> result = new HashSet<>();
     final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
     for (final X x : definition.getXs()) {
       for (final Y y : definition.getYs()) {
@@ -233,9 +233,9 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
       final VolatilitySurfaceSpecification specification = (VolatilitySurfaceSpecification) specificationObject;
       final LocalDate valuationDate = executionContext.getValuationClock().today();
       final SurfaceInstrumentProvider<Object, Object> provider = (SurfaceInstrumentProvider<Object, Object>) specification.getSurfaceInstrumentProvider();
-      final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<Pair<Object, Object>, Double>();
-      final ObjectArrayList<Object> xList = new ObjectArrayList<Object>();
-      final ObjectArrayList<Object> yList = new ObjectArrayList<Object>();
+      final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<>();
+      final ObjectArrayList<Object> xList = new ObjectArrayList<>();
+      final ObjectArrayList<Object> yList = new ObjectArrayList<>();
       for (final Object x : definition.getXs()) {
         for (final Object y : definition.getYs()) {
           final ExternalId identifier = provider.getInstrument(x, y, valuationDate);
@@ -250,7 +250,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
           }
         }
       }
-      final VolatilitySurfaceData<Object, Object> volSurfaceData = new VolatilitySurfaceData<Object, Object>(definition.getName(), specification.getName(),
+      final VolatilitySurfaceData<Object, Object> volSurfaceData = new VolatilitySurfaceData<>(definition.getName(), specification.getName(),
           definition.getTarget(), definition.getXs(), definition.getYs(), volatilityValues);
       final ValueSpecification result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
           createValueProperties()

@@ -75,12 +75,12 @@ public class EquityIndexOptionDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValuationDate() {
-    AMERICAN_PUT.toDerivative(null, null);
+    AMERICAN_PUT.toDerivative(null, (String[]) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testValuationAfterExpiry() {
-    AMERICAN_PUT.toDerivative(EXPIRY.plusNanos(1), null);
+    AMERICAN_PUT.toDerivative(EXPIRY.plusNanos(1), (String[]) null);
   }
 
   @Test

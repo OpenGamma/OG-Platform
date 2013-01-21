@@ -5,26 +5,20 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 
 /**
- * Constructs volatility surface data objects for soybean future options if the target is the currency of the option
+ * Constructs volatility surface data objects for commodity future options if the target is the currency of the option
  */
-//TODO this class needs to be generalised to all commodity future options
-public class RawSoybeanFutureOptionVolatilitySurfaceDataFunction extends RawVolatilitySurfaceDataFunction {
-  /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(RawSoybeanFutureOptionVolatilitySurfaceDataFunction.class);
+public class RawCommodityFutureOptionVolatilitySurfaceDataFunction extends RawVolatilitySurfaceDataFunction {
 
   /**
    * Default constructor
    */
-  public RawSoybeanFutureOptionVolatilitySurfaceDataFunction() {
+  public RawCommodityFutureOptionVolatilitySurfaceDataFunction() {
     super(InstrumentTypeProperties.COMMODITY_FUTURE_OPTION);
   }
 

@@ -9,9 +9,6 @@ import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
@@ -34,8 +31,6 @@ import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteT
  *
  */
 public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatilitySurfaceFunction {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityBlackVolatilitySurfaceFunction.class);
 
   /**
    * Spline interpolator function for Black volatility surfaces
