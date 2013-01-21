@@ -73,7 +73,8 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
     ValueRequirementNames.RHO,
     ValueRequirementNames.CARRY_RHO,
     ValueRequirementNames.THETA,
-    ValueRequirementNames.DUAL_DELTA
+    ValueRequirementNames.DUAL_DELTA,
+    ValueRequirementNames.VEGA
   };
 
   /**
