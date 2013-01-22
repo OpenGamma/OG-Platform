@@ -47,7 +47,7 @@ $.register_module({
             },
             TIME_SERIES: function (value, single) {
                 if (!single) return '**TIME SERIES**';
-                var rows, cols, pad = function (digit) {return digit < 10 ? '0' + digit : digit;};
+                var rows, cols, pad = function (digit) {return (digit < 10 ? '0' : '') + digit;};
                 value = value.v || value;
                 rows = value.timeseries.data;
                 cols = value.timeseries['fieldLabels'];

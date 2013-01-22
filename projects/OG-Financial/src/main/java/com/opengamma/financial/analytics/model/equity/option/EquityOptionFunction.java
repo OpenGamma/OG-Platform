@@ -10,9 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.Instant;
-import javax.time.TimeSource;
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
@@ -122,7 +119,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Constructs a market data bundle
-   *
+   * 
    * @param underlyingId The underlying id of the index option
    * @param executionContext The execution context
    * @param inputs The market data inputs
@@ -164,7 +161,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Calculates the result
-   *
+   * 
    * @param derivative The derivative
    * @param market The market data bundle
    * @param inputs The market data inputs
@@ -309,10 +306,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     assert discountCurvePropertiesSet;
     assert forwardCurvePropertiesSet;
     assert surfacePropertiesSet;
-    properties
-      .with(PROPERTY_DISCOUNTING_CURVE_NAME, discountingCurveName)
-      .with(PROPERTY_DISCOUNTING_CURVE_CONFIG, discountingCurveConfig)
-      .with(PROPERTY_FORWARD_CURVE_NAME, forwardCurveName);
+    properties.with(PROPERTY_DISCOUNTING_CURVE_NAME, discountingCurveName).with(PROPERTY_DISCOUNTING_CURVE_CONFIG, discountingCurveConfig).with(PROPERTY_FORWARD_CURVE_NAME, forwardCurveName);
     final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirement : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties.get()));
@@ -334,11 +328,13 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
         .with(ValuePropertyNames.CURVE, forwardCurveName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .get();
+    // REVIEW Andrew 2012-01-17 -- Why can't we just use the underlyingBuid external identifier directly here, with a target type of SECURITY, and shift the logic into the reference resolver?
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, getWeakUnderlyingId(underlyingBuid, tsSource, securitySource), properties);
   }
 
   private ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource,
       final ValueRequirement desiredValue, final Security security, final String surfaceName, final String surfaceCalculationMethod, final ExternalId underlyingBuid) {
+    // REVIEW Andrew 2012-01-17 -- Could we pass a CTRef to the getSurfaceRequirement and use the underlyingBuid external identifier directly with a target type of SECURITY
     return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, InstrumentTypeProperties.EQUITY_OPTION,
         getWeakUnderlyingId(underlyingBuid, tsSource, securitySource));
   }
@@ -346,7 +342,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   private ExternalId getWeakUnderlyingId(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource) {
     if (ExternalSchemes.BLOOMBERG_BUID.equals(underlyingId.getScheme())) {
       // this is a hack so it doesn't hammer the db.
-      Instant futureHour = Instant.ofEpochMillis(((System.currentTimeMillis() / 3600_000) * 3600_000) + 3600_000);
+      final Instant futureHour = Instant.ofEpochMillis(((System.currentTimeMillis() / 3600_000) * 3600_000) + 3600_000);
       final Security underlyingSecurity = securitySource.getSingle(ExternalIdBundle.of(underlyingId), VersionCorrection.of(futureHour, futureHour));
       if (underlyingSecurity == null) {
         final HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(underlyingId), null, null, true, null, true, 1);
@@ -369,7 +365,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the value requirement names
-   *
+   * 
    * @return The value requirement names
    */
   protected String[] getValueRequirementNames() {
@@ -378,14 +374,14 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the calculation method.
-   *
+   * 
    * @return The calculation method
    */
   protected abstract String getCalculationMethod();
 
   /**
    * Gets the model type.
-   *
+   * 
    * @return The model type
    */
   protected abstract String getModelType();

@@ -10,15 +10,17 @@
     <ROW Property="BLOOMBERG_SAPI_HOST" Value="localhost"/>
     <ROW Property="BannerBitmap" Value="banner" MultiBuildValue="NoJVM32:opengamma_banner.bmp#JVM32:opengamma_banner.bmp#JVM64:opengamma_banner.bmp#NoJVM64:opengamma_banner.bmp#MsiBuild:opengamma_banner.bmp" Type="1" MsiKey="BannerBitmap"/>
     <ROW Property="DialogBitmap" Value="dialog" MultiBuildValue="NoJVM32:opengamma_dialog.bmp#JVM32:opengamma_dialog.bmp#JVM64:opengamma_dialog.bmp#NoJVM64:opengamma_dialog.bmp#MsiBuild:opengamma_dialog.bmp" Type="1" MsiKey="DialogBitmap"/>
-    <ROW Property="INSTALL_REG32" Value="Servers"/>
     <ROW Property="JAVA_XMX" Value="?" MultiBuildValue="NoJVM32:50:2:1200P#JVM32:50:2:1200P#JVM64:75:256:2048P#NoJVM64:75:256:2048P"/>
     <ROW Property="M_FILE" Value="OpenGamma Ltd"/>
     <ROW Property="M_REG32" Value="OpenGammaLtd"/>
+    <ROW Property="M_REG64" Value="OpenGammaLtd"/>
     <ROW Property="Manufacturer" Value="OpenGamma Ltd" ValueLocId="*"/>
     <ROW Property="ProductCode" Value="1033:{1E475FAF-EE2D-4429-9D77-45467F3FFBAC} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="OpenGamma Server" ValueLocId="*"/>
     <ROW Property="ProductVersion" Value="1.0.0" Type="32"/>
+    <ROW Property="SERVER_REG32" Value="OpenGammaServer"/>
+    <ROW Property="SERVER_REG64" Value="OpenGammaServer"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="TOOL_UI_FLAG" Value="-gui"/>
     <ROW Property="UpgradeCode" Value="{0346DEDE-F3E5-4BAD-9026-AB709E235B31}"/>
@@ -37,28 +39,32 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="common" ComponentId="{78DED790-592E-45B7-822D-FEB1B18FCCF4}" Directory_="APPDIR" Attributes="4" KeyPath="platform"/>
     <ROW Component="common32" ComponentId="{164016E3-2B96-4D66-A084-C0B1D1DBEA3E}" Directory_="APPDIR" Attributes="4" KeyPath="platform32"/>
-    <ROW Component="common64" ComponentId="{01842777-A9FB-4246-A2FC-858467D60CFD}" Directory_="APPDIR" Attributes="4" KeyPath="platform64"/>
+    <ROW Component="common64" ComponentId="{01842777-A9FB-4246-A2FC-858467D60CFD}" Directory_="APPDIR" Attributes="260" KeyPath="platform64"/>
+    <ROW Component="common_reg64" ComponentId="{9945CD21-4DEB-4809-AFB6-95EBD00EEE9C}" Directory_="APPDIR" Attributes="260" KeyPath="common"/>
     <ROW Component="config" ComponentId="{E247AB10-2EDA-41AF-AC06-0FD18D5D094F}" Directory_="config_Dir" Attributes="0"/>
     <ROW Component="fullstack" ComponentId="{E4C3EC6F-5778-4702-B404-D7DD7E0CB06C}" Directory_="fullstack_Dir" Attributes="0"/>
     <ROW Component="jre32" ComponentId="{79FC0EEB-89EE-4FFC-8482-F65D82CA4686}" Directory_="APPDIR" Attributes="4" KeyPath="jre32"/>
-    <ROW Component="jre64" ComponentId="{709C07E6-DCA6-4FDF-B408-9280BEF6032C}" Directory_="APPDIR" Attributes="4" KeyPath="jre64"/>
+    <ROW Component="jre64" ComponentId="{709C07E6-DCA6-4FDF-B408-9280BEF6032C}" Directory_="APPDIR" Attributes="260" KeyPath="jre64"/>
     <ROW Component="og_bloombergexample" ComponentId="{AF9E2C07-02D1-496E-8A47-89E48098B89B}" Directory_="APPDIR" Attributes="4" KeyPath="og_bloombergexample"/>
+    <ROW Component="og_bloombergexample_reg64" ComponentId="{FAA3C419-FBC1-4F2F-B9B3-30A1E57B590A}" Directory_="APPDIR" Attributes="260" KeyPath="og_bloombergexample_1"/>
     <ROW Component="og_bloombergexample_start" ComponentId="{238CC0CC-E40C-4D19-A3D6-E5047F75EF31}" Directory_="APPDIR" Attributes="4" Condition="BLOOMBERG_SAPI_PORT" KeyPath="og_bloombergexample_start"/>
     <ROW Component="og_examples" ComponentId="{5E8B0FD3-2909-411D-BD5E-D02401983E75}" Directory_="APPDIR" Attributes="4" KeyPath="og_examples"/>
+    <ROW Component="og_examples_reg64" ComponentId="{0A9D8946-EE75-4CB2-BE72-352A57FDDC9E}" Directory_="APPDIR" Attributes="260" KeyPath="og_examples_1"/>
     <ROW Component="og_examples_start" ComponentId="{3FC7B27F-9E72-4289-8A15-25E1D818B837}" Directory_="APPDIR" Attributes="4" Condition="NOT BLOOMBERG_SAPI_PORT" KeyPath="og_examples_start"/>
     <ROW Component="temp" ComponentId="{4E8BF3C2-DE9C-42A0-AB06-D5A961B940EC}" Directory_="temp_Dir" Attributes="0"/>
     <ROW Component="toolcontext" ComponentId="{2284A0B6-EFDC-4241-9C90-1B14E2D4AD93}" Directory_="toolcontext_Dir" Attributes="0"/>
     <ROW Component="www" ComponentId="{6653768A-52B4-4242-AEDF-2C7C6DDFF5E2}" Directory_="APPDIR" Attributes="4" KeyPath="www"/>
+    <ROW Component="www_reg64" ComponentId="{E4567D33-D5D3-4DC6-90A7-889E6A6DE014}" Directory_="APPDIR" Attributes="260" KeyPath="www_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="JRE32" Title="32-bit Java Runtime" Description="This feature contains the JRE bundle." Display="3" Level="1" Directory_="APPDIR" Attributes="8" Components="jre32" Builds="JVM32"/>
     <ROW Feature="JRE64" Title="64-bit Java Runtime" Description="This feature contains the 64-bit JRE bundle." Display="5" Level="1" Directory_="APPDIR" Attributes="8" Components="jre64" Builds="JVM64"/>
-    <ROW Feature="common" Title="OpenGamma Server" Description="The core files for the OpenGamma engine server" Display="7" Level="1" Directory_="APPDIR" Attributes="8" Components="common config fullstack temp toolcontext"/>
+    <ROW Feature="common" Title="OpenGamma Server" Description="The core files for the OpenGamma engine server" Display="7" Level="1" Directory_="APPDIR" Attributes="8" Components="common common_reg64 config fullstack temp toolcontext"/>
     <ROW Feature="common32" Feature_Parent="common" Title="32-bit Service" Description="The 32-bit executables for the OpenGamma engine" Display="0" Level="1" Directory_="APPDIR" Attributes="8" Components="common32" Builds="NoJVM32;JVM32"/>
     <ROW Feature="common64" Feature_Parent="common" Title="64-bit Service" Description="The 64-bit executables for the OpenGamma engine" Display="0" Level="1" Directory_="APPDIR" Attributes="8" Components="common64" Builds="JVM64;NoJVM64"/>
-    <ROW Feature="og_bloombergexample" Feature_Parent="common" Title="Bloomberg Example Server" Description="The example engine service connected to Bloomberg market data" Display="4" Level="4" Directory_="APPDIR" Attributes="8" Components="og_bloombergexample og_bloombergexample_start" Builds="MsiBuild"/>
-    <ROW Feature="og_examples" Feature_Parent="common" Title="Basic Example" Description="The basic example engine service connected to simulated market data" Display="3" Level="1" Directory_="APPDIR" Attributes="8" Components="og_examples og_examples_start" Builds="MsiBuild"/>
-    <ROW Feature="www" Feature_Parent="common" Title="Web interface" Description="Support for browser based interface to an OpenGamma server" Display="6" Level="1" Directory_="APPDIR" Attributes="8" Components="www" Builds="MsiBuild"/>
+    <ROW Feature="og_bloombergexample" Feature_Parent="common" Title="Bloomberg Example Server" Description="The example engine service connected to Bloomberg market data" Display="4" Level="4" Directory_="APPDIR" Attributes="8" Components="og_bloombergexample og_bloombergexample_reg64 og_bloombergexample_start" Builds="MsiBuild"/>
+    <ROW Feature="og_examples" Feature_Parent="common" Title="Basic Example" Description="The basic example engine service connected to simulated market data" Display="3" Level="1" Directory_="APPDIR" Attributes="8" Components="og_examples og_examples_reg64 og_examples_start" Builds="MsiBuild"/>
+    <ROW Feature="www" Feature_Parent="common" Title="Web interface" Description="Support for browser based interface to an OpenGamma server" Display="6" Level="1" Directory_="APPDIR" Attributes="8" Components="www www_reg64" Builds="MsiBuild"/>
     <ATTRIBUTE name="CurrentFeature" value="og_examples"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.AiRemoveFileComponent">
@@ -114,8 +120,10 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiAppSearchComponent">
     <ROW Property="BLOOMBERG_SAPI_PORT" Signature_="AppSearchSign"/>
-    <ROW Property="JRE_32" Signature_="AppSearchSign_1"/>
-    <ROW Property="JRE_64" Signature_="AppSearchSign_1_1"/>
+    <ROW Property="JAVASOFT_JRE_1_7_32" Signature_="AppSearchSign_3_1_1"/>
+    <ROW Property="JAVASOFT_JRE_1_7_64" Signature_="AppSearchSign_4_1_1"/>
+    <ROW Property="OPENGAMMA_JRE_1_7_32" Signature_="AppSearchSign_8"/>
+    <ROW Property="OPENGAMMA_JRE_1_7_64" Signature_="AppSearchSign_9"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="ResourceCleaner.dll" SourcePath="&lt;AI_CUSTACTS&gt;ResourceCleaner.dll"/>
@@ -129,8 +137,8 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiConditionComponent">
     <ROW Feature_="og_examples" Level="4" Condition="BLOOMBERG_SAPI_PORT"/>
     <ROW Feature_="og_bloombergexample" Level="1" Condition="BLOOMBERG_SAPI_PORT"/>
-    <ROW Feature_="JRE64" Level="4" Condition="JRE_64"/>
-    <ROW Feature_="JRE32" Level="4" Condition="JRE_32"/>
+    <ROW Feature_="JRE64" Level="4" Condition="JAVASOFT_JRE_1_7_64 OR OPENGAMMA_JRE_1_7_64"/>
+    <ROW Feature_="JRE32" Level="4" Condition="JAVASOFT_JRE_1_7_32 OR OPENGAMMA_JRE_1_7_32"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="CustomizeDlg" Control="Tree" Type="SelectionTree" X="25" Y="85" Width="175" Height="95" Attributes="7" Property="_BrowseProperty" Text="Tree of selections" Order="100" TextLocId="Control.Text.CustomizeDlg#Tree" MsiKey="CustomizeDlg#Tree"/>
@@ -263,8 +271,8 @@
     <ROW Action="AI_ResolveLocalizedCredentials" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
-    <ROW Condition="JRE_32" Description="A 32-bit Java runtime environment is required." Builds="NoJVM32"/>
-    <ROW Condition="JRE_64" Description="A 64-bit Java runtime environment is required." Builds="NoJVM64"/>
+    <ROW Condition="JAVASOFT_JRE_1_7_32 OR OPENGAMMA_JRE_1_7_32" Description="A 32-bit Java 7 runtime environment is required." Builds="NoJVM32"/>
+    <ROW Condition="JAVASOFT_JRE_1_7_64 OR OPENGAMMA_JRE_1_7_64" Description="A 64-bit Java 7 runtime environment is required." Builds="NoJVM64"/>
     <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]" DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="NoJVM32;JVM32;JVM64;NoJVM64;MsiBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiMergeModsComponent">
@@ -279,20 +287,28 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
     <ROW Signature_="AppSearchSign" Root="2" Key="SOFTWARE\Bloomberg L.P.\BBComm\Parameters" Name="Port" Type="2"/>
-    <ROW Signature_="AppSearchSign_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.6" Name="RuntimeLib" Type="2"/>
-    <ROW Signature_="AppSearchSign_1_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.6" Name="RuntimeLib" Type="18"/>
+    <ROW Signature_="AppSearchSign_3_1_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.7" Name="RuntimeLib" Type="1"/>
+    <ROW Signature_="AppSearchSign_4_1_1" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.7" Name="RuntimeLib" Type="18"/>
+    <ROW Signature_="AppSearchSign_8" Root="2" Key="SOFTWARE\[M_REG32]\Java Runtime Environment\1.7" Name="RuntimeLib" Type="1"/>
+    <ROW Signature_="AppSearchSign_9" Root="2" Key="SOFTWARE\[M_REG64]\Java Runtime Environment\1.7" Name="RuntimeLib" Type="17"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
-    <ROW Registry="jre32" Root="-1" Key="Software\[M_REG32]\[INSTALL_REG32]" Name="jre32" Value="#1" Component_="jre32"/>
-    <ROW Registry="jre64" Root="-1" Key="Software\[M_REG32]\[INSTALL_REG32]" Name="jre64" Value="#1" Component_="jre64"/>
-    <ROW Registry="og_bloombergexample" Root="-1" Key="Software\[M_REG32]\[INSTALL_REG32]" Name="og_bloombergexample" Value="#1" Component_="og_bloombergexample"/>
-    <ROW Registry="og_bloombergexample_start" Root="-1" Key="Software\[M_REG32]\[INSTALL_REG32]" Name="og_bloombergexample_start" Value="#1" Component_="og_bloombergexample_start"/>
-    <ROW Registry="og_examples" Root="-1" Key="Software\[M_REG32]\[INSTALL_REG32]" Name="og_examples" Value="#1" Component_="og_examples"/>
-    <ROW Registry="og_examples_start" Root="-1" Key="Software\[M_REG32]\[INSTALL_REG32]" Name="og_examples_start" Value="#1" Component_="og_examples_start"/>
-    <ROW Registry="platform" Root="-1" Key="Software\[M_REG32]\[INSTALL_REG32]" Name="common" Value="#1" Component_="common"/>
-    <ROW Registry="platform32" Root="-1" Key="Software\[M_REG32]\[INSTALL_REG32]" Name="common32" Value="#1" Component_="common32"/>
-    <ROW Registry="platform64" Root="-1" Key="Software\[M_REG32]\[INSTALL_REG32]" Name="common64" Value="#1" Component_="common64"/>
-    <ROW Registry="www" Root="-1" Key="Software\[M_REG32]\[INSTALL_REG32]" Name="www" Value="#1" Component_="www"/>
+    <ROW Registry="common" Root="-1" Key="Software\[M_REG64]\[SERVER_REG64]\Install" Name="common" Value="#1" Component_="common_reg64"/>
+    <ROW Registry="jre32" Root="-1" Key="Software\[M_REG32]\[SERVER_REG32]" Name="jre32" Value="#1" Component_="jre32"/>
+    <ROW Registry="jre64" Root="-1" Key="Software\[M_REG64]\[SERVER_REG64]\Install" Name="jre64" Value="#1" Component_="jre64"/>
+    <ROW Registry="og_bloombergexample" Root="-1" Key="Software\[M_REG32]\[SERVER_REG32]" Name="og_bloombergexample" Value="#1" Component_="og_bloombergexample"/>
+    <ROW Registry="og_bloombergexample_1" Root="-1" Key="Software\[M_REG64]\[SERVER_REG64]\Install" Name="og_bloombergexample" Value="#1" Component_="og_bloombergexample_reg64"/>
+    <ROW Registry="og_bloombergexample_start" Root="-1" Key="Software\[M_REG32]\[SERVER_REG32]" Name="og_bloombergexample_start" Value="#1" Component_="og_bloombergexample_start"/>
+    <ROW Registry="og_bloombergexample_start_1" Root="-1" Key="Software\[M_REG64]\[SERVER_REG64]\Install" Name="og_bloombergexample_start" Value="#1" Component_="og_bloombergexample_reg64"/>
+    <ROW Registry="og_examples" Root="-1" Key="Software\[M_REG32]\[SERVER_REG32]" Name="og_examples" Value="#1" Component_="og_examples"/>
+    <ROW Registry="og_examples_1" Root="-1" Key="Software\[M_REG64]\[SERVER_REG64]\Install" Name="og_examples" Value="#1" Component_="og_examples_reg64"/>
+    <ROW Registry="og_examples_start" Root="-1" Key="Software\[M_REG32]\[SERVER_REG32]" Name="og_examples_start" Value="#1" Component_="og_examples_start"/>
+    <ROW Registry="og_examples_start_1" Root="-1" Key="Software\[M_REG64]\[SERVER_REG64]\Install" Name="og_examples_start" Value="#1" Component_="og_examples_reg64"/>
+    <ROW Registry="platform" Root="-1" Key="Software\[M_REG32]\[SERVER_REG32]" Name="common" Value="#1" Component_="common"/>
+    <ROW Registry="platform32" Root="-1" Key="Software\[M_REG32]\[SERVER_REG32]" Name="common32" Value="#1" Component_="common32"/>
+    <ROW Registry="platform64" Root="-1" Key="Software\[M_REG64]\[SERVER_REG64]\Install" Name="common64" Value="#1" Component_="common64"/>
+    <ROW Registry="www" Root="-1" Key="Software\[M_REG32]\[SERVER_REG32]" Name="www" Value="#1" Component_="www"/>
+    <ROW Registry="www_1" Root="-1" Key="Software\[M_REG64]\[SERVER_REG64]\Install" Name="www" Value="#1" Component_="www_reg64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRemoveFileComponent">
     <ROW FileKey="_" Component_="temp" DirProperty="temp_Dir" InstallMode="2"/>

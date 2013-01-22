@@ -7,7 +7,6 @@ package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -24,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.core.LinkUtils;
 import com.opengamma.core.position.Position;
@@ -68,7 +68,7 @@ public class SimplePosition extends DirectBean
    * An empty list usually means that trade data is unavailable.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Collection<Trade> _trades = new ArrayList<Trade>();
+  private final Collection<Trade> _trades = Lists.newArrayList();
   /**
    * The general purpose position attributes.
    * These can be used to add arbitrary additional information to the object

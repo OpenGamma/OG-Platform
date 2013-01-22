@@ -5,9 +5,7 @@
  */
 package com.opengamma.analytics.financial.equity.option;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.util.ArgumentChecker;
 
@@ -105,23 +103,12 @@ public final class EquityOptionBlackMethod {
 
   /** 
    * @param derivative An EquityOption, the OG-Analytics form of the derivative 
-   * @param marketData An YieldCurveBundle, which won't work
-   * @return OpenGammaRuntimeException
-   */
-  public double presentValue(final EquityOption derivative, final YieldCurveBundle marketData) {
-    ArgumentChecker.notNull(derivative, "The derivative, EquityOption, was null.");
-    ArgumentChecker.notNull(marketData, "DataBundle was null. Expecting an EquityOptionDataBundle");
-    throw new OpenGammaRuntimeException("EquityOptionBlackMethod requires a data bundle of type EquityOptionDataBundle. Found a YieldCurveBundle.");
-  }
-
-  /** 
-   * @param derivative An EquityOption, the OG-Analytics form of the derivative 
    * @param marketData An EquityOptionDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
    * @return The sensitivity of the present value wrt the discounting rate 
    */
   public double rho(final EquityOption derivative, final StaticReplicationDataBundle marketData) {
     final double ttm = derivative.getTimeToSettlement();
-    final double pv = presentValue(derivative, marketData);
+    final double pv = presentValue(derivative, marketData) / derivative.getUnitAmount();
     return -ttm * pv;
   }
 
@@ -137,9 +124,8 @@ public final class EquityOptionBlackMethod {
     final double strike = derivative.getStrike();
     final boolean isCall = derivative.isCall();
     final double forward = marketData.getForwardCurve().getForward(expiry);
-    final double notional = derivative.getUnitAmount();
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double undiscountDelta = notional * BlackFormulaRepository.delta(forward, strike, expiry, blackVol, isCall);
+    final double undiscountDelta = BlackFormulaRepository.delta(forward, strike, expiry, blackVol, isCall);
     return undiscountDelta;
   }
 
@@ -180,8 +166,7 @@ public final class EquityOptionBlackMethod {
     final double strike = derivative.getStrike();
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double notional = derivative.getUnitAmount();
-    final double forwardGamma = notional * BlackFormulaRepository.gamma(forward, strike, expiry, blackVol);
+    final double forwardGamma = BlackFormulaRepository.gamma(forward, strike, expiry, blackVol);
     return forwardGamma;
   }
 
@@ -224,8 +209,7 @@ public final class EquityOptionBlackMethod {
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     final double fwdVega = BlackFormulaRepository.vega(forward, strike, expiry, blackVol);
     final double df = discountToSettlement(derivative, marketData);
-    final double notional = derivative.getUnitAmount();
-    return df * fwdVega * notional;
+    return df * fwdVega;
   }
 
   /** 
@@ -255,9 +239,8 @@ public final class EquityOptionBlackMethod {
     final double strike = derivative.getStrike();
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double notional = derivative.getUnitAmount();
     final double forwardVomma = BlackFormulaRepository.vomma(forward, strike, expiry, blackVol);
-    return notional * forwardVomma;
+    return forwardVomma;
   }
 
   /** 
@@ -297,8 +280,7 @@ public final class EquityOptionBlackMethod {
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     final double forwardVanna = BlackFormulaRepository.vanna(forward, strike, expiry, blackVol);
-    final double notional = derivative.getUnitAmount();
-    return notional * forwardVanna;
+    return forwardVanna;
   }
 
   /** 

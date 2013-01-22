@@ -30,13 +30,8 @@ $.register_module({
             }).on('fatal', fatal_handler);
             cell.id = cell.dataman.id;
         };
-        Cell.prototype.fire = events.fire;
-        Cell.prototype.kill = function () {
-            var cell = this;
-            cell.dataman.kill();
-        };
-        Cell.prototype.off = events.off;
-        Cell.prototype.on = events.on;
+        ['fire', 'off', 'on'].forEach(function (key) {Cell.prototype[key] = events[key];});
+        Cell.prototype.kill = function () {this.dataman.kill();};
         return Cell;
     }
 });

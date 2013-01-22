@@ -19,7 +19,7 @@ public enum BlotterColumn {
   MATURITY("Maturity Date"),
   RATE("Rate"),
   FREQUENCY("Frequency"),
-  DIRECTION("Direction"),
+  DIRECTION("Pay/Receive"),
   FLOAT_FREQUENCY("Float Frequency"),
   INDEX("Index");
 

@@ -19,12 +19,12 @@ $.register_module({
                 module: 'og.views.forms.attributes_tash', 
                 extras: {id: id, data: attr_data},
                 processor: function (data) {
-                    var attributes = {};
+                    var attributes = {}, path = config.index.split('.'), last = path.pop();
                     $('.og-attributes-add-list li').each(function (i, elm) {
                         attributes[$(elm).find('.og-attributes-key').val()] = 
                         $(elm).find('.og-attributes-value').val();
                     });
-                    data.security.attributes = attributes;                    
+                    path.reduce(function (acc, val) {return acc[val];}, data)[last] = attributes;                 
                 }
             });
             block.on('click', '#' + id + ' ' + add_list + ' .og-js-rem', function (event) {

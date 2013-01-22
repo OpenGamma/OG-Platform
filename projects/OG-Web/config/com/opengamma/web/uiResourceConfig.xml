@@ -331,10 +331,8 @@
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries_plot.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.timeseries.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.curve.js</fragment>
-    <fragment>/scripts/og/common/gadgets/og.common.gadgets.data.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.log.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.surface.js</fragment>
-    <fragment>/scripts/og/common/gadgets/og.common.gadgets.depgraph.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.securitiesidentifiers.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.gadgetscontainer.js</fragment>
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.mapping.js</fragment>
@@ -348,7 +346,8 @@
     <fragment>/scripts/og/analytics/og.analytics.formatter.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.clipboard.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.selector.js</fragment>
-    <fragment>/scripts/og/common/gadgets/og.common.gadgets.griddata.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.data.js</fragment>
+    <fragment>/scripts/og/common/gadgets/og.common.gadgets.depgraph.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.resize.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.portfolios.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.viewdefinitions.js</fragment>
@@ -451,6 +450,9 @@
   </bundle>
   <bundle id="og_admin.js">
     <bundle idref="views_admin.js" />
+    <fragment>/scripts/lib/ace/ace.js</fragment>
+    <fragment>/scripts/lib/ace/theme-textmate.js</fragment>
+    <fragment>/scripts/lib/ace/mode-xml.js</fragment>
   </bundle>
   <bundle id="og_blotter.js">
     <bundle idref="common_analytics.js" />

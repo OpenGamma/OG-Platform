@@ -47,7 +47,9 @@ $.register_module({
                             })
                         ]
                     }),
-                    new og.common.util.ui.Attributes({form: form, attributes: data.security.attributes})
+                    new og.common.util.ui.Attributes({
+                        form: form, attributes: data.trade.attributes, index: 'trade.attributes'
+                    })
                 );
                 form.dom();
                 form.on('form:load', function (){

@@ -62,8 +62,9 @@
   </macrodef>
   <macrodef name="fix-msm-parameters">
     <attribute name="file" default="${ai.build.file}" />
+    <attribute name="dir" default="Installer" />
     <sequential>
-      <java classname="com.opengamma.install.msi.MergeModDefaultParameters" classpathref="lib.path.id" logError="true">
+      <java classname="com.opengamma.install.msi.MergeModDefaultParameters" classpathref="lib.path.id" logError="true" fork="true" dir="@{dir}">
         <arg value="@{file}" />
       </java>
     </sequential>

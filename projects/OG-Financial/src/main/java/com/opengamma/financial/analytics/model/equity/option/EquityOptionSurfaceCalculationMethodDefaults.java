@@ -52,7 +52,16 @@ public abstract class EquityOptionSurfaceCalculationMethodDefaults extends Defau
     ValueRequirementNames.VALUE_RHO,
     ValueRequirementNames.VALUE_CARRY_RHO,
     ValueRequirementNames.VALUE_THETA,
-    ValueRequirementNames.VALUE_DUAL_DELTA
+    ValueRequirementNames.VALUE_DUAL_DELTA,
+    ValueRequirementNames.DELTA,
+    ValueRequirementNames.GAMMA,
+    ValueRequirementNames.VOMMA,
+    ValueRequirementNames.VANNA,
+    ValueRequirementNames.RHO,
+    ValueRequirementNames.CARRY_RHO,
+    ValueRequirementNames.THETA,
+    ValueRequirementNames.DUAL_DELTA,
+    ValueRequirementNames.VEGA
   };
 
   /**

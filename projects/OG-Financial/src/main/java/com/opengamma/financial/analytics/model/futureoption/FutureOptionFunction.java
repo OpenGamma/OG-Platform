@@ -165,7 +165,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirementName : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirementName, target.toSpecification(), createValueProperties(target).get()));
     }
@@ -257,7 +257,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
       .with(ValuePropertyNames.CURVE, fundingCurveName)
       .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
       .get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, FinancialSecurityUtils.getCurrency(security).getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.CURRENCY.specification(FinancialSecurityUtils.getCurrency(security)), properties);
   }
 
   /**

@@ -23,6 +23,14 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class BloombergCommodityFuturePriceCurveInstrumentProvider implements FuturePriceCurveInstrumentProvider<Number> {
 
+  /**
+   * Gets the expiryRules.
+   * @return the expiryRules
+   */
+  public static Map<String, ExchangeTradedInstrumentExpiryCalculator> getExpiryRules() {
+    return EXPIRY_RULES;
+  }
+
   private static final Map<String, ExchangeTradedInstrumentExpiryCalculator> EXPIRY_RULES;
   static {
     EXPIRY_RULES = Maps.newHashMap();
@@ -80,7 +88,6 @@ public class BloombergCommodityFuturePriceCurveInstrumentProvider implements Fut
    * e.g. S U3 Comdty
    * <p>
    * @param futureOptionNumber n'th future following curve date, not null
-   * @param strike option's strike, not null
    * @param curveDate date of future validity; valuation date, not null
    * @return the id of the Bloomberg ticker
    */

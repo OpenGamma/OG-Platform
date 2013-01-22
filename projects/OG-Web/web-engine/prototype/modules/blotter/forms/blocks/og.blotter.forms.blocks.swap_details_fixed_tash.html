@@ -1,22 +1,14 @@
-<table class="OG-table">
+<table class="OG-table" id="{{index}}">
   <colgroup>
     <col style="width: 30%">              
     <col style="width: 70%">
   </colgroup>
-  <thead>
-    <tr>
-      <th>
-        <span><em>Fixed</em></span>
-      </th>
-      <th></th>
-    </tr>
-  </thead>
   <tbody>
     <tr>
       <td>
       </td>
       <td>
-        <input name="fixedinterestrateleg.eom" type="checkbox" /><span>EOM</span>
+        <input name="{{leg}}eom" type="checkbox" /><span>End Of Month</span>
       </td>
     </tr>
     <tr>
@@ -26,7 +18,7 @@
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span>{{{item_0}}}</span><span><input name="notional" type="text" value="{{notional}}"/></span></div>
+        <div><span>{{{item_0}}}</span><span><input name="{{leg}}notional.amount" type="text" value="{{notional}}"/></span></div>
       </td>
     </tr>
     <tr>
@@ -42,7 +34,7 @@
     <tr>
       <td>
         <label>
-          <span>Frequency</span>
+          <span>Business Day Convention</span>
         </label>
       </td>
       <td>
@@ -52,11 +44,21 @@
     <tr>
       <td>
         <label>
+          <span>Frequency</span>
+        </label>
+      </td>
+      <td>
+        {{{item_3}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
           <span>Rate</span>
         </label>
       </td>
       <td>
-        <input name="fixedinterestrateleg.rate" type="text" value="{{rate}}"/>
+        <input name="{{leg}}rate" type="text" value="{{rate}}"/>
       </td>
     </tr>
   </tbody>

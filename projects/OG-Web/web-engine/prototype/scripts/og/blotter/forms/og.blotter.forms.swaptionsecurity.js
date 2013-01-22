@@ -44,7 +44,7 @@ $.register_module({
                         extras: {trade: data.swap.tradeDate, maturity: data.swap.maturityDate, 
                             effective: data.swap.effectiveDate}
                     }),
-                    new og.blotter.forms.blocks.Fixedleg({form: form, data: data, leg: 'recieveLeg.'}),
+                    new og.blotter.forms.blocks.Fixedleg({form: form, data: data, leg: 'receiveLeg.'}),
                     new og.blotter.forms.blocks.Floatingleg({form: form, data: data, leg: 'pagLeg.'}),
                     new og.common.util.ui.Attributes({form: form, attributes: data.attributes})  
                 );

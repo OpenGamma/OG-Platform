@@ -670,3 +670,82 @@ bool CJVM::Configure () {
 		return FALSE;
 	}
 }
+
+#ifndef _WIN32
+/// Tests if the JVM library is the correct version. Problems with the library are written to the log at INFO level.
+///
+/// @param[in] pszLibraryPath path to the library
+/// @return TRUE if the library is good, FALSE if there is a problem.
+bool ServiceTestJVM (const TCHAR *pszLibraryPath) {
+	LOGDEBUG (TEXT ("Testing JVM library ") << pszLibraryPath);
+	bool bResult = false;
+	CLibrary *poLibrary = NULL;
+	JNIEnv *pEnv = NULL;
+	bool bPop = false;
+	do {
+		poLibrary = _LoadJVMLibrary (pszLibraryPath);
+		if (!poLibrary) {
+    	    LOGWARN (TEXT ("Couldn't load ") << pszLibraryPath << TEXT (", error ") << GetLastError ());
+        	break;
+		}
+		JNI_CREATEJAVAVMPROC procCreateVM = (JNI_CREATEJAVAVMPROC)poLibrary->GetAddress ("JNI_CreateJavaVM");
+		if (!procCreateVM) {
+        	LOGWARN (TEXT ("Couldn't find JNI_CreateJavaVM in ") << pszLibraryPath << TEXT (", error ") << GetLastError ());
+			break;
+		}
+		JavaVM *pJVM;
+		JavaVMInitArgs args;
+		memset (&args, 0, sizeof (args));
+		args.version = JNI_VERSION_1_6;
+		jint err = procCreateVM (&pJVM, &pEnv, &args);
+		if (err) {
+			LOGWARN (TEXT ("Couldn't create JVM from ") << pszLibraryPath << TEXT (", error ") << err);
+			break;
+		}
+		jclass cls = pEnv->FindClass ("java/lang/System");
+		if (!cls) {
+			LOGWARN (TEXT ("Couldn't find class java.lang.System in ") << pszLibraryPath);
+			break;
+		}
+		jmethodID mtd = pEnv->GetStaticMethodID (cls, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;");
+		if (!mtd) {
+			LOGWARN (TEXT ("Couldn't find method java.lang.String.getProperty in ") << pszLibraryPath);
+			break;
+		}
+		pEnv->PushLocalFrame (2);
+		bPop = true;
+		jstring str = pEnv->NewStringUTF ("java.specification.version");
+		if (!str) {
+			LOGWARN (TEXT ("Couldn't create local string using ") << pszLibraryPath);
+			break;
+		}
+		str = (jstring)pEnv->CallStaticObjectMethod (cls, mtd, str);
+		if (!str) {
+			LOGWARN (TEXT ("Couldn't get java.specification.version property from ") << pszLibraryPath);
+			break;
+		}
+		const char *pstr = pEnv->GetStringUTFChars (str, NULL);
+		if (!pstr) {
+			LOGWARN (TEXT ("Couldn't get java.specification.version property from ") << pszLibraryPath);
+			break;
+		}
+		LOGDEBUG ("Found v" << pstr << TEXT (" JVM at ") << pszLibraryPath);
+		int nMajor = JavaVersionFragment (pstr, 0);
+		int nMinor = JavaVersionFragment (pstr, 1);
+		pEnv->ReleaseStringUTFChars (str, pstr);
+		if ((nMajor > 1) || ((nMajor == 1) && (nMinor >= 7))) {
+			LOGINFO (TEXT ("Version ") << nMajor << TEXT (".") << nMinor << TEXT (" found in ") << pszLibraryPath);
+			bResult = true;
+		} else {
+			LOGINFO (TEXT ("Version ") << nMajor << TEXT (".") << nMinor << TEXT (" from ") << pszLibraryPath << TEXT (" not supported"));
+			bResult = false;
+		}
+    } while (false);
+	if (pEnv) {
+		if (bPop) pEnv->PopLocalFrame (NULL);
+	}
+	if (poLibrary) delete poLibrary;
+	return bResult;
+}
+#endif /* ifndef _WIN32 */
+

@@ -214,7 +214,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
     <ROW Signature_="AppSearchSign_3" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.7" Name="RuntimeLib" Type="1"/>
-    <ROW Signature_="AppSearchSign_4" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.7" Name="RuntimeLib" Type="17"/>
+    <ROW Signature_="AppSearchSign_4" Root="2" Key="SOFTWARE\JavaSoft\Java Runtime Environment\1.7" Name="RuntimeLib" Type="18"/>
     <ROW Signature_="AppSearchSign_8" Root="2" Key="SOFTWARE\[M_REG32]\Java Runtime Environment\1.7" Name="RuntimeLib" Type="1"/>
     <ROW Signature_="AppSearchSign_9" Root="2" Key="SOFTWARE\[M_REG64]\Java Runtime Environment\1.7" Name="RuntimeLib" Type="17"/>
   </COMPONENT>

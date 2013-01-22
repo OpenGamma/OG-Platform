@@ -58,8 +58,8 @@ $.register_module({
                             })
                         ]
                     }),
-                    attr = new og.common.util.ui.Attributes({
-                        form: form, attributes: data.security.attributes, index : "security.attributes"
+                    new og.common.util.ui.Attributes({
+                        form: form, attributes: data.trade.attributes, index: 'trade.attributes'
                     })
                 );
                 form.dom();

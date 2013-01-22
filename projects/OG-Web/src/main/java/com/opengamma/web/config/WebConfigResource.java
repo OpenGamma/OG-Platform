@@ -35,11 +35,11 @@ import com.opengamma.web.json.JSONBuilder;
 
 /**
  * RESTful resource for a configuration document.
- * 
+ *
  */
 @Path("/configs/{configId}")
 public class WebConfigResource extends AbstractWebConfigResource {
-    
+
   /**
    * Creates the resource.
    * @param parent  the parent resource, not null
@@ -71,14 +71,13 @@ public class WebConfigResource extends AbstractWebConfigResource {
     String jsonConfig = StringUtils.stripToNull(toJSON(doc.getConfig().getValue(), doc.getType()));
     if (jsonConfig != null) {
       out.put("configJSON", jsonConfig);
-    } else {
-      out.put("configXML", StringEscapeUtils.escapeJavaScript(createXML(doc)));
     }
+    out.put("configXML", StringEscapeUtils.escapeJavaScript(createXML(doc)));
     out.put("type", doc.getType().getName());
     String json = getFreemarker().build("configs/jsonconfig.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
-  
+
   @SuppressWarnings("unchecked")
   private <T> String toJSON(final Object configObj, final Class<T> configType) {
     JSONBuilder<T> jsonBuilder = (JSONBuilder<T>) data().getJsonBuilderMap().get(configType);
@@ -90,7 +89,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     }
     return result;
   }
-  
+
   //-------------------------------------------------------------------------
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -101,7 +100,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     if (data().getConfig().isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
-    
+
     name = StringUtils.trimToNull(name);
     xml = StringUtils.trimToNull(xml);
     if (name == null || xml == null) {
@@ -115,7 +114,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
       String html = getFreemarker().build("configs/config-update.ftl", out);
       return Response.ok(html).build();
     }
-    
+
     URI uri = updateConfig(name, parseXML(xml));
     return Response.seeOther(uri).build();
   }
@@ -130,7 +129,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     if (data().getConfig().isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
-    
+
     name = StringUtils.trimToNull(name);
     json = StringUtils.trimToNull(json);
     xml = StringUtils.trimToNull(xml);
@@ -150,7 +149,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
 
   private URI updateConfig(String name, Object newConfigValue) {
     ConfigDocument oldDoc = data().getConfig();
-    ConfigItem<?> newItem = ConfigItem.of(newConfigValue);    
+    ConfigItem<?> newItem = ConfigItem.of(newConfigValue);
     newItem.setName(name);
     newItem.setType(oldDoc.getType());
     ConfigDocument doc = new ConfigDocument(newItem);

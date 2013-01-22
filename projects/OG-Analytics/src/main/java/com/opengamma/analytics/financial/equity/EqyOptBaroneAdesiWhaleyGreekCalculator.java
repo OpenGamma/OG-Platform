@@ -45,18 +45,17 @@ public final class EqyOptBaroneAdesiWhaleyGreekCalculator extends InstrumentDeri
     final double b = r; //TODO
     final double volatility = data.getVolatilitySurface().getVolatility(t, k);
     final boolean isCall = option.isCall();
-    final double notional = option.getUnitAmount();
     final double[] greeks = MODEL.getPriceAdjoint(s, k, r, b, t, volatility, isCall);
     final GreekResultCollection result = new GreekResultCollection();
-    result.put(Greek.DELTA, notional * greeks[1]);
-    result.put(Greek.DUAL_DELTA, notional * greeks[2]);
-    result.put(Greek.RHO, notional * greeks[3]);
-    result.put(Greek.CARRY_RHO, notional * greeks[4]);
-    result.put(Greek.THETA, notional * greeks[5]);
-    result.put(Greek.VEGA, notional * greeks[6]);
+    result.put(Greek.DELTA, greeks[1]);
+    result.put(Greek.DUAL_DELTA, greeks[2]);
+    result.put(Greek.RHO, greeks[3]);
+    result.put(Greek.CARRY_RHO, greeks[4]);
+    result.put(Greek.THETA, greeks[5]);
+    result.put(Greek.VEGA, greeks[6]);
 
     final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, volatility, s, isCall);
-    result.put(Greek.GAMMA, notional * pdg[2]);
+    result.put(Greek.GAMMA, pdg[2]);
     return result;
   }
 
@@ -71,18 +70,17 @@ public final class EqyOptBaroneAdesiWhaleyGreekCalculator extends InstrumentDeri
     final double b = r; //TODO
     final double volatility = data.getVolatilitySurface().getVolatility(t, k);
     final boolean isCall = option.isCall();
-    final double notional = option.getUnitAmount();
     final double[] greeks = MODEL.getPriceAdjoint(s, k, r, b, t, volatility, isCall);
     final GreekResultCollection result = new GreekResultCollection();
-    result.put(Greek.DELTA, notional * greeks[1]);
-    result.put(Greek.DUAL_DELTA, notional * greeks[2]);
-    result.put(Greek.RHO, notional * greeks[3]);
-    result.put(Greek.CARRY_RHO, notional * greeks[4]);
-    result.put(Greek.THETA, notional * greeks[5]);
-    result.put(Greek.VEGA, notional * greeks[6]);
+    result.put(Greek.DELTA, greeks[1]);
+    result.put(Greek.DUAL_DELTA, greeks[2]);
+    result.put(Greek.RHO, greeks[3]);
+    result.put(Greek.CARRY_RHO, greeks[4]);
+    result.put(Greek.THETA, greeks[5]);
+    result.put(Greek.VEGA, greeks[6]);
 
     final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, volatility, s, isCall);
-    result.put(Greek.GAMMA, notional * pdg[2]);
+    result.put(Greek.GAMMA, pdg[2]);
     return result;
   }
 }
