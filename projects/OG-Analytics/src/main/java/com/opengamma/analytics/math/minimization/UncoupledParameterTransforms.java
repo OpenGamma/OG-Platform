@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.math.minimization;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+
 import java.util.Arrays;
 import java.util.BitSet;
 
@@ -26,6 +28,7 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
   private final DoubleMatrix1D _startValues;
   private final ParameterLimitsTransform[] _transforms;
   private final BitSet _fixed;
+  private final int[] _unFixedIndices;
   private final int _nMP;
   private final int _nFP;
 
@@ -48,6 +51,13 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
     _startValues = startValues;
     _transforms = transforms;
     _fixed = fixed;
+    final IntArrayList unFixedList = new IntArrayList();
+    for (int i = 0; i < fixed.length(); i++) {
+      if (!fixed.get(i)) {
+        unFixedList.add(i);
+      }
+    }
+    _unFixedIndices = unFixedList.toIntArray();
   }
 
   /**
@@ -148,7 +158,8 @@ public class UncoupledParameterTransforms implements NonLinearParameterTransform
         j++;
       }
     }
-    return new DoubleMatrix2D(jac);
+    //    return new DoubleMatrix2D(jac);
+    return DoubleMatrix2D.noCopy(jac);
   }
 
   @Override
