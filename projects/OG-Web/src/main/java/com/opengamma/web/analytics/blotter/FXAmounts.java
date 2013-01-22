@@ -10,6 +10,7 @@ import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyUtils;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -32,7 +33,9 @@ public class FXAmounts {
    * @param baseAmount The amount in the base currency
    * @param counterAmount The amount in the counter currency
    */
-  /* package */ FXAmounts(Currency baseCurrency, Currency counterCurrency, double baseAmount, double counterAmount) {
+  private FXAmounts(Currency baseCurrency, Currency counterCurrency, double baseAmount, double counterAmount) {
+    ArgumentChecker.notNull(baseCurrency, "baseCurrency");
+    ArgumentChecker.notNull(counterCurrency, "counterCurrency");
     _baseCurrency = baseCurrency;
     _counterCurrency = counterCurrency;
     _baseAmount = baseAmount;
@@ -108,5 +111,53 @@ public class FXAmounts {
       counterAmount = counterAmount * -1;
     }
     return new FXAmounts(currencyPair.getBase(), currencyPair.getCounter(), baseAmount, counterAmount);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    FXAmounts fxAmounts = (FXAmounts) o;
+
+    if (Double.compare(fxAmounts._baseAmount, _baseAmount) != 0) {
+      return false;
+    }
+    if (Double.compare(fxAmounts._counterAmount, _counterAmount) != 0) {
+      return false;
+    }
+    if (!_baseCurrency.equals(fxAmounts._baseCurrency)) {
+      return false;
+    }
+    if (!_counterCurrency.equals(fxAmounts._counterCurrency)) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int result;
+    long temp;
+    result = _baseCurrency.hashCode();
+    result = 31 * result + _counterCurrency.hashCode();
+    temp = _counterAmount != +0.0d ? Double.doubleToLongBits(_counterAmount) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    temp = _baseAmount != +0.0d ? Double.doubleToLongBits(_baseAmount) : 0L;
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return "FXAmounts [" +
+        "_baseCurrency=" + _baseCurrency +
+        ", _counterCurrency=" + _counterCurrency +
+        ", _counterAmount=" + _counterAmount +
+        ", _baseAmount=" + _baseAmount +
+        "]";
   }
 }
