@@ -90,6 +90,7 @@ $.register_module({
                 });
                 $([combo.$wrapper, combo.$button]).appendTo(config.selector);
                 if (config.input_val) combo.$input.val(config.input_val);
+                og.common.events.fire(config.selector+':autocombo:initialized');
             }
             return combo;
         };

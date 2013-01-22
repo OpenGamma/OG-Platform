@@ -2,7 +2,7 @@
   <td class="number"><span>{{idx}}</span></td>
   <td>
     <select class="type">
-      <option {{#show_default}}selected="selected"{{/show_default}}>select aggregation...</option>
+      <option>select aggregation...</option>
       {{#each aggregators}}
         <option {{#if this.selected}}selected="selected"{{/if}}>{{this.text}}</option>
       {{/each}}

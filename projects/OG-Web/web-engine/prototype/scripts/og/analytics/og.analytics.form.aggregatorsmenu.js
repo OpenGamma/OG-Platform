@@ -30,14 +30,11 @@ $.register_module({
             var add_row_handler = function (obj) {
                 return new form.Block({
                     module: 'og.analytics.form_aggregation_row_tash',
-                    extras: {
-                        show_default: !(obj.hasOwnProperty('val'))
-                    },
                     generator: function (handler, tmpl, data) {
                         og.api.rest.aggregators.get().pipe(function (resp) {
                             if (resp.error) return og.dev.warn('og.analytics.AggregatorsMenu: ' + resp.error);
                             data.aggregators = resp.data.map(function (entry) {
-                                return {text: entry, selected: obj.val === entry};
+                                return {text: entry, selected: obj === entry};
                             });
                             data.idx = obj.idx + 1;
                             handler(tmpl(data));

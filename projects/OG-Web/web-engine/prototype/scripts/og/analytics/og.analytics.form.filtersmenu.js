@@ -47,6 +47,10 @@ $.register_module({
                 $(event.target).parents('tr.row:first').remove();
                 $('#' + id + ' td.number span').each(function (idx) {$(this).html(idx + 1);});
             });
+
+            form.on('form:load', function () {
+                (new og.common.util.ui.DropMenu({cntr: $('.og-filters', '.OG-analytics-form')}));
+            });
         };
         FiltersMenu.prototype = new Block; // inherit Block prototype
         return FiltersMenu;

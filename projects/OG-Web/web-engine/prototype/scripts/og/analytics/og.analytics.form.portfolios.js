@@ -9,7 +9,7 @@ $.register_module({
         var module = this, menu, block, portfolios, portfolio_store,
             Portfolios = function (config, callback) {
                 block = new config.form.Block({
-                    selector: '.og-portfolios.og-autocombo',
+                    selector: '.og-portfolios.og-autocombo'
                 });
                 config.form.on("form:load", function () {
                     menu = new og.common.util.ui.AutoCombo({
