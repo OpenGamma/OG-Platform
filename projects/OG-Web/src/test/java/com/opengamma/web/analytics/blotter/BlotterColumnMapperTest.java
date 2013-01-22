@@ -23,6 +23,7 @@ import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -63,5 +64,33 @@ public class BlotterColumnMapperTest {
     assertEquals(forwardDate, s_defaultMappings.valueFor(MATURITY, security));
     assertEquals(FXAmounts.forForward(security, s_currencyPairs), s_defaultMappings.valueFor(QUANTITY, security));
     assertEquals(1.5d, s_defaultMappings.valueFor(RATE, security));
+  }
+
+  /**
+   * if no columns are mapped for a class then it should inherit mappings set up for its superclasses
+   */
+  @Test
+  public void inheritSuperclassMappings() {
+    class A extends ManageableSecurity {}
+    class B extends A {}
+    class C extends B {}
+    BlotterColumnMapper mapper = new BlotterColumnMapper();
+    String aType = "A type";
+    String bProduct = "B product";
+    mapper.mapColumn(TYPE, A.class, aType);
+    mapper.mapColumn(PRODUCT, B.class, bProduct);
+    C c = new C();
+
+    // check the case where there are no columns mapped for a subtype
+    assertEquals(aType, mapper.valueFor(TYPE, c));
+    assertEquals(bProduct, mapper.valueFor(PRODUCT, c));
+
+    // add a mapping for the subtype and check the supertype mappings are still picked up
+    String cMaturity = "C maturity";
+    mapper.mapColumn(MATURITY, C.class, cMaturity);
+
+    assertEquals(aType, mapper.valueFor(TYPE, c));
+    assertEquals(bProduct, mapper.valueFor(PRODUCT, c));
+    assertEquals(cMaturity, mapper.valueFor(MATURITY, c));
   }
 }
