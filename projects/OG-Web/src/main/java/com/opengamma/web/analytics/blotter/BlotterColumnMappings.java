@@ -37,7 +37,7 @@ import com.opengamma.web.analytics.blotter.swap.PayReceiveProvider;
 import com.opengamma.web.analytics.blotter.swap.ProductProvider;
 import com.opengamma.web.analytics.blotter.swap.QuantityProvider;
 import com.opengamma.web.analytics.blotter.swap.RateProvider;
-import com.opengamma.web.analytics.blotter.swap.SwapTypeProvider;
+import com.opengamma.web.analytics.blotter.swap.TypeProvider;
 
 /**
  * Maps the properties of each blotter column to properties in each supported security type.
@@ -76,7 +76,7 @@ public class BlotterColumnMappings {
     // ------------------- Swap
     // TODO basis swap for float/float swaps
     // TODO XCCY swap if the currencies are different
-    mapColumn(TYPE, SwapSecurity.class, new SwapTypeProvider());
+    mapColumn(TYPE, SwapSecurity.class, new TypeProvider());
     mapColumn(PRODUCT, SwapSecurity.class, new ProductProvider());
     mapColumn(START, SwapSecurity.meta().effectiveDate());
     mapColumn(MATURITY, SwapSecurity.meta().maturityDate());

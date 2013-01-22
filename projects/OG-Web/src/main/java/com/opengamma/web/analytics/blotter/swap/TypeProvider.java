@@ -13,13 +13,13 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
 /**
  *
  */
-/* package */ public class SwapTypeProvider implements BlotterColumnMappings.ValueProvider<SwapSecurity> {
+/* package */ public class TypeProvider implements BlotterColumnMappings.ValueProvider<SwapSecurity> {
 
   @Override
   public Object getValue(SwapSecurity security) {
     Pair<Currency, Currency> ccys = new CurrencyVisitor().visit(security);
     if (!ccys.getFirst().equals(ccys.getSecond())) {
-      return "XCCY Swap";
+      return "Cross Currency Swap";
     }
     FixedFloatVisitor visitor = new FixedFloatVisitor();
     if (!security.getPayLeg().accept(visitor) && !security.getReceiveLeg().accept(visitor)) {
