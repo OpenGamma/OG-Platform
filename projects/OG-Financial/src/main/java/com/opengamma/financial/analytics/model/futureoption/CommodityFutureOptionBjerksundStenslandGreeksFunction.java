@@ -66,7 +66,7 @@ public class CommodityFutureOptionBjerksundStenslandGreeksFunction extends Commo
     final GreekResultCollection greeks = derivative.accept(ComFutOptBjerksundStenslandGreekCalculator.getInstance(), market);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueProperties properties = createResultProperties(desiredValue.getConstraints());
-    final Set<ComputedValue> result = new HashSet<ComputedValue>();
+    final Set<ComputedValue> result = new HashSet<>();
     for (int i = 0; i < GREEKS.length; i++) {
       final ValueSpecification spec = new ValueSpecification(GREEK_NAMES[i], targetSpec, properties);
       final double greek = greeks.get(GREEKS[i]);

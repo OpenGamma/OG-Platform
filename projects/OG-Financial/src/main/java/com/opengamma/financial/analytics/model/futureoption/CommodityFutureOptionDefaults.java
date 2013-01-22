@@ -32,8 +32,8 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class CommodityFutureOptionBlackDefaults extends DefaultPropertyFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(CommodityFutureOptionBlackDefaults.class);
+public class CommodityFutureOptionDefaults extends DefaultPropertyFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(CommodityFutureOptionDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.VALUE_DELTA,
@@ -41,7 +41,11 @@ public class CommodityFutureOptionBlackDefaults extends DefaultPropertyFunction 
     ValueRequirementNames.VALUE_THETA,
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.FORWARD_DELTA,
-    ValueRequirementNames.FORWARD_GAMMA
+    ValueRequirementNames.FORWARD_GAMMA,
+    ValueRequirementNames.DELTA,
+    ValueRequirementNames.GAMMA,
+    ValueRequirementNames.VEGA,
+    ValueRequirementNames.THETA
   };
   private final PriorityClass _priority;
   private final Map<String, String> _currencyToCurveName;
@@ -51,7 +55,7 @@ public class CommodityFutureOptionBlackDefaults extends DefaultPropertyFunction 
   private final Map<String, String> _currencyToForwardCurveName;
   private final Map<String, String> _currencyToForwardCurveCalculationMethod;
 
-  public CommodityFutureOptionBlackDefaults(final String priority, final String... defaultsPerCurrency) {
+  public CommodityFutureOptionDefaults(final String priority, final String... defaultsPerCurrency) {
     super(FinancialSecurityTypes.COMMODITY_FUTURE_OPTION_SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(defaultsPerCurrency, "defaults per currency");

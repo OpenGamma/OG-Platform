@@ -141,7 +141,7 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
         args[i++] = value.getForwardCurveName();
         args[i++] = value.getForwardCurveCalculationMethodName();
       }
-      functions.add(functionConfiguration(CommodityFutureOptionBlackDefaults.class, args));
+      functions.add(functionConfiguration(CommodityFutureOptionDefaults.class, args));
     }
 
     @Override
