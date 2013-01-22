@@ -34,32 +34,30 @@ public class BlotterColumnMapper {
   }
 
   /* package */  <T extends ManageableSecurity> void mapColumn(BlotterColumn column,
-                                                               Class<T> securityType,
+                                                               Class<T> type,
                                                                ValueProvider<T> provider) {
     ArgumentChecker.notNull(column, "column");
-    ArgumentChecker.notNull(securityType, "securityType");
+    ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(provider, "provider");
-    Map<BlotterColumn, ValueProvider> mappings = mappingsFor(securityType);
+    Map<BlotterColumn, ValueProvider> mappings = mappingsFor(type);
     mappings.put(column, provider);
   }
 
-  /* package */ <T extends ManageableSecurity> void mapColumn(BlotterColumn column,
-                                                              Class<T> securityType,
-                                                              String value) {
+  /* package */ <T extends ManageableSecurity> void mapColumn(BlotterColumn column, Class<T> type, String value) {
     ArgumentChecker.notNull(column, "column");
-    ArgumentChecker.notNull(securityType, "securityType");
+    ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(value, "value");
-    Map<BlotterColumn, ValueProvider> mappings = mappingsFor(securityType);
+    Map<BlotterColumn, ValueProvider> mappings = mappingsFor(type);
     mappings.put(column, new StaticValueProvider(value));
   }
 
-  private <T extends ManageableSecurity> Map<BlotterColumn, ValueProvider> mappingsFor(Class<T> securityType) {
-    Map<BlotterColumn, ValueProvider> securityMappings = _mappings.get(securityType);
+  private <T extends ManageableSecurity> Map<BlotterColumn, ValueProvider> mappingsFor(Class<T> type) {
+    Map<BlotterColumn, ValueProvider> securityMappings = _mappings.get(type);
     if (securityMappings != null) {
       return securityMappings;
     } else {
       Map<BlotterColumn, ValueProvider> newMappings = Maps.newHashMap();
-      _mappings.put(securityType, newMappings);
+      _mappings.put(type, newMappings);
       return newMappings;
     }
   }
