@@ -13,7 +13,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
 /**
  *
  */
-/* package */ public class TypeProvider implements BlotterColumnMappings.ValueProvider<SwapSecurity> {
+public class TypeProvider implements BlotterColumnMappings.ValueProvider<SwapSecurity> {
 
   @Override
   public Object getValue(SwapSecurity security) {
