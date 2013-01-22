@@ -60,6 +60,14 @@
       <ai-build file="@{file}" build-id="@{build-id}" dir="@{dir}" />
     </sequential>
   </macrodef>
+  <macrodef name="fix-msm-parameters">
+    <attribute name="file" default="${ai.build.file}" />
+    <sequential>
+      <java classname="com.opengamma.install.msi.MergeModDefaultParameters" classpathref="lib.path.id" logError="true">
+        <arg value="@{file}" />
+      </java>
+    </sequential>
+  </macrodef>
   <target name="installer-impl" />
   <target name="compile-msm-impl" />
   <target name="installer" depends="ai-present,module-build-number" if="ai.present" description="Builds the windows installation packages (assumes a dist-publish has already been done and Advanced Installer is available)">

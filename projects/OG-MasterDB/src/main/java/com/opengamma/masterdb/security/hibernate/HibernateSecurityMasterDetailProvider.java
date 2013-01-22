@@ -49,10 +49,12 @@ import com.opengamma.masterdb.security.hibernate.option.BondFutureOptionSecurity
 import com.opengamma.masterdb.security.hibernate.option.CommodityFutureOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityBarrierOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityIndexDividendFutureOptionSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.option.EquityIndexFutureOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityIndexOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.FxBarrierOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.FxDigitalOptionSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.option.FxFutureOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.FxOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.IRFutureOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.NonDeliverableFxDigitalOptionSecurityBeanOperation;
@@ -169,9 +171,11 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     loadBeanOperation(NonDeliverableFxOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(SwaptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(IRFutureOptionSecurityBeanOperation.INSTANCE);
-    loadBeanOperation(CommodityFutureOptionSecurityBeanOperation.INSTANCE);
-    loadBeanOperation(BondFutureOptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(EquityIndexFutureOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(EquityIndexDividendFutureOptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(CommodityFutureOptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(FxFutureOptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(BondFutureOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FxBarrierOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FxDigitalOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(NonDeliverableFxDigitalOptionSecurityBeanOperation.INSTANCE);

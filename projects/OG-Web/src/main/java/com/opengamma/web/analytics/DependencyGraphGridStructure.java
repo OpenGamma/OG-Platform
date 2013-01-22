@@ -53,7 +53,7 @@ public class DependencyGraphGridStructure implements GridStructure {
   /** The calculation configuration name. */
   private final String _calcConfigName;
   /** The columns in the grid. */
-  private final AnalyticsColumnGroups _columnGroups;
+  private final GridColumnGroups _columnGroups;
 
   /* package */ DependencyGraphGridStructure(AnalyticsNode root,
                                              String calcConfigName,
@@ -69,12 +69,12 @@ public class DependencyGraphGridStructure implements GridStructure {
     _valueSpecs = Collections.unmodifiableList(valueSpecs);
     _fnNames = Collections.unmodifiableList(fnNames);
     _computationTargetResolver = targetResolver;
-    _columnGroups = new AnalyticsColumnGroups(ImmutableList.of(
+    _columnGroups = new GridColumnGroups(ImmutableList.of(
         // fixed column group with one column for the row label
-        new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
+        new GridColumnGroup("", ImmutableList.<GridColumn>of(
             column("Target", 0))),
         // non-fixed columns
-        new AnalyticsColumnGroup("", ImmutableList.<AnalyticsColumn>of(
+        new GridColumnGroup("", ImmutableList.<GridColumn>of(
             column("Type", 1),
             column("Value Name", 2),
             column("Value", null, 3),
@@ -103,7 +103,7 @@ public class DependencyGraphGridStructure implements GridStructure {
                                                                     ViewportResults previousResults) {
     List<ResultsCell> results = Lists.newArrayList();
     for (GridCell cell : viewportDefinition) {
-      AnalyticsColumn column = _columnGroups.getColumn(cell.getColumn());
+      GridColumn column = _columnGroups.getColumn(cell.getColumn());
       results.add(column.getResults(cell.getRow(), cache));
     }
     ViewportResults newResults = new ViewportResults(results,
@@ -125,7 +125,7 @@ public class DependencyGraphGridStructure implements GridStructure {
    * @param colIndex The column index
    * @return A column for displaying a string value
    */
-  private AnalyticsColumn column(String header, int colIndex) {
+  private GridColumn column(String header, int colIndex) {
     return column(header, String.class, colIndex);
   }
 
@@ -136,13 +136,13 @@ public class DependencyGraphGridStructure implements GridStructure {
    * @param colIndex The column index
    * @return A column for displaying values of the specified type
    */
-  private AnalyticsColumn column(String header, Class<?> type, int colIndex) {
+  private GridColumn column(String header, Class<?> type, int colIndex) {
     DependencyGraphCellRenderer renderer = new DependencyGraphCellRenderer(colIndex,
                                                                            _valueSpecs,
                                                                            _fnNames,
                                                                            _computationTargetResolver,
                                                                            _calcConfigName);
-    return new AnalyticsColumn(header, header, type, renderer);
+    return new GridColumn(header, header, type, renderer);
   }
 
   @Override
@@ -156,7 +156,7 @@ public class DependencyGraphGridStructure implements GridStructure {
   }
 
   @Override
-  public AnalyticsColumnGroups getColumnStructure() {
+  public GridColumnGroups getColumnStructure() {
     return _columnGroups;
   }
 
@@ -187,7 +187,7 @@ public class DependencyGraphGridStructure implements GridStructure {
     return map;
   }
 
-  private static class DependencyGraphCellRenderer implements AnalyticsColumn.CellRenderer {
+  private static class DependencyGraphCellRenderer implements GridColumn.CellRenderer {
 
     private final int _colIndex;
     private final List<ValueSpecification> _valueSpecs;
@@ -203,10 +203,11 @@ public class DependencyGraphGridStructure implements GridStructure {
                                         List<String> fnNames,
                                         ComputationTargetResolver computationTargetResolver,
                                         String calcConfigName) {
-      _calcConfigName = calcConfigName;
       ArgumentChecker.notNull(valueSpecs, "valueSpecs");
       ArgumentChecker.notNull(fnNames, "fnNames");
       ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
+      ArgumentChecker.notNull(calcConfigName, "calcConfigName");
+      _calcConfigName = calcConfigName;
       _computationTargetResolver = computationTargetResolver;
       _colIndex = colIndex;
       _valueSpecs = valueSpecs;
@@ -214,26 +215,26 @@ public class DependencyGraphGridStructure implements GridStructure {
     }
 
     @Override
-    public ResultsCell getResults(int rowIndex, ResultsCache cache) {
+    public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
       ValueSpecification valueSpec = _valueSpecs.get(rowIndex);
       switch (_colIndex) {
         case TARGET_COL:
-          return ViewportResults.objectCell(getTargetName(valueSpec.getTargetSpecification()), _colIndex);
+          return ResultsCell.forStaticValue(getTargetName(valueSpec.getTargetSpecification()), columnType);
         case TARGET_TYPE_COL:
-          return ViewportResults.objectCell(TARGET_TYPE_NAMES.get(valueSpec.getTargetSpecification().getType()), _colIndex);
+          return ResultsCell.forStaticValue(TARGET_TYPE_NAMES.get(valueSpec.getTargetSpecification().getType()), columnType);
         case VALUE_NAME_COL:
-          return ViewportResults.objectCell(valueSpec.getValueName(), _colIndex);
+          return ResultsCell.forStaticValue(valueSpec.getValueName(), columnType);
         case VALUE_COL:
           ResultsCache.Result cacheResult = cache.getResult(_calcConfigName, valueSpec, null);
           Collection<Object> history = cacheResult.getHistory();
           Object value = cacheResult.getValue();
           AggregatedExecutionLog executionLog = cacheResult.getAggregatedExecutionLog();
-          return ViewportResults.valueCell(value, valueSpec, history, executionLog, _colIndex, cacheResult.isUpdated());
+          return ResultsCell.forCalculatedValue(value, valueSpec, history, executionLog, cacheResult.isUpdated(), columnType);
         case FUNCTION_NAME_COL:
           String fnName = _fnNames.get(rowIndex);
-          return ViewportResults.objectCell(fnName, _colIndex);
+          return ResultsCell.forStaticValue(fnName, columnType);
         case PROPERTIES_COL:
-          return ViewportResults.objectCell(getValuePropertiesForDisplay(valueSpec.getProperties()), _colIndex);
+          return ResultsCell.forStaticValue(getValuePropertiesForDisplay(valueSpec.getProperties()), columnType);
         default: // never happen
           throw new IllegalArgumentException("Column index " + _colIndex + " is invalid");
       }

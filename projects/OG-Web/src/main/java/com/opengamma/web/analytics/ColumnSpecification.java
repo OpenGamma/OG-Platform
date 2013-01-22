@@ -9,15 +9,15 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Key for analytics columns based on the calculation configuration, value name and properties.
+ * TODO javadoc
  */
-public class ColumnKey {
+public class ColumnSpecification {
 
   private final String _calcConfigName;
   private final String _valueName;
   private final ValueProperties _valueProperties;
 
-  /* package */ ColumnKey(String calcConfigName, String valueName, ValueProperties valueProperties) {
+  /* package */ ColumnSpecification(String calcConfigName, String valueName, ValueProperties valueProperties) {
     ArgumentChecker.notNull(calcConfigName, "calcConfigName");
     ArgumentChecker.notNull(valueName, "valueName");
     ArgumentChecker.notNull(valueProperties, "valueProperties");
@@ -56,10 +56,10 @@ public class ColumnKey {
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof ColumnKey)) {
+    if (!(obj instanceof ColumnSpecification)) {
       return false;
     }
-    ColumnKey other = (ColumnKey) obj;
+    ColumnSpecification other = (ColumnSpecification) obj;
     if (!_calcConfigName.equals(other._calcConfigName)) {
       return false;
     }

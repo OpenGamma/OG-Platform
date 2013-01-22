@@ -17,21 +17,19 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class LabelRenderer implements AnalyticsColumn.CellRenderer {
+/* package */ class PortfolioLabelRenderer implements GridColumn.CellRenderer {
 
   private static final Pattern POSITION_ID_PATTERN = Pattern.compile("DbPrt-DbPos~\\d+-(\\d+)~\\d+-(\\d+)");
 
-  private final int _colIndex;
-  private final List<MainGridStructure.Row> _rows;
+  private final List<? extends MainGridStructure.Row> _rows;
 
-  /* package */ LabelRenderer(int colIndex, List<MainGridStructure.Row> rows) {
+  /* package */ PortfolioLabelRenderer(List<? extends MainGridStructure.Row> rows) {
     ArgumentChecker.notNull(rows, "rows");
     _rows = rows;
-    _colIndex = colIndex;
   }
 
   @Override
-  public ResultsCell getResults(int rowIndex, ResultsCache cache) {
+  public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
     MainGridStructure.Row row = _rows.get(rowIndex);
     ComputationTargetSpecification target = row.getTarget();
     UniqueId compoundId = target.getUniqueId();
@@ -48,9 +46,9 @@ import com.opengamma.util.ArgumentChecker;
     // TODO end hack
     ComputationTargetType targetType = target.getType();
     if (targetType.isTargetType(ComputationTargetType.POSITION)) {
-      return ViewportResults.objectCell(new PositionTarget(row.getName(), targetId), _colIndex);
+      return ResultsCell.forStaticValue(new PositionTarget(row.getName(), targetId), columnType);
     } else if (targetType.isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
-      return ViewportResults.objectCell(new NodeTarget(row.getName(), targetId), _colIndex);
+      return ResultsCell.forStaticValue(new NodeTarget(row.getName(), targetId), columnType);
     }
     throw new IllegalArgumentException("Unexpected target type for row: " + targetType);
   }

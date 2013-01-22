@@ -10,9 +10,10 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.equity.EquityOptionBlackImpliedVolatilityCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -28,6 +29,7 @@ import com.opengamma.engine.value.ValueSpecification;
  * Calculates the Black implied volatility of an equity index option.
  */
 public class EquityOptionBlackImpliedVolFunction extends EquityOptionBlackFunction {
+  private static final InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> CALCULATOR = EquityOptionBlackImpliedVolatilityCalculator.getInstance();
 
   /**
    * @param valueRequirementName
@@ -37,11 +39,11 @@ public class EquityOptionBlackImpliedVolFunction extends EquityOptionBlackFuncti
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    return Collections.singleton(new ComputedValue(resultSpec, model.impliedVol(derivative, market)));
+    final double impliedVol = derivative.accept(CALCULATOR, market);
+    return Collections.singleton(new ComputedValue(resultSpec, impliedVol));
   }
 
   @Override

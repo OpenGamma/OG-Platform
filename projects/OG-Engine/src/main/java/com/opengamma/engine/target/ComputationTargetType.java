@@ -94,6 +94,14 @@ public abstract class ComputationTargetType implements Serializable {
    */
   public static final ComputationTargetType NULL = new NullComputationTargetType();
 
+  /**
+   * An equivalent to the previous use of {@code PRIMITIVE}. It means primitives in their new sense, plus currencies and unordered currency pairs that now have explicit types.
+   * 
+   * @deprecated This is not particularly efficient to use and may not be correct, but is better than using {@link #ANYTHING}. It will be removed at the first opportunity.
+   */
+  @Deprecated
+  public static final ComputationTargetType LEGACY_PRIMITIVE = PRIMITIVE.or(CURRENCY).or(UNORDERED_CURRENCY_PAIR);
+
   /* package */ComputationTargetType() {
   }
 

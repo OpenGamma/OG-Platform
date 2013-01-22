@@ -6,12 +6,10 @@
 package com.opengamma.web.analytics;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -28,54 +26,56 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
  */
 public class PrimitivesGridStructure extends MainGridStructure {
 
+  private static final ComputationTargetType NON_PRIMITIVE = ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION).or(ComputationTargetType.TRADE).or(ComputationTargetType.SECURITY);
+
   private PrimitivesGridStructure() {
   }
 
-  private PrimitivesGridStructure(List<AnalyticsColumnGroup> staticColumns,
-                                  Map<String, List<ColumnKey>> analyticsColumns,
-                                  CompiledViewDefinition compiledViewDef,
-                                  ValueMappings valueMappings,
-                                  List<Row> rows) {
-    super(staticColumns, analyticsColumns, compiledViewDef, valueMappings, rows);
+  private PrimitivesGridStructure(final GridColumnGroups columnGroups, final TargetLookup targetLookup) {
+    super(columnGroups, targetLookup);
   }
 
-  /* package */ static PrimitivesGridStructure create(CompiledViewDefinition compiledViewDef, ValueMappings valueMappings) {
-    List<MainGridStructure.Row> rows = rows(compiledViewDef);
-    AnalyticsColumn labelColumn = new AnalyticsColumn("Label", "", String.class, new LabelRenderer(0, rows));
-    AnalyticsColumnGroup columnGroup = new AnalyticsColumnGroup("fixed", ImmutableList.of(labelColumn));
-    Map<String, List<ColumnKey>> columns = buildColumns(compiledViewDef.getViewDefinition());
-    return new PrimitivesGridStructure(ImmutableList.of(columnGroup), columns, compiledViewDef, valueMappings, rows);
+  /* package */static PrimitivesGridStructure create(final CompiledViewDefinition compiledViewDef, final ValueMappings valueMappings) {
+    final List<MainGridStructure.Row> rows = rows(compiledViewDef);
+    final GridColumn labelColumn = new GridColumn("Label", "", String.class, new PrimitivesLabelRenderer(rows));
+    final GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn));
+    final TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
+    final List<GridColumnGroup> analyticsColumns = buildColumns(compiledViewDef.getViewDefinition(), targetLookup);
+    final List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
+    groups.addAll(analyticsColumns);
+    return new PrimitivesGridStructure(new GridColumnGroups(groups), targetLookup);
   }
 
-  private static Map<String, List<ColumnKey>> buildColumns(ViewDefinition viewDef) {
-    Map<String, List<ColumnKey>> columnsByCalcConfig = Maps.newHashMap();
-    for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
-      List<ColumnKey> columnKeys = Lists.newArrayList();
-      for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
-        if (specificRequirement.getTargetReference().getType().isTargetType(ComputationTargetType.PRIMITIVE)) {
-          String valueName = specificRequirement.getValueName();
-          ValueProperties constraints = specificRequirement.getConstraints();
-          ColumnKey columnKey = new ColumnKey(calcConfig.getName(), valueName, constraints);
-          columnKeys.add(columnKey);
+  private static List<GridColumnGroup> buildColumns(final ViewDefinition viewDef, final TargetLookup targetLookup) {
+    final List<GridColumnGroup> columnGroups = Lists.newArrayList();
+    for (final ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
+      final List<GridColumn> columns = Lists.newArrayList();
+      for (final ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
+        if (!specificRequirement.getTargetReference().getType().isTargetType(NON_PRIMITIVE)) {
+          final String valueName = specificRequirement.getValueName();
+          final Class<?> columnType = ValueTypes.getTypeForValueName(valueName);
+          final ValueProperties constraints = specificRequirement.getConstraints();
+          final ColumnSpecification columnSpec = new ColumnSpecification(calcConfig.getName(), valueName, constraints);
+          columns.add(GridColumn.forKey(columnSpec, columnType, targetLookup));
         }
       }
-      columnsByCalcConfig.put(calcConfig.getName(), columnKeys);
+      columnGroups.add(new GridColumnGroup(calcConfig.getName(), columns));
     }
-    return columnsByCalcConfig;
+    return columnGroups;
   }
 
-  private static List<MainGridStructure.Row> rows(CompiledViewDefinition compiledViewDef) {
-    Set<ComputationTargetSpecification> specs = Sets.newLinkedHashSet();
-    for (CompiledViewCalculationConfiguration compiledCalcConfig : compiledViewDef.getCompiledCalculationConfigurations()) {
-      for (ValueSpecification valueSpec : compiledCalcConfig.getTerminalOutputSpecifications().keySet()) {
-        ComputationTargetSpecification targetSpec = valueSpec.getTargetSpecification();
-        if (targetSpec.getType() == ComputationTargetType.PRIMITIVE) {
+  private static List<MainGridStructure.Row> rows(final CompiledViewDefinition compiledViewDef) {
+    final Set<ComputationTargetSpecification> specs = Sets.newLinkedHashSet();
+    for (final CompiledViewCalculationConfiguration compiledCalcConfig : compiledViewDef.getCompiledCalculationConfigurations()) {
+      for (final ValueSpecification valueSpec : compiledCalcConfig.getTerminalOutputSpecifications().keySet()) {
+        final ComputationTargetSpecification targetSpec = valueSpec.getTargetSpecification();
+        if (!targetSpec.getType().isTargetType(NON_PRIMITIVE)) {
           specs.add(targetSpec);
         }
       }
     }
-    List<MainGridStructure.Row> rows = Lists.newArrayList();
-    for (ComputationTargetSpecification spec : specs) {
+    final List<MainGridStructure.Row> rows = Lists.newArrayList();
+    for (final ComputationTargetSpecification spec : specs) {
       rows.add(new Row(spec, spec.getUniqueId().toString()));
     }
     return rows;

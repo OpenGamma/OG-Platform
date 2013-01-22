@@ -53,6 +53,8 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties));
   }
 
+  // REVIEW Andrew 2012-01-17 -- Can we make the target type of this SECURITY, or even EQUITY_SECURITY ?
+
   @Override
   /* Expected Target is a BLOOMBERG_TICKER, e.g. DJX Index */
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {

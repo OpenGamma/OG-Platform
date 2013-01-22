@@ -187,6 +187,8 @@ public class DependencyGraphBuilderResourceTest {
     assertFalse(i1.equals(i2));
   }
 
+  // TODO: testSetResolutionTime method
+
   public void testSetCalculationConfigurationName() {
     final DependencyGraphBuilderResource resource = createResource();
     final String c1 = resource.getCalculationConfigurationName();

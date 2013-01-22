@@ -68,6 +68,7 @@ opengamma.engine.host=${opengamma.engine.host}
     <installer-make file="Service64.aip" />
   </target>
   <target name="installer-impl">
+    <fix-msm-parameters />
     <installer-make build-id="${ai.build.all}" />
   </target>
 

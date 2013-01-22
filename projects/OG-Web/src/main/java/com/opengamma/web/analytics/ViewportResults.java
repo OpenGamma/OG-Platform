@@ -5,13 +5,10 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.time.Duration;
 
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
@@ -23,7 +20,7 @@ public class ViewportResults {
   /** The result values by row. */
   private final List<ResultsCell> _allResults;
   /** The grid columns. */
-  private final AnalyticsColumnGroups _columns;
+  private final GridColumnGroups _columns;
   /** Definition of the viewport. */
   private final ViewportDefinition _viewportDefinition;
   /** Duration of the last calculation cycle. */
@@ -37,7 +34,7 @@ public class ViewportResults {
    */
   /* package */ ViewportResults(List<ResultsCell> allResults,
                                 ViewportDefinition viewportDefinition,
-                                AnalyticsColumnGroups columns,
+                                GridColumnGroups columns,
                                 Duration calculationDuration) {
     ArgumentChecker.notNull(allResults, "allResults");
     ArgumentChecker.notNull(columns, "columns");
@@ -75,57 +72,10 @@ public class ViewportResults {
   }
 
   /**
-   * @param colIndex The column index in the grid (zero based)
-   * @return The type of the specified column
-   */
-  /* package */ Class<?> getColumnType(int colIndex) {
-    return _columns.getColumn(colIndex).getType();
-  }
-
-  /**
    * @return The duration of the last calculation cycle.
    */
   /* package */ Duration getCalculationDuration() {
     return _calculationDuration;
-  }
-
-  /**
-   * Factory method that creates a grid cell for displaying a string value.
-   * @param value The cell's value
-   * @return A cell for displaying the value
-   */
-  /* package */ static ResultsCell objectCell(Object value, int column) {
-    ArgumentChecker.notNull(value, "value");
-    return new ResultsCell(value, null, null, column, null, false);
-  }
-
-  /**
-   * Factory method that creates a grid cell for displaying a calculated value.
-   *
-   * @param value The value
-   * @param valueSpecification The value's specification
-   * @param history The value's history
-   * @param updated true if the value was updated in the last calculation cycle
-   * @return A cell for displaying the value
-   */
-  /* package */ static ResultsCell valueCell(Object value,
-                                             ValueSpecification valueSpecification,
-                                             Collection<Object> history,
-                                             AggregatedExecutionLog executionLog,
-                                             int column,
-                                             boolean updated) {
-    return new ResultsCell(value, valueSpecification, history, column, executionLog, updated);
-  }
-
-  /**
-   * Factory method that returns a grid cell with no value.
-   * @return An empty cell
-   * @param emptyHistory Empty history appropriate for the cell's type. For types that support history it should
-   * be an empty collection, for types that don't it should be null.
-   * @param colIndex Index of the cell's grid column
-   */
-  /* package */ static ResultsCell emptyCell(Collection<Object> emptyHistory, int colIndex) {
-    return new ResultsCell(null, null, emptyHistory, colIndex, null, false);
   }
 
   @Override

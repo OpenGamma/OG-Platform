@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.impl.SimpleHistoricalTimeSeries;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -84,12 +83,7 @@ public abstract class AbstractHistoricalTimeSeriesShiftFunction<T> extends Abstr
   }
 
   private ValueRequirement createRequirement(final FunctionExecutionContext context, final String field, final ExternalIdBundle identifiers) {
-    final Security security = context.getSecuritySource().getSingle(identifiers);
-    if (security != null) {
-      return new ValueRequirement(field, ComputationTargetSpecification.of(security), ValueProperties.none());
-    } else {
-      return new ValueRequirement(field, ComputationTargetSpecification.NULL);
-    }
+    return new ValueRequirement(field, ComputationTargetType.SECURITY, identifiers);
   }
 
   protected HistoricalTimeSeries applyOverride(final FunctionExecutionContext context, final OverrideOperation operation, final String field, final ExternalIdBundle identifiers,

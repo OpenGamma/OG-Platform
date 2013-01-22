@@ -120,7 +120,7 @@ public class DefaultAggregatedExecutionLog implements AggregatedExecutionLog {
     // Optimise for the majority of cases where no logs have been collected.
     // If logs are present then don't perform detailed equality checking, just check instance equality.
     DefaultAggregatedExecutionLog other = (DefaultAggregatedExecutionLog) obj;
-    return ObjectUtils.equals(_logLevels, other._logLevels) && _logs == other._logs && _emptyRoot == other._emptyRoot;
+    return ObjectUtils.equals(_logLevels, other._logLevels) && ObjectUtils.equals(_logs, other._logs) && _emptyRoot == other._emptyRoot;
   }
   
   //-------------------------------------------------------------------------  

@@ -15,16 +15,26 @@ import com.opengamma.util.ArgumentChecker;
  * Specifies the header label of a column and the type of data it displays.
  * TODO name is no longer correct, these aren't just used for analytics data any more
  */
-/* package */ class AnalyticsColumn {
+/* package */ class GridColumn {
 
   private final String _header;
   private final String _description;
   private final Class<?> _type;
   private final CellRenderer _renderer;
+  private final ColumnSpecification _columnSpec;
 
-  /* package */ AnalyticsColumn(String header, String description, Class<?> type, CellRenderer renderer) {
+  /* package */ GridColumn(String header, String description, Class<?> type, CellRenderer renderer) {
+    this(header, description, type, renderer, null);
+  }
+
+  /* package */ GridColumn(String header,
+                           String description,
+                           Class<?> type,
+                           CellRenderer renderer,
+                           ColumnSpecification columnSpec) {
     ArgumentChecker.notNull(header, "header");
     ArgumentChecker.notNull(renderer, "renderer");
+    _columnSpec = columnSpec;
     _header = header;
     _renderer = renderer;
     if (description != null) {
@@ -38,16 +48,20 @@ import com.opengamma.util.ArgumentChecker;
   /**
    * Factory method that creates a column for a key based requirement and calculation configutation and a column type.
    *
-   * @param key Column key based on requirement and calculation configuration
+   *
+   * @param columnSpec
    * @param columnType Type of data displayed in the column
    * @return A column for displaying data calculated for the requirement and calculation configuration
    */
-  /* package */ static AnalyticsColumn forKey(ColumnKey key,
-                                              Class<?> columnType,
-                                              int columnIndex,
-                                              MainGridStructure gridStructure) {
-    CellRenderer renderer = new AnalyticsRenderer(gridStructure, columnIndex);
-    return new AnalyticsColumn(createHeader(key), createDescription(key.getValueProperties()), columnType, renderer);
+  /* package */ static GridColumn forKey(ColumnSpecification columnSpec,
+                                         Class<?> columnType,
+                                         TargetLookup targetLookup) {
+    CellRenderer renderer = new AnalyticsRenderer(columnSpec, targetLookup);
+    return new GridColumn(createHeader(columnSpec),
+                          createDescription(columnSpec.getValueProperties()),
+                          columnType,
+                          renderer,
+                          columnSpec);
   }
 
   /**
@@ -71,11 +85,18 @@ import com.opengamma.util.ArgumentChecker;
     return _type;
   }
 
-  /* package */ ResultsCell getResults(int rowIndex, ResultsCache cache) {
-    return _renderer.getResults(rowIndex, cache);
+  /**
+   * @return The specification of this column's analytics data or null if it displays static data.
+   */
+  /* package */ ColumnSpecification getSpecification() {
+    return _columnSpec;
   }
 
-  private static String createHeader(ColumnKey columnKey) {
+  /* package */ ResultsCell getResults(int rowIndex, ResultsCache cache) {
+    return _renderer.getResults(rowIndex, cache, _type);
+  }
+
+  private static String createHeader(ColumnSpecification columnKey) {
     String header;
     String normalizedConfigName = columnKey.getCalcConfigName().toLowerCase().trim();
     if ("default".equals(normalizedConfigName) || "portfolio".equals(normalizedConfigName)) {
@@ -137,8 +158,9 @@ import com.opengamma.util.ArgumentChecker;
         "]";
   }
 
+  // TODO merge this into the AnalyticsColumn and create subclasses for each of the renderer classes
   /* package */ static interface CellRenderer {
 
-    ResultsCell getResults(int rowIndex, ResultsCache cache);
+    ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType);
   }
 }

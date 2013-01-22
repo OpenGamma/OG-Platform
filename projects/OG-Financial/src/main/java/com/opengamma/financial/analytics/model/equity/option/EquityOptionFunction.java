@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.time.Instant;
 import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
@@ -18,8 +19,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.LastTimeCalculator;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
@@ -54,6 +56,7 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
@@ -96,9 +99,9 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
-    final InstrumentDefinition<EquityIndexOption> defn = security.accept(_converter);
-    final EquityIndexOption derivative = defn.toDerivative(now);
-    if (derivative.getTimeToSettlement() < 0.0) {
+    final InstrumentDefinition<?> defn = security.accept(_converter);
+    final InstrumentDerivative derivative = defn.toDerivative(now);
+    if (derivative.accept(LastTimeCalculator.getInstance()) < 0.0) {
       throw new OpenGammaRuntimeException("Equity option has already settled; " + security.toString());
     }
 
@@ -167,7 +170,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
    * @param resultProperties The result properties
    * @return The result of the calculation
    */
-  protected abstract Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+  protected abstract Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties);
 
   @Override
@@ -303,10 +306,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     assert discountCurvePropertiesSet;
     assert forwardCurvePropertiesSet;
     assert surfacePropertiesSet;
-    properties
-    .with(PROPERTY_DISCOUNTING_CURVE_NAME, discountingCurveName)
-    .with(PROPERTY_DISCOUNTING_CURVE_CONFIG, discountingCurveConfig)
-    .with(PROPERTY_FORWARD_CURVE_NAME, forwardCurveName);
+    properties.with(PROPERTY_DISCOUNTING_CURVE_NAME, discountingCurveName).with(PROPERTY_DISCOUNTING_CURVE_CONFIG, discountingCurveConfig).with(PROPERTY_FORWARD_CURVE_NAME, forwardCurveName);
     final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirement : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties.get()));
@@ -328,18 +328,22 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
         .with(ValuePropertyNames.CURVE, forwardCurveName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .get();
+    // REVIEW Andrew 2012-01-17 -- Why can't we just use the underlyingBuid external identifier directly here, with a target type of SECURITY, and shift the logic into the reference resolver?
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, getWeakUnderlyingId(underlyingBuid, tsSource, securitySource), properties);
   }
 
   private ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource,
       final ValueRequirement desiredValue, final Security security, final String surfaceName, final String surfaceCalculationMethod, final ExternalId underlyingBuid) {
+    // REVIEW Andrew 2012-01-17 -- Could we pass a CTRef to the getSurfaceRequirement and use the underlyingBuid external identifier directly with a target type of SECURITY
     return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, InstrumentTypeProperties.EQUITY_OPTION,
         getWeakUnderlyingId(underlyingBuid, tsSource, securitySource));
   }
 
   private ExternalId getWeakUnderlyingId(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource) {
     if (ExternalSchemes.BLOOMBERG_BUID.equals(underlyingId.getScheme())) {
-      final Security underlyingSecurity = securitySource.getSingle(ExternalIdBundle.of(underlyingId));
+      // this is a hack so it doesn't hammer the db.
+      final Instant futureHour = Instant.ofEpochMillis(((System.currentTimeMillis() / 3600_000) * 3600_000) + 3600_000);
+      final Security underlyingSecurity = securitySource.getSingle(ExternalIdBundle.of(underlyingId), VersionCorrection.of(futureHour, futureHour));
       if (underlyingSecurity == null) {
         final HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(underlyingId), null, null, true, null, true, 1);
         if (historicalTimeSeries == null) {

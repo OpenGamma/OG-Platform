@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.pnl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +69,6 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -82,12 +80,16 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  *
  */
 public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveNodePnLFunction.class);
   // Please see http://jira.opengamma.com/browse/PLAT-2330 for information about this constant.
   /** Property name of the contribution to the P&L (e.g. yield curve, FX rate) */
   public static final String PROPERTY_PNL_CONTRIBUTIONS = "PnLContribution";
+  /** Removes holidays from schedule */
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
+  /** A calendar containing only weekends */
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
+  /** Calculates the first difference of a time series */
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
 
   @Override
@@ -238,7 +240,7 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       return null;
     }
     final String[] yieldCurveNames = curveCalculationConfig.getYieldCurveNames();
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     for (final String yieldCurveName : yieldCurveNames) {
@@ -273,14 +275,15 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final Set<String> curveNames = new HashSet<String>();
+    final Set<String> curveNames = new HashSet<>();
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       if (entry.getKey().getValueName().equals(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES)) {
         curveNames.add(entry.getValue().getConstraint(ValuePropertyNames.CURVE));
       }
     }
     if (curveNames.isEmpty()) {
-      throw new OpenGammaRuntimeException("Curves names not specified in any of " + inputs);
+      s_logger.error("Curves names not specified in any of " + inputs);
+      return null;
     }
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.CURRENCY)
@@ -303,6 +306,14 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     return true;
   }
 
+  /**
+   * Creates the result properties for the P&L series
+   * @param desiredValue The desired value
+   * @param currency The currency
+   * @param curveNames The curve names
+   * @param curveCalculationConfig The curve calculation configuration
+   * @return The result properties
+   */
   protected ValueProperties getResultProperties(final ValueRequirement desiredValue, final String currency, final String[] curveNames, final String curveCalculationConfig) {
     return createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency)
@@ -331,12 +342,10 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
       final HistoricalTimeSeries fxSeries, final boolean isInverse) {
     DoubleTimeSeries<?> pnlSeries = null;
     final int n = curveSensitivities.size();
-    final Object[] labels = curveSensitivities.getLabels();
-    final List<Object> labelsList = Arrays.asList(labels);
     final double[] values = curveSensitivities.getValues();
     final SortedSet<FixedIncomeStripWithSecurity> strips = (SortedSet<FixedIncomeStripWithSecurity>) spec.getStrips();
     final FixedIncomeStripWithSecurity[] stripsArray = strips.toArray(new FixedIncomeStripWithSecurity[] {});
-    final List<StripInstrumentType> stripList = new ArrayList<StripInstrumentType>(n);
+    final List<StripInstrumentType> stripList = new ArrayList<>(n);
     int stripCount = 0;
     for (final FixedIncomeStripWithSecurity strip : strips) {
       final int index = stripCount++; //labelsList.indexOf(strip.getSecurityIdentifier());
@@ -399,6 +408,15 @@ public class YieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvok
     return pnlSeries;
   }
 
+  /**
+   * Given a yield curve name, returns the yield curve node sensitivities requirement for that name
+   * @param currencyString The currency
+   * @param curveCalculationConfigName The curve calculation configuration
+   * @param yieldCurveName The yield curve name
+   * @param target The target
+   * @param desiredValueProperties The properties of the desired value
+   * @return The yield curve node sensitivities requirement for the yield curve name
+   */
   protected ValueRequirement getYCNSRequirement(final String currencyString, final String curveCalculationConfigName, final String yieldCurveName, final ComputationTarget target,
       final ValueProperties desiredValueProperties) {
     final UniqueId uniqueId = target.getPosition().getSecurity().getUniqueId();

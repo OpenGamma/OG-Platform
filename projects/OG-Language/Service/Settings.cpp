@@ -84,6 +84,27 @@ const TCHAR *ServiceDefaultServiceName () {
 	return DEFAULT_SERVICE_NAME;
 }
 
+/// Extracts the numeric version fragment from a string.
+///
+/// @param[in] pszVersion the version string, e.g. "1.7"
+/// @param[in] nFragment the version fragment, e.g. 0 for the major version number, 1 for the minor
+/// @return the version number
+int JavaVersionFragment (const TCHAR *pszVersion, int nFragment) {
+	int nValue;
+	size_t cch = _tcslen (pszVersion), i = 0;
+	do {
+		nValue = 0;
+		while ((i < cch) && (pszVersion[i] != '.')) {
+			if ((pszVersion[i] >= '0') && (pszVersion[i] <= '9')) {
+				nValue = (nValue * 10) + (pszVersion[i] - '0');
+			}
+			i++;
+		}
+		if (i < cch) i++;
+	} while (nFragment-- > 0);
+	return nValue;
+}
+
 /// Locates the JVM library by inspecting the registry or making other educated guesses
 class CJvmLibraryDefault : public CAbstractSettingProvider {
 private:
@@ -105,9 +126,9 @@ private:
 			return NULL;
 		}
 		HANDLE hFile = CreateFile (szPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-		// DEPRECATED: JRE 1.7 doesn't seem to have this bug. Confirm and replace with just a "break"
+		// JRE 1.7 32-bit doesn't seem to have this bug but 64-bit version does
 		if (hFile == INVALID_HANDLE_VALUE) {
-			// JDK1.6 puts the wrong path into the registry. It ends \client\jvm.dll but should be \server\jvm.dll
+			// JDK1.7 64-bit puts the wrong path into the registry. It ends \client\jvm.dll but should be \server\jvm.dll
 			int cchPath = _tcslen (szPath);
 			if ((cchPath > 15) && !_tcscmp (szPath + cchPath - 15, TEXT ("\\client\\jvm.dll"))) {
 				LOGDEBUG (TEXT ("Applying hack for broken JDK installer"));
@@ -125,27 +146,6 @@ private:
 			CloseHandle (hFile);
 		}
 		return _tcsdup (szPath);
-	}
-
-	/// Extracts the numeric version fragment from a string.
-	///
-	/// @param[in] pszVersion the version string, e.g. "1.7"
-	/// @param[in] nFragment the version fragment, e.g. 0 for the major version number, 1 for the minor
-	/// @return the version number
-	static int VersionFragment (const TCHAR *pszVersion, int nFragment) {
-		int nValue;
-		size_t cch = _tcslen (pszVersion), i = 0;
-		do {
-			nValue = 0;
-			while ((i < cch) && (pszVersion[i] != '.')) {
-				if ((pszVersion[i] >= '0') && (pszVersion[i] <= '9')) {
-					nValue = (nValue * 10) + (pszVersion[i] - '0');
-				}
-				i++;
-			}
-			if (i < cch) i++;
-		} while (nFragment-- > 0);
-		return nValue;
 	}
 
 	/// Checks for a JVM library defined in the registry at HKLM\\SOFTWARE\\<publisher>\\Java Runtime Environment.
@@ -169,8 +169,8 @@ private:
 			cbVersion = sizeof (sz);
 			if (RegGetValue (hkeyJRE, NULL, TEXT ("CurrentVersion"), RRF_RT_REG_SZ, NULL, sz, &cbVersion) == ERROR_SUCCESS) {
 				LOGDEBUG (TEXT ("Found JRE v") << sz << TEXT (" from ") << pszPublisher);
-				int nMajorVersion = VersionFragment (sz, 0);
-				if ((nMajorVersion > 1) || ((nMajorVersion == 1) && (VersionFragment (sz, 1) >= 7))) {
+				int nMajorVersion = JavaVersionFragment (sz, 0);
+				if ((nMajorVersion > 1) || ((nMajorVersion == 1) && (JavaVersionFragment (sz, 1) >= 7))) {
 					pszPath = SearchJavaVersion (hkeyJRE, sz);
 					if (pszPath) {
 						LOGINFO (TEXT ("Found default JVM ") << pszPath << TEXT (" from ") << pszPublisher << TEXT (" in registry"));
@@ -269,7 +269,23 @@ private:
 					break;
 				}
 				StringCbPrintf (pszLibrary, cchLibrary * sizeof (TCHAR), TEXT ("%s/%s"), pszPath, dp->d_name);
-				break;
+				// TODO: /proc/self/exe probably isn't portable, but seems to work on Fedora
+				CProcess *poCheck = CProcess::Start (TEXT ("/proc/self/exe"), TEXT ("jvm"), pszLibrary);
+				if (poCheck) {
+					int status = 1;
+					LOGDEBUG (TEXT ("Waiting on JVM check"));
+					wait (&status);
+					poCheck->Terminate (); // Terminate if still running
+					delete poCheck;
+					LOGDEBUG (TEXT ("JVM check returned ") << status);
+					if (status == 0) {
+						// Confirmed the JVM version
+						break;
+					}
+				}
+				LOGWARN (TEXT ("Couldn't verify JVM version"));
+				delete pszLibrary;
+				pszLibrary = NULL;
 			}
 		}
 		closedir (dir);

@@ -74,8 +74,13 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(EquityOptionBAWGreeksFunction.class));
     functions.add(functionConfiguration(EquityOptionBAWPresentValueFunction.class));
+    functions.add(functionConfiguration(EquityOptionBAWValueDeltaFunction.class));
+    functions.add(functionConfiguration(EquityOptionBAWValueGammaFunction.class));
     functions.add(functionConfiguration(EquityOptionBjerksundStenslandGreeksFunction.class));
     functions.add(functionConfiguration(EquityOptionBjerksundStenslandPresentValueFunction.class));
+    functions.add(functionConfiguration(EquityOptionBjerksundStenslandValueDeltaFunction.class));
+    functions.add(functionConfiguration(EquityOptionBjerksundStenslandValueGammaFunction.class));
+    functions.add(functionConfiguration(EquityOptionPDEPresentValueFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackFundingCurveSensitivitiesFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackImpliedVolFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackPresentValueFunction.class));
@@ -86,6 +91,8 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(EquityOptionBlackVegaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackVegaMatrixFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackVommaFunction.class));
+    functions.add(functionConfiguration(EquityOptionBlackValueDeltaFunction.class));
+    functions.add(functionConfiguration(EquityOptionBlackValueGammaFunction.class));
     functions.add(functionConfiguration(EquityOptionForwardValueFunction.class));
     functions.add(functionConfiguration(EquityOptionSpotIndexFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionForwardValueFunction.class));
