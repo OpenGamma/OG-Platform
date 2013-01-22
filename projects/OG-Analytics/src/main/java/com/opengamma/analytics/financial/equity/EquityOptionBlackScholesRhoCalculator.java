@@ -35,7 +35,7 @@ public final class EquityOptionBlackScholesRhoCalculator extends InstrumentDeriv
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
     
-    final Double rhoBlackScholes = EquityIndexOptionBlackMethod.getInstance().rhoBlack(option, data);  
+    final Double rhoBlackScholes = EquityIndexOptionBlackMethod.getInstance().rhoBlackScholes(option, data);  
     return rhoBlackScholes;
   }
 
@@ -43,7 +43,7 @@ public final class EquityOptionBlackScholesRhoCalculator extends InstrumentDeriv
   public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final Double rhoBlackScholes = EquityOptionBlackMethod.getInstance().rhoBlack(option, data);  
+    final Double rhoBlackScholes = EquityOptionBlackMethod.getInstance().rhoBlackScholes(option, data);  
     return rhoBlackScholes;
   }
   
