@@ -30,12 +30,12 @@ import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 public class CommodityFutureOptionBjerksundStenslandGreeksFunction extends CommodityFutureOptionBjerksundStenslandFunction {
   /** Value requirement names */
   private static final String[] GREEK_NAMES = new String[] {
-    ValueRequirementNames.VALUE_DELTA,
-    ValueRequirementNames.VALUE_DUAL_DELTA,
-    ValueRequirementNames.VALUE_RHO,
-    ValueRequirementNames.VALUE_CARRY_RHO,
-    ValueRequirementNames.VALUE_VEGA,
-    ValueRequirementNames.VALUE_THETA
+    ValueRequirementNames.DELTA,
+    ValueRequirementNames.DUAL_DELTA,
+    ValueRequirementNames.RHO,
+    ValueRequirementNames.CARRY_RHO,
+    ValueRequirementNames.VEGA,
+    ValueRequirementNames.THETA
   };
   /** Equivalent greeks */
   private static final Greek[] GREEKS = new Greek[] {

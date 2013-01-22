@@ -27,7 +27,7 @@ public class CommodityFutureOptionBlackDeltaFunction extends CommodityFutureOpti
    * Default constructor
    */
   public CommodityFutureOptionBlackDeltaFunction() {
-    super(ValueRequirementNames.VALUE_DELTA);
+    super(ValueRequirementNames.DELTA);
   }
 
   @Override

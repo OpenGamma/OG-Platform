@@ -27,7 +27,7 @@ public class CommodityFutureOptionBlackGammaFunction extends CommodityFutureOpti
    * Default constructor
    */
   public CommodityFutureOptionBlackGammaFunction() {
-    super(ValueRequirementNames.VALUE_GAMMA);
+    super(ValueRequirementNames.GAMMA);
   }
 
   @Override
