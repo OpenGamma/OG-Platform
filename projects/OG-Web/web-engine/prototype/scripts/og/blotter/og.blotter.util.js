@@ -28,7 +28,6 @@ $.register_module({
                 $('select[name="'+ name +'"]').val(value);
             },
             check_checkbox : function (name, value){
-                console.log(name, value);
                 $('input:checkbox[name="'+ name +'"]').prop('checked', bools[value]);
             },
             add_datetimepicker : function (name){
