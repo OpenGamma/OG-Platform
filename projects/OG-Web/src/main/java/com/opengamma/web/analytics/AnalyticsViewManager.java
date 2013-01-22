@@ -19,7 +19,7 @@ import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
+import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 import com.opengamma.web.analytics.push.ClientConnection;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
@@ -43,21 +43,21 @@ public class AnalyticsViewManager {
   private final Map<String, AnalyticsViewClientConnection> _viewConnections = new ConcurrentHashMap<String, AnalyticsViewClientConnection>();
   private final ComputationTargetResolver _targetResolver;
   private final NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
-  private final BlotterColumnMappings _blotterColumnMappings;
+  private final BlotterColumnMapper _blotterColumnMapper;
 
   public AnalyticsViewManager(ViewProcessor viewProcessor,
                               AggregatedViewDefinitionManager aggregatedViewDefManager,
                               MarketDataSnapshotMaster snapshotMaster,
                               ComputationTargetResolver targetResolver,
                               NamedMarketDataSpecificationRepository marketDataSpecificationRepository,
-                              BlotterColumnMappings blotterColumnMappings) {
-    _blotterColumnMappings = blotterColumnMappings;
+                              BlotterColumnMapper blotterColumnMapper) {
+    _blotterColumnMapper = blotterColumnMapper;
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
-    ArgumentChecker.notNull(blotterColumnMappings, "blotterColumnMappings");
+    ArgumentChecker.notNull(blotterColumnMapper, "blotterColumnMappings");
     _targetResolver = targetResolver;
     _viewProcessor = viewProcessor;
     _aggregatedViewDefManager = aggregatedViewDefManager;
@@ -95,7 +95,7 @@ public class AnalyticsViewManager {
                                                  primitivesGridId,
                                                  _targetResolver,
                                                  viewportListener,
-                                                 _blotterColumnMappings);
+                                                 _blotterColumnMapper);
     AnalyticsView lockingView = new LockingAnalyticsView(view);
     AnalyticsView timingView = new TimingAnalyticsView(lockingView);
     AnalyticsView notifyingView = new NotifyingAnalyticsView(timingView, clientConnection);

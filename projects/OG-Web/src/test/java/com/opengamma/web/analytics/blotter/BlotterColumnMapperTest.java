@@ -28,10 +28,10 @@ import com.opengamma.util.money.Currency;
 /**
  *
  */
-public class BlotterColumnMappingsTest {
+public class BlotterColumnMapperTest {
 
-  private static final BlotterColumnMappings s_mappings =
-      new BlotterColumnMappings(CurrencyPairs.of(ImmutableSet.of(CurrencyPair.of(Currency.GBP, Currency.USD))));
+  private static final BlotterColumnMapper s_mappings =
+      new BlotterColumnMapper(CurrencyPairs.of(ImmutableSet.of(CurrencyPair.of(Currency.GBP, Currency.USD))));
 
   /**
    * Simple security where fields are mapped using bean properties
@@ -63,4 +63,6 @@ public class BlotterColumnMappingsTest {
     assertEquals("100.0/-150.0", s_mappings.valueFor(QUANTITY, security));
     assertEquals(1.5d, s_mappings.valueFor(RATE, security));
   }
+
+
 }

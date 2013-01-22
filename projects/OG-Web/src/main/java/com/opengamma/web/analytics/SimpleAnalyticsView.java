@@ -16,7 +16,7 @@ import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
+import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
 /**
  * Default implementation of {@link AnalyticsView}. This class isn't meant to be thread safe. A thread calling any
@@ -33,7 +33,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
   private final ComputationTargetResolver _targetResolver;
   private final String _viewId;
   private final ViewportListener _viewportListener;
-  private final BlotterColumnMappings _blotterColumnMappings;
+  private final BlotterColumnMapper _blotterColumnMapper;
 
   private MainAnalyticsGrid _portfolioGrid;
   private MainAnalyticsGrid _primitivesGrid;
@@ -47,21 +47,21 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
    * This class makes no assumptions about its value
    * @param targetResolver For looking up calculation targets by specification
    * @param viewportListener
-   * @param blotterColumnMappings
+   * @param blotterColumnMapper
    */
   /* package */ SimpleAnalyticsView(String viewId,
                                     String portoflioCallbackId,
                                     String primitivesCallbackId,
                                     ComputationTargetResolver targetResolver,
                                     ViewportListener viewportListener,
-                                    BlotterColumnMappings blotterColumnMappings) {
+                                    BlotterColumnMapper blotterColumnMapper) {
     ArgumentChecker.notEmpty(viewId, "viewId");
     ArgumentChecker.notEmpty(portoflioCallbackId, "portoflioGridId");
     ArgumentChecker.notEmpty(primitivesCallbackId, "primitivesGridId");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(viewportListener, "viewportListener");
-    ArgumentChecker.notNull(blotterColumnMappings, "blotterColumnMappings");
-    _blotterColumnMappings = blotterColumnMappings;
+    ArgumentChecker.notNull(blotterColumnMapper, "blotterColumnMappings");
+    _blotterColumnMapper = blotterColumnMapper;
     _viewId = viewId;
     _targetResolver = targetResolver;
     _portfolioGrid = PortfolioAnalyticsGrid.empty(portoflioCallbackId);
@@ -79,9 +79,9 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
                                                 _targetResolver,
                                                 valueMappings,
                                                 _viewportListener,
-                                                _blotterColumnMappings,
-                                                false); // TODO option to create blotter columns
-                                                //true); // TODO option to create blotter columns
+                                                _blotterColumnMapper,
+                                                //false); // TODO option to create blotter columns
+                                                true); // TODO option to create blotter columns
     _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition,
                                                   _primitivesGrid.getCallbackId(),
                                                   _targetResolver,

@@ -29,7 +29,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.blotter.BlotterColumn;
-import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
+import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
 /**
  *
@@ -65,7 +65,7 @@ public class PortfolioGridStructure extends MainGridStructure {
 
   /* package */ static PortfolioGridStructure forBlotter(CompiledViewDefinition compiledViewDef,
                                                          ValueMappings valueMappings,
-                                                         BlotterColumnMappings columnMappings) {
+                                                         BlotterColumnMapper columnMappings) {
     ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
     ArgumentChecker.notNull(valueMappings, "valueMappings");
     ArgumentChecker.notNull(columnMappings, "columnMappings");
@@ -119,7 +119,7 @@ public class PortfolioGridStructure extends MainGridStructure {
     return columnGroups;
   }
 
-  private static GridColumnGroup buildBlotterColumns(BlotterColumnMappings columnMappings,
+  private static GridColumnGroup buildBlotterColumns(BlotterColumnMapper columnMappings,
                                                      List<PortfolioGridRow> rows) {
     List<GridColumn> columns = Lists.newArrayList(
         blotterColumn(BlotterColumn.TYPE, columnMappings, rows),
@@ -136,7 +136,7 @@ public class PortfolioGridStructure extends MainGridStructure {
   }
 
   private static GridColumn blotterColumn(BlotterColumn column,
-                                          BlotterColumnMappings columnMappings,
+                                          BlotterColumnMapper columnMappings,
                                           List<PortfolioGridRow> rows) {
     return new GridColumn(column.getName(), "", String.class, new BlotterColumnRenderer(column, columnMappings, rows));
   }

@@ -24,6 +24,10 @@ import com.google.common.collect.Maps;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyUtils;
+import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.bond.CorporateBondSecurity;
+import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -32,6 +36,7 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ClassMap;
 import com.opengamma.web.analytics.blotter.swap.FloatFrequencyProvider;
 import com.opengamma.web.analytics.blotter.swap.FrequencyProvider;
 import com.opengamma.web.analytics.blotter.swap.IndexProvider;
@@ -45,11 +50,21 @@ import com.opengamma.web.analytics.blotter.swap.TypeProvider;
  * Maps the properties of each blotter column to properties in each supported security type.
  */
 @SuppressWarnings("unchecked")
-public class BlotterColumnMappings {
+public class BlotterColumnMapper {
 
-  private final Map<Class<? extends ManageableSecurity>, Map<BlotterColumn, ValueProvider>> _mappings = Maps.newHashMap();
+  private final Map<Class<?>, Map<BlotterColumn, ValueProvider>> _mappings = new ClassMap<>();
 
-  public BlotterColumnMappings(final CurrencyPairs currencyPairs) {
+  public BlotterColumnMapper(final CurrencyPairs currencyPairs) {
+    // ------------------- Bond
+    mapColumn(TYPE, GovernmentBondSecurity.class, "Government Bond");
+    mapColumn(TYPE, CorporateBondSecurity.class, "Corporate Bond");
+    mapColumn(TYPE, MunicipalBondSecurity.class, "Municipal Bond");
+    mapColumn(PRODUCT, BondSecurity.meta().issuerName());
+    mapColumn(RATE, BondSecurity.meta().couponRate());
+    mapColumn(FREQUENCY, BondSecurity.meta().couponFrequency());
+    mapColumn(START, BondSecurity.meta().firstCouponDate());
+    mapColumn(MATURITY, BondSecurity.meta().settlementDate());
+
     // ------------------- CapFloor
     mapColumn(TYPE, CapFloorSecurity.class, "Cap/Floor");
     mapColumn(QUANTITY, CapFloorSecurity.meta().notional());
@@ -207,15 +222,38 @@ public class BlotterColumnMappings {
     if (security == null) {
       return "";
     }
-    Map<BlotterColumn, ValueProvider> providerMap = _mappings.get(security.getClass());
+    return getValue(column, security, security.getClass());
+  }
+
+  private Object getValue(BlotterColumn column, ManageableSecurity security, Class<?> type) {
+    Map<BlotterColumn, ValueProvider> providerMap = getMappingsForType(type);
     if (providerMap == null) {
-      return security.getClass().getSimpleName() + " not supported";
+      return "";
     } else {
       ValueProvider valueProvider = providerMap.get(column);
       if (valueProvider != null) {
         return valueProvider.getValue(security);
       } else {
-        return "";
+        Class<?> superclass = type.getSuperclass();
+        if (superclass == null) {
+          return "";
+        } else {
+          return getValue(column, security, superclass);
+        }
+      }
+    }
+  }
+
+  private Map<BlotterColumn, ValueProvider> getMappingsForType(Class<?> type) {
+    Map<BlotterColumn, ValueProvider> providerMap = _mappings.get(type);
+    if (providerMap != null) {
+      return providerMap;
+    } else {
+      Class<?> superclass = type.getSuperclass();
+      if (superclass == null) {
+        return null;
+      } else {
+        return getMappingsForType(superclass);
       }
     }
   }

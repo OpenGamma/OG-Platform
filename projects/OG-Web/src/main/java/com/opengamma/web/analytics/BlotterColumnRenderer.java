@@ -10,19 +10,19 @@ import java.util.List;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.blotter.BlotterColumn;
-import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
+import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
 /**
  *
  */
 /* package */ class BlotterColumnRenderer implements GridColumn.CellRenderer {
 
-  private final BlotterColumnMappings _columnMappings;
+  private final BlotterColumnMapper _columnMappings;
   private final BlotterColumn _column;
   private final List<PortfolioGridStructure.PortfolioGridRow> _rows;
 
   public BlotterColumnRenderer(BlotterColumn column,
-                               BlotterColumnMappings columnMappings,
+                               BlotterColumnMapper columnMappings,
                                List<PortfolioGridStructure.PortfolioGridRow> rows) {
     ArgumentChecker.notNull(column, "column");
     ArgumentChecker.notNull(columnMappings, "blotterColumnMappings");
