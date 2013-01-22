@@ -69,7 +69,8 @@ public class ResultsFormatter {
                   new PositionTargetFormatter(),
                   new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter(),
                   new FrequencyFormatter(),
-                  new ZonedDateTimeFormatter());
+                  new ZonedDateTimeFormatter(),
+                  new FXAmountsFormatter(doubleFormatter));
   }
 
   private void addFormatters(TypeFormatter<?>... formatters) {

@@ -95,30 +95,7 @@ public class BlotterColumnMappings {
         return pair.getBase() + "/" + pair.getCounter() + " FX Forward";
       }
     };
-    // TODO FXAmounts class and formatter so individual amounts get formatted at the right time
-    ValueProvider<FXForwardSecurity> fxForwardAmountProvider = new ValueProvider<FXForwardSecurity>() {
-      @Override
-      public String getValue(FXForwardSecurity security) {
-        Double baseAmount = CurrencyUtils.getBaseAmount(security.getPayCurrency(),
-                                                        security.getReceiveCurrency(),
-                                                        security.getPayAmount(),
-                                                        security.getReceiveAmount(),
-                                                        currencyPairs);
-        Double counterAmount = CurrencyUtils.getCounterAmount(security.getPayCurrency(),
-                                                              security.getReceiveCurrency(),
-                                                              security.getPayAmount(),
-                                                              security.getReceiveAmount(),
-                                                              currencyPairs);
-        CurrencyPair pair = currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency());
-        if (pair.getBase().equals(security.getPayCurrency())) {
-          baseAmount = baseAmount * -1;
-        } else {
-          counterAmount = counterAmount * -1;
-        }
-        return baseAmount + "/" + counterAmount;
-      }
-    };
-    // TODO format rate
+    ValueProvider<FXForwardSecurity> fxForwardAmountProvider = new FXForwardQuantityProvider(currencyPairs);
     ValueProvider<FXForwardSecurity> fxForwardRateProvider = new ValueProvider<FXForwardSecurity>() {
       @Override
       public Double getValue(FXForwardSecurity security) {
@@ -236,5 +213,37 @@ public class BlotterColumnMappings {
     }
   }
 
+  private static class FXForwardQuantityProvider implements ValueProvider<FXForwardSecurity> {
+
+    private final CurrencyPairs _currencyPairs;
+
+    public FXForwardQuantityProvider(CurrencyPairs currencyPairs) {
+      _currencyPairs = currencyPairs;
+    }
+
+    @Override
+    public FXAmounts getValue(FXForwardSecurity security) {
+      Double baseAmount = CurrencyUtils.getBaseAmount(security.getPayCurrency(),
+                                                      security.getReceiveCurrency(),
+                                                      security.getPayAmount(),
+                                                      security.getReceiveAmount(),
+                                                      _currencyPairs);
+      Double counterAmount = CurrencyUtils.getCounterAmount(security.getPayCurrency(),
+                                                            security.getReceiveCurrency(),
+                                                            security.getPayAmount(),
+                                                            security.getReceiveAmount(),
+                                                            _currencyPairs);
+      if (baseAmount == null || counterAmount == null) {
+        return null;
+      }
+      CurrencyPair pair = _currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency());
+      if (pair.getBase().equals(security.getPayCurrency())) {
+        baseAmount = baseAmount * -1;
+      } else {
+        counterAmount = counterAmount * -1;
+      }
+      return new FXAmounts(baseAmount, counterAmount);
+    }
+  }
 }
 

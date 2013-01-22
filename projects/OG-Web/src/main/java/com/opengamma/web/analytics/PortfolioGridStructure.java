@@ -51,6 +51,8 @@ public class PortfolioGridStructure extends MainGridStructure {
 
   /* package */ static PortfolioGridStructure forAnalytics(CompiledViewDefinition compiledViewDef,
                                                            ValueMappings valueMappings) {
+    ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
+    ArgumentChecker.notNull(valueMappings, "valueMappings");
     List<PortfolioGridRow> rows = buildRows(compiledViewDef);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
@@ -64,6 +66,9 @@ public class PortfolioGridStructure extends MainGridStructure {
   /* package */ static PortfolioGridStructure forBlotter(CompiledViewDefinition compiledViewDef,
                                                          ValueMappings valueMappings,
                                                          BlotterColumnMappings columnMappings) {
+    ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
+    ArgumentChecker.notNull(valueMappings, "valueMappings");
+    ArgumentChecker.notNull(columnMappings, "columnMappings");
     List<PortfolioGridRow> rows = buildRows(compiledViewDef);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
