@@ -33,35 +33,35 @@ public class CommodityFutureOptionForwardDeltaCalculatorTest extends CommodityFu
   public void testAgricultureFutureOption() {
     final double answer = 4.415360077156871;
 
-    final AgricultureFutureDefinition definition = new AgricultureFutureDefinition(EXPIRY_DATE, AN_UNDERLYING, UNIT_AMOUNT, null, null, AMOUNT, "tonnes", SettlementType.CASH, 0, Currency.GBP,
-        SETTLEMENT_DATE);
+    final AgricultureFutureDefinition definition = new AgricultureFutureDefinition(EXPIRY_DATE, AN_UNDERLYING, UNIT_AMOUNT, null, null, AMOUNT, "tonnes",
+        SettlementType.CASH, 0, Currency.GBP, SETTLEMENT_DATE);
     final AgricultureFuture future = definition.toDerivative(A_DATE, new String[0]);
     final AgricultureFutureOption option = new AgricultureFutureOption(EXPIRY, future, STRIKE, EXERCISE, true);
     final double pv = option.accept(PRICER, MARKET);
-    assertEquals(answer, pv, TOLERANCE);
+    assertEquals(answer, pv * option.getUnderlying().getAmount(), TOLERANCE);
   }
 
   @Test
   public void testEnergyFutureOption() {
     final double answer = 4.415360077156871;
 
-    final EnergyFutureDefinition definition = new EnergyFutureDefinition(EXPIRY_DATE, AN_UNDERLYING, UNIT_AMOUNT, null, null, AMOUNT, "tonnes", SettlementType.CASH, 0, Currency.GBP,
-        SETTLEMENT_DATE);
+    final EnergyFutureDefinition definition = new EnergyFutureDefinition(EXPIRY_DATE, AN_UNDERLYING, UNIT_AMOUNT, null, null, AMOUNT, "tonnes", SettlementType.CASH, 0,
+        Currency.GBP, SETTLEMENT_DATE);
     final EnergyFuture future = definition.toDerivative(A_DATE, new String[0]);
     final EnergyFutureOption option = new EnergyFutureOption(EXPIRY, future, STRIKE, EXERCISE, true);
     final double pv = option.accept(PRICER, MARKET);
-    assertEquals(answer, pv, TOLERANCE);
+    assertEquals(answer, pv * option.getUnderlying().getAmount(), TOLERANCE);
   }
 
   @Test
   public void testMetalFutureOption() {
     final double answer = 4.415360077156871;
 
-    final MetalFutureDefinition definition = new MetalFutureDefinition(EXPIRY_DATE, AN_UNDERLYING, UNIT_AMOUNT, null, null, AMOUNT, "tonnes", SettlementType.CASH, 0, Currency.GBP,
-        SETTLEMENT_DATE);
+    final MetalFutureDefinition definition = new MetalFutureDefinition(EXPIRY_DATE, AN_UNDERLYING, UNIT_AMOUNT, null, null, AMOUNT, "tonnes", SettlementType.CASH, 0,
+        Currency.GBP, SETTLEMENT_DATE);
     final MetalFuture future = definition.toDerivative(A_DATE, new String[0]);
     final MetalFutureOption option = new MetalFutureOption(EXPIRY, future, STRIKE, EXERCISE, true);
     final double pv = option.accept(PRICER, MARKET);
-    assertEquals(answer, pv, TOLERANCE);
+    assertEquals(answer, pv * option.getUnderlying().getAmount(), TOLERANCE);
   }
 }
