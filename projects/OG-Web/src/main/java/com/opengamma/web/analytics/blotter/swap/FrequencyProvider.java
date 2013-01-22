@@ -7,12 +7,12 @@ package com.opengamma.web.analytics.blotter.swap;
 
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
+import com.opengamma.web.analytics.blotter.ValueProvider;
 
 /**
 *
 */
-public class FrequencyProvider implements BlotterColumnMappings.ValueProvider<SwapSecurity> {
+public class FrequencyProvider implements ValueProvider<SwapSecurity> {
 
   @Override
   public Frequency getValue(SwapSecurity security) {

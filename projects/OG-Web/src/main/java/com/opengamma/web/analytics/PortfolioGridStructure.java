@@ -29,7 +29,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.blotter.BlotterColumn;
-import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
+import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
 /**
  *
@@ -51,6 +51,8 @@ public class PortfolioGridStructure extends MainGridStructure {
 
   /* package */ static PortfolioGridStructure forAnalytics(CompiledViewDefinition compiledViewDef,
                                                            ValueMappings valueMappings) {
+    ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
+    ArgumentChecker.notNull(valueMappings, "valueMappings");
     List<PortfolioGridRow> rows = buildRows(compiledViewDef);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
@@ -63,7 +65,10 @@ public class PortfolioGridStructure extends MainGridStructure {
 
   /* package */ static PortfolioGridStructure forBlotter(CompiledViewDefinition compiledViewDef,
                                                          ValueMappings valueMappings,
-                                                         BlotterColumnMappings columnMappings) {
+                                                         BlotterColumnMapper columnMappings) {
+    ArgumentChecker.notNull(compiledViewDef, "compiledViewDef");
+    ArgumentChecker.notNull(valueMappings, "valueMappings");
+    ArgumentChecker.notNull(columnMappings, "columnMappings");
     List<PortfolioGridRow> rows = buildRows(compiledViewDef);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
@@ -114,24 +119,24 @@ public class PortfolioGridStructure extends MainGridStructure {
     return columnGroups;
   }
 
-  private static GridColumnGroup buildBlotterColumns(BlotterColumnMappings columnMappings,
+  private static GridColumnGroup buildBlotterColumns(BlotterColumnMapper columnMappings,
                                                      List<PortfolioGridRow> rows) {
     List<GridColumn> columns = Lists.newArrayList(
         blotterColumn(BlotterColumn.TYPE, columnMappings, rows),
         blotterColumn(BlotterColumn.PRODUCT, columnMappings, rows),
         blotterColumn(BlotterColumn.QUANTITY, columnMappings, rows),
+        blotterColumn(BlotterColumn.DIRECTION, columnMappings, rows),
         blotterColumn(BlotterColumn.START, columnMappings, rows),
         blotterColumn(BlotterColumn.MATURITY, columnMappings, rows),
         blotterColumn(BlotterColumn.RATE, columnMappings, rows),
         blotterColumn(BlotterColumn.INDEX, columnMappings, rows),
-        blotterColumn(BlotterColumn.DIRECTION, columnMappings, rows),
         blotterColumn(BlotterColumn.FREQUENCY, columnMappings, rows),
         blotterColumn(BlotterColumn.FLOAT_FREQUENCY, columnMappings, rows));
     return new GridColumnGroup("Blotter", columns);
   }
 
   private static GridColumn blotterColumn(BlotterColumn column,
-                                          BlotterColumnMappings columnMappings,
+                                          BlotterColumnMapper columnMappings,
                                           List<PortfolioGridRow> rows) {
     return new GridColumn(column.getName(), "", String.class, new BlotterColumnRenderer(column, columnMappings, rows));
   }

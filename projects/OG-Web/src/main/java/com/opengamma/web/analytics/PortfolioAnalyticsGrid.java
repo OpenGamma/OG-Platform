@@ -7,7 +7,7 @@ package com.opengamma.web.analytics;
 
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
+import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
 /**
  * A grid for displaying portfolio analytics data.
@@ -27,9 +27,9 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
                                        ComputationTargetResolver targetResolver,
                                        ValueMappings valueMappings,
                                        ViewportListener viewportListener,
-                                       BlotterColumnMappings blotterColumnMappings,
+                                       BlotterColumnMapper blotterColumnMapper,
                                        boolean blotter) {
-    this(buildGridStructure(compiledViewDef, valueMappings, blotterColumnMappings, blotter),
+    this(buildGridStructure(compiledViewDef, valueMappings, blotterColumnMapper, blotter),
          gridId,
          targetResolver,
          viewportListener);
@@ -37,12 +37,12 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
 
   private static PortfolioGridStructure buildGridStructure(CompiledViewDefinition compiledViewDef,
                                                            ValueMappings valueMappings,
-                                                           BlotterColumnMappings blotterColumnMappings,
+                                                           BlotterColumnMapper blotterColumnMapper,
                                                            boolean blotter) {
     if (!blotter) {
       return PortfolioGridStructure.forAnalytics(compiledViewDef, valueMappings);
     } else {
-      return PortfolioGridStructure.forBlotter(compiledViewDef, valueMappings, blotterColumnMappings);
+      return PortfolioGridStructure.forBlotter(compiledViewDef, valueMappings, blotterColumnMapper);
     }
   }
 
