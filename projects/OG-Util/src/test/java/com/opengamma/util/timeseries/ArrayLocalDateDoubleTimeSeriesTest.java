@@ -7,9 +7,8 @@ package com.opengamma.util.timeseries;
 
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;

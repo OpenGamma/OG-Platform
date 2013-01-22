@@ -5,10 +5,9 @@
  */
 package com.opengamma.util.tuple;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;

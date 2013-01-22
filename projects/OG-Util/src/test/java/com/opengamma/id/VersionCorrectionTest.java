@@ -8,11 +8,9 @@ package com.opengamma.id;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 /**
  * Test {@link VersionCorrection}. 
@@ -20,9 +18,9 @@ import org.testng.annotations.Test;
 @Test
 public class VersionCorrectionTest {
 
-  private static final Instant INSTANT1 = Instant.ofEpochSeconds(1);
-  private static final Instant INSTANT2 = Instant.ofEpochSeconds(2);
-  private static final Instant INSTANT3 = Instant.ofEpochSeconds(3);
+  private static final Instant INSTANT1 = Instant.ofEpochSecond(1);
+  private static final Instant INSTANT2 = Instant.ofEpochSecond(2);
+  private static final Instant INSTANT3 = Instant.ofEpochSecond(3);
 
   public void test_LATEST() {
     VersionCorrection test = VersionCorrection.LATEST;
@@ -52,21 +50,21 @@ public class VersionCorrectionTest {
   }
 
   public void test_of_InstantInstant_nullVersion() {
-    VersionCorrection test = VersionCorrection.of((InstantProvider) null, INSTANT2);
+    VersionCorrection test = VersionCorrection.of((Instant) null, INSTANT2);
     assertEquals(null, test.getVersionAsOf());
     assertEquals(INSTANT2, test.getCorrectedTo());
     assertEquals("VLATEST.C1970-01-01T00:00:02Z", test.toString());
   }
 
   public void test_of_InstantInstant_nullCorrection() {
-    VersionCorrection test = VersionCorrection.of(INSTANT1, (InstantProvider) null);
+    VersionCorrection test = VersionCorrection.of(INSTANT1, (Instant) null);
     assertEquals(INSTANT1, test.getVersionAsOf());
     assertEquals(null, test.getCorrectedTo());
     assertEquals("V1970-01-01T00:00:01Z.CLATEST", test.toString());
   }
 
   public void test_of_InstantInstant_nulls() {
-    VersionCorrection test = VersionCorrection.of((InstantProvider) null, (InstantProvider) null);
+    VersionCorrection test = VersionCorrection.of((Instant) null, (Instant) null);
     assertSame(VersionCorrection.LATEST, test);
   }
 
@@ -78,7 +76,7 @@ public class VersionCorrectionTest {
   }
 
   public void test_ofVersionAsOf_Instant_null() {
-    VersionCorrection test = VersionCorrection.ofVersionAsOf((InstantProvider) null);
+    VersionCorrection test = VersionCorrection.ofVersionAsOf((Instant) null);
     assertSame(VersionCorrection.LATEST, test);
   }
 
@@ -90,7 +88,7 @@ public class VersionCorrectionTest {
   }
 
   public void test_ofCorrectedTo_Instant_null() {
-    VersionCorrection test = VersionCorrection.ofCorrectedTo((InstantProvider) null);
+    VersionCorrection test = VersionCorrection.ofCorrectedTo((Instant) null);
     assertSame(VersionCorrection.LATEST, test);
   }
 

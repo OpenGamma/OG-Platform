@@ -7,21 +7,18 @@ package com.opengamma.util.time;
 
 import java.io.Serializable;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-import javax.time.calendar.ZonedDateTime;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * An indication of when something expires.
  */
-public class Expiry implements InstantProvider, Serializable {
+public class Expiry implements Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -73,11 +70,6 @@ public class Expiry implements InstantProvider, Serializable {
     return _accuracy;
   }
 
-  @Override
-  public Instant toInstant() {
-    return _expiry.toInstant();
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public boolean equals(final Object obj) {
@@ -107,15 +99,15 @@ public class Expiry implements InstantProvider, Serializable {
   public static boolean equalsToAccuracy(final ExpiryAccuracy accuracy, final ZonedDateTime expiry1, final ZonedDateTime expiry2) {
     switch (accuracy) {
       case MIN_HOUR_DAY_MONTH_YEAR:
-        return (expiry1.getMinuteOfHour() == expiry2.getMinuteOfHour()) && (expiry1.getHourOfDay() == expiry2.getHourOfDay()) && (expiry1.getDayOfMonth() == expiry2.getDayOfMonth())
-            && (expiry1.getMonthOfYear() == expiry2.getMonthOfYear()) && (expiry1.getYear() == expiry2.getYear());
+        return (expiry1.getMinute() == expiry2.getMinute()) && (expiry1.getHour() == expiry2.getHour()) && (expiry1.getDayOfMonth() == expiry2.getDayOfMonth())
+            && (expiry1.getMonth() == expiry2.getMonth()) && (expiry1.getYear() == expiry2.getYear());
       case HOUR_DAY_MONTH_YEAR:
-        return (expiry1.getHourOfDay() == expiry2.getHourOfDay()) && (expiry1.getDayOfMonth() == expiry2.getDayOfMonth()) && (expiry1.getMonthOfYear() == expiry2.getMonthOfYear())
+        return (expiry1.getHour() == expiry2.getHour()) && (expiry1.getDayOfMonth() == expiry2.getDayOfMonth()) && (expiry1.getMonth() == expiry2.getMonth())
             && (expiry1.getYear() == expiry2.getYear());
       case DAY_MONTH_YEAR:
-        return (expiry1.getDayOfMonth() == expiry2.getDayOfMonth()) && (expiry1.getMonthOfYear() == expiry2.getMonthOfYear()) && (expiry1.getYear() == expiry2.getYear());
+        return (expiry1.getDayOfMonth() == expiry2.getDayOfMonth()) && (expiry1.getMonth() == expiry2.getMonth()) && (expiry1.getYear() == expiry2.getYear());
       case MONTH_YEAR:
-        return (expiry1.getMonthOfYear() == expiry2.getMonthOfYear()) && (expiry1.getYear() == expiry2.getYear());
+        return (expiry1.getMonth() == expiry2.getMonth()) && (expiry1.getYear() == expiry2.getYear());
       case YEAR:
         return (expiry1.getYear() == expiry2.getYear());
       default:
