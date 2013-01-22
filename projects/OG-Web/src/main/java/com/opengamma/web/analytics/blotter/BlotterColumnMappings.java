@@ -24,6 +24,7 @@ import com.google.common.collect.Maps;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyUtils;
+import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -56,6 +57,22 @@ public class BlotterColumnMappings {
     mapColumn(MATURITY, CapFloorSecurity.meta().maturityDate());
     mapColumn(RATE, CapFloorSecurity.meta().strike());
     mapColumn(FREQUENCY, CapFloorSecurity.meta().frequency());
+
+    // ------------------- CapFloorCMSSpread
+    ValueProvider<CapFloorCMSSpreadSecurity> capFloorCMSSpreadProductProvider =
+        new ValueProvider<CapFloorCMSSpreadSecurity>() {
+      @Override
+      public Object getValue(CapFloorCMSSpreadSecurity security) {
+        return security.getLongId().getValue() + "/" + security.getShortId().getValue();
+      }
+    };
+    mapColumn(TYPE, CapFloorCMSSpreadSecurity.class, "Cap/Floor CMS Spread");
+    mapColumn(START, CapFloorCMSSpreadSecurity.meta().startDate());
+    mapColumn(MATURITY, CapFloorCMSSpreadSecurity.meta().maturityDate());
+    mapColumn(QUANTITY, CapFloorCMSSpreadSecurity.meta().notional());
+    mapColumn(RATE, CapFloorCMSSpreadSecurity.meta().strike());
+    mapColumn(FREQUENCY, CapFloorCMSSpreadSecurity.meta().frequency());
+    mapColumn(PRODUCT, CapFloorCMSSpreadSecurity.class, capFloorCMSSpreadProductProvider);
 
     // ------------------- FRA
     mapColumn(TYPE, FRASecurity.class, "FRA");
@@ -201,11 +218,6 @@ public class BlotterColumnMappings {
         return "";
       }
     }
-  }
-
-  public interface ValueProvider<T extends ManageableSecurity> {
-
-    Object getValue(T security);
   }
 
   private static class PropertyValueProvider<T extends ManageableSecurity> implements ValueProvider<T> {
