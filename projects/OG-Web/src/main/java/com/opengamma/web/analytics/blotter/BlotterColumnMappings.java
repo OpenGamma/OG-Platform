@@ -27,6 +27,7 @@ import com.opengamma.financial.currency.CurrencyUtils;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -47,9 +48,7 @@ public class BlotterColumnMappings {
 
   private final Map<Class<? extends ManageableSecurity>, Map<BlotterColumn, ValueProvider>> _mappings = Maps.newHashMap();
 
-  // TODO make this static and use BlotterResource converters
   public BlotterColumnMappings(final CurrencyPairs currencyPairs) {
-
     // ------------------- CapFloor
     mapColumn(TYPE, CapFloorSecurity.class, "Cap/Floor");
     mapColumn(QUANTITY, CapFloorSecurity.meta().notional());
@@ -67,15 +66,36 @@ public class BlotterColumnMappings {
     mapColumn(RATE, FRASecurity.meta().rate());
 
     // ------------------- FXOption
-    /*mapColumn(TYPE, FXOptionSecurity.class, "FX Option");
+    ValueProvider<FXOptionSecurity> fxOptionProductProvider = new ValueProvider<FXOptionSecurity>() {
+      @Override
+      public Object getValue(FXOptionSecurity security) {
+        CurrencyPair pair = currencyPairs.getCurrencyPair(security.getPutCurrency(), security.getCallCurrency());
+        return pair.getBase() + "/" + pair.getCounter();
+      }
+    };
+    ValueProvider<FXOptionSecurity> fxOptionQuantityProvider = new ValueProvider<FXOptionSecurity>() {
+      @Override
+      public FXAmounts getValue(FXOptionSecurity security) {
+        return FXAmounts.forOption(security, currencyPairs);
+      }
+    };
+    ValueProvider<FXOptionSecurity> fxOptionRateProvider = new ValueProvider<FXOptionSecurity>() {
+      @Override
+      public Object getValue(FXOptionSecurity security) {
+        return CurrencyUtils.getRate(security.getPutCurrency(),
+                                     security.getCallCurrency(),
+                                     security.getPutAmount(),
+                                     security.getCallAmount(),
+                                     currencyPairs);
+      }
+    };
+    mapColumn(TYPE, FXOptionSecurity.class, "FX Option");
     mapColumn(MATURITY, FXOptionSecurity.meta().expiry());
-    // TODO custom providers needed
-    mapColumn(PRODUCT, );
-    mapColumn(QUANTITY, );*/
+    mapColumn(PRODUCT, FXOptionSecurity.class, fxOptionProductProvider);
+    mapColumn(QUANTITY, FXOptionSecurity.class, fxOptionQuantityProvider);
+    mapColumn(RATE, FXOptionSecurity.class, fxOptionRateProvider);
 
     // ------------------- Swap
-    // TODO basis swap for float/float swaps
-    // TODO XCCY swap if the currencies are different
     mapColumn(TYPE, SwapSecurity.class, new TypeProvider());
     mapColumn(PRODUCT, SwapSecurity.class, new ProductProvider());
     mapColumn(START, SwapSecurity.meta().effectiveDate());
@@ -87,15 +107,20 @@ public class BlotterColumnMappings {
     mapColumn(RATE, SwapSecurity.class, new RateProvider());
     mapColumn(DIRECTION, SwapSecurity.class, new PayReceiveProvider());
 
-    // ------------------- FXForward TODO move to separate class?
+    // ------------------- FXForward
     ValueProvider<FXForwardSecurity> fxForwardProductProvider = new ValueProvider<FXForwardSecurity>() {
       @Override
       public String getValue(FXForwardSecurity security) {
         CurrencyPair pair = currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency());
-        return pair.getBase() + "/" + pair.getCounter() + " FX Forward";
+        return pair.getBase() + "/" + pair.getCounter();
       }
     };
-    ValueProvider<FXForwardSecurity> fxForwardAmountProvider = new FXForwardQuantityProvider(currencyPairs);
+    ValueProvider<FXForwardSecurity> fxForwardQuantityProvider = new ValueProvider<FXForwardSecurity>() {
+      @Override
+      public FXAmounts getValue(FXForwardSecurity security) {
+        return FXAmounts.forForward(security, currencyPairs);
+      }
+    };
     ValueProvider<FXForwardSecurity> fxForwardRateProvider = new ValueProvider<FXForwardSecurity>() {
       @Override
       public Double getValue(FXForwardSecurity security) {
@@ -108,7 +133,7 @@ public class BlotterColumnMappings {
     };
     mapColumn(TYPE, FXForwardSecurity.class, "FX Forward");
     mapColumn(PRODUCT, FXForwardSecurity.class, fxForwardProductProvider);
-    mapColumn(QUANTITY, FXForwardSecurity.class, fxForwardAmountProvider);
+    mapColumn(QUANTITY, FXForwardSecurity.class, fxForwardQuantityProvider);
     mapColumn(RATE, FXForwardSecurity.class, fxForwardRateProvider);
     mapColumn(MATURITY, FXForwardSecurity.meta().forwardDate());
   }
@@ -210,39 +235,6 @@ public class BlotterColumnMappings {
     @Override
     public Object getValue(ManageableSecurity security) {
       return _value;
-    }
-  }
-
-  private static class FXForwardQuantityProvider implements ValueProvider<FXForwardSecurity> {
-
-    private final CurrencyPairs _currencyPairs;
-
-    public FXForwardQuantityProvider(CurrencyPairs currencyPairs) {
-      _currencyPairs = currencyPairs;
-    }
-
-    @Override
-    public FXAmounts getValue(FXForwardSecurity security) {
-      Double baseAmount = CurrencyUtils.getBaseAmount(security.getPayCurrency(),
-                                                      security.getReceiveCurrency(),
-                                                      security.getPayAmount(),
-                                                      security.getReceiveAmount(),
-                                                      _currencyPairs);
-      Double counterAmount = CurrencyUtils.getCounterAmount(security.getPayCurrency(),
-                                                            security.getReceiveCurrency(),
-                                                            security.getPayAmount(),
-                                                            security.getReceiveAmount(),
-                                                            _currencyPairs);
-      if (baseAmount == null || counterAmount == null) {
-        return null;
-      }
-      CurrencyPair pair = _currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency());
-      if (pair.getBase().equals(security.getPayCurrency())) {
-        baseAmount = baseAmount * -1;
-      } else {
-        counterAmount = counterAmount * -1;
-      }
-      return new FXAmounts(baseAmount, counterAmount);
     }
   }
 }

@@ -24,8 +24,8 @@ import com.opengamma.web.analytics.blotter.FXAmounts;
 
   @Override
   public Object formatCell(FXAmounts amounts, ValueSpecification valueSpec) {
-    return _doubleFormatter.formatCell(amounts.getBaseAmount(), valueSpec) + "/" +
-        _doubleFormatter.formatCell(amounts.getCounterAmount(), valueSpec);
+    return _doubleFormatter.formatCell(amounts.getBaseAmount(), valueSpec) + " " + amounts.getBaseCurrency() + " / " +
+        _doubleFormatter.formatCell(amounts.getCounterAmount(), valueSpec) + " " + amounts.getCounterCurrency();
   }
 
   @Override

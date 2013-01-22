@@ -35,6 +35,7 @@ public class ResultsFormatter {
     DoubleFormatter doubleFormatter = new DoubleFormatter(bigDecimalFormatter);
     CurrencyAmountFormatter currencyAmountFormatter = new CurrencyAmountFormatter(bigDecimalFormatter);
 
+    ZonedDateTimeFormatter zonedDateTimeFormatter = new ZonedDateTimeFormatter();
     addFormatters(doubleFormatter,
                   bigDecimalFormatter,
                   currencyAmountFormatter,
@@ -69,8 +70,9 @@ public class ResultsFormatter {
                   new PositionTargetFormatter(),
                   new BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter(),
                   new FrequencyFormatter(),
-                  new ZonedDateTimeFormatter(),
-                  new FXAmountsFormatter(doubleFormatter));
+                  zonedDateTimeFormatter,
+                  new FXAmountsFormatter(doubleFormatter),
+                  new ExpiryFormatter(zonedDateTimeFormatter));
   }
 
   private void addFormatters(TypeFormatter<?>... formatters) {

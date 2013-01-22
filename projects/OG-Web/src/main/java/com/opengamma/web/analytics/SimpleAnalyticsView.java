@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -56,12 +55,13 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
                                     ComputationTargetResolver targetResolver,
                                     ViewportListener viewportListener,
                                     BlotterColumnMappings blotterColumnMappings) {
-    _blotterColumnMappings = blotterColumnMappings;
     ArgumentChecker.notEmpty(viewId, "viewId");
     ArgumentChecker.notEmpty(portoflioCallbackId, "portoflioGridId");
     ArgumentChecker.notEmpty(primitivesCallbackId, "primitivesGridId");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(viewportListener, "viewportListener");
+    ArgumentChecker.notNull(blotterColumnMappings, "blotterColumnMappings");
+    _blotterColumnMappings = blotterColumnMappings;
     _viewId = viewId;
     _targetResolver = targetResolver;
     _portfolioGrid = PortfolioAnalyticsGrid.empty(portoflioCallbackId);
@@ -80,14 +80,14 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
                                                 valueMappings,
                                                 _viewportListener,
                                                 _blotterColumnMappings,
-                                                false); // TODO option to create blotter columns
-                                                //true); // TODO option to create blotter columns
+                                                //false); // TODO option to create blotter columns
+                                                true); // TODO option to create blotter columns
     _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition,
                                                   _primitivesGrid.getCallbackId(),
                                                   _targetResolver,
                                                   valueMappings,
                                                   _viewportListener);
-    List<String> gridIds = new ArrayList<String>();
+    List<String> gridIds = Lists.newArrayList();
     gridIds.add(_portfolioGrid.getCallbackId());
     gridIds.add(_primitivesGrid.getCallbackId());
     gridIds.addAll(_portfolioGrid.getDependencyGraphCallbackIds());

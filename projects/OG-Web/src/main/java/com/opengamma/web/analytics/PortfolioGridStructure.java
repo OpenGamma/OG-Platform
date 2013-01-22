@@ -125,11 +125,11 @@ public class PortfolioGridStructure extends MainGridStructure {
         blotterColumn(BlotterColumn.TYPE, columnMappings, rows),
         blotterColumn(BlotterColumn.PRODUCT, columnMappings, rows),
         blotterColumn(BlotterColumn.QUANTITY, columnMappings, rows),
+        blotterColumn(BlotterColumn.DIRECTION, columnMappings, rows),
         blotterColumn(BlotterColumn.START, columnMappings, rows),
         blotterColumn(BlotterColumn.MATURITY, columnMappings, rows),
         blotterColumn(BlotterColumn.RATE, columnMappings, rows),
         blotterColumn(BlotterColumn.INDEX, columnMappings, rows),
-        blotterColumn(BlotterColumn.DIRECTION, columnMappings, rows),
         blotterColumn(BlotterColumn.FREQUENCY, columnMappings, rows),
         blotterColumn(BlotterColumn.FLOAT_FREQUENCY, columnMappings, rows));
     return new GridColumnGroup("Blotter", columns);
