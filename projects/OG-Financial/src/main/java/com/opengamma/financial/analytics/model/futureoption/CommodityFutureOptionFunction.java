@@ -38,21 +38,27 @@ public abstract class CommodityFutureOptionFunction extends FutureOptionFunction
 
   @Override
   protected ValueRequirement getVolatilitySurfaceRequirement(final FinancialSecurity security, final String surfaceName, final String smileInterpolator,
-      final String forwardCurveName, final String forwardCurveCalculationMethod) {
+      final String forwardCurveName, final String forwardCurveCalculationMethod, final String surfaceCalculationMethod) {
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final String fullSurfaceName = CommodityFutureOptionUtils.getSurfaceName(security, surfaceName);
     final String fullCurveName = CommodityFutureOptionUtils.getSurfaceName(security, forwardCurveName);
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, fullSurfaceName)
-        .with(ValuePropertyNames.CURVE, fullSurfaceName)
-        .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolator)
         .with(ValuePropertyNames.CURVE, fullCurveName)
+        .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolator)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
+        .with(ValuePropertyNames.SURFACE_CALCULATION_METHOD, surfaceCalculationMethod)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION)
         .get();
     return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetSpecification.of(currency), properties);
   }
 
+//  protected ValueRequirement getVolatilitySurfaceRequirement(final ValueRequirement desiredValue, final Security security, final String surfaceName,
+//      final String surfaceCalculationMethod) {
+//    final ExternalId currencyId = ExternalId.of(Currency.OBJECT_SCHEME, FinancialSecurityUtils.getCurrency(security).getCode());
+//    return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION,
+//        ComputationTargetType.CURRENCY, currencyId);
+//  }
   @Override
   protected ValueRequirement getForwardCurveRequirement(final FinancialSecurity security, final String forwardCurveName, final String forwardCurveCalculationMethod) {
     final Currency currency = FinancialSecurityUtils.getCurrency(security);

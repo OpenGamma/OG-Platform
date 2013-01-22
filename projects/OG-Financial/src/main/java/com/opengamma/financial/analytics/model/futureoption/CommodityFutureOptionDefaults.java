@@ -51,6 +51,7 @@ public class CommodityFutureOptionDefaults extends DefaultPropertyFunction {
   private final Map<String, String> _currencyToCurveName;
   private final Map<String, String> _currencyToCurveCalculationConfigName;
   private final Map<String, String> _currencyToSurfaceName;
+  private final Map<String, String> _currencyToSurfaceCalculationMethod;
   private final Map<String, String> _currencyToInterpolationMethod;
   private final Map<String, String> _currencyToForwardCurveName;
   private final Map<String, String> _currencyToForwardCurveCalculationMethod;
@@ -60,23 +61,25 @@ public class CommodityFutureOptionDefaults extends DefaultPropertyFunction {
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(defaultsPerCurrency, "defaults per currency");
     final int n = defaultsPerCurrency.length;
-    ArgumentChecker.isTrue(n % 7 == 0, "Need one discounting curve name, discounting curve calculation config, surface name, surface interpolation method," +
+    ArgumentChecker.isTrue(n % 8 == 0, "Need one discounting curve name, discounting curve calculation config, surface name, surface calculation method, surface interpolation method," +
         "forward curve name and forward curve calculation method per currency");
     _priority = PriorityClass.valueOf(priority);
     _currencyToCurveName = new LinkedHashMap<>();
     _currencyToCurveCalculationConfigName = new LinkedHashMap<>();
     _currencyToSurfaceName = new LinkedHashMap<>();
+    _currencyToSurfaceCalculationMethod = new LinkedHashMap<>();
     _currencyToInterpolationMethod = new LinkedHashMap<>();
     _currencyToForwardCurveName = new LinkedHashMap<>();
     _currencyToForwardCurveCalculationMethod = new LinkedHashMap<>();
-    for (int i = 0; i < n; i += 7) {
+    for (int i = 0; i < n; i += 8) {
       final String currency = defaultsPerCurrency[i];
       _currencyToCurveName.put(currency, defaultsPerCurrency[i + 1]);
       _currencyToCurveCalculationConfigName.put(currency, defaultsPerCurrency[i + 2]);
       _currencyToSurfaceName.put(currency, defaultsPerCurrency[i + 3]);
-      _currencyToInterpolationMethod.put(currency, defaultsPerCurrency[i + 4]);
-      _currencyToForwardCurveName.put(currency, defaultsPerCurrency[i + 5]);
-      _currencyToForwardCurveCalculationMethod.put(currency, defaultsPerCurrency[i + 6]);
+      _currencyToSurfaceCalculationMethod.put(currency, defaultsPerCurrency[i + 4]);
+      _currencyToInterpolationMethod.put(currency, defaultsPerCurrency[i + 5]);
+      _currencyToForwardCurveName.put(currency, defaultsPerCurrency[i + 6]);
+      _currencyToForwardCurveCalculationMethod.put(currency, defaultsPerCurrency[i + 7]);
     }
   }
 
@@ -93,6 +96,7 @@ public class CommodityFutureOptionDefaults extends DefaultPropertyFunction {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE_CALCULATION_METHOD);
       defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
       defaults.addValuePropertyName(valueRequirement, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
       defaults.addValuePropertyName(valueRequirement, EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME);
@@ -115,6 +119,9 @@ public class CommodityFutureOptionDefaults extends DefaultPropertyFunction {
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_currencyToSurfaceName.get(currency));
+    }
+    if (ValuePropertyNames.SURFACE_CALCULATION_METHOD.equals(propertyName)) {
+      return Collections.singleton(_currencyToSurfaceCalculationMethod.get(currency));
     }
     if (EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME.equals(propertyName)) {
       return Collections.singleton(_currencyToForwardCurveName.get(currency));

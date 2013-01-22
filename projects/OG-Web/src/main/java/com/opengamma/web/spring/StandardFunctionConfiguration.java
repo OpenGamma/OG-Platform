@@ -124,6 +124,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     private final Value _cubeName = new Value();
     private final Value _forwardCurveName = new Value();
     private final Value _forwardCurveCalculationMethod = new Value();
+    private final Value _surfaceCalculationMethod = new Value();
 
     public CurrencyInfo(final String currency) {
       _currency = currency;
@@ -179,6 +180,14 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     
     public String getForwardCurveCalculationMethod(final String key) {
       return _forwardCurveCalculationMethod.get(key);
+    }
+    
+    public void setSurfaceCalculationMethod(final String key, final String surfaceCalculationMethod) {
+      _surfaceCalculationMethod.set(key, surfaceCalculationMethod);
+    }
+    
+    public String getSurfaceCalculationMethod(final String key) {
+      return _surfaceCalculationMethod.get(key);
     }
   }
 
@@ -1024,6 +1033,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     defaults.setSurfaceName(i.getSurfaceName("model/futureoption"));
     defaults.setForwardCurveName(i.getForwardCurveName("model/futureoption"));
     defaults.setForwardCurveCalculationMethodName(i.getForwardCurveCalculationMethod("model/futureoption"));
+    defaults.setSurfaceCalculationMethod(i.getSurfaceCalculationMethod("model/futureoption"));
   }
 
   protected void setFutureOptionDefaults(final FutureOptionFunctions.Defaults defaults) {

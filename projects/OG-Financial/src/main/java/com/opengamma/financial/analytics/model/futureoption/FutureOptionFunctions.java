@@ -47,6 +47,7 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
       private String _interpolationMethod = "Spline";
       private String _forwardCurveName;
       private String _forwardCurveCalculationMethod;
+      private String _surfaceCalculationMethod;
 
       public String getCurveName() {
         return _curveName;
@@ -96,11 +97,20 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
         _forwardCurveCalculationMethod = forwardCurveCalculationMethod;
       }
 
+      public String getSurfaceCalculationMethod() {
+        return _surfaceCalculationMethod;
+      }
+
+      public void setSurfaceCalculationMethod(final String surfaceCalculationMethod) {
+        _surfaceCalculationMethod = surfaceCalculationMethod;
+      }
+
       @Override
       public void afterPropertiesSet() {
         ArgumentChecker.notNullInjected(getCurveName(), "curveName");
         ArgumentChecker.notNullInjected(getCurveCalculationConfig(), "curveCalculationConfig");
         ArgumentChecker.notNullInjected(getSurfaceName(), "surfaceName");
+        ArgumentChecker.notNullInjected(getSurfaceCalculationMethod(), "surface calculation method");
         ArgumentChecker.notNullInjected(getInterpolationMethod(), "interpolationMethod");
         ArgumentChecker.notNullInjected(getForwardCurveName(), "forward curve name");
         ArgumentChecker.notNullInjected(getForwardCurveCalculationMethodName(), "forward curve calculation method name");
@@ -128,7 +138,7 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
     }
 
     protected void addCommodityFutureOptionBlackDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[getPerCurrencyInfo().size() * 7 + 1];
+      final String[] args = new String[getPerCurrencyInfo().size() * 8 + 1];
       args[0] = PriorityClass.NORMAL.name();
       int i = 1;
       for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
@@ -137,6 +147,7 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
         args[i++] = value.getCurveName();
         args[i++] = value.getCurveCalculationConfig();
         args[i++] = value.getSurfaceName();
+        args[i++] = value.getSurfaceCalculationMethod();
         args[i++] = value.getInterpolationMethod();
         args[i++] = value.getForwardCurveName();
         args[i++] = value.getForwardCurveCalculationMethodName();

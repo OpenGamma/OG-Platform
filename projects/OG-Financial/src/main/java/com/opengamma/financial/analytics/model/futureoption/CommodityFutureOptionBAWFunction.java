@@ -38,6 +38,7 @@ public abstract class CommodityFutureOptionBAWFunction extends CommodityFutureOp
         .withAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
         .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD)
         .withAny(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME)
+        .withAny(ValuePropertyNames.SURFACE_CALCULATION_METHOD)
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
   }
 
@@ -49,6 +50,7 @@ public abstract class CommodityFutureOptionBAWFunction extends CommodityFutureOp
     final String smileInterpolatorName = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
     final String forwardCurveCalculationMethod = desiredValue.getConstraint(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     final String forwardCurveName = desiredValue.getConstraint(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME);
+    final String surfaceCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
     final ValueProperties.Builder builder = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethod())
         .with(CalculationPropertyNamesAndValues.PROPERTY_MODEL_TYPE, getModelType())
@@ -58,6 +60,7 @@ public abstract class CommodityFutureOptionBAWFunction extends CommodityFutureOp
         .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolatorName)
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .with(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME, forwardCurveName)
+        .with(ValuePropertyNames.SURFACE_CALCULATION_METHOD, surfaceCalculationMethod)
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
     return builder;
   }

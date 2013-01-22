@@ -12,6 +12,7 @@ import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.option.AnalyticOptionDefaultCurveFunction;
 import com.opengamma.financial.analytics.model.pnl.PNLFunctions;
+import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 
@@ -151,6 +152,7 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     i.setCubeName(null, "BLOOMBERG");
     i.setForwardCurveName("model/futureoption", "BBG");
     i.setForwardCurveCalculationMethod("model/futureoption", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD);
+    i.setSurfaceCalculationMethod("model/futureoption", BlackVolatilitySurfacePropertyNamesAndValues.INTERPOLATED_BLACK_LOGNORMAL);
     return i;
   }
 
@@ -263,16 +265,16 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     super.addAllConfigurations(functions);
-    functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
-    functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
+//    functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
+//    functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
   }
 
   @Override
   protected void setPNLFunctionDefaults(final PNLFunctions.Defaults defaults) {
     super.setPNLFunctionDefaults(defaults);
-    defaults.setCurveName("FUNDING");
-    defaults.setPayCurveName("FUNDING");
-    defaults.setReceiveCurveName("FUNDING");
+//    defaults.setCurveName("FUNDING");
+//    defaults.setPayCurveName("FUNDING");
+//    defaults.setReceiveCurveName("FUNDING");
   }
 
 }
