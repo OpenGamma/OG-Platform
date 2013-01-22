@@ -14,12 +14,11 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.math.BigDecimal;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-
 import org.joda.beans.JodaBeanUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;

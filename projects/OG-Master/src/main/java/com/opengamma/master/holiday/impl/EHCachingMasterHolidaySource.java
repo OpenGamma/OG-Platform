@@ -5,14 +5,13 @@
  */
 package com.opengamma.master.holiday.impl;
 
-import javax.time.calendar.LocalDate;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;

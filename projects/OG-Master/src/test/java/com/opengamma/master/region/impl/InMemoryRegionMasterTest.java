@@ -7,7 +7,7 @@ package com.opengamma.master.region.impl;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -35,7 +35,7 @@ public class InMemoryRegionMasterTest {
   private static String NAME = "France";
   private static ExternalId ID_COUNTRY = ExternalSchemes.countryRegionId(Country.FR);
   private static ExternalId ID_CURENCY = ExternalSchemes.currencyRegionId(Currency.EUR);
-  private static ExternalId ID_TIME_ZONE = ExternalSchemes.timeZoneRegionId(TimeZone.of("Europe/Paris"));
+  private static ExternalId ID_TIME_ZONE = ExternalSchemes.timeZoneRegionId(ZoneId.of("Europe/Paris"));
   private static ExternalId ID_OTHER1 = ExternalId.of("TEST_SCHEME", "The French");
   private static ExternalId ID_OTHER2 = ExternalId.of("TEST_SCHEME", "France");
   private static ExternalIdBundle BUNDLE_FULL = ExternalIdBundle.of(ID_COUNTRY, ID_TIME_ZONE, ID_CURENCY);
@@ -54,7 +54,7 @@ public class InMemoryRegionMasterTest {
     inputRegion.setClassification(RegionClassification.INDEPENDENT_STATE);
     inputRegion.setCountry(Country.FR);
     inputRegion.setCurrency(Currency.EUR);
-    inputRegion.setTimeZone(TimeZone.of("Europe/Paris"));
+    inputRegion.setTimeZone(ZoneId.of("Europe/Paris"));
     RegionDocument inputDoc = new RegionDocument(inputRegion);
     addedDoc = master.add(inputDoc);
   }

@@ -15,12 +15,12 @@ import static org.testng.AssertJUnit.assertSame;
 import java.net.URI;
 import java.util.ArrayList;
 
-import javax.time.calendar.LocalDate;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
