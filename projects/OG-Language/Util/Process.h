@@ -34,7 +34,7 @@ public:
 	static CProcess *FindByName (const TCHAR *pszExecutable);
 	bool Wait (unsigned long lTimeout) const;
 	bool IsAlive () const;
-	static CProcess *Start (const TCHAR *pszExecutable, const TCHAR *pszParameters);
+	static CProcess *Start (const TCHAR *pszExecutable, const TCHAR *pszParam1 = NULL, const TCHAR *pszParam2 = NULL);
 
 	/// Returns the identifier of the process.
 	///

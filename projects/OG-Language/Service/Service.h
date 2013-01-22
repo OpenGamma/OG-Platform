@@ -19,5 +19,8 @@ void ServiceSuspend ();
 void ServiceRun (int nReason);
 bool ServiceRunning ();
 void ServiceConfigure ();
+#ifndef _WIN32
+bool ServiceTestJVM (const TCHAR *pszLibraryPath);
+#endif /* ifndef _WIN32 */
 
 #endif /* ifndef __inc_og_language_service_service_h */
