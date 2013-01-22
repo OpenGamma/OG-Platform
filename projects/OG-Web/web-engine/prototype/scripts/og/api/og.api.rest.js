@@ -257,7 +257,7 @@ $.register_module({
                     config = config || {};
                     var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.id;
                     meta = check({bundle: {method: root + '#put', config: config}, required: [{all_of: ['trade']}]});
-                    data.trade = str({trade: config.trade, security: config.security});
+                    data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying});
                     meta.type = id ? 'PUT' : 'POST';
                     if (id) method.push(id);
                     return request(method, {data: data, meta: meta});

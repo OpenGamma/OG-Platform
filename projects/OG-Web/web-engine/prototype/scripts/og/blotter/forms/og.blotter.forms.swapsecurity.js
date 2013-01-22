@@ -38,7 +38,7 @@ $.register_module({
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_details_tash',
                         extras: {trade: data.security.tradeDate, maturity: data.security.maturityDate, 
-                            effective: data.security.effectiveDate}
+                            effective: data.security.effectiveDate, prefix: 'security.'}
                     }),
                     pay_select = new ui.Dropdown({
                         form: form, placeholder: 'Select Swap Type',
@@ -90,14 +90,11 @@ $.register_module({
                 var new_block;
                 if(!swap.type.length) {new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});}
                 else if(!~swap.type.indexOf('Floating')){
-                    new_block = new og.blotter.forms.blocks.Fixedleg({
-                        form: form, data: data, leg: swap.leg, index: swap.index
-                    });
-                }
-                else {
-                    new_block = new og.blotter.forms.blocks.Floatingleg({
-                        form: form, data: data, leg: swap.leg, type: swap.type, index: swap.index
-                    });                    
+                    new_block = new og.blotter.forms.blocks.Fixedleg({form: form, data: data, leg: swap.leg, 
+                        index: swap.index});
+                } else {
+                    new_block = new og.blotter.forms.blocks.Floatingleg({form: form, data: data, leg: swap.leg, 
+                        type: swap.type, index: swap.index});                    
                 }
                 new_block.html(function (html) {
                     $('#' + swap.index).replaceWith(html);
@@ -106,7 +103,7 @@ $.register_module({
                         og.blotter.util.set_select(receive_leg + "notional.currency", 
                             data.security.receiveLeg.notional.currency);
                     }
-                    if(swap.pay_edit) {
+                    else if(swap.pay_edit) {
                         og.blotter.util.check_checkbox(pay_leg + 'eom', data.security.payLeg.eom);
                         og.blotter.util.set_select(pay_leg + "notional.currency", 
                             data.security.payLeg.notional.currency);                        
