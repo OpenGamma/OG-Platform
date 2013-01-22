@@ -9,7 +9,10 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyUtils;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -79,6 +82,55 @@ public class FXAmounts {
   }
 
   /* package */ static FXAmounts forOption(FXOptionSecurity security, CurrencyPairs currencyPairs) {
+    if (security.isLong()) {
+      return forAmounts(security.getPutCurrency(),
+                        security.getCallCurrency(),
+                        security.getPutAmount(),
+                        security.getCallAmount(),
+                        currencyPairs);
+    } else {
+      return forAmounts(security.getCallCurrency(),
+                        security.getPutCurrency(),
+                        security.getCallAmount(),
+                        security.getPutAmount(),
+                        currencyPairs);
+    }
+  }
+
+  /* package */ static FXAmounts forBarrierOption(FXBarrierOptionSecurity security, CurrencyPairs currencyPairs) {
+    if (security.isLong()) {
+      return forAmounts(security.getPutCurrency(),
+                        security.getCallCurrency(),
+                        security.getPutAmount(),
+                        security.getCallAmount(),
+                        currencyPairs);
+    } else {
+      return forAmounts(security.getCallCurrency(),
+                        security.getPutCurrency(),
+                        security.getCallAmount(),
+                        security.getPutAmount(),
+                        currencyPairs);
+    }
+  }
+
+  /* package */ static FXAmounts forNonDeliverableOption(NonDeliverableFXOptionSecurity security,
+                                                         CurrencyPairs currencyPairs) {
+    if (security.isLong()) {
+      return forAmounts(security.getPutCurrency(),
+                        security.getCallCurrency(),
+                        security.getPutAmount(),
+                        security.getCallAmount(),
+                        currencyPairs);
+    } else {
+      return forAmounts(security.getCallCurrency(),
+                        security.getPutCurrency(),
+                        security.getCallAmount(),
+                        security.getPutAmount(),
+                        currencyPairs);
+    }
+  }
+
+  /* package */ static FXAmounts forDigitalOption(FXDigitalOptionSecurity security, CurrencyPairs currencyPairs) {
     if (security.isLong()) {
       return forAmounts(security.getPutCurrency(),
                         security.getCallCurrency(),
