@@ -12,7 +12,7 @@ $.register_module({
                 receive_leg = 'security.receiveLeg.', $pay_select, $receive_select;
             if(config) {data = config; data.id = config.trade.uniqueId;}
             else {data = {security: {type: "SwapSecurity", name: "SwapSecurity ABC", 
-                regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};} 
+                regionId: 'ABC~123', externalIdBundle: ""}, trade: og.blotter.util.otc_trade};} 
             constructor.load = function () {
                 constructor.title = 'Swap';
                 form = new og.common.util.ui.Form({
@@ -24,14 +24,14 @@ $.register_module({
                         data.security.receiveLeg.type = $receive_select.val();
                         data.security.counterparty = data.trade.counterparty;
                         data.security.attributes = {};
-                        data.security.payLeg.regionId = data.security.regionId;
-                        data.security.receiveLeg.regionId = data.security.regionId;
+                        data.security.payLeg.regionId = 'ABC~123';
+                        data.security.receiveLeg.regionId = 'ABC~123'
                         data.security.payLeg.notional.type = 'InterestRateNotional';
                         data.security.receiveLeg.notional.type = 'InterestRateNotional';
                     }
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_quick_entry_tash'
                     }),
@@ -84,6 +84,7 @@ $.register_module({
                 });
             };
             swap_leg = function (swap) {
+                console.log(swap);
                 var new_block;
                 if(!swap.type.length) {new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});}
                 else if(!~swap.type.indexOf('Floating')){
@@ -98,15 +99,17 @@ $.register_module({
                 }
                 new_block.html(function (html) {
                     $('#' + swap.index).replaceWith(html);
-                    if(typeof data.security.recieveLeg != 'undefined')
+                    if((typeof data.security.receiveLeg != 'undefined') && (~swap.leg.indexOf('receive'))){
                         og.blotter.util.check_checkbox(receive_leg + 'eom', data.security.receiveLeg.eom);
-                    if(typeof data.security.payLeg != 'undefined')
+                        og.blotter.util.set_select(receive_leg + "notional.currency", 
+                            data.security.receiveLeg.notional.currency);
+                    }
+                    if((typeof data.security.payLeg != 'undefined') && (~swap.leg.indexOf('pay')))
                         og.blotter.util.check_checkbox(pay_leg + 'eom', data.security.payLeg.eom);
-
+                        og.blotter.util.set_select(pay_leg + "notional.currency", 
+                            data.security.payLeg.notional.currency);
                 });
                 form.children[swap.child] = new_block;
-                
-
             };
             constructor.load();
             constructor.submit = function () {
