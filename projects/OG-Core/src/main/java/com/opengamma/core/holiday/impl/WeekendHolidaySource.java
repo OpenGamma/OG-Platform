@@ -10,8 +10,8 @@ import static com.google.common.collect.Maps.newHashMap;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.Holiday;

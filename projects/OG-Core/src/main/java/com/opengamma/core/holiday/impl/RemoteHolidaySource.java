@@ -7,7 +7,7 @@ package com.opengamma.core.holiday.impl;
 
 import java.net.URI;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.holiday.Holiday;

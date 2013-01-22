@@ -8,8 +8,6 @@ package com.opengamma.core.change;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.time.Instant;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,6 +19,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.ArgumentChecker;

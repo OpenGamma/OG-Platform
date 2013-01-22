@@ -7,10 +7,9 @@ package com.opengamma.core.position;
 
 import java.math.BigDecimal;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;

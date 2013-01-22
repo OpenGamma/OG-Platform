@@ -9,8 +9,6 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.TimeZone;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -22,6 +20,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZoneId;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.user.OGUser;
@@ -80,7 +79,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
    * The time-zone used to display local times.
    */
   @PropertyDefinition(validate = "notNull")
-  private TimeZone _timeZone = OpenGammaClock.getZone();
+  private ZoneId _timeZone = OpenGammaClock.getZone();
   /**
    * The primary email address associated with the account.
    */
@@ -166,7 +165,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
         setName((String) newValue);
         return;
       case -2077180903:  // timeZone
-        setTimeZone((TimeZone) newValue);
+        setTimeZone((ZoneId) newValue);
         return;
       case -1070931784:  // emailAddress
         setEmailAddress((String) newValue);
@@ -381,7 +380,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
    * Gets the time-zone used to display local times.
    * @return the value of the property, not null
    */
-  public TimeZone getTimeZone() {
+  public ZoneId getTimeZone() {
     return _timeZone;
   }
 
@@ -389,7 +388,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
    * Sets the time-zone used to display local times.
    * @param timeZone  the new value of the property, not null
    */
-  public void setTimeZone(TimeZone timeZone) {
+  public void setTimeZone(ZoneId timeZone) {
     JodaBeanUtils.notNull(timeZone, "timeZone");
     this._timeZone = timeZone;
   }
@@ -398,7 +397,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
    * Gets the the {@code timeZone} property.
    * @return the property, not null
    */
-  public final Property<TimeZone> timeZone() {
+  public final Property<ZoneId> timeZone() {
     return metaBean().timeZone().createProperty(this);
   }
 
@@ -471,8 +470,8 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
     /**
      * The meta-property for the {@code timeZone} property.
      */
-    private final MetaProperty<TimeZone> _timeZone = DirectMetaProperty.ofReadWrite(
-        this, "timeZone", SimpleOGUser.class, TimeZone.class);
+    private final MetaProperty<ZoneId> _timeZone = DirectMetaProperty.ofReadWrite(
+        this, "timeZone", SimpleOGUser.class, ZoneId.class);
     /**
      * The meta-property for the {@code emailAddress} property.
      */
@@ -589,7 +588,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
      * The meta-property for the {@code timeZone} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<TimeZone> timeZone() {
+    public final MetaProperty<ZoneId> timeZone() {
       return _timeZone;
     }
 

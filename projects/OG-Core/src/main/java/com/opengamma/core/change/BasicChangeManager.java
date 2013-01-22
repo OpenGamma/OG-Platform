@@ -5,11 +5,10 @@
  */
 package com.opengamma.core.change;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.opengamma.id.ObjectId;
