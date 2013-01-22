@@ -25,7 +25,7 @@ $.register_module({
                         data.security.counterparty = data.trade.counterparty;
                         data.security.attributes = {};
                         data.security.payLeg.regionId = 'ABC~123';
-                        data.security.receiveLeg.regionId = 'ABC~123'
+                        data.security.receiveLeg.regionId = 'ABC~123';
                         data.security.payLeg.notional.type = 'InterestRateNotional';
                         data.security.receiveLeg.notional.type = 'InterestRateNotional';
                     }
@@ -62,28 +62,32 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("security.effectiveDate");
                     og.blotter.util.add_datetimepicker("security.maturityDate");
                     if(typeof data.security.payLeg != 'undefined') {
-                        swap_leg({type: data.security.payLeg.type, index: pay_index, leg: pay_leg, child: 4});
+                        swap_leg({type: data.security.payLeg.type, index: pay_index, leg: pay_leg, child: 4,
+                            pay_edit: true});
                         $pay_select.val(data.security.payLeg.type);
+                        og.blotter.util.toggle_fixed($receive_select, data.security.payLeg.type);
                     }   
                     if(typeof data.security.receiveLeg != 'undefined'){
-                        swap_leg({type: data.security.receiveLeg.type, index: receive_index,leg: receive_leg,child: 6});
+                        swap_leg({type: data.security.receiveLeg.type, index: receive_index,leg: receive_leg,
+                            child: 6, receive_edit: true});
                         $receive_select.val(data.security.receiveLeg.type);
+                        og.blotter.util.toggle_fixed($pay_select, data.security.receiveLeg.type);
                     }
                 }); 
                 form.on('form:submit', function (result){
                     og.api.rest.blotter.trades.put(result.data);
                 });
                 form.on('change', '#' + pay_select.id, function (event) {
-                    swap_leg({type: event.target.value, index: pay_index, leg: pay_leg, child: 4});
                     og.blotter.util.toggle_fixed($receive_select, event.target.value);
-
+                    swap_leg({type: event.target.value, index: pay_index, leg: pay_leg, child: 4});
                 });
                 form.on('change', '#' + receive_select.id,  function (event) {
-                    swap_leg({type: event.target.value, index: receive_index, leg: receive_leg, child: 6});
                     og.blotter.util.toggle_fixed($pay_select, event.target.value);
+                    swap_leg({type: event.target.value, index: receive_index, leg: receive_leg, child: 6});
                 });
             };
             swap_leg = function (swap) {
+                console.log(swap);
                 var new_block;
                 if(!swap.type.length) {new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});}
                 else if(!~swap.type.indexOf('Floating')){
@@ -98,15 +102,16 @@ $.register_module({
                 }
                 new_block.html(function (html) {
                     $('#' + swap.index).replaceWith(html);
-                    if((typeof data.security.receiveLeg != 'undefined') && (~swap.leg.indexOf('receive'))){
+                    if(swap.receive_edit) {
                         og.blotter.util.check_checkbox(receive_leg + 'eom', data.security.receiveLeg.eom);
                         og.blotter.util.set_select(receive_leg + "notional.currency", 
                             data.security.receiveLeg.notional.currency);
                     }
-                    if((typeof data.security.payLeg != 'undefined') && (~swap.leg.indexOf('pay')))
+                    if(swap.pay_edit) {
                         og.blotter.util.check_checkbox(pay_leg + 'eom', data.security.payLeg.eom);
                         og.blotter.util.set_select(pay_leg + "notional.currency", 
-                            data.security.payLeg.notional.currency);
+                            data.security.payLeg.notional.currency);                        
+                    }
                 });
                 form.children[swap.child] = new_block;
             };

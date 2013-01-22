@@ -51,8 +51,9 @@ $.register_module({
                 return attributes;
             },
             toggle_fixed : function (ele, selection) {
-                var option = ele.find("option[value='fixedInterestRateLeg']");
-                if(selection == 'fixedInterestRateLeg')
+                var option = ele.find("option[value='FixedInterestRateLeg']");
+                console.log(option);
+                if(selection == 'FixedInterestRateLeg')
                     option.attr("disabled", "disabled");
                 else
                     option.removeAttr("disabled");
