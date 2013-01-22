@@ -80,8 +80,8 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
                                                 valueMappings,
                                                 _viewportListener,
                                                 _blotterColumnMappings,
-                                                //false); // TODO option to create blotter columns
-                                                true); // TODO option to create blotter columns
+                                                false); // TODO option to create blotter columns
+                                                //true); // TODO option to create blotter columns
     _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition,
                                                   _primitivesGrid.getCallbackId(),
                                                   _targetResolver,
