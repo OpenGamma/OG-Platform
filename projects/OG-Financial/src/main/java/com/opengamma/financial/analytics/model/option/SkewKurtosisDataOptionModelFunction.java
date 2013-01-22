@@ -12,7 +12,6 @@ import javax.time.calendar.Clock;
 
 import com.opengamma.analytics.financial.model.option.definition.SkewKurtosisOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -28,8 +27,8 @@ import com.opengamma.id.UniqueId;
 public abstract class SkewKurtosisDataOptionModelFunction extends StandardOptionDataAnalyticOptionModelFunction {
 
   @Override
-  protected SkewKurtosisOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final EquityOptionSecurity option, final FunctionInputs inputs) {
-    final StandardOptionDataBundle standardData = super.getDataBundle(secMaster, relevantTime, option, inputs);
+  protected SkewKurtosisOptionDataBundle getDataBundle(final Clock relevantTime, final EquityOptionSecurity option, final FunctionInputs inputs) {
+    final StandardOptionDataBundle standardData = super.getDataBundle(relevantTime, option, inputs);
     final UniqueId uid = option.getUniqueId();
     final Object skewObject = inputs.getValue(ValueRequirementNames.SKEW);
     if (skewObject == null) {

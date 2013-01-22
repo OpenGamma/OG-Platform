@@ -20,8 +20,6 @@ import com.opengamma.analytics.financial.model.option.definition.OptionDefinitio
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceModel;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -39,7 +37,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
-import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -81,10 +79,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     }
     final String curveName = curveNames.iterator().next();
     final EquityOptionSecurity optionSec = (EquityOptionSecurity) target.getSecurity();
-    final SecuritySource securityMaster = context.getSecuritySource();
-    final Security underlying = securityMaster.getSingle(ExternalIdBundle.of(optionSec.getUnderlyingId()));
     final ValueRequirement optionMarketDataReq = getPriceRequirement(optionSec.getUniqueId());
-    final ValueRequirement underlyingMarketDataReq = getPriceRequirement(underlying.getUniqueId());
+    final ValueRequirement underlyingMarketDataReq = getPriceRequirement(optionSec.getUnderlyingId());
     final ValueRequirement discountCurveReq = getDiscountCurveMarketDataRequirement(optionSec.getCurrency(), curveName);
     // TODO will need a cost-of-carry model as well
     final Set<ValueRequirement> optionRequirements = new HashSet<ValueRequirement>();
@@ -112,12 +108,9 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
     final ZonedDateTime today = executionContext.getValuationClock().zonedDateTime();
     final EquityOptionSecurity optionSec = (EquityOptionSecurity) target.getSecurity();
 
-    final SecuritySource secMaster = executionContext.getSecuritySource();
-    final Security underlying = secMaster.getSingle(ExternalIdBundle.of(optionSec.getUnderlyingId()));
-
     // Get inputs:
     final ValueRequirement optionPriceReq = getPriceRequirement(optionSec.getUniqueId());
-    final ValueRequirement underlyingPriceReq = getPriceRequirement(underlying.getUniqueId());
+    final ValueRequirement underlyingPriceReq = getPriceRequirement(optionSec.getUnderlyingId());
 
     final Double optionPrice = (Double) inputs.getValue(optionPriceReq);
     final Double underlyingPrice = (Double) inputs.getValue(underlyingPriceReq);
@@ -166,6 +159,10 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
 
   private ValueRequirement getPriceRequirement(final UniqueId uid) {
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, uid);
+  }
+
+  private ValueRequirement getPriceRequirement(final ExternalId eid) {
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, eid);
   }
 
   private ValueRequirement getDiscountCurveMarketDataRequirement(final Currency currency, final String curveName) {

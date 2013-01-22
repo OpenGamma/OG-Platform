@@ -16,6 +16,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
 
@@ -66,7 +67,7 @@ public class ManageableUnstructuredMarketDataSnapshotBuilder implements FudgeBui
 
   @Override
   public ManageableUnstructuredMarketDataSnapshot buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> values = new HashMap<MarketDataValueSpecification, Map<String, ValueSnapshot>>();
+    Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> values = Maps.newHashMap();
 
     for (FudgeField fudgeField : message.getAllByOrdinal(1)) {
       FudgeMsg innerValue = (FudgeMsg) fudgeField.getValue();

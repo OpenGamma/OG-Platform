@@ -37,6 +37,6 @@ import com.opengamma.engine.value.ValueSpecification;
 
   @Override
   public DataType getDataType() {
-    return DataType.LABELLED_MATRIX_2D;
+    return DataType.MATRIX_2D;
   }
 }
