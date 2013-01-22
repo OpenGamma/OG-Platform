@@ -237,7 +237,11 @@ private:
 		LOGDEBUG (TEXT ("Scanning folder ") << pszPath);
 		DIR *dir = opendir (pszPath);
 		if (!dir) {
-			LOGWARN (TEXT ("Can't read folder ") << pszPath << TEXT (", error ") << GetLastError ());
+			if (nDepth == 0) {
+				LOGWARN (TEXT ("Can't read folder ") << pszPath << TEXT (", error ") << GetLastError ());
+			} else {
+				LOGDEBUG (TEXT ("Can't read folder ") << pszPath << TEXT (", error ") << GetLastError ());
+			}
 			return NULL;
 		}
 		TCHAR *pszLibrary = NULL;
@@ -246,7 +250,7 @@ private:
 			if (dp->d_name[0] == '.') {
 				continue;
 			}
-			if (dp->d_type & DT_DIR) {
+			if ((dp->d_type == DT_DIR) || (dp->d_type == DT_LNK)) {
 				LOGDEBUG (TEXT ("Recursing into folder ") << dp->d_name);
 				size_t cchNewPath = _tcslen (pszPath) + _tcslen (dp->d_name) + 2;
 				TCHAR *pszNewPath = new TCHAR[cchNewPath];
