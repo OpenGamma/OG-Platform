@@ -221,6 +221,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
           uDag[ii] = _x2nd[ii][2] * a + _x1st[ii][2] * b;
         }
 
+
         for (int ii = 1; ii < _nNodesX - 1; ii++) {
           d[ii] = 1 + _theta * dt * cDag[ii - 1];
           u[ii] = _theta * dt * uDag[ii - 1];
@@ -289,19 +290,24 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       int count = 0;
       double temp;
 
-      while (count < maxInt && maxErr > 1e-12) {
+      for (int ii = 0; ii < n; ii++) {
+        x[ii] = Math.max(minVal[ii], x[ii]);
+      }
+      final double small = 1e-15;
+
+      while (count < maxInt && maxErr > 1e-8) {
         temp = Math.max(minVal[0], (1 - omega) * x[0] + omega * invD[0] * (b[0] - u[0] * x[1]));
         // errSqr = (temp - x[0]) * (temp - x[0]);
-        maxErr = Math.abs(temp - x[0]);
+        maxErr = Math.abs(temp - x[0]) / (Math.abs(x[0]) + small);
         x[0] = temp;
         for (int ii = 1; ii < n - 1; ii++) {
           temp = Math.max(minVal[ii], (1 - omega) * x[ii] + omega * invD[ii] * (b[ii] - l[ii - 1] * x[ii - 1] - u[ii] * x[ii + 1]));
           // errSqr += (temp - x[ii]) * (temp - x[ii]);
-          maxErr = Math.max(Math.abs(temp - x[ii]), maxErr);
+          maxErr = Math.max(Math.abs(temp - x[ii]) / (Math.abs(x[ii]) + small), maxErr);
           x[ii] = temp;
         }
         temp = Math.max(minVal[n - 1], (1 - omega) * x[n - 1] + omega * invD[n - 1] * (b[n - 1] - l[n - 2] * x[n - 2]));
-        maxErr = Math.max(Math.abs(temp - x[n - 1]), maxErr);
+        maxErr = Math.max(Math.abs(temp - x[n - 1]) / (Math.abs(x[n - 1]) + small), maxErr);
         //errSqr += (temp - x[n - 1]) * (temp - x[n - 1]);
         x[n - 1] = temp;
 

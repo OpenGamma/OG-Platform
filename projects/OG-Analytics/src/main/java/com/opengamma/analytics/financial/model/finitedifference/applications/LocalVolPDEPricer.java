@@ -24,26 +24,28 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * @deprecated Use LocalVolatilityBackwardsPDEPricer
  */
+@Deprecated
 public class LocalVolPDEPricer {
 
   private static final InitialConditionsProvider ICP = new InitialConditionsProvider();
   private static final PDE1DCoefficientsProvider PDE = new PDE1DCoefficientsProvider();
   private static final ThetaMethodFiniteDifference INITIAL_SOLVER = new ThetaMethodFiniteDifference(1.0, false);
   private static final ThetaMethodFiniteDifference SOLVER = new ThetaMethodFiniteDifference();
-  /*Crank-Nicolson (i.e. theta = 0.5) is known to give poor results around at-the-money. This can be solved by using a short fully implicit (theta = 1.0) burn-in period.
-  Eigenvalues associated with the discontinuity in the first derivative are not damped out when theta = 0.5, but are for theta = 1.0 - the time step for this phase should be 
-  such that the Crank-Nicolson (order(dt^2)) accuracy is not destroyed. 
-  */
+  /*
+   * Crank-Nicolson (i.e. theta = 0.5) is known to give poor results around at-the-money. This can be solved by using a short fully implicit (theta = 1.0) burn-in period.
+   * Eigenvalues associated with the discontinuity in the first derivative are not damped out when theta = 0.5, but are for theta = 1.0 - the time step for this phase should be
+   * such that the Crank-Nicolson (order(dt^2)) accuracy is not destroyed.
+   */
   private static final boolean USE_BURNIN = true;
   private static final double BURNIN_FRACTION = 0.20;
 
-  public double price(final double s0, final double k, final double r, final double b, final double t, final LocalVolatilitySurfaceStrike locVol, final boolean isCall,
-      final boolean isAmerican, final int spaceNodes, final int timeNodes) {
+  public double price(final double s0, final double k, final double r, final double b, final double t, final LocalVolatilitySurfaceStrike locVol, final boolean isCall, final boolean isAmerican,
+      final int spaceNodes, final int timeNodes) {
 
     final double q = r - b;
-    //final double s0 = fwdCurve.getSpot();
+    // final double s0 = fwdCurve.getSpot();
     final double sigma0 = locVol.getVolatility(t, k);
     final double mult = Math.exp(6.0 * sigma0 * Math.sqrt(t));
     final double sMin = Math.min(0.8 * k, s0 / mult);
@@ -52,8 +54,8 @@ public class LocalVolPDEPricer {
     final int tBurnNodes = (int) (USE_BURNIN ? Math.max(2, timeNodes * BURNIN_FRACTION) : 0);
     final double tBurn = USE_BURNIN ? BURNIN_FRACTION * t * t / timeNodes : 0.0;
 
-    //set up a near-uniform mesh that includes spot and strike 
-    MeshingFunction xMesh = new ExponentialMeshing(sMin, sMax, spaceNodes, 0.0, new double[] {s0, k });
+    // set up a near-uniform mesh that includes spot and strike
+    MeshingFunction xMesh = new ExponentialMeshing(sMin, sMax, spaceNodes, 0.0, new double[] {s0, k});
     MeshingFunction tMeshBurn = USE_BURNIN ? new ExponentialMeshing(0.0, tBurn, tBurnNodes, 0.0) : null;
     MeshingFunction tMesh = new ExponentialMeshing(tBurn, t, timeNodes - tBurnNodes, 0.0);
     PDEGrid1D gridBurn = USE_BURNIN ? new PDEGrid1D(tMeshBurn, xMesh) : null;
