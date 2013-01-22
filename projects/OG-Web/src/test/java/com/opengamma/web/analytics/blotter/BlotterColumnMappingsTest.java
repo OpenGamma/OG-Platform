@@ -31,8 +31,7 @@ import com.opengamma.util.money.Currency;
 public class BlotterColumnMappingsTest {
 
   private static final BlotterColumnMappings s_mappings =
-      new BlotterColumnMappings(BlotterResource.getStringConvert(),
-                                       CurrencyPairs.of(ImmutableSet.of(CurrencyPair.of(Currency.GBP, Currency.USD))));
+      new BlotterColumnMappings(CurrencyPairs.of(ImmutableSet.of(CurrencyPair.of(Currency.GBP, Currency.USD))));
 
   /**
    * Simple security where fields are mapped using bean properties
@@ -46,8 +45,8 @@ public class BlotterColumnMappingsTest {
     ZonedDateTime fixingDate = ZonedDateTime.of(2013, 12, 20, 11, 0, 0, 0, TimeZone.UTC);
     FRASecurity security = new FRASecurity(Currency.AUD, regionId, startDate, endDate, 0.1, 1000, underlyingId, fixingDate);
     assertEquals("FRA", s_mappings.valueFor(TYPE, security));
-    assertEquals("AUD", s_mappings.valueFor(PRODUCT, security));
-    assertEquals("1000.0", s_mappings.valueFor(QUANTITY, security));
+    assertEquals(Currency.AUD, s_mappings.valueFor(PRODUCT, security));
+    assertEquals(1000d, s_mappings.valueFor(QUANTITY, security));
   }
 
   /**
@@ -60,8 +59,8 @@ public class BlotterColumnMappingsTest {
     FXForwardSecurity security = new FXForwardSecurity(Currency.USD, 150, Currency.GBP, 100, forwardDate, regionId);
     assertEquals("FX Forward", s_mappings.valueFor(TYPE, security));
     assertEquals("GBP/USD FX Forward", s_mappings.valueFor(PRODUCT, security));
-    assertEquals(forwardDate.toString(), s_mappings.valueFor(MATURITY, security));
+    assertEquals(forwardDate, s_mappings.valueFor(MATURITY, security));
     assertEquals("100.0/-150.0", s_mappings.valueFor(QUANTITY, security));
-    assertEquals("1.5", s_mappings.valueFor(RATE, security));
+    assertEquals(1.5d, s_mappings.valueFor(RATE, security));
   }
 }

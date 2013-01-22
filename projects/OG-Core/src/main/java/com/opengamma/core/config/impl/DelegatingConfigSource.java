@@ -7,13 +7,13 @@ package com.opengamma.core.config.impl;
 
 import static com.google.common.collect.Sets.newHashSet;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.PassthroughChangeManager;
@@ -93,7 +93,7 @@ public class DelegatingConfigSource
         } else if (alloc) {
           results.addAll(configs);
         } else {
-          final Collection<ConfigItem<R>> newResults = new ArrayList<ConfigItem<R>>(results.size() + configs.size());
+          final Collection<ConfigItem<R>> newResults = Lists.newArrayListWithCapacity(results.size() + configs.size());
           newResults.addAll(results);
           newResults.addAll(configs);
           results = newResults;
@@ -115,7 +115,7 @@ public class DelegatingConfigSource
         results.addAll(configs);
         return results;
       } else {
-        final Collection<ConfigItem<R>> newResults = new ArrayList<ConfigItem<R>>(results.size() + configs.size());
+        final Collection<ConfigItem<R>> newResults = Lists.newArrayListWithCapacity(results.size() + configs.size());
         newResults.addAll(results);
         newResults.addAll(configs);
         return newResults;
@@ -185,7 +185,7 @@ public class DelegatingConfigSource
   @Override
   public Map<UniqueId, ConfigItem<?>> get(final Collection<UniqueId> uniqueIds) {
     ArgumentChecker.notNull(uniqueIds, "uniqueIds");
-    final Map<UniqueId, ConfigItem<?>> map = new HashMap<UniqueId, ConfigItem<?>>();
+    final Map<UniqueId, ConfigItem<?>> map = Maps.newHashMap();
     for (final UniqueId uniqueId : uniqueIds) {
       map.put(uniqueId, get(uniqueId));
     }

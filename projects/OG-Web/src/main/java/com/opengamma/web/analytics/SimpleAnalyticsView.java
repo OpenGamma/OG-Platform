@@ -45,7 +45,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
    * @param portoflioCallbackId ID that is passed to the listener when the structure of the portfolio grid changes.
    * This class makes no assumptions about its value
    * @param primitivesCallbackId ID that is passed to the listener when the structure of the primitives grid changes.
- * This class makes no assumptions about its value
+   * This class makes no assumptions about its value
    * @param targetResolver For looking up calculation targets by specification
    * @param viewportListener
    * @param blotterColumnMappings

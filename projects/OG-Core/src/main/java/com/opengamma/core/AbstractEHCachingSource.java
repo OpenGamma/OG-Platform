@@ -8,7 +8,6 @@ package com.opengamma.core;
 import static com.google.common.collect.Maps.newHashMap;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
@@ -22,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.MapMaker;
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeEvent;
@@ -225,7 +225,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
     _frontCacheByOID.put(objectId, versionCorrection, result);
     _uidCache.put(new Element(result.getUniqueId(), result));
     if (!versionCorrection.containsLatest()) {
-      final Map<VersionCorrection, V> newitems = new HashMap<VersionCorrection, V>();
+      final Map<VersionCorrection, V> newitems = Maps.newHashMap();
       synchronized (this) {
         items = getObjectIdCacheEntry(objectId);
         if (items != null) {

@@ -16,8 +16,6 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -27,7 +25,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.id.ExternalIdBundle;
 
 /**
  * Function for the Black-Scholes stock option function (i.e. equity option, no dividends)
@@ -35,10 +32,9 @@ import com.opengamma.id.ExternalIdBundle;
 public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonModelFunction {
 
   @Override
-  protected StandardOptionDataBundle getDataBundle(final SecuritySource secMaster, final Clock relevantTime, final EquityOptionSecurity option, final FunctionInputs inputs) {
+  protected StandardOptionDataBundle getDataBundle(final Clock relevantTime, final EquityOptionSecurity option, final FunctionInputs inputs) {
     final ZonedDateTime now = relevantTime.zonedDateTime();
-    final Security underlying = secMaster.getSingle(ExternalIdBundle.of(option.getUnderlyingId()));
-    final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
+    final Double spotAsObject = (Double) inputs.getValue(getUnderlyingMarketDataRequirement(option.getUnderlyingId()));
     if (spotAsObject == null) {
       throw new NullPointerException("No spot value for underlying instrument.");
     }
@@ -51,12 +47,12 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be 
+    //REVIEW yomi 03-06-2011 Elaine needs to confirm what this test should be
     /*
     if (target.getSecurity() instanceof FutureOptionSecurity) {
       return ((FutureOptionSecurity) target.getSecurity()).getIsMargined();
     }
-    */
+     */
     return true;
   }
 
@@ -68,10 +64,8 @@ public class AsayMarginedFutureOptionModelFunction extends BlackScholesMertonMod
     }
     final String curveName = curveNames.iterator().next();
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
-    final SecuritySource secMaster = context.getSecuritySource();
-    final Security underlying = secMaster.getSingle(ExternalIdBundle.of(option.getUnderlyingId()));
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.add(getUnderlyingMarketDataRequirement(underlying.getUniqueId()));
+    requirements.add(getUnderlyingMarketDataRequirement(option.getUnderlyingId()));
     requirements.add(getVolatilitySurfaceMarketDataRequirement(option, curveName));
     return requirements;
   }

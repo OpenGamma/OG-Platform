@@ -36,7 +36,7 @@ public class BloombergCommodityFuturePriceCurveInstrumentProviderTest extends Fi
   private static final LocalDate DATE_IN_DECEMBER = LocalDate.of(2012, 12, 10);
   static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("a");
 
-  private static final Short[] EXPIRY_OFFSETS = new Short[] {1, 2, 8, 10};
+  private static final Short[] EXPIRY_OFFSETS = new Short[] { 1, 2, 8, 10 };
 
   private static final String[] RESULTS = new String[] {
       "S H3 Comdty", "S K3 Comdty", "S H4 Comdty", "S N4 Comdty"
