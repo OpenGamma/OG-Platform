@@ -87,7 +87,6 @@ $.register_module({
                 });
             };
             swap_leg = function (swap) {
-                console.log(swap);
                 var new_block;
                 if(!swap.type.length) {new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});}
                 else if(!~swap.type.indexOf('Floating')){
