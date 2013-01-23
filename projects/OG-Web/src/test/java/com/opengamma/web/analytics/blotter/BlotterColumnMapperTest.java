@@ -62,7 +62,12 @@ public class BlotterColumnMapperTest {
     assertEquals("FX Forward", s_defaultMappings.valueFor(TYPE, security));
     assertEquals("GBP/USD", s_defaultMappings.valueFor(PRODUCT, security));
     assertEquals(forwardDate, s_defaultMappings.valueFor(MATURITY, security));
-    assertEquals(FXAmounts.forForward(security, s_currencyPairs), s_defaultMappings.valueFor(QUANTITY, security));
+    FXAmounts expected = FXAmounts.forForward(security.getPayCurrency(),
+                                              security.getReceiveCurrency(),
+                                              security.getPayAmount(),
+                                              security.getReceiveAmount(),
+                                              s_currencyPairs);
+    assertEquals(expected, s_defaultMappings.valueFor(QUANTITY, security));
     assertEquals(1.5d, s_defaultMappings.valueFor(RATE, security));
   }
 
