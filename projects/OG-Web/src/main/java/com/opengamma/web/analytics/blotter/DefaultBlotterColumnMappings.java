@@ -35,14 +35,14 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
-import com.opengamma.web.analytics.blotter.swap.FloatFrequencyProvider;
-import com.opengamma.web.analytics.blotter.swap.FrequencyProvider;
-import com.opengamma.web.analytics.blotter.swap.IndexProvider;
-import com.opengamma.web.analytics.blotter.swap.PayReceiveProvider;
-import com.opengamma.web.analytics.blotter.swap.ProductProvider;
-import com.opengamma.web.analytics.blotter.swap.QuantityProvider;
-import com.opengamma.web.analytics.blotter.swap.RateProvider;
-import com.opengamma.web.analytics.blotter.swap.TypeProvider;
+import com.opengamma.web.analytics.blotter.swap.SwapFloatFrequencyProvider;
+import com.opengamma.web.analytics.blotter.swap.SwapFrequencyProvider;
+import com.opengamma.web.analytics.blotter.swap.SwapIndexProvider;
+import com.opengamma.web.analytics.blotter.swap.SwapPayReceiveProvider;
+import com.opengamma.web.analytics.blotter.swap.SwapProductProvider;
+import com.opengamma.web.analytics.blotter.swap.SwapQuantityProvider;
+import com.opengamma.web.analytics.blotter.swap.SwapRateProvider;
+import com.opengamma.web.analytics.blotter.swap.SwapTypeProvider;
 
 /**
  *
@@ -54,9 +54,89 @@ public class DefaultBlotterColumnMappings {
 
   public static BlotterColumnMapper create(final CurrencyPairs currencyPairs) {
     BlotterColumnMapper mapper = new BlotterColumnMapper();
+
     // ------------------- EquityVarianceSwap
     mapper.mapColumn(TYPE, EquityVarianceSwapSecurity.class, "Equity Variance Swap");
     mapper.mapColumn(QUANTITY, EquityVarianceSwapSecurity.meta().notional());
+
+    // ------------------- Bond
+    mapper.mapColumn(TYPE, GovernmentBondSecurity.class, "Government Bond");
+    mapper.mapColumn(TYPE, CorporateBondSecurity.class, "Corporate Bond");
+    mapper.mapColumn(TYPE, MunicipalBondSecurity.class, "Municipal Bond");
+    mapper.mapColumn(PRODUCT, BondSecurity.meta().issuerName());
+    mapper.mapColumn(RATE, BondSecurity.meta().couponRate());
+    mapper.mapColumn(FREQUENCY, BondSecurity.meta().couponFrequency());
+    mapper.mapColumn(START, BondSecurity.meta().firstCouponDate());
+    mapper.mapColumn(MATURITY, BondSecurity.meta().settlementDate());
+
+    // ------------------- CapFloor
+    mapper.mapColumn(TYPE, CapFloorSecurity.class, "Cap/Floor");
+    mapper.mapColumn(QUANTITY, CapFloorSecurity.meta().notional());
+    mapper.mapColumn(START, CapFloorSecurity.meta().startDate());
+    mapper.mapColumn(MATURITY, CapFloorSecurity.meta().maturityDate());
+    mapper.mapColumn(RATE, CapFloorSecurity.meta().strike());
+    mapper.mapColumn(FREQUENCY, CapFloorSecurity.meta().frequency());
+
+    // ------------------- CapFloorCMSSpread
+    ValueProvider<CapFloorCMSSpreadSecurity> capFloorCMSSpreadProductProvider = new ValueProvider<CapFloorCMSSpreadSecurity>() {
+      @Override
+      public Object getValue(CapFloorCMSSpreadSecurity security) {
+        return security.getLongId().getValue() + "/" + security.getShortId().getValue();
+      }
+    };
+    mapper.mapColumn(TYPE, CapFloorCMSSpreadSecurity.class, "Cap/Floor CMS Spread");
+    mapper.mapColumn(START, CapFloorCMSSpreadSecurity.meta().startDate());
+    mapper.mapColumn(MATURITY, CapFloorCMSSpreadSecurity.meta().maturityDate());
+    mapper.mapColumn(QUANTITY, CapFloorCMSSpreadSecurity.meta().notional());
+    mapper.mapColumn(RATE, CapFloorCMSSpreadSecurity.meta().strike());
+    mapper.mapColumn(FREQUENCY, CapFloorCMSSpreadSecurity.meta().frequency());
+    mapper.mapColumn(PRODUCT, CapFloorCMSSpreadSecurity.class, capFloorCMSSpreadProductProvider);
+
+    // ------------------- FRA
+    mapper.mapColumn(TYPE, FRASecurity.class, "FRA");
+    mapper.mapColumn(PRODUCT, FRASecurity.meta().currency());
+    mapper.mapColumn(QUANTITY, FRASecurity.meta().amount());
+    mapper.mapColumn(START, FRASecurity.meta().startDate());
+    mapper.mapColumn(MATURITY, FRASecurity.meta().endDate());
+    mapper.mapColumn(RATE, FRASecurity.meta().rate());
+
+    // ------------------- Swap
+    mapper.mapColumn(TYPE, SwapSecurity.class, new SwapTypeProvider());
+    mapper.mapColumn(PRODUCT, SwapSecurity.class, new SwapProductProvider());
+    mapper.mapColumn(START, SwapSecurity.meta().effectiveDate());
+    mapper.mapColumn(MATURITY, SwapSecurity.meta().maturityDate());
+    mapper.mapColumn(FREQUENCY, SwapSecurity.class, new SwapFrequencyProvider());
+    mapper.mapColumn(FLOAT_FREQUENCY, SwapSecurity.class, new SwapFloatFrequencyProvider());
+    mapper.mapColumn(QUANTITY, SwapSecurity.class, new SwapQuantityProvider());
+    mapper.mapColumn(INDEX, SwapSecurity.class, new SwapIndexProvider());
+    mapper.mapColumn(RATE, SwapSecurity.class, new SwapRateProvider());
+    mapper.mapColumn(DIRECTION, SwapSecurity.class, new SwapPayReceiveProvider());
+
+    // ------------------- FXForward
+    mapper.mapColumn(TYPE, FXForwardSecurity.class, "FX Forward");
+    mapper.mapColumn(MATURITY, FXForwardSecurity.meta().forwardDate());
+    mapper.mapColumn(PRODUCT, FXForwardSecurity.class, new ValueProvider<FXForwardSecurity>() {
+      @Override
+      public String getValue(FXForwardSecurity security) {
+        return currencyPairName(security.getPayCurrency(), security.getReceiveCurrency(), currencyPairs);
+      }
+    });
+    mapper.mapColumn(QUANTITY, FXForwardSecurity.class, new ValueProvider<FXForwardSecurity>() {
+      @Override
+      public FXAmounts getValue(FXForwardSecurity security) {
+        return FXAmounts.forForward(security, currencyPairs);
+      }
+    });
+    mapper.mapColumn(RATE, FXForwardSecurity.class, new ValueProvider<FXForwardSecurity>() {
+      @Override
+      public Double getValue(FXForwardSecurity security) {
+        return CurrencyUtils.getRate(security.getPayCurrency(),
+                                     security.getReceiveCurrency(),
+                                     security.getPayAmount(),
+                                     security.getReceiveAmount(),
+                                     currencyPairs);
+      }
+    });
 
     // ------------------- FXOption
     mapper.mapColumn(TYPE, FXOptionSecurity.class, "FX Option");
@@ -161,88 +241,6 @@ public class DefaultBlotterColumnMappings {
                                      currencyPairs);
       }
     });
-
-    // ------------------- Bond
-    mapper.mapColumn(TYPE, GovernmentBondSecurity.class, "Government Bond");
-    mapper.mapColumn(TYPE, CorporateBondSecurity.class, "Corporate Bond");
-    mapper.mapColumn(TYPE, MunicipalBondSecurity.class, "Municipal Bond");
-    mapper.mapColumn(PRODUCT, BondSecurity.meta().issuerName());
-    mapper.mapColumn(RATE, BondSecurity.meta().couponRate());
-    mapper.mapColumn(FREQUENCY, BondSecurity.meta().couponFrequency());
-    mapper.mapColumn(START, BondSecurity.meta().firstCouponDate());
-    mapper.mapColumn(MATURITY, BondSecurity.meta().settlementDate());
-
-    // ------------------- CapFloor
-    mapper.mapColumn(TYPE, CapFloorSecurity.class, "Cap/Floor");
-    mapper.mapColumn(QUANTITY, CapFloorSecurity.meta().notional());
-    mapper.mapColumn(START, CapFloorSecurity.meta().startDate());
-    mapper.mapColumn(MATURITY, CapFloorSecurity.meta().maturityDate());
-    mapper.mapColumn(RATE, CapFloorSecurity.meta().strike());
-    mapper.mapColumn(FREQUENCY, CapFloorSecurity.meta().frequency());
-
-    // ------------------- CapFloorCMSSpread
-    ValueProvider<CapFloorCMSSpreadSecurity> capFloorCMSSpreadProductProvider = new ValueProvider<CapFloorCMSSpreadSecurity>() {
-      @Override
-      public Object getValue(CapFloorCMSSpreadSecurity security) {
-        return security.getLongId().getValue() + "/" + security.getShortId().getValue();
-      }
-    };
-    mapper.mapColumn(TYPE, CapFloorCMSSpreadSecurity.class, "Cap/Floor CMS Spread");
-    mapper.mapColumn(START, CapFloorCMSSpreadSecurity.meta().startDate());
-    mapper.mapColumn(MATURITY, CapFloorCMSSpreadSecurity.meta().maturityDate());
-    mapper.mapColumn(QUANTITY, CapFloorCMSSpreadSecurity.meta().notional());
-    mapper.mapColumn(RATE, CapFloorCMSSpreadSecurity.meta().strike());
-    mapper.mapColumn(FREQUENCY, CapFloorCMSSpreadSecurity.meta().frequency());
-    mapper.mapColumn(PRODUCT, CapFloorCMSSpreadSecurity.class, capFloorCMSSpreadProductProvider);
-
-    // ------------------- FRA
-    mapper.mapColumn(TYPE, FRASecurity.class, "FRA");
-    mapper.mapColumn(PRODUCT, FRASecurity.meta().currency());
-    mapper.mapColumn(QUANTITY, FRASecurity.meta().amount());
-    mapper.mapColumn(START, FRASecurity.meta().startDate());
-    mapper.mapColumn(MATURITY, FRASecurity.meta().endDate());
-    mapper.mapColumn(RATE, FRASecurity.meta().rate());
-
-    // ------------------- Swap
-    mapper.mapColumn(TYPE, SwapSecurity.class, new TypeProvider());
-    mapper.mapColumn(PRODUCT, SwapSecurity.class, new ProductProvider());
-    mapper.mapColumn(START, SwapSecurity.meta().effectiveDate());
-    mapper.mapColumn(MATURITY, SwapSecurity.meta().maturityDate());
-    mapper.mapColumn(FREQUENCY, SwapSecurity.class, new FrequencyProvider());
-    mapper.mapColumn(FLOAT_FREQUENCY, SwapSecurity.class, new FloatFrequencyProvider());
-    mapper.mapColumn(QUANTITY, SwapSecurity.class, new QuantityProvider());
-    mapper.mapColumn(INDEX, SwapSecurity.class, new IndexProvider());
-    mapper.mapColumn(RATE, SwapSecurity.class, new RateProvider());
-    mapper.mapColumn(DIRECTION, SwapSecurity.class, new PayReceiveProvider());
-
-    // ------------------- FXForward
-    ValueProvider<FXForwardSecurity> fxForwardProductProvider = new ValueProvider<FXForwardSecurity>() {
-      @Override
-      public String getValue(FXForwardSecurity security) {
-        return currencyPairName(security.getPayCurrency(), security.getReceiveCurrency(), currencyPairs);
-      }
-    };
-    ValueProvider<FXForwardSecurity> fxForwardQuantityProvider = new ValueProvider<FXForwardSecurity>() {
-      @Override
-      public FXAmounts getValue(FXForwardSecurity security) {
-        return FXAmounts.forForward(security, currencyPairs);
-      }
-    };
-    ValueProvider<FXForwardSecurity> fxForwardRateProvider = new ValueProvider<FXForwardSecurity>() {
-      @Override
-      public Double getValue(FXForwardSecurity security) {
-        return CurrencyUtils.getRate(security.getPayCurrency(),
-                                     security.getReceiveCurrency(),
-                                     security.getPayAmount(),
-                                     security.getReceiveAmount(),
-                                     currencyPairs);
-      }
-    };
-    mapper.mapColumn(TYPE, FXForwardSecurity.class, "FX Forward");
-    mapper.mapColumn(PRODUCT, FXForwardSecurity.class, fxForwardProductProvider);
-    mapper.mapColumn(QUANTITY, FXForwardSecurity.class, fxForwardQuantityProvider);
-    mapper.mapColumn(RATE, FXForwardSecurity.class, fxForwardRateProvider);
-    mapper.mapColumn(MATURITY, FXForwardSecurity.meta().forwardDate());
 
     // -------------------
     // fallback type name for securities that haven't been explicitly mapped

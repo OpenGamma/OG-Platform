@@ -92,5 +92,10 @@ public class BlotterColumnMapperTest {
     assertEquals(aType, mapper.valueFor(TYPE, c));
     assertEquals(bProduct, mapper.valueFor(PRODUCT, c));
     assertEquals(cMaturity, mapper.valueFor(MATURITY, c));
+
+    // check overriding works
+    String cType = "C type";
+    mapper.mapColumn(TYPE, C.class, cType);
+    assertEquals(cType, mapper.valueFor(TYPE, c));
   }
 }

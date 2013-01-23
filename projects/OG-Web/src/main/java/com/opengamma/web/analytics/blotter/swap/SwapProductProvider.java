@@ -13,7 +13,7 @@ import com.opengamma.web.analytics.blotter.ValueProvider;
 /**
 *
 */
-public class ProductProvider implements ValueProvider<SwapSecurity> {
+public class SwapProductProvider implements ValueProvider<SwapSecurity> {
 
   @Override
   public String getValue(SwapSecurity security) {
