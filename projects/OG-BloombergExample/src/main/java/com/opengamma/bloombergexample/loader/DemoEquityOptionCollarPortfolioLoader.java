@@ -18,9 +18,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
@@ -28,6 +25,8 @@ import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.Sets;
@@ -63,6 +62,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.generate.scripts.Scriptable;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -84,7 +84,7 @@ public class DemoEquityOptionCollarPortfolioLoader extends AbstractTool<Integrat
   private static final Map<String, String> INDEXES_TO_EXCHANGE = getIndexToExchangeMap();
   private static final Set<String> EXCLUDED_SECTORS = Sets.newHashSet("Financials");
 
-  private static final Period[] MEMBER_OPTION_PERIODS = new Period[] {Period.ofMonths(3), Period.ofMonths(6) };
+  private static final Period[] MEMBER_OPTION_PERIODS = new Period[] {DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6) };
 
   private BigDecimal _numContracts;
   private int _numOptions;
