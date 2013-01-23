@@ -1,8 +1,6 @@
 /bin/
 /build/
 /TestResults/
-/Client/tests/classes/
-/Client/tests/output/
 /dist/
 /doc/
 /*/Debug/
