@@ -45,8 +45,8 @@ $.register_module({
             var add_handler = function (obj) {
                 add_row_handler(obj).html(function (html) {
                     menu.add_handler($(html));
-                    menu.opts[obj.pos].data('type', obj.type.toLowerCase());
-                    source_handler(obj.pos);
+                    menu.opts[menu.opts.length-1].data('type', obj.type.toLowerCase());
+                    source_handler(menu.opts.length-1);
                 });
             };
 
@@ -195,17 +195,18 @@ $.register_module({
                         menu.$dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                             .on('change', 'select', menu_handler);
                     menu.opts.forEach(function (entry, idx) { source_handler(idx, true); });
+                    og.common.events.on('datasources:dropmenu:open', function() {menu.fire('dropmenu:open', this);});
+                    og.common.events.on('datasources:dropmenu:close', function() {menu.fire('dropmenu:close', this);});
+                    og.common.events.on('datasources:dropmenu:focus', function() {menu.fire('dropmenu:focus', this);});
                     menu.fire('initialized', [initialized = true]);
                 }
             };
 
             var menu_handler = function (event) {
-                var entry, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s),
-                    source = default_source;
+                var entry, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s);
                 if (!parent) return;
                 entry = parent.data('pos');
-                source.pos = menu.opts.length;
-                if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler(source);
+                if (elem.is(menu.$dom.add)) return menu.stop(event), add_handler(default_source);
                 if (elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                 if (elem.is(type_s)) return type_handler(entry);
                 if (elem.is(source_s)) return source_handler(entry);
@@ -280,7 +281,7 @@ $.register_module({
                 return arr;
             };
 
-            var source_handler = function (entry, preload) {
+            var source_handler = function (entry) {
                 if (!menu.opts[entry]) return;
                 var val, src, option, sel_pos = menu.opts[entry].data('pos'),
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase(),
@@ -292,8 +293,9 @@ $.register_module({
                     return remove_entry(idx), display_query(), enable_extra_options(entry, false);
                 } else if (~idx) query[idx] = {pos:sel_pos, type:type_val, src:source_val, txt: source_txt};
                 else query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:source_val, txt: source_txt});
-                if (!preload) enable_extra_options(entry, true);
+                enable_extra_options(entry, true);
                 display_query();
+                console.log(query);
             };
 
             var type_handler = function (entry) {

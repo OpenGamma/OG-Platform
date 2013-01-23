@@ -47,6 +47,9 @@ $.register_module({
                         onSelect: function () { menu.fire('dropmenu:open'); },
                         onClose: function () { menu.fire('dropmenu:open'); }
                     });
+                og.common.events.on('temporal:dropmenu:open', function() {menu.fire('dropmenu:open', this);});
+                og.common.events.on('temporal:dropmenu:close', function() {menu.fire('dropmenu:close', this);});
+                og.common.events.on('temporal:dropmenu:focus', function() {menu.fire('dropmenu:focus', this);});
             });
         };
 

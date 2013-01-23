@@ -9,7 +9,21 @@ $.register_module({
         var module = this, constructor, menus = [],  query,
             tashes = { form_container:  'og.analytics.form_tash' },
             events = {
-                opendropmenu:'dropmenu:open'
+                datasources:{
+                    'open': 'datasources:dropmenu:open',
+                    'close': 'datasources:dropmenu:close',
+                    'focus': 'datasources:dropmenu:focus'
+                },
+                temporal:{
+                    'open': 'temporal:dropmenu:open',
+                    'close': 'temporal:dropmenu:close',
+                    'focus': 'temporal:dropmenu:focus'
+                },
+                aggregators:{
+                    'open': 'aggregators:dropmenu:open',
+                    'close': 'aggregators:dropmenu:close',
+                    'focus': 'aggregators:dropmenu:focus'
+                }
             },
             selectors = {
                 form_container: 'OG-analytics-form',
@@ -26,7 +40,7 @@ $.register_module({
             },
             dom = {
                 form_container : $('.' + selectors.form_container),
-                menus: []
+                menus: {}
             },
             form = new og.common.util.ui.Form({
                 module: tashes.form_container,
@@ -35,24 +49,27 @@ $.register_module({
 
         var keydown_handler = function (event) {
             if (event.keyCode !== 9) return;
-            var $elem = $(event.srcElement), menu, shift_key = event.shiftKey, cntrls;
-            if (!shift_key) {
-                if ($elem.is(':focus') && $elem.parents('.'+selectors.menus.views).length) {
-                    console.log(datasources);
-                    datasources.fire(events.opendropmenu);
-                }
-            } else if (shift_key) {
-
+            var $elem = $(event.srcElement), shift = event.shiftKey, controls = {};
+            Object.keys(dom.menus).map(function (entry) {
+                var cntrls = $(selectors.form_controls, dom.menus[entry]);
+                if (cntrls.length) controls[entry] = cntrls;
+            });
+            if (!shift) {
+                if ($elem.is(':focus') && $elem.closest(dom.menus['views']).length)
+                    return og.common.events.fire(events.datasources.open);
+                if ($elem.is(controls['datasources'].eq(-1)))
+                    return og.common.events.fire(events.datasources.close), og.common.events.fire(events.temporal.open);
+                if ($elem.is(controls['temporal'].eq(-1)))
+                    return og.common.events.fire(events.temporal.close), og.common.events.fire(events.aggregators.open);
+                if ($elem.is(controls['aggregators'].eq(-1))) return og.common.events.fire(events.aggregators.close);
+            } else if (shift) {
+                if ($elem.is('.'+selectors.load_btn)) return og.common.events.fire(events.aggregators.open);
+                if ($elem.is(controls['aggregators'].eq(0)))
+                    return og.common.events.fire(events.aggregators.close), og.common.events.fire(events.temporal.open);
+                if ($elem.is(controls['temporal'].eq(0)))
+                    return og.common.events.fire(events.temporal.close), og.common.events.fire(events.datasources.open);
+                if ($elem.is(controls['datasources'].eq(0))) return og.common.events.fire(events.datasources.close);
             }
-            /* if (!shift_key) {
-                if (ac_menu.state === 'focused') ag_menu.emitEvent(events.open);
-                if ($elem.is($dom.ag_fcntrls.eq(-1))) ds_menu.emitEvent(events.open);
-                if ($elem.is($dom.ds_fcntrls.eq(-1))) ds_menu.emitEvent(events.close);
-            } else if (shift_key) {
-                if ($elem.is($dom.load_btn)) ds_menu.emitEvent(events.open);
-                if ($elem.is($dom.ds_fcntrls.eq(0))) ag_menu.emitEvent(events.open);
-                if ($elem.is($dom.ag_fcntrls.eq(0))) ag_menu.emitEvent(events.close);
-            }*/
         };
 
         var load_form = function () {
@@ -65,16 +82,16 @@ $.register_module({
         };
 
         var load_handler = function (event) {
-            Object.keys(selectors.menus).map(function (entry) {
-                dom.menus.push($('.'+selectors.menus[entry], '.'+selectors.form_container));
+            Object.keys(selectors.menus).map(function (entry, idx) {
+                dom.menus[entry] = $('.'+selectors.menus[entry], dom.form_container);
             });
         };
 
         var init = function (config) {
             form.on('form:load', load_handler);
             og.common.events.on('.og-portfolios.og-autocombo:autocombo:initialized', function () {
-                dom.menus.filter(function (menu) {
-                    if (menu.hasClass('og-portfolios')) return menu.find('input').select();
+                Object.keys(dom.menus).filter(function (menu) {
+                    if (dom.menus[menu].hasClass('og-portfolios')) return dom.menus[menu].find('input').select();
                 });
             });
             form.on('keydown', selectors.form_controls, keydown_handler);

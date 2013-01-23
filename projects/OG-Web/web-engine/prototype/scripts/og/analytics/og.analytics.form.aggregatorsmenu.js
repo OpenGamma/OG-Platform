@@ -69,6 +69,9 @@ $.register_module({
                             .on('mousedown', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                             .on('change', 'select', menu_handler);
                     }
+                    og.common.events.on('aggregators:dropmenu:open', function() {menu.fire('dropmenu:open', this);});
+                    og.common.events.on('aggregators:dropmenu:close', function() {menu.fire('dropmenu:close', this);});
+                    og.common.events.on('aggregators:dropmenu:focus', function() {menu.fire('dropmenu:focus', this);});
                     menu.fire('initialized', [initialized = true]);
                 }
             };
