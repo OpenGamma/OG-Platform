@@ -8,8 +8,8 @@ package com.opengamma.bbg.util;
 
 import java.util.regex.Matcher;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.format.DateTimeFormatters;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.option.OptionType;

@@ -17,8 +17,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -35,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
@@ -187,11 +186,11 @@ public class BloombergSecurityFileLoader {
           throw new OpenGammaRuntimeException(expiryStr + " returned from bloomberg not in format yyyy-mm-dd", e);
         }
         int year = expiryLocalDate.getYear();
-        int month = expiryLocalDate.getMonthOfYear().getValue();
+        int month = expiryLocalDate.getMonthValue();
         int day = expiryLocalDate.getDayOfMonth();
         Expiry expiry = new Expiry(DateUtils.getUTCDate(year, month, day));
 
-        if (expiry.toInstant().toEpochMillisLong() < (System.currentTimeMillis() + (25L * 60L * 60L * 1000L))) {
+        if (expiry.getExpiry().toInstant().toEpochMilli() < (System.currentTimeMillis() + (25L * 60L * 60L * 1000L))) {
           s_logger.info("Option {} in future, so passing on it.", optionTickerStr);
           continue;
         }

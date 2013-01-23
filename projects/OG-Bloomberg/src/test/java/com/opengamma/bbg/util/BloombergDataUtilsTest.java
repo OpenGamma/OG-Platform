@@ -20,16 +20,16 @@ import java.io.StringReader;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.OffsetTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZoneOffset;
-import javax.time.calendar.ZonedDateTime;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.Month;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.id.ExternalSchemes;
@@ -70,7 +70,7 @@ public class BloombergDataUtilsTest {
   public void addTwoDigitYearCode() throws Exception {
     Set<ExternalIdWithDates> identifiers = Sets.newHashSet(
         ExternalIdWithDates.of(ExternalSchemes.bloombergTickerSecurityId("EDU0 Comdty"),
-            LocalDate.of(2010, MonthOfYear.SEPTEMBER, 14), LocalDate.of(2020, MonthOfYear.SEPTEMBER, 14)),
+            LocalDate.of(2010, Month.SEPTEMBER, 14), LocalDate.of(2020, Month.SEPTEMBER, 14)),
         ExternalIdWithDates.of(ExternalSchemes.bloombergBuidSecurityId("IX11084074-0"), null, null));
 
     ExternalIdBundleWithDates withTwoDigits = BloombergDataUtils.addTwoDigitYearCode(new ExternalIdBundleWithDates(identifiers));
@@ -80,11 +80,11 @@ public class BloombergDataUtilsTest {
     }
     assertTrue(withTwoDigits.contains(ExternalIdWithDates.of(
         ExternalSchemes.bloombergTickerSecurityId("EDU20 Comdty"),
-        LocalDate.of(2010, MonthOfYear.SEPTEMBER, 14), LocalDate.of(2020, MonthOfYear.SEPTEMBER, 14))));
+        LocalDate.of(2010, Month.SEPTEMBER, 14), LocalDate.of(2020, Month.SEPTEMBER, 14))));
     
     identifiers = Sets.newHashSet(
         ExternalIdWithDates.of(ExternalSchemes.bloombergTickerSecurityId("EDU09 Comdty"),
-            LocalDate.of(1999, MonthOfYear.SEPTEMBER, 14), LocalDate.of(2009, MonthOfYear.SEPTEMBER, 14)),
+            LocalDate.of(1999, Month.SEPTEMBER, 14), LocalDate.of(2009, Month.SEPTEMBER, 14)),
         ExternalIdWithDates.of(ExternalSchemes.bloombergBuidSecurityId("IX9471080-0"), null, null));
     withTwoDigits = BloombergDataUtils.addTwoDigitYearCode(new ExternalIdBundleWithDates(identifiers));
     assertTrue(withTwoDigits.size() == 3);
@@ -93,14 +93,14 @@ public class BloombergDataUtilsTest {
     }
     assertTrue(withTwoDigits.contains(ExternalIdWithDates.of(
         ExternalSchemes.bloombergTickerSecurityId("EDU9 Comdty"),
-        LocalDate.of(1999, MonthOfYear.SEPTEMBER, 14), LocalDate.of(2009, MonthOfYear.SEPTEMBER, 14))));
+        LocalDate.of(1999, Month.SEPTEMBER, 14), LocalDate.of(2009, Month.SEPTEMBER, 14))));
   }
 
   @Test
   public void parseIdentifiers() throws Exception {
     Set<ExternalIdWithDates> identifiers = Sets.newHashSet(
         ExternalIdWithDates.of(ExternalSchemes.bloombergTickerSecurityId("EDU0 Comdty"),
-            LocalDate.of(2010, MonthOfYear.SEPTEMBER, 14), LocalDate.of(2020, MonthOfYear.SEPTEMBER, 14)),
+            LocalDate.of(2010, Month.SEPTEMBER, 14), LocalDate.of(2020, Month.SEPTEMBER, 14)),
         ExternalIdWithDates.of(ExternalSchemes.bloombergBuidSecurityId("IX11084074-0"), null, null),
         ExternalIdWithDates.of(ExternalSchemes.cusipSecurityId("EDU0"), null, null));
 
@@ -155,14 +155,14 @@ public class BloombergDataUtilsTest {
   
   @Test
   public void testFutureBundleToGenericFutureTicker() {
-    ZonedDateTime now = ZonedDateTime.of(2012, 8, 25, 14, 32, 00, 00, TimeZone.of("Europe/London"));
+    ZonedDateTime now = LocalDateTime.of(2012, 8, 25, 14, 32, 00, 00).atZone(ZoneId.of("Europe/London"));
     ExternalId testInput1 = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EDZ2 Comdty");
     ExternalId expectedOutput1 = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "ED2 Comdty");
-    ExternalId actualOutput1 = BloombergDataUtils.futureBundleToGenericFutureTicker(testInput1.toBundle(), now, OffsetTime.of(15, 00, ZoneOffset.ofHours(1)), TimeZone.of("Europe/London"));
+    ExternalId actualOutput1 = BloombergDataUtils.futureBundleToGenericFutureTicker(testInput1.toBundle(), now, LocalTime.of(15, 00).atOffset(ZoneOffset.ofHours(1)), ZoneId.of("Europe/London"));
     assertEquals(expectedOutput1, actualOutput1);
     ExternalId testInput2 = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "EDZ1 Comdty");
     ExternalId expectedOutput2 = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, "ED37 Comdty");
-    ExternalId actualOutput2 = BloombergDataUtils.futureBundleToGenericFutureTicker(testInput2.toBundle(), now, OffsetTime.of(15, 00, ZoneOffset.ofHours(1)), TimeZone.of("Europe/London"));
+    ExternalId actualOutput2 = BloombergDataUtils.futureBundleToGenericFutureTicker(testInput2.toBundle(), now, LocalTime.of(15, 00).atOffset(ZoneOffset.ofHours(1)), ZoneId.of("Europe/London"));
     assertEquals(expectedOutput2, actualOutput2);
   }
 
