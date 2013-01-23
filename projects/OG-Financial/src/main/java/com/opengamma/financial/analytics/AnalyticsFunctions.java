@@ -168,6 +168,8 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.MACAULAY_DURATION);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_CLEAN_PRICE);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_DIRTY_PRICE);
+    addSummingFunction(functions, ValueRequirementNames.MTM_PNL);
+    addUnitScalingFunction(functions, ValueRequirementNames.MTM_PNL);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_YTM);
     addUnitScalingFunction(functions, ValueRequirementNames.MODIFIED_DURATION);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NET_BASIS);

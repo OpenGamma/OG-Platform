@@ -775,6 +775,11 @@ public final class ValueRequirementNames {
    */
   public static final String DAILY_PNL = "Daily PnL";
   /**
+   * The daily profit and loss of an exchange traded security
+   */
+  public static final String MTM_PNL = "Mark-to-Market P&L";
+  
+  /**
    * The Fisher kurtosis of a distribution (usually the return series of a security or its underlying).
    */
   public static final String FISHER_KURTOSIS = "Fisher Kurtosis";
