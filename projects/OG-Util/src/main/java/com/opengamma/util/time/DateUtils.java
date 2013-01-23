@@ -9,14 +9,20 @@ import static org.threeten.bp.temporal.ChronoField.DAY_OF_MONTH;
 import static org.threeten.bp.temporal.ChronoField.MONTH_OF_YEAR;
 import static org.threeten.bp.temporal.ChronoField.YEAR;
 import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.TimeZone;
 
 import org.threeten.bp.Clock;
 import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.OffsetTime;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -130,6 +136,24 @@ public final class DateUtils {
       throw new IllegalArgumentException("End date was null");
     }
     return (double) (endDate.toEpochMilli() - startDate.toEpochMilli()) / MILLISECONDS_PER_YEAR;
+  }
+
+  /**
+   * Returns endDate - startDate in years, where a year is defined as 365.25 days.
+   * 
+   * @param startDate  the start date, not null
+   * @param endDate  the end date, not null
+   * @return the difference in years
+   * @throws IllegalArgumentException if either date is null
+   */
+  public static double getDifferenceInYears(final ZonedDateTime startDate, final ZonedDateTime endDate) {
+    if (startDate == null) {
+      throw new IllegalArgumentException("Start date was null");
+    }
+    if (endDate == null) {
+      throw new IllegalArgumentException("End date was null");
+    }
+    return (double) (endDate.toInstant().toEpochMilli() - startDate.toInstant().toEpochMilli()) / MILLISECONDS_PER_YEAR;
   }
 
   /**
@@ -326,7 +350,7 @@ public final class DateUtils {
     if (endDate == null) {
       throw new IllegalArgumentException("End date was null");
     }
-    int daysBetween = (int) DAYS.between(startDate, endDate).getAmount();
+    int daysBetween = (int) Math.abs(DAYS.between(startDate, endDate).getAmount());
     if (includeStart && includeEnd) {
       daysBetween++;
     } else if (!includeStart && !includeEnd) {
@@ -515,6 +539,68 @@ public final class DateUtils {
    */
   public static Clock fixedClockUTC(Instant instant) {
     return Clock.fixed(instant, ZoneOffset.UTC);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the estimated duration of the period.
+   * 
+   * @param period  the period to estimate the duration of, not null
+   * @return the estimated duration, not null
+   */
+  public static Duration estimatedDuration(Period period) {  // TODO: JSR-310
+    return MONTHS.getDuration().multipliedBy(totalMonths(period)).plus(period.normalizedDaysToHours().toDuration());
+  }
+
+  /**
+   * Gets the total months of the period.
+   * 
+   * @param period  the period to query, not null
+   * @return the total months, not null
+   */
+  public static long totalMonths(Period period) {  // TODO: JSR-310
+    return period.getYears() * 12L + period.getMonths();
+  }
+
+  /**
+   * Creates a period.
+   * 
+   * @param years  the years, not null
+   * @return the period, not null
+   */
+  public static Period periodOfYears(int years) {  // TODO: JSR-310
+    return Period.of(years, YEARS);
+  }
+
+  /**
+   * Creates a period.
+   * 
+   * @param months  the months, not null
+   * @return the period, not null
+   */
+  public static Period periodOfMonths(int months) {  // TODO: JSR-310
+    return Period.of(months, MONTHS);
+  }
+
+  /**
+   * Creates a period.
+   * 
+   * @param days  the days, not null
+   * @return the period, not null
+   */
+  public static Period periodOfDays(int days) {  // TODO: JSR-310
+    return Period.of(days, DAYS);
+  }
+
+  /**
+   * Creates am OffsetDateTime.
+   * 
+   * @param date  the date, not null
+   * @param time  the time, not null
+   * @return the date-time, not null
+   */
+  public static OffsetDateTime offsetDateTime(LocalDate date, OffsetTime time) {  // TODO: JSR-310
+    return date.atTime(time.getTime()).atOffset(time.getOffset());
   }
 
   // TODO useful to have methods such as # weeks between.

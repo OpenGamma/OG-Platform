@@ -11,6 +11,7 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.Instant;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.ArgumentChecker;
@@ -68,6 +69,15 @@ public class Expiry implements Serializable {
    */
   public ExpiryAccuracy getAccuracy() {
     return _accuracy;
+  }
+
+  /**
+   * Converts the expiry date-time to an instant.
+   * 
+   * @return the instant of the expiry, not null
+   */
+  public Instant toInstant() {
+    return _expiry.toInstant();
   }
 
   //-------------------------------------------------------------------------

@@ -227,12 +227,8 @@ public class Tenor implements Comparable<Tenor> {
   //TODO [PLAT-1013] not the best way to do this
   @Override
   public int compareTo(Tenor other) {
-    Period thisPeriod = this._period.normalizedDaysToHours();
-    Period otherPeriod = other._period.normalizedDaysToHours();
-    Period thisDate = thisPeriod.toDateOnly();
-    Period otherDate = otherPeriod.toDateOnly();
-    Duration thisDur = MONTHS.getDuration().multipliedBy(thisDate.getYears() * 12L + thisDate.getMonths()).plus(thisPeriod.toDuration());
-    Duration otherDur = MONTHS.getDuration().multipliedBy(otherDate.getYears() * 12L + otherDate.getMonths()).plus(otherPeriod.toDuration());
+    Duration thisDur = DateUtils.estimatedDuration(this._period);
+    Duration otherDur = DateUtils.estimatedDuration(other._period);
     return thisDur.compareTo(otherDur);
   }
 }
