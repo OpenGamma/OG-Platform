@@ -375,7 +375,7 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorcmsspreadsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.frasecurity.js</fragment>
     <!--Fungible Trades-->
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fungibletrade.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond_future.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.trade.js</fragment>
     <!--Lifecycle-->

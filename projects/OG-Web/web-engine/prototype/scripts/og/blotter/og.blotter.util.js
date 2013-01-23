@@ -69,6 +69,16 @@ $.register_module({
                 type: "OtcTrade",
                 counterparty: 'ABC Counterparty'
             },
+            fungible_trade : {                
+                tradeDate: "2013-01-01",
+                premiumCurrency: null,
+                tradeTime: "00:00Z",
+                premium: null,
+                premiumTime: null,
+                attributes: {},
+                premiumDate: null,
+                type: "FungibleTrade"
+            },
             swap_types : [
                 {text:'FLoating Interest Rate Leg', value:'FloatingInterestRateLeg'},
                 {text:'FLoating Gearing Interest Rate Leg', value:'FloatingGearingIRLeg'},
