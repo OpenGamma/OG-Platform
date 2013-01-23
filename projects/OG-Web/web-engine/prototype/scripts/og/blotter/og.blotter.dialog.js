@@ -12,7 +12,8 @@ $.register_module({
                 if(config) {
                     title = "Edit Trade", submit = "Update";
                     og.api.text({module: 'og.blotter.forms.blocks.form_edit_tash'}).pipe(function (template){
-                        var type = config.data.security ? config.data.security.type.toLowerCase() : "bond";
+                       console.log(config);
+                       var type = config.data.security ? config.data.security.type.toLowerCase() : "fungibletrade";
                         $selector = $(template);
                         console.log(type);
                         dialog.create();

@@ -66,7 +66,7 @@ $.register_module({
                         new og.blotter.Dialog(data);
                     });
                 });
-                $('.fungible').click(function (){
+                $('.fungibleb').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164322"}).pipe(function(data){
                         new og.blotter.Dialog(data);
                     });

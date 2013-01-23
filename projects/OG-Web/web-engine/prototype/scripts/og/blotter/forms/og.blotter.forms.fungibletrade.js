@@ -8,12 +8,11 @@ $.register_module({
     obj: function () {   
         return function (config) {
             var constructor = this, form, data,
-
             fungible = {}, ids = {}, security = {}, util = og.blotter.util, 
             dropdown = '.og-blotter-security-select';
             fungible.selector = '.og-blocks-fungible';
             ids.selector = '.og-blocks-security_ids';
-
+            console.log(config);
             if(config) {data = config; data.id = config.trade.uniqueId;}
             else {data = {trade: og.blotter.util.fungible_trade};}
             constructor.load = function () {
@@ -24,8 +23,9 @@ $.register_module({
                     selector: '.OG-blotter-form-block'
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form}),
-                    new og.blotter.forms.blocks.Fungible({form: form, security: data.trade.securityIdBundle}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
+                    new og.blotter.forms.blocks.Fungible({form: form, security: data.trade.securityIdBundle,
+                        quantity: data.trade.quantity}),
                     fungible.block = new form.Block({
                         module: 'og.blotter.forms.blocks.fungible_tash'
                     }),                    

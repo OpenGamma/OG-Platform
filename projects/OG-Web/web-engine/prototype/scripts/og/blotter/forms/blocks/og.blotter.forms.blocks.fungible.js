@@ -13,7 +13,7 @@ $.register_module({
                 {module: 'og.blotter.forms.blocks.fungible_security_tash', 
                 extras: {id: id, counterparty: config.counterparty},
                 children: [new og.blotter.forms.blocks.Security({
-                    form: form, label: "Underlying ID", security: config.underlyingId,
+                    form: form, label: "Underlying ID", security: config.security,
                     index: "trade.securityIdBundle"})]
             });
         };
