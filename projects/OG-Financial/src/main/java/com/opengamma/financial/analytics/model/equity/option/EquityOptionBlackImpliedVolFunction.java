@@ -29,6 +29,7 @@ import com.opengamma.engine.value.ValueSpecification;
  * Calculates the Black implied volatility of an equity index option.
  */
 public class EquityOptionBlackImpliedVolFunction extends EquityOptionBlackFunction {
+  /** Implied volatility calculator */
   private static final InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> CALCULATOR = EquityOptionBlackImpliedVolatilityCalculator.getInstance();
 
   /**

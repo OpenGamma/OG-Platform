@@ -119,7 +119,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Constructs a market data bundle
-   * 
+   *
    * @param underlyingId The underlying id of the index option
    * @param executionContext The execution context
    * @param inputs The market data inputs
@@ -161,7 +161,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Calculates the result
-   * 
+   *
    * @param derivative The derivative
    * @param market The market data bundle
    * @param inputs The market data inputs
@@ -336,7 +336,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
       final ValueRequirement desiredValue, final Security security, final String surfaceName, final String surfaceCalculationMethod, final ExternalId underlyingBuid) {
     // REVIEW Andrew 2012-01-17 -- Could we pass a CTRef to the getSurfaceRequirement and use the underlyingBuid external identifier directly with a target type of SECURITY
     return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, InstrumentTypeProperties.EQUITY_OPTION,
-        getWeakUnderlyingId(underlyingBuid, tsSource, securitySource));
+        ComputationTargetType.PRIMITIVE, getWeakUnderlyingId(underlyingBuid, tsSource, securitySource));
   }
 
   private ExternalId getWeakUnderlyingId(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource) {
@@ -365,7 +365,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the value requirement names
-   * 
+   *
    * @return The value requirement names
    */
   protected String[] getValueRequirementNames() {
@@ -374,14 +374,14 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the calculation method.
-   * 
+   *
    * @return The calculation method
    */
   protected abstract String getCalculationMethod();
 
   /**
    * Gets the model type.
-   * 
+   *
    * @return The model type
    */
   protected abstract String getModelType();

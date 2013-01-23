@@ -27,7 +27,7 @@ public class CommodityFutureOptionBlackThetaFunction extends CommodityFutureOpti
    * Default constructor
    */
   public CommodityFutureOptionBlackThetaFunction() {
-    super(ValueRequirementNames.VALUE_THETA);
+    super(ValueRequirementNames.THETA);
   }
 
   @Override

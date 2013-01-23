@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.volatility.surface.black;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
+import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 
 import java.util.Set;
 
@@ -167,6 +168,17 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, curveCalculationMethodName)
         .with(CURVE, forwardCurveName).get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
+  }
+
+  @Override
+  protected ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName) {
+    final ValueRequirement volDataRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
+        ValueProperties.builder()
+        .with(SURFACE, surfaceName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType())
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, getSurfaceQuoteType())
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, getSurfaceQuoteUnits()).get());
+    return volDataRequirement;
   }
 
   @Override

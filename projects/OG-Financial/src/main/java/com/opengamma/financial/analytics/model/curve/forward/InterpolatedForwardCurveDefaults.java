@@ -25,7 +25,7 @@ public class InterpolatedForwardCurveDefaults extends DefaultPropertyFunction {
   private final String _forwardCurveRightExtrapolator;
 
   public InterpolatedForwardCurveDefaults(final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator) {
-    super(ComputationTargetType.LEGACY_PRIMITIVE, true); // // [PLAT-2286]: change to correct type
+    super(ComputationTargetType.ANYTHING, true); // // [PLAT-2286]: change to correct type
     ArgumentChecker.notNull(forwardCurveInterpolator, "forward curve interpolator");
     ArgumentChecker.notNull(forwardCurveLeftExtrapolator, "forward curve left extrapolator");
     ArgumentChecker.notNull(forwardCurveRightExtrapolator, "forward curve right extrapolator");
