@@ -66,7 +66,7 @@ public class TwoStateMarkovChainFitter {
     trans[3] = new DoubleRangeLimitTransform(0.1, 5.0);
     trans[4] = new DoubleRangeLimitTransform(0.0, 1.0);
     trans[5] = new DoubleRangeLimitTransform(0.0, 2.0);
-    TRANSFORMS = new UncoupledParameterTransforms(new DoubleMatrix1D(new double[6]), trans, new BitSet());
+    TRANSFORMS = new UncoupledParameterTransforms(new DoubleMatrix1D(new double[6]), trans, new BitSet(6));
   }
 
   /** Theta */
@@ -94,8 +94,9 @@ public class TwoStateMarkovChainFitter {
    */
   public LeastSquareResultsWithTransform fit(final ForwardCurve forward, final List<Pair<double[], Double>> marketVols, final DoubleMatrix1D initialGuess) {
 
-    ArgumentChecker.isTrue(initialGuess.getNumberOfElements() == TRANSFORMS.getNumberOfModelParameters(), 
-        "Number of elements in initial guess {} did not match the number of parameter transforms {}", initialGuess.getNumberOfElements(), TRANSFORMS.getNumberOfFittingParameters());
+    ArgumentChecker.isTrue(initialGuess.getNumberOfElements() == TRANSFORMS.getNumberOfModelParameters(),
+        "Number of elements in initial guess {} did not match the number of parameter transforms {}", initialGuess.getNumberOfElements(),
+        TRANSFORMS.getNumberOfFittingParameters());
     TRANSFORMS.transform(initialGuess);
 
     final int nMarketValues = marketVols.size();
@@ -221,8 +222,8 @@ public class TwoStateMarkovChainFitter {
    * @return The transformed data
    */
   @SuppressWarnings("unused")
-  private List<Pair<double[], Double>> transformData(final ForwardCurve forward, final YieldCurve yield, final PDEFullResults1D prices, final double minT, final double maxT, final double minK,
-      final double maxK) {
+  private List<Pair<double[], Double>> transformData(final ForwardCurve forward, final YieldCurve yield, final PDEFullResults1D prices, final double minT,
+      final double maxT, final double minK, final double maxK) {
     final int xNodes = prices.getNumberSpaceNodes();
     final int tNodes = prices.getNumberTimeNodes();
     final int n = xNodes * tNodes;
@@ -239,7 +240,7 @@ public class TwoStateMarkovChainFitter {
             final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
             try {
               final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
-              final Pair<double[], Double> pair = new ObjectsPair<double[], Double>(new double[] {prices.getTimeValue(i), prices.getSpaceValue(j) }, impVol);
+              final Pair<double[], Double> pair = new ObjectsPair<double[], Double>(new double[] {prices.getTimeValue(i), prices.getSpaceValue(j)}, impVol);
               out.add(pair);
             } catch (final Exception e) {
               s_logger.error("can't find vol for strike: " + prices.getSpaceValue(j) + " and expiry " + prices.getTimeValue(i) + " . Not added to data set");
