@@ -12,6 +12,10 @@ import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues
  */
 public abstract class EquityOptionPDEFunction extends EquityOptionFunction {
 
+  public EquityOptionPDEFunction(final String... valueRequirementNames) {
+    super(valueRequirementNames);
+  }
+
   @Override
   protected String getCalculationMethod() {
     return CalculationPropertyNamesAndValues.PDE;

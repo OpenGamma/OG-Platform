@@ -13,7 +13,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
-import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -36,23 +35,6 @@ public abstract class CommodityFutureOptionFunction extends FutureOptionFunction
   @Override
   public ComputationTargetType getTargetType() {
     return FinancialSecurityTypes.COMMODITY_FUTURE_OPTION_SECURITY;
-  }
-
-  @Override
-  protected ValueRequirement getVolatilitySurfaceRequirement(final FinancialSecurity security, final String surfaceName, final String smileInterpolator,
-      final String forwardCurveName, final String forwardCurveCalculationMethod, final String surfaceCalculationMethod) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(security);
-    final String fullSurfaceName = CommodityFutureOptionUtils.getSurfaceName(security, surfaceName);
-    final String fullCurveName = CommodityFutureOptionUtils.getSurfaceName(security, forwardCurveName);
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.SURFACE, fullSurfaceName)
-        .with(ValuePropertyNames.CURVE, fullCurveName)
-        .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolator)
-        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
-        .with(ValuePropertyNames.SURFACE_CALCULATION_METHOD, surfaceCalculationMethod)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION)
-        .get();
-    return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetSpecification.of(currency), properties);
   }
 
   @Override
