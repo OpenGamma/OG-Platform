@@ -5,8 +5,9 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
@@ -33,30 +34,30 @@ public class ISDAYieldCurveTest {
   // ----------------------------------------------------------------------------------------------
 
   // This is the anchor date for the curve Z(basedate) = 1
-  final ZonedDateTime baseDate = ZonedDateTime.of(2012, 11, 15, 0, 0, 0, 0, TimeZone.UTC);
+  final ZonedDateTime baseDate = zdt(2012, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC);
 
-  final ZonedDateTime offsetBaseDate = ZonedDateTime.of(2012, 11, 19, 0, 0, 0, 0, TimeZone.UTC);
+  final ZonedDateTime offsetBaseDate = zdt(2012, 11, 19, 0, 0, 0, 0, ZoneOffset.UTC);
 
   ZonedDateTime[] dates = {
-      ZonedDateTime.of(2012, 12, 17, 0, 0, 0, 0, TimeZone.UTC),   // MM
-      ZonedDateTime.of(2013, 1, 15, 0, 0, 0, 0, TimeZone.UTC),    // MM
-      ZonedDateTime.of(2013, 2, 15, 0, 0, 0, 0, TimeZone.UTC),    // MM
-      ZonedDateTime.of(2013, 5, 15, 0, 0, 0, 0, TimeZone.UTC),    // MM
-      ZonedDateTime.of(2013, 8, 15, 0, 0, 0, 0, TimeZone.UTC),    // MM
-      ZonedDateTime.of(2014, 11, 15, 0, 0, 0, 0, TimeZone.UTC),   // Swap
-      ZonedDateTime.of(2015, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
-      ZonedDateTime.of(2016, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
-      ZonedDateTime.of(2017, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
-      ZonedDateTime.of(2018, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
-      ZonedDateTime.of(2019, 11, 17, 0, 0, 0, 0, TimeZone.UTC),
-      ZonedDateTime.of(2020, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
-      ZonedDateTime.of(2021, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
-      ZonedDateTime.of(2022, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
-      ZonedDateTime.of(2024, 11, 17, 0, 0, 0, 0, TimeZone.UTC),
-      ZonedDateTime.of(2027, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
-      ZonedDateTime.of(2032, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
-      ZonedDateTime.of(2037, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
-      ZonedDateTime.of(2042, 11, 16, 0, 0, 0, 0, TimeZone.UTC)
+      zdt(2012, 12, 17, 0, 0, 0, 0, ZoneOffset.UTC),   // MM
+      zdt(2013, 1, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // MM
+      zdt(2013, 2, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // MM
+      zdt(2013, 5, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // MM
+      zdt(2013, 8, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // MM
+      zdt(2014, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),   // Swap
+      zdt(2015, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2016, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2017, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2018, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2019, 11, 17, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2020, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2021, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2022, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2024, 11, 17, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2027, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2032, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2037, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
+      zdt(2042, 11, 16, 0, 0, 0, 0, ZoneOffset.UTC)
   };
 
   double[] rates = {
@@ -705,4 +706,10 @@ public class ISDAYieldCurveTest {
 
     // -----------------------------------------------------------------------------------------------
   }
+
+  //-------------------------------------------------------------------------
+  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneOffset offset) {
+    return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(offset);
+  }
+
 }

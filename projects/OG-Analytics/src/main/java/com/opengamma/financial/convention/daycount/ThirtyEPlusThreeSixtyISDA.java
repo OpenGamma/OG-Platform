@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * The '30E+/360 ISDA' day count.
@@ -20,8 +20,8 @@ public class ThirtyEPlusThreeSixtyISDA extends ThirtyThreeSixtyTypeDayCount {
     testDates(firstDate, secondDate);
     double d1 = firstDate.getDayOfMonth();
     double d2 = secondDate.getDayOfMonth();
-    final double m1 = firstDate.getMonthOfYear().getValue();
-    double m2 = secondDate.getMonthOfYear().getValue();
+    final double m1 = firstDate.getMonthValue();
+    double m2 = secondDate.getMonthValue();
     final double y1 = firstDate.getYear();
     final double y2 = secondDate.getYear();
     if (d1 == 31) {

@@ -8,11 +8,10 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 /**
  * 
@@ -35,7 +34,7 @@ public class FirstOfMonthScheduleCalculator extends Schedule {
       throw new IllegalArgumentException("Start date and end date were the same but neither was the first day of the month");
     }
     final List<LocalDate> dates = new ArrayList<LocalDate>();
-    LocalDate date = startDate.with(DateAdjusters.firstDayOfMonth());
+    LocalDate date = startDate.with(TemporalAdjusters.firstDayOfMonth());
     if (date.isBefore(startDate)) {
       date = date.plusMonths(1);
     }
@@ -62,7 +61,7 @@ public class FirstOfMonthScheduleCalculator extends Schedule {
       throw new IllegalArgumentException("Start date and end date were the same but neither was the first day of the month");
     }
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
-    ZonedDateTime date = startDate.with(DateAdjusters.firstDayOfMonth());
+    ZonedDateTime date = startDate.with(TemporalAdjusters.firstDayOfMonth());
     if (date.isBefore(startDate)) {
       date = date.plusMonths(1);
     }

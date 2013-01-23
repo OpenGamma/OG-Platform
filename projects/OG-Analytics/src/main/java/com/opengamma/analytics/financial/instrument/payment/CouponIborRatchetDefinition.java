@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import java.util.Arrays;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;

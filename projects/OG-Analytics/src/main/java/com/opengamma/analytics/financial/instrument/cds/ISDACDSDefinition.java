@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.cds;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.instrument.Convention;
@@ -145,7 +145,7 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
 
   private ZonedDateTime findSettlementDate(final ZonedDateTime startDate, final Convention convention) {
 
-    final DateAdjuster adjuster = convention.getBusinessDayConvention().getDateAdjuster(convention.getWorkingDayCalendar());
+    final TemporalAdjuster adjuster = convention.getBusinessDayConvention().getTemporalAdjuster(convention.getWorkingDayCalendar());
 
     ZonedDateTime result = startDate;
 

@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.instrument.inflation;
 
 import java.util.Arrays;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -95,7 +94,7 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
     this._indexStartValue = indexStartValue;
     this._referenceEndDate = referenceEndDate;
     this._fixingEndDate = fixingEndDate;
-    _weight = 1.0 - (getPaymentDate().getDayOfMonth() - 1.0) / getPaymentDate().getMonthOfYear().getLastDayOfMonth(getPaymentDate().isLeapYear());
+    _weight = 1.0 - (getPaymentDate().getDayOfMonth() - 1.0) / getPaymentDate().getDate().lengthOfMonth();
     _payNotional = payNotional;
     _factor = factor;
     _monthLag = monthLag;

@@ -8,11 +8,10 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.ZonedDateTime;
 
 /**
  * 
@@ -42,17 +41,17 @@ public class MonthlyScheduleOnDayCalculator extends Schedule {
     }
     final List<LocalDate> dates = new ArrayList<LocalDate>();
     int year = endDate.getYear();
-    MonthOfYear month = startDate.getMonthOfYear();
-    LocalDate date = startDate.withMonthOfYear(month.getValue()).withDayOfMonth(_dayOfMonth);
+    Month month = startDate.getMonth();
+    LocalDate date = startDate.withMonth(month.getValue()).withDayOfMonth(_dayOfMonth);
     if (date.isBefore(startDate)) {
-      month = month.next();
-      date = date.withMonthOfYear(month.getValue());
+      month = month.plus(1);
+      date = date.withMonth(month.getValue());
     }
     year = date.getYear();
     while (!date.isAfter(endDate)) {
       dates.add(date);
-      month = month.next();
-      if (month == MonthOfYear.JANUARY) {
+      month = month.plus(1);
+      if (month == Month.JANUARY) {
         year++;
       }
       date = LocalDate.of(year, month.getValue(), _dayOfMonth);
@@ -77,20 +76,20 @@ public class MonthlyScheduleOnDayCalculator extends Schedule {
     }
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     int year = endDate.getYear();
-    MonthOfYear month = startDate.getMonthOfYear();
-    ZonedDateTime date = startDate.withMonthOfYear(month.getValue()).withDayOfMonth(_dayOfMonth);
+    Month month = startDate.getMonth();
+    ZonedDateTime date = startDate.withMonth(month.getValue()).withDayOfMonth(_dayOfMonth);
     if (date.isBefore(startDate)) {
-      month = month.next();
-      date = date.withMonthOfYear(month.getValue());
+      month = month.plus(1);
+      date = date.withMonth(month.getValue());
     }
     year = date.getYear();
     while (!date.isAfter(endDate)) {
       dates.add(date);
-      month = month.next();
-      if (month == MonthOfYear.JANUARY) {
+      month = month.plus(1);
+      if (month == Month.JANUARY) {
         year++;
       }
-      date = date.withDate(year, month.getValue(), _dayOfMonth);
+      date = date.with(LocalDate.of(year, month.getValue(), _dayOfMonth));
     }
     return dates.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);
   }

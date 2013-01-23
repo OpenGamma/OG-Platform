@@ -5,15 +5,17 @@
  */
 package com.opengamma.analytics.financial.instrument;
 
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.collections.Sets;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.commodity.definition.AgricultureForwardDefinition;
@@ -134,24 +136,24 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final BusinessDayConvention BD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   public static final Calendar C = new MondayToFridayCalendar("F");
   public static final ZonedDateTime SETTLE_DATE = DateUtils.getUTCDate(2011, 1, 1);
-  public static final Period TENOR = Period.ofYears(2);
-  public static final Period FIXED_PERIOD = Period.ofMonths(6);
+  public static final Period TENOR = Period.of(2, YEARS);
+  public static final Period FIXED_PERIOD = Period.of(6, MONTHS);
   public static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   public static final boolean IS_EOM = true;
   public static final double NOTIONAL = 100000000; //100m
   public static final double FIXED_RATE = 0.05;
   public static final boolean IS_PAYER = true;
-  public static final Period IBOR_PERIOD_1 = Period.ofMonths(3);
+  public static final Period IBOR_PERIOD_1 = Period.of(3, MONTHS);
   public static final int SPOT_LAG = 2;
   public static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   public static final IborIndex IBOR_INDEX_1 = new IborIndex(CUR, IBOR_PERIOD_1, SPOT_LAG, C, IBOR_DAY_COUNT, BD, IS_EOM);
   public static final IndexON INDEX_ON = new IndexON("A", CUR, FIXED_DAY_COUNT, 0, C);
   public static final IndexSwap CMS_INDEX = new IndexSwap(IBOR_PERIOD_1, IBOR_DAY_COUNT, IBOR_INDEX_1, IBOR_PERIOD_1);
-  public static final Period IBOR_PERIOD_2 = Period.ofMonths(6);
+  public static final Period IBOR_PERIOD_2 = Period.of(6, MONTHS);
   public static final IborIndex IBOR_INDEX_2 = new IborIndex(CUR, IBOR_PERIOD_2, SPOT_LAG, C, IBOR_DAY_COUNT, BD, IS_EOM);
   public static final double SPREAD = 0.001;
   public static final GeneratorSwapXCcyIborIbor XCCY_GENERATOR = new GeneratorSwapXCcyIborIbor("XCCY", IBOR_INDEX_2, IBOR_INDEX_1);
-  public static final IndexPrice INDEX_PRICE = new IndexPrice("CPI", CUR, CUR, Period.ofMonths(1));
+  public static final IndexPrice INDEX_PRICE = new IndexPrice("CPI", CUR, CUR, Period.of(1, MONTHS));
   public static final Convention CONVENTION = new Convention(2, FIXED_DAY_COUNT, BD, C, "");
   public static final ISDACDSPremiumDefinition ISDA_PREMIUM = ISDACDSPremiumDefinition.from(SETTLE_DATE, SETTLE_DATE.plusYears(5), PeriodFrequency.SEMI_ANNUAL,
       CONVENTION, StubType.LONG_END, false, NOTIONAL, SPREAD, CUR);
@@ -247,9 +249,9 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final EquityFutureDefinition EQUITY_FUTURE = new EquityFutureDefinition(SETTLE_DATE, SETTLE_DATE, 100, CUR, 100);
   public static final EquityIndexDividendFutureDefinition EQUITY_INDEX_DIVIDEND_FUTURE = new EquityIndexDividendFutureDefinition(SETTLE_DATE, SETTLE_DATE, 1200, CUR, 100);
   public static final EquityIndexOptionDefinition EQUITY_INDEX_OPTION = new EquityIndexOptionDefinition(true, 100, CUR, ExerciseDecisionType.AMERICAN, SETTLE_DATE,
-      SETTLE_DATE.toLocalDate(), 25, SettlementType.CASH);
+      SETTLE_DATE.getDate(), 25, SettlementType.CASH);
   public static final EquityOptionDefinition EQUITY_OPTION = new EquityOptionDefinition(false, 34, CUR, ExerciseDecisionType.EUROPEAN, SETTLE_DATE,
-      SETTLE_DATE.toLocalDate(), 25, SettlementType.PHYSICAL);
+      SETTLE_DATE.getDate(), 25, SettlementType.PHYSICAL);
 
   public static final InterestRateFutureDefinition IR_FUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurityDefinition();
   public static final InterestRateFutureOptionMarginSecurityDefinition IR_FUT_OPT_MARGIN_SEC_DEF = FutureInstrumentsDescriptionDataSet

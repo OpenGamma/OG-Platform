@@ -8,9 +8,8 @@ package com.opengamma.financial.convention.daycount;
 import static com.opengamma.financial.convention.daycount.AccruedInterestCalculator.getAccruedInterest;
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;

@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.isdayieldcurve;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 
 /**

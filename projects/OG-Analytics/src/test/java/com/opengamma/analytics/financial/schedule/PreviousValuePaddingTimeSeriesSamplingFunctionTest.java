@@ -11,11 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -69,7 +68,7 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
           d3.add(Double.valueOf(i));
         }
       }
-      if (!(DAILY_SCHEDULE[i].getMonthOfYear() == MonthOfYear.FEBRUARY && DAILY_SCHEDULE[i].getYear() == 2009)) {
+      if (!(DAILY_SCHEDULE[i].getMonth() == Month.FEBRUARY && DAILY_SCHEDULE[i].getYear() == 2009)) {
         t4.add(DAILY_SCHEDULE[i]);
         d4.add(Double.valueOf(i));
       }
@@ -193,8 +192,8 @@ public class PreviousValuePaddingTimeSeriesSamplingFunctionTest {
     assertEquals(result.size(), DAILY_SCHEDULE.length);
     int i = 0;
     for (final Entry<LocalDate, Double> entry : result) {
-      assertEquals(entry.getKey(), DAILY_SCHEDULE[i].toLocalDate());
-      if (entry.getKey().getMonthOfYear() == MonthOfYear.FEBRUARY && entry.getKey().getYear() == 2009) {
+      assertEquals(entry.getKey(), DAILY_SCHEDULE[i]);
+      if (entry.getKey().getMonth() == Month.FEBRUARY && entry.getKey().getYear() == 2009) {
         assertEquals(entry.getValue(), 21, 0);
       } else {
         assertEquals(entry.getValue(), i, 0);

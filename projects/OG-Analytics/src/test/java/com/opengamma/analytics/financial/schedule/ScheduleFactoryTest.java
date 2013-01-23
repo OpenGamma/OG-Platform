@@ -9,10 +9,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -149,7 +148,7 @@ public class ScheduleFactoryTest {
     assertArrayEquals(schedule2, ScheduleFactory.getSchedule(START2, END2, PeriodFrequency.DAILY, false, true, true));
     assertEquals(schedule1.length, schedule2.length);
     for (int i = 0; i < schedule1.length; i++) {
-      assertEquals(schedule1[i], schedule2[i].toLocalDate());
+      assertEquals(schedule1[i], schedule2[i].getDate());
     }
   }
 
@@ -175,7 +174,7 @@ public class ScheduleFactoryTest {
     assertArrayEquals(schedule4, ScheduleFactory.getSchedule(START2, END2, PeriodFrequency.WEEKLY, false, false, false));
     assertEquals(schedule1.length, schedule2.length);
     for (int i = 0; i < schedule1.length; i++) {
-      assertEquals(schedule1[i], schedule3[i].toLocalDate());
+      assertEquals(schedule1[i], schedule3[i].getDate());
     }
   }
 }

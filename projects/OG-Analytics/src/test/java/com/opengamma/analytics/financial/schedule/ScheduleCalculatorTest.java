@@ -7,13 +7,15 @@ package com.opengamma.analytics.financial.schedule;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
-
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -49,10 +51,10 @@ public class ScheduleCalculatorTest {
   private static final Calendar FIRST = new FirstOfMonthCalendar();
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2010, 1, 1);
 
-  private static final Period PAYMENT_TENOR = Period.ofMonths(6);
+  private static final Period PAYMENT_TENOR = Period.of(6, MONTHS);
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Period ANNUITY_TENOR = Period.ofYears(2);
+  private static final Period ANNUITY_TENOR = Period.of(2, YEARS);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 17);
   private static final boolean SHORT_STUB = true;
 
@@ -86,7 +88,7 @@ public class ScheduleCalculatorTest {
     assertEquals("Adjusted date", aTuesday2, ScheduleCalculator.getAdjustedDate(aSaturday, 1, CALENDAR));
     assertEquals("Adjusted date", aTuesday2, ScheduleCalculator.getAdjustedDate(aSunday, 1, CALENDAR));
     assertEquals("Adjusted date", aWednesday, ScheduleCalculator.getAdjustedDate(aMonday, 2, CALENDAR));
-    assertEquals("Adjusted date", aWednesday, ScheduleCalculator.getAdjustedDate(aMonday, Period.ofDays(2), CALENDAR));
+    assertEquals("Adjusted date", aWednesday, ScheduleCalculator.getAdjustedDate(aMonday, Period.of(2, DAYS), CALENDAR));
     assertEquals("Adjusted date", aTuesday2, ScheduleCalculator.getAdjustedDate(aFriday, 2, CALENDAR));
     assertEquals("Adjusted date", aWednesday2, ScheduleCalculator.getAdjustedDate(aSaturday, 2, CALENDAR));
     assertEquals("Adjusted date", aWednesday2, ScheduleCalculator.getAdjustedDate(aSunday, 2, CALENDAR));
@@ -111,10 +113,10 @@ public class ScheduleCalculatorTest {
    * Tests the adjusted dates shifted by a number of days. Reviewed 13-Dec-2011.
    */
   public void adjustedDatesPeriod() {
-    final Period m1 = Period.ofMonths(1);
-    final Period m2 = Period.ofMonths(2);
-    final Period m3 = Period.ofMonths(3);
-    final Period m6 = Period.ofMonths(6);
+    final Period m1 = Period.of(1, MONTHS);
+    final Period m2 = Period.of(2, MONTHS);
+    final Period m3 = Period.of(3, MONTHS);
+    final Period m6 = Period.of(6, MONTHS);
     final ZonedDateTime stdStart = DateUtils.getUTCDate(2011, 11, 15); //1m
     final ZonedDateTime stdEnd = DateUtils.getUTCDate(2011, 12, 15);
     assertEquals("Adjusted date", stdEnd, ScheduleCalculator.getAdjustedDate(stdStart, m1, BUSINESS_DAY, CALENDAR));
@@ -223,11 +225,11 @@ public class ScheduleCalculatorTest {
    * Tests the unadjusted date schedule. Reviewed 19-Jan-2012.
    */
   public void unadjustedDateSchedule() {
-    final Period m6 = Period.ofMonths(6);
-    final Period m15 = Period.ofMonths(15);
-    final Period m30 = Period.ofMonths(30);
-    final Period y1 = Period.ofYears(1);
-    final Period y2 = Period.ofYears(2);
+    final Period m6 = Period.of(6, MONTHS);
+    final Period m15 = Period.of(15, MONTHS);
+    final Period m30 = Period.of(30, MONTHS);
+    final Period y1 = Period.of(1, YEARS);
+    final Period y2 = Period.of(2, YEARS);
     final ZonedDateTime midMonth = DateUtils.getUTCDate(2012, 1, 19);
     final ZonedDateTime monthEndDec = DateUtils.getUTCDate(2011, 12, 31);
     final ZonedDateTime monthEndJan = DateUtils.getUTCDate(2012, 1, 31);
@@ -293,9 +295,9 @@ public class ScheduleCalculatorTest {
    * Tests the adjusted date schedule. Reviewed 23-Jan-2012.
    */
   public void adjustedDateSchedule1() {
-    final Period m6 = Period.ofMonths(6);
-    final Period y2 = Period.ofYears(2);
-    final Period y3 = Period.ofYears(3);
+    final Period m6 = Period.of(6, MONTHS);
+    final Period y2 = Period.of(2, YEARS);
+    final Period y3 = Period.of(3, YEARS);
     final ZonedDateTime midMonth = DateUtils.getUTCDate(2012, 1, 19);
     final ZonedDateTime monthEndMarch = DateUtils.getUTCDate(2012, 3, 30);
     final ZonedDateTime[] midMonthUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(midMonth, midMonth.plus(y2), m6, false, false);
@@ -339,9 +341,9 @@ public class ScheduleCalculatorTest {
    * Tests the adjusted date schedule. Reviewed 22-Feb-2012.
    */
   public void adjustedDateSchedule2() {
-    final Period m6 = Period.ofMonths(6);
+    final Period m6 = Period.of(6, MONTHS);
     final Frequency semi = PeriodFrequency.SEMI_ANNUAL;
-    final Period y5 = Period.ofYears(5);
+    final Period y5 = Period.of(5, YEARS);
     final ZonedDateTime midMonth = DateUtils.getUTCDate(2012, 1, 19);
     final ZonedDateTime[] midMonthUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(midMonth, midMonth.plus(y5), m6, false, false);
     final ZonedDateTime[] midMonthModFolExpected = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, MOD_FOL, CALENDAR, false);
@@ -527,7 +529,7 @@ public class ScheduleCalculatorTest {
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(settlementDateEOM, ANNUITY_TENOR, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
         new ZonedDateTime[] {DateUtils.getUTCDate(2011, 8, 31), DateUtils.getUTCDate(2012, 2, 29), DateUtils.getUTCDate(2012, 8, 31), DateUtils.getUTCDate(2013, 2, 28) });
     // Stub: short-last
-    final Period tenorLong = Period.ofMonths(27);
+    final Period tenorLong = Period.of(27, MONTHS);
     assertDateArray(
         ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, tenorLong, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
         new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 19), DateUtils.getUTCDate(2012, 3, 19), DateUtils.getUTCDate(2012, 9, 17), DateUtils.getUTCDate(2013, 3, 18),
@@ -536,7 +538,7 @@ public class ScheduleCalculatorTest {
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, tenorLong, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, !SHORT_STUB),
         new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 19), DateUtils.getUTCDate(2012, 3, 19), DateUtils.getUTCDate(2012, 9, 17), DateUtils.getUTCDate(2013, 6, 17) });
     // Stub: very short period: short stub.
-    final Period tenorVeryShort = Period.ofMonths(3);
+    final Period tenorVeryShort = Period.of(3, MONTHS);
     assertDateArray(ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, tenorVeryShort, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM, SHORT_STUB),
         new ZonedDateTime[] {DateUtils.getUTCDate(2011, 6, 17) });
     // Stub: very short period: long stub.
@@ -555,7 +557,7 @@ public class ScheduleCalculatorTest {
 
       @Override
       public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
-        return ((double) (secondDate.getMonthOfYear().getValue() - firstDate.getMonthOfYear().getValue())) / 12;
+        return ((double) (secondDate.getMonthValue() - firstDate.getMonthValue())) / 12;
       }
 
       @Override
@@ -565,7 +567,7 @@ public class ScheduleCalculatorTest {
 
       @Override
       public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate) {
-        return ((double) (secondDate.getMonthOfYear().getValue() - firstDate.getMonthOfYear().getValue())) / 12;
+        return ((double) (secondDate.getMonthValue() - firstDate.getMonthValue())) / 12;
       }
 
       @Override
