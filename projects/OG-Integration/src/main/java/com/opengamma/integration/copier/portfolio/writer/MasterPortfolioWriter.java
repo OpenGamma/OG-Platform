@@ -148,7 +148,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     // Write securities
     List<ManageableSecurity> writtenSecurities = new ArrayList<ManageableSecurity>();
     for (ManageableSecurity security : securities) {
-      if (security == null || !_discardIncompleteOptions) { // latter term preserves old behaviour
+      if (security != null || !_discardIncompleteOptions) { // latter term preserves old behaviour
         ManageableSecurity writtenSecurity = writeSecurity(security);
         if (writtenSecurity != null) {
           writtenSecurities.add(writtenSecurity);
