@@ -6,6 +6,7 @@
 package com.opengamma.integration.tool.marketdata;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.threeten.bp.temporal.ChronoUnit.SECONDS;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -18,17 +19,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatters;
-
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.component.tool.AbstractComponentTool;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
@@ -107,7 +107,7 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
     Instant valuationInstant;
     if (!StringUtils.isBlank(valuationTimeArg)) {
       LocalTime valuationTime = LocalTime.parse(valuationTimeArg, VALUATION_TIME_FORMATTER);
-      valuationInstant = ZonedDateTime.now().withTime(valuationTime.getHourOfDay(), valuationTime.getMinuteOfHour(), valuationTime.getSecondOfMinute()).toInstant();
+      valuationInstant = ZonedDateTime.now().with(valuationTime.truncatedTo(SECONDS)).toInstant();
     } else {
       valuationInstant = Instant.now();
     }
