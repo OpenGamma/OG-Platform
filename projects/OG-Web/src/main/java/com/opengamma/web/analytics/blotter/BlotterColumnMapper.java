@@ -12,7 +12,6 @@ import org.joda.beans.MetaProperty;
 import com.google.common.collect.Maps;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ClassMap;
 
 /**
  * Maps the properties of each blotter column to properties in each supported security type.
@@ -20,7 +19,7 @@ import com.opengamma.util.ClassMap;
 @SuppressWarnings("unchecked")
 public class BlotterColumnMapper {
 
-  private final Map<Class<?>, Map<BlotterColumn, ValueProvider>> _mappings = new ClassMap<>();
+  private final Map<Class<?>, Map<BlotterColumn, ValueProvider>> _mappings = Maps.newHashMap();
 
   /* package */ BlotterColumnMapper() {
   }
@@ -63,11 +62,8 @@ public class BlotterColumnMapper {
   }
 
   private ValueProvider propertyProvider(MetaProperty<?> property) {
-    if (property == null) { // for securities where it doesn't make sense to populate a particular column
-      return new StaticValueProvider("");
-    } else {
-      return new PropertyValueProvider(property);
-    }
+    ArgumentChecker.notNull(property, "property");
+    return new PropertyValueProvider(property);
   }
 
   public Object valueFor(BlotterColumn column, ManageableSecurity security) {

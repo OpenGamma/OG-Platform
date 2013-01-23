@@ -48,6 +48,10 @@ import com.opengamma.util.ArgumentChecker;
   @SuppressWarnings("unchecked")
   @Override
   public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    if (isConvertible(property.propertyType())) {
+      visitProperty(property);
+      return;
+    }
     if (isWriteable(property)) {
       String propertyName = property.name();
       BeanDataSource beanData = _data.getBeanData(propertyName);
@@ -119,5 +123,16 @@ import com.opengamma.util.ArgumentChecker;
 
   private static boolean isWriteable(MetaProperty<?> property) {
     return property.readWrite() != PropertyReadWrite.READ_ONLY;
+  }
+
+  private boolean isConvertible(Class<?> type) {
+    boolean canConvert;
+    try {
+      _stringConvert.findConverter(type);
+      canConvert = true;
+    } catch (Exception e) {
+      canConvert = false;
+    }
+    return canConvert;
   }
 }

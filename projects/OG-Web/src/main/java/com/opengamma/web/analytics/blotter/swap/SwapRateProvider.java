@@ -11,7 +11,7 @@ import com.opengamma.web.analytics.blotter.ValueProvider;
 /**
  *
  */
-public class RateProvider implements ValueProvider<SwapSecurity> {
+public class SwapRateProvider implements ValueProvider<SwapSecurity> {
 
   @Override
   public Object getValue(SwapSecurity security) {
