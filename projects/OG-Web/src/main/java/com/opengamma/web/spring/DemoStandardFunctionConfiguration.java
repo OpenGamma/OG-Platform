@@ -265,16 +265,16 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     super.addAllConfigurations(functions);
-//    functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
-//    functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
+    functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "FUNDING"));
+    functions.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
   }
 
   @Override
   protected void setPNLFunctionDefaults(final PNLFunctions.Defaults defaults) {
     super.setPNLFunctionDefaults(defaults);
-//    defaults.setCurveName("FUNDING");
-//    defaults.setPayCurveName("FUNDING");
-//    defaults.setReceiveCurveName("FUNDING");
+    defaults.setCurveName("FUNDING");
+    defaults.setPayCurveName("FUNDING");
+    defaults.setReceiveCurveName("FUNDING");
   }
 
 }

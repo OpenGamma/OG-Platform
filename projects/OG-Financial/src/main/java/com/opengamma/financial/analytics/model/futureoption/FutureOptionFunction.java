@@ -210,7 +210,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     final ValueRequirement volReq = getVolatilitySurfaceRequirement(security, volSurfaceName, smileInterpolator, forwardCurveName, forwardCurveCalculationMethod,
         surfaceCalculationMethod);
     final ValueRequirement forwardCurveReq = getForwardCurveRequirement(security, forwardCurveName, forwardCurveCalculationMethod);
-    return Sets.newHashSet(underlyingFutureReq, fundingReq);//, volReq, forwardCurveReq);
+    return Sets.newHashSet(underlyingFutureReq, fundingReq, volReq, forwardCurveReq);
   }
 
   /**
@@ -279,7 +279,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
    * @return The volatility surface requirement
    */
   protected abstract ValueRequirement getVolatilitySurfaceRequirement(FinancialSecurity security, String surfaceName, String smileInterpolator,
-      String forwardCurveName, String forwardCurveCalculationMethod, final String surfaceCalculationMethod);
+      String forwardCurveName, String forwardCurveCalculationMethod, String surfaceCalculationMethod);
 
 //  protected abstract ValueRequirement getVolatilitySurfaceRequirement(final ValueRequirement desiredValue, final Security security, final String surfaceName,
 //      final String surfaceCalculationMethod);

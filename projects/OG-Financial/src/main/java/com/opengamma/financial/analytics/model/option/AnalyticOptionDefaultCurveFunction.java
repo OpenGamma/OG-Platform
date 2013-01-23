@@ -30,7 +30,7 @@ public class AnalyticOptionDefaultCurveFunction extends DefaultPropertyFunction 
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    for (String valueName : AvailableGreeks.getAllGreekNames()) {
+    for (final String valueName : AvailableGreeks.getAllGreekNames()) {
       defaults.addValuePropertyName(valueName, ValuePropertyNames.CURVE);
     }
   }
@@ -45,11 +45,7 @@ public class AnalyticOptionDefaultCurveFunction extends DefaultPropertyFunction 
 
   @Override
   public PriorityClass getPriority() {
-    if ("SECONDARY".equals(_curveName)) {
-      return PriorityClass.BELOW_NORMAL;
-    } else {
-      return super.getPriority();
-    }
+    return PriorityClass.BELOW_NORMAL;
   }
 
 }
