@@ -13,13 +13,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
@@ -125,7 +125,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
     for (final X x : definition.getXs()) {
       for (final Y y : definition.getYs()) {
-        final ExternalId identifier = provider.getInstrument(x, y, atInstant.toLocalDate());
+        final ExternalId identifier = provider.getInstrument(x, y, atInstant.getDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier));
       }
     }
@@ -133,12 +133,12 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext myContext, final InstantProvider atInstantProvider) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext myContext, final Instant atInstant) {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(myContext);
     final ConfigDBVolatilitySurfaceDefinitionSource definitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
     final ConfigDBVolatilitySurfaceSpecificationSource specificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    return new CompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000), atInstant, definitionSource, specificationSource);
+    final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
+    return new CompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000), atZDT, definitionSource, specificationSource);
   }
 
   /**
@@ -161,7 +161,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
      */
     public CompiledFunction(final ZonedDateTime from, final ZonedDateTime to, final ZonedDateTime now, final ConfigDBVolatilitySurfaceDefinitionSource definitionSource,
         final ConfigDBVolatilitySurfaceSpecificationSource specificationSource) {
-      super(from, to);
+      super(from.toInstant(), to.toInstant());
       _now = now;
       _definitionSource = definitionSource;
       _specificationSource = specificationSource;
@@ -231,7 +231,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
       final VolatilitySurfaceDefinition<?, ?> definition = getDefinition(_definitionSource, target, surfaceName);
       final Object specificationObject = getSpecification(_specificationSource, target, surfaceName);
       final VolatilitySurfaceSpecification specification = (VolatilitySurfaceSpecification) specificationObject;
-      final LocalDate valuationDate = executionContext.getValuationClock().today();
+      final LocalDate valuationDate = LocalDate.now(executionContext.getValuationClock());
       final SurfaceInstrumentProvider<Object, Object> provider = (SurfaceInstrumentProvider<Object, Object>) specification.getSurfaceInstrumentProvider();
       final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<>();
       final ObjectArrayList<Object> xList = new ObjectArrayList<>();

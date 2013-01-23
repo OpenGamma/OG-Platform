@@ -10,12 +10,11 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
@@ -99,7 +98,7 @@ public class Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated extends Abstr
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final Object volatilitySurfaceDataObject = inputs.getValue(_requirement);
     if (volatilitySurfaceDataObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + _requirement);
@@ -114,7 +113,7 @@ public class Grid2DInterpolatedVolatilitySurfaceFunctionDeprecated extends Abstr
     final LocalDate[] xDates = volatilitySurfaceData.getXs();
     final Double[] y = volatilitySurfaceData.getYs();
     for (int i = 0; i < n; i++) {
-      final Double time = DateUtils.getDifferenceInYears(now.toLocalDate(), xDates[i]);
+      final Double time = DateUtils.getDifferenceInYears(now.getDate(), xDates[i]);
       for (int j = 0; j < m; j++) {
         final Double strike = y[j];
         final Double vol = volatilitySurfaceData.getVolatility(xDates[i], y[j]);

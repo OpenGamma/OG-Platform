@@ -9,11 +9,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
@@ -138,7 +136,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final CompiledFunctionDefinition underlying = getUnderlyingDefinition().compile(context, atInstant);
     if (underlying == getUnderlyingCompiled()) {
       s_logger.debug("Compiling underlying on {} gives self", this);

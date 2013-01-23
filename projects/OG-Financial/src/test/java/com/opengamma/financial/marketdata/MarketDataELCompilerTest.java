@@ -8,11 +8,12 @@ package com.opengamma.financial.marketdata;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.InMemorySecuritySource;
@@ -125,7 +126,8 @@ public class MarketDataELCompilerTest {
   public void testUnderlyingExpression () {
     final InMemorySecuritySource securities = new InMemorySecuritySource();
     securities.addSecurity(_fooEquity);
-    final EquityOptionSecurity fooOption = new EquityOptionSecurity (OptionType.PUT, 10d, Currency.USD, ExternalId.of("Test", "FooEquity"), new AmericanExerciseType(), new Expiry(ZonedDateTime.of(2020, 11, 25, 12, 0, 0, 0, TimeZone.UTC)), 42d, "EXCH");
+    final EquityOptionSecurity fooOption = new EquityOptionSecurity (OptionType.PUT, 10d, Currency.USD, ExternalId.of("Test", "FooEquity"),
+        new AmericanExerciseType(), new Expiry(zdt(2020, 11, 25, 12, 0, 0, 0, ZoneOffset.UTC)), 42d, "EXCH");
     fooOption.addExternalId(ExternalId.of("Test", "FooOption"));
     securities.addSecurity(fooOption);
     final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
@@ -133,6 +135,11 @@ public class MarketDataELCompilerTest {
     assertEquals(result, ExternalId.of("Test", "FooEquity"));
     result = compiler.compile("Security:get(security.underlyingId)").apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(fooOption)), null);
     assertEquals(result, _fooEquity);
+  }
+
+  //-------------------------------------------------------------------------
+  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+    return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
   }
 
 }

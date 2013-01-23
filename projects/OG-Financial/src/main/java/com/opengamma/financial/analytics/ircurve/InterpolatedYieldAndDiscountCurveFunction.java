@@ -10,14 +10,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
@@ -126,8 +125,8 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
-    final Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstantProvider);
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
+    final Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile = _helper.compile(context, atInstant);
 
     final InterpolatedYieldCurveSpecification specification = compile.getThird();
 
@@ -168,7 +167,7 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
             OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource(), OpenGammaExecutionContext.getHolidaySource(executionContext));
         final InterpolatedYieldCurveSpecificationWithSecurities specWithSecurities = builder.resolveToSecurity(specification, marketDataMap);
         final Clock snapshotClock = executionContext.getValuationClock();
-        final ZonedDateTime today = snapshotClock.zonedDateTime(); // TODO: change to times
+        final ZonedDateTime today = ZonedDateTime.now(snapshotClock); // TODO: change to times
         final Map<Double, Double> timeInYearsToRates = new TreeMap<Double, Double>();
         boolean isFirst = true;
         for (final FixedIncomeStripWithSecurity strip : specWithSecurities.getStrips()) {

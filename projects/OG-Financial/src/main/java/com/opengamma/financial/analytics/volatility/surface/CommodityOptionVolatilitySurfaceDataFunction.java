@@ -12,11 +12,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -59,8 +58,8 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
    */
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 
-    final ZonedDateTime valTime = executionContext.getValuationClock().zonedDateTime();
-    final LocalDate valDate = valTime.toLocalDate();
+    final ZonedDateTime valTime = ZonedDateTime.now(executionContext.getValuationClock());
+    final LocalDate valDate = valTime.getDate();
 
     final Currency currency = (Currency) target.getValue();
     final Calendar calendar = new HolidaySourceCalendarAdapter(OpenGammaExecutionContext.getHolidaySource(executionContext), currency);

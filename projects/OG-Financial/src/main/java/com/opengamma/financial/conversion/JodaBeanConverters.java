@@ -7,12 +7,11 @@ package com.opengamma.financial.conversion;
 
 import java.util.ArrayList;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;

@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -24,6 +24,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Converts interest rate future securities into the definition form used by the analytics library
@@ -68,9 +69,9 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
   }
 
   private double getAccrualFactor(final Period period) {
-    if (period.equals(Period.ofMonths(3))) {
+    if (period.equals(DateUtils.periodOfMonths(3))) {
       return 0.25;
-    } else if (period.equals(Period.ofMonths(1))) {
+    } else if (period.equals(DateUtils.periodOfMonths(1))) {
       return 1. / 12;
     }
     throw new OpenGammaRuntimeException("Can only handle 1M and 3M interest rate futures");

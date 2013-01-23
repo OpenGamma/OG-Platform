@@ -8,10 +8,9 @@ package com.opengamma.financial.analytics.model.simpleinstrument;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -61,7 +60,7 @@ public class SimpleFuturePresentValueFunctionDeprecated extends AbstractFunction
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final FutureSecurity security = (FutureSecurity) target.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final Currency currency = security.getCurrency();
     final Object curveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(currency, _curveName, null, null));
     if (curveObject == null) {

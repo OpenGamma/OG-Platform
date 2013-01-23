@@ -7,11 +7,11 @@ package com.opengamma.financial.convention;
 
 import java.util.Arrays;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.temporal.TemporalAdjuster;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
@@ -22,14 +22,14 @@ import com.opengamma.util.ArgumentChecker;
 public final class SoybeanFutureOptionExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
   /** Name of the calculator */
   public static final String NAME = "SoybeanFutureOptionExpiryCalculator";
-  private static final DateAdjuster LAST_DAY_ADJUSTER = DateAdjusters.lastDayOfMonth();
-  private static final DateAdjuster PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER = DateAdjusters.previousOrCurrent(DayOfWeek.FRIDAY);
-  private static final DateAdjuster PREVIOUS_FRIDAY_ADJUSTER = DateAdjusters.previous(DayOfWeek.FRIDAY);
+  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
+  private static final TemporalAdjuster PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER = TemporalAdjusters.previousOrSame(DayOfWeek.FRIDAY);
+  private static final TemporalAdjuster PREVIOUS_FRIDAY_ADJUSTER = TemporalAdjusters.previous(DayOfWeek.FRIDAY);
   private static final SoybeanFutureOptionExpiryCalculator INSTANCE = new SoybeanFutureOptionExpiryCalculator();
 
-  private static final MonthOfYear[] SOYBEAN_FUTURE_EXPIRY_MONTHS =
-  {MonthOfYear.JANUARY, MonthOfYear.MARCH, MonthOfYear.MAY, MonthOfYear.JULY,
-    MonthOfYear.AUGUST, MonthOfYear.SEPTEMBER, MonthOfYear.NOVEMBER
+  private static final Month[] SOYBEAN_FUTURE_EXPIRY_MONTHS =
+  {Month.JANUARY, Month.MARCH, Month.MAY, Month.JULY,
+    Month.AUGUST, Month.SEPTEMBER, Month.NOVEMBER
   };
 
   public static SoybeanFutureOptionExpiryCalculator getInstance() {
@@ -58,8 +58,8 @@ public final class SoybeanFutureOptionExpiryCalculator implements ExchangeTraded
 
     final LocalDate expiryMonth = getExpiryMonth(n, today);
     final LocalDate actualExpiryMonth = expiryMonth.minusMonths(1);
-    final LocalDate lastDayOfMonth = LAST_DAY_ADJUSTER.adjustDate(actualExpiryMonth);
-    final LocalDate lastFridayOfMonth = PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER.adjustDate(lastDayOfMonth);
+    final LocalDate lastDayOfMonth = actualExpiryMonth.with(LAST_DAY_ADJUSTER);
+    final LocalDate lastFridayOfMonth = lastDayOfMonth.with(PREVIOUS_OR_CURRENT_FRIDAY_ADJUSTER);
     LocalDate expiryDate = lastFridayOfMonth;
 
     int nBusinessDays = 0;
@@ -76,7 +76,7 @@ public final class SoybeanFutureOptionExpiryCalculator implements ExchangeTraded
       }
       date = date.plusDays(1);
     }
-    LocalDate result = PREVIOUS_FRIDAY_ADJUSTER.adjustDate(expiryDate);
+    LocalDate result = expiryDate.with(PREVIOUS_FRIDAY_ADJUSTER);
     while (!holidayCalendar.isWorkingDay(result)) {
       result = result.minusDays(1);
     }
@@ -108,10 +108,10 @@ public final class SoybeanFutureOptionExpiryCalculator implements ExchangeTraded
   }
 
   private LocalDate getNextExpiryMonth(final LocalDate dtCurrent) {
-    MonthOfYear mthCurrent = dtCurrent.getMonthOfYear();
+    Month mthCurrent = dtCurrent.getMonth();
     int idx = Arrays.binarySearch(SOYBEAN_FUTURE_EXPIRY_MONTHS, mthCurrent);
     if (idx >= (SOYBEAN_FUTURE_EXPIRY_MONTHS.length - 1)) {
-      return LocalDate.of(dtCurrent.getYear() + 1, MonthOfYear.JANUARY, dtCurrent.getDayOfMonth());
+      return LocalDate.of(dtCurrent.getYear() + 1, Month.JANUARY, dtCurrent.getDayOfMonth());
     } else if (idx >= 0) {
       return dtCurrent.with(SOYBEAN_FUTURE_EXPIRY_MONTHS[idx + 1]);
     } else {

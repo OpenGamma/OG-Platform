@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.bond;
 
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -58,7 +58,7 @@ public abstract class BondFunction<T> extends AbstractFunction.NonCompiledInvoke
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime date = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime date = ZonedDateTime.now(executionContext.getValuationClock());
     final BondSecurity security = (BondSecurity) target.getSecurity();
     return calculate(date, security, getData(inputs, target, desiredValues), target, inputs, desiredValues);
   }

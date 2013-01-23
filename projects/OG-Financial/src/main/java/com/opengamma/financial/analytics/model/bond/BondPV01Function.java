@@ -7,8 +7,8 @@ package com.opengamma.financial.analytics.model.bond;
 
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
@@ -57,7 +57,7 @@ public abstract class BondPV01Function extends AbstractFunction.NonCompiledInvok
     }
 
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final ConventionBundleSource conventionSource = OpenGammaExecutionContext
         .getConventionBundleSource(executionContext);

@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -78,7 +78,7 @@ public class YieldCurveSpecificationFunction extends AbstractFunction {
 
     private final InterpolatedYieldCurveSpecification _curveSpecification;
 
-    private CompiledImpl(final InstantProvider earliest, final InstantProvider latest, final InterpolatedYieldCurveSpecification curveSpecification) {
+    private CompiledImpl(final Instant earliest, final Instant latest, final InterpolatedYieldCurveSpecification curveSpecification) {
       super(earliest, latest);
       _curveSpecification = curveSpecification;
     }
@@ -120,8 +120,8 @@ public class YieldCurveSpecificationFunction extends AbstractFunction {
 
   @SuppressWarnings("synthetic-access")
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
-    final Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> compile = getHelper().compile(context, atInstant);
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
+    final Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile = getHelper().compile(context, atInstant);
     return new CompiledImpl(compile.getFirst(), compile.getSecond(), compile.getThird());
   }
 

@@ -8,10 +8,9 @@ package com.opengamma.financial.analytics.model.futureoption;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -87,7 +86,7 @@ public abstract class FutureOptionBlackFunction extends AbstractFunction.NonComp
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     // 1. Build the analytic derivative to be priced
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final CommodityFutureOptionSecurity security = (CommodityFutureOptionSecurity) target.getSecurity();
     final ExternalId underlyingId = security.getUnderlyingId();
     final CommodityFutureOptionDefinition<?, ?> defn = (CommodityFutureOptionDefinition<?, ?>) security.accept(_converter);

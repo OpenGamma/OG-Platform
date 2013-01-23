@@ -13,10 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
-import javax.time.calendar.Period;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -48,6 +47,7 @@ import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties
 import com.opengamma.financial.analytics.model.volatility.cube.fitted.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -199,7 +199,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
 
   private double getTime(final Tenor tenor) {
     final Period period = tenor.getPeriod();
-    final double months = period.totalMonths();
+    final double months = DateUtils.totalMonths(period);
     return months / 12.;
   }
 

@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
@@ -21,6 +19,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.FudgeDate;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.OpenGammaRuntimeException;

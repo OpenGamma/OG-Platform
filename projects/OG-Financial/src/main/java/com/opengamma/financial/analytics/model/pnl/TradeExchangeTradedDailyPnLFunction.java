@@ -5,9 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.pnl;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.PositionOrTrade;
@@ -23,6 +22,7 @@ import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -64,12 +64,12 @@ public class TradeExchangeTradedDailyPnLFunction extends AbstractTradeOrDailyPos
 
   @Override
   protected LocalDate getPreferredTradeDate(Clock valuationClock, PositionOrTrade positionOrTrade) {
-    return valuationClock.yesterday();
+    return LocalDate.now(valuationClock).minusDays(1);
   }
 
   @Override
   protected DateConstraint getTimeSeriesStartDate(final PositionOrTrade positionOrTrade) {
-    return DateConstraint.VALUATION_TIME.minus(Period.ofDays(MAX_DAYS_OLD + 1)); // yesterday - MAX_DAYS_OLD
+    return DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(MAX_DAYS_OLD + 1)); // yesterday - MAX_DAYS_OLD
   }
 
   @Override
