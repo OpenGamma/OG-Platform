@@ -221,6 +221,7 @@ $.register_module({
             grid.meta = meta;
             ['show_sets', 'show_views', 'start_expanded']
                 .forEach(function (key) {meta[key] = key in config ? config[key] : true;});
+            meta.show_save = 'show_save' in config ? config['show_save'] : false;
             meta.viewport = {format: 'CELL'};
             meta.row_height = row_height;
             meta.header_height =  (meta.show_sets ? set_height : 0) + title_height;
@@ -237,7 +238,7 @@ $.register_module({
         };
         var render_header = (function () {
             var head_data = function (grid, sets, col_offset, set_offset) {
-                var meta = grid.meta, width = meta.columns.width, index = 0,
+                var meta = grid.meta, width = meta.columns.width, index = 0, show_save = meta.show_save,
                     show_sets = meta.show_sets, show_views = meta.show_views;
                 return {
                     width: col_offset ? width.scroll : width.fixed, padding_right: col_offset ? scrollbar : 0,
@@ -249,10 +250,10 @@ $.register_module({
                             };
                         });
                         return {
-                            // only send views in for fixed columns (and if there is a viewchange handler)
+                            // only send views in for fixed columns (and if show_views)
                             views: !col_offset && show_views ? grid.views : null, sparklines: grid.config.sparklines,
                             name: set.name, index: idx + (set_offset || 0), columns: columns, show_sets: show_sets,
-                            width: columns.reduce(function (acc, col) {return acc + col.width;}, 0)
+                            width: columns.reduce(function (acc, col) {return acc + col.width;}, 0), save: show_save
                         };
                     })
                 };
