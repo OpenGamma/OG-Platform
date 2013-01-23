@@ -41,7 +41,6 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.CommodityFutureOptionConverter;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.option.EquityOptionFunction;
-import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -191,11 +190,6 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
       return null;
     }
     final String surfaceCalculationMethod = Iterables.getOnlyElement(surfaceCalculationMethods);
-    final Set<String> interpolators = constraints.getValues(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
-    if (interpolators == null || interpolators.size() != 1) {
-      return null;
-    }
-    final String smileInterpolator = interpolators.iterator().next();
     final Set<String> forwardCurveNames = constraints.getValues(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME);
     if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
       return null;
@@ -206,12 +200,9 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
     }
     final String forwardCurveCalculationMethod = Iterables.getOnlyElement(forwardCurveCalculationMethods);
     final String forwardCurveName = Iterables.getOnlyElement(forwardCurveNames);
-    final ValueRequirement temp = getVolatilitySurfaceRequirement(desiredValue, security, volSurfaceName, forwardCurveName, surfaceCalculationMethod);
-//    final ValueRequirement volReq = getVolatilitySurfaceRequirement(security, volSurfaceName, smileInterpolator, forwardCurveName, forwardCurveCalculationMethod,
-//        surfaceCalculationMethod);
-
+    final ValueRequirement volReq = getVolatilitySurfaceRequirement(desiredValue, security, volSurfaceName, forwardCurveName, surfaceCalculationMethod);
     final ValueRequirement forwardCurveReq = getForwardCurveRequirement(security, forwardCurveName, forwardCurveCalculationMethod);
-    return Sets.newHashSet(underlyingFutureReq, fundingReq, forwardCurveReq, temp);
+    return Sets.newHashSet(underlyingFutureReq, fundingReq, forwardCurveReq, volReq);
   }
 
   /**
@@ -274,14 +265,13 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Constructs the volatility surface requirement
+   * @param desiredValue The desired value
    * @param security The security
    * @param surfaceName The surface name
-   * @param smileInterpolator The interpolation method used
+   * @param forwardCurveName The forward curve name
+   * @param surfaceCalculationMethod The surface calculation method
    * @return The volatility surface requirement
    */
-  protected abstract ValueRequirement getVolatilitySurfaceRequirement(FinancialSecurity security, String surfaceName, String smileInterpolator,
-      String forwardCurveName, String forwardCurveCalculationMethod, String surfaceCalculationMethod);
-
   protected abstract ValueRequirement getVolatilitySurfaceRequirement(final ValueRequirement desiredValue, final FinancialSecurity security, final String surfaceName,
       final String forwardCurveName, final String surfaceCalculationMethod);
 
