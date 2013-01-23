@@ -8,6 +8,24 @@ $.register_module({
     obj: function () {
         var module = this, loading_template, formatters, char_width = 9, STRING = 'STRING';
         var cell_value = function (v) {return {v: v + ''};};
+        var col_names = (function () {
+            var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''), base = letters.length, base_log = Math.log(base);
+            var letter = function (num) {
+                if (num < base) return letters[num];
+                var digits = Math.floor(Math.log(num) / base_log) + 1, lcv, result = '', digit, power;
+                for (lcv = digits; lcv > 0; lcv -= 1) {
+                    num -= ((digit = Math.floor(num / (power = Math.pow(base, lcv - 1)))) * power);
+                    // because A plays both the role of 0 and 1 when it is the first digit
+                    result += letters[lcv === digits ? Math.max(0, digit - 1) : digit];
+                }
+                return result;
+            };
+            return function (len) {
+                var lcv, result = [];
+                for (lcv = 0; lcv < len; lcv += 1) result.push(letter(lcv));
+                return result;
+            };
+        })();
         var meta = function (dataman, rows, cols, fixed_width, first) {
             var dimensions = rows + '|' + cols.length, meta;
             if (dataman.dimensions === dimensions) return null; else dataman.dimensions = dimensions;
@@ -22,7 +40,6 @@ $.register_module({
                 }
             };
         };
-        var pad = function (digit) {return (digit < 10 ? '0' : '') + digit;};
         var viewport = function (dataman) {
             var data = dataman.formatted.data, viewport = dataman.meta.viewport, rows = dataman.meta.columns.total;
             return viewport.rows.reduce(function (acc, row) {
@@ -57,15 +74,19 @@ $.register_module({
                         .reduce(function (acc, val, idx) {return acc.concat(rows[idx], val.map(cell_value));}, []),
                 };
             },
+            MATRIX_2D: function (dataman, data) {
+                var cols = col_names(data[0].length);
+                return {
+                    meta: meta(dataman, data.length, cols, 50),
+                    data: data
+                        .reduce(function (acc, val, idx) {return acc.concat({v: idx + 1}, val.map(cell_value));}, []),
+                };
+            },
             TIME_SERIES: function (dataman, data) {
                 return {
                     meta: meta(dataman, data.timeseries.data.length, data.timeseries.fieldLabels, 125, true),
                     data: data.timeseries.data.reduce(function (acc, val) {
-                        var date = new Date(val[0]);
-                        val[0] = date.getUTCFullYear() + '-' + pad(date.getUTCMonth() + 1) + '-' +
-                            pad(date.getUTCDate()) + '  ' + pad(date.getUTCHours()) + ':' + pad(date.getUTCMinutes()) +
-                            ':' + pad(date.getUTCSeconds());
-                        return acc.concat(val.map(cell_value));
+                        return (val[0] = og.common.util.date(val[0])), acc.concat(val.map(cell_value));
                     }, [])
                 };
             }
@@ -81,6 +102,7 @@ $.register_module({
                         og.dev.warn(message = module.name + ': formatting ' + type + ' failed, ' + error.message);
                         return dataman.kill(), dataman.fire('fatal', message);
                     }
+                    if (!dataman.formatted) return; // only a clipboard will ever be in this state
                     if (dataman.formatted.meta) {
                         Object.keys(dataman.formatted.meta) // populate dataman.meta
                             .forEach(function (key) {dataman.meta[key] = dataman.formatted.meta[key];});

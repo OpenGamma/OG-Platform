@@ -27,7 +27,7 @@ public class CommodityFutureOptionBlackVegaFunction extends CommodityFutureOptio
    * Default constructor
    */
   public CommodityFutureOptionBlackVegaFunction() {
-    super(ValueRequirementNames.VALUE_VEGA);
+    super(ValueRequirementNames.VEGA);
   }
 
   @Override

@@ -6,22 +6,19 @@
 package com.opengamma.financial.analytics.model.futureoption;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
-import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.util.money.Currency;
 
 /**
  *
  */
-public abstract class CommodityFutureOptionBlackFunction extends FutureOptionFunction {
+public abstract class CommodityFutureOptionBlackFunction extends CommodityFutureOptionFunction {
 
   /**
    * @param valueRequirementName The value requirement name
@@ -31,27 +28,17 @@ public abstract class CommodityFutureOptionBlackFunction extends FutureOptionFun
   }
 
   @Override
-  protected ValueRequirement getVolatilitySurfaceRequirement(final FinancialSecurity security, final String surfaceName, final String smileInterpolator) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(security);
-    final String fullSurfaceName = CommodityFutureOptionUtils.getSurfaceName(security, surfaceName);
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.SURFACE, fullSurfaceName)
-        .with(ValuePropertyNames.CURVE, fullSurfaceName)
-        .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolator)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION)
-        .get();
-    return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetSpecification.of(currency), properties);
-  }
-
-  @Override
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .with(CalculationPropertyNamesAndValues.PROPERTY_MODEL_TYPE, CalculationPropertyNamesAndValues.ANALYTIC)
+        .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethod())
+        .with(CalculationPropertyNamesAndValues.PROPERTY_MODEL_TYPE, getModelType())
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
+        .withAny(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD)
+        .withAny(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME)
+        .withAny(ValuePropertyNames.SURFACE_CALCULATION_METHOD)
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
   }
 
@@ -61,14 +48,30 @@ public abstract class CommodityFutureOptionBlackFunction extends FutureOptionFun
     final String curveConfigName = getCurveConfigName(desiredValue);
     final String volSurfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final String smileInterpolatorName = desiredValue.getConstraint(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
+    final String forwardCurveCalculationMethod = desiredValue.getConstraint(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
+    final String forwardCurveName = desiredValue.getConstraint(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME);
+    final String surfaceCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
     final ValueProperties.Builder builder = createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .with(CalculationPropertyNamesAndValues.PROPERTY_MODEL_TYPE, CalculationPropertyNamesAndValues.ANALYTIC)
+        .with(ValuePropertyNames.CALCULATION_METHOD, getCalculationMethod())
+        .with(CalculationPropertyNamesAndValues.PROPERTY_MODEL_TYPE, getModelType())
         .with(ValuePropertyNames.CURVE, fundingCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName)
         .with(ValuePropertyNames.SURFACE, volSurfaceName)
         .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, smileInterpolatorName)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
+        .with(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME, forwardCurveName)
+        .with(ValuePropertyNames.SURFACE_CALCULATION_METHOD, surfaceCalculationMethod)
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
     return builder;
+  }
+
+  @Override
+  protected String getCalculationMethod() {
+    return CalculationPropertyNamesAndValues.BLACK_METHOD;
+  }
+
+  @Override
+  protected String getModelType() {
+    return CalculationPropertyNamesAndValues.ANALYTIC;
   }
 }

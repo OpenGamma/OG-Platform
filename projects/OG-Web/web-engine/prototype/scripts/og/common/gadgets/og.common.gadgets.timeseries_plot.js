@@ -151,7 +151,7 @@ $.register_module({
                         var SLICK_SELECTOR = selector + ' .og-data-points .og-slick-' + index, slick, data,
                         columns = [
                             {id: 'time', name: 'Time', field: 'time', width: col_width,
-                                formatter: function (row, cell, value) {return og.common.util.date(value, 'dateonly');}
+                                formatter: function (row, cell, value) {return og.common.util.date(value);}
                             },
                             {id: 'value', name: 'Value', field: 'value', width: col_width}
                         ],

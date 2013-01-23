@@ -12,6 +12,7 @@ $.register_module({
         return view = {
             check_state: og.views.common.state.check.partial('/'),
             load: function (args) {
+                og.analytics.blotter = true;
 //                masthead.menu.set_tab(page_name);
                 if (!form) form = new og.analytics.form2();
                 $('.new_trade').css({display: 'inline-block'}).click(function (){new og.blotter.Dialog();});
@@ -61,7 +62,10 @@ $.register_module({
                     });
                 });
             },
-            load_item: function (args) {},
+            load_item: function (args) {
+                view.check_state({args: args, conditions: [{new_page: view.load}]});
+                og.analytics.url.process(args);
+            },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
             rules: {
                 load: {route: '/', method: module.name + '.load'},

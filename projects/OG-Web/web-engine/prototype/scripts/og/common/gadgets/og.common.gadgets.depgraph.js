@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.common.gadgets.Depgraph',
-    dependencies: ['og.common.gadgets.manager', 'og.analytics.Grid'],
+    dependencies: ['og.analytics.Grid'],
     obj: function () {
         var Depgraph = function (config) {
             og.analytics.Grid.call(this, {

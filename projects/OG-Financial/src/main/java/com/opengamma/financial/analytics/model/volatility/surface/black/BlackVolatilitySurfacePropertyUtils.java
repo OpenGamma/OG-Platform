@@ -355,7 +355,8 @@ public class BlackVolatilitySurfacePropertyUtils {
     return requirements;
   }
 
-  public static ValueRequirement getSurfaceRequirement(final ValueRequirement desiredValue, final String surfaceName, final String instrumentType, final ExternalId surfaceId) {
+  public static ValueRequirement getSurfaceRequirement(final ValueRequirement desiredValue, final String surfaceName, final String instrumentType,
+      final ComputationTargetType targetType, final ExternalId surfaceId) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> calculationMethod = constraints.getValues(ValuePropertyNames.SURFACE_CALCULATION_METHOD);
     if (calculationMethod != null && calculationMethod.size() == 1) {
@@ -396,6 +397,6 @@ public class BlackVolatilitySurfacePropertyUtils {
         .with(ValuePropertyNames.CURVE, constraints.getValues(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME))
         .get();
     }
-    return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, surfaceId, allProperties.get());
+    return new ValueRequirement(ValueRequirementNames.BLACK_VOLATILITY_SURFACE, targetType, surfaceId, allProperties.get());
   }
 }
