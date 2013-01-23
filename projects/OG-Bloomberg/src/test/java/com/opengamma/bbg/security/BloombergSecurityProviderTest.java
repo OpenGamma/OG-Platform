@@ -318,7 +318,7 @@ public class BloombergSecurityProviderTest {
   }
 
   private Instant getTodayInstant() {
-    Instant toDay = Clock.system(ZoneOffset.UTC).instant();
+    Instant toDay = Clock.systemUTC().instant();
     return toDay;
   }
 

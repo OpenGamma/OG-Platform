@@ -84,7 +84,7 @@ public class RandomTicksGeneratorJob extends TerminatableJob {
       for (int i = 0; i < msgSize; i++) {
         try {
           MutableFudgeMsg msg = getRandomMessage();
-          Instant instant = Clock.system(ZoneOffset.UTC).instant();
+          Instant instant = Clock.systemUTC().instant();
           long epochMillis = instant.toEpochMilli();
           msg.add(RECEIVED_TS_KEY, epochMillis);
           msg.add(SECURITY_KEY, security);

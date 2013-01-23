@@ -191,7 +191,7 @@ public class BloombergTicksCollector implements Lifecycle {
       }
       
       MutableFudgeMsg tickMsg = s_fudgeContext.newMessage();
-      Instant instant = Clock.system(ZoneOffset.UTC).instant();
+      Instant instant = Clock.systemUTC().instant();
       long epochMillis = instant.toEpochMilli();
       tickMsg.add(RECEIVED_TS_KEY, epochMillis);
       tickMsg.add(SECURITY_KEY, bloombergKey);

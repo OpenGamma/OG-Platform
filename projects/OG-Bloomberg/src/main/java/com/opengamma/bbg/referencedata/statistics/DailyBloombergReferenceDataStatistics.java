@@ -106,7 +106,7 @@ public class DailyBloombergReferenceDataStatistics implements BloombergReference
 
   private LocalDate getToday() {
     //I think 0000 UTC is when bloomberg tips over
-    Clock clock = Clock.system(ZoneOffset.UTC);
+    Clock clock = Clock.systemUTC();
     return LocalDate.now(clock);
   }
 

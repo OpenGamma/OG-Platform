@@ -21,7 +21,7 @@ public final class OpenGammaClock {
   /**
    * Singleton instance.
    */
-  private static volatile Clock s_instance = Clock.system(ZoneOffset.UTC);
+  private static volatile Clock s_instance = Clock.systemUTC();
 
   /**
    * Restricted constructor.

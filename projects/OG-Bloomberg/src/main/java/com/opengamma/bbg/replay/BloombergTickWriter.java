@@ -265,7 +265,7 @@ public class BloombergTickWriter extends TerminatableJob {
    * @return
    */
   private String makeBaseDirectoryName() {
-    Clock clock = Clock.system(ZoneOffset.UTC);
+    Clock clock = Clock.systemUTC();
     LocalDate today = LocalDate.now(clock);
     StringBuilder buf = new StringBuilder();
     buf.append(_rootDir).append(File.separator);

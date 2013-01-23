@@ -390,7 +390,7 @@ public final class DateUtils {
    * @return the date, not null
    */
   public static LocalDate previousWeekDay() {
-    Clock clock = Clock.system(ZoneOffset.UTC);
+    Clock clock = Clock.systemUTC();
     return previousWeekDay(LocalDate.now(clock));
   }
 
@@ -399,7 +399,7 @@ public final class DateUtils {
    * @return the date, not null
    */
   public static LocalDate nextWeekDay() {
-    Clock clock = Clock.system(ZoneOffset.UTC);
+    Clock clock = Clock.systemUTC();
     return nextWeekDay(LocalDate.now(clock));
   }
 
