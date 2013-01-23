@@ -91,8 +91,8 @@ public class CommodityFutureOptionBlackLognormalDefaults extends DefaultProperty
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME);
+      defaults.addValuePropertyName(valueRequirement, EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
       defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
       defaults.addValuePropertyName(valueRequirement, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
@@ -114,10 +114,10 @@ public class CommodityFutureOptionBlackLognormalDefaults extends DefaultProperty
       s_logger.error("Could not get curve name for {}; should never happen", target.getValue());
       return null;
     }
-    if (ValuePropertyNames.CURVE.equals(propertyName)) {
+    if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_NAME.equals(propertyName)) {
       return Collections.singleton(curveName);
     }
-    if (ValuePropertyNames.CURVE_CALCULATION_CONFIG.equals(propertyName)) {
+    if (EquityOptionFunction.PROPERTY_DISCOUNTING_CURVE_CONFIG.equals(propertyName)) {
       return Collections.singleton(_currencyToCurveCalculationConfigName.get(currency));
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
