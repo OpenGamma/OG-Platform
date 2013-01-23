@@ -26,6 +26,7 @@ $.register_module({
                         data.underlying.receiveLeg.type = $receive_select.val();
                         data.underlying.counterparty = data.trade.counterparty;
                         data.underlying.attributes = {};
+                        data.security.attributes = {};
                         data.underlying.payLeg.regionId = 'ABC~123';
                         data.underlying.receiveLeg.regionId = 'ABC~123';
                         data.underlying.payLeg.notional.type = 'InterestRateNotional';

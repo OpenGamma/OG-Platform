@@ -16,16 +16,11 @@ $.register_module({
                 var form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.bond_tash',
                     data: {},
-                    type_map: {},
-                    selector: '.OG-blotter-form-block',
-                    extras: {}
+                    selector: '.OG-blotter-form-block'
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form}),
-                    security.block = new form.Block({
-                        module: 'og.blotter.forms.blocks.fungible_security_tash',
-                        extras: {}
-                    }),
+                    new og.blotter.forms.blocks.Fungible({form: form}),
                     bond.block = new form.Block({
                         module: 'og.blotter.forms.blocks.bond_tash',
                         extras: {}

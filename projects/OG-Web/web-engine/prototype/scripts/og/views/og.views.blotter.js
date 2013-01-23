@@ -61,6 +61,11 @@ $.register_module({
                         new og.blotter.Dialog(data);
                     });
                 });
+                $('.swaption').click(function (){
+                    og.api.rest.blotter.trades.get({id:"DbPos~"}).pipe(function(data){
+                        new og.blotter.Dialog(data);
+                    });
+                });
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
