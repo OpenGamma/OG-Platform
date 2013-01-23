@@ -7,8 +7,10 @@ package com.opengamma.masterdb.security.hibernate;
 
 import java.util.Date;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
@@ -77,9 +79,9 @@ public final class Converters {
     final long epochSeconds = zonedDateTimeBean.getDate().getTime() / 1000;
     ZonedDateTime zdt = null;
     if (zonedDateTimeBean.getZone() == null) {
-      zdt = ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.UTC);
+      zdt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneOffset.UTC);
     } else {
-      zdt = ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.of(zonedDateTimeBean.getZone()));
+      zdt = ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneId.of(zonedDateTimeBean.getZone()));
     }
 
     return new Expiry(zdt, bean.getAccuracy());
@@ -92,8 +94,8 @@ public final class Converters {
     final ExpiryBean bean = new ExpiryBean();
     
     final ZonedDateTimeBean zonedDateTimeBean = new ZonedDateTimeBean();
-    zonedDateTimeBean.setDate(new Date(expiry.getExpiry().toInstant().toEpochMillisLong()));
-    zonedDateTimeBean.setZone(expiry.getExpiry().getZone().getID());
+    zonedDateTimeBean.setDate(new Date(expiry.getExpiry().toInstant().toEpochMilli()));
+    zonedDateTimeBean.setZone(expiry.getExpiry().getZone().getId());
     bean.setExpiry(zonedDateTimeBean);
     bean.setAccuracy(expiry.getAccuracy());
     return bean;
@@ -105,9 +107,9 @@ public final class Converters {
     }
     final long epochSeconds = date.getDate().getTime() / 1000;
     if (date.getZone() == null) {
-      return ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.UTC);
+      return ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneOffset.UTC);
     } else {
-      return ZonedDateTime.ofEpochSeconds(epochSeconds, TimeZone.of(date.getZone()));
+      return ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneId.of(date.getZone()));
     }
   }
 
@@ -116,8 +118,8 @@ public final class Converters {
       return null;
     }
     final ZonedDateTimeBean bean = new ZonedDateTimeBean();
-    bean.setDate(new Date(zdt.toInstant().toEpochMillisLong()));
-    bean.setZone(zdt.getZone().getID());
+    bean.setDate(new Date(zdt.toInstant().toEpochMilli()));
+    bean.setZone(zdt.getZone().getId());
     return bean;
   }
 

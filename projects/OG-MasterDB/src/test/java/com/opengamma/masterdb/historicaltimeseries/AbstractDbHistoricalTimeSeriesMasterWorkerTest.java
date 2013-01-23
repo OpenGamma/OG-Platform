@@ -10,11 +10,6 @@ import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import javax.time.Instant;
-import javax.time.TimeSource;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -22,6 +17,11 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
@@ -61,7 +61,7 @@ public abstract class AbstractDbHistoricalTimeSeriesMasterWorkerTest extends DbT
     _htsMaster = (DbHistoricalTimeSeriesMaster) context.getBean(getDatabaseType() + "DbHistoricalTimeSeriesMaster");
     
     _now = OffsetDateTime.now();
-    _htsMaster.setTimeSource(TimeSource.fixed(_now.toInstant()));
+    _htsMaster.setClock(Clock.fixed(_now.toInstant(), ZoneOffset.UTC));
     _version1Instant = _now.toInstant().minusSeconds(100);
     _version2Instant = _now.toInstant().minusSeconds(50);
     _version3Instant = _now.toInstant().minusSeconds(40);

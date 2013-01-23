@@ -10,14 +10,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.Instant;
-import javax.time.TimeSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
 
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
@@ -48,7 +47,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
   /**
    * The time-source to use.
    */
-  private TimeSource _timeSource = TimeSource.system();
+  private Clock _timeSource = Clock.systemUTC();
 
   /**
    * Creates an instance.
@@ -97,7 +96,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
    * 
    * @return the time-source, not null
    */
-  public TimeSource getTimeSource() {
+  public Clock getClock() {
     return _timeSource;
   }
 
@@ -106,9 +105,9 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
    * 
    * @param timeSource  the time-source, not null
    */
-  public void setTimeSource(final TimeSource timeSource) {
+  public void setClock(final Clock timeSource) {
     ArgumentChecker.notNull(timeSource, "timeSource");
-    s_logger.debug("installed TimeSource: {}", timeSource);
+    s_logger.debug("installed Clock: {}", timeSource);
     _timeSource = timeSource;
   }
 
@@ -126,7 +125,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
   public FunctionCostsDocument load(final String configuration, final String functionId, Instant versionAsOf) {
     s_logger.debug("load: {} {}", configuration, functionId);
     if (versionAsOf == null) {
-      versionAsOf = Instant.now(getTimeSource());
+      versionAsOf = Instant.now(getClock());
     }
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("configuration", configuration)
@@ -147,7 +146,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
     ArgumentChecker.notNull(costs, "costs");
     ArgumentChecker.notNull(costs.getConfigurationName(), "costs.configurationName");
     ArgumentChecker.notNull(costs.getFunctionId(), "costs.functionId");
-    costs.setVersion(Instant.now(getTimeSource()));
+    costs.setVersion(Instant.now(getClock()));
     
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("configuration", costs.getConfigurationName())

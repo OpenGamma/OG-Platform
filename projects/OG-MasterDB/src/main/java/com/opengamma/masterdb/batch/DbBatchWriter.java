@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.time.Instant;
-
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -41,6 +39,7 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;
