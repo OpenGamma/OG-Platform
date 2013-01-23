@@ -71,10 +71,9 @@ $.register_module({
                             if (last_fingerprint[panel][index] === fingerprint) return fingerprint;
                             gadget.fingerprint = fingerprint;
                             new_gadgets.push(gadget);
-                            if (typeof new_gadgets.add_index === 'undefined') new_gadgets.add_index = index;
                             return fingerprint;
                         });
-                        if (new_gadgets.length) og.analytics.containers[panel].add(new_gadgets, new_gadgets.add_index);
+                        if (new_gadgets.length) og.analytics.containers[panel].add(new_gadgets);
                     });
                     panels.forEach(function (panel) {og.analytics.containers[panel].verify(last_fingerprint[panel]);});
                     if (handler) handler();

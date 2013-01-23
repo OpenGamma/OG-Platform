@@ -15,6 +15,7 @@ $.register_module({
                 var digits = Math.floor(Math.log(num) / base_log) + 1, lcv, result = '', digit, power;
                 for (lcv = digits; lcv > 0; lcv -= 1) {
                     num -= ((digit = Math.floor(num / (power = Math.pow(base, lcv - 1)))) * power);
+                    // because A plays both the role of 0 and 1 when it is the first digit
                     result += letters[lcv === digits ? Math.max(0, digit - 1) : digit];
                 }
                 return result;
