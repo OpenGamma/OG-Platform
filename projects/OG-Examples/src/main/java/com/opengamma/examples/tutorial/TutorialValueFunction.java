@@ -8,7 +8,7 @@ package com.opengamma.examples.tutorial;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;

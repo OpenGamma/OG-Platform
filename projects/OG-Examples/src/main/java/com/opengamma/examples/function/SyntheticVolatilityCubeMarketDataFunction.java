@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -74,8 +74,8 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
 
   @SuppressWarnings("synthetic-access")
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
-    final Triple<InstantProvider, InstantProvider, VolatilityCubeSpecification> compile = _helper.compile(context, atInstant);
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
+    final Triple<Instant, Instant, VolatilityCubeSpecification> compile = _helper.compile(context, atInstant);
     
     Map<ExternalId, VolatilityPoint> pointsById = getPointsById();
     Map<ExternalId, Pair<Tenor, Tenor>> strikesById = getStrikesById();
@@ -153,7 +153,7 @@ public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction 
     private final Map<ExternalId, VolatilityPoint> _pointsById;
     private final Map<ExternalId, Pair<Tenor, Tenor>> _strikesById;
 
-    private CompiledImpl(final InstantProvider earliest, final InstantProvider latest,
+    private CompiledImpl(final Instant earliest, final Instant latest,
         final Set<ValueRequirement> requirements, Map<ExternalId, VolatilityPoint> pointsById, Map<ExternalId, Pair<Tenor, Tenor>> strikesById) {
       super(earliest, latest);
       _requirements = requirements;
