@@ -158,11 +158,6 @@ public class Tenor implements Comparable<Tenor> {
    * A tenor of two financial years measured in hours (365.25 * 24 * 2 hours).
    */
   public static final Tenor TWO_FINANCIAL_YEARS = new Tenor(FINANCIAL_YEAR.getPeriod().multipliedBy(2));
-// removed as was broken
-//  /**
-//   * A tenor of the days in a standard year (365 / 12 days).
-//   */
-//  public static final Tenor MONTH = new Tenor(YEAR.getPeriod().dividedBy(12));
 
   /**
    * The period of the tenor.
