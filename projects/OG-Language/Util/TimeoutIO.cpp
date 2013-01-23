@@ -378,6 +378,11 @@ bool CTimeoutIO::LazyClose (unsigned long timeout) {
 	} else {
 		LOGDEBUG (TEXT ("Lazy closing after ") << timeout << TEXT ("ms"));
 		g_oClosing.Enter ();
+		if (m_bClosed) {
+			g_oClosing.Leave ();
+			LOGWARN (TEXT ("Already closed, can't set lazy notification"));
+			return false;
+		}
 		m_lLazyTimeout = timeout;
 		if (!CancelIO ()) {
 			m_lLazyTimeout = 0;
