@@ -16,7 +16,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
@@ -273,7 +273,7 @@ public class ComponentManager {
       PlatformConfigUtils.configureSystemProperties();
       String zoneId = global.get("time.zone");
       if (zoneId != null) {
-        OpenGammaClock.setZone(TimeZone.of(zoneId));
+        OpenGammaClock.setZone(ZoneId.of(zoneId));
       }
     }
   }
