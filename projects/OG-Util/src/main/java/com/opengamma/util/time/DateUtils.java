@@ -549,7 +549,7 @@ public final class DateUtils {
    * @return the estimated duration, not null
    */
   public static Duration estimatedDuration(Period period) {  // TODO: JSR-310
-    return MONTHS.getDuration().multipliedBy(totalMonths(period)).plus(period.normalizedDaysToHours().toDuration());
+    return MONTHS.getDuration().multipliedBy(totalMonths(period)).plus(period.normalizedDaysToHours().toTimeOnly().toDuration());
   }
 
   /**
