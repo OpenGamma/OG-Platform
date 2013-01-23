@@ -24,7 +24,7 @@ import com.opengamma.util.test.ActiveMQTestUtils;
 /**
  * Test.
  */
-@Test
+@Test(groups = "integration")
 public class JmsBatchMessageDispatcherTest {
 
   @Test(invocationCount = 5, successPercentage = 19)
