@@ -14,13 +14,13 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.math.BigDecimal;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.OffsetTime;
 import javax.ws.rs.core.Response;
 
 import org.json.JSONObject;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
