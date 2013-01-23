@@ -295,7 +295,6 @@ $.register_module({
                 else query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:source_val, txt: source_txt});
                 enable_extra_options(entry, true);
                 display_query();
-                console.log(query);
             };
 
             var type_handler = function (entry) {
