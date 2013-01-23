@@ -47,17 +47,12 @@ $.register_module({
             },
             TIME_SERIES: function (value, single) {
                 if (!single) return '**TIME SERIES**';
-                var rows, cols, pad = function (digit) {return (digit < 10 ? '0' : '') + digit;};
+                var rows, cols;
                 value = value.v || value;
                 rows = value.timeseries.data;
                 cols = value.timeseries['fieldLabels'];
-                return cols.join(tab) + line + rows.map(function (row) {
-                    var date = new Date(row[0]);
-                    row[0] = date.getUTCFullYear() + '-' + pad(date.getUTCMonth() + 1) + '-' + pad(date.getUTCDate()) +
-                        '  ' + pad(date.getUTCHours()) + ':' + pad(date.getUTCMinutes()) + ':' +
-                        pad(date.getUTCSeconds());
-                    return row.join(tab);
-                }).join(line);
+                return cols.join(tab) + line + rows
+                    .map(function (row) {return (row[0] = og.common.util.date(row[0])), row.join(tab);}).join(line);
             },
             UNKNOWN: function (value, single) {
                 var type = value.t;
