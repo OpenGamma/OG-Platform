@@ -50,7 +50,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 
 /**
- * PROTOTYPE
+ * FIXME PROTOTYPE
  * Function that computes the profit or loss since previous close. <p>
  * As the name MarkToMarket implies, this simple Function applies to Trades on Exchange-Traded Securities.
  * @author casey
@@ -58,7 +58,7 @@ import com.opengamma.util.money.Currency;
 public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static String s_valReqPriceLive = MarketDataRequirementNames.MARKET_VALUE;
-  private static String s_valReqPriceHistory = ValueRequirementNames.HISTORICAL_TIME_SERIES;
+  private static String s_valReqPriceHistory = ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST;
   private static int s_historyLookbackDays = 45;
   
   private final String _closingPriceField;
@@ -106,8 +106,8 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     
     // 1. Get inputs
     Double livePrice = null;
-    HistoricalTimeSeries htsClosingPrices = null;
-    HistoricalTimeSeries htsCostOfCarry = null;
+    Double closingPrice = null;
+    Double costOfCarry = 0.0;
     
     for (final ComputedValue input : inputs.getAllValues()) {
       if (s_valReqPriceLive.equals(input.getSpecification().getValueName())) {
@@ -116,33 +116,25 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
       } else if (s_valReqPriceHistory.equals(input.getSpecification().getValueName())) {
         final String field = input.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
         if (_costOfCarryField.equals(field)) {
-          htsCostOfCarry = (HistoricalTimeSeries) input.getValue();
+          // Get cost of carry, if available
+          Object value = input.getValue();
+          if (value != null) {
+            costOfCarry = (Double) value;
+          }
         } else if (_closingPriceField.equals(field)) {
-          htsClosingPrices = (HistoricalTimeSeries) input.getValue();
+          // Get most recent closing price before today 
+          // By intention, this will not be today's close even if it's available  
+          // TODO Review - Note that this may be stale, as we take latest value. Illiquid securities do not trade each day..
+          Object value = input.getValue();
+          if (value == null) {
+            throw new NullPointerException("Did not satisfy time series latest requirement," + _closingPriceField + ", for security, " + security.getExternalIdBundle());
+          }      
+          closingPrice = (Double) value;
         }
       }
     }
     if (livePrice == null) {
       throw new OpenGammaRuntimeException(MarketDataRequirementNames.MARKET_VALUE + " not available," + security.getName());
-    }
-    
-    // Get most recent closing price before today 
-    // By intention, this will not be today's close even if it's available  
-    // TODO Review - Note that this may be stale, as we take latest value. Illiquid securities do not trade each day.. 
-    if (htsClosingPrices == null) {
-      throw new NullPointerException("Did not satisfy time series requirement," + _closingPriceField + ", for security, " + security.getExternalIdBundle());
-    }
-    if (htsClosingPrices.getTimeSeries().isEmpty()) {
-      throw new OpenGammaRuntimeException("Empty Time Series," + _closingPriceField + ", for security, " + security.getExternalIdBundle());
-    }
-    Double closingPrice = htsClosingPrices.getTimeSeries().getLatestValue();
-    
-    // Get cost of carry, if available
-    Double costOfCarry = 0.0;
-    if (htsCostOfCarry != null) {
-      if (!(htsCostOfCarry.getTimeSeries().isEmpty())) {
-        costOfCarry = htsCostOfCarry.getTimeSeries().getLatestValue();
-      }  
     }
     
     // Move in the marked prices: Live - Previous Close 
@@ -236,37 +228,42 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     return requirements;
   }
   
+  
+  // TODO - Add endDate to properties
+  // TODO - Create a Function that getBothOfThese SeriesLast Requirements and place in HistoricalTimeSeriesFunctionUtils
   private ValueRequirement getClosingPriceSeriesRequirement(final HistoricalTimeSeriesResolver resolver, final ExternalIdBundle bundle, final DateConstraint startDate, final DateConstraint endDate) {
     
     final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(bundle, null, null, null, _closingPriceField, _resolutionKey);
     if (timeSeries == null) {
       return null;
     }
-    /*
+    
     final UniqueId htsId = timeSeries.getHistoricalTimeSeriesInfo().getUniqueId();
     ValueProperties properties = ValueProperties.builder()
-        .with("End", endDate.toString())
-        .with("IncludeEnd", "No")
+        .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, _closingPriceField)
+        //.with("End", endDate.toString())
+        //.with("IncludeEnd", "Yes")
         .get();
     return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, ComputationTargetType.PRIMITIVE, htsId, properties);
-    */
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, _closingPriceField, startDate, true, endDate, true);
+    
+    //return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, _closingPriceField, startDate, true, endDate, true);
   }
-
+   
   private ValueRequirement getCostOfCarrySeriesRequirement(final HistoricalTimeSeriesResolver resolver, final ExternalIdBundle bundle, final DateConstraint startDate, final DateConstraint endDate) {
     final HistoricalTimeSeriesResolutionResult timeSeries = resolver.resolve(bundle, null, null, null, _costOfCarryField, _resolutionKey);
     if (timeSeries == null) {
       return null;
     }
-    /*
+    
     final UniqueId htsId = timeSeries.getHistoricalTimeSeriesInfo().getUniqueId();
     ValueProperties properties = ValueProperties.builder()
-        .with("End", endDate.toString())
-        .with("IncludeEnd", "No")
+        .with(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY, _costOfCarryField)
+        //.with("End", endDate.toString())
+        //.with("IncludeEnd", "Yes")
         .get();
     return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST, ComputationTargetType.PRIMITIVE, htsId, properties);
-    */
-    return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, _costOfCarryField, startDate, true, endDate, true);
+    
+    //return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, _costOfCarryField, startDate, true, endDate, true);
   }
   
   protected DateConstraint getTimeSeriesStartDate() {
