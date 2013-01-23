@@ -9,21 +9,8 @@ $.register_module({
         var module = this, constructor, menus = [],  query,
             tashes = { form_container:  'og.analytics.form_tash' },
             events = {
-                datasources:{
-                    'open': 'datasources:dropmenu:open',
-                    'close': 'datasources:dropmenu:close',
-                    'focus': 'datasources:dropmenu:focus'
-                },
-                temporal:{
-                    'open': 'temporal:dropmenu:open',
-                    'close': 'temporal:dropmenu:close',
-                    'focus': 'temporal:dropmenu:focus'
-                },
-                aggregators:{
-                    'open': 'aggregators:dropmenu:open',
-                    'close': 'aggregators:dropmenu:close',
-                    'focus': 'aggregators:dropmenu:focus'
-                }
+                open: 'dropmenu:open',
+                close: 'dropmenu:close'
             },
             selectors = {
                 form_container: 'OG-analytics-form',
@@ -49,36 +36,50 @@ $.register_module({
 
         var keydown_handler = function (event) {
             if (event.keyCode !== 9) return;
-            var $elem = $(event.srcElement), shift = event.shiftKey, controls = {};
+            var $elem = $(event.srcElement || event.target), shift = event.shiftKey, controls = {};
             Object.keys(dom.menus).map(function (entry) {
                 var cntrls = $(selectors.form_controls, dom.menus[entry]);
                 if (cntrls.length) controls[entry] = cntrls;
             });
             if (!shift) {
-                if ($elem.is(':focus') && $elem.closest(dom.menus['views']).length)
-                    return og.common.events.fire(events.datasources.open);
-                if ($elem.is(controls['datasources'].eq(-1)))
-                    return og.common.events.fire(events.datasources.close), og.common.events.fire(events.temporal.open);
-                if ($elem.is(controls['temporal'].eq(-1)))
-                    return og.common.events.fire(events.temporal.close), og.common.events.fire(events.aggregators.open);
-                if ($elem.is(controls['aggregators'].eq(-1))) return og.common.events.fire(events.aggregators.close);
+                if ($elem.closest(dom.menus['views']).length)
+                    og.common.events.fire('datasources:'+events.open);
+                else if ($elem.is(controls['datasources'].eq(-1))) {
+                    og.common.events.fire('datasources:'+events.close);
+                    og.common.events.fire('temporal:'+events.open);
+                } else if ($elem.is(controls['temporal'].eq(-1))) {
+                    og.common.events.fire('temporal:'+events.close);
+                    og.common.events.fire('aggregators:'+events.open);
+                }else if ($elem.is(controls['aggregators'].eq(-1))) {
+                    og.common.events.fire('aggregators:'+events.close);
+                    og.common.events.fire('filters:'+events.open);
+                } else if ($elem.is(controls['filters'].eq(-1)))
+                    og.common.events.fire('filters:'+events.close);
             } else if (shift) {
-                if ($elem.is('.'+selectors.load_btn)) return og.common.events.fire(events.aggregators.open);
-                if ($elem.is(controls['aggregators'].eq(0)))
-                    return og.common.events.fire(events.aggregators.close), og.common.events.fire(events.temporal.open);
-                if ($elem.is(controls['temporal'].eq(0)))
-                    return og.common.events.fire(events.temporal.close), og.common.events.fire(events.datasources.open);
-                if ($elem.is(controls['datasources'].eq(0))) return og.common.events.fire(events.datasources.close);
+                if ($elem.is('.'+selectors.load_btn)){
+                    og.common.events.fire('filters:'+events.open);
+                } else if ($elem.is(controls['filters'].eq(0))) {
+                    og.common.events.fire('filters:'+events.close);
+                    og.common.events.fire('aggregators:'+events.open);
+                } else if ($elem.is(controls['aggregators'].eq(0))) {
+                    og.common.events.fire('aggregators:'+events.close);
+                    og.common.events.fire('temporal:'+events.open);
+                } else if ($elem.is(controls['temporal'].eq(0))){
+                    og.common.events.fire('temporal:'+events.close);
+                    og.common.events.fire('datasources'+events.open);
+                } else if ($elem.is(controls['datasources'].eq(0)))
+                    og.common.events.fire('datasources'+events.close);
             }
         };
 
-        var load_form = function () {
+        var load_form = function (event) {
             var compilation = form.compile();
             query = {
                 aggregators: compilation.data.aggregators,
                 providers: compilation.data.providers,
                 viewdefinition: 'DbCfg~2197901'
             };
+            $(event.srcElement || event.target).focus(0);
         };
 
         var load_handler = function (event) {

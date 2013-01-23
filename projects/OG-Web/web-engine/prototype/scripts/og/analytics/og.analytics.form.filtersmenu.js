@@ -9,7 +9,7 @@ $.register_module({
         var module = this, Block = og.common.util.ui.Block;
         var FiltersMenu = function (config) {
             var block = this, form = config.form, id = og.common.id('filters'),
-                filters = config.filters || [{key:'', value:''}];
+                menu, filters = config.filters || [{key:'', value:''}];
             var new_row = function (val, idx) {
                 return new form.Block({
                     module: 'og.analytics.form_filters_row_tash',
@@ -49,7 +49,10 @@ $.register_module({
             });
 
             form.on('form:load', function () {
-                (new og.common.util.ui.DropMenu({cntr: $('.og-filters', '.OG-analytics-form')}));
+                menu = new og.common.util.ui.DropMenu({cntr: $('.og-filters', '.OG-analytics-form')});
+                og.common.events.on('filters:dropmenu:open', function() {menu.fire('dropmenu:open', this);});
+                og.common.events.on('filters:dropmenu:close', function() {menu.fire('dropmenu:close', this);});
+                og.common.events.on('filters:dropmenu:focus', function() {menu.fire('dropmenu:focus', this);});
             });
         };
         FiltersMenu.prototype = new Block; // inherit Block prototype
