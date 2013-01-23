@@ -97,16 +97,25 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
     final double[] shiftLnVolLowTail;
     
     // Volatility gradient (dVol/dStrike) of interpolator
-    final Function1D<Double, Double> dSigmaDx = DIFFERENTIATOR.differentiate(interpFunc, domain);  
+    
+    // FIXME - Remove this hard-coded behaviour, and set up as a Property which can be set
+    // By simply passing in a target gradient of zero, we will produce a 'FLAT EXTRAPOLATION'
+    final Function1D<Double, Double> returnZero = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(final Double k) {
+        return 0.0;
+      }
+    };
+    final Function1D<Double, Double> dSigmaDx = returnZero;
+    
+    // !!! The line below, instead, computes the derivative using the interpolator
+    //final Function1D<Double, Double> dSigmaDx = DIFFERENTIATOR.differentiate(interpFunc, domain);
     
     if (_extrapolatorFailureBehaviour.equalsIgnoreCase("Quiet")) {
       
       // The current *hard-coded* method reduces smile if the volatility gradient is either out of bounds of ShiftedLognormal model, or if root-finder fails to find solution
       shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, strikes[n - 1], impliedVols[n - 1], dSigmaDx.evaluate(kH), expiry);
       shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, kL, impliedVols[0], dSigmaDx.evaluate(kL), expiry);
-      
-      // TODO: By simply passing in a target gradient of zero, we will produce a 'FLAT EXTRAPOLATION'
-      // final double[] testLowExtrapParamsZero =  TAIL_FITTER.fitVolatilityAndGrad(forward, kL, impliedVols[0], 0.0, expiry);
       
     } else {
       shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGrad(forward, kH, impliedVols[n - 1], dSigmaDx.evaluate(kH), expiry);
