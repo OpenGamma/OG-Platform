@@ -11,6 +11,9 @@
 opengamma.configuration.url=${opengamma.configuration.url}
 opengamma.configuration.failOnInvalid=${opengamma.configuration.failOnInvalid}
 opengamma.configuration.failOnMissing=${opengamma.configuration.failOnMissing}
+
+# OG-Language defaults
+language.annotationCachePath=${build.dir}
 </echo>
   </target>
 
