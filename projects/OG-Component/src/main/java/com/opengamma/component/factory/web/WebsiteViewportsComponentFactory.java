@@ -51,8 +51,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.analytics.AnalyticsViewManager;
 import com.opengamma.web.analytics.GridColumnsJsonWriter;
 import com.opengamma.web.analytics.ViewportResultsJsonWriter;
-import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
+import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 import com.opengamma.web.analytics.blotter.BlotterResource;
+import com.opengamma.web.analytics.blotter.DefaultBlotterColumnMappings;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
 import com.opengamma.web.analytics.json.Compressor;
 import com.opengamma.web.analytics.json.DependencyGraphGridStructureMessageBodyWriter;
@@ -188,13 +189,13 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     CurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
     // TODO should be able to configure the currency pairs
     CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
-    BlotterColumnMappings blotterColumnMappings = new BlotterColumnMappings(currencyPairs);
+    BlotterColumnMapper blotterColumnMapper = DefaultBlotterColumnMappings.create(currencyPairs);
     AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(),
                                                                          aggregatedViewDefManager,
                                                                          getMarketDataSnapshotMaster(),
                                                                          getComputationTargetResolver(),
                                                                          getMarketDataSpecificationRepository(),
-                                                                         blotterColumnMappings);
+                                                                         blotterColumnMapper);
     ResultsFormatter resultsFormatter = new ResultsFormatter();
     GridColumnsJsonWriter columnWriter = new GridColumnsJsonWriter(resultsFormatter);
     ViewportResultsJsonWriter viewportResultsWriter = new ViewportResultsJsonWriter(resultsFormatter);

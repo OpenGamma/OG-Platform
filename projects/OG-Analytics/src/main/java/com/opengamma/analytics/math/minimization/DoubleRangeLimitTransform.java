@@ -89,7 +89,7 @@ public class DoubleRangeLimitTransform implements ParameterLimitsTransform {
     double p = 2 * y;
     double ep = Math.exp(p);
     double epp1 = ep + 1;
-    return 4 * ep / (epp1 * epp1);
+    return _scale * 4 * ep / (epp1 * epp1);
   }
 
   /**

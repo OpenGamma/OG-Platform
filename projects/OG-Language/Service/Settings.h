@@ -33,6 +33,8 @@
 #define SETTINGS_SERVICE_SDDL				TEXT ("serviceSDDL")
 #endif
 
+int JavaVersionFragment (const TCHAR *pszVersion, int nFragment);
+
 /// Configuration settings for the JVM service components
 class CSettings : public CAbstractSettings {
 private:

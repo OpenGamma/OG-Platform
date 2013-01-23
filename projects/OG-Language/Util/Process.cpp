@@ -217,9 +217,10 @@ bool CProcess::Wait (unsigned long lTimeout) const {
 /// Starts a new process from the given image and command line parameters
 ///
 /// @param[in] pszExecutable image to execute
-/// @param[in] pszParameters command line parameters
+/// @param[in] pszParam1 first parameter or NULL for none
+/// @param[in] pszParam2 second parameter or NULL for none
 /// @return the process instance, or NULL if there was a problem
-CProcess *CProcess::Start (const TCHAR *pszExecutable, const TCHAR *pszParameters) {
+CProcess *CProcess::Start (const TCHAR *pszExecutable, const TCHAR *pszParam1, const TCHAR *pszParam2) {
 	LOGINFO (TEXT ("Running ") << pszExecutable);
 #ifdef _WIN32
 	STARTUPINFO si;
@@ -232,14 +233,25 @@ CProcess *CProcess::Start (const TCHAR *pszExecutable, const TCHAR *pszParameter
 #else /* ifdef _DEBUG */
 	dwFlags |= CREATE_NO_WINDOW;
 #endif /* ifdef _DEBUG */
-	size_t cchArgString = _tcslen (pszParameters) + 3;
+	// TODO: escape the parameters
+	size_t cchArgString = 2;
+	if (pszParam1) cchArgString += 1 + _tcslen (pszParam1);
+	if (pszParam2) cchArgString += 1 + _tcslen (pszParam2);
 	TCHAR *pszArgString = new TCHAR[cchArgString];
 	if (!pszArgString) {
 		LOGFATAL (TEXT ("Out of memory"));
 		assert (0);
 		return NULL;
 	}
-	StringCchPrintf (pszArgString, cchArgString, TEXT ("0 %s"), pszParameters);
+	if (pszParam1) {
+		if (pszParam2) {
+			StringCchPrintf (pszArgString, cchArgString, TEXT ("0 %s %s"), pszParam1, pszParam2);
+		} else {
+			StringCchPrintf (pszArgString, cchArgString, TEXT ("0 %s"), pszParam1);
+		}
+	} else {
+		StringCchPrintf (pszArgString, cchArgString, TEXT ("0"));
+	}
 	BOOL bResult = CreateProcess (pszExecutable, pszArgString, NULL, NULL, FALSE, dwFlags, NULL, NULL, &si, &pi);
 	delete pszArgString;
 	if (!bResult) {
@@ -251,8 +263,7 @@ CProcess *CProcess::Start (const TCHAR *pszExecutable, const TCHAR *pszParameter
 	return new CProcess (pi.hProcess);
 #else /* ifdef _WIN32 */
 	pid_t pid;
-	// TODO: process the parameters properly
-	TCHAR * const argv[3] = { (TCHAR*)pszExecutable, (TCHAR*)pszParameters, NULL };
+	TCHAR * const argv[4] = { (TCHAR*)pszExecutable, (TCHAR*)pszParam1, (TCHAR*)pszParam2, NULL };
 	if (!PosixLastError (posix_spawn (&pid, pszExecutable, NULL, NULL, argv, environ))) {
 		LOGWARN (TEXT ("Couldn't start ") << pszExecutable << TEXT (", error ") << GetLastError ());
 		return NULL;
