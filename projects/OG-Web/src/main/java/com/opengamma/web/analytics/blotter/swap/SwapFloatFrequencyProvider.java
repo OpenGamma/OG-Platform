@@ -12,7 +12,7 @@ import com.opengamma.web.analytics.blotter.ValueProvider;
 /**
 *
 */
-public class FloatFrequencyProvider implements ValueProvider<SwapSecurity> {
+public class SwapFloatFrequencyProvider implements ValueProvider<SwapSecurity> {
 
   @Override
   public Frequency getValue(SwapSecurity security) {

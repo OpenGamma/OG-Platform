@@ -5,17 +5,18 @@
  */
 package com.opengamma.web.analytics.blotter.swap;
 
+import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.web.analytics.blotter.ValueProvider;
 
 /**
 *
 */
-public class QuantityProvider implements ValueProvider<SwapSecurity> {
+public class SwapFrequencyProvider implements ValueProvider<SwapSecurity> {
 
   @Override
-  public Double getValue(SwapSecurity security) {
-    // the quantity is from the fixed leg or the pay leg for float/float swaps
-    return new QuantityVisitor().visit(security).getFirst();
+  public Frequency getValue(SwapSecurity security) {
+    // fixed leg frequency for fixed/float, pay leg frequency for float/float
+    return new FrequencyVisitor().visit(security).getFirst();
   }
 }
