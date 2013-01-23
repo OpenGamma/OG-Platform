@@ -13,10 +13,9 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Map;
 
-import javax.time.Duration;
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.value.ComputedValueResult;
@@ -35,10 +34,10 @@ public class ViewComputationResultModelImplTest {
   }
 
   static void checkModel(InMemoryViewResultModel model) {
-    model.setValuationTime(Instant.ofEpochMillis(400));
-    assertEquals(Instant.ofEpochMillis(400), model.getValuationTime());
-    model.setCalculationTime(Instant.ofEpochMillis(500));
-    assertEquals(Instant.ofEpochMillis(500), model.getCalculationTime());
+    model.setValuationTime(Instant.ofEpochMilli(400));
+    assertEquals(Instant.ofEpochMilli(400), model.getValuationTime());
+    model.setCalculationTime(Instant.ofEpochMilli(500));
+    assertEquals(Instant.ofEpochMilli(500), model.getCalculationTime());
     model.setCalculationDuration(Duration.ofMillis(100));
     assertEquals(Duration.ofMillis(100), model.getCalculationDuration());
     

@@ -14,12 +14,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;

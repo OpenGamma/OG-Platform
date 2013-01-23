@@ -12,10 +12,8 @@ import static org.testng.AssertJUnit.assertSame;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -38,9 +36,8 @@ public class CachingFunctionRepositoryCompilerTest {
     }
 
     @Override
-    public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstantProvider) {
+    public CompiledFunctionDefinition compile(FunctionCompilationContext context, Instant atInstant) {
       _compileCount.incrementAndGet();
-      final Instant atInstant = Instant.of (atInstantProvider);
       final AbstractFunction.AbstractCompiledFunction compiled = new AbstractFunction.AbstractCompiledFunction() {
         
         @Override

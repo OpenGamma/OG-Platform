@@ -7,9 +7,8 @@ package com.opengamma.engine.test;
 
 import java.util.concurrent.Executors;
 
-import javax.time.Instant;
-
 import org.fudgemsg.FudgeContext;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;

@@ -13,8 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
 
@@ -61,8 +60,7 @@ public class TotallingGraphStatisticsGathererProvider extends PerViewStatisticsG
       return new ArrayList<GraphExecutionStatistics>(_statistics.values());
     }
 
-    public boolean dropStatisticsBefore(final InstantProvider instantProvider) {
-      final Instant dropBefore = Instant.of(instantProvider);
+    public boolean dropStatisticsBefore(final Instant dropBefore) {
       final Iterator<Map.Entry<String, GraphExecutionStatistics>> iterator = _statistics.entrySet().iterator();
       while (iterator.hasNext()) {
         final Map.Entry<String, GraphExecutionStatistics> entry = iterator.next();
