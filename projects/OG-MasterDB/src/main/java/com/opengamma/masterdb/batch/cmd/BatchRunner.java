@@ -105,7 +105,7 @@ public class BatchRunner {
       ViewProcessor viewProcessor = appContext.getBean("viewProcessor", ViewProcessor.class);
 
       ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-      MarketDataSpecification marketDataSpec = new FixedHistoricalMarketDataSpecification(_observationDateTime);
+      MarketDataSpecification marketDataSpec = new FixedHistoricalMarketDataSpecification(_observationDateTime.getDate());
       ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(_valuationInstant).setMarketDataSpecification(marketDataSpec)
           .setResolverVersionCorrection(VersionCorrection.of(_versionAsOf, _correctedTo)).create();
       ViewCycleExecutionSequence executionSequence = ArbitraryViewCycleExecutionSequence.of(cycleOptions);
