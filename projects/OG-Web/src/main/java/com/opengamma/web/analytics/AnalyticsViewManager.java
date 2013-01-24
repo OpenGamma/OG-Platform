@@ -95,7 +95,8 @@ public class AnalyticsViewManager {
                                                  primitivesGridId,
                                                  _targetResolver,
                                                  viewportListener,
-                                                 _blotterColumnMapper);
+                                                 _blotterColumnMapper,
+                                                 request.showBlotterColumns());
     AnalyticsView lockingView = new LockingAnalyticsView(view);
     AnalyticsView timingView = new TimingAnalyticsView(lockingView);
     AnalyticsView notifyingView = new NotifyingAnalyticsView(timingView, clientConnection);
