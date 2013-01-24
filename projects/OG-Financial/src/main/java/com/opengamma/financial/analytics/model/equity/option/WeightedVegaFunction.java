@@ -9,7 +9,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import javax.time.Duration;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.Period;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -17,19 +22,23 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.value.ValueProperties.Builder;
+import com.opengamma.financial.analytics.model.pnl.MarkToMarketPnLFunction;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.time.Expiry;
 
 /**
  * TODO - PROTOTYPE 
@@ -40,6 +49,7 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static String s_vega = ValueRequirementNames.VEGA;
   private static String s_weightedVega = ValueRequirementNames.WEIGHTED_VEGA;
+  private static int s_baseDays = 90; // TODO - Should be property available to the user 
   
   private String getValueRequirementName() {
     return s_weightedVega;
@@ -49,7 +59,7 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
   // TODO - Pass Weighting Property - Base Days
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
         
-    // 1. Get vega
+    // 1. Get Vega
     Double vega = null;
     for (final ComputedValue input : inputs.getAllValues()) {
       if (input.getSpecification().getValueName().equals(s_vega)) {
@@ -64,21 +74,25 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
     
     // 2. Compute Weighted Vega
     
-    Double weighting = null;
+    Expiry expiry = null;
     final Security security = target.getTrade().getSecurity();
     if (security instanceof EquityOptionSecurity) {
-      ZonedDateTime expiry = ((EquityOptionSecurity) security).getExpiry().getExpiry();
-      ZonedDateTime valDt = executionContext.getValuationClock().zonedDateTimeToMinute();
-      weighting = TimeCalculator.getTimeBetween(valDt, expiry);
+      expiry = ((EquityOptionSecurity) security).getExpiry();
+    } else if (security instanceof EquityIndexOptionSecurity) {
+      expiry = ((EquityIndexOptionSecurity) security).getExpiry();
+    } else {
+      s_logger.error("If applicable, please add the following SecurityType to WeightedVegaFunction, " + security.getSecurityType());
     }
     
-    //final int baseDays = 90;
-    //final Integer daysToExpiry = null;
-    //final double weighting = Math.sqrt(baseDays / daysToExpiry);
+    LocalDate expiryDt = expiry.getExpiry().toLocalDate();
+    LocalDate valDt = executionContext.getValuationClock().zonedDateTimeToMinute().toLocalDate();
+    final long daysToExpiry = expiryDt.toModifiedJulianDays() - valDt.toModifiedJulianDays();
+    // Or perhaps something like: Period.of(Duration.between(expiry.getExpiry(), executionContext.getValuationClock().zonedDateTimeToMinute())).totalDaysWith24HourDays();
     
+    final double weighting = Math.sqrt(s_baseDays / Math.max(daysToExpiry, 1.0));     
     final double weightedVega = weighting * vega;
     
- // 3. Create spec and return
+    // 3. Create specification and return
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ValueSpecification valueSpecification = new ValueSpecification(getValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
     final ComputedValue result = new ComputedValue(valueSpecification, weightedVega);
@@ -105,39 +119,24 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   // TODO What does it imply to call createValueProperties()? Is this the ALL that Elaine talked about?
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties().get()));
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), ValueProperties.all()));
   }
 
   @Override
-  // TODO FINISH ME
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    if (inputs.isEmpty()) {
-      return null;
-    }
-    String keyName = null;
-    for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
-      if (input.getValue().getValueName().equals(ValueRequirementNames.VEGA)) {
-        keyName = input.getKey().getValueName();
-      }
-    }
-    final Builder propertiesBuilder = createValueProperties();
-    if (keyName != null) {
-      propertiesBuilder.with("MarkToMarketTimeSeries", keyName);
-    }    
-      
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), propertiesBuilder.get()));
+    final ValueSpecification vega = inputs.keySet().iterator().next();
+    final ValueProperties properties = vega.getProperties().copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties));
   }
 
   @Override
-  /** TODO FINISH ME - Basically, we just need the Vega for the trade
-   *  
-   */
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    Trade trade = target.getTrade();
-
-    final ValueRequirement vegaReq = new ValueRequirement(ValueRequirementNames.VEGA, ComputationTargetType.TRADE, trade.getUniqueId());
+    final Trade trade = target.getTrade();
+    final ValueRequirement vegaReq = new ValueRequirement(ValueRequirementNames.VEGA, ComputationTargetSpecification.of(trade.getSecurity()), desiredValue.getConstraints().withoutAny(
+        ValuePropertyNames.FUNCTION));
     final Set<ValueRequirement> requirements = Sets.newHashSet(vegaReq);
     return requirements;
   }
 
+  private static final Logger s_logger = LoggerFactory.getLogger(WeightedVegaFunction.class);
 }
