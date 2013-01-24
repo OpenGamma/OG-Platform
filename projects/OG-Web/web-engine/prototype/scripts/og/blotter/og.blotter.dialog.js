@@ -42,12 +42,15 @@ $.register_module({
                 }
             };
             dialog.create = function () {
+                var buttons = {
+                        'Save': function () {form_wrapper.submit(); $(this).dialog('close');},
+                        'Save as new' : function () {form_wrapper.submit(); $(this).dialog('close');},
+                        'Cancel': function () {$(this).dialog('close');}
+                    };
+                if(!config) delete buttons['Save as new'];
                 og.common.util.ui.dialog({
                     type: 'input', title: title, width: 530, height: 1200, custom: $selector,
-                    buttons: {
-                        'Create': function () {form_wrapper.submit(); $(this).dialog('close');},
-                        'Cancel': function () {$(this).dialog('close');}
-                    }
+                    buttons: buttons
                 });  
             };
             dialog.clear = function () {
