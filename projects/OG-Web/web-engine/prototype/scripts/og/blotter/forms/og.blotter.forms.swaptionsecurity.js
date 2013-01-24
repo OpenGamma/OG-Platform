@@ -83,7 +83,6 @@ $.register_module({
                     og.blotter.util.add_datetimepicker("security.settlementDate");
                     og.blotter.util.add_datetimepicker("security.expiry");
                     og.blotter.util.set_select("security.currency", data.security.currency);
-                    og.blotter.util.set_select("security.exerciseType.type", data.security.exerciseType.type);
                     og.blotter.util.check_radio("security.payer", data.security.payer);
                     og.blotter.util.check_radio("security.cashSettled", data.security.cashSettled);
                     og.blotter.util.check_radio("security.longShort", data.security.longShort);
