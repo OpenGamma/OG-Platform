@@ -185,6 +185,7 @@ public class BlotterResource {
     s_stringConvert.register(BarrierType.class, new EnumConverter<BarrierType>());
     s_stringConvert.register(BarrierDirection.class, new EnumConverter<BarrierDirection>());
     s_stringConvert.register(SamplingFrequency.class, new EnumConverter<SamplingFrequency>());
+    s_stringConvert.register(LongShort.class, new EnumConverter<LongShort>());
     s_stringConvert.register(GICSCode.class, new GICSCodeConverter());
   }
 
