@@ -101,8 +101,14 @@ $.register_module({
             };
             var structure_setup = function (update) {
                 var initial = !update;
+                if (update && viewport_id) {
+                    (depgraph ? api.grid.depgraphs : api.grid).viewports.del({ // remove the old registrations
+                        grid_type: grid_type, view_id: view_id, graph_id: graph_id, viewport_id: viewport_id, dry: true
+                    });
+                    viewport_id = subscribed = null; // create a new viewport because things have changed
+                }
                 if (initial) return api.grid.structure
-                    .get({view_id: view_id, grid_type: grid_type, update: structure_setup, initial: initial});
+                    .get({view_id: view_id, grid_type: grid_type, update: structure_setup, dry: true});
                 api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: structure_setup})
                     .pipe(function (result) {
                         if (result.error) return fire('fatal', data.prefix + result.message);
@@ -130,6 +136,8 @@ $.register_module({
                             !!(prim_struct.data[ROOT] ? prim_struct.data[ROOT][1] : prim_struct.data[ROWS]);
                     if (!grid_type)
                         grid_type = source.type = portfolio ? 'portfolio' : primitives ? 'primitives' : grid_type;
+                    api.grid.structure
+                        .get({dry: true, view_id: view_id, grid_type: grid_type, update: structure_setup});
                     structure_handler(grid_type === 'portfolio' ? port_struct : prim_struct);
                     fire('types', {portfolio: portfolio, primitives: primitives});
                 });

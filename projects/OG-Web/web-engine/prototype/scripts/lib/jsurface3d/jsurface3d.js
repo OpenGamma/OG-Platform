@@ -258,8 +258,9 @@
             if (js3d.local_settings.play === null || js3d.local_settings.play) {
                 renderer.render(scene, js3d.camera);
                 if (settings.debug) stats.render.update();
-                if (!js3d.local_settings.stopping)
-                    clearTimeout(timeout), timeout = setTimeout(function () {js3d.local_settings.play = false;}, 5000);
+                if (!js3d.local_settings.stopping) clearTimeout(timeout), timeout = setTimeout(function () {
+                    if (js3d) js3d.local_settings.play = false;
+                }, 5000);
                 js3d.local_settings.stopping = true;
             }
             animation_frame = requestAnimationFrame(animate);
