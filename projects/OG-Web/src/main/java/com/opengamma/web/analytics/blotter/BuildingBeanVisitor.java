@@ -102,8 +102,8 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void visitProperty(MetaProperty<?> property) {
-    // TODO use overloaded version with explicit converter
-    _sink.setValue(property.name(), property.getString(_bean));
+    String value = _stringConvert.convertToString((Class<Object>) property.propertyType(), property.get(_bean));
+    _sink.setValue(property.name(), value);
   }
 
   @Override
