@@ -37,6 +37,7 @@ public class GridColumnsJsonWriter {
     for (GridColumnGroup group : groups) {
       Map<String, Object> groupMap = Maps.newHashMap();
       groupMap.put("name", group.getName());
+      groupMap.put("dependencyGraphsAvailable", group.isDependencyGraphsAvailable());
       List<Map<String, String>> columnList = Lists.newArrayList();
       for (GridColumn column : group.getColumns()) {
         Map<String, String> columnMap = Maps.newHashMap();

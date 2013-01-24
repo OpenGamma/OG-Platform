@@ -38,15 +38,17 @@ public class PrimitivesGridStructure extends MainGridStructure {
   /* package */static PrimitivesGridStructure create(final CompiledViewDefinition compiledViewDef, final ValueMappings valueMappings) {
     final List<MainGridStructure.Row> rows = rows(compiledViewDef);
     final GridColumn labelColumn = new GridColumn("Label", "", String.class, new PrimitivesLabelRenderer(rows));
-    final GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn));
+    final GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn), false);
     final TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
-    final List<GridColumnGroup> analyticsColumns = buildColumns(compiledViewDef.getViewDefinition(), targetLookup);
+    final List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(),
+                                                                         targetLookup);
     final List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
     groups.addAll(analyticsColumns);
     return new PrimitivesGridStructure(new GridColumnGroups(groups), targetLookup);
   }
 
-  private static List<GridColumnGroup> buildColumns(final ViewDefinition viewDef, final TargetLookup targetLookup) {
+  private static List<GridColumnGroup> buildAnalyticsColumns(final ViewDefinition viewDef,
+                                                             final TargetLookup targetLookup) {
     final List<GridColumnGroup> columnGroups = Lists.newArrayList();
     for (final ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
       final List<GridColumn> columns = Lists.newArrayList();
@@ -59,7 +61,7 @@ public class PrimitivesGridStructure extends MainGridStructure {
           columns.add(GridColumn.forKey(columnSpec, columnType, targetLookup));
         }
       }
-      columnGroups.add(new GridColumnGroup(calcConfig.getName(), columns));
+      columnGroups.add(new GridColumnGroup(calcConfig.getName(), columns, true));
     }
     return columnGroups;
   }
