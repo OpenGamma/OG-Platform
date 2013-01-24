@@ -9,16 +9,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Duration;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.temporal.JulianFields;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
@@ -34,7 +31,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.pnl.MarkToMarketPnLFunction;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -84,9 +80,9 @@ public class WeightedVegaFunction extends AbstractFunction.NonCompiledInvoker {
       s_logger.error("If applicable, please add the following SecurityType to WeightedVegaFunction, " + security.getSecurityType());
     }
     
-    LocalDate expiryDt = expiry.getExpiry().toLocalDate();
-    LocalDate valDt = executionContext.getValuationClock().zonedDateTimeToMinute().toLocalDate();
-    final long daysToExpiry = expiryDt.toModifiedJulianDays() - valDt.toModifiedJulianDays();
+    LocalDate expiryDt = expiry.getExpiry().getDate();
+    LocalDate valDt = LocalDate.now(executionContext.getValuationClock());
+    final long daysToExpiry = expiryDt.get(JulianFields.MODIFIED_JULIAN_DAY) - valDt.get(JulianFields.MODIFIED_JULIAN_DAY);
     // Or perhaps something like: Period.of(Duration.between(expiry.getExpiry(), executionContext.getValuationClock().zonedDateTimeToMinute())).totalDaysWith24HourDays();
     
     final double weighting = Math.sqrt(s_baseDays / Math.max(daysToExpiry, 1.0));     

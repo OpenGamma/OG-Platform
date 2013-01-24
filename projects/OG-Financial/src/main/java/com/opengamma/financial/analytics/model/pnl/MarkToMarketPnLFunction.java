@@ -9,14 +9,11 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Period;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
@@ -27,11 +24,11 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
@@ -48,6 +45,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * FIXME PROTOTYPE
@@ -267,7 +265,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   }
   
   protected DateConstraint getTimeSeriesStartDate() {
-    return DateConstraint.VALUATION_TIME.minus(Period.ofDays(s_historyLookbackDays + 1)); // yesterday - HISTORY_LOOKBACK_DAYS
+    return DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(s_historyLookbackDays + 1)); // yesterday - HISTORY_LOOKBACK_DAYS
   }
   
   protected DateConstraint getTimeSeriesEndDate() {
