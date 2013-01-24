@@ -101,6 +101,7 @@ $.register_module({
                     }
                 }); 
                 form.on('form:submit', function (result){
+                    console.log(result);
                     og.api.rest.blotter.trades.put(result.data);
                 });
                 form.on('change', '#' + pay_select.id, function (event) {
@@ -139,6 +140,10 @@ $.register_module({
             };
             constructor.load();
             constructor.submit = function () {
+                form.submit();
+            };
+            constructor.submit_new = function () {
+                delete data.id;
                 form.submit();
             };
             constructor.kill = function () {
