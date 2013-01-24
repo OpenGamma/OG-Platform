@@ -72,14 +72,15 @@ public class DependencyGraphGridStructure implements GridStructure {
     _columnGroups = new GridColumnGroups(ImmutableList.of(
         // fixed column group with one column for the row label
         new GridColumnGroup("", ImmutableList.<GridColumn>of(
-            column("Target", 0))),
+            column("Target", 0)), false),
         // non-fixed columns
         new GridColumnGroup("", ImmutableList.<GridColumn>of(
             column("Type", 1),
             column("Value Name", 2),
             column("Value", null, 3),
             column("Function", 4),
-            column("Properties", 5)))));
+            column("Properties", 5)),
+        false)));
   }
 
   /**
