@@ -79,6 +79,10 @@ $.register_module({
             constructor.submit = function () {
                 form.submit();
             };
+            constructor.submit_new = function () {
+                delete data.id;
+                form.submit();
+            };
             constructor.kill = function () {
             };
         };
