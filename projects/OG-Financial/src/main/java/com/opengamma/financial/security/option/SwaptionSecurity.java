@@ -78,7 +78,7 @@ public class SwaptionSecurity extends FinancialSecurity {
   /**
    * The exercise type.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private ExerciseType _exerciseType;
   /**
    * The settlement date.
@@ -216,6 +216,7 @@ public class SwaptionSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_longShort, "longShort");
     JodaBeanUtils.notNull(_expiry, "expiry");
     JodaBeanUtils.notNull(_currency, "currency");
+    JodaBeanUtils.notNull(_exerciseType, "exerciseType");
     super.validate();
   }
 
@@ -437,7 +438,7 @@ public class SwaptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the exercise type.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ExerciseType getExerciseType() {
     return _exerciseType;
@@ -445,9 +446,10 @@ public class SwaptionSecurity extends FinancialSecurity {
 
   /**
    * Sets the exercise type.
-   * @param exerciseType  the new value of the property
+   * @param exerciseType  the new value of the property, not null
    */
   public void setExerciseType(ExerciseType exerciseType) {
+    JodaBeanUtils.notNull(exerciseType, "exerciseType");
     this._exerciseType = exerciseType;
   }
 
