@@ -53,6 +53,7 @@ import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -184,6 +185,7 @@ public class BlotterResource {
     s_stringConvert.register(BarrierType.class, new EnumConverter<BarrierType>());
     s_stringConvert.register(BarrierDirection.class, new EnumConverter<BarrierDirection>());
     s_stringConvert.register(SamplingFrequency.class, new EnumConverter<SamplingFrequency>());
+    s_stringConvert.register(GICSCode.class, new GICSCodeConverter());
   }
 
   private static class EnumConverter<T extends Enum> implements StringConverter<T> {
@@ -198,6 +200,19 @@ public class BlotterResource {
     @Override
     public String convertToString(T e) {
       return WordUtils.capitalize(e.name().toLowerCase().replace('_', ' '));
+    }
+  }
+
+  private static class GICSCodeConverter implements StringConverter<GICSCode> {
+
+    @Override
+    public GICSCode convertFromString(Class<? extends GICSCode> cls, String code) {
+      return GICSCode.of(code);
+    }
+
+    @Override
+    public String convertToString(GICSCode code) {
+      return code.getCode();
     }
   }
 
@@ -273,6 +288,25 @@ public class BlotterResource {
       beanData = (Map<String, Object>) traverser.traverse(metaBean, structureBuilder);
     }
     return _freemarker.build("blotter/bean-structure.ftl", beanData);
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("securities/{securityExternalId}")
+  public String getSecurityJSON(@PathParam("securityExternalId") String securityExternalIdStr) {
+    ExternalId securityExternalId = ExternalId.parse(securityExternalIdStr);
+    SecuritySearchResult searchResult = _securityMaster.search(new SecuritySearchRequest(securityExternalId));
+    if (searchResult.getSecurities().size() == 0) {
+      throw new DataNotFoundException("No security found with ID " + securityExternalId);
+    }
+    ManageableSecurity security = searchResult.getFirstSecurity();
+    BeanVisitor<JSONObject> securityVisitor =
+        new BuildingBeanVisitor<>(security, new JsonDataSink(getStringConvert()), getStringConvert());
+    PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
+    BeanTraverser securityTraverser = new BeanTraverser(securityPropertyFilter);
+    MetaBean securityMetaBean = JodaBeanUtils.metaBean(security.getClass());
+    JSONObject securityJson = (JSONObject) securityTraverser.traverse(securityMetaBean, securityVisitor);
+    return securityJson.toString();
   }
 
   // TODO move this logic to trade builder? can it populate a BeanDataSink to build the JSON?

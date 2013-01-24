@@ -43,7 +43,7 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ Object traverse(MetaBean metaBean, BeanVisitor<?> visitor) {
     BeanVisitor<?> decoratedVisitor = decorate(visitor);
     decoratedVisitor.visitBean(metaBean);
-    List<TraversalFailure> failures = Lists.newArrayList();
+    List<BeanTraversalFailure> failures = Lists.newArrayList();
     for (MetaProperty<?> property : metaBean.metaPropertyIterable()) {
       Class<?> propertyType = property.propertyType();
       try {
@@ -61,13 +61,13 @@ import com.opengamma.util.ArgumentChecker;
           decoratedVisitor.visitProperty(property);
         }
       } catch (Exception e) {
-        failures.add(new TraversalFailure(e, property));
+        failures.add(new BeanTraversalFailure(e, property));
       }
     }
     if (failures.isEmpty()) {
       return decoratedVisitor.finish();
     } else {
-      throw new TraversalException(metaBean, visitor, failures);
+      throw new BeanTraversalException(metaBean, visitor, failures);
     }
   }
 
@@ -78,47 +78,47 @@ import com.opengamma.util.ArgumentChecker;
     }
     return decoratedVisitor;
   }
+}
 
-  /* package */ static final class TraversalFailure {
+/* package */ class BeanTraversalFailure {
 
-    private final Exception _exception;
-    private final MetaProperty<?> _property;
+  private final Exception _exception;
+  private final MetaProperty<?> _property;
 
-    private TraversalFailure(Exception exception, MetaProperty<?> property) {
-      ArgumentChecker.notNull(exception, "exception");
-      ArgumentChecker.notNull(property, "property");
-      _exception = exception;
-      _property = property;
-    }
+  /* package */ BeanTraversalFailure(Exception exception, MetaProperty<?> property) {
+    ArgumentChecker.notNull(exception, "exception");
+    ArgumentChecker.notNull(property, "property");
+    _exception = exception;
+    _property = property;
+  }
 
-    /* package */ Exception getException() {
-      return _exception;
-    }
+  /* package */ Exception getException() {
+    return _exception;
+  }
 
-    @Override
-    public String toString() {
-      String message = _exception.getMessage() == null ? null : "'" + _exception.getMessage() + "'";
-      return "[" + _property.toString() + ", " + message + "]";
+  @Override
+  public String toString() {
+    String message = _exception.getMessage() == null ? null : "'" + _exception.getMessage() + "'";
+    return "[" + _property.toString() + ", " + message + "]";
+  }
+}
+
+/* package */ class BeanTraversalException extends OpenGammaRuntimeException {
+
+  /* package */ BeanTraversalException(MetaBean metaBean, BeanVisitor<?> visitor, List<BeanTraversalFailure> failures) {
+    super(buildMessage(metaBean, visitor, failures));
+    for (BeanTraversalFailure failure : failures) {
+      addSuppressed(failure.getException());
     }
   }
 
-  /* package */ static final class TraversalException extends OpenGammaRuntimeException {
-
-    /* package */ TraversalException(MetaBean metaBean, BeanVisitor<?> visitor, List<TraversalFailure> failures) {
-      super(buildMessage(metaBean, visitor, failures));
-      for (TraversalFailure failure : failures) {
-        addSuppressed(failure.getException());
-      }
-    }
-
-    private static String buildMessage(MetaBean metaBean, BeanVisitor<?> visitor, List<TraversalFailure> failures) {
-      ArgumentChecker.notNull(metaBean, "metaBean");
-      ArgumentChecker.notEmpty(failures, "failures");
-      ArgumentChecker.notNull(visitor, "visitor");
-      return "Bean traversal failed. " +
-          "bean: " + metaBean + ", " +
-          "visitor: " + visitor + ", " +
-          "failures: [" + StringUtils.join(failures, ", ") + "]";
-    }
+  private static String buildMessage(MetaBean metaBean, BeanVisitor<?> visitor, List<BeanTraversalFailure> failures) {
+    ArgumentChecker.notNull(metaBean, "metaBean");
+    ArgumentChecker.notEmpty(failures, "failures");
+    ArgumentChecker.notNull(visitor, "visitor");
+    return "Bean traversal failed. " +
+        "bean: " + metaBean + ", " +
+        "visitor: " + visitor + ", " +
+        "failures: [" + StringUtils.join(failures, ", ") + "]";
   }
 }
