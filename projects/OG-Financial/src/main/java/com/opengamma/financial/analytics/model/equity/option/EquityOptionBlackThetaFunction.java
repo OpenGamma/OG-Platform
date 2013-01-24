@@ -10,8 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackRhoCalculator;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackScholesRhoCalculator;
+import com.opengamma.analytics.financial.equity.EquityOptionBlackThetaCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -27,25 +26,25 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Calculates the rho of an equity index or equity option using the Black formula.
+ * Calculates the spot delta of an equity index or equity option using the Black formula.
  */
-public class EquityOptionBlackRhoFunction extends EquityOptionBlackFunction {
-  /** Rho calculator */
-  private static final InstrumentDerivativeVisitor<StaticReplicationDataBundle, Double> CALCULATOR = EquityOptionBlackRhoCalculator.getInstance();
+public class EquityOptionBlackThetaFunction extends EquityOptionBlackFunction {
+  /** Spot delta calculator */
+  private static final InstrumentDerivativeVisitor<StaticReplicationDataBundle, Double> CALCULATOR = EquityOptionBlackThetaCalculator.getInstance();
 
   /**
    * Default constructor
    */
-  public EquityOptionBlackRhoFunction() {
-    super(ValueRequirementNames.RHO);
+  public EquityOptionBlackThetaFunction() {
+    super(ValueRequirementNames.THETA);
   }
 
   @Override
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    final double rho = derivative.accept(CALCULATOR, market);
-    return Collections.singleton(new ComputedValue(resultSpec, rho));
+    final double theta = derivative.accept(CALCULATOR, market);
+    return Collections.singleton(new ComputedValue(resultSpec, theta));
   }
 
   @Override

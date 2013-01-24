@@ -13,6 +13,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -91,14 +92,21 @@ public final class HistoricalTimeSeriesFunctionUtils {
       final DateConstraint endDate, final boolean includeEnd) {
     final HistoricalTimeSeriesAdjuster adjuster = timeSeries.getAdjuster();
     final String adjustment = (adjuster == null) ? "" : adjuster.getAdjustment(timeSeries.getHistoricalTimeSeriesInfo().getExternalIdBundle().toBundle()).toString();
-    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, ComputationTargetType.PRIMITIVE, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
-        ValueProperties.builder()
+    Builder properties = ValueProperties.builder()
         .with(DATA_FIELD_PROPERTY, dataField)
-        .with(ADJUST_PROPERTY, adjustment)
-        .with(START_DATE_PROPERTY, startDate.toString())
-        .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE)
-        .with(END_DATE_PROPERTY, endDate.toString())
-        .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE).get());
+        .with(ADJUST_PROPERTY, adjustment);
+    if (startDate != null) {
+      properties = properties
+          .with(START_DATE_PROPERTY, startDate.toString())
+          .with(INCLUDE_START_PROPERTY, includeStart ? YES_VALUE : NO_VALUE);      
+    }
+    if (endDate != null) {
+      properties = properties
+          .with(END_DATE_PROPERTY, endDate.toString())
+          .with(INCLUDE_END_PROPERTY, includeEnd ? YES_VALUE : NO_VALUE);
+    }
+    return new ValueRequirement(ValueRequirementNames.HISTORICAL_TIME_SERIES, ComputationTargetType.PRIMITIVE, timeSeries.getHistoricalTimeSeriesInfo().getUniqueId(),
+        properties.get());
   }
 
   public static ValueRequirement createYCHTSRequirement(final Currency currency, final String curveName, final String dataField, final String resolutionKey, final DateConstraint startDate,

@@ -15,19 +15,19 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Calculates the rho (first order sensitivity of price with respect to the interest rate) using the Black method.
  */
-public final class EquityOptionBlackRhoCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
+public final class EquityOptionBlackScholesRhoCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
   /** Static instance */
-  private static final EquityOptionBlackRhoCalculator s_instance = new EquityOptionBlackRhoCalculator();
+  private static final EquityOptionBlackScholesRhoCalculator s_instance = new EquityOptionBlackScholesRhoCalculator();
 
   /**
    * Gets the (singleton) instance of this calculator
    * @return The instance of this calculator
    */
-  public static EquityOptionBlackRhoCalculator getInstance() {
+  public static EquityOptionBlackScholesRhoCalculator getInstance() {
     return s_instance;
   }
 
-  private EquityOptionBlackRhoCalculator() {
+  private EquityOptionBlackScholesRhoCalculator() {
   }
 
   @Override
@@ -35,15 +35,16 @@ public final class EquityOptionBlackRhoCalculator extends InstrumentDerivativeVi
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
     
-    final Double rhoBlack =  EquityIndexOptionBlackMethod.getInstance().rhoBlack(option, data);
-    return rhoBlack;
+    final Double rhoBlackScholes = EquityIndexOptionBlackMethod.getInstance().rhoBlackScholes(option, data);  
+    return rhoBlackScholes;
   }
 
   @Override
   public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final Double rhoBlack =  EquityOptionBlackMethod.getInstance().rhoBlack(option, data);
-    return rhoBlack;
+    final Double rhoBlackScholes = EquityOptionBlackMethod.getInstance().rhoBlackScholes(option, data);  
+    return rhoBlackScholes;
   }
+  
 }

@@ -47,8 +47,8 @@ public class JsonJodaRoundTripTest {
     FXForwardSecurity fxForward = new FXForwardSecurity(Currency.USD, 150, Currency.GBP, 100, forwardDate, regionId);
     fxForward.setName("GBP/USD forward");
 
-    JsonDataSink sink = new JsonDataSink();
-    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(fxForward, sink);
+    JsonDataSink sink = new JsonDataSink(BlotterResource.getStringConvert());
+    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(fxForward, sink, BlotterResource.getStringConvert());
     BeanTraverser traverser = new BeanTraverser();
     JSONObject json = (JSONObject) traverser.traverse(FXForwardSecurity.meta(), writingVisitor);
     assertNotNull(json);
@@ -89,9 +89,9 @@ public class JsonJodaRoundTripTest {
     SwapSecurity security = new SwapSecurity(tradeDate, effectiveDate, maturityDate, "cpty", payLeg, receiveLeg);
     security.setName("Test swap");
 
-    JsonDataSink sink = new JsonDataSink();
+    JsonDataSink sink = new JsonDataSink(BlotterResource.getStringConvert());
     BeanTraverser traverser = new BeanTraverser();
-    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(security, sink);
+    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(security, sink, BlotterResource.getStringConvert());
     JSONObject json = (JSONObject) traverser.traverse(SwapSecurity.meta(), writingVisitor);
     assertNotNull(json);
     System.out.println(json);

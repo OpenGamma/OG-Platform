@@ -1,3 +1,7 @@
+
+
+
+
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
@@ -13,21 +17,21 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Calculates the rho (first order sensitivity of price with respect to the interest rate) using the Black method.
+ * Calculates the theta (first order sensitivity of price with respect to the time to expiry) using the Black method.
  */
-public final class EquityOptionBlackRhoCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
+public final class EquityOptionBlackThetaCalculator extends InstrumentDerivativeVisitorAdapter<StaticReplicationDataBundle, Double> {
   /** Static instance */
-  private static final EquityOptionBlackRhoCalculator s_instance = new EquityOptionBlackRhoCalculator();
+  private static final EquityOptionBlackThetaCalculator s_instance = new EquityOptionBlackThetaCalculator();
 
   /**
    * Gets the (singleton) instance of this calculator
    * @return The instance of this calculator
    */
-  public static EquityOptionBlackRhoCalculator getInstance() {
+  public static EquityOptionBlackThetaCalculator getInstance() {
     return s_instance;
   }
 
-  private EquityOptionBlackRhoCalculator() {
+  private EquityOptionBlackThetaCalculator() {
   }
 
   @Override
@@ -35,7 +39,7 @@ public final class EquityOptionBlackRhoCalculator extends InstrumentDerivativeVi
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
     
-    final Double rhoBlack =  EquityIndexOptionBlackMethod.getInstance().rhoBlack(option, data);
+    final Double rhoBlack =  EquityIndexOptionBlackMethod.getInstance().spotTheta(option, data);
     return rhoBlack;
   }
 
@@ -43,7 +47,7 @@ public final class EquityOptionBlackRhoCalculator extends InstrumentDerivativeVi
   public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    final Double rhoBlack =  EquityOptionBlackMethod.getInstance().rhoBlack(option, data);
+    final Double rhoBlack =  EquityOptionBlackMethod.getInstance().spotTheta(option, data);
     return rhoBlack;
   }
 }
