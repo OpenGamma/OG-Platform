@@ -63,7 +63,7 @@ $.register_module({
                         data.security.deliveryInCallCurrency);
                 });  
                 form.on('form:submit', function (result){
-                    og.api.rest.blotter.trades.put(result.data).pipe(console.log);
+                    og.api.rest.blotter.trades.put(result.data);
                 });
             }; 
             constructor.load();

@@ -12,7 +12,6 @@ $.register_module({
             dropdown = '.og-blotter-security-select';
             fungible.selector = '.og-blocks-fungible';
             ids.selector = '.og-blocks-security_ids';
-            console.log(config);
             if(config) {data = config; data.id = config.trade.uniqueId;}
             else {data = {trade: og.blotter.util.fungible_trade};}
             constructor.load = function () {
