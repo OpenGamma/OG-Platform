@@ -34,6 +34,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   private final String _viewId;
   private final ViewportListener _viewportListener;
   private final BlotterColumnMapper _blotterColumnMapper;
+  private final boolean _showBlotterColumns;
 
   private MainAnalyticsGrid _portfolioGrid;
   private MainAnalyticsGrid _primitivesGrid;
@@ -46,15 +47,18 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
    * @param primitivesCallbackId ID that is passed to the listener when the structure of the primitives grid changes.
    * This class makes no assumptions about its value
    * @param targetResolver For looking up calculation targets by specification
-   * @param viewportListener
-   * @param blotterColumnMapper
+   * @param viewportListener Notified when any viewport is created, updated or deleted
+   * @param blotterColumnMapper For populating the blotter columns with details for each different security type
+   * @param showBlotterColumns Whether the blotter columns should be shown in the portfolio analytics grid
    */
   /* package */ SimpleAnalyticsView(String viewId,
                                     String portoflioCallbackId,
                                     String primitivesCallbackId,
                                     ComputationTargetResolver targetResolver,
                                     ViewportListener viewportListener,
-                                    BlotterColumnMapper blotterColumnMapper) {
+                                    BlotterColumnMapper blotterColumnMapper,
+                                    boolean showBlotterColumns) {
+    _showBlotterColumns = showBlotterColumns;
     ArgumentChecker.notEmpty(viewId, "viewId");
     ArgumentChecker.notEmpty(portoflioCallbackId, "portoflioGridId");
     ArgumentChecker.notEmpty(primitivesCallbackId, "primitivesGridId");
@@ -80,8 +84,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
                                                 valueMappings,
                                                 _viewportListener,
                                                 _blotterColumnMapper,
-                                                false); // TODO option to create blotter columns
-                                                //true); // TODO option to create blotter columns
+                                                _showBlotterColumns);
     _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition,
                                                   _primitivesGrid.getCallbackId(),
                                                   _targetResolver,
