@@ -103,7 +103,7 @@ $.register_module({
                 var initial = !update;
                 if (initial) return api.grid.structure
                     .get({view_id: view_id, grid_type: grid_type, update: structure_setup, initial: initial});
-                api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: structure_handler})
+                api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: structure_setup})
                     .pipe(function (result) {
                         if (result.error) return fire('fatal', data.prefix + result.message);
                         return !depgraph ? structure_handler(result) : api.grid.depgraphs.put({
@@ -121,7 +121,7 @@ $.register_module({
                 grid_type = source.type;
                 port_request = api.grid.structure
                     .get({dry: initial, view_id: view_id, update: initial ? type_setup : null, grid_type: 'portfolio'});
-                if (initial) return /* just register interest and bail*/; else prim_request = api.grid.structure
+                if (initial) return; /* just register interest and bail*/ else prim_request = api.grid.structure
                     .get({view_id: view_id, grid_type: 'primitives'});
                 $.when(port_request, prim_request).then(function (port_struct, prim_struct) {
                     var portfolio = port_struct.data &&
