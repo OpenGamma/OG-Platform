@@ -19,7 +19,7 @@ $.register_module({
                     data: data
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.cap_floor_tash',
                         extras: {start: data.security.startDate, maturity: data.security.maturityDate, 

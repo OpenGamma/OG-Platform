@@ -19,7 +19,7 @@ $.register_module({
                     data: data
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.forward_rate_agreement_tash',
                         extras: {start: data.security.startDate, end: data.security.endDate, 
