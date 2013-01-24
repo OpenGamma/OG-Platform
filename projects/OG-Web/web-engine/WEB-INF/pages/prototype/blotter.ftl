@@ -27,7 +27,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
           <li class="fxoption">FX Option - DbPos~164257</li>
           <li class="nondelfxoption">Non Deliverable FX Option - DbPos~164259</li>
           <li class="swap">Swap - DbPos~164306</li>
-          <li class="swap">Swaption - DbPos~</li>
+          <li class="swap">Swaption - DbPos~164328</li>
         </ul>
         <strong>Fungible Trades</strong><br/>
         <ul class="temp-ul">
