@@ -127,6 +127,16 @@ int main (int argc, char **argv) {
 		} else {
 			LOGERROR (TEXT ("Unrecognised parameter - ") << argv[1]);
 		}
+	} else if (argc == 3) {
+		int nResult;
+		if (!_tcscmp (argv[1], TEXT ("jvm"))) {
+			nResult = ServiceTestJVM (argv[2]) ? 0 : 1;
+		} else {
+			LOGERROR (TEXT ("Unrecognised parameter - ") << argv[1]);
+			nResult = 2;
+		}
+		_mainEnd ();
+		return nResult;
 	} else {
 		LOGDEBUG (TEXT ("Running as a daemon"));
 		pid_t pid = fork ();

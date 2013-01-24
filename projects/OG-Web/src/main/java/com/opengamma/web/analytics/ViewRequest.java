@@ -31,6 +31,8 @@ public class ViewRequest {
   private final List<MarketDataSpecification> _marketDataSpecs;
   /** Version time and correction time for the portfolio used as a basis for the calculations. */
   private final VersionCorrection _portfolioVersionCorrection;
+  /** Whether to display blotter columns in the portfolio view showing a summary of the security details. */
+  private final boolean _blotter;
 
   /**
    *
@@ -44,7 +46,8 @@ public class ViewRequest {
                      List<String> aggregators,
                      List<MarketDataSpecification> marketDataSpecs,
                      Instant valuationTime,
-                     VersionCorrection portfolioVersionCorrection) {
+                     VersionCorrection portfolioVersionCorrection,
+                     boolean blotter) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(aggregators, "aggregators");
     ArgumentChecker.notEmpty(marketDataSpecs, "marketDataSpecs");
@@ -54,6 +57,7 @@ public class ViewRequest {
     _viewDefinitionId = viewDefinitionId;
     _aggregators = ImmutableList.copyOf(aggregators);
     _portfolioVersionCorrection = portfolioVersionCorrection;
+    _blotter = blotter;
   }
 
   /**
@@ -89,5 +93,12 @@ public class ViewRequest {
    */
   public VersionCorrection getPortfolioVersionCorrection() {
     return _portfolioVersionCorrection;
+  }
+
+  /**
+   * @return Whether to show blotter columns in the portfolio view which show a summary of the security details.
+   */
+  public boolean showBlotterColumns() {
+    return _blotter;
   }
 }

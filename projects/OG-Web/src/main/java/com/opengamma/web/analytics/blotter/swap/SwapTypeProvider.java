@@ -8,12 +8,12 @@ package com.opengamma.web.analytics.blotter.swap;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.web.analytics.blotter.BlotterColumnMappings;
+import com.opengamma.web.analytics.blotter.ValueProvider;
 
 /**
  *
  */
-public class TypeProvider implements BlotterColumnMappings.ValueProvider<SwapSecurity> {
+public class SwapTypeProvider implements ValueProvider<SwapSecurity> {
 
   @Override
   public Object getValue(SwapSecurity security) {

@@ -118,7 +118,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Constructs a market data bundle
-   * 
+   *
    * @param underlyingId The underlying id of the index option
    * @param executionContext The execution context
    * @param inputs The market data inputs
@@ -160,7 +160,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Calculates the result
-   * 
+   *
    * @param derivative The derivative
    * @param market The market data bundle
    * @param inputs The market data inputs
@@ -237,17 +237,16 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     if (forwardCurveCalculationMethods == null || forwardCurveCalculationMethods.size() != 1) {
       return null;
     }
-
+    final String forwardCurveName = Iterables.getOnlyElement(forwardCurveNames);
+    final String forwardCurveCalculationMethod = Iterables.getOnlyElement(forwardCurveCalculationMethods);
     final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
     final HistoricalTimeSeriesSource tsSource = OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final ValueRequirement volReq = getVolatilitySurfaceRequirement(tsSource, securitySource, desiredValue, security, volSurfaceName, surfaceCalculationMethod, underlyingId);
+    final ValueRequirement volReq = getVolatilitySurfaceRequirement(tsSource, securitySource, desiredValue, security, volSurfaceName, forwardCurveName,
+        surfaceCalculationMethod, underlyingId);
     if (volReq == null) {
       return null;
     }
-
-    final String forwardCurveName = Iterables.getOnlyElement(forwardCurveNames);
-    final String forwardCurveCalculationMethod = Iterables.getOnlyElement(forwardCurveCalculationMethods);
     final ValueRequirement forwardCurveReq = getForwardCurveRequirement(tsSource, securitySource, forwardCurveName, forwardCurveCalculationMethod, security, underlyingId);
     // Return the set
     return Sets.newHashSet(discountingReq, volReq, forwardCurveReq);
@@ -332,10 +331,11 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   }
 
   private ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource,
-      final ValueRequirement desiredValue, final Security security, final String surfaceName, final String surfaceCalculationMethod, final ExternalId underlyingBuid) {
+      final ValueRequirement desiredValue, final Security security, final String surfaceName, final String forwardCurveName,
+      final String surfaceCalculationMethod, final ExternalId underlyingBuid) {
     // REVIEW Andrew 2012-01-17 -- Could we pass a CTRef to the getSurfaceRequirement and use the underlyingBuid external identifier directly with a target type of SECURITY
-    return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, InstrumentTypeProperties.EQUITY_OPTION,
-        getWeakUnderlyingId(underlyingBuid, tsSource, securitySource));
+    return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, forwardCurveName, InstrumentTypeProperties.EQUITY_OPTION,
+        ComputationTargetType.PRIMITIVE, getWeakUnderlyingId(underlyingBuid, tsSource, securitySource));
   }
 
   private ExternalId getWeakUnderlyingId(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource) {
@@ -364,7 +364,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the value requirement names
-   * 
+   *
    * @return The value requirement names
    */
   protected String[] getValueRequirementNames() {
@@ -373,14 +373,14 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
 
   /**
    * Gets the calculation method.
-   * 
+   *
    * @return The calculation method
    */
   protected abstract String getCalculationMethod();
 
   /**
    * Gets the model type.
-   * 
+   *
    * @return The model type
    */
   protected abstract String getModelType();

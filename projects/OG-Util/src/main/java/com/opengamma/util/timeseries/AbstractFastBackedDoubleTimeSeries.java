@@ -22,6 +22,7 @@ import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.RECIPROCAL
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SECOND_OPERATOR;
 import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SUBTRACT_OPERATOR;
 
+import java.lang.reflect.Array;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -65,7 +66,6 @@ import com.opengamma.util.timeseries.zoneddatetime.MutableZonedDateTimeDoubleTim
 import com.opengamma.util.timeseries.zoneddatetime.ZonedDateTimeDoubleTimeSeries;
 
 /**
- * 
  * @param <DATE_TYPE> Type of the dates
  */
 public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements DoubleTimeSeries<DATE_TYPE>, FastBackedDoubleTimeSeries<DATE_TYPE> {
@@ -95,7 +95,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   public abstract FastBackedDoubleTimeSeries<DATE_TYPE> unionOperate(final FastBackedDoubleTimeSeries<?> other, final BinaryOperator operator);
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> add(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> add(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return operate((FastBackedDoubleTimeSeries<?>) other, ADD_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -106,27 +106,27 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> add(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> add(final FastBackedDoubleTimeSeries<?> other) {
     return operate(other, ADD_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> add(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> add(final FastIntDoubleTimeSeries other) {
     return operate(other, ADD_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> add(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> add(final FastLongDoubleTimeSeries other) {
     return operate(other, ADD_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> add(double other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> add(final double other) {
     return operate(other, ADD_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return unionOperate((FastBackedDoubleTimeSeries<?>) other, ADD_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -137,22 +137,22 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(final FastBackedDoubleTimeSeries<?> other) {
     return unionOperate(other, ADD_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(final FastIntDoubleTimeSeries other) {
     return unionOperate(other, ADD_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAdd(final FastLongDoubleTimeSeries other) {
     return unionOperate(other, ADD_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> subtract(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> subtract(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return operate((FastBackedDoubleTimeSeries<?>) other, SUBTRACT_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -163,27 +163,27 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> subtract(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> subtract(final FastBackedDoubleTimeSeries<?> other) {
     return operate(other, SUBTRACT_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> subtract(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> subtract(final FastLongDoubleTimeSeries other) {
     return operate(other, SUBTRACT_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> subtract(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> subtract(final FastIntDoubleTimeSeries other) {
     return operate(other, SUBTRACT_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> subtract(double other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> subtract(final double other) {
     return operate(other, SUBTRACT_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionSubtract(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionSubtract(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return unionOperate((FastBackedDoubleTimeSeries<?>) other, SUBTRACT_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -194,22 +194,22 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionSubtract(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionSubtract(final FastBackedDoubleTimeSeries<?> other) {
     return unionOperate(other, SUBTRACT_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionSubtract(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionSubtract(final FastIntDoubleTimeSeries other) {
     return unionOperate(other, SUBTRACT_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionSubtract(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionSubtract(final FastLongDoubleTimeSeries other) {
     return unionOperate(other, SUBTRACT_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> multiply(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> multiply(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return operate((FastBackedDoubleTimeSeries<?>) other, MULTIPLY_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -220,27 +220,27 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> multiply(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> multiply(final FastBackedDoubleTimeSeries<?> other) {
     return operate(other, MULTIPLY_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> multiply(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> multiply(final FastIntDoubleTimeSeries other) {
     return operate(other, MULTIPLY_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> multiply(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> multiply(final FastLongDoubleTimeSeries other) {
     return operate(other, MULTIPLY_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> multiply(double other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> multiply(final double other) {
     return operate(other, MULTIPLY_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMultiply(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMultiply(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return unionOperate((FastBackedDoubleTimeSeries<?>) other, MULTIPLY_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -251,22 +251,22 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMultiply(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMultiply(final FastBackedDoubleTimeSeries<?> other) {
     return unionOperate(other, MULTIPLY_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMultiply(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMultiply(final FastIntDoubleTimeSeries other) {
     return unionOperate(other, MULTIPLY_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMultiply(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMultiply(final FastLongDoubleTimeSeries other) {
     return unionOperate(other, MULTIPLY_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> divide(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> divide(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return operate((FastBackedDoubleTimeSeries<?>) other, DIVIDE_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -277,27 +277,27 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> divide(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> divide(final FastBackedDoubleTimeSeries<?> other) {
     return operate(other, DIVIDE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> divide(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> divide(final FastIntDoubleTimeSeries other) {
     return operate(other, DIVIDE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> divide(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> divide(final FastLongDoubleTimeSeries other) {
     return operate(other, DIVIDE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> divide(double other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> divide(final double other) {
     return operate(other, DIVIDE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionDivide(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionDivide(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return unionOperate((FastBackedDoubleTimeSeries<?>) other, DIVIDE_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -308,22 +308,22 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionDivide(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionDivide(final FastBackedDoubleTimeSeries<?> other) {
     return unionOperate(other, DIVIDE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionDivide(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionDivide(final FastIntDoubleTimeSeries other) {
     return unionOperate(other, DIVIDE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionDivide(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionDivide(final FastLongDoubleTimeSeries other) {
     return unionOperate(other, DIVIDE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> power(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> power(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return operate((FastBackedDoubleTimeSeries<?>) other, POWER_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -334,27 +334,27 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> power(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> power(final FastBackedDoubleTimeSeries<?> other) {
     return operate(other, POWER_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> power(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> power(final FastIntDoubleTimeSeries other) {
     return operate(other, POWER_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> power(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> power(final FastLongDoubleTimeSeries other) {
     return operate(other, POWER_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> power(double other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> power(final double other) {
     return operate(other, POWER_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionPower(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionPower(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return unionOperate((FastBackedDoubleTimeSeries<?>) other, POWER_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -365,22 +365,22 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionPower(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionPower(final FastBackedDoubleTimeSeries<?> other) {
     return unionOperate(other, POWER_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionPower(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionPower(final FastIntDoubleTimeSeries other) {
     return unionOperate(other, POWER_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionPower(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionPower(final FastLongDoubleTimeSeries other) {
     return unionOperate(other, POWER_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> minimum(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> minimum(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return operate((FastBackedDoubleTimeSeries<?>) other, MINIMUM_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -391,27 +391,27 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> minimum(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> minimum(final FastBackedDoubleTimeSeries<?> other) {
     return operate(other, MINIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> minimum(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> minimum(final FastIntDoubleTimeSeries other) {
     return operate(other, MINIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> minimum(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> minimum(final FastLongDoubleTimeSeries other) {
     return operate(other, MINIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> minimum(double other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> minimum(final double other) {
     return operate(other, MINIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMinimum(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMinimum(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return unionOperate((FastBackedDoubleTimeSeries<?>) other, MINIMUM_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -422,22 +422,22 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMinimum(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMinimum(final FastBackedDoubleTimeSeries<?> other) {
     return unionOperate(other, MINIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMinimum(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMinimum(final FastIntDoubleTimeSeries other) {
     return unionOperate(other, MINIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMinimum(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMinimum(final FastLongDoubleTimeSeries other) {
     return unionOperate(other, MINIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> maximum(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> maximum(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return operate((FastBackedDoubleTimeSeries<?>) other, MAXIMUM_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -448,27 +448,27 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> maximum(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> maximum(final FastBackedDoubleTimeSeries<?> other) {
     return operate(other, MAXIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> maximum(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> maximum(final FastIntDoubleTimeSeries other) {
     return operate(other, MAXIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> maximum(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> maximum(final FastLongDoubleTimeSeries other) {
     return operate(other, MAXIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> maximum(double other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> maximum(final double other) {
     return operate(other, MAXIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return unionOperate((FastBackedDoubleTimeSeries<?>) other, MAXIMUM_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -479,22 +479,22 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(final FastBackedDoubleTimeSeries<?> other) {
     return unionOperate(other, MAXIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(final FastIntDoubleTimeSeries other) {
     return unionOperate(other, MAXIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionMaximum(final FastLongDoubleTimeSeries other) {
     return unionOperate(other, MAXIMUM_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> average(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> average(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return operate((FastBackedDoubleTimeSeries<?>) other, AVERAGE_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -505,27 +505,27 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> average(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> average(final FastBackedDoubleTimeSeries<?> other) {
     return operate(other, AVERAGE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> average(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> average(final FastIntDoubleTimeSeries other) {
     return operate(other, AVERAGE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> average(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> average(final FastLongDoubleTimeSeries other) {
     return operate(other, AVERAGE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> average(double other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> average(final double other) {
     return operate(other, AVERAGE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return unionOperate((FastBackedDoubleTimeSeries<?>) other, AVERAGE_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -536,22 +536,22 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(final FastBackedDoubleTimeSeries<?> other) {
     return unionOperate(other, AVERAGE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(final FastIntDoubleTimeSeries other) {
     return unionOperate(other, AVERAGE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> unionAverage(final FastLongDoubleTimeSeries other) {
     return unionOperate(other, AVERAGE_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return unionOperate((FastBackedDoubleTimeSeries<?>) other, NO_INTERSECTION_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -562,22 +562,22 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(final FastBackedDoubleTimeSeries<?> other) {
     return unionOperate(other, NO_INTERSECTION_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(final FastIntDoubleTimeSeries other) {
     return unionOperate(other, NO_INTERSECTION_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> noIntersectionOperation(final FastLongDoubleTimeSeries other) {
     return unionOperate(other, NO_INTERSECTION_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return operate((FastBackedDoubleTimeSeries<?>) other, FIRST_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -588,27 +588,27 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
     }
   }
 
-  protected FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValueFast(FastLongDoubleTimeSeries other) {
-    return operate((FastLongDoubleTimeSeries) other, FIRST_OPERATOR);
-  }
-
-  @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(FastBackedDoubleTimeSeries<?> other) {
+  protected FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValueFast(final FastLongDoubleTimeSeries other) {
     return operate(other, FIRST_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(final FastBackedDoubleTimeSeries<?> other) {
     return operate(other, FIRST_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(final FastIntDoubleTimeSeries other) {
     return operate(other, FIRST_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(DoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionFirstValue(final FastLongDoubleTimeSeries other) {
+    return operate(other, FIRST_OPERATOR);
+  }
+
+  @Override
+  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(final DoubleTimeSeries<?> other) {
     if (other instanceof FastBackedDoubleTimeSeries<?>) {
       return operate((FastBackedDoubleTimeSeries<?>) other, SECOND_OPERATOR);
     } else if (other instanceof FastIntDoubleTimeSeries) {
@@ -619,17 +619,17 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(FastBackedDoubleTimeSeries<?> other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(final FastBackedDoubleTimeSeries<?> other) {
     return operate(other, SECOND_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(FastIntDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(final FastIntDoubleTimeSeries other) {
     return operate(other, SECOND_OPERATOR);
   }
 
   @Override
-  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(FastLongDoubleTimeSeries other) {
+  public FastBackedDoubleTimeSeries<DATE_TYPE> intersectionSecondValue(final FastLongDoubleTimeSeries other) {
     return operate(other, SECOND_OPERATOR);
   }
 
@@ -663,7 +663,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
     if (isEmpty()) {
       throw new OpenGammaRuntimeException("TimeSeries is empty");
     }
-    double[] values = valuesArrayFast();
+    final double[] values = valuesArrayFast();
     double max = Double.MIN_VALUE;
     for (int i = 0; i < values.length; i++) {
       if (values[i] > max) {
@@ -678,7 +678,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
     if (isEmpty()) {
       throw new OpenGammaRuntimeException("TimeSeries is empty");
     }
-    double[] values = valuesArrayFast();
+    final double[] values = valuesArrayFast();
     double min = Double.MAX_VALUE;
     for (int i = 0; i < values.length; i++) {
       if (values[i] < min) {
@@ -691,22 +691,31 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   @SuppressWarnings("unchecked")
   @Override
   public FastBackedDoubleTimeSeries<DATE_TYPE> lag(final int days) {
-    DATE_TYPE[] times = timesArray();
-    Double[] values = valuesArray();
+    final DATE_TYPE[] times = timesArray();
+    final Double[] values = valuesArray();
     if (days == 0) {
+      // REVIEW Andrew 2013-01-24 -- why not just return "this" ?
       return (FastBackedDoubleTimeSeries<DATE_TYPE>) newInstance(times, values);
-    } else if (days < 0) {
-      DATE_TYPE[] resultTimes = (DATE_TYPE[]) new Object[times.length + days]; // remember days is -ve
-      System.arraycopy(times, 0, resultTimes, 0, times.length + days);
-      Double[] resultValues = new Double[times.length + days];
-      System.arraycopy(values, -days, resultValues, 0, times.length + days);
-      return (FastBackedDoubleTimeSeries<DATE_TYPE>) newInstance(times, values);
-    } else { // if (days > 0) {
-      DATE_TYPE[] resultTimes = (DATE_TYPE[]) new Object[times.length - days]; // remember days is +ve
-      System.arraycopy(times, days, resultTimes, 0, times.length - days);
-      Double[] resultValues = new Double[times.length - days];
-      System.arraycopy(values, 0, resultValues, 0, times.length - days);
-      return (FastBackedDoubleTimeSeries<DATE_TYPE>) newInstance(times, values);
+    } else {
+      final Class<?> dateType = times.getClass().getComponentType();
+      if (days < 0) {
+        if (-days < times.length) {
+          final DATE_TYPE[] resultTimes = (DATE_TYPE[]) Array.newInstance(dateType, times.length + days); // remember days is -ve
+          System.arraycopy(times, 0, resultTimes, 0, times.length + days);
+          final Double[] resultValues = new Double[times.length + days];
+          System.arraycopy(values, -days, resultValues, 0, times.length + days);
+          return (FastBackedDoubleTimeSeries<DATE_TYPE>) newInstance(resultTimes, resultValues);
+        }
+      } else { // if (days > 0) {
+        if (days < times.length) {
+          final DATE_TYPE[] resultTimes = (DATE_TYPE[]) Array.newInstance(dateType, times.length - days); // remember days is +ve
+          System.arraycopy(times, days, resultTimes, 0, times.length - days);
+          final Double[] resultValues = new Double[times.length - days];
+          System.arraycopy(values, 0, resultValues, 0, times.length - days);
+          return (FastBackedDoubleTimeSeries<DATE_TYPE>) newInstance(resultTimes, resultValues);
+        }
+      }
+      return (FastBackedDoubleTimeSeries<DATE_TYPE>) newInstance((DATE_TYPE[]) Array.newInstance(dateType, 0), new Double[0]);
     }
   }
 
@@ -735,64 +744,64 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   public ZoneId getTimeZone310() {
     return getConverter().getTimeZone310();
   }
-  
+
   public TimeZone getTimeZone() {
     return getConverter().getTimeZone();
   }
-  
+
   public FastIntDoubleTimeSeries toFastIntDaysDTS() {
     return getFastSeries().toFastIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
   }
-  
+
   public FastMutableIntDoubleTimeSeries toFastMutableIntDaysDTS() {
     return getFastSeries().toFastMutableIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
   }
-  
+
   public FastLongDoubleTimeSeries toFastLongMillisDTS() {
     return getFastSeries().toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
   }
-  
+
   public FastMutableLongDoubleTimeSeries toFastMutableLongMillisDTS() {
     return getFastSeries().toFastMutableLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
   }
-  
+
   @Override
   public LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries() {
     return new ArrayLocalDateDoubleTimeSeries(getTimeZone310(), toFastIntDaysDTS());
   }
 
   @Override
-  public LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(ZoneId timeZone) {
+  public LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(final ZoneId timeZone) {
     return new ArrayLocalDateDoubleTimeSeries(timeZone, toFastIntDaysDTS());
-  }    
-  
+  }
+
   @Override
   public MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries() {
     return new ListLocalDateDoubleTimeSeries(getTimeZone310(), toFastMutableIntDaysDTS());
   }
 
   @Override
-  public MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(ZoneId timeZone) {
+  public MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(final ZoneId timeZone) {
     return new ListLocalDateDoubleTimeSeries(timeZone, toFastMutableIntDaysDTS());
   }
-  
+
   @Override
   public DateDoubleTimeSeries toDateDoubleTimeSeries() {
     return new ArrayDateDoubleTimeSeries(getTimeZone(), toFastIntDaysDTS());
   }
 
   @Override
-  public DateDoubleTimeSeries toDateDoubleTimeSeries(TimeZone timeZone) {
+  public DateDoubleTimeSeries toDateDoubleTimeSeries(final TimeZone timeZone) {
     return new ArrayDateDoubleTimeSeries(timeZone, toFastIntDaysDTS());
   }
-  
+
   @Override
   public MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries() {
     return new ListDateDoubleTimeSeries(getTimeZone(), toFastMutableIntDaysDTS());
   }
 
   @Override
-  public MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries(TimeZone timeZone) {
+  public MutableDateDoubleTimeSeries toMutableDateDoubleTimeSeries(final TimeZone timeZone) {
     return new ListDateDoubleTimeSeries(timeZone, toFastMutableIntDaysDTS());
   }
 
@@ -802,7 +811,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public DateTimeDoubleTimeSeries toDateTimeDoubleTimeSeries(TimeZone timeZone) {
+  public DateTimeDoubleTimeSeries toDateTimeDoubleTimeSeries(final TimeZone timeZone) {
     return new ArrayDateTimeDoubleTimeSeries(timeZone, toFastLongMillisDTS());
   }
 
@@ -813,7 +822,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
 
   @Override
   public MutableDateTimeDoubleTimeSeries toMutableDateTimeDoubleTimeSeries(
-      TimeZone timeZone) {
+      final TimeZone timeZone) {
     return new ListDateTimeDoubleTimeSeries(timeZone, toFastMutableLongMillisDTS());
   }
 
@@ -823,7 +832,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries(TimeZone timeZone) {
+  public SQLDateDoubleTimeSeries toSQLDateDoubleTimeSeries(final TimeZone timeZone) {
     return new ArraySQLDateDoubleTimeSeries(timeZone, toFastIntDaysDTS());
   }
 
@@ -833,7 +842,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries(TimeZone timeZone) {
+  public MutableSQLDateDoubleTimeSeries toMutableSQLDateDoubleTimeSeries(final TimeZone timeZone) {
     return new ListSQLDateDoubleTimeSeries(timeZone, toFastMutableIntDaysDTS());
   }
 
@@ -841,9 +850,9 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries() {
     return new ArrayZonedDateTimeDoubleTimeSeries(getTimeZone310(), toFastLongMillisDTS());
   }
-  
+
   @Override
-  public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries(ZoneId timeZone) {
+  public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries(final ZoneId timeZone) {
     return new ArrayZonedDateTimeDoubleTimeSeries(timeZone, toFastLongMillisDTS());
   }
 
@@ -851,32 +860,32 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   public MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries() {
     return new ListZonedDateTimeDoubleTimeSeries(getTimeZone310(), toFastMutableLongMillisDTS());
   }
-  
+
   @Override
-  public MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries(ZoneId timeZone) {
+  public MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries(final ZoneId timeZone) {
     return new ListZonedDateTimeDoubleTimeSeries(timeZone, toFastMutableLongMillisDTS());
   }
-  
+
   @Override
-  public YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate) {
+  public YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(final ZonedDateTime zeroDate) {
     return new ArrayYearOffsetDoubleTimeSeries(zeroDate, toFastLongMillisDTS());
   }
 
   @Override
-  public YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(java.util.TimeZone timeZone, Date zeroDate) {
+  public YearOffsetDoubleTimeSeries toYearOffsetDoubleTimeSeries(final java.util.TimeZone timeZone, final Date zeroDate) {
     return new ArrayYearOffsetDoubleTimeSeries(timeZone, zeroDate, toFastLongMillisDTS());
   }
 
   @Override
-  public MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(ZonedDateTime zeroDate) {
+  public MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(final ZonedDateTime zeroDate) {
     return new ListYearOffsetDoubleTimeSeries(zeroDate, toFastMutableLongMillisDTS());
   }
-  
+
   @Override
-  public MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(java.util.TimeZone timeZone, Date zeroDate) {
+  public MutableYearOffsetDoubleTimeSeries toMutableYearOffsetDoubleTimeSeries(final java.util.TimeZone timeZone, final Date zeroDate) {
     return new ListYearOffsetDoubleTimeSeries(timeZone, zeroDate, toFastMutableLongMillisDTS());
   }
-  
+
   @Override
   public FastIntDoubleTimeSeries toFastIntDoubleTimeSeries() {
     return getFastSeries().toFastIntDoubleTimeSeries();
@@ -884,7 +893,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
 
   @Override
   public FastIntDoubleTimeSeries toFastIntDoubleTimeSeries(
-      DateTimeNumericEncoding encoding) {
+      final DateTimeNumericEncoding encoding) {
     return getFastSeries().toFastIntDoubleTimeSeries(encoding);
   }
 
@@ -895,7 +904,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
 
   @Override
   public FastLongDoubleTimeSeries toFastLongDoubleTimeSeries(
-      DateTimeNumericEncoding encoding) {
+      final DateTimeNumericEncoding encoding) {
     return getFastSeries().toFastLongDoubleTimeSeries(encoding);
   }
 
@@ -906,7 +915,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
 
   @Override
   public FastMutableIntDoubleTimeSeries toFastMutableIntDoubleTimeSeries(
-      DateTimeNumericEncoding encoding) {
+      final DateTimeNumericEncoding encoding) {
     return getFastSeries().toFastMutableIntDoubleTimeSeries(encoding);
   }
 
@@ -917,7 +926,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
 
   @Override
   public FastMutableLongDoubleTimeSeries toFastMutableLongDoubleTimeSeries(
-      DateTimeNumericEncoding encoding) {
+      final DateTimeNumericEncoding encoding) {
     return getFastSeries().toFastMutableLongDoubleTimeSeries(encoding);
   }
 }

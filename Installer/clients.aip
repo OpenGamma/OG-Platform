@@ -68,9 +68,9 @@
     <ROW Feature="og_excel" Title="Tools for Microsoft Excel" Description="OpenGamma support for Microsoft Excel" Display="7" Level="4" Directory_="APPDIR" Attributes="8" Components="OG_Excel32 OG_Excel64" Builds="MsiBuild"/>
     <ROW Feature="og_excel_32" Feature_Parent="og_excel" Title="32-bit Addin" Description="32-bit Addin for Microsoft Excel 2007 and 2010" Display="5" Level="4" Directory_="APPDIR" Attributes="8" Components="OG_ExcelAddin32" Builds="MsiBuild"/>
     <ROW Feature="og_excel_64" Feature_Parent="og_excel" Title="64-bit Addin" Description="64-bit Addin for Microsoft Excel 2010" Display="3" Level="4" Directory_="APPDIR" Attributes="8" Components="OG_ExcelAddin64" Builds="MsiBuild"/>
-    <ROW Feature="og_language_32" Feature_Parent="og_language_core" Title="32-bit Service" Description="The 32-bit Java hosting service" Display="0" Level="1" Directory_="APPDIR" Attributes="10" Components="OG_Language32" Builds="MsiBuild"/>
-    <ROW Feature="og_language_64" Feature_Parent="og_language_core" Title="64-bit Service" Description="The 64-bit Java hosting service" Display="0" Level="1" Directory_="APPDIR" Attributes="10" Components="OG_Language64" Builds="MsiBuild"/>
-    <ROW Feature="og_language_core" Title="Language Integration Service" Description="The core service required to support integration with other environments" Display="2" Level="32767" Directory_="APPDIR" Attributes="8" Options="32" Components="Logging OG_LanguageCore32 OG_LanguageCore64" Builds="MsiBuild"/>
+    <ROW Feature="og_language_32" Feature_Parent="og_language_core" Title="32-bit Service" Description="The 32-bit Java hosting service" Display="0" Level="1" Directory_="APPDIR" Attributes="8" Components="OG_Language32" Builds="MsiBuild"/>
+    <ROW Feature="og_language_64" Feature_Parent="og_language_core" Title="64-bit Service" Description="The 64-bit Java hosting service" Display="0" Level="1" Directory_="APPDIR" Attributes="8" Components="OG_Language64" Builds="MsiBuild"/>
+    <ROW Feature="og_language_core" Title="Language Integration Service" Description="The core service required to support integration with other environments" Display="2" Level="1" Directory_="APPDIR" Attributes="8" Components="Logging OG_LanguageCore32 OG_LanguageCore64" Builds="MsiBuild"/>
     <ROW Feature="og_language_sdk" Feature_Parent="og_language_core" Title="Client SDK" Description="Header and library files for developing against the service" Display="3" Level="4" Directory_="APPDIR" Attributes="8" Components="OG_LanguageSDK32 OG_LanguageSDK64" Builds="MsiBuild"/>
     <ROW Feature="og_python_32" Title="32-bit Python Libraries" Description="32-bit Python Libraries" Display="9" Level="4" Directory_="APPDIR" Attributes="8" Components="OG_Python32" Builds="MsiBuild"/>
     <ROW Feature="og_python_64" Title="64-bit Python Libraries" Description="64-bit Python Libraries" Display="11" Level="4" Directory_="APPDIR" Attributes="8" Components="OG_Python64" Builds="MsiBuild"/>
@@ -133,11 +133,10 @@
     <ROW Name="opengamma_dialog.bmp" SourcePath="..\projects\OG-Language\Installer\opengamma-dialog.bmp"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiConditionComponent">
-    <ROW Feature_="og_language_core" Level="1" Condition="NOT REG_OG_LANGUAGE_EXT OR NOT REG_OG_LANGUAGE_JAR" Options="1"/>
     <ROW Feature_="JVM32" Level="4" Condition="(NOT REG_OG_LANGUAGE_EXT OR NOT REG_OG_LANGUAGE_JAR) AND (JAVASOFT_JRE_1_7_32 OR OPENGAMMA_JRE_1_7_32)"/>
-    <ROW Feature_="JVM32" Level="0" Condition="REG_OG_LANGUAGE_EXT AND REG_OG_LANGUAGE_JAR"/>
+    <ROW Feature_="JVM32" Level="0" Condition="REG_OG_LANGUAGE_EXT AND REG_OG_LANGUAGE_JAR AND NOT Installed"/>
     <ROW Feature_="JVM64" Level="4" Condition="(NOT REG_OG_LANGUAGE_EXT OR NOT REG_OG_LANGUAGE_JAR) AND (JAVASOFT_JRE_1_7_32 OR OPENGAMMA_JRE_1_7_32)"/>
-    <ROW Feature_="JVM64" Level="0" Condition="REG_OG_LANGUAGE_EXT AND REG_OG_LANGUAGE_JAR"/>
+    <ROW Feature_="JVM64" Level="0" Condition="REG_OG_LANGUAGE_EXT AND REG_OG_LANGUAGE_JAR AND NOT Installed"/>
     <ROW Feature_="og_rstats" Level="1" Condition="R32_PATH OR R64_PATH"/>
     <ROW Feature_="og_excel" Level="1" Condition="EXCEL_12_32 OR EXCEL_14_32 OR EXCEL_14_64"/>
     <ROW Feature_="og_excel_64" Level="1" Condition="EXCEL_14_64"/>

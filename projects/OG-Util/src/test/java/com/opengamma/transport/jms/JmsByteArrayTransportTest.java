@@ -26,7 +26,7 @@ import com.opengamma.util.test.Timeout;
 /**
  * Test.
  */
-@Test
+@Test(groups = {"integration"})
 public class JmsByteArrayTransportTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JmsByteArrayTransportTest.class);

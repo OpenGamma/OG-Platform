@@ -84,6 +84,27 @@ const TCHAR *ServiceDefaultServiceName () {
 	return DEFAULT_SERVICE_NAME;
 }
 
+/// Extracts the numeric version fragment from a string.
+///
+/// @param[in] pszVersion the version string, e.g. "1.7"
+/// @param[in] nFragment the version fragment, e.g. 0 for the major version number, 1 for the minor
+/// @return the version number
+int JavaVersionFragment (const TCHAR *pszVersion, int nFragment) {
+	int nValue;
+	size_t cch = _tcslen (pszVersion), i = 0;
+	do {
+		nValue = 0;
+		while ((i < cch) && (pszVersion[i] != '.')) {
+			if ((pszVersion[i] >= '0') && (pszVersion[i] <= '9')) {
+				nValue = (nValue * 10) + (pszVersion[i] - '0');
+			}
+			i++;
+		}
+		if (i < cch) i++;
+	} while (nFragment-- > 0);
+	return nValue;
+}
+
 /// Locates the JVM library by inspecting the registry or making other educated guesses
 class CJvmLibraryDefault : public CAbstractSettingProvider {
 private:
@@ -127,27 +148,6 @@ private:
 		return _tcsdup (szPath);
 	}
 
-	/// Extracts the numeric version fragment from a string.
-	///
-	/// @param[in] pszVersion the version string, e.g. "1.7"
-	/// @param[in] nFragment the version fragment, e.g. 0 for the major version number, 1 for the minor
-	/// @return the version number
-	static int VersionFragment (const TCHAR *pszVersion, int nFragment) {
-		int nValue;
-		size_t cch = _tcslen (pszVersion), i = 0;
-		do {
-			nValue = 0;
-			while ((i < cch) && (pszVersion[i] != '.')) {
-				if ((pszVersion[i] >= '0') && (pszVersion[i] <= '9')) {
-					nValue = (nValue * 10) + (pszVersion[i] - '0');
-				}
-				i++;
-			}
-			if (i < cch) i++;
-		} while (nFragment-- > 0);
-		return nValue;
-	}
-
 	/// Checks for a JVM library defined in the registry at HKLM\\SOFTWARE\\<publisher>\\Java Runtime Environment.
 	/// Registry mapping under WOW64 will make sure that a 32-bit process sees a 32-bit JVM and a 64-bit process
 	/// sees a 64-bit JVM.
@@ -169,8 +169,8 @@ private:
 			cbVersion = sizeof (sz);
 			if (RegGetValue (hkeyJRE, NULL, TEXT ("CurrentVersion"), RRF_RT_REG_SZ, NULL, sz, &cbVersion) == ERROR_SUCCESS) {
 				LOGDEBUG (TEXT ("Found JRE v") << sz << TEXT (" from ") << pszPublisher);
-				int nMajorVersion = VersionFragment (sz, 0);
-				if ((nMajorVersion > 1) || ((nMajorVersion == 1) && (VersionFragment (sz, 1) >= 7))) {
+				int nMajorVersion = JavaVersionFragment (sz, 0);
+				if ((nMajorVersion > 1) || ((nMajorVersion == 1) && (JavaVersionFragment (sz, 1) >= 7))) {
 					pszPath = SearchJavaVersion (hkeyJRE, sz);
 					if (pszPath) {
 						LOGINFO (TEXT ("Found default JVM ") << pszPath << TEXT (" from ") << pszPublisher << TEXT (" in registry"));
@@ -237,7 +237,11 @@ private:
 		LOGDEBUG (TEXT ("Scanning folder ") << pszPath);
 		DIR *dir = opendir (pszPath);
 		if (!dir) {
-			LOGWARN (TEXT ("Can't read folder ") << pszPath << TEXT (", error ") << GetLastError ());
+			if (nDepth == 0) {
+				LOGWARN (TEXT ("Can't read folder ") << pszPath << TEXT (", error ") << GetLastError ());
+			} else {
+				LOGDEBUG (TEXT ("Can't read folder ") << pszPath << TEXT (", error ") << GetLastError ());
+			}
 			return NULL;
 		}
 		TCHAR *pszLibrary = NULL;
@@ -246,7 +250,7 @@ private:
 			if (dp->d_name[0] == '.') {
 				continue;
 			}
-			if (dp->d_type & DT_DIR) {
+			if ((dp->d_type == DT_DIR) || (dp->d_type == DT_LNK)) {
 				LOGDEBUG (TEXT ("Recursing into folder ") << dp->d_name);
 				size_t cchNewPath = _tcslen (pszPath) + _tcslen (dp->d_name) + 2;
 				TCHAR *pszNewPath = new TCHAR[cchNewPath];
@@ -269,7 +273,23 @@ private:
 					break;
 				}
 				StringCbPrintf (pszLibrary, cchLibrary * sizeof (TCHAR), TEXT ("%s/%s"), pszPath, dp->d_name);
-				break;
+				// TODO: /proc/self/exe probably isn't portable, but seems to work on Fedora
+				CProcess *poCheck = CProcess::Start (TEXT ("/proc/self/exe"), TEXT ("jvm"), pszLibrary);
+				if (poCheck) {
+					int status = 1;
+					LOGDEBUG (TEXT ("Waiting on JVM check"));
+					wait (&status);
+					poCheck->Terminate (); // Terminate if still running
+					delete poCheck;
+					LOGDEBUG (TEXT ("JVM check returned ") << status);
+					if (status == 0) {
+						// Confirmed the JVM version
+						break;
+					}
+				}
+				LOGWARN (TEXT ("Couldn't verify JVM version"));
+				delete pszLibrary;
+				pszLibrary = NULL;
 			}
 		}
 		closedir (dir);

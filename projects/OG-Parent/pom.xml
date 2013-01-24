@@ -81,6 +81,9 @@
           <include>**/*.xml</include>
         </includes>
       </testResource>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
     </testResources>
     <plugins>
       <plugin>
@@ -116,7 +119,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.5</version>
+        <version>2.13</version>
         <configuration>
           <includes>
             <include>**/*Test.java</include>
@@ -129,8 +132,28 @@
           <parallel>${tests.testng.parallel}</parallel>
           <threadCount>${tests.testng.threads}</threadCount>
           <groups>${tests.testng.includedgroups}</groups>
-          <excludedGroups>${tests.testng.exludedgroups}</excludedGroups>
+          <!--<excludedGroups>${tests.testng.exludedgroups}</excludedGroups>-->
+          <excludedGroups>integration</excludedGroups>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.13</version>
+        <configuration>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
+          <groups>integration</groups>
+      </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -943,7 +966,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.12</version>
+        <version>2.13</version>
         <configuration>
           <showSuccess>true</showSuccess>
         </configuration>
@@ -976,7 +999,7 @@
     <tests.testng.parallel>classes</tests.testng.parallel>
     <tests.testng.threads>4</tests.testng.threads>
     <tests.testng.includedgroups></tests.testng.includedgroups>
-    <tests.testng.excludedgroups></tests.testng.excludedgroups>
+    <tests.testng.excludedgroups>integration</tests.testng.excludedgroups>
   </properties>
 
 </project>

@@ -13,6 +13,7 @@ import org.threeten.bp.LocalDate;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.GoldFutureExpiryCalculator;
 import com.opengamma.financial.convention.SoybeanFutureExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -22,11 +23,20 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class BloombergCommodityFuturePriceCurveInstrumentProvider implements FuturePriceCurveInstrumentProvider<Number> {
 
+  /**
+   * Gets the expiryRules.
+   * @return the expiryRules
+   */
+  public static Map<String, ExchangeTradedInstrumentExpiryCalculator> getExpiryRules() {
+    return EXPIRY_RULES;
+  }
+
   private static final Map<String, ExchangeTradedInstrumentExpiryCalculator> EXPIRY_RULES;
   static {
     EXPIRY_RULES = Maps.newHashMap();
-    EXPIRY_RULES.put("S ", SoybeanFutureExpiryCalculator.getInstance());
-    EXPIRY_RULES.put("BO", SoybeanFutureExpiryCalculator.getInstance());
+    EXPIRY_RULES.put("BO", SoybeanFutureExpiryCalculator.getInstance());  // Soy oil
+    EXPIRY_RULES.put("GC", GoldFutureExpiryCalculator.getInstance());     // Gold
+    EXPIRY_RULES.put("S ", SoybeanFutureExpiryCalculator.getInstance());  // Soy
   }
 
   private final String _futurePrefix;
@@ -79,7 +89,6 @@ public class BloombergCommodityFuturePriceCurveInstrumentProvider implements Fut
    * e.g. S U3 Comdty
    * <p>
    * @param futureOptionNumber n'th future following curve date, not null
-   * @param strike option's strike, not null
    * @param curveDate date of future validity; valuation date, not null
    * @return the id of the Bloomberg ticker
    */

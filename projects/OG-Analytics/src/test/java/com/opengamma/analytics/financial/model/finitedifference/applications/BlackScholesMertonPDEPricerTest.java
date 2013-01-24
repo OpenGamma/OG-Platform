@@ -249,20 +249,22 @@ public class BlackScholesMertonPDEPricerTest {
   }
 
   @Test
-      (enabled = false)
-      public void debugTest() {
+   (enabled = false)
+  public void debugTest() {
+    System.out.println("BlackScholesMertonPDEPricerTest.debugTest");
+    BjerksundStenslandModel amPricer = new BjerksundStenslandModel();
     final BlackScholesMertonPDEPricer pricer = new BlackScholesMertonPDEPricer(false);
     final double s0 = 10.0;
-    final double k = 13.0;
+    final double k = 7.0;
     final double r = 0.2;
     final double b = 0.1;
     final double t = 2.0;
     final double sigma = 0.3;
-    final boolean isCall = true;
+    final boolean isCall = false;
     final boolean isAmerican = true;
 
     double nu = 80;
-    int tSteps = 200;
+    int tSteps = 500;
     int sSteps = (int) (nu * tSteps);
     // warm-up
     pricer.price(s0, k, r, b, t, sigma, isCall, false, sSteps, tSteps);
@@ -275,8 +277,10 @@ public class BlackScholesMertonPDEPricerTest {
     double endTime = System.nanoTime() / 1e6;
     double duration = endTime - startTime;
 
-    double relErr = Math.abs(1 - pdePrice / bsPrice);
-    System.out.println(tSteps + "\t" + sSteps + "\t" + duration + df * fwd + "\t" + bsPrice + "\t" + pdePrice + "\t" + relErr);
+  
+    double amPrice = amPricer.price(s0, k, r, b, t, sigma, isCall);
+    double relErr = Math.abs(1 - pdePrice / amPrice);
+    System.out.println(tSteps + "\t" + sSteps + "\t" + duration + df * fwd + "\t" + amPrice + "\t" + pdePrice + "\t" + relErr);
 
   }
 }
