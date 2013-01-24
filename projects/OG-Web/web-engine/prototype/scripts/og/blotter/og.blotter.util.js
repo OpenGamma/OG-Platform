@@ -28,8 +28,7 @@ $.register_module({
                 $('select[name="'+ name +'"]').val(value);
             },
             check_checkbox : function (name, value){
-                console.log(name, value);
-                $('input:checkbox[name= "'+ name +'"]').prop('checked', bools[value]); 
+                $('input:checkbox[name="'+ name +'"]').prop('checked', bools[value]);
             },
             add_datetimepicker : function (name){
                 $('input[name="'+ name +'"]').datetimepicker({
@@ -52,8 +51,8 @@ $.register_module({
                 return attributes;
             },
             toggle_fixed : function (ele, selection) {
-                var option = ele.find("option[value='fixedInterestRateLeg']");
-                if(selection == 'fixedInterestRateLeg')
+                var option = ele.find("option[value='FixedInterestRateLeg']");
+                if(selection == 'FixedInterestRateLeg')
                     option.attr("disabled", "disabled");
                 else
                     option.removeAttr("disabled");
@@ -69,6 +68,16 @@ $.register_module({
                 premiumDate: null,
                 type: "OtcTrade",
                 counterparty: 'ABC Counterparty'
+            },
+            fungible_trade : {                
+                tradeDate: "2013-01-01",
+                premiumCurrency: null,
+                tradeTime: "00:00Z",
+                premium: null,
+                premiumTime: null,
+                attributes: {},
+                premiumDate: null,
+                type: "FungibleTrade"
             },
             swap_types : [
                 {text:'FLoating Interest Rate Leg', value:'FloatingInterestRateLeg'},

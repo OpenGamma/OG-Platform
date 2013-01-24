@@ -369,6 +369,7 @@
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.security.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.floatingleg.js</fragment>
     <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.fixedleg.js</fragment>
+    <fragment>/scripts/og/blotter/forms/blocks/og.blotter.forms.blocks.fungible.js</fragment>
     <!--OTC Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.swapsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.equityvarianceswapsecurity.js</fragment>
@@ -381,7 +382,7 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorcmsspreadsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.frasecurity.js</fragment>
     <!--Fungible Trades-->
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fungibletrade.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond_future.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.trade.js</fragment>
     <!--Lifecycle-->

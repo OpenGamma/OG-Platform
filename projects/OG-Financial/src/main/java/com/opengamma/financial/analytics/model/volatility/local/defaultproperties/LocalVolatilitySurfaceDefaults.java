@@ -19,6 +19,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -53,7 +54,10 @@ public class LocalVolatilitySurfaceDefaults extends DefaultPropertyFunction {
   private final String _eps;
 
   public LocalVolatilitySurfaceDefaults(final String eps) {
-    super(ComputationTargetType.LEGACY_PRIMITIVE.or(ComputationTargetType.SECURITY).or(ComputationTargetType.TRADE), true); // // [PLAT-2286]: change to correct type
+    super(ComputationTargetType.CURRENCY
+        .or(ComputationTargetType.UNORDERED_CURRENCY_PAIR)
+        .or(FinancialSecurityTypes.FX_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.EQUITY_VARIANCE_SWAP_SECURITY), true); // // [PLAT-2286]: change to correct type
     ArgumentChecker.notNull(eps, "eps");
     _eps = eps;
   }

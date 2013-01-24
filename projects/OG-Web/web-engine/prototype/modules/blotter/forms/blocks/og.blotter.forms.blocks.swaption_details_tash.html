@@ -9,8 +9,8 @@
         <td>
         </td>
         <td class="og-double-cell">
-          <div><span><label><span>Pay</span><input type="radio" name="payer" value="true">
-          </label></span><span><label><span>Recieve</span><input type="radio" name="payer" value="false"></label>
+          <div><span><label><span>Pay</span><input type="radio" name="security.payer" value="true">
+          </label></span><span><label><span>Recieve</span><input type="radio" name="security.payer" value="false"></label>
           </span></div>
         </td>
       </tr>
@@ -19,8 +19,8 @@
           <span>Settlement</span>
         </td>
         <td class="og-double-cell">
-          <div><span><label><span>Cash</span><input type="radio" name="cashSettled" value="true">
-          </label></span><span><label><span>Swap</span><input type="radio" name="cashSettled" value="false"></label>
+          <div><span><label><span>Cash</span><input type="radio" name="security.cashSettled" value="true">
+          </label></span><span><label><span>Swap</span><input type="radio" name="security.cashSettled" value="false"></label>
           </span></div>
         </td>
       </tr>
@@ -31,7 +31,7 @@
           </label>
         </td>
         <td>
-          <input name="expiry" type="text" value='{{expiry}}' />
+          <input name="security.expiry" type="text" value='{{expiry}}' />
         </td>
       </tr>
       <tr>
@@ -41,7 +41,7 @@
           </label>
         </td>
         <td>
-          <input name="settlementDate" type="text" value='{{settlement}}' />
+          <input name="security.settlementDate" type="text" value='{{settlement}}' />
         </td>
       </tr>
       <tr>
@@ -51,7 +51,8 @@
           </label>
         </td>
         <td class="og-double-cell">
-          <div><span>{{{item_0}}}</span><span><input name="notional" type="text" value="{{notional}}"/></span></div>
+          <div><span>{{{item_0}}}</span><span><input name="security.notional" type="text" value="{{notional}}"/></span>
+          </div>
         </td>
       </tr>
       <tr>

@@ -11,7 +11,7 @@ $.register_module({
             var block = this, id = og.common.id('attributes'), form = config.form,leg = config.leg,
                 ui = og.common.util.ui, type = config.type, gear = ~type.indexOf('Gearing'),
                 spre = ~type.indexOf('Spread'), leg_path = (leg.slice(0,leg.length-1)).split('.'),
-                data = leg_path.reduce(function (acc, val) {return acc[val];},config.data);
+                data = leg_path.reduce(function (acc, val) {return acc[val];},config.data) || {notional:{}};
             form.Block.call(block, {
                 module: 'og.blotter.forms.blocks.swap_details_floating_tash',
                 extras: {leg: leg, initial: data.initialFloatingRate, settlement: data.settlementDays, 

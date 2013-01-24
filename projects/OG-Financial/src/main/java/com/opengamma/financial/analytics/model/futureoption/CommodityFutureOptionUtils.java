@@ -34,4 +34,15 @@ public class CommodityFutureOptionUtils {
     return prefix + "_" + ticker.getValue().substring(0, 2);
   }
 
+  public static String getSurfaceNameWithoutTicker(final FinancialSecurity security, final String fullName) {
+    ExternalId ticker = security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
+    if (ticker == null) {
+      ticker = security.getExternalIdBundle().getExternalId(ExternalSchemes.BLOOMBERG_TICKER_WEAK);
+    }
+    if (ticker == null) {
+      throw new OpenGammaRuntimeException("Couldn't get ticker for " + security);
+    }
+    final int index = fullName.lastIndexOf("_");
+    return fullName.substring(0, index);
+  }
 }

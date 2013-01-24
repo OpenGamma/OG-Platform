@@ -118,7 +118,7 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
 
     }
 
-    private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<String, CurrencyInfo>();
+    private final Map<String, CurrencyInfo> _perCurrencyInfo = new HashMap<>();
 
     public void setPerCurrencyInfo(final Map<String, CurrencyInfo> perCurrencyInfo) {
       _perCurrencyInfo.clear();
@@ -137,8 +137,20 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
       return _perCurrencyInfo.get(currency);
     }
 
-    protected void addCommodityFutureOptionBlackDefaults(final List<FunctionConfiguration> functions) {
-      final String[] args = new String[getPerCurrencyInfo().size() * 8 + 1];
+    protected void addCommodityFutureOptionDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[getPerCurrencyInfo().size() * 2 + 1];
+      args[0] = PriorityClass.NORMAL.name();
+      int i = 1;
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        args[i++] = e.getKey();
+        final CurrencyInfo value = e.getValue();
+        args[i++] = value.getSurfaceCalculationMethod();
+      }
+      functions.add(functionConfiguration(CommodityFutureOptionSurfaceCalculationMethodDefaults.class, args));
+    }
+
+    protected void addCommodityFutureOptionSurfaceCalculationMethodDefaults(final List<FunctionConfiguration> functions) {
+      final String[] args = new String[getPerCurrencyInfo().size() * 7 + 1];
       args[0] = PriorityClass.NORMAL.name();
       int i = 1;
       for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
@@ -147,18 +159,18 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
         args[i++] = value.getCurveName();
         args[i++] = value.getCurveCalculationConfig();
         args[i++] = value.getSurfaceName();
-        args[i++] = value.getSurfaceCalculationMethod();
         args[i++] = value.getInterpolationMethod();
         args[i++] = value.getForwardCurveName();
         args[i++] = value.getForwardCurveCalculationMethodName();
       }
-      functions.add(functionConfiguration(CommodityFutureOptionDefaults.class, args));
+      functions.add(functionConfiguration(CommodityFutureOptionBlackLognormalDefaults.class, args));
     }
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       if (!getPerCurrencyInfo().isEmpty()) {
-        addCommodityFutureOptionBlackDefaults(functions);
+        addCommodityFutureOptionSurfaceCalculationMethodDefaults(functions);
+        addCommodityFutureOptionDefaults(functions);
       }
     }
 

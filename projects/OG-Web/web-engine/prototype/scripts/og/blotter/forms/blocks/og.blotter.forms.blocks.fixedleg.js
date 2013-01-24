@@ -10,8 +10,7 @@ $.register_module({
         var Fixedleg = function (config) {
             var block = this, id = og.common.id('attributes'), form = config.form, leg = config.leg,
                 ui = og.common.util.ui, leg_path = (leg.slice(0,leg.length-1)).split('.'),
-                data = leg_path.reduce(function (acc, val) {return acc[val];},config.data);
-            console.log(data);   
+                data = leg_path.reduce(function (acc, val) {return acc[val];},config.data) || {notional:{}};  
             form.Block.call(block, {
                 module: 'og.blotter.forms.blocks.swap_details_fixed_tash',
                 extras: {rate: data.rate, notional: data.notional.amount, index: config.index, leg: leg},
