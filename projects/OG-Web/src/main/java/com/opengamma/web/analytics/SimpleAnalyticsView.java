@@ -58,7 +58,6 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
                                     ViewportListener viewportListener,
                                     BlotterColumnMapper blotterColumnMapper,
                                     boolean showBlotterColumns) {
-    _showBlotterColumns = showBlotterColumns;
     ArgumentChecker.notEmpty(viewId, "viewId");
     ArgumentChecker.notEmpty(portoflioCallbackId, "portoflioGridId");
     ArgumentChecker.notEmpty(primitivesCallbackId, "primitivesGridId");
@@ -71,6 +70,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
     _portfolioGrid = PortfolioAnalyticsGrid.empty(portoflioCallbackId);
     _primitivesGrid = PrimitivesAnalyticsGrid.empty(primitivesCallbackId);
     _viewportListener = viewportListener;
+    _showBlotterColumns = showBlotterColumns;
   }
 
   @Override
