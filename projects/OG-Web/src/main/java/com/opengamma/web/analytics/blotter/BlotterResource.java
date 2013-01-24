@@ -289,14 +289,15 @@ public class BlotterResource {
     ManageableSecurity security = findSecurity(trade.getSecurityLink());
     JSONObject root = new JSONObject();
     try {
-      JsonDataSink tradeSink = new JsonDataSink();
+      JsonDataSink tradeSink = new JsonDataSink(getStringConvert());
       if (isOtc(security)) {
         OtcTradeBuilder.extractTradeData(trade, tradeSink);
         MetaBean securityMetaBean = s_metaBeansByTypeName.get(security.getClass().getSimpleName());
         if (securityMetaBean == null) {
           throw new DataNotFoundException("No MetaBean is registered for security type " + security.getClass().getName());
         }
-        BeanVisitor<JSONObject> securityVisitor = new BuildingBeanVisitor<>(security, new JsonDataSink());
+        BeanVisitor<JSONObject> securityVisitor =
+            new BuildingBeanVisitor<>(security, new JsonDataSink(getStringConvert()), getStringConvert());
         PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
         BeanTraverser securityTraverser = new BeanTraverser(securityPropertyFilter);
         JSONObject securityJson = (JSONObject) securityTraverser.traverse(securityMetaBean, securityVisitor);
@@ -304,7 +305,8 @@ public class BlotterResource {
           UnderlyingSecurityVisitor visitor = new UnderlyingSecurityVisitor(VersionCorrection.LATEST, _securityMaster);
           ManageableSecurity underlying = ((FinancialSecurity) security).accept(visitor);
           if (underlying != null) {
-            BeanVisitor<JSONObject> underlyingVisitor = new BuildingBeanVisitor<>(underlying, new JsonDataSink());
+            BeanVisitor<JSONObject> underlyingVisitor =
+                new BuildingBeanVisitor<>(underlying, new JsonDataSink(getStringConvert()), getStringConvert());
             MetaBean underlyingMetaBean = s_metaBeansByTypeName.get(underlying.getClass().getSimpleName());
             JSONObject underlyingJson = (JSONObject) securityTraverser.traverse(underlyingMetaBean, underlyingVisitor);
             root.put("underlying", underlyingJson);

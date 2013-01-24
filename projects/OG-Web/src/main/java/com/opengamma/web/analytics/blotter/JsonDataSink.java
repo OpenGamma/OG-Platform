@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.joda.beans.Bean;
 import org.joda.beans.MetaBean;
+import org.joda.convert.StringConvert;
 import org.json.JSONObject;
 
 import com.google.common.collect.Maps;
@@ -20,6 +21,11 @@ import com.google.common.collect.Maps;
 /* package */ class JsonDataSink implements BeanDataSink<JSONObject> {
 
   private final Map<String, Object> _json = Maps.newHashMap();
+  private final StringConvert _stringConvert;
+
+  /* package */ JsonDataSink(StringConvert stringConvert) {
+    _stringConvert = stringConvert;
+  }
 
   @Override
   public void setBeanData(MetaBean metaBean, Bean bean) {
@@ -47,7 +53,8 @@ import com.google.common.collect.Maps;
     if (bean == null) {
       value = null;
     } else {
-      BuildingBeanVisitor<JSONObject> visitor = new BuildingBeanVisitor<JSONObject>(bean, new JsonDataSink());
+      BuildingBeanVisitor<JSONObject> visitor =
+          new BuildingBeanVisitor<>(bean, new JsonDataSink(_stringConvert), _stringConvert);
       value = traverser.traverse(bean.metaBean(), visitor);
     }
     _json.put(propertyName, value);
