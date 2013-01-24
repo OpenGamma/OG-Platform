@@ -736,6 +736,10 @@ public final class ValueRequirementNames {
    */
   public static final String VEGA_P = "VegaP";
   /**
+   * The vega an option with some weighting factor 
+   */
+  public static final String WEIGHTED_VEGA = "Weighted Vega";
+  /**
    * The bucketed vega of a security to the market data volatility cube.
    */
   public static final String VEGA_QUOTE_CUBE = "Vega Quote Cube";

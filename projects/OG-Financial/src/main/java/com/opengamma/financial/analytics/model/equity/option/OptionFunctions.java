@@ -107,6 +107,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(EquityVanillaBarrierOptionVegaMatrixFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionVegaFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionVommaFunction.class));
+    functions.add(functionConfiguration(WeightedVegaFunction.class));
   }
 
 }

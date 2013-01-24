@@ -228,6 +228,8 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addScalingAndSummingFunction(functions, ValueRequirementNames.VEGA_QUOTE_MATRIX);
     addUnitScalingFunction(functions, ValueRequirementNames.VOMMA);
     addUnitScalingFunction(functions, ValueRequirementNames.VOMMA_P);
+    addUnitScalingFunction(functions, ValueRequirementNames.WEIGHTED_VEGA);
+    addSummingFunction(functions, ValueRequirementNames.WEIGHTED_VEGA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
     addUnitScalingFunction(functions, ValueRequirementNames.YTM);
     addUnitScalingFunction(functions, ValueRequirementNames.ZETA);
