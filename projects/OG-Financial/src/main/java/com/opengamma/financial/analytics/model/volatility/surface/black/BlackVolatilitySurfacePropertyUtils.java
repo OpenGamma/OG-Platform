@@ -48,7 +48,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
-import com.opengamma.financial.analytics.model.equity.option.EquityOptionFunction;
 import com.opengamma.id.ExternalId;
 
 /**
@@ -391,7 +390,7 @@ public class BlackVolatilitySurfacePropertyUtils {
           .with(constraint, constraints.getValues(constraint));
       }
     }
-    if (constraints.getValues(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME) != null) {
+    if (constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME) != null) {
       allProperties
         .withoutAny(ValuePropertyNames.CURVE)
         .with(ValuePropertyNames.CURVE, forwardCurveName)

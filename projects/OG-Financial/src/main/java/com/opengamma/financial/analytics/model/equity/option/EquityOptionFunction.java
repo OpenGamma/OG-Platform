@@ -71,8 +71,6 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   public static final String PROPERTY_DISCOUNTING_CURVE_NAME = "DiscountingCurveName";
   /** Property name for the discounting curve configuration */
   public static final String PROPERTY_DISCOUNTING_CURVE_CONFIG = "DiscountingCurveConfig";
-  /** Property name for the forward curve name */
-  public static final String PROPERTY_FORWARD_CURVE_NAME = "ForwardCurveName";
   /** The value requirement name */
   private final String[] _valueRequirementNames;
   /** Converts the security to the form used in analytics */
@@ -230,7 +228,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     final String surfaceCalculationMethod = Iterables.getOnlyElement(surfaceCalculationMethods);
 
     // 3. Forward curve requirement
-    final Set<String> forwardCurveNames = constraints.getValues(PROPERTY_FORWARD_CURVE_NAME);
+    final Set<String> forwardCurveNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME);
     if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
       return null;
     }
@@ -305,7 +303,10 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     assert discountCurvePropertiesSet;
     assert forwardCurvePropertiesSet;
     assert surfacePropertiesSet;
-    properties.with(PROPERTY_DISCOUNTING_CURVE_NAME, discountingCurveName).with(PROPERTY_DISCOUNTING_CURVE_CONFIG, discountingCurveConfig).with(PROPERTY_FORWARD_CURVE_NAME, forwardCurveName);
+    properties
+      .with(PROPERTY_DISCOUNTING_CURVE_NAME, discountingCurveName)
+      .with(PROPERTY_DISCOUNTING_CURVE_CONFIG, discountingCurveConfig)
+      .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME, forwardCurveName);
     final Set<ValueSpecification> results = new HashSet<>();
     for (final String valueRequirement : _valueRequirementNames) {
       results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties.get()));
