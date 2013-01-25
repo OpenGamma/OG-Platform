@@ -11,58 +11,58 @@
         </label>
       </td>
       <td>
-        <span></span>
+        <input name="security.expiry" type="text" value="{{expiry}}"/>
       </td>
     </tr>
     <tr>
       <td>
         <label>
-          <span>Currency</span>
+          <span>Barrier Level</span>
         </label>
       </td>
       <td>
-        <span></span>
+        <input name="security.barrierLevel" type="text" value="{{level}}" />
       </td>
     </tr>
     <tr>
       <td>
         <label>
-          <span>Trading Exchange</span>
+          <span>Direction / Type</span>
         </label>
       </td>
-      <td>
-        <span></span>
+      <td class="og-double-cell">
+        <div><span>{{{item_0}}}</span><span>{{{item_1}}}</span></div>
       </td>
     </tr>
     <tr>
       <td>
         <label>
-          <span>Settlement Exchange</span>
+          <span>Monitoring Type</span>
         </label>
       </td>
       <td>
-        <span></span>
+        {{{item_2}}}
       </td>
     </tr>
     <tr>
       <td>
         <label>
-          <span>First Delevery Date</span>
+          <span>Sampling Frequency</span>
         </label>
       </td>
       <td>
-        <span></span>
+        {{{item_3}}}
       </td>
     </tr>
     <tr>
       <td>
         <label>
-          <span>Last Delivery Date</span>
+          <span>Settlement Date</span>
         </label>
       </td>
       <td>
-        <span></span>
+        <input name="security.settlementDate" type="text" value="{{date}}" />
       </td>
-    </tr>  
+    </tr>
   </tbody>
 </table>

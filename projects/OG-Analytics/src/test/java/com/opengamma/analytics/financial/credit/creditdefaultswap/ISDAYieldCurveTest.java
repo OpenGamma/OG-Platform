@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
+import org.testng.annotations.Test;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -25,86 +26,102 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
  */
 public class ISDAYieldCurveTest {
 
-  // ----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final DayCount ACT_365F = DayCountFactory.INSTANCE.getDayCount("ACT/365F");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
 
-  // ----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // This is the anchor date for the curve Z(basedate) = 1
+  // This is the valuation date
   final ZonedDateTime baseDate = zdt(2012, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC);
 
-  final ZonedDateTime offsetBaseDate = zdt(2012, 11, 19, 0, 0, 0, 0, ZoneOffset.UTC);
+  // This is the anchor date for the curve - Z(basedate) = 1
+  final ZonedDateTime spotDate = zdt(2012, 11, 19, 0, 0, 0, 0, ZoneOffset.UTC);
 
   ZonedDateTime[] dates = {
       zdt(2012, 12, 17, 0, 0, 0, 0, ZoneOffset.UTC),   // MM
       zdt(2013, 1, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // MM
       zdt(2013, 2, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // MM
       zdt(2013, 5, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // MM
-      zdt(2013, 8, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // MM
-      zdt(2014, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),   // Swap
-      zdt(2015, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2016, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2017, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2018, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2019, 11, 17, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2020, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2021, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2022, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2024, 11, 17, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2027, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2032, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2037, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC),
-      zdt(2042, 11, 16, 0, 0, 0, 0, ZoneOffset.UTC)
+      zdt(2013, 8, 15, 0, 0, 0, 0, ZoneOffset.UTC)     // MM
   };
+
+  /*  
+    ,    // MM
+    zdt(2014, 11, 15, 0, 0, 0, 0, TimeZone.UTC),   // Swap
+    zdt(2015, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
+    zdt(2016, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
+    zdt(2017, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
+    zdt(2018, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
+    zdt(2019, 11, 17, 0, 0, 0, 0, TimeZone.UTC),
+    zdt(2020, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
+    zdt(2021, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
+    zdt(2022, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
+    zdt(2024, 11, 17, 0, 0, 0, 0, TimeZone.UTC),
+    zdt(2027, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
+    zdt(2032, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
+    zdt(2037, 11, 15, 0, 0, 0, 0, TimeZone.UTC),
+    zdt(2042, 11, 16, 0, 0, 0, 0, TimeZone.UTC)
+  };
+
+   */
 
   double[] rates = {
       0.002075,
-      0.00257,
+      0.0025699999999999998,
       0.00310999999999,
-      0.00523,
-      0.0069649999999,
-      0.00377,
-      0.00451,
-      0.005834,
-      0.007625,
-      0.009617,
-      0.011546,
-      0.01329,
-      0.01488,
-      0.016383,
-      0.018786,
-      0.02122,
-      0.023181,
-      0.024195,
-      0.02481
+      0.0052300000000000003,
+      0.0069649999999999998
   };
+
+  /*  ,
+    0.00377,
+    0.00451,
+    0.005834,
+    0.007625,
+    0.009617,
+    0.011546,
+    0.01329,
+    0.01488,
+    0.016383,
+    0.018786,
+    0.02122,
+    0.023181,
+    0.024195,
+    0.02481
+  };
+
+   */
 
   ISDAInstrumentTypes[] rateTypes = {
       ISDAInstrumentTypes.MoneyMarket,
       ISDAInstrumentTypes.MoneyMarket,
       ISDAInstrumentTypes.MoneyMarket,
       ISDAInstrumentTypes.MoneyMarket,
-      ISDAInstrumentTypes.MoneyMarket,
-      ISDAInstrumentTypes.Swap,
-      ISDAInstrumentTypes.Swap,
-      ISDAInstrumentTypes.Swap,
-      ISDAInstrumentTypes.Swap,
-      ISDAInstrumentTypes.Swap,
-      ISDAInstrumentTypes.Swap,
-      ISDAInstrumentTypes.Swap,
-      ISDAInstrumentTypes.Swap,
-      ISDAInstrumentTypes.Swap,
-      ISDAInstrumentTypes.Swap,
-      ISDAInstrumentTypes.Swap,
-      ISDAInstrumentTypes.Swap,
-      ISDAInstrumentTypes.Swap,
-      ISDAInstrumentTypes.Swap
+      ISDAInstrumentTypes.MoneyMarket
   };
 
-  // ----------------------------------------------------------------------------------------------
+  /*  ,
+    ISDAInstrumentTypes.Swap,
+    ISDAInstrumentTypes.Swap,
+    ISDAInstrumentTypes.Swap,
+    ISDAInstrumentTypes.Swap,
+    ISDAInstrumentTypes.Swap,
+    ISDAInstrumentTypes.Swap,
+    ISDAInstrumentTypes.Swap,
+    ISDAInstrumentTypes.Swap,
+    ISDAInstrumentTypes.Swap,
+    ISDAInstrumentTypes.Swap,
+    ISDAInstrumentTypes.Swap,
+    ISDAInstrumentTypes.Swap,
+    ISDAInstrumentTypes.Swap,
+    ISDAInstrumentTypes.Swap
+  };
+   */
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   private static final int spotDays = 2;
 
@@ -120,7 +137,7 @@ public class ISDAYieldCurveTest {
 
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"); // Bad Day Conv
 
-  // ----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   private static int getNumberOfInstruments(ISDAInstrumentTypes[] rateTypes, ISDAInstrumentTypes rateType) {
 
@@ -137,7 +154,7 @@ public class ISDAYieldCurveTest {
     return nInstruments;
   }
 
-  // ----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   private static ZonedDateTime[] getInstrumentDates(ZonedDateTime[] instrumentMaturities, ISDAInstrumentTypes[] rateTypes, ISDAInstrumentTypes rateType, final int nInstruments) {
 
@@ -157,6 +174,8 @@ public class ISDAYieldCurveTest {
     return instrumentDates;
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   private static double[] getInstrumentRates(double[] instrumentRates, ISDAInstrumentTypes[] rateTypes, ISDAInstrumentTypes rateType, final int nInstruments) {
 
     int index = 0;
@@ -175,7 +194,7 @@ public class ISDAYieldCurveTest {
     return instrumentInputRates;
   }
 
-  // ----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   private static int getNumberOfActiveSwaps(ZonedDateTime lastStubDate, ZonedDateTime[] swapDates, final int nSwap) {
 
@@ -191,7 +210,7 @@ public class ISDAYieldCurveTest {
     return numSwaps;
   }
 
-  // ----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   boolean calculateOnCycle(ZonedDateTime valueDate, ZonedDateTime unadjustedSwapDate, PeriodFrequency swapFixedLegCouponFrequency) {
 
@@ -251,7 +270,7 @@ public class ISDAYieldCurveTest {
     return onCycle;
   }
 
-  // ----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Assuming that the inputs are ordered as MM followed by swap instruments
 
@@ -364,7 +383,7 @@ public class ISDAYieldCurveTest {
     for (int i = 0; i < numSwaps; i++) {
       System.out.println("i = " + i + "\t" + unadjustedSwapDates[i] + "\t" + adjustedSwapDates[i] + "\t" + onCycleSwapDates[i] + "\t" + previousSwapDates[i]);
     }
-    */
+     */
 
     // -------------------------------------------
 
@@ -480,13 +499,27 @@ public class ISDAYieldCurveTest {
 
   }
 
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
   void ZCAddCashFlowList(ZonedDateTime[] adjustedDateList, double[] cashflowList, double price, ZonedDateTime date) {
 
   }
 
-  // ----------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // @Test
+  private final double getInterpolatedRate(final double t, final double t1, final double t2, final double z1, final double z2) {
+
+    final double z1t1 = z1 * t1;
+    final double z2t2 = z2 * t2;
+
+    final double zt = z1t1 + (z2t2 - z1t1) * (t - t1) / (t2 - t1);
+
+    return zt;
+  }
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  @Test
   public void testISDAYieldCurveBuild() {
 
     // Need to check the input data (numpts > 0, dates in ascending order etc)
@@ -496,12 +529,19 @@ public class ISDAYieldCurveTest {
 
     // Need to error check for negative rates? ISDA throws an error if rate <= -1
 
-    // JPMCDSClearExceldateSystem
+    // JPMCDSClearExceldateSystem ??
 
     // The number of instruments
     int nInstr = dates.length;
 
-    double[] zCurve = new double[nInstr];
+    ZonedDateTime[] zCurveDates = new ZonedDateTime[nInstr];
+
+    double[] zCurveRates = new double[nInstr];
+
+    double[] zCurveCCRates = new double[nInstr];
+
+    // The set of input instrument dates and derived discount factors
+    double[] zCurveDiscountFactors = new double[nInstr];
 
     ZonedDateTime valueDate = baseDate;
 
@@ -526,8 +566,13 @@ public class ISDAYieldCurveTest {
 
     // ------------------------------------------------------------------------------------------------
 
-    // Check that nCash != 0
+    // TODO : Check that nCash != 0
+
+    final double basis = 1.0;
+
     for (int i = 0; i < nCash; i++) {
+
+      // TODO : Need to check the stubs as per the ISDA model
 
       double dcf = TimeCalculator.getTimeBetween(baseDate, cashDates[i], mmDCC);
 
@@ -535,9 +580,109 @@ public class ISDAYieldCurveTest {
 
       double discount = 1.0 / denom;
 
+      double dcf2 = TimeCalculator.getTimeBetween(baseDate, cashDates[i], ACT_365);
+      double rate = Math.pow(discount, -1.0 / (basis * dcf2)) - 1.0;
+
+      zCurveDates[i] = cashDates[i];
+      zCurveRates[i] = cashRates[i];
+      zCurveCCRates[i] = rate;
+      zCurveDiscountFactors[i] = discount;
+
       //System.out.println("i = " + i + "\t" + baseDate + "\t" + cashDates[i] + "\t" + cashRates[i] + "\t" + dcf + "\t" + discount);
     }
 
+    for (long i = 1; i < 1000; i++)
+    {
+
+      ZonedDateTime testDate = zdt(2012, 12, 17, 0, 0, 0, 0, ZoneOffset.UTC).plusDays(i);
+
+      ZonedDateTime loDate;
+      ZonedDateTime hiDate;
+
+      double loRate = 0.0;
+      double hiRate = 0.0;
+
+      double z1 = 0.0;
+      double z2 = 0.0;
+
+      double t1 = 0.0;
+      double t2 = 0.0;
+      double t = 0.0;
+      double Z = 0.0;
+      double rate = 0.0;
+
+      if (!testDate.isBefore(zCurveDates[0]) || !testDate.isAfter(zCurveDates[nInstr - 1]))
+      {
+
+        int lo = 0;
+
+        ZonedDateTime rollingDate = zCurveDates[0];
+
+        while (rollingDate.isBefore(testDate))
+        {
+          lo++;
+          rollingDate = zCurveDates[lo];
+        }
+
+        int hi = lo + 1;
+
+        loDate = zCurveDates[lo - 1];
+        hiDate = zCurveDates[hi - 1];
+
+        loRate = zCurveCCRates[lo - 1];
+        hiRate = zCurveCCRates[hi - 1];
+
+        z1 = Math.log(1.0 + loRate);
+        z2 = Math.log(1.0 + hiRate);
+
+        t1 = TimeCalculator.getTimeBetween(valueDate, loDate, ACT_360);
+        t2 = TimeCalculator.getTimeBetween(valueDate, hiDate, ACT_360);
+        t = TimeCalculator.getTimeBetween(valueDate, testDate, ACT_360);
+
+        // TODO : DoubleToBits this
+        if (t == 0.0)
+        {
+
+          // TODO : Check for t2 == 0 as well
+          t = 1.0 / 365.0;
+        }
+
+        final double zt = getInterpolatedRate(t, t1, t2, z1, z2);
+        rate = zt / t;
+
+        t = TimeCalculator.getTimeBetween(valueDate, testDate, ACT_365);
+
+        Z = Math.exp(-rate * t);
+
+        //System.out.println(testDate + "\t" + Z);
+      }
+      else
+      {
+
+        // Extrapolate
+        if (testDate.isBefore(zCurveDates[0]))
+        {
+
+          loRate = zCurveRates[0];
+          z1 = Math.log(1.0 + loRate);
+          t = TimeCalculator.getTimeBetween(valueDate, testDate, ACT_365);
+          rate = z1;
+          Z = Math.exp(-rate * t);
+
+        }
+        else
+        {
+
+          // Extrapolate
+          if (testDate.isAfter(zCurveDates[nInstr - 1]))
+          {
+
+          }
+        }
+      }
+    }
+
+    /*
     jpmCDSZCSwaps(
         valueDate,
         cashDates,
@@ -550,6 +695,7 @@ public class ISDAYieldCurveTest {
         swapFloatingLegDaycountFractionConvention,
         businessdayAdjustmentConvention,
         calendar);
+     */
 
     // ------------------------------------------------------------------------------------------------
 
@@ -700,11 +846,11 @@ public class ISDAYieldCurveTest {
         cashflowList[numDates - 1] += 1.0;
 
       } // end loop over i
-      */
+       */
 
     } // end if nSwaps > 0
 
-    // -----------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
   //-------------------------------------------------------------------------

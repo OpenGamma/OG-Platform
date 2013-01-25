@@ -11,7 +11,7 @@
         matlib.get_material = function (material, color) {
             var name = material + '_' + color;
             if (matlib.cache[name]) return matlib.cache[name];
-            matlib.cache[name] = matlib[material](color || void 0);
+            matlib.cache[name] = matlib[material](typeof color === 'number' ? color : void 0);
             return matlib.cache[name];
         };
         matlib.canvas.compound_surface = function () {
@@ -70,10 +70,15 @@
             });
         };
         matlib.texture = function (texture) {
-            return new THREE.MeshBasicMaterial({map: texture, color: 0xffffff, transparent: true});
+            return new THREE.MeshBasicMaterial({
+                map: texture, color: 0xffffff, transparent: true, side: THREE.DoubleSide
+            });
         };
         matlib.vertex = function () {
-            return new THREE.MeshPhongMaterial({shading: THREE.FlatShading, vertexColors: THREE.VertexColors});
+            // MeshPhongMaterial Throws a WebGL Error when using VertexColors and dealocating buffers
+            return new THREE.MeshBasicMaterial({
+                shading: THREE.FlatShading, vertexColors: THREE.VertexColors, side: THREE.DoubleSide
+            });
         };
         matlib.meshface = function () {
             return new THREE.MeshFaceMaterial();

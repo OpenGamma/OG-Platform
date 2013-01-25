@@ -205,7 +205,7 @@ $.register_module({
                 current: current, dependencies: config.meta.dependencies, promise: promise
             };
             if (is_delete) registrations = registrations
-                .filter(function (reg) {return !~reg.method.join('/').indexOf(method.join('/'));});
+                .filter(function (reg) {return reg && !~reg.method.join('/').indexOf(method.join('/'));});
             return config.meta.dry ? promise : send(), promise;
         };
         var request_expired = function (request, current) {
@@ -235,16 +235,40 @@ $.register_module({
             blotter: (function () { // all requests that begin with /blotter
                 var blotter = {  
                     root: 'blotter',
-                    get: not_available_get, put: not_available_put, del: not_available_del // no requests to /blotter
+                    get: not_available_get, put: not_available_put, del: not_available_del, // no requests to /blotter
+                    trades: {root: 'blotter/trades'}
                 };
                 [ // blotter/lookup/* endpoints
                     'barrierdirections', 'barriertypes', 'businessdayconventions', 'daycountconventions',
-                    'exercisetypes', 'floatingratetypes', 'frequencies', 'longshort', 'samplingfrequencies'
+                    'exercisetypes', 'floatingratetypes', 'frequencies', 'idschemes', 'longshort', 'monitoringtype',
+                    'samplingfrequencies'
                 ].forEach(function (key) {
                     blotter[key] = {
                         root: 'blotter/lookup/' + key, get: simple_get, put: not_available_put, del: not_available_del
                     };
                 });
+                blotter.trades.get = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta;
+                    meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['id']}]});
+                    return request(method.concat(config.id), {data: {}, meta: meta});
+                };
+                blotter.trades.put = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta, data = {trade: {}}, id = config.id;
+                    meta = check({bundle: {method: root + '#put', config: config}, required: [{all_of: ['trade']}]});
+                    data.trade = str({trade: config.trade, security: config.security, underlying: config.underlying});
+                    meta.type = id ? 'PUT' : 'POST';
+                    if (id) method.push(id);
+                    return request(method, {data: data, meta: meta});
+                };
+                blotter.trades.del = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta;
+                    meta = check({bundle: {method: root + '#del', config: config}, required: [{all_of: ['id']}]});
+                    meta.type = 'DELETE';
+                    return request(method.concat(config.id), {data: {}, meta: meta});
+                };
                 return blotter;
             })(),
             clean: function () {
@@ -260,7 +284,6 @@ $.register_module({
             compressor: { // all requests that begin with /compressor
                 root: 'compressor',
                 get: function (config) {
-                    config = config || {};
                     var root = this.root, method = [root, 'decompress'], data = {}, meta;
                     meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['content']}]});
                     meta.type = 'POST';
@@ -268,7 +291,6 @@ $.register_module({
                     return request(method, {data: data, meta: meta});
                 },
                 put: function (config) {
-                    config = config || {};
                     var root = this.root, method = [root, 'compress'], data = {}, meta;
                     meta = check({bundle: {method: root + '#put', config: config}, required: [{all_of: ['content']}]});
                     meta.type = 'POST';
@@ -638,6 +660,7 @@ $.register_module({
                         structure: {
                             root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}',
                             get: function (config) {
+                                config = config || {};
                                 var root = this.root, method = root.split('/'), data = {}, meta;
                                 meta = check({
                                     bundle: {method: root + '#get', config: config},
@@ -652,6 +675,7 @@ $.register_module({
                             del: not_available_del
                         },
                         put: function (config) {
+                            config = config || {};
                             var promise = new Promise, root = this.root, method = root.split('/'), data = {}, meta,
                                 fields = ['view_id', 'grid_type', 'row', 'col'],
                             meta = check({
@@ -819,7 +843,8 @@ $.register_module({
                 }).forEach(function (update) {
                     var lcv, len = registrations.length, reg;
                     for (lcv = 0; lcv < len; lcv += 1)
-                        if ((reg = registrations[lcv]).url === update) (registrations[lcv] = null), reg.update(reg);
+                        if ((reg = registrations[lcv]) && reg.url === update)
+                            (registrations[lcv] = null), reg.update(reg);
                     registrations = registrations.filter(Boolean);
                 });
             })(true, null); // there are no registrations when subscribe() is called unless the connection's been reset

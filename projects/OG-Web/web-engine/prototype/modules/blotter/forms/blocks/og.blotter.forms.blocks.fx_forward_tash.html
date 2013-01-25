@@ -11,8 +11,8 @@
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span><select name="payCurrency"></select>
-        </span><span><input name="payAmount" type="text" /></span></div>
+        <div><span>{{{item_0}}}
+        </span><span><input name="security.payAmount" type="text" value="{{pay}}"/></span></div>
       </td>
     </tr>
     <tr>
@@ -22,18 +22,8 @@
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span><select name="recieveCurrency"></select>
-        </span><span><input name="recieveAmount" type="text" /></span></div>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <label>
-          <span>Forward Rate</span>
-        </label>
-      </td>
-      <td>
-        <input name="ITTODO" type="text" />
+        <div><span>{{{item_1}}}
+        </span><span><input name="security.receiveAmount" type="text" value="{{receive}}"/></span></div>
       </td>
     </tr>
     <tr>
@@ -43,7 +33,7 @@
         </label>
       </td>
       <td>
-        <input name="forwardDate" type="text" />
+        <input name="security.forwardDate" type="text"/>
       </td>
     </tr>
   </tbody>

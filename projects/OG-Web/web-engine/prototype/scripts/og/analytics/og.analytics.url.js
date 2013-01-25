@@ -46,10 +46,18 @@ $.register_module({
                         last_object.main = JSON.parse(last_fingerprint.main = current_main);
                         og.analytics.grid = new og.analytics.Grid({
                             selector: main_selector, cellmenu: true,
-                            source: $.extend({}, last_object.main)
+                            source: $.extend({}, last_object.main), show_save: og.analytics.blotter
                         }).on('viewchange', function (view) {
                             url.main($.extend({}, og.analytics.grid.source, {type: view}));
                         }).on('fatal', url.clear_main);
+                        if (og.analytics.blotter) og.analytics.grid.on('contextmenu', function (event, cell, col) {
+                           if (cell) return og.common.util.ui.contextmenu({
+                               defaults: true, zindex: 4, items: [
+                                   {name: 'Insert', callback: function () {new og.blotter.Dialog()}},
+                                   {name: 'Edit', callback: $.noop}
+                               ]
+                           }, event, cell);
+                        });
                     }
                     panels.forEach(function (panel) {
                         var gadgets = config[panel], new_gadgets = [];
@@ -67,9 +75,13 @@ $.register_module({
                             if (typeof new_gadgets.add_index === 'undefined') new_gadgets.add_index = index;
                             return fingerprint;
                         });
-                        if (new_gadgets.length) og.analytics.containers[panel].add(new_gadgets, new_gadgets.add_index);
+                        if (new_gadgets.length) og.analytics.containers[panel]
+                            .add(new_gadgets, new_gadgets.length === 1 ? new_gadgets.add_index : void 0);
                     });
-                    panels.forEach(function (panel) {og.analytics.containers[panel].verify(last_fingerprint[panel]);});
+                    panels.forEach(function (panel) {
+                        if (og.analytics.containers[panel])
+                            og.analytics.containers[panel].verify(last_fingerprint[panel]);
+                    });
                     if (handler) handler();
                 });
                 return url;

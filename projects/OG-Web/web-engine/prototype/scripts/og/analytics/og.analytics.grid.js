@@ -7,11 +7,8 @@ $.register_module({
     dependencies: ['og.api.text', 'og.common.events', 'og.analytics.Data', 'og.analytics.CellMenu'],
     obj: function () {
         var module = this, row_height = 21, title_height = 31, set_height = 24, logging = 'logLevel',
-            templates = null, default_col_width = 175, HTML = 'innerHTML', scrollbar = (function () {
-                var html = '<div style="width: 100px; height: 100px; position: absolute; \
-                    visibility: hidden; overflow: auto; left: -10000px; z-index: -10000; bottom: 100px" />';
-                return 100 - $(html).appendTo('body').append('<div />').find('div').css('height', '200px').width();
-            })(), do_not_expand = {DOUBLE: null, NODE_ID: null, POSITION_ID: null, STRING: null};
+            templates = null, default_col_width = 175, HTML = 'innerHTML', scrollbar = og.common.util.scrollbar_size,
+            do_not_expand = {DOUBLE: null, NODE_ID: null, POSITION_ID: null, STRING: null};
         var available = (function () {
             var nodes;
             var all = function (total) {
@@ -71,8 +68,9 @@ $.register_module({
             });
         };
         var Grid = function (config) {
+            if (!config) return;
             var grid = this;
-            grid.config = config || {};
+            grid.config = config;
             grid.elements = {empty: true, parent: $(config.selector).html('&nbsp;instantiating grid...')};
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#' + og.common.id('grid');
@@ -91,9 +89,12 @@ $.register_module({
                 return function (value) {return busy = typeof value !== 'undefined' ? value : busy;};
             })(false);
             grid.elements.parent.html(templates.loading({text: 'creating view client...'}));
-            grid.dataman = new og.analytics.Data(grid.source, {bypass: false, label: 'grid'})
+            grid.dataman = new (config.dataman || og.analytics.Data)(grid.source, {bypass: false, label: grid.label})
                 .on('meta', init_grid, grid).on('data', render_rows, grid)
-                .on('disconnect', function () {grid.selector.clear(); grid.clipboard.clear();})
+                .on('disconnect', function () {
+                    if (grid.selector) grid.selector.clear(); // may not have been instantiated yet
+                    grid.clipboard.clear();
+                })
                 .on('fatal', function (error) {
                     grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), grid.fire('fatal');
                 })
@@ -214,12 +215,16 @@ $.register_module({
             elements.empty = false;
         };
         var init_grid = function (meta) {
-            var grid = this, columns = meta.columns, col_fields = ['description', 'header', 'type', 'width'];
+            var grid = this, columns = meta.columns, config = grid.config,
+                col_fields = ['description', 'header', 'type', 'width'];
             var populate = function (col) {col_fields.forEach(function (key) {columns[key + 's'].push(col[key]);});};
             grid.meta = meta;
+            ['show_sets', 'show_views', 'start_expanded']
+                .forEach(function (key) {meta[key] = key in config ? config[key] : true;});
+            meta.show_save = 'show_save' in config ? config['show_save'] : false;
             meta.viewport = {format: 'CELL'};
             meta.row_height = row_height;
-            meta.header_height =  (grid.config.source.depgraph ? 0 : set_height) + title_height;
+            meta.header_height =  (meta.show_sets ? set_height : 0) + title_height;
             meta.scrollbar = scrollbar;
             grid.col_widths();
             col_fields.forEach(function (key) {columns[key + 's'] = [];}); // plural version
@@ -228,12 +233,13 @@ $.register_module({
             unravel_structure.call(grid);
             meta.row_class = {}; // TODO populate with added, deleted, edited by data row index
             if (grid.elements.empty) init_elements.call(grid);
-            grid.resize(grid.config.source.depgraph);
+            grid.resize(!meta.start_expanded);
             render_rows.call(grid, null, true);
         };
         var render_header = (function () {
             var head_data = function (grid, sets, col_offset, set_offset) {
-                var width = grid.meta.columns.width, index = 0, depgraph = grid.config.source.depgraph;
+                var meta = grid.meta, width = meta.columns.width, index = 0, show_save = meta.show_save,
+                    show_sets = meta.show_sets, show_views = meta.show_views;
                 return {
                     width: col_offset ? width.scroll : width.fixed, padding_right: col_offset ? scrollbar : 0,
                     sets: sets.map(function (set, idx) {
@@ -244,10 +250,10 @@ $.register_module({
                             };
                         });
                         return {
-                            // only send views in for fixed columns (and if there is a viewchange handler)
-                            views: !col_offset && !depgraph ? grid.views : null, sparklines: grid.config.sparklines,
-                            name: set.name, index: idx + (set_offset || 0), columns: columns, not_depgraph: !depgraph,
-                            width: columns.reduce(function (acc, col) {return acc + col.width;}, 0)
+                            // only send views in for fixed columns (and if show_views)
+                            views: !col_offset && show_views ? grid.views : null, sparklines: grid.config.sparklines,
+                            name: set.name, index: idx + (set_offset || 0), columns: columns, show_sets: show_sets,
+                            width: columns.reduce(function (acc, col) {return acc + col.width;}, 0), save: show_save
                         };
                     })
                 };
@@ -399,7 +405,8 @@ $.register_module({
         };
         Grid.prototype.alive = function () {
             var grid = this;
-            return grid.elements.empty || $(grid.id).length || (grid.kill(), false); // if empty, grid is still loading
+            return (grid.elements && grid.elements.empty) || // if empty, grid is still loading
+                $(grid.id).length || (grid.kill(), false);
         };
         Grid.prototype.cell = function (selection) {
             if (!this.data || 1 !== selection.rows.length || 1 !== selection.cols.length) return null;
@@ -417,7 +424,7 @@ $.register_module({
             meta.fixed_length = meta.columns.fixed[0].columns.length;
             meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             fixed_width = meta.columns.fixed[0].columns
-                .reduce(function (acc, col, idx) {return acc + (col.width = idx ? 150 : 250);}, 0);
+                .reduce(function (acc, col, idx) {return acc + (col.width = col.width || (idx ? 150 : 250));}, 0);
             remainder = (scroll_width = parent_width - fixed_width - scrollbar) -
                 ((avg_col_width = Math.floor(scroll_width / meta.scroll_length)) * meta.scroll_length);
             scroll_cols.forEach(function (set) {
@@ -431,6 +438,7 @@ $.register_module({
             try {grid.dataman.kill();} catch (error) {}
             try {grid.elements.style.remove();} catch (error) {}
         };
+        Grid.prototype.label = 'grid';
         Grid.prototype.nearest_cell = function (x, y) {
             var grid = this, top, bottom, lcv, scan = grid.meta.columns.scan.all, len = scan.length,
                 row_height = grid.meta.row_height, grid_height = grid.meta.inner.height;
@@ -497,7 +505,7 @@ $.register_module({
                 fixed_bg: background(columns.fixed, columns.width.fixed, 'ecf5fa'),
                 scroll_bg: background(columns.scroll, columns.width.scroll, 'ffffff'),
                 scroll_width: columns.width.scroll, fixed_width: columns.width.fixed + scrollbar,
-                scroll_left: columns.width.fixed, set_height: config.source.depgraph ? 0 : set_height,
+                scroll_left: columns.width.fixed, set_height: meta.show_sets ? set_height : 0,
                 height: meta.inner.scroll_height, header_height: header_height, row_height: row_height,
                 columns: col_css(id, columns.fixed).concat(col_css(id, columns.scroll, meta.fixed_length)),
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))

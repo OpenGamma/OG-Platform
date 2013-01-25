@@ -5,11 +5,16 @@
 (function () {
     if (!window.JSurface3D) throw new Error('JSurface3D.Plane requires JSurface3D');
     /**
-     * Constructor for a plane with correct x / y vertex position spacing
-     * @param {String} type 'surface', 'smilex' or 'smiley'
+     * Creates a plane with the correct segments and spacing
+     * @name JSurface3D.plane
+     * @namespace JSurface3D.plane
+     * @param {Object} js3d A JSurface3D instance
+     * @param {String} type The type of plane to create. 'surface', 'smilex' or 'smiley'
+     * @function
+     * @private
      * @returns {THREE.PlaneGeometry}
      */
-    window.JSurface3D.Plane = function (js3d, type) {
+    window.JSurface3D.plane = function (js3d, type) {
         var xlen, ylen, xseg, yseg, xoff, yoff, plane, vertex, len, i, k, settings = js3d.settings;
         if (type === 'surface') {
             xlen = settings.surface_x;
@@ -36,6 +41,7 @@
             yoff = js3d.adjusted_zs;
         }
         plane = new THREE.PlaneGeometry(xlen, ylen, xseg, yseg);
+        plane.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
         len = (xseg + 1) * (yseg + 1);
         for (i = 0, k = 0; i < len; i++, k++) {
             vertex = plane.vertices[i];
