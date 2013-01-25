@@ -68,7 +68,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void visitBean(MetaBean metaBean) {
+  public void visitMetaBean(MetaBean metaBean) {
     // TODO configurable field name
     _json.clear();
     _json.put("type", metaBean.beanType().getSimpleName());

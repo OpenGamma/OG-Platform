@@ -42,7 +42,7 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ Object traverse(MetaBean metaBean, BeanVisitor<?> visitor) {
     BeanVisitor<?> decoratedVisitor = decorate(visitor);
-    decoratedVisitor.visitBean(metaBean);
+    decoratedVisitor.visitMetaBean(metaBean);
     List<BeanTraversalFailure> failures = Lists.newArrayList();
     for (MetaProperty<?> property : metaBean.metaPropertyIterable()) {
       Class<?> propertyType = property.propertyType();

@@ -42,7 +42,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void visitBean(MetaBean metaBean) {
+  public void visitMetaBean(MetaBean metaBean) {
     if (!_bean.getClass().equals(metaBean.beanType())) {
       throw new IllegalArgumentException("Bean type " + _bean.getClass().getName() + " is not the same as " +
                                              "MetaBean type " + metaBean.beanType().getName());
