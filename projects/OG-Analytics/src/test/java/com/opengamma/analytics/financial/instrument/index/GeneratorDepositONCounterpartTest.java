@@ -73,7 +73,8 @@ public class GeneratorDepositONCounterpartTest {
     Period tenor = Period.ofDays(2);
     double rate = 0.01;
     double notional = 12345;
-    DepositCounterpartDefinition insGenerated = GENERATOR_DEPOSIT_ON_USD.generateInstrument(referenceDate, tenor, rate, notional);
+    GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor, tenor);
+    DepositCounterpartDefinition insGenerated = GENERATOR_DEPOSIT_ON_USD.generateInstrument(referenceDate, rate, notional, attribute);
     ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, tenor, CALENDAR);
     ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, CALENDAR);
     double accrualFactor = DAY_COUNT.getDayCountFraction(startDate, endDate);

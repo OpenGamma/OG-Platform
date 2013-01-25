@@ -8,46 +8,44 @@ package com.opengamma.analytics.financial.provider.calculator.generic;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
 /**
- * Calculator of the last fixing time.
+ * Calculator of the last fixing start time.
  * For fixed coupon, it is 0.
  */
-public final class LastFixingTimeCalculator extends InstrumentDerivativeVisitorAdapter<Object, Double> {
+public final class LastFixingStartTimeCalculator extends InstrumentDerivativeVisitorAdapter<Object, Double> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final LastFixingTimeCalculator INSTANCE = new LastFixingTimeCalculator();
+  private static final LastFixingStartTimeCalculator INSTANCE = new LastFixingStartTimeCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static LastFixingTimeCalculator getInstance() {
+  public static LastFixingStartTimeCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private LastFixingTimeCalculator() {
+  private LastFixingStartTimeCalculator() {
   }
 
   // -----     Deposit     ------
 
-  @Override
-  public Double visitCash(final Cash cash) {
-    return cash.getEndTime();
-  }
+  //  @Override
+  //  public Double visitCash(final Cash cash) {
+  //    return cash.getEndTime();
+  //  }
 
   @Override
   public Double visitDepositIbor(final DepositIbor deposit) {
@@ -66,10 +64,10 @@ public final class LastFixingTimeCalculator extends InstrumentDerivativeVisitorA
     return payment.getFixingPeriodStartTime();
   }
 
-  @Override
-  public Double visitCouponOIS(final CouponOIS payment) {
-    return payment.getFixingPeriodEndTime();
-  }
+  //  @Override
+  //  public Double visitCouponOIS(final CouponOIS payment) {
+  //    return payment.getFixingPeriodEndTime();
+  //  }
 
   // -----     Annuity     ------
 

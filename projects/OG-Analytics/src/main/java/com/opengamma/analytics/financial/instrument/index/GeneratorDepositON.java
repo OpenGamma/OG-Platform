@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -20,7 +19,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of overnight deposit characteristics (conventions, calendar, ...).
  */
-public class GeneratorDepositON extends GeneratorInstrument {
+public class GeneratorDepositON extends GeneratorInstrument<GeneratorAttributeIR> {
 
   /**
    * The index currency. Not null.
@@ -80,33 +79,17 @@ public class GeneratorDepositON extends GeneratorInstrument {
   /**
    * Generate an overnight deposit.
    * @param date The reference date.
-   * @param tenor The period (only with days) up to the start of the overnight deposit.
    * @param marketQuote The deposit rate.
    * @param notional The deposit notional.
-   * @param objects No.
+   * @param attribute The ON deposit attributes. The deposit starts at today+start period. Only the start period is used.
    * @return The overnight deposit.
    */
-  public CashDefinition generateInstrument(final ZonedDateTime date, final Period tenor, final double marketQuote, final double notional, final Object... objects) {
+  public CashDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, tenor, _calendar);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, attribute.getStartPeriod(), _calendar);
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, _calendar);
     final double accrualFactor = _dayCount.getDayCountFraction(startDate, endDate);
-    return new CashDefinition(_currency, startDate, endDate, notional, marketQuote, accrualFactor);
-  }
-
-  @Override
-  /**
-   * Generate an overnight deposit.
-   * @param date The reference date.
-   * @param startTenor The period (only with days) up to the start of the overnight deposit.
-   * @param endTenor Not used.
-   * @param marketQuote The deposit rate.
-   * @param notional The deposit notional.
-   * @param objects No.
-   * @return The overnight deposit.
-   */
-  public CashDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, final double marketQuote, final double notional, final Object... objects) {
-    return generateInstrument(date, startTenor, marketQuote, notional);
+    return new CashDefinition(_currency, startDate, endDate, notional, rate, accrualFactor);
   }
 
   @Override

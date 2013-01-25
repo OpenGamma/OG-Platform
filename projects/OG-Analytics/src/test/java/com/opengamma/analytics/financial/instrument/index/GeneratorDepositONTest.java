@@ -8,13 +8,19 @@ package com.opengamma.analytics.financial.instrument.index;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the constructor and method of GeneratorDepositON.
@@ -64,4 +70,20 @@ public class GeneratorDepositONTest {
     other = new GeneratorDepositON(NAME, CUR, CALENDAR, DayCountFactory.INSTANCE.getDayCount("Actual/365"));
     assertFalse("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_ON_USD.equals(other));
   }
+
+  @Test
+  public void generateInstrument() {
+    ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
+    Period tenor = Period.ofDays(2);
+    double rate = 0.01;
+    double notional = 12345;
+    GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor, tenor);
+    CashDefinition insGenerated = GENERATOR_DEPOSIT_ON_USD.generateInstrument(referenceDate, rate, notional, attribute);
+    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, tenor, CALENDAR);
+    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, CALENDAR);
+    double accrualFactor = DAY_COUNT.getDayCountFraction(startDate, endDate);
+    CashDefinition insExpected = new CashDefinition(CUR, startDate, endDate, notional, rate, accrualFactor);
+    assertEquals("Generator Deposit Counterpart: generate instrument", insExpected, insGenerated);
+  }
+
 }

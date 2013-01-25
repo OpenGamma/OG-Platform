@@ -5,78 +5,57 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFuturesUtils;
-import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class used to store future description and generate instruments.
  */
-public class GeneratorInterestRateFutures extends GeneratorInstrument {
+public class GeneratorInterestRateFutures extends GeneratorInstrument<GeneratorAttribute> {
 
   /**
-   * The Ibor index to which the future is linked.
+   * The underlying STIR futures security.
    */
-  private final IborIndex _iborIndex;
-  /**
-   * The accrual factor associated to the futures.
-   */
-  private final double _futuresAccrualFactor;
+  private final InterestRateFutureDefinition _security;
 
   /**
    * Constructor.
    * @param name The generator name.
-   * @param iborIndex The Ibor index to which the future is linked.
-   * @param futuresAccrualFactor The accrual factor associated to the futures.
+   * @param security The underlying STIR futures security.
    */
-  public GeneratorInterestRateFutures(String name, IborIndex iborIndex, double futuresAccrualFactor) {
+  public GeneratorInterestRateFutures(String name, final InterestRateFutureDefinition security) {
     super(name);
-    ArgumentChecker.notNull(iborIndex, "Ibor index");
-    _iborIndex = iborIndex;
-    _futuresAccrualFactor = futuresAccrualFactor;
+    ArgumentChecker.notNull(security, "STIR futures security");
+    _security = security;
   }
 
   /**
-   * Gets the underlying Ibor index..
-   * @return The ibor index
+   * Gets the STIR futures security.
+   * @return The futures.
    */
-  public IborIndex getIborIndex() {
-    return _iborIndex;
-  }
-
-  @Override
-  /**
-   * The future is the n-th futures after the date+tenor where n is given in the objects
-   */
-  public InterestRateFutureDefinition generateInstrument(ZonedDateTime date, Period tenor, double marketQuote, double notional, Object... objects) {
-    //TODO: Add monthly futures
-    ArgumentChecker.isTrue(objects.length >= 1, "Number of quarterly futures required");
-    ArgumentChecker.isTrue(objects[0] instanceof Integer, "Number of futures should be an Integer");
-    Integer num = (Integer) objects[0];
-    ZonedDateTime periodDate = ScheduleCalculator.getAdjustedDate(date, tenor, _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.isEndOfMonth());
-    ZonedDateTime referenceDate = InterestRateFuturesUtils.nextQuarterlyDate(num, periodDate);
-    return InterestRateFutureDefinition.fromFixingPeriodStartDate(date, marketQuote, 1, referenceDate, _iborIndex, notional, _futuresAccrualFactor, "IRF");
+  public InterestRateFutureDefinition getFutures() {
+    return _security;
   }
 
   @Override
   /**
-   * The future is the first futures after the date+startTenor. The endTenor is not used.
+   * The quantity is modified to be in line with the required quantity.
    */
-  public InterestRateFutureDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double marketQuote, double notional, Object... objects) {
-    return generateInstrument(date, startTenor, marketQuote, notional, objects);
+  public InterestRateFutureDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, final GeneratorAttribute attribute) {
+    int quantity = (int) Math.ceil(notional / _security.getNotional());
+    return InterestRateFutureDefinition.fromFixingPeriodStartDate(date, marketQuote, quantity, _security.getFixingPeriodStartDate(), _security.getIborIndex(), _security.getNotional(),
+        _security.getFixingPeriodAccrualFactor(), _security.getName());
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + _iborIndex.hashCode();
+    result = prime * result + _security.hashCode();
     return result;
   }
 
@@ -92,7 +71,7 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument {
       return false;
     }
     GeneratorInterestRateFutures other = (GeneratorInterestRateFutures) obj;
-    if (!ObjectUtils.equals(_iborIndex, other._iborIndex)) {
+    if (!ObjectUtils.equals(_security, other._security)) {
       return false;
     }
     return true;

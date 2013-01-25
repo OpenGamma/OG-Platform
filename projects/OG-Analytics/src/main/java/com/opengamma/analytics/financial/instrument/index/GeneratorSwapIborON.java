@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -20,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Generator (or template) for OIS.
  */
-public class GeneratorSwapIborON extends GeneratorInstrument {
+public class GeneratorSwapIborON extends GeneratorInstrument<GeneratorAttributeIR> {
 
   /**
    * The Ibor index.
@@ -181,20 +180,12 @@ public class GeneratorSwapIborON extends GeneratorInstrument {
   /**
    * The effective date is spot+startTenor. The end of fixing period is effective date+tenor.
    */
-  public SwapIborONDefinition generateInstrument(ZonedDateTime date, Period tenor, double spread, double notional, Object... objects) {
+  public SwapIborONDefinition generateInstrument(final ZonedDateTime date, final double spread, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(date, _spotLag, _indexIbor.getCalendar());
-    return SwapIborONDefinition.from(startDate, tenor, this, notional, spread, true);
-  }
-
-  @Override
-  /**
-   * The effective date is spot+startTenor. The end of fixing period is effective date+endTenor.
-   */
-  public SwapIborONDefinition generateInstrument(final ZonedDateTime date, final Period startTenor, final Period endTenor, double spread, double notional, Object... objects) {
+    ArgumentChecker.notNull(attribute, "Attributes");
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, _spotLag, _indexIbor.getCalendar());
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, startTenor, _indexIbor);
-    return SwapIborONDefinition.from(startDate, endTenor, this, notional, spread, true);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spot, attribute.getStartPeriod(), _indexIbor);
+    return SwapIborONDefinition.from(startDate, attribute.getEndPeriod(), this, notional, spread, true);
   }
 
   @Override

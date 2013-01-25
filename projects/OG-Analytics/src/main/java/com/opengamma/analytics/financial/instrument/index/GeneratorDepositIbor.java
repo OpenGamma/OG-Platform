@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -15,7 +14,7 @@ import com.opengamma.analytics.financial.instrument.cash.DepositIborDefinition;
 /**
  * Class with the description of Ibor deposit.
  */
-public class GeneratorDepositIbor extends GeneratorInstrument {
+public class GeneratorDepositIbor extends GeneratorInstrument<GeneratorAttribute> {
 
   /**
    * The index. Not null.
@@ -42,17 +41,9 @@ public class GeneratorDepositIbor extends GeneratorInstrument {
 
   @Override
   /**
-   * tenor is not used. No objects required.
-   */
-  public DepositIborDefinition generateInstrument(ZonedDateTime date, Period tenor, double marketQuote, double notional, Object... objects) {
-    return DepositIborDefinition.fromTrade(date, notional, marketQuote, _index);
-  }
-
-  @Override
-  /**
    * startTenor and endTenor are not used. No objects required.
    */
-  public DepositIborDefinition generateInstrument(ZonedDateTime date, Period startTenor, Period endTenor, double marketQuote, double notional, Object... objects) {
+  public DepositIborDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, final GeneratorAttribute attribute) {
     return DepositIborDefinition.fromTrade(date, notional, marketQuote, _index);
   }
 

@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
@@ -16,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Class use to generate Bill transactions.
  */
-public class GeneratorBill extends GeneratorInstrument {
+public class GeneratorBill extends GeneratorInstrument<GeneratorAttribute> {
 
   /**
    * The underlying bill security.
@@ -36,21 +35,13 @@ public class GeneratorBill extends GeneratorInstrument {
 
   @Override
   /**
-   * Generate a bill transaction from the bill (market quote) yield. The "tenor" is not used.
+   * Generate a bill transaction from the bill (market quote) yield.
    */
-  public BillTransactionDefinition generateInstrument(ZonedDateTime date, Period tenor, double marketQuote, double notional, Object... objects) {
+  public BillTransactionDefinition generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final GeneratorAttribute attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     int quantity = (int) Math.round(notional / _security.getNotional());
     ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(date, _security.getSettlementDays(), _security.getCalendar());
     return BillTransactionDefinition.fromYield(_security, quantity, settleDate, marketQuote);
-  }
-
-  @Override
-  /**
-   * Generate a bill transaction from the bill (market quote) yield. The "tenors" are not used.
-   */
-  public BillTransactionDefinition generateInstrument(ZonedDateTime date, final Period startTenor, final Period endTenor, double marketQuote, double notional, Object... objects) {
-    return generateInstrument(date, startTenor, marketQuote, notional);
   }
 
 }

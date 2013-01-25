@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -58,7 +57,8 @@ public class GeneratorBillTest {
     double marketQuote = -0.0001;
     double notional = 123000;
     double quantity = 123;
-    BillTransactionDefinition billGenerated = GENERATOR_BILL.generateInstrument(REFERENCE_DATE, Period.ofMonths(1), marketQuote, notional, marketQuote);
+    GeneratorAttribute attribute = new GeneratorAttribute();
+    BillTransactionDefinition billGenerated = GENERATOR_BILL.generateInstrument(REFERENCE_DATE, marketQuote, notional, attribute);
     ZonedDateTime dettleDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
     BillTransactionDefinition billExpected = BillTransactionDefinition.fromYield(BILL_BEL_SEC_DEFINITION, quantity, dettleDate, marketQuote);
     assertEquals("Bill Generator: generate instrument", billExpected, billGenerated);
