@@ -34,16 +34,17 @@ $.register_module({
             });
 
         var init = function (config) {
+            var url_config = {};
             form.on('form:load', load_handler);
+            form.on('form:submit', function (result) { load_form(result.data); });
             form.on('keydown', selectors.form_controls, keydown_handler);
-            form.on('click', '.'+selectors.load_btn, load_form);
             form.children.push(
-                (new og.analytics.form.Portfolios({form:form, val:'Alan'})).block,
-                (new og.analytics.form.ViewDefinitions({form:form, val:'ARS Test'})).block,
-                new og.analytics.form.DatasourcesMenu({form:form}),
-                new og.analytics.form.TemporalMenu({form:form}),
-                new og.analytics.form.AggregatorsMenu({form:form}),
-                new og.analytics.form.FiltersMenu({form:form, index:'filters' })
+                new og.analytics.form.Portfolios({form:form, val: url_config.portfolios || null}),
+                new og.analytics.form.ViewDefinitions({form:form, val: url_config.viewdefinitions || null}),
+                new og.analytics.form.DatasourcesMenu({form:form, source: url_config.providers || null}),
+                new og.analytics.form.TemporalMenu({form:form, temporal: url_config.temporals || null }),
+                new og.analytics.form.AggregatorsMenu({form:form, aggregators: url_config.aggregators || null}),
+                new og.analytics.form.FiltersMenu({form:form, index:'filters', filters: url_config.filters || null})
             );
             form.dom();
         };
@@ -58,16 +59,14 @@ $.register_module({
             });
         };
 
-        var load_form = function (event) {
-            var compilation = form.compile();
-            query = {
-                aggregators: compilation.data.aggregators,
-                providers: compilation.data.providers,
-                viewdefinition: compilation.data.viewdefinition,
-                portfolio: compilation.data.portfolio,
-                temporal: compilation.data.temporal
-             };
-             console.log(query);
+        var load_form = function (data) {
+            og.analytics.url.main(query = {
+                aggregators: data.aggregators,
+                providers: data.providers,
+                viewdefinition: data.viewdefinition,
+                portfolio: data.portfolio,
+                temporal: data.temporal
+            });
             $(event.srcElement || event.target).focus(0);
         };
 
@@ -75,7 +74,11 @@ $.register_module({
             if (event.keyCode !== 9) return;
             var $elem = $(event.srcElement || event.target), shift = event.shiftKey, menus = dom.menus,
                 controls = dom.form_controls, menu = '.'+selectors.menu,
-                load_btn = '.'+selectors.load_btn;
+                load_btn = '.'+selectors.load_btn,
+                toggle = function (entry) {
+                    menus[entry].find(menu).toggleClass('og-active').toggle();
+                    controls[entry].eq(shift ? -1 : 0).focus(0);
+                };
             if (!shift) {
                 if ($elem.closest(dom.menus['views']).length) return toggle('datasources');
                 if ($elem.is(controls['datasources'].eq(-1))) return toggle('datasources'), toggle('temporal');
@@ -90,14 +93,8 @@ $.register_module({
                 if ($elem.is(controls['datasources'].eq(0))) return toggle('datasources');
             }
         };
-
-        var toggle_menu = function (entry) {
-            menus[entry].find(menu).toggleClass('og-active').toggle();
-            controls[entry].eq(shift ? -1 : 0).focus(0);
-        };
-
         constructor = function (config) {
-            return og.views.common.layout.main.allowOverflow('north'), init(config);
+            return og.views.common.layout.main.allowOverflow('north'), init(/*{url_config:config.url_config}*/);
         };
 
         constructor.prototype.fire = og.common.events.fire;

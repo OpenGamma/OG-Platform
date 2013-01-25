@@ -40,6 +40,9 @@ $.register_module({
                 selector: '.og-temporal',
                 module: 'og.analytics.form_temporal_tash',
                 processor: function (data) {
+                    delete data['portfolio-correction'];
+                    delete data['portfolio-version'];
+                    delete data['valuation-time'];
                     data.temporal = [];
                 }
             });
@@ -47,7 +50,8 @@ $.register_module({
             form.on('form:load', function (event) {
                 var menu = new og.common.util.ui.DropMenu({cntr: $('.og-temporal')});
                 menu.$dom.menu = $('.og-menu', '.og-temporal').on('click', '.custom, .latest', menu_handler);
-                menu.$dom.date_input = $('.custom-date-time', menu.$dom.menu).on('click', menu_handler)
+                menu.$dom.date_input = $('.custom-date-time', menu.$dom.menu)
+                    .on('click', menu_handler)
                     .datetimepicker({
                         dateFormat:'yy-mm-dd',
                         onSelect: function () { menu.fire('dropmenu:open'); },

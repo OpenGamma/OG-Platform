@@ -14,20 +14,20 @@ $.register_module({
             load: function (args) {
                 $('.OG-masthead .og-analytics-beta').addClass('og-active');
                 var new_page = false;
-                if (!form) form = new og.analytics.form2(og.analytics.url.main);
+                form = new og.analytics.form2({url_config:og.analytics.url.main()});
                 view.check_state({args: args, conditions: [
                     {new_page: function () {new_page = true; og.analytics.containers.initialize();}}
                 ]});
                 og.analytics.resize();
                 if (!new_page && !args.data && og.analytics.url.last.main) {
                     og.analytics.url.clear_main(), $(main_selector).html('');
-                    if (!og.analytics.url.last.main) form.fire('reset');
-                } else form.fire('replay', og.analytics.url.last.main);
+                    if (!og.analytics.url.last.main) new og.analytics.form2();
+                } else form = new og.analytics.form2({url_config:og.analytics.url.main()});
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
                 og.analytics.url.process(args, function () {
-                    form.fire('replay', og.analytics.url.last.main);
+                    form = new og.analytics.form2({url_config:og.analytics.url.main()});
                 });
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},

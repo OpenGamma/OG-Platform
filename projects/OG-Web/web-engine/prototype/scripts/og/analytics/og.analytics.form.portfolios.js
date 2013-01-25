@@ -6,33 +6,7 @@ $.register_module({
     name: 'og.analytics.form.Portfolios',
     dependencies: ['og.common.util.ui.AutoCombo'],
     obj: function () {
-        var module = this, menu, block, portfolios, portfolio_store,
-            Portfolios = function (config, callback) {
-                block = new config.form.Block({
-                    selector: '.og-portfolios.og-autocombo',
-                    processor: function (data) {
-                        var port = portfolio_store.filter(function (entry) {
-                            return entry.split('|')[2] === menu.$input.val();
-                        });
-                        data.portfolio = port[0].split('|')[0];
-                    }
-                });
-                config.form.on("form:load", function () {
-                    menu = new og.common.util.ui.AutoCombo({
-                        selector:'.og-portfolios.og-autocombo',
-                        placeholder: 'Search Portfolios...',
-                        source: ac_source(og.api.rest.portfolios, store_porfolios)
-                    });
-                    if (config.val) {
-                        menu.$input.val(config.val);
-                        og.api.rest.portfolios.get().pipe(store_porfolios);
-                    }
-                });
-                return {
-                    block: block,
-                    menu: menu
-                };
-            };
+        var module = this, Block = og.common.util.ui.Block, portfolios, portfolio_store;
 
         var ac_source = function (src, callback) {
             return function (req, res) {
@@ -65,6 +39,34 @@ $.register_module({
                 return entry.split('|')[2];
             });
         };
+
+        var Portfolios = function (config, callback) {
+            var block = this, menu, form = config.form;
+
+            form.Block.call(block, {
+                selector: '.og-portfolios.og-autocombo',
+                processor: function (data) {
+                    var port = portfolio_store.filter(function (entry) {
+                        return entry.split('|')[2] === menu.$input.val();
+                    });
+                    data.portfolio = port[0].split('|')[0];
+                }
+            });
+
+            form.on("form:load", function () {
+                menu = new og.common.util.ui.AutoCombo({
+                    selector:'.og-portfolios.og-autocombo',
+                    placeholder: 'Search Portfolios...',
+                    source: ac_source(og.api.rest.portfolios, store_porfolios)
+                });
+                if (config.val) {
+                    menu.$input.val(config.val);
+                    og.api.rest.portfolios.get().pipe(store_porfolios);
+                }
+            });
+        };
+
+        Portfolios.prototype = new Block;
 
         return Portfolios;
     }

@@ -6,35 +6,8 @@ $.register_module({
     name: 'og.analytics.form.ViewDefinitions',
     dependencies: ['og.common.util.ui.AutoCombo'],
     obj: function () {
-        var module = this, menu, block, viewdefs, viewdefs_store,
-            tmpl_header = '<div class="og-option-title"><header class="OG-background-05">calculations:</header></div>',
-            ViewDefinitions = function (config, callback) {
-                block = new config.form.Block({
-                    selector: '.og-view.og-autocombo',
-                    content: tmpl_header,
-                    processor: function (data) {
-                        var vd = viewdefs_store.filter(function (entry) {
-                            return entry.name === menu.$input.val();
-                        });
-                        data.viewdefinition = vd[0].id;
-                    }
-                });
-                config.form.on("form:load", function () {
-                    menu = new og.common.util.ui.AutoCombo({
-                        selector: '.og-view.og-autocombo',
-                        placeholder: 'Search...',
-                        source: ac_source(og.api.rest.viewdefinitions, store_viewdefinitions)
-                    });
-                    if (config.val) {
-                        menu.$input.val(config.val);
-                        og.api.rest.viewdefinitions.get().pipe(store_viewdefinitions);
-                    }
-                });
-                return {
-                    block: block,
-                    menu: menu
-                };
-            };
+        var module = this, menu, Block = og.common.util.ui.Block, viewdefs, viewdefs_store,
+            tmpl_header = '<div class="og-option-title"><header class="OG-background-05">calculations:</header></div>';
 
         var ac_source = function (src, callback) {
             return function (req, res) {
@@ -65,6 +38,35 @@ $.register_module({
         var store_viewdefinitions = function (resp) {
             return viewdefs = (viewdefs_store = resp.data).pluck('name');
         };
+
+        var ViewDefinitions = function (config, callback) {
+            var block = this, menu, form = config.form;
+
+            form.Block.call(block, {
+                selector: '.og-view.og-autocombo',
+                content: tmpl_header,
+                processor: function (data) {
+                    var vd = viewdefs_store.filter(function (entry) {
+                        return entry.name === menu.$input.val();
+                    });
+                    data.viewdefinition = vd[0].id;
+                }
+            });
+
+            form.on("form:load", function () {
+                menu = new og.common.util.ui.AutoCombo({
+                    selector: '.og-view.og-autocombo',
+                    placeholder: 'Search...',
+                    source: ac_source(og.api.rest.viewdefinitions, store_viewdefinitions)
+                });
+                if (config.val) {
+                    menu.$input.val(config.val);
+                    og.api.rest.viewdefinitions.get().pipe(store_viewdefinitions);
+                }
+            });
+        };
+
+        ViewDefinitions.prototype = new Block;
 
         return ViewDefinitions;
     }
