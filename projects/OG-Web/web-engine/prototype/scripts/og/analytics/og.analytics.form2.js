@@ -16,6 +16,8 @@ $.register_module({
                 form_container: 'OG-analytics-form',
                 load_btn: 'og-load',
                 form_controls: 'input, select, a, button',
+                menu_toggle: 'og-menu-toggle',
+                menu: 'og-menu',
                 menus: {
                     portfolios: 'og-portfolios',
                     views: 'og-view',
@@ -27,6 +29,7 @@ $.register_module({
             },
             dom = {
                 form_container : $('.' + selectors.form_container),
+                form_controls: {},
                 menus: {}
             },
             form = new og.common.util.ui.Form({
@@ -36,39 +39,24 @@ $.register_module({
 
         var keydown_handler = function (event) {
             if (event.keyCode !== 9) return;
-            var $elem = $(event.srcElement || event.target), shift = event.shiftKey, controls = {};
-            Object.keys(dom.menus).map(function (entry) {
-                var cntrls = $(selectors.form_controls, dom.menus[entry]);
-                if (cntrls.length) controls[entry] = cntrls;
-            });
+            var $elem = $(event.srcElement || event.target), shift = event.shiftKey, menus = dom.menus,
+                controls = dom.form_controls, menu_toggle = '.'+selectors.menu_toggle,
+                toggle = function (entry) {
+                    menus[entry].find(menu_toggle).trigger('click', event);
+                    controls[entry].eq(shift ? -1 : 0).focus(0);
+                };
             if (!shift) {
-                if ($elem.closest(dom.menus['views']).length)
-                    og.common.events.fire('datasources:'+events.open);
-                else if ($elem.is(controls['datasources'].eq(-1))) {
-                    og.common.events.fire('datasources:'+events.close);
-                    og.common.events.fire('temporal:'+events.open);
-                } else if ($elem.is(controls['temporal'].eq(-1))) {
-                    og.common.events.fire('temporal:'+events.close);
-                    og.common.events.fire('aggregators:'+events.open);
-                }else if ($elem.is(controls['aggregators'].eq(-1))) {
-                    og.common.events.fire('aggregators:'+events.close);
-                    og.common.events.fire('filters:'+events.open);
-                } else if ($elem.is(controls['filters'].eq(-1)))
-                    og.common.events.fire('filters:'+events.close);
+                if ($elem.closest(dom.menus['views']).length) return toggle('datasources');
+                if ($elem.is(controls['datasources'].eq(-1))) return toggle('datasources'), toggle('temporal');
+                if ($elem.is(controls['temporal'].eq(-1))) return toggle('temporal'), toggle('aggregators');
+                if ($elem.is(controls['aggregators'].eq(-1))) return toggle('aggregators'), toggle('filters');
+                if ($elem.is(controls['filters'].eq(-1))) return toggle('filters');
             } else if (shift) {
-                if ($elem.is('.'+selectors.load_btn)){
-                    og.common.events.fire('filters:'+events.open);
-                } else if ($elem.is(controls['filters'].eq(0))) {
-                    og.common.events.fire('filters:'+events.close);
-                    og.common.events.fire('aggregators:'+events.open);
-                } else if ($elem.is(controls['aggregators'].eq(0))) {
-                    og.common.events.fire('aggregators:'+events.close);
-                    og.common.events.fire('temporal:'+events.open);
-                } else if ($elem.is(controls['temporal'].eq(0))){
-                    og.common.events.fire('temporal:'+events.close);
-                    og.common.events.fire('datasources'+events.open);
-                } else if ($elem.is(controls['datasources'].eq(0)))
-                    og.common.events.fire('datasources'+events.close);
+                if ($elem.is('.'+selectors.load_btn)) return toggle('filters');
+                if ($elem.is(controls['filters'].eq(0))) return toggle('filters'), toggle('aggregators');
+                if ($elem.is(controls['aggregators'].eq(0))) return toggle('aggregators'), toggle('temporal');
+                if ($elem.is(controls['temporal'].eq(0))) return toggle('temporal'), toggle('datasources');
+                if ($elem.is(controls['datasources'].eq(0))) return toggle('datasources');
             }
         };
 
@@ -85,39 +73,17 @@ $.register_module({
         var load_handler = function (event) {
             Object.keys(selectors.menus).map(function (entry, idx) {
                 dom.menus[entry] = $('.'+selectors.menus[entry], dom.form_container);
+                dom.form_controls[entry] = $(selectors.form_controls, dom.menus[entry]);
+            });
+            og.common.events.on('.og-portfolios.og-autocombo:autocombo:initialized', function () {
+                return dom.menus['portfolios'].find('input').select();
             });
         };
 
         var init = function (config) {
             form.on('form:load', load_handler);
-            og.common.events.on('.og-portfolios.og-autocombo:autocombo:initialized', function () {
-                Object.keys(dom.menus).filter(function (menu) {
-                    if (dom.menus[menu].hasClass('og-portfolios')) return dom.menus[menu].find('input').select();
-                });
-            });
             form.on('keydown', selectors.form_controls, keydown_handler);
             form.on('click', '.'+selectors.load_btn, load_form);
-
-            var fixtures = {
-                aggregators:['Beta', 'Currency', 'Underlying', 'Region'],
-                providers: [{
-                    marketDataType:'live',
-                    source: 'Bloomberg'
-                },
-                {
-                    marketDataType:'snapshot',
-                    snapshotId:'DbSnp~35365~1'
-                },
-                {
-                    marketDataType:'latestHistorical',
-                    resolverKey:'DbCfg~1047577'
-                },
-                {
-                    date:'2013-01-04',
-                    marketDataType:'fixedHistorical',
-                    resolverKey:'DbCfg~991626'
-                }]
-            };
 
             form.children.push(
                 (portfolios = new og.analytics.form.Portfolios({form:form})).block,

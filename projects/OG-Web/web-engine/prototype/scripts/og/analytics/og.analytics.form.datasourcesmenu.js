@@ -166,27 +166,6 @@ $.register_module({
                 inputs.filter(custom_s).removeClass(active_s+ ' ' +date_selected_s).val(custom_val);
             };
 
-            var serialize = function () {
-                if (!query.length) return;
-                var arr = [];
-                query.forEach(function (entry) {
-                    var obj = {}, val = entry.type.toLowerCase();
-                    switch (val) {
-                        case 'live': obj['marketDataType'] = val, obj['source'] = entry.src; break;
-                        case 'snapshot': obj['marketDataType'] = val, obj['snapshotId'] = entry.src; break;
-                        case 'historical':
-                            if (entry.date) {
-                                obj['marketDataType'] = 'fixedHistorical';
-                                obj['date'] = entry.date;
-                            } else obj['marketDataType'] = 'latestHistorical';
-                            obj['resolverKey'] = entry.src; break;
-                        //no default
-                    }
-                    arr.push(obj);
-                });
-                return arr;
-            };
-
             var init = function (config) {
                 menu = new og.analytics.form.DropMenu({cntr: $('.OG-analytics-form .og-datasources')});
                 if (menu.$dom) {
