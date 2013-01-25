@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<og-portfolio schemaVersion="1.0">
+  <!--The set of trades that we are managing in this file -->
+  <trades>
+    <!-- Trade id must be unique in this list -->
+    <trade id="idForThisTradeInThisFile">
+      <!-- Probably should be unique in this file too -->
+      <externalId>IdFromExternalSystem</externalId>
+      <tradeDate>2013-01-20</tradeDate>
+      <counterparty>??? Name/Id/What ???</counterparty>
+      <security>?? How to reference ?? Type and Id?</security>
+      <isCleared>false</isCleared>
+      <clearingBroker>dependency on isCleared? / Id format??</clearingBroker>
+      <clearingHouse>dependency on isCleared? / Id format??</clearingHouse>
+      <executingBroker>Id format??</executingBroker>
+      <primeBroker>Id format??</primeBroker>
+      <collateralAgreement>Only if not cleared</collateralAgreement>
+      <!-- Additional trade attributes - generally data that won't affect analytics -->
+      <tradeAttributes>
+      </tradeAttributes>
+      <tradeLegs>
+        <fixedLeg>
+          <payReceive>Pay</payReceive>
+          <currency>USD</currency>
+          <!-- Notional could be array-valued -->
+          <notional>1000000</notional>
+          <frequency></frequency>
+          <effectiveDate>2013-02-01</effectiveDate>
+          <maturity>2018-01-31</maturity>
+          <rate>105.25</rate>
+          <dayCount></dayCount>
+          <businessDayAdjustment></businessDayAdjustment>
+          <interestCalculation>Adjusted</interestCalculation>
+          <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
+          <endOfMonth>True</endOfMonth>
+          <paymentCalendars>
+            <calendar>FD</calendar>
+            <calendar>EN</calendar>
+          </paymentCalendars>
+          <isIMM>True</isIMM>
+          <shortLongCoupon>Long</shortLongCoupon>
+        </fixedLeg>
+        <floatingLeg>
+          <payReceive>Pay</payReceive>
+          <currency>USD</currency>
+          <!-- Notional could be array-valued -->
+          <notional>1000000</notional>
+          <frequency>
+          </frequency>
+          <effectiveDate>2013-02-01</effectiveDate>
+          <maturity>2018-01-31</maturity>
+          <spread>5.25</spread>
+          <dayCount>
+          </dayCount>
+          <businessDayAdjustment>
+          </businessDayAdjustment>
+          <interestCalculation>Adjusted</interestCalculation>
+          <scheduleGenerationDirection>Backward</scheduleGenerationDirection>
+          <endOfMonth>True</endOfMonth>
+          <paymentCalendars>
+            <calendar>FD</calendar>
+            <calendar>EN</calendar>
+          </paymentCalendars>
+          <isIMM>True</isIMM>
+          <shortLongCoupon>Long</shortLongCoupon>
+          <resetFrequency></resetFrequency>
+          <compoundingMethod></compoundingMethod>
+          <resetLag></resetLag>
+          <resetType>In Arrears</resetType>
+          <fixingCalendar></fixingCalendar>
+          <fixingIndex></fixingIndex>
+          <shortLongCouponAdjustment></shortLongCouponAdjustment>
+        </floatingLeg>
+      </tradeLegs>
+    </trade>
+  </trades>
+
+  <portfolios>
+    <!-- portfolio name must be unique in this set -->
+    <portfolio name="portfolio1">
+      <positions>
+        <position>
+          <positionAttributes>
+            <!-- Position may have a quantity if there are trades but may be recalced from trade values instead -->
+            <positionAttribute key="Quantity" value="1"/>
+            <positionAttribute key="Bloomberg BUID" value="IX14276430-0"/>
+            <positionAttribute key="Bloomberg Ticker" value="USU2 Comdty"/>
+          </positionAttributes>
+          <trades>
+            <trade ref="idForThisTradeInThisFile"/>
+          </trades>
+        </position>
+      </positions>
+
+    </portfolio>
+  </portfolios>
+
+</og-portfolio>
