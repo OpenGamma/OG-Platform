@@ -5,14 +5,13 @@
  */
 package com.opengamma.financial.fudgemsg;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStrip;

@@ -5,11 +5,10 @@
  */
 package com.opengamma.financial.generator;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.id.ExternalSchemes;
@@ -53,17 +52,17 @@ public class FRASecurityGenerator extends SecurityGenerator<FRASecurity> {
     ExternalId underlyingIdentifier = null;
     Tenor tenor = Tenor.ofMonths(length);
     try {
-      underlyingIdentifier = getUnderlyingRate(currency, start.toLocalDate(), tenor);
+      underlyingIdentifier = getUnderlyingRate(currency, start.getDate(), tenor);
       if (underlyingIdentifier == null) {
         return null;
       }
     } catch (Exception ex) {
-      s_logger.warn("Unable to obtain underlying id for " + currency + " " + start.toLocalDate() + " " + tenor, ex);
+      s_logger.warn("Unable to obtain underlying id for " + currency + " " + start.getDate() + " " + tenor, ex);
       return null;
     }
     
-    final HistoricalTimeSeries underlyingSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, underlyingIdentifier.toBundle(), null, start.toLocalDate(),
-        true, start.toLocalDate(), true);
+    final HistoricalTimeSeries underlyingSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, underlyingIdentifier.toBundle(), null, start.getDate(),
+        true, start.getDate(), true);
     if ((underlyingSeries == null) || underlyingSeries.getTimeSeries().isEmpty()) {
       return null;
     }

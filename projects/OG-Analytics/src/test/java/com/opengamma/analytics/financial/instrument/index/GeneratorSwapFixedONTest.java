@@ -6,10 +6,10 @@
 package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -25,7 +25,7 @@ public class GeneratorSwapFixedONTest {
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final IndexON INDEX_FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND", NYC);
   private static final String USD_NAME = "USD1YFEDFUND";
-  private static final Period USD_PERIOD = Period.ofMonths(12);
+  private static final Period USD_PERIOD = Period.of(12, MONTHS);
   private static final DayCount USD_DAYCOUNT_FIXED = INDEX_FEDFUND.getDayCount();
   private static final BusinessDayConvention USD_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean USD_IS_EOM = true;

@@ -13,8 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
 
@@ -47,8 +46,7 @@ public abstract class PerViewStatisticsGathererProvider<T extends GraphExecutorS
     return new ArrayList<T>(_statisticsGatherers.values());
   }
 
-  public void dropStatisticsBefore(final InstantProvider instantProvider) {
-    final Instant dropBefore = Instant.of(instantProvider);
+  public void dropStatisticsBefore(final Instant dropBefore) {
     final Iterator<Map.Entry<UniqueId, T>> iterator = _statisticsGatherers.entrySet().iterator();
     while (iterator.hasNext()) {
       final Map.Entry<UniqueId, T> entry = iterator.next();

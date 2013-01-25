@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.timeseries.analysis;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -37,7 +36,7 @@ public class MovingAverageTimeSeriesOrderIdentifierTest {
     final double[] random = new double[n];
     final ProbabilityDistribution<Double> normal = new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
     for (int i = 0; i < n; i++) {
-      dates[i] = LocalDate.ofEpochDays(i);
+      dates[i] = LocalDate.ofEpochDay(i);
       random[i] = normal.nextRandom();
     }
     final int order = 3;
@@ -77,7 +76,7 @@ public class MovingAverageTimeSeriesOrderIdentifierTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
-    MA_IDENTIFIER.getOrder(new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(2)}, new double[] {0.1, 0.2}));
+    MA_IDENTIFIER.getOrder(new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2)}, new double[] {0.1, 0.2}));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

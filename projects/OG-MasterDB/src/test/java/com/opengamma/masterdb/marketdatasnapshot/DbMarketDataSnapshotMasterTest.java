@@ -7,8 +7,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -17,6 +15,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
@@ -78,7 +77,7 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     assertNotNull(_snpMaster);
     assertEquals(true, _snpMaster.getUniqueIdScheme().equals("DbSnp"));
     assertNotNull(_snpMaster.getDbConnector());
-    assertNotNull(_snpMaster.getTimeSource());
+    assertNotNull(_snpMaster.getClock());
   }
 
   //-------------------------------------------------------------------------
@@ -143,7 +142,7 @@ public class DbMarketDataSnapshotMasterTest extends DbTest {
     volCube.setOtherValues(globalValues);
     volCube.setValues(new HashMap<VolatilityPoint, ValueSnapshot>());
     volCube.setStrikes(strikes);
-    volCube.getValues().put(new VolatilityPoint(Tenor.DAY, Tenor.MONTH, -1), new ValueSnapshot(null,null));
+    volCube.getValues().put(new VolatilityPoint(Tenor.DAY, Tenor.YEAR, -1), new ValueSnapshot(null,null));
     
     volCubes.put(new VolatilityCubeKey(Currency.USD, "Default"), volCube);
     snapshot1.setVolatilityCubes(volCubes);

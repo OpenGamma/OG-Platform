@@ -7,10 +7,11 @@ package com.opengamma.util.timeseries.yearoffset;
 
 import java.util.List;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -19,22 +20,27 @@ public class ArrayYearOffsetDoubleTimeSeriesTest extends YearOffsetDoubleTimeSer
 
   @Override
   public YearOffsetDoubleTimeSeries createEmptyTimeSeries() {
-    return new ArrayYearOffsetDoubleTimeSeries(ZonedDateTime.of(2013, 1, 24, 12, 0, 0, 0, TimeZone.UTC), new Double[0], new double[0]);
+    return new ArrayYearOffsetDoubleTimeSeries(zdt(2013, 1, 24, 12, 0, 0, 0, ZoneOffset.UTC), new Double[0], new double[0]);
   }
 
   @Override
   public YearOffsetDoubleTimeSeries createTimeSeries(final Double[] times, final double[] values) {
-    return new ArrayYearOffsetDoubleTimeSeries(ZonedDateTime.of(2013, 1, 24, 12, 0, 0, 0, TimeZone.UTC), times, values);
+    return new ArrayYearOffsetDoubleTimeSeries(zdt(2013, 1, 24, 12, 0, 0, 0, ZoneOffset.UTC), times, values);
   }
 
   @Override
   public YearOffsetDoubleTimeSeries createTimeSeries(final List<Double> times, final List<Double> values) {
-    return new ArrayYearOffsetDoubleTimeSeries(ZonedDateTime.of(2013, 1, 24, 12, 0, 0, 0, TimeZone.UTC), times, values);
+    return new ArrayYearOffsetDoubleTimeSeries(zdt(2013, 1, 24, 12, 0, 0, 0, ZoneOffset.UTC), times, values);
   }
 
   @Override
   public YearOffsetDoubleTimeSeries createTimeSeries(final DoubleTimeSeries<Double> dts) {
-    return new ArrayYearOffsetDoubleTimeSeries(ZonedDateTime.of(2013, 1, 24, 12, 0, 0, 0, TimeZone.UTC), (YearOffsetDoubleTimeSeries) dts);
+    return new ArrayYearOffsetDoubleTimeSeries(zdt(2013, 1, 24, 12, 0, 0, 0, ZoneOffset.UTC), (YearOffsetDoubleTimeSeries) dts);
+  }
+
+  //-------------------------------------------------------------------------
+  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+    return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
   }
 
 }

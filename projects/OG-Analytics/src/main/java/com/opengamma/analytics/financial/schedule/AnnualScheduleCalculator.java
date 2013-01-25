@@ -5,15 +5,16 @@
  */
 package com.opengamma.analytics.financial.schedule;
 
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 /**
  * 
@@ -34,7 +35,7 @@ public class AnnualScheduleCalculator extends Schedule {
       int i = 1;
       while (!date.isBefore(startDate)) {
         dates.add(date);
-        date = generateRecursive ? date.minus(Period.ofYears(1)) : endDate.minus(Period.ofYears(i++));
+        date = generateRecursive ? date.minus(Period.of(1, YEARS)) : endDate.minus(Period.of(i++, YEARS));
       }
       Collections.reverse(dates);
       return dates.toArray(EMPTY_LOCAL_DATE_ARRAY);
@@ -43,7 +44,7 @@ public class AnnualScheduleCalculator extends Schedule {
     int i = 1;
     while (!date.isAfter(endDate)) {
       dates.add(date);
-      date = generateRecursive ? date.plus(Period.ofYears(1)) : startDate.plus(Period.ofYears(i++));
+      date = generateRecursive ? date.plus(Period.of(1, YEARS)) : startDate.plus(Period.of(i++, YEARS));
     }
     return dates.toArray(EMPTY_LOCAL_DATE_ARRAY);
   }
@@ -62,7 +63,7 @@ public class AnnualScheduleCalculator extends Schedule {
       int i = 1;
       while (!date.isBefore(startDate)) {
         dates.add(date);
-        date = generateRecursive ? date.minus(Period.ofYears(1)) : endDate.minus(Period.ofYears(i++));
+        date = generateRecursive ? date.minus(Period.of(1, YEARS)) : endDate.minus(Period.of(i++, YEARS));
       }
       Collections.reverse(dates);
       return dates.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);
@@ -71,7 +72,7 @@ public class AnnualScheduleCalculator extends Schedule {
     int i = 1;
     while (!date.isAfter(endDate)) {
       dates.add(date);
-      date = generateRecursive ? date.plus(Period.ofYears(1)) : startDate.plus(Period.ofYears(i++));
+      date = generateRecursive ? date.plus(Period.of(1, YEARS)) : startDate.plus(Period.of(i++, YEARS));
     }
     return dates.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);
   }

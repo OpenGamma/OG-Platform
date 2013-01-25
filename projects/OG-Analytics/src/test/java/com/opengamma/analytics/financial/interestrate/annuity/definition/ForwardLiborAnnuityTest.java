@@ -6,10 +6,10 @@
 package com.opengamma.analytics.financial.interestrate.annuity.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIbor;
@@ -38,7 +38,7 @@ public class ForwardLiborAnnuityTest {
   private static final String LIBOR = "Libor";
   private static final Currency CUR = Currency.USD;
 
-  private static final Period TENOR = Period.ofMonths(6);
+  private static final Period TENOR = Period.of(6, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");

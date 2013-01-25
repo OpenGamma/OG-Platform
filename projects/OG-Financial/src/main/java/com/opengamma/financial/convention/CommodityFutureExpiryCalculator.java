@@ -7,8 +7,8 @@ package com.opengamma.financial.convention;
 
 import java.util.Arrays;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
@@ -21,9 +21,9 @@ public final class CommodityFutureExpiryCalculator implements ExchangeTradedInst
   public static final String NAME = "CommodityFutureExpiryCalculator";
   private static final CommodityFutureExpiryCalculator INSTANCE = new CommodityFutureExpiryCalculator();
 
-  private static final MonthOfYear[] COMMODITY_FUTURE_EXPIRY_MONTHS =
-  {MonthOfYear.JANUARY, MonthOfYear.MARCH, MonthOfYear.MAY, MonthOfYear.JULY,
-    MonthOfYear.AUGUST, MonthOfYear.SEPTEMBER, MonthOfYear.NOVEMBER
+  private static final Month[] COMMODITY_FUTURE_EXPIRY_MONTHS =
+  {Month.JANUARY, Month.MARCH, Month.MAY, Month.JULY,
+    Month.AUGUST, Month.SEPTEMBER, Month.NOVEMBER
   };
 
   public static CommodityFutureExpiryCalculator getInstance() {
@@ -75,14 +75,14 @@ public final class CommodityFutureExpiryCalculator implements ExchangeTradedInst
       expiryDate = getNextExpiryMonth(expiryDate);
     }
     // set day to first possible - used in getExpiryDate()
-    return LocalDate.of(expiryDate.getYear(), expiryDate.getMonthOfYear(), 14);
+    return LocalDate.of(expiryDate.getYear(), expiryDate.getMonth(), 14);
   }
 
   private LocalDate getNextExpiryMonth(final LocalDate dtCurrent) {
-    final MonthOfYear mthCurrent = dtCurrent.getMonthOfYear();
+    final Month mthCurrent = dtCurrent.getMonth();
     final int idx = Arrays.binarySearch(COMMODITY_FUTURE_EXPIRY_MONTHS, mthCurrent);
     if (Math.abs(idx) >= (COMMODITY_FUTURE_EXPIRY_MONTHS.length - 1)) {
-      return LocalDate.of(dtCurrent.getYear() + 1, MonthOfYear.JANUARY, dtCurrent.getDayOfMonth());
+      return LocalDate.of(dtCurrent.getYear() + 1, Month.JANUARY, dtCurrent.getDayOfMonth());
     } else if (idx >= 0) {
       return dtCurrent.with(COMMODITY_FUTURE_EXPIRY_MONTHS[idx + 1]);
     } else {

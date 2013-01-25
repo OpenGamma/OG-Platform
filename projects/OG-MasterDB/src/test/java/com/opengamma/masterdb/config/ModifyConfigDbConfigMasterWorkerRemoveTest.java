@@ -7,12 +7,11 @@ package com.opengamma.masterdb.config;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalId;
@@ -43,7 +42,7 @@ public class ModifyConfigDbConfigMasterWorkerRemoveTest extends AbstractDbConfig
 
   @Test
   public void test_remove_removed() {
-    Instant now = Instant.now(_cfgMaster.getTimeSource());
+    Instant now = Instant.now(_cfgMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     _cfgMaster.remove(uniqueId);

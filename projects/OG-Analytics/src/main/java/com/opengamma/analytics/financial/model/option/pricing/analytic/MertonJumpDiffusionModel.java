@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.analytic;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.option.definition.MertonJumpDiffusionModelDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;

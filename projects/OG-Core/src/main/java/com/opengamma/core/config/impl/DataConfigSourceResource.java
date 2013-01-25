@@ -75,13 +75,6 @@ public class DataConfigSourceResource extends AbstractDataResource {
     return msg;
   }
 
-  private FudgeMsg configItemSingletonResult(final ConfigItem<?> item) {
-    final FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
-    final MutableFudgeMsg msg = serializer.newMessage();
-    serializer.addToMessageWithClassHeaders(msg, null, null, item, ConfigItem.class);
-    return msg;
-  }
-
   private FudgeMsg configItemResult(final ConfigItem<?> item) {
     final FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
     return FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(item), item.getClass(), ConfigItem.class);

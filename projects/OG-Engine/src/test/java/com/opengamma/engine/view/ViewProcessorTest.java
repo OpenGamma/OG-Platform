@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,12 +23,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
@@ -245,10 +244,10 @@ public class ViewProcessorTest {
   }
 
   private ViewCycleExecutionSequence generateExecutionSequence(final int cycleCount) {
-    final Collection<InstantProvider> valuationTimes = new ArrayList<InstantProvider>(cycleCount);
+    final Collection<Instant> valuationTimes = new ArrayList<Instant>(cycleCount);
     final Instant now = Instant.now();
     for (int i = 0; i < cycleCount; i++) {
-      valuationTimes.add(now.plus(i, TimeUnit.MINUTES));
+      valuationTimes.add(now.plus(i, MINUTES));
     }
     return ArbitraryViewCycleExecutionSequence.of(valuationTimes);
   }

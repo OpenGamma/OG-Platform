@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.timeseries;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.util.time.DateUtils;
@@ -83,12 +83,12 @@ public class DateConstraint {
     if (str.length() == 0) {
       return null;
     } else if (str.charAt(0) == '-') {
-      return context.getValuationClock().today().minus(Period.parse(str.substring(1)));
+      return LocalDate.now(context.getValuationClock()).minus(Period.parse(str.substring(1)));
     } else if (str.startsWith(PREVIOUS_WEEK_DAY)) {
       final int l = str.length();
       final int pwd = PREVIOUS_WEEK_DAY.length();
       if (l == pwd) {
-        return DateUtils.previousWeekDay(context.getValuationClock().today());
+        return DateUtils.previousWeekDay(LocalDate.now(context.getValuationClock()));
       } else {
         return DateUtils.previousWeekDay(getLocalDate(context, str.substring(pwd + 1, l - 1)));
       }

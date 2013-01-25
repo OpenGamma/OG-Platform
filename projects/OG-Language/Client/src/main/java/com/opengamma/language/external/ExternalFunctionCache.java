@@ -16,10 +16,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 /**
  * Caches a set of external function declarations. The cache can be written to
@@ -96,7 +95,7 @@ import org.slf4j.LoggerFactory;
     try {
       final BufferedReader br = new BufferedReader(new FileReader(cacheFile));
       String str = br.readLine();
-      final ExternalFunctionCache cache = new ExternalFunctionCache(Instant.ofEpochMillis(Long.parseLong(str.trim())));
+      final ExternalFunctionCache cache = new ExternalFunctionCache(Instant.ofEpochMilli(Long.parseLong(str.trim())));
       while ((str = br.readLine()) != null) {
         str = str.trim();
         if (str.length() > 0) {
@@ -123,7 +122,7 @@ import org.slf4j.LoggerFactory;
     final File cacheFile = new File(new File(path), CACHE_FILE_NAME);
     try {
       final PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(cacheFile)));
-      pw.println(getTimestamp().toEpochMillisLong());
+      pw.println(getTimestamp().toEpochMilli());
       for (String className : getClassNames()) {
         pw.println(className);
       }

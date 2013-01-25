@@ -11,11 +11,10 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
@@ -54,7 +53,7 @@ public class SimpleSecurityResolverTest {
     _securityV1 = new SimpleSecurity(_objectId.atVersion("1"), externalIdBundle, "Type", "Security V1");
     _securityV2 = new SimpleSecurity(_objectId.atVersion("2"), externalIdBundle, "Type", "Security V2");
     
-    _securityV2ValidFrom = LocalDate.of(2011, 01, 01).atStartOfDayInZone(TimeZone.UTC).toInstant();
+    _securityV2ValidFrom = LocalDate.of(2011, 01, 01).atStartOfDay(ZoneOffset.UTC).toInstant();
     
     _securitySource = mock(SecuritySource.class);
     
@@ -66,7 +65,7 @@ public class SimpleSecurityResolverTest {
     // By object ID and version-correction
     when(_securitySource.get(_objectId, VersionCorrection.of(_securityV2ValidFrom.minusMillis(1), _now))).thenReturn(_securityV1);
     when(_securitySource.get(_objectId, VersionCorrection.of(_securityV2ValidFrom, _now))).thenReturn(_securityV2);
-    when(_securitySource.get(UNKNOWN_OID, VersionCorrection.of(Instant.ofEpochMillis(123), Instant.ofEpochMillis(123)))).thenThrow(new DataNotFoundException(""));
+    when(_securitySource.get(UNKNOWN_OID, VersionCorrection.of(Instant.ofEpochMilli(123), Instant.ofEpochMilli(123)))).thenThrow(new DataNotFoundException(""));
     
     // By external ID bundle and version-correction
     when(_securitySource.get(ExternalIdBundle.of(_securityExternalId), VersionCorrection.of(_securityV2ValidFrom, _now))).thenReturn(Collections.singleton(_securityV2));
@@ -97,7 +96,7 @@ public class SimpleSecurityResolverTest {
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void testResolveLinkWithUnknownObjectId() {
-    VersionCorrection vc = VersionCorrection.of(Instant.ofEpochMillis(123), Instant.ofEpochMillis(123));
+    VersionCorrection vc = VersionCorrection.of(Instant.ofEpochMilli(123), Instant.ofEpochMilli(123));
     SimpleSecurityResolver resolver = new SimpleSecurityResolver(_securitySource, vc);
     SecurityLink link = new SimpleSecurityLink(UNKNOWN_OID);
     resolver.resolve(link);
@@ -118,14 +117,14 @@ public class SimpleSecurityResolverTest {
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void testResolveLinkWithUnknownExternalIdBundle() {
-    SimpleSecurityResolver resolver = new SimpleSecurityResolver(_securitySource, VersionCorrection.of(Instant.ofEpochMillis(123), Instant.ofEpochMillis(123)));
+    SimpleSecurityResolver resolver = new SimpleSecurityResolver(_securitySource, VersionCorrection.of(Instant.ofEpochMilli(123), Instant.ofEpochMilli(123)));
     SecurityLink link = new SimpleSecurityLink(ExternalId.of("Unknown", "Unknown"));
     resolver.resolve(link);
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void testResolveEmptyLink() {
-    SimpleSecurityResolver resolver = new SimpleSecurityResolver(_securitySource, VersionCorrection.of(Instant.ofEpochMillis(123), Instant.ofEpochMillis(123)));
+    SimpleSecurityResolver resolver = new SimpleSecurityResolver(_securitySource, VersionCorrection.of(Instant.ofEpochMilli(123), Instant.ofEpochMilli(123)));
     SecurityLink link = new SimpleSecurityLink();
     resolver.resolve(link);    
   }
@@ -163,7 +162,7 @@ public class SimpleSecurityResolverTest {
 
   @Test(expectedExceptions = DataNotFoundException.class)
   public void testGetSecurityByUnknownObjectId() {
-    VersionCorrection vc = VersionCorrection.of(Instant.ofEpochMillis(123), Instant.ofEpochMillis(123));
+    VersionCorrection vc = VersionCorrection.of(Instant.ofEpochMilli(123), Instant.ofEpochMilli(123));
     SimpleSecurityResolver resolver = new SimpleSecurityResolver(_securitySource, vc);
     resolver.getSecurity(UNKNOWN_OID);
   }

@@ -9,10 +9,10 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.temporal.TemporalAdjuster;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 public final class GoldFutureExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
   /** Name of the calculator */
   public static final String NAME = "GoldFutureExpiryCalculator";
-  private static final DateAdjuster LAST_DAY_ADJUSTER = DateAdjusters.lastDayOfMonth();
+  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
   private static final GoldFutureExpiryCalculator INSTANCE = new GoldFutureExpiryCalculator();
 
   public static GoldFutureExpiryCalculator getInstance() {
@@ -38,22 +38,22 @@ public final class GoldFutureExpiryCalculator implements ExchangeTradedInstrumen
    * @param now
    * @return the valid trading months
    */
-  private MonthOfYear[] getTradingMonths(final LocalDate now) {
+  private Month[] getTradingMonths(final LocalDate now) {
     // this may need improvements as the year end approaches
-    Set<MonthOfYear> ret = new TreeSet<>();
-    ret.add(now.getMonthOfYear()); // this month
-    ret.add(now.getMonthOfYear().next()); // next month
-    ret.add(now.getMonthOfYear().next().next()); // next 2 months
+    Set<Month> ret = new TreeSet<>();
+    ret.add(now.getMonth()); // this month
+    ret.add(now.getMonth().plus(1)); // next month
+    ret.add(now.getMonth().plus(2)); // next 2 months
     //  February, April, August, and October in next 23 months
-    ret.add(MonthOfYear.FEBRUARY);
-    ret.add(MonthOfYear.APRIL);
-    ret.add(MonthOfYear.AUGUST);
-    ret.add(MonthOfYear.OCTOBER);
+    ret.add(Month.FEBRUARY);
+    ret.add(Month.APRIL);
+    ret.add(Month.AUGUST);
+    ret.add(Month.OCTOBER);
     // June and December falling in next 72 month period
-    ret.add(MonthOfYear.JUNE);
-    ret.add(MonthOfYear.DECEMBER);
+    ret.add(Month.JUNE);
+    ret.add(Month.DECEMBER);
     // assuming this gives enough valid dates so dont go round to next 12 month period
-    return ret.toArray(new MonthOfYear[0]);
+    return ret.toArray(new Month[0]);
   }
 
   /**
@@ -71,7 +71,7 @@ public final class GoldFutureExpiryCalculator implements ExchangeTradedInstrumen
     ArgumentChecker.notNull(today, "today");
     ArgumentChecker.notNull(holidayCalendar, "holiday calendar");
 
-    LocalDate expiryDate = LAST_DAY_ADJUSTER.adjustDate(getExpiryMonth(n, today));
+    LocalDate expiryDate = getExpiryMonth(n, today).with(LAST_DAY_ADJUSTER);
     int nBusinessDays = 3;
     if (holidayCalendar.isWorkingDay(expiryDate)) {
       nBusinessDays--;
@@ -98,15 +98,15 @@ public final class GoldFutureExpiryCalculator implements ExchangeTradedInstrumen
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
     ArgumentChecker.notNull(today, "today");
     LocalDate expiryDate = today;
-    MonthOfYear[] validMonths = getTradingMonths(today);
+    Month[] validMonths = getTradingMonths(today);
     for (int m = n; m > 0; m--) {
       expiryDate = getNextExpiryMonth(validMonths, expiryDate);
     }
     return expiryDate;
   }
 
-  private LocalDate getNextExpiryMonth(final MonthOfYear[] validMonths, final LocalDate dtCurrent) {
-    MonthOfYear mthCurrent = dtCurrent.getMonthOfYear();
+  private LocalDate getNextExpiryMonth(final Month[] validMonths, final LocalDate dtCurrent) {
+    Month mthCurrent = dtCurrent.getMonth();
     int idx = Arrays.binarySearch(validMonths, mthCurrent);
     if (Math.abs(idx) >= (validMonths.length - 1)) {
       return LocalDate.of(dtCurrent.getYear() + 1, validMonths[0], dtCurrent.getDayOfMonth());

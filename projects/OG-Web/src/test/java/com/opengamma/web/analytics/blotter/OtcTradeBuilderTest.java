@@ -10,13 +10,12 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.math.BigDecimal;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.ZoneOffset;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetTime;
+import org.threeten.bp.ZoneOffset;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.conversion.JodaBeanConverters;
@@ -38,8 +37,8 @@ import com.opengamma.util.money.Currency;
 public class OtcTradeBuilderTest {
 
   private static final ImmutableMap<String,String> ATTRIBUTES = ImmutableMap.of("attr1", "val1", "attr2", "val2");
-  private static final OffsetTime PREMIUM_TIME = OffsetTime.of(13, 0, ZoneOffset.of(Period.ZERO));
-  private static final OffsetTime TRADE_TIME = OffsetTime.of(10, 0, ZoneOffset.of(Period.ZERO));
+  private static final OffsetTime PREMIUM_TIME = LocalTime.of(13, 0).atOffset(ZoneOffset.UTC);
+  private static final OffsetTime TRADE_TIME = LocalTime.of(10, 0).atOffset(ZoneOffset.UTC);
   private static final LocalDate PREMIUM_DATE = LocalDate.of(2012, 12, 25);
   private static final LocalDate TRADE_DATE = LocalDate.of(2012, 12, 21);
   private static final double PREMIUM = 1234d;

@@ -5,6 +5,8 @@
  */
 package com.opengamma.integration.marketdata;
 
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
@@ -14,12 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import javax.time.Instant;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.ZoneOffset;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.commons.cli.CommandLine;
@@ -30,6 +26,10 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
@@ -145,7 +145,7 @@ public class WatchListRecorder {
         
     final Set<ExternalId> emitted = Sets.newHashSet();
     final Set<ExternalId> emittedRecently = Sets.newHashSet();
-    final Instant now = OffsetDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).with(LocalTime.MIDDAY).toInstant();
+    final Instant now = OffsetDateTime.ofInstant(Instant.now(), ZoneOffset.UTC).with(LocalTime.NOON).toInstant();
     s_logger.info("{} view(s) defined in demo view processor", viewDefinitions.size());
     _writer.println("# Automatically generated");
     
@@ -222,7 +222,7 @@ public class WatchListRecorder {
     List<ViewCycleExecutionOptions> executionOptionsList = new ArrayList<ViewCycleExecutionOptions>();
     final ViewCycleExecutionOptions.Builder builder = ViewCycleExecutionOptions.builder();
     for (int i = 0; i < VALIDITY_PERIOD_DAYS; i++) {
-      Instant valuationTime = now.plus(i, TimeUnit.DAYS);
+      Instant valuationTime = now.plus(i, DAYS);
       executionOptionsList.add(builder.setValuationTime(valuationTime).create());
     }
     ViewCycleExecutionSequence executionSequence = new ArbitraryViewCycleExecutionSequence(executionOptionsList);

@@ -5,9 +5,9 @@
  */
 package com.opengamma.engine.marketdata.historical;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
@@ -56,8 +56,8 @@ public class HistoricalMarketDataProvider extends AbstractHistoricalMarketDataPr
   public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
     FixedHistoricalMarketDataSpecification historicalSpec = (FixedHistoricalMarketDataSpecification) marketDataSpec;
     // TODO something better thought-out here
-    //Instant snapshotInstant = historicalSpec.getSnapshotDate().atMidnight().atZone(TimeZone.UTC).toInstant();
-    Instant snapshotInstant = historicalSpec.getSnapshotDate().atTime(16, 0).atZone(TimeZone.UTC).toInstant();
+    //Instant snapshotInstant = historicalSpec.getSnapshotDate().atMidnight().atZone(ZoneOffset.UTC).toInstant();
+    Instant snapshotInstant = historicalSpec.getSnapshotDate().atTime(16, 0).atZone(ZoneOffset.UTC).toInstant();
     LocalDate snapshotDate = historicalSpec.getSnapshotDate();
     return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), snapshotInstant, snapshotDate,
                                             historicalSpec.getTimeSeriesResolverKey(), this);

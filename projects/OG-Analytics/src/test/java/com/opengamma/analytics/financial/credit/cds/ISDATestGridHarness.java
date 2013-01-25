@@ -5,25 +5,26 @@
  */
 package com.opengamma.analytics.financial.credit.cds;
 
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.time.Duration;
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatters;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.threeten.bp.Duration;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatters;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.analytics.financial.instrument.Convention;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
@@ -316,7 +317,7 @@ public class ISDATestGridHarness {
     
     final ZonedDateTime stop = ZonedDateTime.now();
     final Duration elapsedTime = Duration.between(start, stop);
-    final double seconds = elapsedTime.getSeconds() + (elapsedTime.getNanoOfSecond() / 1000000) / 1000.0;
+    final double seconds = elapsedTime.getSeconds() + (elapsedTime.getNano() / 1000000) / 1000.0;
     
     s_logger.debug( "Executed " + i + " test cases in " + seconds + "s with " + failures + " failure(s)"
       + (considerRelativeErrorForFailures ? " and " + marginalCases + " marginal case(s)" : "")
@@ -333,23 +334,23 @@ public class ISDATestGridHarness {
     final BusinessDayConvention businessDays = new FollowingBusinessDayConvention();
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
     final Convention convention = new Convention(3, dayCount, businessDays, calendar, "");
-    final DateAdjuster adjuster = businessDays.getDateAdjuster(calendar);
+    final TemporalAdjuster adjuster = businessDays.getTemporalAdjuster(calendar);
     
-    final ZonedDateTime pricingDate = testCase.getTradeDate().atStartOfDayInZone(TimeZone.UTC); 
-    final ZonedDateTime maturity = testCase.getMaturityDate().atStartOfDayInZone(TimeZone.UTC);
+    final ZonedDateTime pricingDate = testCase.getTradeDate().atStartOfDay(ZoneOffset.UTC); 
+    final ZonedDateTime maturity = testCase.getMaturityDate().atStartOfDay(ZoneOffset.UTC);
     
     // Step-in date is always T+1 calendar
     final ZonedDateTime stepinDate = pricingDate.plusDays(1);
     
     // If settlement date is not supplied, use T+3 business days
     final ZonedDateTime settlementDate = testCase.getCashSettle() != null
-      ? testCase.getCashSettle().atStartOfDayInZone(TimeZone.UTC)
+      ? testCase.getCashSettle().atStartOfDay(ZoneOffset.UTC)
       : pricingDate.plusDays(1).with(adjuster).plusDays(1).with(adjuster).plusDays(1).with(adjuster);
     
     // If start date is not supplied, construct one that is before the pricing date
-    final Period yearsToMaturity = Period.yearsBetween(pricingDate, maturity);
+    final Period yearsToMaturity = Period.ZERO.plusYears(YEARS.between(pricingDate, maturity).getAmount());
     final ZonedDateTime startDate = testCase.getStartDate() != null
-      ? testCase.getStartDate().atStartOfDayInZone(TimeZone.UTC)
+      ? testCase.getStartDate().atStartOfDay(ZoneOffset.UTC)
       : maturity.minusYears(yearsToMaturity.getYears() + 1).with(adjuster);
     
     // Spread and recovery are always given

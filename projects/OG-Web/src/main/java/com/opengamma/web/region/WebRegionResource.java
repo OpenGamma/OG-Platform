@@ -9,7 +9,7 @@ import static com.opengamma.util.EnumUtils.safeValueOf;
 
 import java.net.URI;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
@@ -162,7 +162,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     region.setClassification(classification);
     region.setCountry(countryISO != null ? Country.of(countryISO) : null);
     region.setCurrency(currencyISO != null ? Currency.of(currencyISO) : null);
-    region.setTimeZone(timeZoneId != null ? TimeZone.of(timeZoneId) : null);
+    region.setTimeZone(timeZoneId != null ? ZoneId.of(timeZoneId) : null);
     RegionDocument doc = new RegionDocument(region);
     RegionDocument added = data().getRegionMaster().add(doc);
     return WebRegionResource.uri(data(), added.getUniqueId());
@@ -246,7 +246,7 @@ public class WebRegionResource extends AbstractWebRegionResource {
     region.setClassification(classification);
     region.setCountry(countryISO != null ? Country.of(countryISO) : null);
     region.setCurrency(currencyISO != null ? Currency.of(currencyISO) : null);
-    region.setTimeZone(timeZoneId != null ? TimeZone.of(timeZoneId) : null);
+    region.setTimeZone(timeZoneId != null ? ZoneId.of(timeZoneId) : null);
     RegionDocument doc = new RegionDocument(region);
     doc = data().getRegionMaster().update(doc);
     data().setRegion(doc);

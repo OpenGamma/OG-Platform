@@ -8,9 +8,8 @@ package com.opengamma.util.timeseries;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 /**
  * Test {@link SimpleMapTimeSeries}.

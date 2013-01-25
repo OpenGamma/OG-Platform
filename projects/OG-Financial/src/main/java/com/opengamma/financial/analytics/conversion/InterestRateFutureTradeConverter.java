@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.core.position.Trade;
@@ -34,10 +34,10 @@ public class InterestRateFutureTradeConverter {
     final int quantity = 1;
     ZonedDateTime tradeDate;
     if (trade.getTradeTime() != null) {
-      TimeZone zone = TimeZone.of(trade.getTradeTime().getOffset());
-      tradeDate = trade.getTradeDate().atTime(trade.getTradeTime()).atZoneSameInstant(zone);
+      ZoneId zone = trade.getTradeTime().getOffset();
+      tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().getTime()).atZone(zone);
     } else {
-      tradeDate = trade.getTradeDate().atTime(LocalTime.MIDDAY).atZone(TimeZone.UTC);
+      tradeDate = trade.getTradeDate().atTime(LocalTime.NOON).atZone(ZoneOffset.UTC);
     }
     final double tradePrice = trade.getPremium() == null ? 0 : trade.getPremium(); //TODO remove the default value and throw an exception
     return new InterestRateFutureDefinition(tradeDate, tradePrice, securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(),

@@ -18,18 +18,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.OffsetTime;
-import javax.time.calendar.ZoneOffset;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetTime;
+import org.threeten.bp.ZoneOffset;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -269,9 +268,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
           .addValue("position_oid", positionOid)
           .addValue("quantity", trade.getQuantity())
           .addDate("trade_date", trade.getTradeDate())
-          .addTimeAllowNull("trade_time", trade.getTradeTime() != null ? trade.getTradeTime().toLocalTime() : null)
+          .addTimeAllowNull("trade_time", trade.getTradeTime() != null ? trade.getTradeTime().getTime() : null)
           .addValue("zone_offset",
-              trade.getTradeTime() != null ? trade.getTradeTime().getOffset().getAmountSeconds() : null,
+              trade.getTradeTime() != null ? trade.getTradeTime().getOffset().getTotalSeconds() : null,
                   Types.INTEGER)
                   .addValue("cparty_scheme", counterpartyId.getScheme().getName())
                   .addValue("cparty_value", counterpartyId.getValue())
@@ -286,9 +285,9 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
                                       trade.getPremiumCurrency() != null ? trade.getPremiumCurrency().getCode() : null,
                                           Types.VARCHAR)
                                           .addDateAllowNull("premium_date", trade.getPremiumDate())
-                                          .addTimeAllowNull("premium_time", (trade.getPremiumTime() != null ? trade.getPremiumTime().toLocalTime() : null))
+                                          .addTimeAllowNull("premium_time", (trade.getPremiumTime() != null ? trade.getPremiumTime().getTime() : null))
                                           .addValue("premium_zone_offset",
-                                              trade.getPremiumTime() != null ? trade.getPremiumTime().getOffset().getAmountSeconds() : null,
+                                              trade.getPremiumTime() != null ? trade.getPremiumTime().getOffset().getTotalSeconds() : null,
                                                   Types.INTEGER);
       tradeList.add(tradeArgs);
 

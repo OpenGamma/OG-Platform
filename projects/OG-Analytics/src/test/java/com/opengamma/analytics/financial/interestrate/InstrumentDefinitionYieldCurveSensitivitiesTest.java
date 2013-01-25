@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,12 +17,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -77,7 +77,7 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final MondayToFridayCalendar CALENDAR = new MondayToFridayCalendar("A");
   private static final int SPOT_LAG = 0;
-  private static final IborIndex IBOR = new IborIndex(CCY, Period.ofMonths(3), 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, false);
+  private static final IborIndex IBOR = new IborIndex(CCY, Period.of(3, MONTHS), 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, false);
   private static final double[] SINGLE_CURVE_MARKET_RATES = {0.02, 0.0366, 0.04705, 0.04285, 0.03953, 0.03986, 0.040965, 0.042035, 0.04314, 0.044, 0.046045, 0.048085,
       0.048925, 0.049155, 0.049195 };
   private static final String SINGLE_CURVE_NAME = "single";

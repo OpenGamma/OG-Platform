@@ -9,13 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
@@ -82,7 +81,7 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
 
   @Test
   public void test_correct_getUpdateGet() {
-    Instant now = Instant.now(_holMaster.getTimeSource());
+    Instant now = Instant.now(_holMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbHol", "101", "0");
     HolidayDocument base = _holMaster.get(uniqueId);

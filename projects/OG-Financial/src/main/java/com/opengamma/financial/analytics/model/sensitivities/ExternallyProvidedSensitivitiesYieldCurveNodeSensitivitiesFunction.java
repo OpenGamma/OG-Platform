@@ -10,10 +10,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Period;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -53,6 +52,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  *
@@ -247,7 +247,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
       if (exposure.getFactorType().equals(FactorType.YIELD) && exposure.getFactorName().contains(SWAP_TEXT)) {
         if (exposure.getNode() != null && exposure.getNode().length() > 0) {
           final Period nodePeriod = Period.parse("P" + exposure.getNode());
-          if (strip.getTenor().getPeriod().totalMonths() == nodePeriod.totalMonths()) {
+          if (DateUtils.totalMonths(strip.getTenor().getPeriod()) == DateUtils.totalMonths(nodePeriod)) {
             return exposure;
           }
         }
@@ -261,7 +261,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
       if (exposure.getFactorType().equals(FactorType.YIELD) && exposure.getFactorName().contains(BOND_TEXT)) {
         if (exposure.getNode() != null && exposure.getNode().length() > 0) {
           final Period nodePeriod = Period.parse("P" + exposure.getNode());
-          if (strip.getTenor().getPeriod().totalMonths() == nodePeriod.totalMonths()) {
+          if (DateUtils.totalMonths(strip.getTenor().getPeriod()) == DateUtils.totalMonths(nodePeriod)) {
             return exposure;
           }
         }

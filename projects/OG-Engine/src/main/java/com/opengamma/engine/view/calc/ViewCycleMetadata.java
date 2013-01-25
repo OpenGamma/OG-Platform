@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueRequirement;

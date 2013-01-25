@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.equity.future.definition;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;

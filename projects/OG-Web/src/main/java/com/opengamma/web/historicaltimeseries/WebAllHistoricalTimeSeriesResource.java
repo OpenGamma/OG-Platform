@@ -14,8 +14,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.CalendricalException;
-import javax.time.calendar.LocalDate;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -35,6 +33,8 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.DateTimeException;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
@@ -179,7 +179,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     if (start != null) {
       try {
         startDate = LocalDate.parse(start);
-      } catch (CalendricalException e) {
+      } catch (DateTimeException e) {
         out.put("err_startInvalid", true);
         validStartDate = false;
       }
@@ -189,7 +189,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
     if (end != null) {
       try {
         endDate = LocalDate.parse(end);
-      } catch (CalendricalException e) {
+      } catch (DateTimeException e) {
         out.put("err_endInvalid", true);
         validEndDate = false;
       }
@@ -260,7 +260,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       try {
         startDate = LocalDate.parse(start);
         validStartDate = true;
-      } catch (CalendricalException e) {
+      } catch (DateTimeException e) {
         validStartDate = false;
       }
     }
@@ -270,7 +270,7 @@ public class WebAllHistoricalTimeSeriesResource extends AbstractWebHistoricalTim
       try {
         endDate = LocalDate.parse(end);
         validEndDate = true;
-      } catch (CalendricalException e) {
+      } catch (DateTimeException e) {
         validEndDate = false;
       }
     }

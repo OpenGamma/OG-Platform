@@ -5,9 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.cube;
 
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;

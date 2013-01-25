@@ -118,7 +118,6 @@ public class RemoteConfigSource extends AbstractRemoteSource<ConfigItem<?>> impl
     return accessRemote(uri).get(clazz);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <R> Collection<ConfigItem<R>> get(final Class<R> clazz, final String configName, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");
@@ -133,7 +132,6 @@ public class RemoteConfigSource extends AbstractRemoteSource<ConfigItem<?>> impl
     return getSingle(clazz, name, VersionCorrection.LATEST);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <R> Collection<ConfigItem<R>> getAll(final Class<R> clazz, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");

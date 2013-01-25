@@ -7,12 +7,11 @@ package com.opengamma.bbg.tool;
 
 import java.util.Arrays;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;

@@ -5,10 +5,11 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
@@ -142,7 +143,7 @@ public class PresentValueScratchpad {
 
   protected static DayCount s_act365 = new ActualThreeSixtyFive();
 
-  final ZonedDateTime baseDate = ZonedDateTime.of(2012, 11, 15, 0, 0, 0, 0, TimeZone.UTC);
+  final ZonedDateTime baseDate = zdt(2012, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC);
 
   double[] times2 = {
       s_act365.getDayCountFraction(baseDate, baseDate.plusMonths(1)),
@@ -167,25 +168,25 @@ public class PresentValueScratchpad {
   };
 
   double[] times = {
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 12, 16, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 1, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 2, 17, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 5, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 8, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2014, 11, 16, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2016, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2017, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2019, 11, 17, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2020, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2021, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2022, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2024, 11, 17, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2027, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2032, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2037, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2042, 11, 16, 0, 0, 0, 0, TimeZone.UTC))
+      s_act365.getDayCountFraction(baseDate, zdt(2012, 12, 16, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 1, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 2, 17, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 5, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 8, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2014, 11, 16, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2015, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2016, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2017, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2018, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2019, 11, 17, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2020, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2021, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2022, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2024, 11, 17, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2027, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2032, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2037, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2042, 11, 16, 0, 0, 0, 0, ZoneOffset.UTC))
   };
 
   double[] rates = {
@@ -433,6 +434,9 @@ public class PresentValueScratchpad {
 
   }
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
+  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+    return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
+  }
 
 }

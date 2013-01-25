@@ -7,7 +7,7 @@ package com.opengamma.engine.function;
 
 import java.util.Collection;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 /**
  * A container for the {@link CompiledFunctionDefinition} instances available

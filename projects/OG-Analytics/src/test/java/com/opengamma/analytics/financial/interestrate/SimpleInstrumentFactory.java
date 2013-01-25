@@ -5,9 +5,10 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
-import javax.time.calendar.Period;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -42,7 +43,7 @@ import com.opengamma.util.money.CurrencyAmount;
 public abstract class SimpleInstrumentFactory {
 
   private static final Currency CUR = Currency.USD;
-  private static final Period TENOR = Period.ofMonths(6);
+  private static final Period TENOR = Period.of(6, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -55,7 +56,7 @@ public abstract class SimpleInstrumentFactory {
   /** Replaces rates */
   protected static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
   private static final Currency DUMMY_CUR = Currency.USD;
-  private static final IborIndex DUMMY_INDEX = new IborIndex(DUMMY_CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+  private static final IborIndex DUMMY_INDEX = new IborIndex(DUMMY_CUR, Period.of(1, MONTHS), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
       BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
   private static final IndexON DUMMY_OIS_INDEX = new IndexON("OIS", DUMMY_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), 0, new MondayToFridayCalendar("A"));
 

@@ -9,22 +9,15 @@ import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.jdbc.core.namedparam.AbstractSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;

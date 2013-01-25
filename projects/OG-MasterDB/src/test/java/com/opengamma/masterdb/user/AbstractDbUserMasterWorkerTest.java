@@ -10,13 +10,10 @@ import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.threeten.bp.temporal.ChronoUnit.HOURS;
+import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.time.Instant;
-import javax.time.TimeSource;
-import javax.time.calendar.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +24,10 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -71,9 +72,9 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
   }
 
   protected ObjectId setupTestData(Instant now) {
-    TimeSource origTimeSource = _usrMaster.getTimeSource();
+    Clock origClock = _usrMaster.getClock();
     try {
-      _usrMaster.setTimeSource(TimeSource.fixed(now));
+      _usrMaster.setClock(Clock.fixed(now, ZoneOffset.UTC));
 
       final ExternalIdBundle bundle = ExternalIdBundle.of("B", "B0");
       ManageableOGUser user = new ManageableOGUser("initial");
@@ -89,15 +90,15 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
       for (int i = 0; i < 5; i++) {
         ManageableOGUser ex = new ManageableOGUser("setup_" + i);
         UserDocument doc = new UserDocument(ex);
-        doc.setVersionFromInstant(now.plus(i, TimeUnit.MINUTES));
+        doc.setVersionFromInstant(now.plus(i, MINUTES));
         firstReplacement.add(doc);
       }
-      _usrMaster.setTimeSource(TimeSource.fixed(now.plus(1, TimeUnit.HOURS)));
+      _usrMaster.setClock(Clock.fixed(now.plus(1, HOURS), ZoneOffset.UTC));
       _usrMaster.replaceVersions(baseOid, firstReplacement);
 
       return baseOid;
     } finally {
-      _usrMaster.setTimeSource(origTimeSource);
+      _usrMaster.setClock(origClock);
     }
   }
 
@@ -118,7 +119,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
 //    time_zone varchar(255),
 //    email_address varchar(255),
     Instant now = Instant.now();
-    _usrMaster.setTimeSource(TimeSource.fixed(now));
+    _usrMaster.setClock(Clock.fixed(now, ZoneOffset.UTC));
     _version1Instant = now.minusSeconds(100);
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);
@@ -129,7 +130,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
     user.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")));
     user.setUserId("Test101");
     user.setName("TestUser101");
-    user.setTimeZone(TimeZone.of("Europe/London"));
+    user.setTimeZone(ZoneId.of("Europe/London"));
     template.update("INSERT INTO usr_oguser VALUES (?,?,?,?,?, ?,?,?,?,?, ?)",
         101, 101, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
         "Test101", "PW", "TestUser101", "Europe/London", "email101@email.com");
@@ -137,7 +138,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
     user.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "H")));
     user.setUserId("Test102");
     user.setName("TestUser102");
-    user.setTimeZone(TimeZone.of("Europe/Paris"));
+    user.setTimeZone(ZoneId.of("Europe/Paris"));
     template.update("INSERT INTO usr_oguser VALUES (?,?,?,?,?, ?,?,?,?,?, ?)",
         102, 102, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
         "Test102", "PW", "TestUser102", "Europe/Paris", "email102@email.com");
@@ -145,7 +146,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
     user.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")));
     user.setUserId("Test201");
     user.setName("TestUser201");
-    user.setTimeZone(TimeZone.of("Asia/Tokyo"));
+    user.setTimeZone(ZoneId.of("Asia/Tokyo"));
     template.update("INSERT INTO usr_oguser VALUES (?,?,?,?,?, ?,?,?,?,?, ?)",
         201, 201, toSqlTimestamp(_version1Instant), toSqlTimestamp(_version2Instant), toSqlTimestamp(_version1Instant), MAX_SQL_TIMESTAMP,
         "Test201", "PW", "TestUser201", "Asia/Tokyo", "email201@email.com");
@@ -153,7 +154,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
     user.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")));
     user.setUserId("Test202");
     user.setName("TestUser202");
-    user.setTimeZone(TimeZone.of("Asia/Tokyo"));
+    user.setTimeZone(ZoneId.of("Asia/Tokyo"));
     template.update("INSERT INTO usr_oguser VALUES (?,?,?,?,?, ?,?,?,?,?, ?)",
         202, 201, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP, toSqlTimestamp(_version2Instant), MAX_SQL_TIMESTAMP,
         "Test202", "PW", "TestUser202", "Asia/Tokyo", "email202@email.com");
@@ -228,7 +229,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
     assertEquals(uniqueId, user.getUniqueId());
     assertEquals("Test101", test.getUser().getUserId());
     assertEquals("TestUser101", test.getName());
-    assertEquals(TimeZone.of("Europe/London"), user.getTimeZone());
+    assertEquals(ZoneId.of("Europe/London"), user.getTimeZone());
     assertEquals("email101@email.com", user.getEmailAddress());
     assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")), user.getExternalIdBundle());
   }
@@ -246,7 +247,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
     assertEquals(uniqueId, user.getUniqueId());
     assertEquals("Test102", test.getUser().getUserId());
     assertEquals("TestUser102", test.getName());
-    assertEquals(TimeZone.of("Europe/Paris"), user.getTimeZone());
+    assertEquals(ZoneId.of("Europe/Paris"), user.getTimeZone());
     assertEquals("email102@email.com", user.getEmailAddress());
     assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "H")), user.getExternalIdBundle());
   }
@@ -264,7 +265,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
     assertEquals(uniqueId, user.getUniqueId());
     assertEquals("Test201", test.getUser().getUserId());
     assertEquals("TestUser201", test.getName());
-    assertEquals(TimeZone.of("Asia/Tokyo"), user.getTimeZone());
+    assertEquals(ZoneId.of("Asia/Tokyo"), user.getTimeZone());
     assertEquals("email201@email.com", user.getEmailAddress());
     assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), user.getExternalIdBundle());
   }
@@ -282,7 +283,7 @@ public abstract class AbstractDbUserMasterWorkerTest extends DbTest {
     assertEquals(uniqueId, user.getUniqueId());
     assertEquals("Test202", test.getUser().getUserId());
     assertEquals("TestUser202", test.getName());
-    assertEquals(TimeZone.of("Asia/Tokyo"), user.getTimeZone());
+    assertEquals(ZoneId.of("Asia/Tokyo"), user.getTimeZone());
     assertEquals("email202@email.com", user.getEmailAddress());
     assertEquals(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F")), user.getExternalIdBundle());
   }

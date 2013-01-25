@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.timeseries.returns;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.util.timeseries.TimeSeriesException;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;

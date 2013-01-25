@@ -5,7 +5,7 @@
  */
 package com.opengamma.masterdb.batch;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Maps;
 import com.opengamma.batch.BatchRunWriter;

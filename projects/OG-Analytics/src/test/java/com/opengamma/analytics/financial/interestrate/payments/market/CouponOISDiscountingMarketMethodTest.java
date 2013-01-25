@@ -6,11 +6,11 @@
 package com.opengamma.analytics.financial.interestrate.payments.market;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
@@ -43,7 +43,7 @@ public class CouponOISDiscountingMarketMethodTest {
   private static final IndexON EONIA = MarketDiscountDataSets.getIndexesON()[0];
   private static final Currency EUR = EONIA.getCurrency();
   private static final ZonedDateTime EFFECTIVE_DATE = DateUtils.getUTCDate(2011, 5, 23);
-  private static final Period TENOR = Period.ofMonths(3);
+  private static final Period TENOR = Period.of(3, MONTHS);
   private static final double NOTIONAL = 100000000; // 100m
   private static final CouponOISDefinition CPN_OIS_DEFINITION = CouponOISDefinition.from(EONIA, EFFECTIVE_DATE, TENOR, NOTIONAL, 2, GENERATOR_SWAP_EONIA.getBusinessDayConvention(),
       GENERATOR_SWAP_EONIA.isEndOfMonth());

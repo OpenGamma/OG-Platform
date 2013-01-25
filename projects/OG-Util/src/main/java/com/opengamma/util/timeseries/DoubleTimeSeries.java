@@ -8,7 +8,8 @@ package com.opengamma.util.timeseries;
 import java.util.Date;
 import java.util.TimeZone;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.timeseries.date.DateDoubleTimeSeries;
 import com.opengamma.util.timeseries.date.MutableDateDoubleTimeSeries;
@@ -1378,7 +1379,7 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @param zone  the time-zone to use
    * @return the time-series, not null
    */
-  ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries(javax.time.calendar.TimeZone zone);
+  ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries(ZoneId zone);
 
   //-------------------------------------------------------------------------
   /**
@@ -1394,7 +1395,7 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @param zone  the time-zone to use
    * @return the time-series, not null
    */
-  MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries(javax.time.calendar.TimeZone zone);
+  MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries(ZoneId zone);
 
   //-------------------------------------------------------------------------
   /**
@@ -1410,7 +1411,7 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @param zone  the time-zone to use
    * @return the time-series, not null
    */
-  LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(javax.time.calendar.TimeZone zone);
+  LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(ZoneId zone);
 
   //-------------------------------------------------------------------------
   /**
@@ -1426,7 +1427,7 @@ public interface DoubleTimeSeries<T> extends TimeSeries<T, Double> {
    * @param zone  the time-zone to use
    * @return the time-series, not null
    */
-  MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(javax.time.calendar.TimeZone zone);
+  MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(ZoneId zone);
 
   //-------------------------------------------------------------------------
   /**

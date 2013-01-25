@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.generator;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.id.ExternalSchemes;
@@ -52,12 +52,12 @@ public class CashSecurityGenerator extends SecurityGenerator<CashSecurity> {
       return null;
     }
     final DayCount dayCount = convention.getDayCount();
-    final ExternalId cashRate = getCashRate(currency, start.toLocalDate(), Tenor.ofMonths(length));
+    final ExternalId cashRate = getCashRate(currency, start.getDate(), Tenor.ofMonths(length));
     if (cashRate == null) {
       return null;
     }
-    final HistoricalTimeSeries timeSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, cashRate.toBundle(), null, start.toLocalDate(), true,
-        start.toLocalDate(), true);
+    final HistoricalTimeSeries timeSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, cashRate.toBundle(), null, start.getDate(), true,
+        start.getDate(), true);
     if ((timeSeries == null) || timeSeries.getTimeSeries().isEmpty()) {
       return null;
     }

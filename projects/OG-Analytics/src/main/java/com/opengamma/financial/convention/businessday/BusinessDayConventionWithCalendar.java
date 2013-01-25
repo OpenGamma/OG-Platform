@@ -5,15 +5,16 @@
  */
 package com.opengamma.financial.convention.businessday;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.temporal.Temporal;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
- * Allows a {@code BusinessDayConvention} to fulfill the {@code DateAdjuster} interface.
+ * Allows a {@code BusinessDayConvention} to fulfill the {@code TemporalAdjuster} interface.
  */
-/* package */class BusinessDayConventionWithCalendar implements DateAdjuster {
+/* package */class BusinessDayConventionWithCalendar implements TemporalAdjuster {
 
   /**
    * The convention.
@@ -37,8 +38,9 @@ import com.opengamma.financial.convention.calendar.Calendar;
 
   //-------------------------------------------------------------------------
   @Override
-  public LocalDate adjustDate(LocalDate date) {
-    return _businessDayConvention.adjustDate(_workingDayCalendar, date);
+  public Temporal adjustInto(Temporal temporal) {
+    TemporalAdjuster result = _businessDayConvention.adjustDate(_workingDayCalendar, LocalDate.from(temporal));
+    return temporal.with(result);
   }
 
 }

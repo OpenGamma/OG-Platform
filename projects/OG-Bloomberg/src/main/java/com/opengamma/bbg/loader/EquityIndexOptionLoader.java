@@ -24,11 +24,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -149,7 +148,7 @@ public class EquityIndexOptionLoader extends SecurityLoader {
       throw new OpenGammaRuntimeException(expiryDate + " returned from bloomberg not in format yyyy-mm-dd", e);
     }
     int year = expiryLocalDate.getYear();
-    int month = expiryLocalDate.getMonthOfYear().getValue();
+    int month = expiryLocalDate.getMonthValue();
     int day = expiryLocalDate.getDayOfMonth();
     Expiry expiry = new Expiry(DateUtils.getUTCDate(year, month, day));
     // TODO kirk 2009-11-03 -- Do something better with the underlying ticker, since we have it.

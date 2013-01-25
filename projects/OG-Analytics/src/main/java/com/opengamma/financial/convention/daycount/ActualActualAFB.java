@@ -5,8 +5,10 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 import com.opengamma.analytics.financial.schedule.ScheduleFactory;
 
@@ -21,15 +23,15 @@ public class ActualActualAFB extends ActualTypeDayCount {
   @Override
   public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate) {
     testDates(firstDate, secondDate);
-    final long daysBetween = secondDate.toModifiedJulianDays() - firstDate.toModifiedJulianDays();
+    final long daysBetween = firstDate.periodUntil(secondDate, DAYS);
     final LocalDate oneYear = firstDate.plusYears(1);
     if (secondDate.isBefore(oneYear) || oneYear.equals(secondDate)) {
-      final double daysInYear = secondDate.isLeapYear() && secondDate.getMonthOfYear().getValue() > 2 ? 366 : 365;
+      final double daysInYear = secondDate.isLeapYear() && secondDate.getMonthValue() > 2 ? 366 : 365;
       return daysBetween / daysInYear;
     }
     final LocalDate[] schedule = ScheduleFactory.getSchedule(firstDate, secondDate, 1, true, true, false);
     LocalDate d = schedule[0];
-    if (d.isLeapYear() && d.getMonthOfYear() == MonthOfYear.FEBRUARY && d.getDayOfMonth() == 28) {
+    if (d.isLeapYear() && d.getMonth() == Month.FEBRUARY && d.getDayOfMonth() == 28) {
       d = d.plusDays(1);
     }
     return schedule.length + getDayCountFraction(firstDate, d);

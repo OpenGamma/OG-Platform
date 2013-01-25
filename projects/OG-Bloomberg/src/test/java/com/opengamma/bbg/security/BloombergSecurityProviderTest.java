@@ -35,15 +35,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import javax.time.Instant;
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
-
 import org.joda.beans.Bean;
 import org.joda.beans.test.BeanAssert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.bbg.BloombergConnector;
@@ -319,7 +318,7 @@ public class BloombergSecurityProviderTest {
   }
 
   private Instant getTodayInstant() {
-    Instant toDay = Clock.system(TimeZone.UTC).instant();
+    Instant toDay = Clock.systemUTC().instant();
     return toDay;
   }
 

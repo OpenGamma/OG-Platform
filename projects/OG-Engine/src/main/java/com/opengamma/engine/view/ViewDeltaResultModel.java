@@ -5,11 +5,9 @@
  */
 package com.opengamma.engine.view;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.util.PublicAPI;
-
-
 
 /**
  * Contains just the individual pieces of data that are modified during

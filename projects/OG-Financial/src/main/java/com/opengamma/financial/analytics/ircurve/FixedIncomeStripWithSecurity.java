@@ -5,12 +5,11 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalId;

@@ -12,8 +12,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 /**
  * Gatherer that maintains ever increasing totals of the reported metrics.
@@ -66,10 +65,9 @@ public class TotallingNodeStatisticsGatherer implements CalculationNodeStatistic
   /**
    * Cleanup the statistics deleting all information before a fixed instant.
    * 
-   * @param instantProvider  the instant to delete before, not null
+   * @param dropBefore  the instant to delete before, not null
    */
-  public void dropStatisticsBefore(final InstantProvider instantProvider) {
-    final Instant dropBefore = Instant.of(instantProvider);
+  public void dropStatisticsBefore(final Instant dropBefore) {
     final Iterator<CalculationNodeStatistics> it = _nodeStatistics.values().iterator();
     while (it.hasNext()) {
       final CalculationNodeStatistics nodeStatistics = it.next();

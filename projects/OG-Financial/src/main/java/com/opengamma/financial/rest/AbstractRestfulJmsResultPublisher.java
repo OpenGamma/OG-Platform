@@ -8,7 +8,6 @@ package com.opengamma.financial.rest;
 import java.util.concurrent.ExecutorService;
 
 import javax.jms.JMSException;
-import javax.time.Instant;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -17,6 +16,7 @@ import javax.ws.rs.core.Response;
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.rest.AbstractDataResource;

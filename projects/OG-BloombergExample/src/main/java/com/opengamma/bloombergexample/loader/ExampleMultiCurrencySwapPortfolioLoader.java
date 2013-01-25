@@ -15,13 +15,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
@@ -200,8 +198,8 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
       throw new OpenGammaRuntimeException("No bloomberg ticker set up for " + swapConvention.getName());
     }
 
-    final ZonedDateTime tradeDateTime = ZonedDateTime.of(tradeDate, LocalTime.MIDNIGHT, TimeZone.UTC);
-    final ZonedDateTime maturityDateTime = ZonedDateTime.of(tradeDate.plus(maturity.getPeriod()), LocalTime.MIDNIGHT, TimeZone.UTC);
+    final ZonedDateTime tradeDateTime = tradeDate.atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime maturityDateTime = tradeDate.plus(maturity.getPeriod()).atStartOfDay(ZoneOffset.UTC);
     final String counterparty = "CParty";
 
     final SwapLeg fixedLeg = new FixedInterestRateLeg(swapConvention.getSwapFixedLegDayCount(),

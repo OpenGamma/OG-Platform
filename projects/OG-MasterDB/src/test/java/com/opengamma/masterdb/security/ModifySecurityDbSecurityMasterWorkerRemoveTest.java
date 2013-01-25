@@ -8,12 +8,11 @@ package com.opengamma.masterdb.security;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalId;
@@ -46,7 +45,7 @@ public class ModifySecurityDbSecurityMasterWorkerRemoveTest extends AbstractDbSe
 
   @Test
   public void test_remove_removed() {
-    Instant now = Instant.now(_secMaster.getTimeSource());
+    Instant now = Instant.now(_secMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbSec", "101", "0");
     _secMaster.remove(uniqueId);

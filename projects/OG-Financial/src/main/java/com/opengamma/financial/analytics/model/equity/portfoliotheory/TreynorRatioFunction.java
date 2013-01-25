@@ -8,9 +8,8 @@ package com.opengamma.financial.analytics.model.equity.portfoliotheory;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;

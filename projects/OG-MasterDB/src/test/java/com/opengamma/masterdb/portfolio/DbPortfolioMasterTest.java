@@ -64,7 +64,7 @@ public class DbPortfolioMasterTest extends DbTest {
     assertNotNull(_prtMaster);
     assertEquals(true, _prtMaster.getUniqueIdScheme().equals("DbPrt"));
     assertNotNull(_prtMaster.getDbConnector());
-    assertNotNull(_prtMaster.getTimeSource());
+    assertNotNull(_prtMaster.getClock());
   }
   
   @Test(description = "[PLAT-1723]") 
