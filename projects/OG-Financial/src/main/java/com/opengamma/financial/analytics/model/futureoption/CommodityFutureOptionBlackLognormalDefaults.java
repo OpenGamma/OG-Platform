@@ -96,7 +96,7 @@ public class CommodityFutureOptionBlackLognormalDefaults extends DefaultProperty
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
       defaults.addValuePropertyName(valueRequirement, BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR);
       defaults.addValuePropertyName(valueRequirement, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
-      defaults.addValuePropertyName(valueRequirement, EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME);
+      defaults.addValuePropertyName(valueRequirement, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME);
     }
   }
 
@@ -123,7 +123,7 @@ public class CommodityFutureOptionBlackLognormalDefaults extends DefaultProperty
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_currencyToSurfaceName.get(currency));
     }
-    if (EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME.equals(propertyName)) {
+    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME.equals(propertyName)) {
       return Collections.singleton(_currencyToForwardCurveName.get(currency));
     }
     if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {

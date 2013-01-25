@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.analytics.formatting.DataType;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
 
 /**
@@ -20,8 +21,12 @@ import com.opengamma.web.analytics.formatting.ResultsFormatter;
  */
 public class GridColumnsJsonWriter {
 
+  /** For looking up the {@link DataType} for a column. */
   private final ResultsFormatter _formatter;
 
+  /**
+   * @param formatter For looking up the {@link DataType} for a column
+   */
   public GridColumnsJsonWriter(ResultsFormatter formatter) {
     ArgumentChecker.notNull(formatter, "converters");
     _formatter = formatter;

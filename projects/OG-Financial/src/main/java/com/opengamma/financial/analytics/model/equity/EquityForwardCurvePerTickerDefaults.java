@@ -30,6 +30,11 @@ import com.opengamma.util.tuple.Triple;
 public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCurvePerTickerDefaults.class);
+  /** The value requirements for which these defaults apply */
+  private static final String[] VALUE_REQUIREMENTS = new String[] {
+    ValueRequirementNames.FORWARD_CURVE,
+    ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA
+  };
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
   /** Map from ticker to curve configuration, curve name and currency */
@@ -64,9 +69,11 @@ public class EquityForwardCurvePerTickerDefaults extends DefaultPropertyFunction
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ValuePropertyNames.CURVE);
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ValuePropertyNames.CURVE_CURRENCY);
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    for (final String valueRequirement : VALUE_REQUIREMENTS) {
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CURRENCY);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    }
   }
 
   @Override

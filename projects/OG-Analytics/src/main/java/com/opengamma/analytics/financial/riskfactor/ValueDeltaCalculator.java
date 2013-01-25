@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.riskfactor;
 
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityOption;
@@ -56,6 +59,21 @@ public final class ValueDeltaCalculator implements ValueGreekCalculator {
     @Override
     public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle market) {
       return option.getUnitAmount() * market.getForwardCurve().getSpot();
+    }
+
+    @Override
+    public Double visitAgricultureFutureOption(final AgricultureFutureOption option, final StaticReplicationDataBundle market) {
+      return option.getUnderlying().getUnitAmount() * market.getForwardCurve().getSpot();
+    }
+
+    @Override
+    public Double visitEnergyFutureOption(final EnergyFutureOption option, final StaticReplicationDataBundle market) {
+      return option.getUnderlying().getUnitAmount() * market.getForwardCurve().getSpot();
+    }
+
+    @Override
+    public Double visitMetalFutureOption(final MetalFutureOption option, final StaticReplicationDataBundle market) {
+      return option.getUnderlying().getUnitAmount() * market.getForwardCurve().getSpot();
     }
   }
 

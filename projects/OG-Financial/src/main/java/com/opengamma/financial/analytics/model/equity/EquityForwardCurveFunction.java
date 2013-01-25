@@ -9,9 +9,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurveYieldImplied;
@@ -40,7 +37,6 @@ import com.opengamma.util.money.Currency;
  * Simple implementation does not include any Dividend treatment
  */
 public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCurveFunction.class);
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
@@ -56,11 +52,11 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
   // REVIEW Andrew 2012-01-17 -- Can we make the target type of this SECURITY, or even EQUITY_SECURITY ?
 
   @Override
-  /* Expected Target is a BLOOMBERG_TICKER, e.g. DJX Index */
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final String targetScheme = target.getUniqueId().getScheme();
-    return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
-        targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
+    return targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
+        targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) ||
+        targetScheme.equalsIgnoreCase(ExternalSchemes.ACTIVFEED_TICKER.getName());
   }
 
   /* Spot value of the equity index or name */
@@ -113,7 +109,7 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 
     // desiredValues is defined by getResults. In our case, a singleton
-    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
 
     // Spot
     final Double spot = (Double) inputs.getValue(getSpotRequirement(target));
@@ -152,6 +148,6 @@ public class EquityForwardCurveFunction extends AbstractFunction.NonCompiledInvo
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE; // Bloomberg ticker or weak ticker
+    return ComputationTargetType.PRIMITIVE; // ticker or weak ticker
   }
 }

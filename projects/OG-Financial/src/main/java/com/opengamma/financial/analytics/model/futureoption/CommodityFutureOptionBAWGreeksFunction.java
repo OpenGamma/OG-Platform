@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.futureoption;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.commodity.calculator.ComFutOptBaroneAdesiGreekCalculator;
+import com.opengamma.analytics.financial.commodity.calculator.ComFutOptBAWGreekCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
@@ -54,7 +54,7 @@ public class CommodityFutureOptionBAWGreeksFunction extends CommodityFutureOptio
   @Override
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
-    final GreekResultCollection greeks = derivative.accept(ComFutOptBaroneAdesiGreekCalculator.getInstance(), market);
+    final GreekResultCollection greeks = derivative.accept(ComFutOptBAWGreekCalculator.getInstance(), market);
     final Set<ComputedValue> result = new HashSet<>();
     for (int i = 0; i < GREEKS.length; i++) {
       final ValueSpecification spec = new ValueSpecification(GREEK_NAMES[i], targetSpec, resultProperties);

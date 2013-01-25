@@ -30,9 +30,14 @@ import com.opengamma.util.tuple.Pair;
 /**
  *
  */
-public class EquityForwardCurvePerCurrencyDefaults extends DefaultPropertyFunction {
+public class EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults extends DefaultPropertyFunction {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCurvePerCurrencyDefaults.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults.class);
+  /** The value requirements for which these defaults apply */
+  private static final String[] VALUE_REQUIREMENTS = new String[] {
+    ValueRequirementNames.FORWARD_CURVE,
+    ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA
+  };
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
   /** Map from currency to curve configuration, curve name and currency */
@@ -42,8 +47,8 @@ public class EquityForwardCurvePerCurrencyDefaults extends DefaultPropertyFuncti
    * @param priority The priority, not null
    * @param perCurrencyConfig The default values per currency, not null
    */
-  public EquityForwardCurvePerCurrencyDefaults(final String priority, final String... perCurrencyConfig) {
-    super(ComputationTargetType.LEGACY_PRIMITIVE, true); // // [PLAT-2286]: change to correct type; should this be SECURITY?
+  public EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults(final String priority, final String... perCurrencyConfig) {
+    super(ComputationTargetType.PRIMITIVE, true); // // [PLAT-2286]: change to correct type; should this be SECURITY?
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perCurrencyConfig, "per currency config");
     final int nPairs = perCurrencyConfig.length;
@@ -71,14 +76,20 @@ public class EquityForwardCurvePerCurrencyDefaults extends DefaultPropertyFuncti
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ValuePropertyNames.CURVE);
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ValuePropertyNames.CURVE_CURRENCY);
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    for (final String valueRequirement : VALUE_REQUIREMENTS) {
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CURRENCY);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    }
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
+    //TODO put back in when calculation method property is added to EquityOptionVolatilitySurfaceDataFunction
+//    if (!ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD.equals(desiredValue.getConstraint(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD))) {
+//      return null;
+//    }
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final String currency = EquitySecurityUtils.getCurrency(securitySource, target.getUniqueId());
     if (currency == null) {

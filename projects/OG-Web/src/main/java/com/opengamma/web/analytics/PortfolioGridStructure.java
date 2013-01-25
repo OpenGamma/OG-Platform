@@ -32,10 +32,12 @@ import com.opengamma.web.analytics.blotter.BlotterColumn;
 import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
 /**
- *
+ * The structure of the grid that displays portfolio data and analytics. Contains the column definitions and
+ * the portfolio tree structure.
  */
-public class PortfolioGridStructure extends MainGridStructure {
+public final class PortfolioGridStructure extends MainGridStructure {
 
+  /** The root node of the portfolio structure. */
   private final AnalyticsNode _root;
 
   private PortfolioGridStructure(GridColumnGroups columnGroups,
@@ -85,6 +87,9 @@ public class PortfolioGridStructure extends MainGridStructure {
     return new PortfolioGridStructure();
   }
 
+  /**
+   * @return The root node of the portfolio structure.
+   */
   public AnalyticsNode getRoot() {
     return _root;
   }
@@ -178,8 +183,12 @@ public class PortfolioGridStructure extends MainGridStructure {
     return PortfolioMapper.map(portfolio.getRootNode(), targetFn);
   }
 
-  /* package */ static class PortfolioGridRow extends Row {
+  /**
+   * A row in the grid.
+   */
+  /* package */ static final class PortfolioGridRow extends Row {
 
+    /** The row's security, null if the row represents a node in the portfolio structure. */
     private final ManageableSecurity _security;
 
     private PortfolioGridRow(ComputationTargetSpecification target, String name) {
