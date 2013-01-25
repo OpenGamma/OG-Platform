@@ -36,7 +36,13 @@ $.register_module({
                 }
             };
 
-            form.Block.call(block, { selector: '.og-temporal', module: 'og.analytics.form_temporal_tash' });
+            form.Block.call(block, {
+                selector: '.og-temporal',
+                module: 'og.analytics.form_temporal_tash',
+                processor: function (data) {
+                    data.temporal = [];
+                }
+            });
 
             form.on('form:load', function (event) {
                 var menu = new og.common.util.ui.DropMenu({cntr: $('.og-temporal')});

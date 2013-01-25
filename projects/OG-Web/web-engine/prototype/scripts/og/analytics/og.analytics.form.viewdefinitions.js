@@ -11,17 +11,24 @@ $.register_module({
             ViewDefinitions = function (config, callback) {
                 block = new config.form.Block({
                     selector: '.og-view.og-autocombo',
-                    content: tmpl_header
+                    content: tmpl_header,
+                    processor: function (data) {
+                        var vd = viewdefs_store.filter(function (entry) {
+                            return entry.name === menu.$input.val();
+                        });
+                        data.viewdefinition = vd[0].id;
+                    }
                 });
                 config.form.on("form:load", function () {
                     menu = new og.common.util.ui.AutoCombo({
                         selector: '.og-view.og-autocombo',
                         placeholder: 'Search...',
-                        source: ac_source(og.api.rest.viewdefinitions, function (viewdefs_resp) {
-                            return viewdefs = (viewdefs_store = viewdefs_resp.data).pluck('name');
-                        })
+                        source: ac_source(og.api.rest.viewdefinitions, store_viewdefinitions)
                     });
-                    menu.block = block;
+                    if (config.val) {
+                        menu.$input.val(config.val);
+                        og.api.rest.viewdefinitions.get().pipe(store_viewdefinitions);
+                    }
                 });
                 return {
                     block: block,
@@ -53,6 +60,10 @@ $.register_module({
                     }
                 });
             };
+        };
+
+        var store_viewdefinitions = function (resp) {
+            return viewdefs = (viewdefs_store = resp.data).pluck('name');
         };
 
         return ViewDefinitions;

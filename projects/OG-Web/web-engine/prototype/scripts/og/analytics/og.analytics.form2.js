@@ -8,10 +8,6 @@ $.register_module({
     obj: function () {
         var module = this, constructor, menus = [],  query,
             tashes = { form_container:  'og.analytics.form_tash' },
-            events = {
-                open: 'dropmenu:open',
-                close: 'dropmenu:close'
-            },
             selectors = {
                 form_container: 'OG-analytics-form',
                 load_btn: 'og-load',
@@ -37,37 +33,19 @@ $.register_module({
                 selector: '.' + selectors.form_container
             });
 
-        var keydown_handler = function (event) {
-            if (event.keyCode !== 9) return;
-            var $elem = $(event.srcElement || event.target), shift = event.shiftKey, menus = dom.menus,
-                controls = dom.form_controls, menu_toggle = '.'+selectors.menu_toggle,
-                toggle = function (entry) {
-                    menus[entry].find(menu_toggle).trigger('click', event);
-                    controls[entry].eq(shift ? -1 : 0).focus(0);
-                };
-            if (!shift) {
-                if ($elem.closest(dom.menus['views']).length) return toggle('datasources');
-                if ($elem.is(controls['datasources'].eq(-1))) return toggle('datasources'), toggle('temporal');
-                if ($elem.is(controls['temporal'].eq(-1))) return toggle('temporal'), toggle('aggregators');
-                if ($elem.is(controls['aggregators'].eq(-1))) return toggle('aggregators'), toggle('filters');
-                if ($elem.is(controls['filters'].eq(-1))) return toggle('filters');
-            } else if (shift) {
-                if ($elem.is('.'+selectors.load_btn)) return toggle('filters');
-                if ($elem.is(controls['filters'].eq(0))) return toggle('filters'), toggle('aggregators');
-                if ($elem.is(controls['aggregators'].eq(0))) return toggle('aggregators'), toggle('temporal');
-                if ($elem.is(controls['temporal'].eq(0))) return toggle('temporal'), toggle('datasources');
-                if ($elem.is(controls['datasources'].eq(0))) return toggle('datasources');
-            }
-        };
-
-        var load_form = function (event) {
-            var compilation = form.compile();
-            query = {
-                aggregators: compilation.data.aggregators,
-                providers: compilation.data.providers,
-                viewdefinition: 'DbCfg~2197901'
-            };
-            $(event.srcElement || event.target).focus(0);
+        var init = function (config) {
+            form.on('form:load', load_handler);
+            form.on('keydown', selectors.form_controls, keydown_handler);
+            form.on('click', '.'+selectors.load_btn, load_form);
+            form.children.push(
+                (new og.analytics.form.Portfolios({form:form, val:'Alan'})).block,
+                (new og.analytics.form.ViewDefinitions({form:form, val:'ARS Test'})).block,
+                new og.analytics.form.DatasourcesMenu({form:form}),
+                new og.analytics.form.TemporalMenu({form:form}),
+                new og.analytics.form.AggregatorsMenu({form:form}),
+                new og.analytics.form.FiltersMenu({form:form, index:'filters' })
+            );
+            form.dom();
         };
 
         var load_handler = function (event) {
@@ -80,21 +58,42 @@ $.register_module({
             });
         };
 
-        var init = function (config) {
-            form.on('form:load', load_handler);
-            form.on('keydown', selectors.form_controls, keydown_handler);
-            form.on('click', '.'+selectors.load_btn, load_form);
+        var load_form = function (event) {
+            var compilation = form.compile();
+            query = {
+                aggregators: compilation.data.aggregators,
+                providers: compilation.data.providers,
+                viewdefinition: compilation.data.viewdefinition,
+                portfolio: compilation.data.portfolio,
+                temporal: compilation.data.temporal
+             };
+             console.log(query);
+            $(event.srcElement || event.target).focus(0);
+        };
 
-            form.children.push(
-                (portfolios = new og.analytics.form.Portfolios({form:form})).block,
-                (viewdefinitions = new og.analytics.form.ViewDefinitions({form:form})).block,
-                (datasources = new og.analytics.form.DatasourcesMenu({form:form})),
-                (temporal = new og.analytics.form.TemporalMenu({form:form})),
-                (aggregators = new og.analytics.form.AggregatorsMenu({form:form})),
-                (filters = new og.analytics.form.FiltersMenu({form:form, index:'filters' }))
-            );
-            menus.push(portfolios, viewdefinitions, datasources, temporal, aggregators, filters);
-            form.dom();
+        var keydown_handler = function (event) {
+            if (event.keyCode !== 9) return;
+            var $elem = $(event.srcElement || event.target), shift = event.shiftKey, menus = dom.menus,
+                controls = dom.form_controls, menu = '.'+selectors.menu,
+                load_btn = '.'+selectors.load_btn;
+            if (!shift) {
+                if ($elem.closest(dom.menus['views']).length) return toggle('datasources');
+                if ($elem.is(controls['datasources'].eq(-1))) return toggle('datasources'), toggle('temporal');
+                if ($elem.is(controls['temporal'].eq(-1))) return toggle('temporal'), toggle('aggregators');
+                if ($elem.is(controls['aggregators'].eq(-1))) return toggle('aggregators'), toggle('filters');
+                if ($elem.is(controls['filters'].eq(-1))) return toggle('filters');
+            } else if (shift) {
+                if ($elem.is(load_btn)) return toggle('filters');
+                if ($elem.is(controls['filters'].eq(0))) return toggle('filters'), toggle('aggregators');
+                if ($elem.is(controls['aggregators'].eq(0))) return toggle('aggregators'), toggle('temporal');
+                if ($elem.is(controls['temporal'].eq(0))) return toggle('temporal'), toggle('datasources');
+                if ($elem.is(controls['datasources'].eq(0))) return toggle('datasources');
+            }
+        };
+
+        var toggle_menu = function (entry) {
+            menus[entry].find(menu).toggleClass('og-active').toggle();
+            controls[entry].eq(shift ? -1 : 0).focus(0);
         };
 
         constructor = function (config) {

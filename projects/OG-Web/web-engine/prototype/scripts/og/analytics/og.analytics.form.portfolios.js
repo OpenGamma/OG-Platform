@@ -9,18 +9,24 @@ $.register_module({
         var module = this, menu, block, portfolios, portfolio_store,
             Portfolios = function (config, callback) {
                 block = new config.form.Block({
-                    selector: '.og-portfolios.og-autocombo'
+                    selector: '.og-portfolios.og-autocombo',
+                    processor: function (data) {
+                        var port = portfolio_store.filter(function (entry) {
+                            return entry.split('|')[2] === menu.$input.val();
+                        });
+                        data.portfolio = port[0].split('|')[0];
+                    }
                 });
                 config.form.on("form:load", function () {
                     menu = new og.common.util.ui.AutoCombo({
                         selector:'.og-portfolios.og-autocombo',
                         placeholder: 'Search Portfolios...',
-                        source: ac_source(og.api.rest.portfolios, function (portfolio_resp) {
-                            return portfolios = (portfolio_store = portfolio_resp.data.data).map(function (entry) {
-                                return entry.split('|')[2];
-                            });
-                        })
+                        source: ac_source(og.api.rest.portfolios, store_porfolios)
                     });
+                    if (config.val) {
+                        menu.$input.val(config.val);
+                        og.api.rest.portfolios.get().pipe(store_porfolios);
+                    }
                 });
                 return {
                     block: block,
@@ -52,6 +58,12 @@ $.register_module({
                     }
                 });
             };
+        };
+
+        var store_porfolios = function (resp) {
+            return portfolios = (portfolio_store = resp.data.data).map(function (entry) {
+                return entry.split('|')[2];
+            });
         };
 
         return Portfolios;
