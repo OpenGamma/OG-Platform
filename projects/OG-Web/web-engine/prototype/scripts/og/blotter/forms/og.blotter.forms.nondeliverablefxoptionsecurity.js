@@ -19,7 +19,7 @@ $.register_module({
                     data: data
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.long_short_tash'
                     }), 
@@ -63,11 +63,15 @@ $.register_module({
                         data.security.deliveryInCallCurrency);
                 });  
                 form.on('form:submit', function (result){
-                    og.api.rest.blotter.trades.put(result.data).pipe(console.log);
+                    og.api.rest.blotter.trades.put(result.data);
                 });
             }; 
             constructor.load();
             constructor.submit = function () {
+                form.submit();
+            };
+            constructor.submit_new = function () {
+                delete data.id;
                 form.submit();
             };
             constructor.kill = function () {

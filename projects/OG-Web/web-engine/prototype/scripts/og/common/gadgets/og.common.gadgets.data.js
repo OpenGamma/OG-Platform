@@ -82,6 +82,20 @@ $.register_module({
                         .reduce(function (acc, val, idx) {return acc.concat({v: idx + 1}, val.map(cell_value));}, []),
                 };
             },
+            SURFACE_DATA: function (dataman, data) {
+                var rows, cols, data, index = 0, row_len, col_len, i, j, result = [], row, cell;
+                col_len = (cols = data.xLabels).length;
+                row_len = (rows = data.yLabels).length;
+                for (i = 0; i < row_len; i += 1) {
+                    cell = rows[i];
+                    result.push({v: typeof cell === 'number' ? '' + cell : cell});
+                    for (j = 0; j < col_len; j += 1) {
+                        cell = data.vol[index++];
+                        result.push({v: typeof cell === 'number' ? '' + cell : cell});
+                    }
+                }
+                return {meta: meta(dataman, row_len, cols, 150), data: result};
+            },
             TIME_SERIES: function (dataman, data) {
                 return {
                     meta: meta(dataman, data.timeseries.data.length, data.timeseries.fieldLabels, 125, true),

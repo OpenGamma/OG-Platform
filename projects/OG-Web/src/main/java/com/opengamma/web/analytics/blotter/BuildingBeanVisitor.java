@@ -32,13 +32,13 @@ import com.opengamma.util.ArgumentChecker;
   private final BeanDataSink<T> _sink;
   private final StringConvert _stringConvert;
 
-  /* package */ BuildingBeanVisitor(Bean bean, BeanDataSink<T> sink) {
+  /* package */ BuildingBeanVisitor(Bean bean, BeanDataSink<T> sink, StringConvert stringConvert) {
     ArgumentChecker.notNull(bean, "bean");
     ArgumentChecker.notNull(sink, "sink");
+    ArgumentChecker.notNull(stringConvert, "stringConvert");
     _bean = bean;
     _sink = sink;
-    // TODO constructor arg, don't use the default converter
-    _stringConvert = JodaBeanUtils.stringConverter();
+    _stringConvert = stringConvert;
   }
 
   @Override
@@ -52,6 +52,10 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    if (isConvertible(property.propertyType())) {
+      visitProperty(property);
+      return;
+    }
     _sink.setBeanValue(property.name(), (Bean) property.get(_bean), traverser);
   }
 
@@ -98,12 +102,24 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void visitProperty(MetaProperty<?> property) {
-    // TODO use overloaded version with explicit converter
-    _sink.setValue(property.name(), property.getString(_bean));
+    String value = _stringConvert.convertToString((Class<Object>) property.propertyType(), property.get(_bean));
+    _sink.setValue(property.name(), value);
   }
 
   @Override
   public T finish() {
     return _sink.finish();
   }
+
+  private boolean isConvertible(Class<?> type) {
+    boolean canConvert;
+    try {
+      _stringConvert.findConverter(type);
+      canConvert = true;
+    } catch (Exception e) {
+      canConvert = false;
+    }
+    return canConvert;
+  }
+
 }

@@ -70,17 +70,19 @@ public class ViewsResource {
                              @FormParam("valuationTime") String valuationTime,
                              @FormParam("portfolioVersionTime") String portfolioVersionTime,
                              @FormParam("portfolioCorrectionTime") String portfolioCorrectionTime,
-                             @FormParam("clientId") String clientId) {
+                             @FormParam("clientId") String clientId,
+                             @FormParam("blotter") Boolean blotter) {
     ArgumentChecker.notEmpty(requestId, "requestId");
     ArgumentChecker.notEmpty(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(aggregators, "aggregators");
     ArgumentChecker.notEmpty(marketDataProviders, "marketDataProviders");
     ArgumentChecker.notEmpty(clientId, "clientId");
+    boolean blotterColumns = blotter == null ? false : blotter;
     List<MarketDataSpecification> marketDataSpecs = MarketDataSpecificationJsonReader.buildSpecifications(marketDataProviders);
     VersionCorrection versionCorrection = VersionCorrection.of(parseInstant(portfolioVersionTime),
                                                                parseInstant(portfolioCorrectionTime));
     ViewRequest viewRequest = new ViewRequest(UniqueId.parse(viewDefinitionId), aggregators, marketDataSpecs,
-                                              parseInstant(valuationTime), versionCorrection);
+                                              parseInstant(valuationTime), versionCorrection, blotterColumns);
     String viewId = Long.toString(s_nextViewId.getAndIncrement());
     URI portfolioGridUri = uriInfo.getAbsolutePathBuilder()
         .path(viewId)

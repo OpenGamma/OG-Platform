@@ -12,10 +12,8 @@ $.register_module({
                 if(config) {
                     title = "Edit Trade", submit = "Update";
                     og.api.text({module: 'og.blotter.forms.blocks.form_edit_tash'}).pipe(function (template){
-                       console.log(config);
                        var type = config.data.security ? config.data.security.type.toLowerCase() : "fungibletrade";
                         $selector = $(template);
-                        console.log(type);
                         dialog.create();
                         dialog.populate(type, config.data);
                     });
@@ -38,19 +36,21 @@ $.register_module({
                     if (typeof acc[val] === 'undefined') dialog.clear();
                     else return acc[val];
                     }, window);
-                console.log(inner);
                 if(inner) {
                     form_wrapper = new inner(data);
                     $('.ui-dialog-title').html(form_wrapper.title);
                 }
             };
             dialog.create = function () {
-                og.common.util.ui.dialog({
-                    type: 'input', title: title, width: 530, height: 1200, custom: $selector,
-                    buttons: {
-                        'Create': function () {form_wrapper.submit(); $(this).dialog('close');},
+                var buttons = {
+                        'Save': function () {form_wrapper.submit(); $(this).dialog('close');},
+                        'Save as new' : function () {form_wrapper.submit_new(); $(this).dialog('close');},
                         'Cancel': function () {$(this).dialog('close');}
-                    }
+                    };
+                if(!config) delete buttons['Save as new'];
+                og.common.util.ui.dialog({
+                    type: 'input', title: title, width: 530, height: 800, custom: $selector,
+                    buttons: buttons
                 });  
             };
             dialog.clear = function () {

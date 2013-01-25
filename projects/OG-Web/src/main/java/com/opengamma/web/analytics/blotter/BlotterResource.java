@@ -53,6 +53,7 @@ import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -184,6 +185,8 @@ public class BlotterResource {
     s_stringConvert.register(BarrierType.class, new EnumConverter<BarrierType>());
     s_stringConvert.register(BarrierDirection.class, new EnumConverter<BarrierDirection>());
     s_stringConvert.register(SamplingFrequency.class, new EnumConverter<SamplingFrequency>());
+    s_stringConvert.register(LongShort.class, new EnumConverter<LongShort>());
+    s_stringConvert.register(GICSCode.class, new GICSCodeConverter());
   }
 
   private static class EnumConverter<T extends Enum> implements StringConverter<T> {
@@ -198,6 +201,19 @@ public class BlotterResource {
     @Override
     public String convertToString(T e) {
       return WordUtils.capitalize(e.name().toLowerCase().replace('_', ' '));
+    }
+  }
+
+  private static class GICSCodeConverter implements StringConverter<GICSCode> {
+
+    @Override
+    public GICSCode convertFromString(Class<? extends GICSCode> cls, String code) {
+      return GICSCode.of(code);
+    }
+
+    @Override
+    public String convertToString(GICSCode code) {
+      return code.getCode();
     }
   }
 
@@ -275,6 +291,25 @@ public class BlotterResource {
     return _freemarker.build("blotter/bean-structure.ftl", beanData);
   }
 
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("securities/{securityExternalId}")
+  public String getSecurityJSON(@PathParam("securityExternalId") String securityExternalIdStr) {
+    ExternalId securityExternalId = ExternalId.parse(securityExternalIdStr);
+    SecuritySearchResult searchResult = _securityMaster.search(new SecuritySearchRequest(securityExternalId));
+    if (searchResult.getSecurities().size() == 0) {
+      throw new DataNotFoundException("No security found with ID " + securityExternalId);
+    }
+    ManageableSecurity security = searchResult.getFirstSecurity();
+    BeanVisitor<JSONObject> securityVisitor =
+        new BuildingBeanVisitor<>(security, new JsonDataSink(getStringConvert()), getStringConvert());
+    PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
+    BeanTraverser securityTraverser = new BeanTraverser(securityPropertyFilter);
+    MetaBean securityMetaBean = JodaBeanUtils.metaBean(security.getClass());
+    JSONObject securityJson = (JSONObject) securityTraverser.traverse(securityMetaBean, securityVisitor);
+    return securityJson.toString();
+  }
+
   // TODO move this logic to trade builder? can it populate a BeanDataSink to build the JSON?
   // TODO refactor this, it's ugly. can the security and trade logic be cleanly moved into classes for OTC & fungible?
   @GET
@@ -289,14 +324,15 @@ public class BlotterResource {
     ManageableSecurity security = findSecurity(trade.getSecurityLink());
     JSONObject root = new JSONObject();
     try {
-      JsonDataSink tradeSink = new JsonDataSink();
+      JsonDataSink tradeSink = new JsonDataSink(getStringConvert());
       if (isOtc(security)) {
         OtcTradeBuilder.extractTradeData(trade, tradeSink);
         MetaBean securityMetaBean = s_metaBeansByTypeName.get(security.getClass().getSimpleName());
         if (securityMetaBean == null) {
           throw new DataNotFoundException("No MetaBean is registered for security type " + security.getClass().getName());
         }
-        BeanVisitor<JSONObject> securityVisitor = new BuildingBeanVisitor<>(security, new JsonDataSink());
+        BeanVisitor<JSONObject> securityVisitor =
+            new BuildingBeanVisitor<>(security, new JsonDataSink(getStringConvert()), getStringConvert());
         PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
         BeanTraverser securityTraverser = new BeanTraverser(securityPropertyFilter);
         JSONObject securityJson = (JSONObject) securityTraverser.traverse(securityMetaBean, securityVisitor);
@@ -304,7 +340,8 @@ public class BlotterResource {
           UnderlyingSecurityVisitor visitor = new UnderlyingSecurityVisitor(VersionCorrection.LATEST, _securityMaster);
           ManageableSecurity underlying = ((FinancialSecurity) security).accept(visitor);
           if (underlying != null) {
-            BeanVisitor<JSONObject> underlyingVisitor = new BuildingBeanVisitor<>(underlying, new JsonDataSink());
+            BeanVisitor<JSONObject> underlyingVisitor =
+                new BuildingBeanVisitor<>(underlying, new JsonDataSink(getStringConvert()), getStringConvert());
             MetaBean underlyingMetaBean = s_metaBeansByTypeName.get(underlying.getClass().getSimpleName());
             JSONObject underlyingJson = (JSONObject) securityTraverser.traverse(underlyingMetaBean, underlyingVisitor);
             root.put("underlying", underlyingJson);

@@ -79,7 +79,7 @@ public final class EqyOptBaroneAdesiWhaleyGreekCalculator extends InstrumentDeri
     result.put(Greek.THETA, greeks[5]);
     result.put(Greek.VEGA, greeks[6]);
 
-    final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, volatility, s, isCall);
+    final double[] pdg = MODEL.getPriceDeltaGamma(s, k, r, b, t, volatility, isCall);
     result.put(Greek.GAMMA, pdg[2]);
     return result;
   }

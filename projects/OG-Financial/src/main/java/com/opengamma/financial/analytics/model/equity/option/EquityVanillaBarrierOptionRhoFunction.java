@@ -8,9 +8,11 @@ package com.opengamma.financial.analytics.model.equity.option;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.equity.EquityOptionBlackRhoCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -25,6 +27,9 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class EquityVanillaBarrierOptionRhoFunction extends EquityVanillaBarrierOptionBlackFunction {
 
+  
+  private static final InstrumentDerivativeVisitor<StaticReplicationDataBundle, Double> CALCULATOR = EquityOptionBlackRhoCalculator.getInstance();
+  
   /**
    * Default constructor
    */
@@ -36,12 +41,10 @@ public class EquityVanillaBarrierOptionRhoFunction extends EquityVanillaBarrierO
   protected Set<ComputedValue> computeValues(final Set<EquityIndexOption> vanillaOptions, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
     double rho = 0.0;
     for (final EquityIndexOption derivative : vanillaOptions) {
-      rho += model.rho(derivative, market);
+      rho += derivative.accept(CALCULATOR, market); 
     }
     return Collections.singleton(new ComputedValue(resultSpec, rho));
   }
-
 }

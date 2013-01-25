@@ -205,7 +205,7 @@ $.register_module({
                 current: current, dependencies: config.meta.dependencies, promise: promise
             };
             if (is_delete) registrations = registrations
-                .filter(function (reg) {return !~reg.method.join('/').indexOf(method.join('/'));});
+                .filter(function (reg) {return reg && !~reg.method.join('/').indexOf(method.join('/'));});
             return config.meta.dry ? promise : send(), promise;
         };
         var request_expired = function (request, current) {
@@ -843,7 +843,8 @@ $.register_module({
                 }).forEach(function (update) {
                     var lcv, len = registrations.length, reg;
                     for (lcv = 0; lcv < len; lcv += 1)
-                        if ((reg = registrations[lcv]).url === update) (registrations[lcv] = null), reg.update(reg);
+                        if ((reg = registrations[lcv]) && reg.url === update)
+                            (registrations[lcv] = null), reg.update(reg);
                     registrations = registrations.filter(Boolean);
                 });
             })(true, null); // there are no registrations when subscribe() is called unless the connection's been reset

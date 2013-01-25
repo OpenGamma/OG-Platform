@@ -736,6 +736,10 @@ public final class ValueRequirementNames {
    */
   public static final String VEGA_P = "VegaP";
   /**
+   * The vega an option with some weighting factor 
+   */
+  public static final String WEIGHTED_VEGA = "Weighted Vega";
+  /**
    * The bucketed vega of a security to the market data volatility cube.
    */
   public static final String VEGA_QUOTE_CUBE = "Vega Quote Cube";
@@ -774,6 +778,11 @@ public final class ValueRequirementNames {
    * The daily profit and loss of a security
    */
   public static final String DAILY_PNL = "Daily PnL";
+  /**
+   * The daily profit and loss of an exchange traded security
+   */
+  public static final String MTM_PNL = "Mark-to-Market P&L";
+  
   /**
    * The Fisher kurtosis of a distribution (usually the return series of a security or its underlying).
    */

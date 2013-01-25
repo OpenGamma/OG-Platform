@@ -56,6 +56,7 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
@@ -188,6 +189,18 @@ public class DefaultBlotterColumnMappings {
     mapper.mapColumn(INDEX, SwapSecurity.class, new SwapIndexProvider());
     mapper.mapColumn(RATE, SwapSecurity.class, new SwapRateProvider());
     mapper.mapColumn(DIRECTION, SwapSecurity.class, new SwapPayReceiveProvider());
+
+    // ------------------- Swaption
+    mapper.mapColumn(TYPE, SwaptionSecurity.class, "Swaption");
+    mapper.mapColumn(MATURITY, SwaptionSecurity.meta().expiry());
+    // TODO this is tricky - need the underlying swap. where can I store it? need a security link on swaption
+    // TODO direction
+    // TODO product
+    // TODO start
+    // TODO quantity
+    // TODO frequency
+    // TODO rate
+    // TODO what about float freq?
 
     // ------------------- Equity
     mapper.mapColumn(TYPE, EquitySecurity.class, "Equity");

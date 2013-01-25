@@ -19,7 +19,7 @@ $.register_module({
                     data: data
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.equity_variance_swap_tash',
                         extras: {notional: data.security.notional, region: data.security.regionId,
@@ -64,6 +64,10 @@ $.register_module({
             }; 
             constructor.load();
             constructor.submit = function () {
+                form.submit();
+            };
+            constructor.submit_new = function () {
+                delete data.id;
                 form.submit();
             };
             constructor.kill = function () {

@@ -26,7 +26,7 @@ public class BondFutureOptionBlackVegaFunction extends BondFutureOptionBlackFunc
   private static final PresentValueBlackVegaCalculator CALCULATOR = PresentValueBlackVegaCalculator.getInstance();
 
   public BondFutureOptionBlackVegaFunction() {
-    super(ValueRequirementNames.VALUE_DELTA);
+    super(ValueRequirementNames.VALUE_VEGA);
   }
 
   @Override

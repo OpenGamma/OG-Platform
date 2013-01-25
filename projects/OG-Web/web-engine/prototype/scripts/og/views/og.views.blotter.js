@@ -62,11 +62,11 @@ $.register_module({
                     });
                 });
                 $('.swaption').click(function (){
-                    og.api.rest.blotter.trades.get({id:"DbPos~"}).pipe(function(data){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164328"}).pipe(function(data){
                         new og.blotter.Dialog(data);
                     });
                 });
-                $('.fungibleb').click(function (){
+                $('.fungible').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164322"}).pipe(function(data){
                         new og.blotter.Dialog(data);
                     });

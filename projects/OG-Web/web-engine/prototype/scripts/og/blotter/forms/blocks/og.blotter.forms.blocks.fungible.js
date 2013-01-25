@@ -11,9 +11,9 @@ $.register_module({
             var block = this, id = og.common.id('attributes'), form = config.form;
             form.Block.call(block, 
                 {module: 'og.blotter.forms.blocks.fungible_security_tash', 
-                extras: {id: id, counterparty: config.counterparty},
+                extras: {id: id, counterparty: config.counterparty, quantity: config.quantity},
                 children: [new og.blotter.forms.blocks.Security({
-                    form: form, label: "Underlying ID", security: config.security,
+                    form: form, label: "Underlying ID", security: config.security, 
                     index: "trade.securityIdBundle"})]
             });
         };

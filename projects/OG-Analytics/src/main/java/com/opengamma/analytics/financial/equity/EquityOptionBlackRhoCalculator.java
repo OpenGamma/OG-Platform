@@ -34,13 +34,16 @@ public final class EquityOptionBlackRhoCalculator extends InstrumentDerivativeVi
   public Double visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    return EquityIndexOptionBlackMethod.getInstance().rho(option, data);
+    
+    final Double rhoBlack =  EquityIndexOptionBlackMethod.getInstance().rhoBlack(option, data);
+    return rhoBlack;
   }
 
   @Override
   public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    return EquityOptionBlackMethod.getInstance().rho(option, data);
+    final Double rhoBlack =  EquityOptionBlackMethod.getInstance().rhoBlack(option, data);
+    return rhoBlack;
   }
 }

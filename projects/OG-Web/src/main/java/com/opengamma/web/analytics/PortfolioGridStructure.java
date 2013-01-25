@@ -92,7 +92,7 @@ public class PortfolioGridStructure extends MainGridStructure {
   private static GridColumnGroup buildFixedColumns(List<? extends Row> rows) {
     GridColumn labelColumn = new GridColumn("Label", "", null, new PortfolioLabelRenderer(rows));
     GridColumn quantityColumn = new GridColumn("Quantity", "", BigDecimal.class, new QuantityRenderer(rows), null);
-    return new GridColumnGroup("fixed", ImmutableList.of(labelColumn, quantityColumn));
+    return new GridColumnGroup("fixed", ImmutableList.of(labelColumn, quantityColumn), false);
   }
 
   /**
@@ -114,7 +114,7 @@ public class PortfolioGridStructure extends MainGridStructure {
           columns.add(GridColumn.forKey(columnSpec, columnType, targetLookup));
         }
       }
-      columnGroups.add(new GridColumnGroup(calcConfig.getName(), columns));
+      columnGroups.add(new GridColumnGroup(calcConfig.getName(), columns, true));
     }
     return columnGroups;
   }
@@ -132,7 +132,7 @@ public class PortfolioGridStructure extends MainGridStructure {
         blotterColumn(BlotterColumn.INDEX, columnMappings, rows),
         blotterColumn(BlotterColumn.FREQUENCY, columnMappings, rows),
         blotterColumn(BlotterColumn.FLOAT_FREQUENCY, columnMappings, rows));
-    return new GridColumnGroup("Blotter", columns);
+    return new GridColumnGroup("Blotter", columns, false);
   }
 
   private static GridColumn blotterColumn(BlotterColumn column,

@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.equity.EquityOptionBlackRhoCalculator;
+import com.opengamma.analytics.financial.equity.EquityOptionBlackScholesRhoCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;

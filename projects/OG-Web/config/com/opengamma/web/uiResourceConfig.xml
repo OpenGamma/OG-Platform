@@ -383,8 +383,6 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.frasecurity.js</fragment>
     <!--Fungible Trades-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fungibletrade.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.bond_future.js</fragment>
-    <fragment>/scripts/og/blotter/forms/og.blotter.forms.trade.js</fragment>
     <!--Lifecycle-->
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_cap_floor.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.edit_equity_option.js</fragment>
