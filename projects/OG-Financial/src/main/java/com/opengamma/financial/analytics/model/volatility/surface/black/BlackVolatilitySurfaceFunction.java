@@ -91,18 +91,6 @@ public abstract class BlackVolatilitySurfaceFunction extends AbstractFunction.No
   protected abstract String getInstrumentType();
 
   /**
-   * Gets the surface quote units (e.g. volatilities, prices) supported by the function
-   * @return The surface quote units
-   */
-  protected abstract String getSurfaceQuoteUnits();
-
-  /**
-   * Gets the surface quote type (e.g. call delta, put delta0 supported by the function
-   * @return The surface quote type
-   */
-  protected abstract String getSurfaceQuoteType();
-
-  /**
    * Gets general result properties
    * @return The result properties
    */

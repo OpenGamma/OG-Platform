@@ -28,6 +28,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -64,6 +65,12 @@ public class VolatilitySurfaceDefinitionFunction extends AbstractFunction {
               throw new OpenGammaRuntimeException("Could not get volatility surface definition named " + fullDefinitionName);
             }
           }
+        } else if (instrumentType.equals(InstrumentTypeProperties.EQUITY_OPTION)) {
+          final String fullDefinitionName = surfaceName + "_" + EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
+          definition = source.getDefinition(fullDefinitionName, instrumentType);
+          if (definition == null) {
+            throw new OpenGammaRuntimeException("Could not get volatility surface definition named " + fullDefinitionName + " for instrument type " + instrumentType);
+          }
         } else {
           final String fullDefinitionName = surfaceName + "_" + target.getUniqueId().getValue();
           definition = source.getDefinition(fullDefinitionName, instrumentType);
@@ -81,7 +88,7 @@ public class VolatilitySurfaceDefinitionFunction extends AbstractFunction {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.ANYTHING;
       }
 
       @SuppressWarnings("synthetic-access")

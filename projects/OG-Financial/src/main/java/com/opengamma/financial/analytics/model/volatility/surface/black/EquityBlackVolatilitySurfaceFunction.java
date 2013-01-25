@@ -24,8 +24,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 
 /**
  *
@@ -113,7 +111,9 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final String targetScheme = target.getUniqueId().getScheme();
-    return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) || targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
+    return targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName())
+        || targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())
+        || targetScheme.equalsIgnoreCase(ExternalSchemes.ACTIVFEED_TICKER.getName());
   }
 
   @Override
@@ -148,17 +148,6 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
   @Override
   protected String getInstrumentType() {
     return InstrumentTypeProperties.EQUITY_OPTION;
-  }
-
-  @Override
-  protected String getSurfaceQuoteUnits() {
-    return SurfaceAndCubePropertyNames.VOLATILITY_QUOTE;
-  }
-
-  @Override
-  //TODO Consider whether we might make this variable by reading the volatility specification.
-  protected String getSurfaceQuoteType() {
-    return SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE;
   }
 
   @Override

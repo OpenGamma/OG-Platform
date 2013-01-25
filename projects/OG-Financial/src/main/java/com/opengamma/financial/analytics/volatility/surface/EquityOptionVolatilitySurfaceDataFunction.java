@@ -78,17 +78,17 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     }
     @SuppressWarnings("unchecked")
     final VolatilitySurfaceData<Number, Double> rawSurface = (VolatilitySurfaceData<Number, Double>) rawSurfaceObject;
-    // Get the forward curve
-    final Object forwardCurveObject = inputs.getValue(ValueRequirementNames.FORWARD_CURVE);
-    if (forwardCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get forward curve");
-    }
-    final ForwardCurve forwardCurve = (ForwardCurve) forwardCurveObject;
 
     final VolatilitySurfaceData<Double, Double> stdVolSurface;
     if (surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.VOLATILITY_QUOTE)) {
       stdVolSurface = getSurfaceFromVolatilityQuote(valDate, rawSurface);
     } else if (surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.PRICE_QUOTE)) {
+      // Get the forward curve
+      final Object forwardCurveObject = inputs.getValue(ValueRequirementNames.FORWARD_CURVE);
+      if (forwardCurveObject == null) {
+        throw new OpenGammaRuntimeException("Could not get forward curve");
+      }
+      final ForwardCurve forwardCurve = (ForwardCurve) forwardCurveObject;
       stdVolSurface = getSurfaceFromPriceQuote(valDate, rawSurface, forwardCurve, specification);
     } else {
       throw new OpenGammaRuntimeException("Cannot handle quote units " + surfaceQuoteUnits);
@@ -189,7 +189,6 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
     final ValueProperties.Builder properties = createValueProperties()
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION);
     boolean surfaceNameSet = false;
-    boolean forwardCurvePropertiesSet = false;
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification key = entry.getKey();
       if (key.getValueName().equals(ValueRequirementNames.VOLATILITY_SURFACE_DATA)) {
@@ -202,11 +201,10 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
         for (final String property : curveProperties.getProperties()) {
           properties.with(property, curveProperties.getValues(property));
         }
-        forwardCurvePropertiesSet = true;
+        //don't check if forward curve is set, because it isn't needed if the quotes are volatility
       }
     }
     assert surfaceNameSet;
-    assert forwardCurvePropertiesSet;
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), properties.get()));
   }
 
@@ -251,20 +249,23 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
         for (final Double strike : rawSurface.getYs()) {
           final Double price = rawSurface.getVolatility(nthExpiry, strike);
           if (price != null) {
-            final double vol;
-            if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_STRIKE)) {
-              vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, t, true);
-            } else if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.PUT_STRIKE)) {
-              vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, t, false);
-            } else if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE)) {
-              final boolean isCall = strike > callAboveStrike ? true : false;
-              vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, t, isCall);
-            } else {
-              throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
+            try {
+              final double vol;
+              if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_STRIKE)) {
+                vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, t, true);
+              } else if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.PUT_STRIKE)) {
+                vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, t, false);
+              } else if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE)) {
+                final boolean isCall = strike > callAboveStrike ? true : false;
+                vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, t, isCall);
+              } else {
+                throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
+              }
+              tList.add(t);
+              kList.add(strike);
+              volValues.put(Pair.of(t, strike), vol);
+            } catch (final Exception e) {
             }
-            tList.add(t);
-            kList.add(strike);
-            volValues.put(Pair.of(t, strike), vol);
           }
         }
       }

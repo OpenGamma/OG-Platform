@@ -250,9 +250,11 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
           break;
         }
       }
+      if (surfaceName == null) {
+        return null;
+      }
       assert surfaceQuoteType != null;
       assert surfaceQuoteUnits != null;
-      assert surfaceName != null;
       return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
           createValueProperties()
           .with(ValuePropertyNames.SURFACE, surfaceName)
@@ -275,7 +277,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
         final Set<ValueRequirement> desiredValues) {
-      final ValueRequirement desiredValue = desiredValues.iterator().next();
+      final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
       final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
       final String instrumentType = desiredValue.getConstraint(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
       final Object definitionObject = inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE_DEFINITION);

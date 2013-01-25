@@ -28,6 +28,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
@@ -65,6 +66,12 @@ public class VolatilitySurfaceSpecificationFunction extends AbstractFunction {
               throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName);
             }
           }
+        } else if (instrumentType.equals(InstrumentTypeProperties.EQUITY_OPTION)) {
+          final String fullSpecificationName = surfaceName + "_" + EquitySecurityUtils.getIndexOrEquityName(target.getUniqueId());
+          specification = source.getSpecification(fullSpecificationName, instrumentType);
+          if (specification == null) {
+            throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + fullSpecificationName + " for instrument type " + instrumentType);
+          }
         } else {
           final String fullSpecificationName = surfaceName + "_" + target.getUniqueId().getValue();
           specification = source.getSpecification(fullSpecificationName, instrumentType);
@@ -84,7 +91,7 @@ public class VolatilitySurfaceSpecificationFunction extends AbstractFunction {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.PRIMITIVE;
+        return ComputationTargetType.ANYTHING;
       }
 
       @SuppressWarnings("synthetic-access")
