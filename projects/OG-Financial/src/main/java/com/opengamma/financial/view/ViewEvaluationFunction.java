@@ -149,16 +149,16 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
     if (startDate.isAfter(finishDate)) {
       throw new IllegalArgumentException("First valuation date " + startDate + " is after last valuation date " + finishDate);
     }
-    LocalDateTime date = LocalDateTime.of(startDate, target.getValuationTime());
+    LocalDateTime dateTime = LocalDateTime.of(startDate, target.getValuationTime());
     final Collection<ViewCycleExecutionOptions> cycles = new ArrayList<ViewCycleExecutionOptions>(DateUtils.getDaysBetween(startDate, true, finishDate, true));
     do {
-      final ZonedDateTime valuation = ZonedDateTime.of(date, target.getTimeZone());
-      cycles.add(ViewCycleExecutionOptions.builder().setValuationTime(valuation.toInstant()).setMarketDataSpecification(MarketData.historical(date.getDate(), null))
+      final ZonedDateTime valuation = ZonedDateTime.of(dateTime, target.getTimeZone());
+      cycles.add(ViewCycleExecutionOptions.builder().setValuationTime(valuation.toInstant()).setMarketDataSpecification(MarketData.historical(dateTime.getDate(), null))
           .setResolverVersionCorrection(VersionCorrection.of(valuation.toInstant(), target.getCorrection())).create());
-      if (date.getDate().equals(finishDate)) {
+      if (dateTime.getDate().equals(finishDate)) {
         return cycles;
       }
-      date = date.plusDays(1);
+      dateTime = dateTime.plusDays(1);
     } while (true);
   }
 

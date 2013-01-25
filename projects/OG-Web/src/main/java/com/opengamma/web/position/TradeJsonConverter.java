@@ -61,7 +61,7 @@ public final class TradeJsonConverter {
             if (tradeJson.has("premiumTime")) {
               LocalTime premiumTime = LocalTime.parse(tradeJson.getString("premiumTime"));
               ZoneOffset premiumOffset = getOffset(tradeJson, "premiumOffset");
-              ZonedDateTime zonedDateTime = ZonedDateTime.of(premiumDate.atTime(premiumTime), premiumOffset);
+              ZonedDateTime zonedDateTime = premiumDate.atTime(premiumTime).atZone(premiumOffset);
               trade.setPremiumTime(zonedDateTime.toOffsetDateTime().toOffsetTime());
             }
           }
@@ -74,7 +74,7 @@ public final class TradeJsonConverter {
             if (tradeJson.has("tradeTime")) {
               LocalTime tradeTime = LocalTime.parse(tradeJson.getString("tradeTime"));
               ZoneOffset tradeOffset = getOffset(tradeJson, "tradeOffset");
-              ZonedDateTime zonedDateTime = ZonedDateTime.of(tradeDate.atTime(tradeTime), tradeOffset);
+              ZonedDateTime zonedDateTime = tradeDate.atTime(tradeTime).atZone(tradeOffset);
               trade.setTradeTime(zonedDateTime.toOffsetDateTime().toOffsetTime());
             }    
           }

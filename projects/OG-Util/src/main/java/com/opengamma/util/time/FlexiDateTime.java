@@ -304,7 +304,7 @@ public final class FlexiDateTime implements Serializable {
    * @return the zoned date-time, not null
    */
   public ZonedDateTime toZonedDateTime() {
-    return ZonedDateTime.of(_date.atTime(_time), _zone);
+    return _date.atTime(_time).atZone(_zone);
   }
 
   /**
@@ -319,7 +319,7 @@ public final class FlexiDateTime implements Serializable {
   public ZonedDateTime toZonedDateTime(LocalTime defaultTime, ZoneId defaultZone) {
     ArgumentChecker.notNull(defaultTime, "defaultTime");
     ArgumentChecker.notNull(defaultZone, "defaultZone");
-    return ZonedDateTime.of(toLocalDateTime(defaultTime), Objects.firstNonNull(_zone, defaultZone));
+    return toLocalDateTime(defaultTime).atZone(Objects.firstNonNull(_zone, defaultZone));
   }
 
   /**
@@ -332,7 +332,7 @@ public final class FlexiDateTime implements Serializable {
    */
   public Temporal toBest() {
     if (_zone != null) {
-      ZonedDateTime zdt = ZonedDateTime.of(_date.atTime(_time), _zone);
+      ZonedDateTime zdt = _date.atTime(_time).atZone(_zone);
       return (_zone instanceof ZoneOffset ? zdt.toOffsetDateTime() : zdt);
     } else if (_time != null) {
       return LocalDateTime.of(_date, _time);

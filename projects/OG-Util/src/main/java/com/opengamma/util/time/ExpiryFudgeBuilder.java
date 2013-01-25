@@ -84,11 +84,11 @@ public final class ExpiryFudgeBuilder extends AbstractFudgeBuilder implements Fu
       case HOUR:
         return new Expiry(ZonedDateTime.ofInstant(datetime.toInstant(), ZoneId.of(timezone)), ExpiryAccuracy.HOUR_DAY_MONTH_YEAR);
       case DAY:
-        return new Expiry(ZonedDateTime.of(datetime.getDate().toLocalDate().atTime(LocalTime.MIDNIGHT), ZoneId.of(timezone)), ExpiryAccuracy.DAY_MONTH_YEAR);
+        return new Expiry(datetime.getDate().toLocalDate().atStartOfDay(ZoneId.of(timezone)), ExpiryAccuracy.DAY_MONTH_YEAR);
       case MONTH:
-        return new Expiry(ZonedDateTime.of(datetime.getDate().toLocalDate().atTime(LocalTime.MIDNIGHT), ZoneId.of(timezone)), ExpiryAccuracy.MONTH_YEAR);
+        return new Expiry(datetime.getDate().toLocalDate().atStartOfDay(ZoneId.of(timezone)), ExpiryAccuracy.MONTH_YEAR);
       case YEAR:
-        return new Expiry(ZonedDateTime.of(datetime.getDate().toLocalDate().atTime(LocalTime.MIDNIGHT), ZoneId.of(timezone)), ExpiryAccuracy.YEAR);
+        return new Expiry(datetime.getDate().toLocalDate().atStartOfDay(ZoneId.of(timezone)), ExpiryAccuracy.YEAR);
       default:
         throw new IllegalArgumentException("Invalid accuracy value on " + datetime);
     }

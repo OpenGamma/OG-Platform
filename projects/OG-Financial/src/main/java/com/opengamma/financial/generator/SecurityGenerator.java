@@ -254,7 +254,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   private FunctionExecutionContext createFunctionExecutionContext(final LocalDate valuationTime) {
     final FunctionExecutionContext context = new FunctionExecutionContext();
-    context.setValuationTime(ZonedDateTime.of(valuationTime.atTime(LocalTime.NOON), ZoneOffset.UTC).toInstant());
+    context.setValuationTime(valuationTime.atTime(LocalTime.NOON).toInstant(ZoneOffset.UTC));
     context.setValuationClock(DateUtils.fixedClockUTC(context.getValuationTime()));
     OpenGammaExecutionContext.setHolidaySource(context, getHolidaySource());
     OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
