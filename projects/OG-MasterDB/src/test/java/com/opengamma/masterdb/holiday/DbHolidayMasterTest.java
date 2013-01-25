@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Arrays;
 
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -20,6 +18,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.ManageableHoliday;
@@ -66,7 +65,7 @@ public class DbHolidayMasterTest extends DbTest {
     assertNotNull(_holMaster);
     assertEquals(true, _holMaster.getUniqueIdScheme().equals("DbHol"));
     assertNotNull(_holMaster.getDbConnector());
-    assertNotNull(_holMaster.getTimeSource());
+    assertNotNull(_holMaster.getClock());
   }
 
   //-------------------------------------------------------------------------

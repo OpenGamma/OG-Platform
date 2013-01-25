@@ -8,11 +8,12 @@ package com.opengamma.analytics.financial.instrument.annuity;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -37,7 +38,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 
 public class AnnuityCouponIborDefinitionTest {
   //Libor3m
-  private static final Period INDEX_TENOR = Period.ofMonths(3);
+  private static final Period INDEX_TENOR = Period.of(3, MONTHS);
   private static final PeriodFrequency INDEX_FREQUENCY = PeriodFrequency.QUARTERLY;
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -47,7 +48,7 @@ public class AnnuityCouponIborDefinitionTest {
   private static final Currency CUR = Currency.USD;
   private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
   //Annuity description
-  private static final Period ANNUITY_TENOR = Period.ofYears(2);
+  private static final Period ANNUITY_TENOR = Period.of(2, YEARS);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 17);
   private static final boolean IS_PAYER = true;
   private static final double NOTIONAL = 1000000;
@@ -126,10 +127,10 @@ public class AnnuityCouponIborDefinitionTest {
   @Test
   public void testFrom() {
     final ZonedDateTime settleDate = DateUtils.getUTCDate(2014, 3, 20);
-    final Period indexTenor = Period.ofMonths(3);
+    final Period indexTenor = Period.of(3, MONTHS);
     final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final IborIndex index = new IborIndex(CUR, indexTenor, SETTLEMENT_DAYS, CALENDAR, dayCount, BUSINESS_DAY, IS_EOM);
-    final AnnuityCouponIborDefinition iborAnnuity = AnnuityCouponIborDefinition.from(settleDate, Period.ofYears(1), NOTIONAL, index, IS_PAYER);
+    final AnnuityCouponIborDefinition iborAnnuity = AnnuityCouponIborDefinition.from(settleDate, Period.of(1, YEARS), NOTIONAL, index, IS_PAYER);
     final ZonedDateTime[] paymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 6, 20), DateUtils.getUTCDate(2014, 9, 22), DateUtils.getUTCDate(2014, 12, 22),
         DateUtils.getUTCDate(2015, 03, 20)};
     final ZonedDateTime[] fixingDates = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 3, 18), DateUtils.getUTCDate(2014, 6, 18), DateUtils.getUTCDate(2014, 9, 18),

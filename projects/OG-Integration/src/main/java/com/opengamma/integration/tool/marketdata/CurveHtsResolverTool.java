@@ -15,19 +15,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalTimeSeriesLoader;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithIdentifier;
@@ -154,8 +152,8 @@ public class CurveHtsResolverTool extends AbstractTool<IntegrationToolContext> {
   private List<LocalDate> buildDates() {
     final Clock clock = Clock.systemDefaultZone();
     final List<LocalDate> dates = new ArrayList<LocalDate>();
-    final LocalDate twoYearsAgo = clock.today().minusYears(2);
-    final LocalDate twoYearsTime = clock.today().plusYears(2);
+    final LocalDate twoYearsAgo = LocalDate.now(clock).minusYears(2);
+    final LocalDate twoYearsTime = LocalDate.now(clock).plusYears(2);
     for (LocalDate next = twoYearsAgo; next.isBefore(twoYearsTime); next = next.plusMonths(3)) {
       dates.add(next);
     }

@@ -10,14 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.convert.StringConvert;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

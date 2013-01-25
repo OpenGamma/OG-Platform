@@ -6,13 +6,12 @@
 package com.opengamma.util.time;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.ISOChronology;
-import javax.time.calendar.Period;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 
 import org.fudgemsg.UnmodifiableFudgeField;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
@@ -21,7 +20,7 @@ import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
  */
 public class PeriodFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
-  private static final Period s_ref = Period.of(2, ISOChronology.periodDays());
+  private static final Period s_ref = Period.of(2, DAYS);
 
   @Test
   public void testCycle() {

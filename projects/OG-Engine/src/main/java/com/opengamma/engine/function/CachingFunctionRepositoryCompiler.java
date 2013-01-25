@@ -18,11 +18,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.tuple.Pair;
@@ -93,7 +91,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
           compiled.addFunction(compiledFunction);
           return true;
         } else {
-          final Instant validUntil = Instant.of(compiledFunction.getLatestInvocationTime());
+          final Instant validUntil = compiledFunction.getLatestInvocationTime();
           if (!validUntil.isBefore(atInstant)) {
             // previous one still valid
             compiled.addFunction(compiledFunction);
@@ -110,7 +108,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
           compiled.addFunction(compiledFunction);
           return true;
         } else {
-          final Instant validFrom = Instant.of(compiledFunction.getEarliestInvocationTime());
+          final Instant validFrom = compiledFunction.getEarliestInvocationTime();
           if (!validFrom.isAfter(atInstant)) {
             // next one already valid
             compiled.addFunction(compiledFunction);
@@ -200,9 +198,8 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
   }
 
   @Override
-  public CompiledFunctionRepository compile(final FunctionRepository repository, final FunctionCompilationContext context, final ExecutorService executor, final InstantProvider atInstantProvider) {
+  public CompiledFunctionRepository compile(final FunctionRepository repository, final FunctionCompilationContext context, final ExecutorService executor, final Instant atInstant) {
     clearInvalidCache(context.getFunctionInitId());
-    final Instant atInstant = Instant.of(atInstantProvider);
     final Pair<FunctionRepository, Instant> key = Pair.of(repository, atInstant);
     // Try a previous compilation
     final InMemoryCompiledFunctionRepository previous = getPreviousCompilation(key);

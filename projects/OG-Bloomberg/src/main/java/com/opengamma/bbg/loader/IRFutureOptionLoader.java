@@ -5,7 +5,6 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_CURRENCY_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_FINANCIAL_COMMODITY_OPTION_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_INTEREST_RATE_TYPE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_EXCH_CODE;
@@ -25,11 +24,10 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_UNDL_ID_BB_UNIQUE;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
@@ -146,7 +144,7 @@ public class IRFutureOptionLoader extends SecurityLoader {
       throw new OpenGammaRuntimeException(expiryDate + " returned from bloomberg not in format yyyy-mm-dd", e);
     }
     int year = expiryLocalDate.getYear();
-    int month = expiryLocalDate.getMonthOfYear().getValue();
+    int month = expiryLocalDate.getMonthValue();
     int day = expiryLocalDate.getDayOfMonth();
     Expiry expiry = new Expiry(DateUtils.getUTCDate(year, month, day));
     

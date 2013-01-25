@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -105,7 +105,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime today = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime today = ZonedDateTime.now(executionContext.getValuationClock());
     final EquityOptionSecurity optionSec = (EquityOptionSecurity) target.getSecurity();
 
     // Get inputs:
@@ -125,7 +125,7 @@ public class BlackScholesMertonImpliedVolatilitySurfaceFunction extends Abstract
 
     // Perform the calculation:
     final Expiry expiry = optionSec.getExpiry();
-    final double years = DateUtils.getDifferenceInYears(today, expiry.getExpiry().toInstant());
+    final double years = DateUtils.getDifferenceInYears(today, expiry.getExpiry());
     final double b = discountCurve.getInterestRate(years); // TODO
     final OptionDefinition europeanVanillaOptionDefinition = new EuropeanVanillaOptionDefinition(optionSec.getStrike(), expiry, (optionSec.getOptionType() == OptionType.CALL));
     final Map<OptionDefinition, Double> prices = new HashMap<OptionDefinition, Double>();

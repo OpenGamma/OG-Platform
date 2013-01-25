@@ -20,6 +20,7 @@ import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -62,8 +63,8 @@ public class DateEpochMillisConverter implements DateTimeConverter<Date> {
     return _calendar;
   }
   
-  public javax.time.calendar.TimeZone getTimeZone310() {
-    return javax.time.calendar.TimeZone.of(_timeZone.getID());
+  public ZoneId getTimeZone310() {
+    return ZoneId.of(_timeZone.getID());
   }
 
   @Override

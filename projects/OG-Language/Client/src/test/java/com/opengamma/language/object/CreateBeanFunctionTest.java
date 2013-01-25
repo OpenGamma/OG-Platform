@@ -7,10 +7,9 @@ import static org.testng.Assert.assertTrue;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;

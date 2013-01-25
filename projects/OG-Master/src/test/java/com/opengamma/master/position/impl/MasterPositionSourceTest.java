@@ -14,10 +14,9 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.math.BigDecimal;
 
-import javax.time.Instant;
-import javax.time.calendar.OffsetDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.OffsetDateTime;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -204,7 +203,7 @@ public class MasterPositionSourceTest {
     final PortfolioMaster mockPortfolio = mock(PortfolioMaster.class);
     final PositionMaster mockPosition = mock(PositionMaster.class);
     final OffsetDateTime now = OffsetDateTime.now();
-    final ManageableTrade doc = new ManageableTrade(BigDecimal.TEN, ExternalId.of("B", "C"), now.toLocalDate(), now.toOffsetTime().minusSeconds(100), ExternalId.of("CPARTY", "C100"));
+    final ManageableTrade doc = new ManageableTrade(BigDecimal.TEN, ExternalId.of("B", "C"), now.getDate(), now.toOffsetTime().minusSeconds(100), ExternalId.of("CPARTY", "C100"));
     doc.setUniqueId(UID);
     when(mockPosition.getTrade(UID)).thenReturn(doc);
     MasterPositionSource test = new MasterPositionSource(mockPortfolio, mockPosition);

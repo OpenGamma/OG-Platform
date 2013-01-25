@@ -8,9 +8,8 @@ package com.opengamma.analytics.financial.model.option.definition;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.method.TestsDataSetsForex;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;

@@ -8,13 +8,13 @@ package com.opengamma.analytics.financial.interestrate;
 import static com.opengamma.analytics.financial.interestrate.SimpleInstrumentFactory.makeCrossCurrencySwap;
 import static com.opengamma.analytics.financial.interestrate.SimpleInstrumentFactory.makeForexForward;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.Period;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
@@ -62,7 +62,7 @@ public class PresentValueCalculatorTest {
   private static final YieldCurveBundle CURVES;
   private static final Currency CUR = Currency.USD;
 
-  private static final Period TENOR = Period.ofMonths(6);
+  private static final Period TENOR = Period.of(6, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -105,7 +105,7 @@ public class PresentValueCalculatorTest {
     final String forwardCurveName = FIVE_PC_CURVE_NAME;
     double paymentYearFraction = fixingPeriodEnd - paymentTime;
     final double notional = 1;
-    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+    final IborIndex index = new IborIndex(CUR, Period.of(1, MONTHS), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
     double fixingTime = paymentTime;
     final double fixingPeriodStart = paymentTime;
@@ -131,7 +131,7 @@ public class PresentValueCalculatorTest {
 
   @Test
   public void testFutures() {
-    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+    final IborIndex iborIndex = new IborIndex(CUR, Period.of(3, MONTHS), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
     final double lastTradingTime = 1.473;
     final double fixingPeriodStartTime = 1.467;

@@ -5,11 +5,11 @@
  */
 package com.opengamma.component.factory.engine;
 
+import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
-
-import javax.time.calendar.Period;
 
 import org.fudgemsg.FudgeContext;
 import org.joda.beans.BeanBuilder;
@@ -21,6 +21,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Period;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
@@ -100,7 +101,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
    * The time out for clients (default 30 minutes).
    */
   @PropertyDefinition
-  private Period _clientTimeOut = Period.ofMinutes(30);
+  private Period _clientTimeOut = Period.of(30, MINUTES);
 
   //-------------------------------------------------------------------------
   @Override

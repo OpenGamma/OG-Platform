@@ -17,12 +17,12 @@ import static org.testng.Assert.assertTrue;
 import java.util.Collections;
 import java.util.List;
 
-import javax.time.Instant;
 import javax.ws.rs.core.Response;
 
 import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.batch.BatchMaster;

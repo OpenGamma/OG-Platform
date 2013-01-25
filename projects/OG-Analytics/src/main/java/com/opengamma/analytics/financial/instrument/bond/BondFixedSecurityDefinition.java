@@ -5,10 +5,10 @@
  */
 package com.opengamma.analytics.financial.instrument.bond;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.JulianFields;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
@@ -133,8 +133,8 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
     ArgumentChecker.notNull(yieldConvention, "Yield convention");
     AnnuityCouponFixedDefinition coupon;
     if ((dayCount instanceof ActualActualICMA) || (dayCount instanceof ActualActualICMANormal)) {
-      final int couponPerYear = (int) Math.round(365.0 / (firstAccrualDate.plus(paymentPeriod).toLocalDate().toModifiedJulianDays() - firstAccrualDate.toLocalDate()
-          .toModifiedJulianDays()));
+      final int couponPerYear = (int) Math.round(365.0 / (firstAccrualDate.plus(paymentPeriod).getLong(JulianFields.MODIFIED_JULIAN_DAY) -
+          firstAccrualDate.getLong(JulianFields.MODIFIED_JULIAN_DAY)));
       coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(currency, firstAccrualDate, maturityDate, paymentPeriod, couponPerYear, true, true, calendar, dayCount,
           businessDay, isEOM, DEFAULT_NOTIONAL, rate, false);
     } else {
@@ -183,8 +183,8 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
     ArgumentChecker.notNull(repoType, "Repo type");
     AnnuityCouponFixedDefinition coupon;
     if ((dayCount instanceof ActualActualICMA) || (dayCount instanceof ActualActualICMANormal)) {
-      final int couponPerYear = (int) Math.round(365.0 / (firstAccrualDate.plus(paymentPeriod).toLocalDate().toModifiedJulianDays() - firstAccrualDate.toLocalDate()
-          .toModifiedJulianDays()));
+      final int couponPerYear = (int) Math.round(365.0 / (firstAccrualDate.plus(paymentPeriod).getLong(JulianFields.MODIFIED_JULIAN_DAY) -
+          firstAccrualDate.getLong(JulianFields.MODIFIED_JULIAN_DAY)));
       coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(currency, firstAccrualDate, maturityDate, paymentPeriod, couponPerYear, true, true, calendar, dayCount,
           businessDay, isEOM, notional, rate, false);
     } else {

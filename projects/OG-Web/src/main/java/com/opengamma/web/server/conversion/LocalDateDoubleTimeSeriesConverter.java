@@ -8,7 +8,7 @@ package com.opengamma.web.server.conversion;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.value.ValueSpecification;
@@ -26,8 +26,8 @@ public class LocalDateDoubleTimeSeriesConverter implements ResultConverter<Local
       return result;
     }
     Map<String, Object> summary = ImmutableMap.<String, Object>of(
-        "from", value.getEarliestTime().toLocalDate().toString(),
-        "to", value.getLatestTime().toLocalDate().toString());
+        "from", value.getEarliestTime().toString(),
+        "to", value.getLatestTime().toString());
     result.put("summary", summary);
     if (mode == ConversionMode.FULL) {
       ZonedDateTimeDoubleTimeSeries zonedTimeSeries = value.toZonedDateTimeDoubleTimeSeries();
@@ -35,7 +35,7 @@ public class LocalDateDoubleTimeSeriesConverter implements ResultConverter<Local
       for (int i = 0; i < zonedTimeSeries.size(); i++) {
         ZonedDateTime time = zonedTimeSeries.getTimeAt(i);
         double tsValue = zonedTimeSeries.getValueAt(i);
-        tsData[i] = new Object[] {time.toInstant().toEpochMillisLong(), tsValue};
+        tsData[i] = new Object[] {time.toInstant().toEpochMilli(), tsValue};
       }
       Map<String, Object> ts = ImmutableMap.<String, Object>of(
           "template_data", ImmutableMap.<String, Object>of(

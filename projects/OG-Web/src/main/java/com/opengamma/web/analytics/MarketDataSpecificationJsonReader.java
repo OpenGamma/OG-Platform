@@ -8,11 +8,10 @@ package com.opengamma.web.analytics;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;

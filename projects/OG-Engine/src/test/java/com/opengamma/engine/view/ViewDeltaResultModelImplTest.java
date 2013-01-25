@@ -7,9 +7,8 @@ package com.opengamma.engine.view;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 /**
  * 
@@ -21,8 +20,8 @@ public class ViewDeltaResultModelImplTest {
     InMemoryViewDeltaResultModel model = new InMemoryViewDeltaResultModel();
     ViewComputationResultModelImplTest.checkModel(model);
     
-    model.setPreviousCalculationTime(Instant.ofEpochMillis(200));
-    assertEquals(Instant.ofEpochMillis(200), model.getPreviousResultTimestamp());
+    model.setPreviousCalculationTime(Instant.ofEpochMilli(200));
+    assertEquals(Instant.ofEpochMilli(200), model.getPreviousResultTimestamp());
   }
 
 }

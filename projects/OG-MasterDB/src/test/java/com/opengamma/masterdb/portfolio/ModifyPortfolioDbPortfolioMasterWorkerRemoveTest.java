@@ -8,12 +8,11 @@ package com.opengamma.masterdb.portfolio;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
@@ -44,7 +43,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerRemoveTest extends AbstractDb
 
   @Test
   public void test_remove_removed() {
-    Instant now = Instant.now(_prtMaster.getTimeSource());
+    Instant now = Instant.now(_prtMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbPrt", "201", "1");
     _prtMaster.remove(uniqueId);

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -151,7 +151,7 @@ public class YieldCurveInterpolatingFunction extends AbstractFunction {
 
 
   @Override
-  public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
+  public CompiledFunctionDefinition compile(FunctionCompilationContext context, Instant atInstant) {
     ValueRequirement curveReq = new ValueRequirement(ValueRequirementNames.YIELD_CURVE,
         ComputationTargetSpecification.of(_currency),
         ValueProperties.with(ValuePropertyNames.CURVE, _curveName).get());

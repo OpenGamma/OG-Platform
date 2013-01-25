@@ -18,12 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Maps;
 import com.opengamma.batch.RunCreationMode;

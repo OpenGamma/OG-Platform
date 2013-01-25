@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -68,7 +68,7 @@ public class FixingTimeSeriesVisitor extends FinancialSecurityVisitorAdapter<Val
       final boolean includeEndDate, final HistoricalTimeSeriesResolver resolver) {
     final FloatingInterestRateLeg floatingLeg = leg;
     final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
-    final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(30); // To catch first fixing. SwapSecurity does not have this date.
+    final LocalDate startDate = swapEffectiveDate.getDate().minusDays(30); // To catch first fixing. SwapSecurity does not have this date.
     final HistoricalTimeSeriesResolutionResult ts = resolver.resolve(id, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString() + " bundle used was " + id);

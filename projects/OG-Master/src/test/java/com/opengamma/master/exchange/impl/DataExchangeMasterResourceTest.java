@@ -13,7 +13,7 @@ import static org.testng.AssertJUnit.assertSame;
 
 import java.net.URI;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -49,7 +49,7 @@ public class DataExchangeMasterResourceTest {
   //-------------------------------------------------------------------------
   @Test
   public void testAddExchange() {
-    final ManageableExchange target = new ManageableExchange(ExternalIdBundle.of("A", "B"), "Test", ExternalIdBundle.EMPTY, TimeZone.of("Europe/London"));
+    final ManageableExchange target = new ManageableExchange(ExternalIdBundle.of("A", "B"), "Test", ExternalIdBundle.EMPTY, ZoneId.of("Europe/London"));
     final ExchangeDocument request = new ExchangeDocument(target);
     
     final ExchangeDocument result = new ExchangeDocument(target);

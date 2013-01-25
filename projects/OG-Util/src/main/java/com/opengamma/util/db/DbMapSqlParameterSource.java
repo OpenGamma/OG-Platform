@@ -8,11 +8,10 @@ package com.opengamma.util.db;
 import java.sql.Types;
 import java.util.Map;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -35,12 +34,12 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * Adds an instant to this source.
    * 
    * @param name  the name, not null
-   * @param instantProvider  the instant, not null
+   * @param instant  the instant, not null
    * @return this, for chaining, not null
    */
-  public DbMapSqlParameterSource addTimestamp(final String name, final InstantProvider instantProvider) {
+  public DbMapSqlParameterSource addTimestamp(final String name, final Instant instant) {
     ArgumentChecker.notNull(name, "name");
-    addValue(name, DbDateUtils.toSqlTimestamp(instantProvider));
+    addValue(name, DbDateUtils.toSqlTimestamp(instant));
     return this;
   }
 
@@ -48,15 +47,15 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * Adds an instant to this source treating null as far future.
    * 
    * @param name  the name, not null
-   * @param instantProvider  the instant, null is far future
+   * @param instant  the instant, null is far future
    * @return this, for chaining, not null
    */
-  public DbMapSqlParameterSource addTimestampNullFuture(final String name, final InstantProvider instantProvider) {
+  public DbMapSqlParameterSource addTimestampNullFuture(final String name, final Instant instant) {
     ArgumentChecker.notNull(name, "name");
-    if (instantProvider == null) {
+    if (instant == null) {
       addValue(name, DbDateUtils.MAX_SQL_TIMESTAMP);
     } else {
-      addValue(name, DbDateUtils.toSqlTimestamp(instantProvider));
+      addValue(name, DbDateUtils.toSqlTimestamp(instant));
     }
     return this;
   }
@@ -148,12 +147,12 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * Adds an instant to this source unless the object is null.
    * 
    * @param name  the name, not null
-   * @param instantProvider  the instant, not null
+   * @param instant  the instant, not null
    * @return this, for chaining, not null
    */
-  public DbMapSqlParameterSource addTimestampAllowNull(final String name, final InstantProvider instantProvider) {
-    if (instantProvider != null) {
-      addTimestamp(name, instantProvider);
+  public DbMapSqlParameterSource addTimestampAllowNull(final String name, final Instant instant) {
+    if (instant != null) {
+      addTimestamp(name, instant);
     } else {
       addValue(name, null, Types.TIMESTAMP);
     }
@@ -197,12 +196,12 @@ public class DbMapSqlParameterSource extends MapSqlParameterSource {
    * Adds an instant to this source unless the object is null.
    * 
    * @param name  the name, not null
-   * @param instantProvider  the instant, not null
+   * @param instant  the instant, not null
    * @return this, for chaining, not null
    */
-  public DbMapSqlParameterSource addTimestampNullIgnored(final String name, final InstantProvider instantProvider) {
-    if (instantProvider != null) {
-      addTimestamp(name, instantProvider);
+  public DbMapSqlParameterSource addTimestampNullIgnored(final String name, final Instant instant) {
+    if (instant != null) {
+      addTimestamp(name, instant);
     }
     return this;
   }

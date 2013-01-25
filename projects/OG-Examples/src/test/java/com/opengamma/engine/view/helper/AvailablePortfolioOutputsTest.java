@@ -11,13 +11,12 @@ import static org.testng.Assert.fail;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.component.ComponentManager;
 import com.opengamma.component.ComponentRepository;

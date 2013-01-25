@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * 

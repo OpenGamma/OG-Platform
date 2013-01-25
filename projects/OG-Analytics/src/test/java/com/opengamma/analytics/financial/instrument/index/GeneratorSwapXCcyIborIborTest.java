@@ -7,11 +7,11 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
@@ -60,7 +60,7 @@ public class GeneratorSwapXCcyIborIborTest {
   @Test
   public void generateInstrument() {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    Period tenor = Period.ofMonths(6);
+    Period tenor = Period.of(6, MONTHS);
     double spread = -0.0050;
     double notional = 12345;
     double fxRateUSDEUR = 0.75;

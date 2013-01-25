@@ -7,8 +7,6 @@ package com.opengamma.batch.domain;
 
 import java.util.Map;
 
-import javax.time.Instant;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -22,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.threeten.bp.Instant;
 
 @BeanDefinition
 public class RiskFailure extends DirectBean {

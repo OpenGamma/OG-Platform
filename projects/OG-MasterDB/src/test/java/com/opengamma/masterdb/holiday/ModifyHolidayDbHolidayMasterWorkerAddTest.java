@@ -11,15 +11,12 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
-import com.opengamma.master.exchange.ExchangeDocument;
-import com.opengamma.master.exchange.ManageableExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
@@ -57,7 +54,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
 
   @Test
   public void test_add_add_currency() {
-    Instant now = Instant.now(_holMaster.getTimeSource());
+    Instant now = Instant.now(_holMaster.getClock());
     
     ManageableHoliday holiday = new ManageableHoliday(Currency.USD, Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
@@ -87,7 +84,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
 
   @Test
   public void test_add_add_bank() {
-    Instant now = Instant.now(_holMaster.getTimeSource());
+    Instant now = Instant.now(_holMaster.getClock());
     
     ManageableHoliday holiday = new ManageableHoliday(HolidayType.BANK, ExternalId.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
@@ -117,7 +114,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
 
   @Test
   public void test_add_add_settlement() {
-    Instant now = Instant.now(_holMaster.getTimeSource());
+    Instant now = Instant.now(_holMaster.getClock());
     
     ManageableHoliday holiday = new ManageableHoliday(HolidayType.SETTLEMENT, ExternalId.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);
@@ -147,7 +144,7 @@ public class ModifyHolidayDbHolidayMasterWorkerAddTest extends AbstractDbHoliday
 
   @Test
   public void test_add_add_trading() {
-    Instant now = Instant.now(_holMaster.getTimeSource());
+    Instant now = Instant.now(_holMaster.getClock());
     
     ManageableHoliday holiday = new ManageableHoliday(HolidayType.TRADING, ExternalId.of("A", "B"), Arrays.asList(LocalDate.of(2010, 6, 9)));
     HolidayDocument doc = new HolidayDocument(holiday);

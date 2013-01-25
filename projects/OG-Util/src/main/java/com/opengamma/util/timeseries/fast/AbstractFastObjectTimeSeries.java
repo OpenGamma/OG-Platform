@@ -133,7 +133,7 @@ public abstract class AbstractFastObjectTimeSeries<FAST_DATE_T, T> implements Ob
   //  }
   //
   //  @Override
-  //  public LocalDateObjectTimeSeries toLocalDateObjectTimeSeries(javax.time.calendar.TimeZone timeZone) {
+  //  public LocalDateObjectTimeSeries toLocalDateObjectTimeSeries(ZoneId timeZone) {
   //    return new ArrayLocalDateObjectTimeSeries(timeZone, toFastIntDaysDTS());
   //  }    
   //  
@@ -143,7 +143,7 @@ public abstract class AbstractFastObjectTimeSeries<FAST_DATE_T, T> implements Ob
   //  }
   //
   //  @Override
-  //  public MutableLocalDateObjectTimeSeries toMutableLocalDateObjectTimeSeries(javax.time.calendar.TimeZone timeZone) {
+  //  public MutableLocalDateObjectTimeSeries toMutableLocalDateObjectTimeSeries(ZoneId timeZone) {
   //    return new ListLocalDateObjectTimeSeries(timeZone, toFastMutableIntDaysDTS());
   //  }
   //  
@@ -205,7 +205,7 @@ public abstract class AbstractFastObjectTimeSeries<FAST_DATE_T, T> implements Ob
   //  }
   //  
   //  @Override
-  //  public ZonedDateTimeObjectTimeSeries toZonedDateTimeObjectTimeSeries(javax.time.calendar.TimeZone timeZone) {
+  //  public ZonedDateTimeObjectTimeSeries toZonedDateTimeObjectTimeSeries(ZoneId timeZone) {
   //    return new ArrayZonedDateTimeObjectTimeSeries(timeZone,toFastLongMillisDTS());
   //  }
   //
@@ -215,7 +215,7 @@ public abstract class AbstractFastObjectTimeSeries<FAST_DATE_T, T> implements Ob
   //  }
   //  
   //  @Override
-  //  public MutableZonedDateTimeObjectTimeSeries toMutableZonedDateTimeObjectTimeSeries(javax.time.calendar.TimeZone timeZone) {
+  //  public MutableZonedDateTimeObjectTimeSeries toMutableZonedDateTimeObjectTimeSeries(ZoneId timeZone) {
   //    return new ListZonedDateTimeObjectTimeSeries(timeZone, toFastMutableLongMillisDTS());
   //  }
   //  

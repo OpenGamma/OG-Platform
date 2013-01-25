@@ -9,9 +9,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.function.Function2D;
@@ -49,9 +49,9 @@ public class SkewKurtosisFromImpliedVolatilityFunction extends AbstractFunction.
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
     final UniqueId uid = option.getUniqueId();
-    final ZonedDateTime now = Clock.system(TimeZone.UTC).zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(Clock.systemUTC());
     final Expiry expiry = option.getExpiry();
-    final double t = DateUtils.getDifferenceInYears(now, expiry.getExpiry().toInstant());
+    final double t = DateUtils.getDifferenceInYears(now, expiry.getExpiry());
     final VolatilitySurface surface = (VolatilitySurface) inputs.getValue(getVolatilitySurfaceRequirement(option));
     final double volatility = surface.getVolatility(Pair.of(t, option.getStrike()));
     final double skew = SKEW_CALCULATOR.evaluate(volatility, t);

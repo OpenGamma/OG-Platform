@@ -6,6 +6,7 @@
 package com.opengamma.analytics.math.rootfinding;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,10 +14,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
+import org.threeten.bp.Period;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -80,7 +80,7 @@ public abstract class YieldCurveFittingSetup {
   private static final Currency DUMMY_CUR = Currency.USD;
   /** FX rates */
   protected static final FXMatrix FX_MATRIX = new FXMatrix(DUMMY_CUR);
-  private static final IborIndex DUMMY_INDEX = new IborIndex(DUMMY_CUR, Period.ofMonths(1), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+  private static final IborIndex DUMMY_INDEX = new IborIndex(DUMMY_CUR, Period.of(1, MONTHS), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
       BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
   private static final IndexON DUMMY_OIS_INDEX = new IndexON("OIS", DUMMY_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), 0, new MondayToFridayCalendar("A"));
 

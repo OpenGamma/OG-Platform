@@ -7,7 +7,7 @@ package com.opengamma.engine.historicaltimeseries;
 
 import java.util.Map;
 
-import javax.time.Duration;
+import org.threeten.bp.Duration;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicSPI;

@@ -9,9 +9,6 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.time.Instant;
-import javax.time.TimeSource;
-
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +16,8 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
 
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ObjectIdentifiable;
@@ -46,9 +45,9 @@ public abstract class AbstractDbMaster {
    */
   private final DbConnector _dbConnector;
   /**
-   * The time-source to use.
+   * The clock to use.
    */
-  private TimeSource _timeSource;
+  private Clock _clock;
   /**
    * The scheme in use for the unique identifier.
    */
@@ -79,7 +78,7 @@ public abstract class AbstractDbMaster {
     ArgumentChecker.notNull(dbConnector, "dbConnector");
     s_logger.debug("installed DbConnector: {}", dbConnector);
     _dbConnector = dbConnector;
-    _timeSource = dbConnector.timeSource();
+    _clock = dbConnector.timeSource();
     _uniqueIdScheme = defaultScheme;
     _hibernateTemplate = dbConnector.getHibernateTemplate();
   }
@@ -165,39 +164,39 @@ public abstract class AbstractDbMaster {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the time-source that determines the current time.
+   * Gets the clock that determines the current time.
    * 
-   * @return the time-source, not null
+   * @return the clock, not null
    */
-  public TimeSource getTimeSource() {
-    return _timeSource;
+  public Clock getClock() {
+    return _clock;
   }
 
   /**
-   * Sets the time-source that determines the current time.
+   * Sets the clock that determines the current time.
    * 
-   * @param timeSource  the time-source, not null
+   * @param clock  the clock, not null
    */
-  public void setTimeSource(final TimeSource timeSource) {
-    ArgumentChecker.notNull(timeSource, "timeSource");
-    s_logger.debug("installed TimeSource: {}", timeSource);
-    _timeSource = timeSource;
+  public void setClock(final Clock clock) {
+    ArgumentChecker.notNull(clock, "clock");
+    s_logger.debug("installed Clock: {}", clock);
+    _clock = clock;
   }
   
   /**
-   * Resets the time-source that determines the current time to the default.
+   * Resets the clock that determines the current time to the default.
    */
-  public void resetTimeSource() {
-    setTimeSource(getDbConnector().timeSource());
+  public void resetClock() {
+    setClock(getDbConnector().timeSource());
   }
 
   /**
-   * Gets the current instant using the time-source.
+   * Gets the current instant using the clock.
    * 
    * @return the current instant, not null
    */
   protected Instant now() {
-    return Instant.now(getTimeSource());
+    return Instant.now(getClock());
   }
 
   //-------------------------------------------------------------------------

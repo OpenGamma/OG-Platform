@@ -7,7 +7,7 @@ package com.opengamma.financial.analytics.model.future;
 
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
@@ -49,7 +49,7 @@ public abstract class BondFutureFunction<T> extends AbstractFunction.NonCompiled
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime date = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime date = ZonedDateTime.now(executionContext.getValuationClock());
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final BondFutureSecurity security = (BondFutureSecurity) target.getSecurity();
     final BondFutureDefinition definition = (BondFutureDefinition) security.accept(_visitor);

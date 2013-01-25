@@ -5,18 +5,17 @@
  */
 package com.opengamma.financial.view;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
-import org.fudgemsg.types.secondary.JSR310InstantFieldType;
-import org.fudgemsg.types.secondary.JSR310LocalTimeFieldType;
+import org.fudgemsg.types.secondary.ThreeTenLocalTimeFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
@@ -34,8 +33,8 @@ public class ViewEvaluationTarget extends TempTarget {
   private boolean _includeFirstValuationDate = true;
   private String _lastValuationDate = "";
   private boolean _includeLastValuationDate = true;
-  private TimeZone _timeZone = TimeZone.UTC;
-  private LocalTime _valuationTime = LocalTime.MIDDAY;
+  private ZoneId _timeZone = ZoneOffset.UTC;
+  private LocalTime _valuationTime = LocalTime.NOON;
   private Instant _correction;
 
   /**
@@ -55,7 +54,7 @@ public class ViewEvaluationTarget extends TempTarget {
     _includeFirstValuationDate = message.getBoolean("includeFirstValuationDate");
     _lastValuationDate = message.getString("lastValuationDate");
     _includeLastValuationDate = message.getBoolean("includeLastValuationDate");
-    _timeZone = TimeZone.of(message.getString("timeZone"));
+    _timeZone = ZoneId.of(message.getString("timeZone"));
     _valuationTime = message.getValue(LocalTime.class, "valuationTime");
     _correction = message.getValue(Instant.class, "correction");
   }
@@ -103,11 +102,11 @@ public class ViewEvaluationTarget extends TempTarget {
     _includeLastValuationDate = includeLastValuationDate;
   }
 
-  public TimeZone getTimeZone() {
+  public ZoneId getTimeZone() {
     return _timeZone;
   }
 
-  public void setTimeZone(final TimeZone timeZone) {
+  public void setTimeZone(final ZoneId timeZone) {
     ArgumentChecker.notNull(timeZone, "timeZone");
     _timeZone = timeZone;
   }
@@ -228,10 +227,10 @@ public class ViewEvaluationTarget extends TempTarget {
     message.add("includeFirstValuationDate", null, FudgeWireType.BOOLEAN, isIncludeFirstValuationDate());
     message.add("lastValuationDate", null, FudgeWireType.STRING, getLastValuationDate());
     message.add("includeLastValuationDate", null, FudgeWireType.BOOLEAN, isIncludeLastValuationDate());
-    message.add("timeZone", null, FudgeWireType.STRING, getTimeZone().getID());
-    message.add("valuationTime", null, JSR310LocalTimeFieldType.INSTANCE, getValuationTime());
+    message.add("timeZone", null, FudgeWireType.STRING, getTimeZone().getId());
+    message.add("valuationTime", null, ThreeTenLocalTimeFieldType.INSTANCE, getValuationTime());
     if (getCorrection() != null) {
-      message.add("correction", null, JSR310InstantFieldType.INSTANCE, getCorrection());
+      message.add("correction", null, ThreeTenLocalTimeFieldType.INSTANCE, getCorrection());
     }
   }
 

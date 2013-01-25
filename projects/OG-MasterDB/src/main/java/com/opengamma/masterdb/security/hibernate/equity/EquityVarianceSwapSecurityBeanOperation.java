@@ -13,7 +13,7 @@ import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBean
 import static com.opengamma.masterdb.security.hibernate.Converters.validateFrequency;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;

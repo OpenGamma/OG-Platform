@@ -10,9 +10,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.time.Instant;
-
 import org.joda.beans.JodaBeanUtils;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;

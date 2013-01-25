@@ -18,10 +18,9 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-import javax.time.Instant;
-
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.EmptyFunctionParameters;

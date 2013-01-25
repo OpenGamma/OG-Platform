@@ -16,13 +16,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.time.Instant;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.cometd.Client;
 import org.cometd.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetResolver;
@@ -296,8 +295,8 @@ public class WebView {
 
           getRemote().startBatch();
 
-          final long valuationTimeMillis = update.getValuationTime().toEpochMillisLong();
-          final long calculationDurationMillis = update.getCalculationDuration().toMillisLong();
+          final long valuationTimeMillis = update.getValuationTime().toEpochMilli();
+          final long calculationDurationMillis = update.getCalculationDuration().toMillis();
 
           sendStartMessage(valuationTimeMillis, calculationDurationMillis);
           try {
@@ -329,7 +328,7 @@ public class WebView {
   }
 
   private void processResult(final ViewComputationResultModel resultModel) {
-    final long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
+    final long resultTimestamp = resultModel.getCalculationTime().toEpochMilli();
 
     if (getPrimitivesGrid() != null) {
       final ComputationTargetSpecification[] targets = getPrimitivesGrid().getGridStructure().getTargets();

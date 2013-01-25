@@ -13,10 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Duration;
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeType;

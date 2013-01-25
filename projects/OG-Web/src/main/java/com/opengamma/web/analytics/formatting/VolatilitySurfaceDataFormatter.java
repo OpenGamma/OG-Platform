@@ -11,13 +11,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.web.server.conversion.LabelFormatter;
 
@@ -151,9 +153,10 @@ import com.opengamma.web.server.conversion.LabelFormatter;
     if (axisValue instanceof Number) {
       return (Number) axisValue;
     } else if (axisValue instanceof LocalDate) {
-      return ((LocalDate) axisValue).toEpochDays();
+      return ((LocalDate) axisValue).toEpochDay();
     } else if (axisValue instanceof Tenor) {
-      return ((Tenor) axisValue).getPeriod().toEstimatedDuration().toSeconds();
+      Period period = ((Tenor) axisValue).getPeriod();
+      return DateUtils.estimatedDuration(period).getSeconds();
     }
     return null;
   }

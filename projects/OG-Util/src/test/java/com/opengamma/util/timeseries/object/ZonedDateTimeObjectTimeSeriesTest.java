@@ -5,9 +5,9 @@
  */
 package com.opengamma.util.timeseries.object;
 
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 /**
  * @author jim
@@ -15,7 +15,7 @@ import javax.time.calendar.ZonedDateTime;
 public abstract class ZonedDateTimeObjectTimeSeriesTest extends BigDecimalObjectTimeSeriesTest<ZonedDateTime> {
   
   public ZonedDateTime makeDate(int year, int month, int day) {
-    ZonedDateTime one = ZonedDateTime.of(LocalDateTime.ofMidnight(year, month, day), TimeZone.UTC);//TimeZone.of(java.util.TimeZone.getDefault().getID()));
+    ZonedDateTime one = ZonedDateTime.of(LocalDateTime.of(year, month, day, 0, 0), ZoneOffset.UTC);//ZoneId.of(java.util.TimeZone.getDefault().getID()));
     return one;
   }
   

@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.schedulegeneration;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
@@ -34,7 +34,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // TODO : Fix the code for the back stubs (is there a better way of handling this than just duplicating code?) - front stubs seem to work okay
   // TODO : Add the code for the first coupon's
   // TODO : Should convertDatesToDoubles be put somewhere else? To use it, need to create a GenerateCreditDefaultSwapPremiumLegSchedule object which is a bit wasteful
-  // TODO : Look at DateAdjuster class for IMM date handling
+  // TODO : Look at TemporalAdjuster class for IMM date handling
   // TODO : FrontLong stubs - e.g. startDate = 20/12/2007, effDate = 21/12/2007; first coupon at 20/6/2008. ISDA model first coupon at 20/3/2008 (seems to use start date not eff date)
   // TODO : Remove one of the overloaded convertdatesToDoubles methods
   // TODO : Rewrite and integrate constructISDACompliantCashflowSchedule into the code better
@@ -440,7 +440,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     }
 
     // Adjust the input date until it falls on a business day
-    while (!calendar.isWorkingDay(adjustedDate.toLocalDate())) {
+    while (!calendar.isWorkingDay(adjustedDate.getDate())) {
       adjustedDate = adjustedDate.plusDays(deltaDays);
     }
 

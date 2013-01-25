@@ -5,10 +5,10 @@
  */
 package com.opengamma.examples.generator;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -38,8 +38,8 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class AUDSwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
-  private static final ZonedDateTime TRADE_DATE = ZonedDateTime.of(LocalDate.of(2013, 9, 5), LocalTime.MIDNIGHT, TimeZone.UTC);
-  private static final ZonedDateTime MATURITY = ZonedDateTime.of(LocalDate.of(2015, 9, 5), LocalTime.MIDNIGHT, TimeZone.UTC);
+  private static final ZonedDateTime TRADE_DATE = LocalDate.of(2013, 9, 5).atStartOfDay(ZoneOffset.UTC);
+  private static final ZonedDateTime MATURITY = LocalDate.of(2015, 9, 5).atStartOfDay(ZoneOffset.UTC);
   private static final String COUNTERPARTY = "Cpty";
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Act/365");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Act/360");

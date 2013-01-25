@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.function;
 
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
@@ -50,7 +50,7 @@ public interface FunctionDefinition {
    * @param atInstant The snapshot time for which the function will be used.
    * @return The compiled function.
    */
-  CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant);
+  CompiledFunctionDefinition compile(FunctionCompilationContext context, Instant atInstant);
 
   /**
    * The unique identifier for a {@code FunctionDefinition} is the handle

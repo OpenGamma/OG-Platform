@@ -12,9 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -36,6 +33,9 @@ import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -514,12 +514,12 @@ public class BlotterResource {
     @Override
     public ZonedDateTime convertFromString(Class<? extends ZonedDateTime> cls, String localDateString) {
       LocalDate localDate = LocalDate.parse(localDateString);
-      return localDate.atTime(11, 0).atZone(TimeZone.UTC);
+      return localDate.atTime(11, 0).atZone(ZoneOffset.UTC);
     }
 
     @Override
     public String convertToString(ZonedDateTime dateTime) {
-      return dateTime.toLocalDate().toString();
+      return dateTime.getDate().toString();
     }
   }
 }

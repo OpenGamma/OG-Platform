@@ -14,10 +14,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.time.Duration;
-
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.Duration;
 
 import com.opengamma.engine.view.calcnode.msg.Invocations;
 import com.opengamma.engine.view.calcnode.msg.Invocations.PerConfiguration;
@@ -105,7 +104,7 @@ public class FunctionInvocationStatisticsSender implements FunctionInvocationSta
    */
   public void setUpdatePeriod(final Duration duration) {
     ArgumentChecker.notNull(duration, "duration");
-    _frequencyNanos = duration.toNanosLong();
+    _frequencyNanos = duration.toNanos();
   }
 
   // -------------------------------------------------------------------------

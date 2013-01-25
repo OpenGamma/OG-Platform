@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.exchange.Exchange;
@@ -53,11 +53,11 @@ public abstract class HistoricalValuationFunctionDefaults extends DefaultPropert
       super(ComputationTargetType.PORTFOLIO_NODE);
     }
 
-    private Pair<TimeZone, LocalTime> getDefaults(final GetDefaults getDefaults, final PortfolioNode node) {
-      TimeZone timeZone = null;
+    private Pair<ZoneId, LocalTime> getDefaults(final GetDefaults getDefaults, final PortfolioNode node) {
+      ZoneId timeZone = null;
       LocalTime valuationTime = null;
       for (final Position position : node.getPositions()) {
-        final Pair<TimeZone, LocalTime> found = getDefaults(getDefaults, position);
+        final Pair<ZoneId, LocalTime> found = getDefaults(getDefaults, position);
         if (found != null) {
           if (found.getFirst() != null) {
             if (timeZone != null) {
@@ -80,7 +80,7 @@ public abstract class HistoricalValuationFunctionDefaults extends DefaultPropert
         }
       }
       for (final PortfolioNode child : node.getChildNodes()) {
-        final Pair<TimeZone, LocalTime> found = getDefaults(getDefaults, child);
+        final Pair<ZoneId, LocalTime> found = getDefaults(getDefaults, child);
         if (found != null) {
           if (found.getFirst() != null) {
             if (timeZone != null) {
@@ -110,7 +110,7 @@ public abstract class HistoricalValuationFunctionDefaults extends DefaultPropert
     }
 
     @Override
-    protected Pair<TimeZone, LocalTime> getDefaults(final GetDefaults getDefaults, final ComputationTarget target) {
+    protected Pair<ZoneId, LocalTime> getDefaults(final GetDefaults getDefaults, final ComputationTarget target) {
       try {
         return getDefaults(getDefaults, target.getPortfolioNode());
       } catch (final IllegalStateException e) {
@@ -130,7 +130,7 @@ public abstract class HistoricalValuationFunctionDefaults extends DefaultPropert
     }
 
     @Override
-    protected Pair<TimeZone, LocalTime> getDefaults(final GetDefaults getDefaults, final ComputationTarget target) {
+    protected Pair<ZoneId, LocalTime> getDefaults(final GetDefaults getDefaults, final ComputationTarget target) {
       return getDefaults(getDefaults, target.getPositionOrTrade());
     }
 
@@ -146,7 +146,7 @@ public abstract class HistoricalValuationFunctionDefaults extends DefaultPropert
     }
 
     @Override
-    protected Pair<TimeZone, LocalTime> getDefaults(final GetDefaults getDefaults, final ComputationTarget target) {
+    protected Pair<ZoneId, LocalTime> getDefaults(final GetDefaults getDefaults, final ComputationTarget target) {
       return getDefaults.call(target.getSecurity());
     }
 
@@ -162,13 +162,13 @@ public abstract class HistoricalValuationFunctionDefaults extends DefaultPropert
       _exchanges = exchanges;
     }
 
-    public Pair<TimeZone, LocalTime> call(final Security security) {
+    public Pair<ZoneId, LocalTime> call(final Security security) {
       if (_exchanges != null) {
         final ExternalId exchangeId = FinancialSecurityUtils.getExchange(security);
         if (exchangeId != null) {
           final Exchange exchange = _exchanges.getSingle(exchangeId);
           if (exchange != null) {
-            final TimeZone tz = exchange.getTimeZone();
+            final ZoneId tz = exchange.getTimeZone();
             // TODO: how do we get a closing time which we can use for the valuation time?
             if (tz != null) {
               return Pair.of(tz, null);
@@ -181,7 +181,7 @@ public abstract class HistoricalValuationFunctionDefaults extends DefaultPropert
         if (regionId != null) {
           try {
             final Collection<? extends Region> regions = _regions.get(regionId.toBundle(), VersionCorrection.LATEST); // TODO: this should be version = compilation time, correction = LATEST
-            TimeZone tz = null;
+            ZoneId tz = null;
             for (final Region region : regions) {
               if (region.getTimeZone() != null) {
                 tz = region.getTimeZone();
@@ -202,11 +202,11 @@ public abstract class HistoricalValuationFunctionDefaults extends DefaultPropert
 
   }
 
-  protected Pair<TimeZone, LocalTime> getDefaults(final GetDefaults getDefaults, final PositionOrTrade position) {
+  protected Pair<ZoneId, LocalTime> getDefaults(final GetDefaults getDefaults, final PositionOrTrade position) {
     return getDefaults.call(position.getSecurity());
   }
 
-  protected abstract Pair<TimeZone, LocalTime> getDefaults(final GetDefaults getDefaults, final ComputationTarget target);
+  protected abstract Pair<ZoneId, LocalTime> getDefaults(final GetDefaults getDefaults, final ComputationTarget target);
 
   // DefaultPropertyFunction
 
@@ -219,12 +219,12 @@ public abstract class HistoricalValuationFunctionDefaults extends DefaultPropert
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     final GetDefaults getDefaults = new GetDefaults(OpenGammaCompilationContext.getRegionSource(context), OpenGammaCompilationContext.getExchangeSource(context));
-    final Pair<TimeZone, LocalTime> defaults = getDefaults(getDefaults, target);
+    final Pair<ZoneId, LocalTime> defaults = getDefaults(getDefaults, target);
     if (defaults == null) {
       return null;
     }
     if (HistoricalValuationFunction.TIMEZONE_PROPERTY.equals(propertyName)) {
-      return Collections.singleton(defaults.getFirst().getID());
+      return Collections.singleton(defaults.getFirst().getId());
     } else if (HistoricalValuationFunction.VALUATION_TIME_PROPERTY.equals(propertyName)) {
       return Collections.singleton(defaults.getSecond().toString());
     }

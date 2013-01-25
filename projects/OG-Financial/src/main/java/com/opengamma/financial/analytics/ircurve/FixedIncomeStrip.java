@@ -16,6 +16,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.fudgemsg.FixedIncomeStripFudgeBuilder;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -374,7 +375,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   //-------------------------------------------------------------------------
   @Override
   public int compareTo(final FixedIncomeStrip other) {
-    int result = getEffectiveTenor().getPeriod().toPeriodFields().toEstimatedDuration().compareTo(other.getEffectiveTenor().getPeriod().toPeriodFields().toEstimatedDuration());
+    int result = DateUtils.estimatedDuration(getEffectiveTenor().getPeriod()).compareTo(DateUtils.estimatedDuration(other.getEffectiveTenor().getPeriod()));
     if (result != 0) {
       return result;
     }

@@ -13,11 +13,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.JodaBeanUtils;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Supplier;

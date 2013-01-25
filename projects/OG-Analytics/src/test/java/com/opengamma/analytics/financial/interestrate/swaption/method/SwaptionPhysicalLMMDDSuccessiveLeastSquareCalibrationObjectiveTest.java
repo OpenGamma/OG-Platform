@@ -6,11 +6,11 @@
 package com.opengamma.analytics.financial.interestrate.swaption.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -50,7 +50,7 @@ public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjectiveTest 
   private static final int[] SWAP_TENOR_YEAR = {1, 2, 3, 4, 5};
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
   private static final int EXPIRY_TENOR = 5;
-  private static final ZonedDateTime EXPIRY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofYears(EXPIRY_TENOR), EURIBOR6M);
+  private static final ZonedDateTime EXPIRY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(EXPIRY_TENOR, YEARS), EURIBOR6M);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, EURIBOR6M.getSpotLag(), TARGET);
 
   private static final double RATE = 0.0325;
@@ -75,7 +75,7 @@ public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjectiveTest 
     for (int loopp = 0; loopp < SWAP_TENOR; loopp++) {
       AMORTIZATION[loopp] = 1.0 - 1.0 * loopp / SWAP_TENOR;
     }
-    SWAP_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, Period.ofYears(SWAP_TENOR), EUR1YEURIBOR6M, NOTIONAL, RATE, FIXED_IS_PAYER);
+    SWAP_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, Period.of(SWAP_TENOR, YEARS), EUR1YEURIBOR6M, NOTIONAL, RATE, FIXED_IS_PAYER);
     final CouponFixedDefinition[] cpnFixed = new CouponFixedDefinition[SWAP_TENOR];
     final AnnuityCouponFixedDefinition legFixed = SWAP_DEFINITION.getFixedLeg();
     final CouponIborDefinition[] cpnIbor = new CouponIborDefinition[2 * SWAP_TENOR];

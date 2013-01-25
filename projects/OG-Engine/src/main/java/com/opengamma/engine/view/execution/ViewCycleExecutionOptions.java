@@ -8,10 +8,8 @@ package com.opengamma.engine.view.execution;
 import java.util.Collections;
 import java.util.List;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.springframework.util.ObjectUtils;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -52,8 +50,8 @@ public class ViewCycleExecutionOptions {
      * @param valuationTime the valuation time to set
      * @return this instance
      */
-    public Builder setValuationTime(final InstantProvider valuationTime) {
-      _valuationTime = (valuationTime != null) ? Instant.of(valuationTime) : null;
+    public Builder setValuationTime(final Instant valuationTime) {
+      _valuationTime = valuationTime;
       return this;
     }
 

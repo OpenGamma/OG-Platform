@@ -13,10 +13,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import javax.time.Duration;
-import javax.time.Instant;
-
 import org.apache.commons.lang.StringUtils;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.marketdata.PendingCombinedMarketDataSubscription.PendingCombinedSubscriptionState;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;

@@ -7,11 +7,11 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.generator.EURDeposit;
@@ -37,9 +37,9 @@ public class CouponFixedDiscountingMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 12, 12);
   private static final GeneratorDeposit DEPOSIT_EUR = new EURDeposit(EUR_CALENDAR);
 
-  private static final Period START_PERIOD = Period.ofMonths(6);
+  private static final Period START_PERIOD = Period.of(6, MONTHS);
   private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, START_PERIOD, DEPOSIT_EUR.getBusinessDayConvention(), EUR_CALENDAR, DEPOSIT_EUR.isEndOfMonth());
-  private static final Period CPN_TENOR = Period.ofMonths(12);
+  private static final Period CPN_TENOR = Period.of(12, MONTHS);
   private static final double NOTIONAL = 100000000;
   private static final double FIXED_RATE = 0.0250;
   private static final CouponFixedDefinition CPN_REC_DEFINITION = CouponFixedDefinition.from(START_DATE, CPN_TENOR, DEPOSIT_EUR, NOTIONAL, FIXED_RATE);

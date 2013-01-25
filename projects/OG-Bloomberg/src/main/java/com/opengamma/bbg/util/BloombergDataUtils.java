@@ -12,6 +12,9 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_ID_SEDOL1;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_CHAIN;
 import static com.opengamma.bbg.BloombergConstants.FIELD_PARSEKYABLE_DES;
 import static com.opengamma.bbg.BloombergConstants.ON_OFF_FIELDS;
+import static org.threeten.bp.temporal.ChronoField.DAY_OF_MONTH;
+import static org.threeten.bp.temporal.ChronoField.MONTH_OF_YEAR;
+import static org.threeten.bp.temporal.ChronoField.YEAR;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,19 +33,6 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.ISOChronology;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.OffsetTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.format.CalendricalParseException;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatterBuilder;
-import javax.time.calendar.format.DateTimeFormatters;
-
 import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +42,17 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.OffsetTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatterBuilder;
+import org.threeten.bp.format.DateTimeFormatters;
+import org.threeten.bp.format.DateTimeParseException;
+import org.threeten.bp.temporal.ISOFields;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.bloomberglp.blpapi.Datetime;
 import com.bloomberglp.blpapi.Element;
@@ -104,6 +105,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.impl.PositionSearchIterator;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 
@@ -119,7 +121,7 @@ public final class BloombergDataUtils {
   
   private static final Pattern s_bloombergTickerPattern = buildPattern();
   
-  private static final DateAdjuster s_monthlyExpiryAdjuster = new NextMonthlyExpiryAdjuster();
+  private static final TemporalAdjuster s_monthlyExpiryAdjuster = new NextMonthlyExpiryAdjuster();
 
   /**
    * The standard fields required for Bloomberg data, as a list.
@@ -168,21 +170,21 @@ public final class BloombergDataUtils {
   /**
    * Map from month to BBG month code
    */
-  private static final BiMap<MonthOfYear, String> s_monthCode;
+  private static final BiMap<Month, String> s_monthCode;
   static {
     s_monthCode = HashBiMap.create();
-    s_monthCode.put(MonthOfYear.JANUARY, "F");
-    s_monthCode.put(MonthOfYear.FEBRUARY, "G");
-    s_monthCode.put(MonthOfYear.MARCH, "H");
-    s_monthCode.put(MonthOfYear.APRIL, "J");
-    s_monthCode.put(MonthOfYear.MAY, "K");
-    s_monthCode.put(MonthOfYear.JUNE, "M");
-    s_monthCode.put(MonthOfYear.JULY, "N");
-    s_monthCode.put(MonthOfYear.AUGUST, "Q");
-    s_monthCode.put(MonthOfYear.SEPTEMBER, "U");
-    s_monthCode.put(MonthOfYear.OCTOBER, "V");
-    s_monthCode.put(MonthOfYear.NOVEMBER, "X");
-    s_monthCode.put(MonthOfYear.DECEMBER, "Z");
+    s_monthCode.put(Month.JANUARY, "F");
+    s_monthCode.put(Month.FEBRUARY, "G");
+    s_monthCode.put(Month.MARCH, "H");
+    s_monthCode.put(Month.APRIL, "J");
+    s_monthCode.put(Month.MAY, "K");
+    s_monthCode.put(Month.JUNE, "M");
+    s_monthCode.put(Month.JULY, "N");
+    s_monthCode.put(Month.AUGUST, "Q");
+    s_monthCode.put(Month.SEPTEMBER, "U");
+    s_monthCode.put(Month.OCTOBER, "V");
+    s_monthCode.put(Month.NOVEMBER, "X");
+    s_monthCode.put(Month.DECEMBER, "Z");
   }
 
   /**
@@ -485,7 +487,7 @@ public final class BloombergDataUtils {
       if (isValidField(validFromStr)) {
         try {
           validFrom = LocalDate.parse(validFromStr);
-        } catch (CalendricalParseException ex) {
+        } catch (DateTimeParseException ex) {
           s_logger.warn("valid from date not in yyyy-mm-dd format - {}", validFromStr);
         }
       }
@@ -493,7 +495,7 @@ public final class BloombergDataUtils {
       if (isValidField(validToStr)) {
         try {
           validTo = LocalDate.parse(validToStr);
-        } catch (CalendricalParseException ex) {
+        } catch (DateTimeParseException ex) {
           s_logger.warn("valid to date not in yyyy-mm-dd format - {}", validToStr);
         }
       }
@@ -718,7 +720,7 @@ public final class BloombergDataUtils {
 
   public static String dateToBbgCode(LocalDate date) {
     String y = Integer.toString(date.getYear());
-    return s_monthCode.get(date.getMonthOfYear()) + y.charAt(y.length() - 1);
+    return s_monthCode.get(date.getMonth()) + y.charAt(y.length() - 1);
   }
   
   public static ExternalId ricToBbgFuture(String ric) {
@@ -744,8 +746,8 @@ public final class BloombergDataUtils {
     }
   }
   
-  public static ExternalId futureBundleToGenericFutureTicker(ExternalIdBundle bundle, ZonedDateTime now, OffsetTime futureExpiryTime, TimeZone futureExpiryTimeZone) {
-    ZonedDateTime nextExpiry = s_monthlyExpiryAdjuster.adjustDate(now.toLocalDate()).atTime(now.toLocalTime()).atZone(now.getZone());
+  public static ExternalId futureBundleToGenericFutureTicker(ExternalIdBundle bundle, ZonedDateTime now, OffsetTime futureExpiryTime, ZoneId futureExpiryTimeZone) {
+    ZonedDateTime nextExpiry = now.getDate().with(s_monthlyExpiryAdjuster).atTime(now.getTime()).atZone(now.getZone());
     ExternalId bbgTicker = bundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
     if (bbgTicker == null) {
       throw new OpenGammaRuntimeException("Could not find a Bloomberg Ticker in the supplied bundle " + bundle.toString());
@@ -768,12 +770,12 @@ public final class BloombergDataUtils {
         } else if ((thisYear % 10) == year) {
           // This code assumes that the code is for this year, so constructs a trial date using the year and month and adjusts it forward to the expiry
           // note we're not taking into account exchange closing time here.
-          MonthOfYear month = s_monthCode.inverse().get(monthCode);
+          Month month = s_monthCode.inverse().get(monthCode);
           if (month == null) {
             throw new OpenGammaRuntimeException("Invalid month code " + monthCode);
           }
-          LocalDate nextExpiryIfThisYear = s_monthlyExpiryAdjuster.adjustDate(LocalDate.of((((thisYear / 10) * 10) + year), month, 1));
-          ZonedDateTime nextExpiryDateTimeIfThisYear = nextExpiryIfThisYear.atTime(futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone);
+          LocalDate nextExpiryIfThisYear = LocalDate.of((((thisYear / 10) * 10) + year), month, 1).with(s_monthlyExpiryAdjuster);
+          ZonedDateTime nextExpiryDateTimeIfThisYear = DateUtils.offsetDateTime(nextExpiryIfThisYear, futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone);
           if (now.isAfter(nextExpiryDateTimeIfThisYear)) {
             year = ((thisYear / 10) * 10) + 10 + year;
           } else {
@@ -800,8 +802,9 @@ public final class BloombergDataUtils {
       // phew.
       // now we generate the expiry of the future from the code:
       // Again, note that we're not taking into account exchange trading hours.
-      ZonedDateTime expiry = s_monthlyExpiryAdjuster.adjustDate(LocalDate.of(year, s_monthCode.inverse().get(monthCode), 1)).atTime(futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone);
-      int quarters = (Period.monthsBetween(nextExpiry, expiry).getMonths() / 3);
+      LocalDate expiryDate = LocalDate.of(year, s_monthCode.inverse().get(monthCode), 1).with(s_monthlyExpiryAdjuster);
+      ZonedDateTime expiry = DateUtils.offsetDateTime(expiryDate, futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone);
+      int quarters = (int) ISOFields.QUARTER_YEARS.between(nextExpiry, expiry).getAmount();
       int genericFutureNumber = quarters + 1;
       StringBuilder sb = new StringBuilder();
       sb.append(typeCode);
@@ -843,9 +846,9 @@ public final class BloombergDataUtils {
 
   private static DateTimeFormatter BLOOMBERG_DATE_FORMATTER = new DateTimeFormatterBuilder()
     .parseCaseInsensitive()
-    .appendValue(ISOChronology.yearRule(), 4)
-    .appendValue(ISOChronology.monthOfYearRule(), 2)
-    .appendValue(ISOChronology.dayOfMonthRule(), 2)
+    .appendValue(YEAR, 4)
+    .appendValue(MONTH_OF_YEAR, 2)
+    .appendValue(DAY_OF_MONTH, 2)
     .toFormatter();
 
   public static String toBloombergDate(LocalDate localDate) {
@@ -858,7 +861,7 @@ public final class BloombergDataUtils {
    * @param month the month of year, not null
    * @return the future month code, null if not available
    */
-  public static String futureMonthCode(MonthOfYear month) {
+  public static String futureMonthCode(Month month) {
     return s_monthCode.get(month);
   }
 

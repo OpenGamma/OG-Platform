@@ -5,14 +5,13 @@
  */
 package com.opengamma.core.id;
 
-import javax.time.CalendricalException;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.format.DateTimeFormatters;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.DateTimeException;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
@@ -293,7 +292,7 @@ public class ExternalSchemes {
         LocalDate.parse(maturity, DateTimeFormatters.pattern("MM/dd/YY"));
       } catch (final UnsupportedOperationException uoe) {
         s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
-      } catch (final CalendricalException ce) {
+      } catch (final DateTimeException ex) {
         s_logger.warn("Problem parsing maturity " + maturity + " ticker=" + tickerWithoutSector + ", coupon=" + coupon);
       }
     }
@@ -406,9 +405,9 @@ public class ExternalSchemes {
    * @param zone  the time-zone, not null
    * @return the region identifier, not null
    */
-  public static ExternalId timeZoneRegionId(final TimeZone zone) {
+  public static ExternalId timeZoneRegionId(final ZoneId zone) {
     ArgumentChecker.notNull(zone, "zone");
-    return ExternalId.of(ExternalSchemes.TZDB_TIME_ZONE, zone.getID());
+    return ExternalId.of(ExternalSchemes.TZDB_TIME_ZONE, zone.getId());
   }
 
   /**

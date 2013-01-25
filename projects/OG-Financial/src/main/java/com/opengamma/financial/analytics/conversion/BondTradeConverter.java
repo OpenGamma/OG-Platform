@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -16,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefini
 import com.opengamma.analytics.financial.instrument.bond.BondFixedTransactionDefinition;
 import com.opengamma.core.position.Trade;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -39,7 +39,7 @@ public class BondTradeConverter {
     final BondFixedSecurityDefinition bond = (BondFixedSecurityDefinition) underlying;
     final int quantity = 1; // trade.getQuantity().intValue();
     // REVIEW: The quantity mechanism should be reviewed.
-    final ZonedDateTime settlementDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()), TimeZone.UTC); //TODO
+    final ZonedDateTime settlementDate = DateUtils.offsetDateTime(trade.getTradeDate(), trade.getTradeTime()).atZoneSameInstant(ZoneOffset.UTC); //TODO get the real time zone
     final double price = trade.getPremium().doubleValue();
     return new BondFixedTransactionDefinition(bond, quantity, settlementDate, price);
   }

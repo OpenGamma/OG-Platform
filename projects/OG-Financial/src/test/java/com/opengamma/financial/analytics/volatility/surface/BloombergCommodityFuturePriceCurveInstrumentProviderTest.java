@@ -7,9 +7,8 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -44,14 +43,14 @@ public class BloombergCommodityFuturePriceCurveInstrumentProviderTest extends Fi
 
   @Test
   public void testSoybeanFutureExpiryCalculator_getExpiryMonth() {
-    assertEquals(DATE_AFTER_FIFTEENTH.plusMonths(4).getMonthOfYear(), EXPIRY_CALC.getExpiryMonth(1, DATE_AFTER_FIFTEENTH).getMonthOfYear());
-    assertEquals(DATE_AFTER_FIFTEENTH.plusMonths(8).getMonthOfYear(), EXPIRY_CALC.getExpiryMonth(3, DATE_AFTER_FIFTEENTH).getMonthOfYear());
-    assertEquals(DATE_AFTER_FIFTEENTH.plusMonths(10).getMonthOfYear(), EXPIRY_CALC.getExpiryMonth(5, DATE_AFTER_FIFTEENTH).getMonthOfYear());
-    assertEquals(DATE_BEFORE_FIFTEENTH.plusMonths(2).getMonthOfYear(), EXPIRY_CALC.getExpiryMonth(1, DATE_BEFORE_FIFTEENTH).getMonthOfYear());
-    assertEquals(DATE_BEFORE_FIFTEENTH.plusMonths(6).getMonthOfYear(), EXPIRY_CALC.getExpiryMonth(3, DATE_BEFORE_FIFTEENTH).getMonthOfYear());
-    assertEquals(DATE_BEFORE_FIFTEENTH.plusMonths(9).getMonthOfYear(), EXPIRY_CALC.getExpiryMonth(5, DATE_BEFORE_FIFTEENTH).getMonthOfYear());
-    assertEquals(DATE_BEFORE_FIFTEENTH.plusMonths(16).getMonthOfYear(), EXPIRY_CALC.getExpiryMonth(9, DATE_BEFORE_FIFTEENTH).getMonthOfYear());
-    assertEquals(DATE_IN_DECEMBER.plusMonths(1).getMonthOfYear(), EXPIRY_CALC.getExpiryMonth(1, DATE_IN_DECEMBER).getMonthOfYear());
+    assertEquals(DATE_AFTER_FIFTEENTH.plusMonths(4).getMonth(), EXPIRY_CALC.getExpiryMonth(1, DATE_AFTER_FIFTEENTH).getMonth());
+    assertEquals(DATE_AFTER_FIFTEENTH.plusMonths(8).getMonth(), EXPIRY_CALC.getExpiryMonth(3, DATE_AFTER_FIFTEENTH).getMonth());
+    assertEquals(DATE_AFTER_FIFTEENTH.plusMonths(10).getMonth(), EXPIRY_CALC.getExpiryMonth(5, DATE_AFTER_FIFTEENTH).getMonth());
+    assertEquals(DATE_BEFORE_FIFTEENTH.plusMonths(2).getMonth(), EXPIRY_CALC.getExpiryMonth(1, DATE_BEFORE_FIFTEENTH).getMonth());
+    assertEquals(DATE_BEFORE_FIFTEENTH.plusMonths(6).getMonth(), EXPIRY_CALC.getExpiryMonth(3, DATE_BEFORE_FIFTEENTH).getMonth());
+    assertEquals(DATE_BEFORE_FIFTEENTH.plusMonths(9).getMonth(), EXPIRY_CALC.getExpiryMonth(5, DATE_BEFORE_FIFTEENTH).getMonth());
+    assertEquals(DATE_BEFORE_FIFTEENTH.plusMonths(16).getMonth(), EXPIRY_CALC.getExpiryMonth(9, DATE_BEFORE_FIFTEENTH).getMonth());
+    assertEquals(DATE_IN_DECEMBER.plusMonths(1).getMonth(), EXPIRY_CALC.getExpiryMonth(1, DATE_IN_DECEMBER).getMonth());
   }
 
   @Test

@@ -11,12 +11,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -83,11 +82,11 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext compilationContext, final InstantProvider atInstantProvider) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext compilationContext, final Instant atInstant) {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(compilationContext);
     final SyntheticSwaptionVolatilityCubeDefinitionSource definitionSource = new SyntheticSwaptionVolatilityCubeDefinitionSource(configSource);
     final ConfigDBSwaptionVolatilityCubeSpecificationSource specificationSource = new ConfigDBSwaptionVolatilityCubeSpecificationSource(configSource);
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
+    final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     return new AbstractInvokingCompiledFunction() {
 
       @SuppressWarnings("synthetic-access")
@@ -184,7 +183,7 @@ public class RawSwaptionVolatilityCubeDataFunction extends AbstractFunction {
         }
         final String definitionName = definitionNames.iterator().next();
         final String specificationName = specificationNames.iterator().next();
-        return buildDataRequirements(specificationSource, definitionSource, atInstant, target, specificationName, definitionName);
+        return buildDataRequirements(specificationSource, definitionSource, atZDT, target, specificationName, definitionName);
       }
     };
   }

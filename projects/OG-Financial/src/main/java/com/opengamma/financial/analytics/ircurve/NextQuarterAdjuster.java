@@ -5,29 +5,31 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+
 import java.util.EnumSet;
 import java.util.Set;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
+import org.threeten.bp.Month;
+import org.threeten.bp.temporal.Temporal;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 /**
- * A {@code DateAdjuster} that moves the date to the next March/June/September/December.
+ * A {@code TemporalAdjuster} that moves the date to the next March/June/September/December.
  */
-public class NextQuarterAdjuster implements DateAdjuster {
+public class NextQuarterAdjuster implements TemporalAdjuster {
 
   /**
    * The expiry months.
    */
-  private final Set<MonthOfYear> _futureQuarters = EnumSet.of(MonthOfYear.MARCH, MonthOfYear.JUNE, MonthOfYear.SEPTEMBER, MonthOfYear.DECEMBER);
+  private final Set<Month> _futureQuarters = EnumSet.of(Month.MARCH, Month.JUNE, Month.SEPTEMBER, Month.DECEMBER);
 
   @Override
-  public LocalDate adjustDate(LocalDate date) {
-    LocalDate result = date;
+  public Temporal adjustInto(Temporal temporal) {
+    Temporal result = temporal;
     do {
-      result = result.plusMonths(1);
-    } while (!_futureQuarters.contains(result.getMonthOfYear()));
+      result = result.plus(1, MONTHS);
+    } while (!_futureQuarters.contains(Month.from(result)));
     return result;
   }
 

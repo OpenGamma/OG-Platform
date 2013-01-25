@@ -12,9 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Duration;
-
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.threeten.bp.Duration;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;

@@ -28,7 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.timeseries.DoubleTimeSeriesOperators.BinaryOperator;
@@ -740,7 +741,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   //-------------------------------------------------------------------------
-  public javax.time.calendar.TimeZone getTimeZone310() {
+  public ZoneId getTimeZone310() {
     return getConverter().getTimeZone310();
   }
 
@@ -770,7 +771,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(final javax.time.calendar.TimeZone timeZone) {
+  public LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(final ZoneId timeZone) {
     return new ArrayLocalDateDoubleTimeSeries(timeZone, toFastIntDaysDTS());
   }
 
@@ -780,7 +781,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(final javax.time.calendar.TimeZone timeZone) {
+  public MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(final ZoneId timeZone) {
     return new ListLocalDateDoubleTimeSeries(timeZone, toFastMutableIntDaysDTS());
   }
 
@@ -851,7 +852,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries(final javax.time.calendar.TimeZone timeZone) {
+  public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries(final ZoneId timeZone) {
     return new ArrayZonedDateTimeDoubleTimeSeries(timeZone, toFastLongMillisDTS());
   }
 
@@ -861,7 +862,7 @@ public abstract class AbstractFastBackedDoubleTimeSeries<DATE_TYPE> implements D
   }
 
   @Override
-  public MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries(final javax.time.calendar.TimeZone timeZone) {
+  public MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries(final ZoneId timeZone) {
     return new ListZonedDateTimeDoubleTimeSeries(timeZone, toFastMutableLongMillisDTS());
   }
 

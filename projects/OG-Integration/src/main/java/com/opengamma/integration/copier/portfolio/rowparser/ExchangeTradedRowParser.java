@@ -10,9 +10,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-import javax.time.calendar.ZoneOffset;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.position.Counterparty;
@@ -106,7 +106,7 @@ public class ExchangeTradedRowParser extends RowParser {
               position.getQuantity(), 
               security.getExternalIdBundle(), 
               tradeDate, 
-              OffsetTime.of(11, 11, ZoneOffset.UTC), 
+              LocalTime.of(11, 11).atOffset(ZoneOffset.UTC), 
               counterpartyId);
       return result;
      

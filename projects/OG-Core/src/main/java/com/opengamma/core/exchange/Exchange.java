@@ -5,7 +5,7 @@
  */
 package com.opengamma.core.exchange;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalIdBundle;
@@ -36,7 +36,7 @@ public interface Exchange extends UniqueIdentifiable, ExternalBundleIdentifiable
    * 
    * @return the time-zone of the exchange, null if time-zone unknown
    */
-  TimeZone getTimeZone();
+  ZoneId getTimeZone();
 
   /**
    * Gets the name of the exchange intended for display purposes.

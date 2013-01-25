@@ -9,10 +9,9 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.bbg.BloombergIdentifierProvider;

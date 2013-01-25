@@ -8,12 +8,11 @@ package com.opengamma.analytics.financial.schedule;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
-import javax.time.CalendricalException;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.DateTimeException;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.time.DateUtils;
 
@@ -22,7 +21,7 @@ import com.opengamma.util.time.DateUtils;
  */
 public class AnnualScheduleOnDayAndMonthCalculatorTest extends ScheduleCalculatorTestCase {
   private static final int DAY_OF_MONTH = 15;
-  private static final MonthOfYear MONTH_OF_YEAR = MonthOfYear.APRIL;
+  private static final Month MONTH_OF_YEAR = Month.APRIL;
   private static final AnnualScheduleOnDayAndMonthCalculator CALCULATOR = new AnnualScheduleOnDayAndMonthCalculator(DAY_OF_MONTH, MONTH_OF_YEAR);
 
   @Override
@@ -30,14 +29,14 @@ public class AnnualScheduleOnDayAndMonthCalculatorTest extends ScheduleCalculato
     return CALCULATOR;
   }
 
-  @Test(expectedExceptions = CalendricalException.class)
+  @Test(expectedExceptions = DateTimeException.class)
   public void testNegativeDay() {
     new AnnualScheduleOnDayAndMonthCalculator(-DAY_OF_MONTH, MONTH_OF_YEAR);
   }
 
-  @Test(expectedExceptions = CalendricalException.class)
+  @Test(expectedExceptions = DateTimeException.class)
   public void testBadDay() {
-    new AnnualScheduleOnDayAndMonthCalculator(31, MonthOfYear.FEBRUARY);
+    new AnnualScheduleOnDayAndMonthCalculator(31, Month.FEBRUARY);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -87,7 +86,7 @@ public class AnnualScheduleOnDayAndMonthCalculatorTest extends ScheduleCalculato
     assertEquals(forwards[years - 1], LocalDate.of(2010, MONTH_OF_YEAR.getValue(), DAY_OF_MONTH));
     for (int i = 1; i < years; i++) {
       assertEquals(forwards[i].getYear() - forwards[i - 1].getYear(), 1);
-      assertEquals(forwards[i].getMonthOfYear(), MONTH_OF_YEAR);
+      assertEquals(forwards[i].getMonth(), MONTH_OF_YEAR);
       assertEquals(forwards[i].getDayOfMonth(), DAY_OF_MONTH);
     }
     assertArrayEquals(forwards, CALCULATOR.getSchedule(startDate, endDate, true, true));
@@ -113,7 +112,7 @@ public class AnnualScheduleOnDayAndMonthCalculatorTest extends ScheduleCalculato
     assertEquals(forwards[years - 1], DateUtils.getUTCDate(2010, MONTH_OF_YEAR.getValue(), DAY_OF_MONTH));
     for (int i = 1; i < years; i++) {
       assertEquals(forwards[i].getYear() - forwards[i - 1].getYear(), 1);
-      assertEquals(forwards[i].getMonthOfYear(), MONTH_OF_YEAR);
+      assertEquals(forwards[i].getMonth(), MONTH_OF_YEAR);
       assertEquals(forwards[i].getDayOfMonth(), DAY_OF_MONTH);
     }
     assertArrayEquals(forwards, CALCULATOR.getSchedule(startDate, endDate, true, true));

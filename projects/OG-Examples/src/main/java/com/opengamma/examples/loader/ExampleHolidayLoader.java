@@ -5,7 +5,7 @@
  */
 package com.opengamma.examples.loader;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.holiday.Holiday;

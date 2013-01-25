@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.equity.variance;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
@@ -124,11 +124,11 @@ public class EquityVarianceSwapDefinition extends VarianceSwapDefinition {
     if (timeToObsStart > 0) {
       realizedTS = ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES;
     } else {
-      realizedTS = underlyingTimeSeries.subSeries(getObsStartDate().toLocalDate(), true, valueDate.toLocalDate(), false);
+      realizedTS = underlyingTimeSeries.subSeries(getObsStartDate().getDate(), true, valueDate.getDate(), false);
     }
     final double[] observations = realizedTS.toFastIntDoubleTimeSeries().valuesArrayFast();
     final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    final int nGoodBusinessDays = countExpectedGoodDays(getObsStartDate().toLocalDate(), valueDate.toLocalDate(), getCalendar(), getObsFreq());
+    final int nGoodBusinessDays = countExpectedGoodDays(getObsStartDate().getDate(), valueDate.getDate(), getCalendar(), getObsFreq());
     final int nObsDisrupted = nGoodBusinessDays - observations.length;
     ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
     return new EquityVarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, getVarStrike(), getVarNotional(), getCurrency(),

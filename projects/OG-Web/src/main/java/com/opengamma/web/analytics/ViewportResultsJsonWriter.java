@@ -96,7 +96,7 @@ public class ViewportResultsJsonWriter {
       }
       results.add(valueMap);
     }
-    String duration = _durationFormatter.format(new BigDecimal(viewportResults.getCalculationDuration().toMillisLong()));
+    String duration = _durationFormatter.format(new BigDecimal(viewportResults.getCalculationDuration().toMillis()));
     ImmutableMap<String, Object> resultsMap = ImmutableMap.of(VERSION, viewportResults.getVersion(),
                                                               CALCULATION_DURATION, duration,
                                                               DATA, results);

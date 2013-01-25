@@ -21,14 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -278,11 +277,11 @@ public class DbBatchWriterTest extends DbTest {
     // Map<String, String> props = run2.getPropertiesMap();
     //assertEquals(10, props.size());
     //assertEquals("AD_HOC_RUN", props.getId("observationTime"));
-    //assertEquals(ZonedDateTime.ofInstant(run2.getCreateInstant(), TimeZone.UTC).toString(), props.getId("valuationTime"));
+    //assertEquals(ZonedDateTime.ofInstant(run2.getCreateInstant(), ZoneOffset.UTC).toString(), props.getId("valuationTime"));
     //assertEquals("test_view", props.getId("view"));
-    //assertEquals(ZonedDateTime.ofInstant(run2.getCreateInstant(), TimeZone.UTC).getZone().toString(), props.getId("timeZone"));
-    //assertEquals(ZonedDateTime.ofInstant(run2.getCreateInstant(), TimeZone.UTC).toLocalTime().toString(), props.getId("staticDataTime"));
-    //assertEquals(ZonedDateTime.ofInstant(run2.getCreateInstant(), TimeZone.UTC).toLocalTime().toString(), props.getId("configDbTime"));
+    //assertEquals(ZonedDateTime.ofInstant(run2.getCreateInstant(), ZoneOffset.UTC).getZone().toString(), props.getId("timeZone"));
+    //assertEquals(ZonedDateTime.ofInstant(run2.getCreateInstant(), ZoneOffset.UTC).toLocalTime().toString(), props.getId("staticDataTime"));
+    //assertEquals(ZonedDateTime.ofInstant(run2.getCreateInstant(), ZoneOffset.UTC).toLocalTime().toString(), props.getId("configDbTime"));
 //    assertEquals("Manual run2 started on "
 //        + run2.getCreateInstant().toString()
 //        + " by "

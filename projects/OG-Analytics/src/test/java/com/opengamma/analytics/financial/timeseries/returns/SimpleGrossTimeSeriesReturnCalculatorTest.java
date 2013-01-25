@@ -9,10 +9,9 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -44,7 +43,7 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
 
   @Test(expectedExceptions = TimeSeriesException.class)
   public void testWithBadInputs() {
-    final LocalDateDoubleTimeSeries ts = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(1) }, new double[] {4});
+    final LocalDateDoubleTimeSeries ts = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDay(1) }, new double[] {4});
     CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {ts});
   }
 
@@ -56,7 +55,7 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
     final double[] returns = new double[n - 1];
     double random;
     for (int i = 0; i < n; i++) {
-      times[i] = LocalDate.ofEpochDays(i);
+      times[i] = LocalDate.ofEpochDay(i);
       random = RANDOM.nextDouble();
       data[i] = random;
       if (i > 0) {
@@ -76,16 +75,16 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
     final double[] returns = new double[n - 3];
     double random;
     for (int i = 0; i < n - 2; i++) {
-      times[i] = LocalDate.ofEpochDays(i);
+      times[i] = LocalDate.ofEpochDay(i);
       random = RANDOM.nextDouble();
       data[i] = random;
       if (i > 0) {
         returns[i - 1] = random / data[i - 1];
       }
     }
-    times[n - 2] = LocalDate.ofEpochDays(n - 2);
+    times[n - 2] = LocalDate.ofEpochDay(n - 2);
     data[n - 2] = 0;
-    times[n - 1] = LocalDate.ofEpochDays(n - 1);
+    times[n - 1] = LocalDate.ofEpochDay(n - 1);
     data[n - 1] = RANDOM.nextDouble();
     final LocalDateDoubleTimeSeries priceTS = new ArrayLocalDateDoubleTimeSeries(times, data);
     final LocalDateDoubleTimeSeries returnTS = new ArrayLocalDateDoubleTimeSeries(Arrays.copyOfRange(times, 1, n - 2), returns);
@@ -108,14 +107,14 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
     final double[] returns = new double[n - 1];
     double random;
     for (int i = 0; i < n; i++) {
-      times[i] = LocalDate.ofEpochDays(i);
+      times[i] = LocalDate.ofEpochDay(i);
       random = RANDOM.nextDouble();
       data[i] = random;
       if (i > 0) {
         returns[i - 1] = random / data[i - 1];
       }
     }
-    final LocalDateDoubleTimeSeries dividendTS = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] { LocalDate.ofEpochDays(300) }, new double[] {3});
+    final LocalDateDoubleTimeSeries dividendTS = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] { LocalDate.ofEpochDay(300) }, new double[] {3});
     final LocalDateDoubleTimeSeries priceTS = new ArrayLocalDateDoubleTimeSeries(times, data);
     final LocalDateDoubleTimeSeries returnTS = new ArrayLocalDateDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
     assertTrue(CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {priceTS, dividendTS}).equals(returnTS));
@@ -127,11 +126,11 @@ public class SimpleGrossTimeSeriesReturnCalculatorTest {
     final LocalDate[] times = new LocalDate[n];
     final double[] data = new double[n];
     final double[] returns = new double[n - 1];
-    final LocalDate[] dividendTimes = new LocalDate[] { LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(4) };
+    final LocalDate[] dividendTimes = new LocalDate[] { LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(4) };
     final double[] dividendData = new double[] {0.4, 0.6};
     double random;
     for (int i = 0; i < n; i++) {
-      times[i] = LocalDate.ofEpochDays(i);
+      times[i] = LocalDate.ofEpochDay(i);
       random = RANDOM.nextDouble();
       data[i] = random;
       if (i > 0) {

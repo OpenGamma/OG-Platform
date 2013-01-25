@@ -10,9 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -131,15 +130,15 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
     Double value;
     for (int i = 0; i < 100; i++) {
       d = RANDOM.nextDouble();
-      dates.add(LocalDate.ofEpochDays(i));
+      dates.add(LocalDate.ofEpochDay(i));
       if (d < 0.25) {
         value = d < 0.1 ? MIN - d : MAX + d;
         data.add(value);
-        rejectedDates.add(LocalDate.ofEpochDays(i));
+        rejectedDates.add(LocalDate.ofEpochDay(i));
         rejectedData.add(value);
       } else {
         data.add(d);
-        filteredDates.add(LocalDate.ofEpochDays(i));
+        filteredDates.add(LocalDate.ofEpochDay(i));
         filteredData.add(d);
       }
     }

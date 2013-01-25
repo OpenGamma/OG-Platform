@@ -14,9 +14,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
 
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.target.ComputationTargetReference;

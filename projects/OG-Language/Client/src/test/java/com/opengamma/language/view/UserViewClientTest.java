@@ -7,9 +7,8 @@ package com.opengamma.language.view;
 
 import static org.testng.Assert.assertEquals;
 
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
