@@ -100,7 +100,6 @@ $.register_module({
                     }
                 }); 
                 form.on('form:submit', function (result){
-                    console.log(result);
                     og.api.rest.blotter.trades.put(result.data);
                 });
                 form.on('change', '#' + pay_select.id, function (event) {

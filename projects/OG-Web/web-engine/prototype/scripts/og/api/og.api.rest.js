@@ -236,7 +236,8 @@ $.register_module({
                 var blotter = {  
                     root: 'blotter',
                     get: not_available_get, put: not_available_put, del: not_available_del, // no requests to /blotter
-                    trades: {root: 'blotter/trades'}
+                    trades: {root: 'blotter/trades'},
+                    securities: {root: 'blotter/securities'}
                 };
                 [ // blotter/lookup/* endpoints
                     'barrierdirections', 'barriertypes', 'businessdayconventions', 'daycountconventions',
@@ -247,6 +248,12 @@ $.register_module({
                         root: 'blotter/lookup/' + key, get: simple_get, put: not_available_put, del: not_available_del
                     };
                 });
+                blotter.securities.get = function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), meta;
+                    meta = check({bundle: {method: root + '#get', config: config}, required: [{all_of: ['id']}]});
+                    return request(method.concat(config.id), {data: {}, meta: meta});
+                };
                 blotter.trades.get = function (config) {
                     config = config || {};
                     var root = this.root, method = root.split('/'), meta;
