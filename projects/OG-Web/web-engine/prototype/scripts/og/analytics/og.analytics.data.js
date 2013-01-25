@@ -68,7 +68,7 @@ $.register_module({
             })();
             var initialize = function () {
                 var message, put_options = ['viewdefinition', 'aggregators', 'providers']
-                    .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {});
+                    .reduce(function (acc, val) {return (acc[val] = source[val]), acc;}, {blotter: !!source.blotter});
                 if (depgraph || bypass_types) grid_type = source.type; // don't bother with type_setup
                 if (view_id && grid_type) return structure_setup();
                 if (grid_type) return api.put(put_options).pipe(view_handler).pipe(structure_handler);

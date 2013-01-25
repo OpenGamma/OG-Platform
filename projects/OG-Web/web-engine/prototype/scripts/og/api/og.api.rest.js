@@ -616,11 +616,12 @@ $.register_module({
                     var promise = promise || new Promise,
                         root = this.root, method = [root], data = {}, meta,
                         fields = [
-                            'viewdefinition', 'aggregators', 'providers', 'valuation', 'version', 'correction'
+                            'viewdefinition', 'aggregators', 'providers', 'valuation',
+                            'version', 'correction', 'blotter'
                         ],
                         api_fields = [
-                            'viewDefinitionId', 'aggregators', 'marketDataProviders',
-                            'valuationTime', 'portfolioVersionTime', 'portfolioCorrectionTime'
+                            'viewDefinitionId', 'aggregators', 'marketDataProviders', 'valuationTime',
+                            'portfolioVersionTime', 'portfolioCorrectionTime', 'blotter'
                         ];
                     if (!api.id) return setTimeout((function (context) {                    // if handshake isn't
                         return function () {api.views.put.call(context, config, promise);}; // complete, return a
