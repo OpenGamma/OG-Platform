@@ -23,8 +23,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
 
 /**
  *
@@ -147,17 +145,6 @@ public abstract class CommodityBlackVolatilitySurfaceFunction extends BlackVolat
   @Override
   protected String getInstrumentType() {
     return InstrumentTypeProperties.COMMODITY_FUTURE_OPTION;
-  }
-
-  @Override
-  protected String getSurfaceQuoteUnits() {
-    return SurfaceAndCubePropertyNames.VOLATILITY_QUOTE;
-  }
-
-  @Override
-  //TODO Consider whether we might make this variable by reading the volatility specification.
-  protected String getSurfaceQuoteType() {
-    return SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE;
   }
 
   @Override

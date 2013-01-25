@@ -316,7 +316,7 @@ public class BjerksundStenslandModel {
   }
 
   /**
-   * Get the option price, plus its delta and gamma. <b>Note</b> if a put is required, the gamma is found by divided differecne on the delta. For a call both delta and gamma
+   * Get the option price, plus its delta and gamma. <b>Note</b> if a put is required, the gamma is found by divided difference on the delta. For a call both delta and gamma
    * are found by Algorithmic Differentiation.
    * @param s0 The spot
    * @param k The strike

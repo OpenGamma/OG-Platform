@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import org.joda.convert.StringConverter;
+import org.joda.convert.StringConvert;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
@@ -22,6 +22,8 @@ import com.opengamma.master.security.ManageableSecurity;
 
 public class BlotterResourceTest {
 
+  private final StringConvert _stringConvert = BlotterResource.getStringConvert();
+  
   @Test
   public void isSecurity() {
     assertTrue(BlotterResource.isSecurity(ManageableSecurity.class));
@@ -32,36 +34,41 @@ public class BlotterResourceTest {
 
   @Test
   public void convertBarrierTypes() {
-    StringConverter<BarrierType> converter = BlotterResource.getStringConvert().findConverter(BarrierType.class);
-    assertEquals("Up", converter.convertToString(BarrierType.UP));
-    assertEquals("Down", converter.convertToString(BarrierType.DOWN));
-    assertEquals("Double", converter.convertToString(BarrierType.DOUBLE));
-    assertEquals(BarrierType.UP, converter.convertFromString(BarrierType.class, "Up"));
-    assertEquals(BarrierType.DOWN, converter.convertFromString(BarrierType.class, "Down"));
-    assertEquals(BarrierType.DOUBLE, converter.convertFromString(BarrierType.class, "Double"));
+    assertEquals("Up", _stringConvert.convertToString(BarrierType.UP));
+    assertEquals("Down", _stringConvert.convertToString(BarrierType.DOWN));
+    assertEquals("Double", _stringConvert.convertToString(BarrierType.DOUBLE));
+    assertEquals(BarrierType.UP, _stringConvert.convertFromString(BarrierType.class, "Up"));
+    assertEquals(BarrierType.DOWN, _stringConvert.convertFromString(BarrierType.class, "Down"));
+    assertEquals(BarrierType.DOUBLE, _stringConvert.convertFromString(BarrierType.class, "Double"));
   }
 
   @Test
   public void convertBarrierDirections() {
-    StringConverter<BarrierDirection> converter = BlotterResource.getStringConvert().findConverter(BarrierDirection.class);
-    assertEquals("Knock In", converter.convertToString(BarrierDirection.KNOCK_IN));
-    assertEquals("Knock Out", converter.convertToString(BarrierDirection.KNOCK_OUT));
-    assertEquals(BarrierDirection.KNOCK_IN, converter.convertFromString(BarrierDirection.class, "Knock In"));
-    assertEquals(BarrierDirection.KNOCK_OUT, converter.convertFromString(BarrierDirection.class, "Knock Out"));
+    assertEquals("Knock In", _stringConvert.convertToString(BarrierDirection.KNOCK_IN));
+    assertEquals("Knock Out", _stringConvert.convertToString(BarrierDirection.KNOCK_OUT));
+    assertEquals(BarrierDirection.KNOCK_IN, _stringConvert.convertFromString(BarrierDirection.class, "Knock In"));
+    assertEquals(BarrierDirection.KNOCK_OUT, _stringConvert.convertFromString(BarrierDirection.class, "Knock Out"));
   }
 
   @Test
   public void convertSamplingFrequencies() {
-    StringConverter<SamplingFrequency> converter = BlotterResource.getStringConvert().findConverter(SamplingFrequency.class);
-    assertEquals("Daily Close", converter.convertToString(SamplingFrequency.DAILY_CLOSE));
-    assertEquals("Friday", converter.convertToString(SamplingFrequency.FRIDAY));
-    assertEquals("Weekly Close", converter.convertToString(SamplingFrequency.WEEKLY_CLOSE));
-    assertEquals("Continuous", converter.convertToString(SamplingFrequency.CONTINUOUS));
-    assertEquals("One Look", converter.convertToString(SamplingFrequency.ONE_LOOK));
-    assertEquals(SamplingFrequency.DAILY_CLOSE, converter.convertFromString(SamplingFrequency.class, "Daily Close"));
-    assertEquals(SamplingFrequency.FRIDAY, converter.convertFromString(SamplingFrequency.class, "Friday"));
-    assertEquals(SamplingFrequency.WEEKLY_CLOSE, converter.convertFromString(SamplingFrequency.class, "Weekly Close"));
-    assertEquals(SamplingFrequency.CONTINUOUS, converter.convertFromString(SamplingFrequency.class, "Continuous"));
-    assertEquals(SamplingFrequency.ONE_LOOK, converter.convertFromString(SamplingFrequency.class, "One Look"));
+    assertEquals("Daily Close", _stringConvert.convertToString(SamplingFrequency.DAILY_CLOSE));
+    assertEquals("Friday", _stringConvert.convertToString(SamplingFrequency.FRIDAY));
+    assertEquals("Weekly Close", _stringConvert.convertToString(SamplingFrequency.WEEKLY_CLOSE));
+    assertEquals("Continuous", _stringConvert.convertToString(SamplingFrequency.CONTINUOUS));
+    assertEquals("One Look", _stringConvert.convertToString(SamplingFrequency.ONE_LOOK));
+    assertEquals(SamplingFrequency.DAILY_CLOSE, _stringConvert.convertFromString(SamplingFrequency.class, "Daily Close"));
+    assertEquals(SamplingFrequency.FRIDAY, _stringConvert.convertFromString(SamplingFrequency.class, "Friday"));
+    assertEquals(SamplingFrequency.WEEKLY_CLOSE, _stringConvert.convertFromString(SamplingFrequency.class, "Weekly Close"));
+    assertEquals(SamplingFrequency.CONTINUOUS, _stringConvert.convertFromString(SamplingFrequency.class, "Continuous"));
+    assertEquals(SamplingFrequency.ONE_LOOK, _stringConvert.convertFromString(SamplingFrequency.class, "One Look"));
   }
+
+  // TODO this won't work until Joda Convert allows replacement of registered converters
+  /*@Test
+  public void convertZonedDateTime() {
+    ZonedDateTime date = LocalDate.of(2012, 12, 21).atTime(11, 0).atZone(TimeZone.UTC);
+    assertEquals("2012-12-21", _stringConvert.convertToString(date));
+    assertEquals(date, _stringConvert.convertFromString(ZonedDateTime.class, "2012-12-21"));
+  }*/
 }

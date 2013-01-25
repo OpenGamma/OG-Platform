@@ -97,6 +97,11 @@ public final class EquitySecurityUtils {
       final int lastSpace = value.lastIndexOf(" ");
       return value.substring(0, lastSpace);
     }
+    if (scheme.equals(ExternalSchemes.ACTIVFEED_TICKER.getName())) {
+//      final int firstDot = value.indexOf(".", 0);
+//      return value.substring(0, firstDot);
+      return value;
+    }
     s_logger.info("Cannot handle scheme of type {}", scheme);
     return null;
   }

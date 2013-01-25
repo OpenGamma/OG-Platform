@@ -34,11 +34,12 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.OpenGammaClock;
 
 /**
- *
+ * Builds and saves trades, securities and underlying securities for OTC securities.
  */
 /* package */ abstract class OtcTradeBuilder extends AbstractTradeBuilder {
 
-  public static final String TRADE_TYPE_NAME = "OtcTrade";
+  /** Type name for OTC trades used in the data sent to the client. */
+  /* package */ static final String TRADE_TYPE_NAME = "OtcTrade";
 
   /* package */ OtcTradeBuilder(SecurityMaster securityMaster,
                                 PositionMaster positionMaster,

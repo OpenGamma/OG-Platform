@@ -200,7 +200,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
       return null;
     }
     final String surfaceCalculationMethod = Iterables.getOnlyElement(surfaceCalculationMethods);
-    final Set<String> forwardCurveNames = constraints.getValues(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME);
+    final Set<String> forwardCurveNames = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME);
     if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
       return null;
     }
@@ -267,7 +267,7 @@ public abstract class FutureOptionFunction extends AbstractFunction.NonCompiledI
         for (final String property : forwardCurveProperties.getProperties()) {
           properties.with(property, forwardCurveProperties.getValues(property));
         }
-        properties.with(EquityOptionFunction.PROPERTY_FORWARD_CURVE_NAME, CommodityFutureOptionUtils.getSurfaceNameWithoutTicker(security, forwardCurveName));
+        properties.with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_NAME, CommodityFutureOptionUtils.getSurfaceNameWithoutTicker(security, forwardCurveName));
         forwardCurvePropertiesSet = true;
       }
     }

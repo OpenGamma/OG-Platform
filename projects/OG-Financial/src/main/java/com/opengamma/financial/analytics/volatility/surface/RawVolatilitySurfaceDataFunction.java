@@ -33,6 +33,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -63,8 +64,18 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     _instrumentType = instrumentType;
   }
 
+  /**
+   * Gets the target type for the surface
+   * @return The target type
+   */
   protected abstract ComputationTargetType getTargetType();
 
+  /**
+   * Determines whether this function applies to the target
+   * @param context The compilation context
+   * @param target The computation target
+   * @return true if this function applies to the target
+   */
   protected boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     return true;
   }
@@ -204,11 +215,52 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
       try {
         final VolatilitySurfaceDefinition<?, ?> definition = getDefinition(_definitionSource, target, surfaceName);
         final VolatilitySurfaceSpecification specification = getSpecification(_specificationSource, target, surfaceName);
-        return buildDataRequirements(specification, definition, _now, surfaceName, instrumentType);
+        final Set<ValueRequirement> requirements = buildDataRequirements(specification, definition, _now, surfaceName, instrumentType);
+        final ValueProperties definitionProperties = ValueProperties.builder()
+            .with(ValuePropertyNames.SURFACE, surfaceName)
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
+            .get();
+        final ValueProperties specificationProperties = ValueProperties.builder()
+            .with(ValuePropertyNames.SURFACE, surfaceName)
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
+            .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
+            .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits())
+            .get();
+        requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_SPEC, target.toSpecification(), specificationProperties));
+        requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DEFINITION, target.toSpecification(), definitionProperties));
+        return requirements;
       } catch (final OpenGammaRuntimeException e) {
         s_logger.error(e.getMessage());
         return null;
       }
+    }
+
+    @SuppressWarnings("synthetic-access")
+    @Override
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+      String surfaceQuoteType = null;
+      String surfaceQuoteUnits = null;
+      String surfaceName = null;
+      for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+        final ValueSpecification key = entry.getKey();
+        if (key.getValueName().equals(ValueRequirementNames.VOLATILITY_SURFACE_SPEC)) {
+          surfaceQuoteType = key.getProperty(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
+          surfaceQuoteUnits = key.getProperty(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS);
+          surfaceName = key.getProperty(ValuePropertyNames.SURFACE);
+          break;
+        }
+      }
+      if (surfaceName == null) {
+        return null;
+      }
+      assert surfaceQuoteType != null;
+      assert surfaceQuoteUnits != null;
+      return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
+          createValueProperties()
+          .with(ValuePropertyNames.SURFACE, surfaceName)
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
+          .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, surfaceQuoteType)
+          .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, surfaceQuoteUnits).get()));
     }
 
     @Override
@@ -225,11 +277,19 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
         final Set<ValueRequirement> desiredValues) {
-      final ValueRequirement desiredValue = desiredValues.iterator().next();
+      final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
       final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
       final String instrumentType = desiredValue.getConstraint(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
-      final VolatilitySurfaceDefinition<?, ?> definition = getDefinition(_definitionSource, target, surfaceName);
-      final Object specificationObject = getSpecification(_specificationSource, target, surfaceName);
+      final Object definitionObject = inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE_DEFINITION);
+      if (definitionObject == null) {
+        throw new OpenGammaRuntimeException("Could not get volatility surface definition");
+      }
+      final Object specificationObject = inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE_SPEC);
+      if (specificationObject == null) {
+        throw new OpenGammaRuntimeException("Could not get volatility surface specification");
+      }
+      @SuppressWarnings("unchecked")
+      final VolatilitySurfaceDefinition<Object, Object> definition = (VolatilitySurfaceDefinition<Object, Object>) definitionObject;
       final VolatilitySurfaceSpecification specification = (VolatilitySurfaceSpecification) specificationObject;
       final LocalDate valuationDate = LocalDate.now(executionContext.getValuationClock());
       final SurfaceInstrumentProvider<Object, Object> provider = (SurfaceInstrumentProvider<Object, Object>) specification.getSurfaceInstrumentProvider();

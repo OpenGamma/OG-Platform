@@ -186,13 +186,11 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
     return InstrumentTypeProperties.FOREX;
   }
 
-  @Override
-  protected String getSurfaceQuoteUnits() {
+  private String getSurfaceQuoteUnits() {
     return SurfaceAndCubePropertyNames.VOLATILITY_QUOTE;
   }
 
-  @Override
-  protected String getSurfaceQuoteType() {
+  private String getSurfaceQuoteType() {
     return SurfaceAndCubeQuoteType.MARKET_STRANGLE_RISK_REVERSAL;
   }
 }

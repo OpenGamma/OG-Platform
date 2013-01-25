@@ -14,20 +14,20 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Calculates the present value of a commodity future option using the Barone-Adesi Whaley model {@link BaroneAdesiWhaleyModel}.
  */
-public final class CommodityFutureOptionBAWPresentValueCalculator extends CommodityFutureOptionSameMethodVisitorAdapter<StaticReplicationDataBundle, Double> {
+public final class ComFutOptBAWPresentValueCalculator extends CommodityFutureOptionSameMethodVisitorAdapter<StaticReplicationDataBundle, Double> {
   /** Static instance of this calculator */
-  private static final CommodityFutureOptionBAWPresentValueCalculator INSTANCE = new CommodityFutureOptionBAWPresentValueCalculator();
+  private static final ComFutOptBAWPresentValueCalculator INSTANCE = new ComFutOptBAWPresentValueCalculator();
   /** The pricing model */
   private static final BaroneAdesiWhaleyModel MODEL = new BaroneAdesiWhaleyModel();
 
   /**
    * @return A static instance of this class
    */
-  public static CommodityFutureOptionBAWPresentValueCalculator getInstance() {
+  public static ComFutOptBAWPresentValueCalculator getInstance() {
     return INSTANCE;
   }
 
-  private CommodityFutureOptionBAWPresentValueCalculator() {
+  private ComFutOptBAWPresentValueCalculator() {
   }
 
   @Override
