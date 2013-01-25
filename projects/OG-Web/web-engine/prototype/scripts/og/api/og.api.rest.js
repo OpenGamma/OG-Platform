@@ -156,7 +156,7 @@ $.register_module({
                         if (error === 'timeout' && is_get && !config.meta.is_update) return send();
                         var result = {
                             error: xhr.status || true, data: null,
-                            meta: {content_length: (xhr.responseText || '').length, url: url},
+                            meta: {content_length: (xhr.responseText || '').length, url: url, promise: promise.id},
                             message: status === 'parsererror' ? 'JSON parser failed'
                                 : xhr.responseText || 'There was no response from the server.'
                         };
@@ -167,7 +167,7 @@ $.register_module({
                     },
                     success: function (data, status, xhr) {
                         if (promise.ignore) return;
-                        var meta = {content_length: xhr.responseText.length, url: url},
+                        var meta = {content_length: xhr.responseText.length, url: url, promise: promise.id},
                             location = xhr.getResponseHeader('Location'), result, cache_for;
                         delete outstanding_requests[promise.id];
                         if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
@@ -184,7 +184,9 @@ $.register_module({
                 // if registration fails, it's because we don't have a client ID yet, so stall
                 return setTimeout(request.partial(method, config, promise), STALL), promise;
             if (!is_get && og.app.READ_ONLY) return setTimeout(function () {
-                var result = {error: true, data: null, meta: {}, message: 'The app is in read-only mode.'};
+                var result = {
+                    error: true, data: null, meta: {promise: promise.id}, message: 'The app is in read-only mode.'
+                };
                 config.meta.handler(result);
                 promise.deferred.resolve(result);
             }, INSTANT), promise;
@@ -195,6 +197,7 @@ $.register_module({
             loading_start(config.meta.loading);
             if (is_get) { // deal with client-side caching of GETs
                 if (cache_get(url) && typeof cache_get(url) === 'object') return setTimeout((function (result) {
+                    result.meta.promise = promise.id; // overwrite the promise id before sending it out
                     return function () {config.meta.handler(result), promise.deferred.resolve(result);};
                 })(cache_get(url)), INSTANT), promise;
                 if (cache_get(url)) // if cache_get returns true a request is already outstanding, so stall
@@ -843,8 +846,9 @@ $.register_module({
                 result.data.updates.filter(function (update) {
                     var simple = typeof update === 'string', promise, request;
                     if (!simple && (promise = (request = outstanding_requests[update.id]) && request.promise)) {
-                        promise.deferred
-                            .resolve({error: false, data: null, meta: {id: update.message.split('/').pop()}});
+                        promise.deferred.resolve({
+                            error: false, data: null, meta: {id: update.message.split('/').pop()}, promise: promise.id
+                        });
                         delete outstanding_requests[promise.id];
                     }
                     return simple;
