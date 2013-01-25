@@ -27,6 +27,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ class ExistingOtcTradeBuilder extends OtcTradeBuilder {
 
+  /** ID of the trade. */
   private final UniqueId _tradeId;
 
   /* package */ ExistingOtcTradeBuilder(UniqueId tradeId,

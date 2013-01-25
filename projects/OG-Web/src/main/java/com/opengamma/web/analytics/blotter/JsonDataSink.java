@@ -20,7 +20,9 @@ import com.google.common.collect.Maps;
  */
 /* package */ class JsonDataSink implements BeanDataSink<JSONObject> {
 
+  /** The JSON structure. */
   private final Map<String, Object> _json = Maps.newHashMap();
+  /** For converting object values to strings to populate the JSON. */
   private final StringConvert _stringConvert;
 
   /* package */ JsonDataSink(StringConvert stringConvert) {
