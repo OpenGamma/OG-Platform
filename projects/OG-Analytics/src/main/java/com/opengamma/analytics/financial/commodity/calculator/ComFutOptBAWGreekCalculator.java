@@ -18,20 +18,20 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * The greeks returned are delta, dual-delta, rho, carry rho, theta and vega.
  */
-public final class ComFutOptBaroneAdesiGreekCalculator extends CommodityFutureOptionSameMethodVisitorAdapter<StaticReplicationDataBundle, GreekResultCollection> {
+public final class ComFutOptBAWGreekCalculator extends CommodityFutureOptionSameMethodVisitorAdapter<StaticReplicationDataBundle, GreekResultCollection> {
   /** A static instance of this calculator */
-  private static final ComFutOptBaroneAdesiGreekCalculator INSTANCE = new ComFutOptBaroneAdesiGreekCalculator();
+  private static final ComFutOptBAWGreekCalculator INSTANCE = new ComFutOptBAWGreekCalculator();
   /** The pricing model */
   private static final BaroneAdesiWhaleyModel MODEL = new BaroneAdesiWhaleyModel();
 
   /**
    * @return A static instance of this class
    */
-  public static ComFutOptBaroneAdesiGreekCalculator getInstance() {
+  public static ComFutOptBAWGreekCalculator getInstance() {
     return INSTANCE;
   }
 
-  private ComFutOptBaroneAdesiGreekCalculator() {
+  private ComFutOptBAWGreekCalculator() {
   }
 
   @Override

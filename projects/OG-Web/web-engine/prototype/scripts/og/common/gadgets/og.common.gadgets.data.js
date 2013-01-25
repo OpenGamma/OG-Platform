@@ -49,6 +49,7 @@ $.register_module({
         };
         formatters = {
             CURVE: function (dataman, data) {
+                if (!data || !data.length) return;
                 return {
                     meta: meta(dataman, data.length, ['X', 'Y'], 50),
                     data: data
@@ -56,6 +57,7 @@ $.register_module({
                 };
             },
             LABELLED_MATRIX_1D: function (dataman, data) {
+                if (!data || !data.data || !data.data.length) return;
                 var cols = data.labels, fixed_width = Math.max(
                     data.data[0] ? data.data[0][0].length * char_width : 100,
                     data.labels[0].length * char_width
@@ -66,6 +68,7 @@ $.register_module({
                 };
             },
             LABELLED_MATRIX_2D: function (dataman, data) {
+                if (!data || !data.matrix || !data.matrix.length) return;
                 var cols = data.xLabels, rows = data.yLabels.map(cell_value),
                     fixed_width = data.yLabels[rows.length - 1].length * char_width;
                 return {
@@ -75,6 +78,7 @@ $.register_module({
                 };
             },
             MATRIX_2D: function (dataman, data) {
+                if (!data || !data.length) return;
                 var cols = col_names(data[0].length);
                 return {
                     meta: meta(dataman, data.length, cols, 50),
@@ -83,6 +87,7 @@ $.register_module({
                 };
             },
             SURFACE_DATA: function (dataman, data) {
+                if (!data || !data.vol || !data.vol.length) return;
                 var rows, cols, data, index = 0, row_len, col_len, i, j, result = [], row, cell;
                 col_len = (cols = data.xLabels).length;
                 row_len = (rows = data.yLabels).length;
@@ -97,6 +102,7 @@ $.register_module({
                 return {meta: meta(dataman, row_len, cols, 150), data: result};
             },
             TIME_SERIES: function (dataman, data) {
+                if (!data || !data.timeseries.data.length) return;
                 return {
                     meta: meta(dataman, data.timeseries.data.length, data.timeseries.fieldLabels, 125, true),
                     data: data.timeseries.data.reduce(function (acc, val) {

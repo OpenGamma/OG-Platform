@@ -28,8 +28,8 @@ $.register_module({
                     .map(function (row, idx) {return rows[idx] + tab + row.join(tab);}).join(line);
             },
             LABELLED_MATRIX_3D: function (value, single) {return '**3D MATRIX**';},
-            NODE_ID: function (value) {return value.v || '';},
-            POSITION_ID: function (value) {return value.v || '';},
+            NODE_ID: function (value) {return value.v && value.v.name || '';},
+            POSITION_ID: function (value) {return value.v && value.v.name || '';},
             STRING: function (value) {return value.v || '';},
             SURFACE_DATA: function (value, single) {
                 if (!single) return value.v || '**SURFACE DATA**';

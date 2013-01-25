@@ -163,9 +163,6 @@ $.register_module({
             data.meta = meta = {columns: {}};
             data.parent = config.parent;
             data.prefix = prefix = module.name + ' (' + label + 'undefined' + '):\n';
-            data.reconnect = function (connection) {
-                (view_id = connection.view_id), (graph_id = connection.graph_id), initialize();
-            };
             data.viewport = function (new_viewport) {
                 var promise, viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 if (new_viewport === null) {

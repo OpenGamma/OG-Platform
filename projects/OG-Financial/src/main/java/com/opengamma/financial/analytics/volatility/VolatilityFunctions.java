@@ -33,6 +33,7 @@ public class VolatilityFunctions extends AbstractRepositoryConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(VolatilitySurfaceSpecificationFunction.class));
+    functions.add(functionConfiguration(VolatilitySurfaceDefinitionFunction.class));
   }
 
   protected RepositoryConfigurationSource cubeFunctionConfiguration() {

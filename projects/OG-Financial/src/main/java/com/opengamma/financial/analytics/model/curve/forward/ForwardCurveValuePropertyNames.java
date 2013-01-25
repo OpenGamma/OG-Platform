@@ -23,5 +23,7 @@ public class ForwardCurveValuePropertyNames {
   public static final String PROPERTY_MARKET_QUOTES_METHOD = "MarketQuotes";
   /** Name indicating that the forward curve was constructed from a future curve*/
   public static final String PROPERTY_FUTURE_PRICE_METHOD = "FuturePriceMethod";
+  /** Property name for the forward curve name */
+  public static final String PROPERTY_FORWARD_CURVE_NAME = "ForwardCurveName";
 
 }

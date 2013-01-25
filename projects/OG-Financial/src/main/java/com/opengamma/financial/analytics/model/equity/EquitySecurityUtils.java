@@ -14,7 +14,6 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -97,6 +96,11 @@ public final class EquitySecurityUtils {
     if (scheme.equals(ExternalSchemes.BLOOMBERG_TICKER.getName()) || scheme.equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())) {
       final int lastSpace = value.lastIndexOf(" ");
       return value.substring(0, lastSpace);
+    }
+    if (scheme.equals(ExternalSchemes.ACTIVFEED_TICKER.getName())) {
+//      final int firstDot = value.indexOf(".", 0);
+//      return value.substring(0, firstDot);
+      return value;
     }
     s_logger.info("Cannot handle scheme of type {}", scheme);
     return null;

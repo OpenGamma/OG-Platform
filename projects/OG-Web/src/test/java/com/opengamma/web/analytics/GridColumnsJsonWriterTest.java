@@ -14,9 +14,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
 
-/**
- *
- */
 public class GridColumnsJsonWriterTest {
 
   @Test

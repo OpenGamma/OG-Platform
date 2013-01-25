@@ -5,10 +5,10 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -20,8 +20,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ class AnalyticsNode {
 
+  /** Index of the row containing this node. */
   private final int _startRow;
+  /** Index of the row containing this node's last child. */
   private final int _endRow;
+  /** Immediate child nodes. */
   private final List<AnalyticsNode> _children;
 
   /* package */ AnalyticsNode(int startRow, int endRow, List<AnalyticsNode> children) {
@@ -83,20 +86,22 @@ import com.opengamma.util.ArgumentChecker;
    * Mutable builder that creates the node structure for a portfolio and returns the root node. Package-scoped for
    * testing.
    */
-  /* package */ static class PortfolioNodeBuilder {
+  /* package */ static final class PortfolioNodeBuilder {
 
+    /** The root node of the portfolio. */
     private final AnalyticsNode _root;
-
-    private int _lastRow = 0;
+    /** Index of last row, updated as the structure is built. */
+    private int _lastRow;
 
     /* package */ PortfolioNodeBuilder(PortfolioNode root) {
       _root = createNode(root);
+      _lastRow = 0;
     }
 
     private AnalyticsNode createNode(PortfolioNode node) {
       int nodeStart = _lastRow;
       _lastRow += node.getPositions().size();
-      List<AnalyticsNode> nodes = new ArrayList<AnalyticsNode>();
+      List<AnalyticsNode> nodes = Lists.newArrayList();
       for (PortfolioNode child : node.getChildNodes()) {
         ++_lastRow;
         nodes.add(createNode(child));

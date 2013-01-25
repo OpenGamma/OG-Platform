@@ -415,7 +415,8 @@ $.register_module({
                 data_index = rows.indexOf(row) * cols.length + col_index, cell = grid.data[data_index];
             return typeof cell === 'undefined' ? null : {
                 row: selection.rows[0], col: selection.cols[0], value: cell, type: cell.t || selection.type[0],
-                row_name: grid.data[data_index - col_index].v.name, col_name: meta.columns.headers[col]
+                row_name: grid.data[data_index - col_index].v.name, col_name: meta.columns.headers[col],
+                row_value: grid.data[data_index - col_index].v
             };
         };
         Grid.prototype.col_widths = function () {

@@ -185,9 +185,16 @@ public class FutureOptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(CommodityFutureOptionBlackPVFunction.class));
     functions.add(functionConfiguration(CommodityFutureOptionBlackThetaFunction.class));
     functions.add(functionConfiguration(CommodityFutureOptionBlackVegaFunction.class));
+    functions.add(functionConfiguration(CommodityFutureOptionBlackValueDeltaFunction.class));
+    functions.add(functionConfiguration(CommodityFutureOptionBlackValueGammaFunction.class));
     functions.add(functionConfiguration(CommodityFutureOptionBAWPVFunction.class));
     functions.add(functionConfiguration(CommodityFutureOptionBAWGreeksFunction.class));
+    functions.add(functionConfiguration(CommodityFutureOptionBAWValueDeltaFunction.class));
+    functions.add(functionConfiguration(CommodityFutureOptionBAWValueGammaFunction.class));
+    functions.add(functionConfiguration(CommodityFutureOptionBjerksundStenslandPVFunction.class));
     functions.add(functionConfiguration(CommodityFutureOptionBjerksundStenslandGreeksFunction.class));
+    functions.add(functionConfiguration(CommodityFutureOptionBjerksundStenslandValueDeltaFunction.class));
+    functions.add(functionConfiguration(CommodityFutureOptionBjerksundStenslandValueGammaFunction.class));
   }
 
 }

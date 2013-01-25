@@ -16,11 +16,13 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Column structure of the grid used to display analytics data.
  */
-  /* package */ abstract class MainGridStructure implements GridStructure {
+/* package */ abstract class MainGridStructure implements GridStructure {
 
+  /** The column structure. */
   private final GridColumnGroups _columnGroups;
+  /** For looking up the underlying target of a grid cell. */
   private final TargetLookup _targetLookup;
 
   /* package */ MainGridStructure() {
@@ -104,10 +106,17 @@ import com.opengamma.util.tuple.Pair;
   }
 
   // TODO do I need different subclasses for portfolios and primitives, primitives version has security?
+
+  /**
+   * A row in the grid.
+   */
   /* package */ static class Row {
 
+    /** The row's target. */
     private final ComputationTargetSpecification _target;
+    /** The row label. */
     private final String _name;
+    /** The row's quantity, null for row's that don't represent a position. */
     private final BigDecimal _quantity;
 
     /* package */ Row(ComputationTargetSpecification target, String name) {

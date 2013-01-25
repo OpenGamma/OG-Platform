@@ -13,12 +13,14 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Allows the {@link ValueSpecification} and calculation configuration name to be looked up for a cell in the main
+ * grid.
  */
 /* package */ class TargetLookup {
 
   /** Mappings of requirements to specifications. */
   private final ValueMappings _valueMappings;
+  /** The grid rows. */
   private final List<? extends MainGridStructure.Row> _rows;
 
   /* package */ TargetLookup(ValueMappings valueMappings, List<? extends MainGridStructure.Row> rows) {
@@ -29,16 +31,16 @@ import com.opengamma.util.tuple.Pair;
   }
 
   // TODO need to specify row using a stable target ID for the row to cope with dynamic reaggregation
-  /* package */ Pair<String, ValueSpecification> getTargetForCell(int rowIndex, ColumnSpecification colKey) {
+  /* package */ Pair<String, ValueSpecification> getTargetForCell(int rowIndex, ColumnSpecification colSpec) {
     if (rowIndex < 0 || rowIndex >= _rows.size()) {
       throw new IllegalArgumentException("Row is outside grid bounds: row=" + rowIndex + ", rowCount=" + _rows.size());
     }
-    if (colKey == null) {
+    if (colSpec == null) {
       return null;
     }
     MainGridStructure.Row row = _rows.get(rowIndex);
-    ValueRequirement valueReq = new ValueRequirement(colKey.getValueName(), row.getTarget(), colKey.getValueProperties());
-    String calcConfigName = colKey.getCalcConfigName();
+    ValueRequirement valueReq = new ValueRequirement(colSpec.getValueName(), row.getTarget(), colSpec.getValueProperties());
+    String calcConfigName = colSpec.getCalcConfigName();
     ValueSpecification valueSpec = _valueMappings.getValueSpecification(calcConfigName, valueReq);
     if (valueSpec != null) {
       return Pair.of(calcConfigName, valueSpec);
