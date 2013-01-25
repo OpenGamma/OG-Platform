@@ -8,10 +8,10 @@ $.register_module({
     obj: function () {   
         return function (config) {
             var constructor = this, form, data,
-            fungible = {}, ids = {}, security = {}, util = og.blotter.util, 
+            details = {}, ids = {}, util = og.blotter.util, 
             dropdown = '.og-blotter-security-select';
-            fungible.selector = '.og-blocks-fungible';
-            ids.selector = '.og-blocks-security_ids';
+            details.selector = '.og-blocks-fungible-details';
+            ids.selector = '.og-blocks-fungible-security-ids';
             if(config) {data = config; data.id = config.trade.uniqueId;}
             else {data = {trade: og.blotter.util.fungible_trade};}
             constructor.load = function () {
@@ -23,13 +23,18 @@ $.register_module({
                 });
                 form.children.push(
                     new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
-                    new og.blotter.forms.blocks.Fungible({form: form, security: data.trade.securityIdBundle,
-                        quantity: data.trade.quantity}),
-                    fungible.block = new form.Block({
-                        module: 'og.blotter.forms.blocks.fungible_tash'
+                    new form.Block({module: 'og.blotter.forms.blocks.fungible_tash', 
+                        extras: {quantity: data.trade.quantity},
+                        children: [new og.blotter.forms.blocks.Security({
+                            form: form, label: "Underlying ID", security: data.trade.securityIdBundle, 
+                            index: "trade.securityIdBundle"})
+                        ]
+                    }),
+                    details.block = new form.Block({
+                        module: 'og.blotter.forms.blocks.fungible_details_tash'
                     }),                    
                     ids.block = new form.Block({
-                        module: 'og.blotter.forms.blocks.security_ids_tash'
+                        module: 'og.blotter.forms.blocks.fungible_security_ids_tash'
                     }),
                     new og.common.util.ui.Attributes({
                         form: form, attributes: data.trade.attributes, index: 'trade.attributes'
