@@ -55,7 +55,6 @@ $.register_module({
             };
             populate_data = function (config){
                 var details_block, ids_block;
-                console.log(data);
                 details_block = new form.Block({module: 'og.blotter.forms.blocks.fungible_bond_tash',
                     extras:{issuer: config.inputs.data.issuerName, coupon_type: config.inputs.data.couponType, 
                         coupon_rate: config.inputs.data.couponRate, currency: config.inputs.data.currency}
