@@ -45,16 +45,19 @@ $.register_module({
                         if (og.analytics.grid) og.analytics.grid.kill();
                         last_object.main = JSON.parse(last_fingerprint.main = current_main);
                         og.analytics.grid = new og.analytics.Grid({
-                            selector: main_selector, cellmenu: true,
-                            source: $.extend({}, last_object.main), show_save: og.analytics.blotter
+                            selector: main_selector, cellmenu: true, show_save: og.analytics.blotter,
+                            source: $.extend({blotter: og.analytics.blotter}, last_object.main)
                         }).on('viewchange', function (view) {
                             url.main($.extend({}, og.analytics.grid.source, {type: view}));
                         }).on('fatal', url.clear_main);
                         if (og.analytics.blotter) og.analytics.grid.on('contextmenu', function (event, cell, col) {
                            if (cell) return og.common.util.ui.contextmenu({
                                defaults: true, zindex: 4, items: [
-                                   {name: 'Insert', callback: function () {new og.blotter.Dialog()}},
-                                   {name: 'Edit', callback: $.noop}
+                                   {name: 'Insert', handler: function () {new og.blotter.Dialog;}},
+                                   {name: 'Edit', handler: function () {
+                                        og.api.rest.blotter.trades.get({id: cell.row_value.id})
+                                            .pipe(function(data){new og.blotter.Dialog(data);});
+                                   }}
                                ]
                            }, event, cell);
                         });

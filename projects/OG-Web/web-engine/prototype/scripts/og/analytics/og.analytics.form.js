@@ -133,6 +133,7 @@ $.register_module({
             });
         };
         var keydown_handler = function (event) {
+            if (event.keyCode === 13 && $('.OG-analytics-form .ui-autocomplete-input').is(':focus')) load_query();
             if (event.keyCode !== 9) return;
             var $elem = $(this), shift_key = event.shiftKey;
             if (!$elem || !ac_menu || !ag_menu || !ds_menu || !$dom.ag || !$dom.ds) return;

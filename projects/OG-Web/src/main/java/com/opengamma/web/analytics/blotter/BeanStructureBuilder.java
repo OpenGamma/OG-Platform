@@ -83,7 +83,7 @@ import com.opengamma.util.OpenGammaClock;
   }
 
   @Override
-  public void visitBean(MetaBean metaBean) {
+  public void visitMetaBean(MetaBean metaBean) {
     _beanData.clear();
     String typeName = metaBean.beanType().getSimpleName();
     _beanData.put("type", typeName);

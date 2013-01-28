@@ -9,11 +9,13 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 
 /**
+ * Visitor containing callback methods which are invoked when traversing the structure of a {@link MetaBean}.
  * TODO it it worth having the type parameter any more?
+ * @param <T> The type of object created by this visitor.
  */
 /* package */ interface BeanVisitor<T> {
 
-  void visitBean(MetaBean metaBean);
+  void visitMetaBean(MetaBean metaBean);
 
   void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser);
 

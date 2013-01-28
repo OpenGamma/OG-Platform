@@ -290,7 +290,7 @@ public class BlotterResource {
     }
     ManageableSecurity security = searchResult.getFirstSecurity();
     BeanVisitor<JSONObject> securityVisitor =
-        new BuildingBeanVisitor<>(security, new JsonDataSink(getStringConvert()), getStringConvert());
+        new BuildingBeanVisitor<>(security, new JsonDataSink(s_stringConvert), s_stringConvert);
     PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
     BeanTraverser securityTraverser = new BeanTraverser(securityPropertyFilter);
     MetaBean securityMetaBean = JodaBeanUtils.metaBean(security.getClass());
@@ -312,7 +312,7 @@ public class BlotterResource {
     ManageableSecurity security = findSecurity(trade.getSecurityLink());
     JSONObject root = new JSONObject();
     try {
-      JsonDataSink tradeSink = new JsonDataSink(getStringConvert());
+      JsonDataSink tradeSink = new JsonDataSink(s_stringConvert);
       if (isOtc(security)) {
         OtcTradeBuilder.extractTradeData(trade, tradeSink);
         MetaBean securityMetaBean = s_metaBeansByTypeName.get(security.getClass().getSimpleName());
@@ -320,7 +320,7 @@ public class BlotterResource {
           throw new DataNotFoundException("No MetaBean is registered for security type " + security.getClass().getName());
         }
         BeanVisitor<JSONObject> securityVisitor =
-            new BuildingBeanVisitor<>(security, new JsonDataSink(getStringConvert()), getStringConvert());
+            new BuildingBeanVisitor<>(security, new JsonDataSink(s_stringConvert), s_stringConvert);
         PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
         BeanTraverser securityTraverser = new BeanTraverser(securityPropertyFilter);
         JSONObject securityJson = (JSONObject) securityTraverser.traverse(securityMetaBean, securityVisitor);
@@ -329,7 +329,7 @@ public class BlotterResource {
           ManageableSecurity underlying = ((FinancialSecurity) security).accept(visitor);
           if (underlying != null) {
             BeanVisitor<JSONObject> underlyingVisitor =
-                new BuildingBeanVisitor<>(underlying, new JsonDataSink(getStringConvert()), getStringConvert());
+                new BuildingBeanVisitor<>(underlying, new JsonDataSink(s_stringConvert), s_stringConvert);
             MetaBean underlyingMetaBean = s_metaBeansByTypeName.get(underlying.getClass().getSimpleName());
             JSONObject underlyingJson = (JSONObject) securityTraverser.traverse(underlyingMetaBean, underlyingVisitor);
             root.put("underlying", underlyingJson);

@@ -41,7 +41,7 @@ import com.opengamma.util.ArgumentChecker;
 
   @SuppressWarnings("unchecked")
   @Override
-  public void visitBean(MetaBean metaBean) {
+  public void visitMetaBean(MetaBean metaBean) {
     _builder = (BeanBuilder<T>) metaBean.builder();
   }
 
