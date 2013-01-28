@@ -134,7 +134,6 @@ $.register_module({
             var display_datepicker = function (entry) {
                 if (!menu.opts[entry]) return;
                 var custom_dp = $(custom_s, menu.opts[entry]), widget;
-                console.log(custom_dp);
                 custom_dp.datepicker({
                     dateFormat:'yy-mm-dd',
                     onSelect: function () {
