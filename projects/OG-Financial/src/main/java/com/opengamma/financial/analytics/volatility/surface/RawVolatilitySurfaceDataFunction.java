@@ -212,9 +212,21 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         s_logger.error("Instrument type was null");
         return null;
       }
+      if (!_instrumentType.equals(instrumentType)) {
+        s_logger.error("Instrument type {} did not match that required {}", instrumentType, _instrumentType);
+        return null;
+      }
       try {
         final VolatilitySurfaceDefinition<?, ?> definition = getDefinition(_definitionSource, target, surfaceName);
+        if (definition == null) {
+          s_logger.error("Could not get volatility surface definition for instrument type {} with target {} called {}", new Object[] {target, _instrumentType, surfaceName});
+          return null;
+        }
         final VolatilitySurfaceSpecification specification = getSpecification(_specificationSource, target, surfaceName);
+        if (specification == null) {
+          s_logger.error("Could not get volatility surface specification for instrument type {} with target {} called {}", new Object[] {target, _instrumentType, surfaceName});
+          return null;
+        }
         final Set<ValueRequirement> requirements = buildDataRequirements(specification, definition, _now, surfaceName, instrumentType);
         final ValueProperties definitionProperties = ValueProperties.builder()
             .with(ValuePropertyNames.SURFACE, surfaceName)
@@ -229,7 +241,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_SPEC, target.toSpecification(), specificationProperties));
         requirements.add(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DEFINITION, target.toSpecification(), definitionProperties));
         return requirements;
-      } catch (final OpenGammaRuntimeException e) {
+      } catch (final Exception e) {
         s_logger.error(e.getMessage());
         return null;
       }
