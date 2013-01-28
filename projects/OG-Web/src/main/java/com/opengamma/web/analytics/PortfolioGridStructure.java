@@ -191,24 +191,24 @@ public final class PortfolioGridStructure extends MainGridStructure {
   /* package */ static final class PortfolioGridRow extends Row {
 
     /** The row's security, null if the row represents a node in the portfolio structure. */
-    private final ManageableSecurity _security;
+    private final Security _security;
 
     private PortfolioGridRow(ComputationTargetSpecification target, String name) {
       super(target, name, null);
       _security = null;
     }
 
-    private PortfolioGridRow(ComputationTargetSpecification target, ManageableSecurity security, BigDecimal quantity) {
+    private PortfolioGridRow(ComputationTargetSpecification target, Security security, BigDecimal quantity) {
       super(target, securityName(security), quantity);
       _security = security;
     }
 
-    private static String securityName(ManageableSecurity security) {
+    private static String securityName(Security security) {
       ArgumentChecker.notNull(security, "security");
       return security.getName();
     }
 
-    /* package */ ManageableSecurity getSecurity() {
+    /* package */ Security getSecurity() {
       return _security;
     }
   }

@@ -5,12 +5,16 @@
  */
 package com.opengamma.web.analytics.blotter;
 
-import com.opengamma.core.security.Security;
-
 /**
- * @param <T> The security type TODO does this need to be extend Security?
+ * Provides a value from a security for displaying in a cell in the blotter grid.
+ * @param <T> The security type
  */
-public interface CellValueProvider<T extends Security> {
+public interface CellValueProvider<T> {
 
+  /**
+   * Returns a value for a security.
+   * @param security The security
+   * @return The value
+   */
   Object getValue(T security);
 }

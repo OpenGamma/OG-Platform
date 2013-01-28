@@ -7,6 +7,7 @@ package com.opengamma.web.analytics.blotter;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
 
 import com.google.common.collect.Maps;
@@ -20,6 +21,7 @@ import com.opengamma.util.ArgumentChecker;
 @SuppressWarnings("unchecked")
 public class BlotterColumnMapper {
 
+  /** Value providers for the blotter columns, keyed by the type of object being displayed in the blotter. */
   private final Map<Class<?>, Map<BlotterColumn, CellValueProvider>> _mappings = Maps.newHashMap();
 
   /* package */ BlotterColumnMapper() {
@@ -73,7 +75,7 @@ public class BlotterColumnMapper {
    * @param security The security, possibly null (for rows that represent a portfolio node)
    * @return The value to display in the column, not null
    */
-  public Object valueFor(BlotterColumn column, ManageableSecurity security) {
+  public Object valueFor(BlotterColumn column, Object security) {
     // position rows have no security
     if (security == null) {
       return "";
@@ -81,7 +83,7 @@ public class BlotterColumnMapper {
     return getValue(column, security, security.getClass());
   }
 
-  private Object getValue(BlotterColumn column, ManageableSecurity security, Class<?> type) {
+  private Object getValue(BlotterColumn column, Object security, Class<?> type) {
     Map<BlotterColumn, CellValueProvider> providerMap = getMappingsForType(type);
     if (providerMap == null) {
       return "";
@@ -114,8 +116,13 @@ public class BlotterColumnMapper {
     }
   }
 
-  private static class PropertyValueProvider<T extends ManageableSecurity> implements CellValueProvider<T> {
+  /**
+   * Looks up and returns values from {@link Bean} instances using a {@link MetaProperty}.
+   * @param <T>
+   */
+  private static final class PropertyValueProvider<T extends Security & Bean> implements CellValueProvider<T> {
 
+    /** The property used to get the value from the security. */
     private final MetaProperty<?> _property;
 
     private PropertyValueProvider(MetaProperty<?> property) {
@@ -129,8 +136,12 @@ public class BlotterColumnMapper {
     }
   }
 
-  private static class StaticValueProvider implements CellValueProvider {
+  /**
+   * Provides a fixed value for a cell.
+   */
+  private static final class StaticValueProvider implements CellValueProvider {
 
+    /** The value that is always returned from {@link #getValue} */
     private final Object _value;
 
     private StaticValueProvider(Object value) {
@@ -139,7 +150,7 @@ public class BlotterColumnMapper {
     }
 
     @Override
-    public Object getValue(Security security) {
+    public Object getValue(Object security) {
       return _value;
     }
   }
