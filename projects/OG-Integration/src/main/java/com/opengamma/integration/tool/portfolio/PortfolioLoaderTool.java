@@ -38,6 +38,10 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
   private static final String VERBOSE_OPT = "v";
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
+  /** Try to merge positions in the same security type within a portfolio node (sum quantities and add trades from both) */
+  private static final String MERGE_POSITIONS_OPT = "m";
+  /** Keep existing positions in the previous version of the portfolio and add the newly loaded positions */
+  private static final String KEEP_CURRENT_POSITIONS_OPT = "k";
   /** Ignore versioning flag */
   private static final String IGNORE_VERSION_OPT = "i";
 
@@ -78,6 +82,8 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
                         getCommandLine().getOptionValue(FILE_NAME_OPT),
                         write, overwrite,
                         getCommandLine().hasOption(VERBOSE_OPT),
+                        getCommandLine().hasOption(MERGE_POSITIONS_OPT),
+                        getCommandLine().hasOption(KEEP_CURRENT_POSITIONS_OPT),
                         getCommandLine().hasOption(IGNORE_VERSION_OPT)).execute();
   }
 
@@ -110,6 +116,14 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
         OVERWRITE_OPT, "overwrite", false, 
         "Deletes any existing matching securities, positions and portfolios and recreates them from input data");
     options.addOption(overwriteOption);
+
+    Option mergePositionsOption = new Option(MERGE_POSITIONS_OPT, "merge", false,
+        "Try to merge positions in the same security type within a portfolio node, adding trades from all");
+    options.addOption(mergePositionsOption);
+
+    Option keepCurrentPositionsOption = new Option(KEEP_CURRENT_POSITIONS_OPT, "keep", false,
+        "Keep existing positions in the previous version of the portfolio and add the newly loaded positions");
+    options.addOption(keepCurrentPositionsOption);
 
     Option ignoreVersionOption = new Option(
         IGNORE_VERSION_OPT, "ignoreversion", false,
