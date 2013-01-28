@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.analytics.form2',
     dependencies: [],
     obj: function () {
-        var module = this, constructor, menus = [],  query,
+        var constructor, query,
             tashes = { form_container:  'og.analytics.form_tash' },
             selectors = {
                 form_container: 'OG-analytics-form',
@@ -33,7 +33,7 @@ $.register_module({
                 selector: '.' + selectors.form_container
             });
 
-        var init = function (config) {
+        var init = function () {
             var url_config = {};
             form.on('form:load', load_handler);
             form.on('form:submit', function (result) { load_form(result.data); });
@@ -94,7 +94,7 @@ $.register_module({
             }
         };
         constructor = function (config) {
-            return og.views.common.layout.main.allowOverflow('north'), init(/*{url_config:config.url_config}*/);
+            return og.views.common.layout.main.allowOverflow('north'), init(config);
         };
 
         constructor.prototype.fire = og.common.events.fire;
