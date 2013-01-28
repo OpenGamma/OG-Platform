@@ -25,14 +25,6 @@ public class IndexPrice {
    * The currency in which the index is computed.
    */
   private final Currency _currency;
-  /**
-   * The reference region for the price index.
-   */
-  private final Currency _region; // FIXME: to be changed to Region
-  /**
-   * The lag between the month end and the index publication.
-   */
-  private final Period _publicationLag;
 
   /**
    * Constructor of the price index.
@@ -48,8 +40,6 @@ public class IndexPrice {
     Validate.notNull(publicationLag, "Publication lag");
     _name = name;
     _currency = ccy;
-    _region = region;
-    _publicationLag = publicationLag;
   }
 
   /**
@@ -68,22 +58,6 @@ public class IndexPrice {
     return _currency;
   }
 
-  /**
-   * Gets the region associated to the price index.
-   * @return The region.
-   */
-  public Currency getRegion() {
-    return _region;
-  }
-
-  /**
-   * Gets the publication lag of the price index.
-   * @return The lag.
-   */
-  public Period getPublicationLag() {
-    return _publicationLag;
-  }
-
   @Override
   public String toString() {
     return _name;
@@ -95,7 +69,7 @@ public class IndexPrice {
     int result = 1;
     result = prime * result + _currency.hashCode();
     result = prime * result + _name.hashCode();
-    result = prime * result + _region.hashCode();
+
     return result;
   }
 
@@ -115,9 +89,6 @@ public class IndexPrice {
       return false;
     }
     if (!ObjectUtils.equals(_name, other._name)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_region, other._region)) {
       return false;
     }
     return true;

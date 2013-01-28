@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.provider.calculator.inflation.NetAmountInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderInterface;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
@@ -32,6 +33,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * The present value inflation calculator (for the different parts of the bond transaction).
    */
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
+  private static final NetAmountInflationCalculator NAIC = NetAmountInflationCalculator.getInstance();
   //TODO: REVIEW: Method depends on Calculator; Calculator would depend on Method (code duplicated to avoid circularity).
   /**
    * The root bracket used for yield finding.
@@ -69,11 +71,8 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
     Validate.notNull(market, "Market");
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
     final double dirtyPriceReal = cleanPriceReal + bond.getAccruedInterest() / notional;
-    final double estimatedIndex = bond.getSettlement().estimatedIndex(market.getInflationProvider());
-    final double dirtyPriceAjusted = dirtyPriceReal * estimatedIndex / bond.getIndexStartValue();
-    final double dfSettle = market.getDiscountFactor(bond.getCurrency(), bond.getSettlementTime());
-    final double pv = dirtyPriceAjusted * bond.getCoupon().getNthPayment(0).getNotional() * dfSettle;
-    return MultipleCurrencyAmount.of(bond.getCurrency(), pv);
+    final MultipleCurrencyAmount pv = bond.getSettlement().accept(PVIC, market.getInflationProvider());
+    return pv.multipliedBy(dirtyPriceReal);
   }
 
   /**
@@ -105,12 +104,12 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    * @param cleanPriceReal The clean real price.
    * @return The net amount.
    */
-  public double netAmount(final BondCapitalIndexedSecurity<Coupon> bond, final InflationIssuerProviderInterface market, final double cleanPriceReal) {
+  public MultipleCurrencyAmount netAmount(final BondCapitalIndexedSecurity<Coupon> bond, final InflationIssuerProviderInterface market, final double cleanPriceReal) {
     final double notional = bond.getCoupon().getNthPayment(0).getNotional();
-    final double netAmountReal = cleanPriceReal * notional + bond.getAccruedInterest();
-    final double estimatedIndex = bond.getSettlement().estimatedIndex(market.getInflationProvider());
-    final double netAmount = netAmountReal * estimatedIndex / bond.getIndexStartValue();
-    return netAmount;
+    final double netAmountRealByUnit = cleanPriceReal + bond.getAccruedInterest() / notional;
+    final MultipleCurrencyAmount netAmount = bond.getSettlement().accept(NAIC, market.getInflationProvider());
+    return netAmount.multipliedBy(netAmountRealByUnit);
+
   }
 
   /**

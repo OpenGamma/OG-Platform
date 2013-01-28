@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyDefinition;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
+import com.opengamma.analytics.financial.provider.calculator.inflation.NetAmountInflationCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueDiscountingInflationCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
@@ -52,6 +53,7 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethodTest {
   private static final CouponInflationZeroCouponMonthly ZERO_COUPON_WITH = ZERO_COUPON_WITH_DEFINITION.toDerivative(PRICING_DATE, "not used");
   private static final CouponInflationZeroCouponMonthlyDiscountingMethod METHOD = new CouponInflationZeroCouponMonthlyDiscountingMethod();
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
+  private static final NetAmountInflationCalculator NAIC = NetAmountInflationCalculator.getInstance();
 
   @Test
   /**
@@ -63,6 +65,17 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethodTest {
     final double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_NO.getReferenceEndTime());
     final double pvExpected = (finalIndex / INDEX_1MAY_2008 - 1) * df * NOTIONAL;
     assertEquals("Zero-coupon inflation: Present value", pvExpected, pv.getAmount(ZERO_COUPON_NO.getCurrency()), 1.0E-2);
+  }
+
+  @Test
+  /**
+   * Tests the net amount.
+   */
+  public void netAmountNoNotional() {
+    final MultipleCurrencyAmount pv = METHOD.netAmount(ZERO_COUPON_NO, MARKET.getInflationProvider());
+    final double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_NO.getReferenceEndTime());
+    final double naExpected = (finalIndex / INDEX_1MAY_2008 - 1) * NOTIONAL;
+    assertEquals("Zero-coupon inflation: net amount", naExpected, pv.getAmount(ZERO_COUPON_NO.getCurrency()), 1.0E-2);
   }
 
   @Test
@@ -85,6 +98,27 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethodTest {
     final double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_WITH.getReferenceEndTime());
     final double pvExpected = (finalIndex / INDEX_1MAY_2008) * df * NOTIONAL;
     assertEquals("Zero-coupon inflation: Present value", pvExpected, pv.getAmount(ZERO_COUPON_WITH.getCurrency()), 1.0E-2);
+  }
+
+  @Test
+  /**
+   * Tests the net amount.
+   */
+  public void netAmountWithNotional() {
+    final MultipleCurrencyAmount pv = METHOD.netAmount(ZERO_COUPON_WITH, MARKET.getInflationProvider());
+    final double finalIndex = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_WITH.getReferenceEndTime());
+    final double pvExpected = (finalIndex / INDEX_1MAY_2008) * NOTIONAL;
+    assertEquals("Zero-coupon inflation: net amount", pvExpected, pv.getAmount(ZERO_COUPON_WITH.getCurrency()), 1.0E-2);
+  }
+
+  @Test
+  /**
+   * Tests the net amount: Method vs Calculator.
+   */
+  public void netAmountMethodVsCalculator() {
+    final MultipleCurrencyAmount pvMethod = METHOD.netAmount(ZERO_COUPON_NO, MARKET.getInflationProvider());
+    final MultipleCurrencyAmount pvCalculator = ZERO_COUPON_NO.accept(NAIC, MARKET.getInflationProvider());
+    assertEquals("Zero-coupon inflation: Net amount", pvMethod, pvCalculator);
   }
 
   //  @Test

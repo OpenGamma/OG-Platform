@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -14,7 +14,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
-import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
+import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -25,10 +25,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
-/**
- * Tests the zero-coupon inflation constructors.
- */
-public class CouponInflationZeroCouponMonthlyTest {
+public class CouponInflationYearOnYearMonthlyTest {
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
   private static final Currency REGION = Currency.EUR;
@@ -41,19 +38,20 @@ public class CouponInflationZeroCouponMonthlyTest {
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR);
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
-  private static final double INDEX_APRIL_2008 = 108.23; // 3 m before Aug: May / 1 May index = May index: 108.23
+  private static final ZonedDateTime REFERENCE_START_DATE = PAYMENT_DATE.minusMonths(MONTH_LAG - 12).withDayOfMonth(1);
   private static final ZonedDateTime REFERENCE_END_DATE = PAYMENT_DATE.minusMonths(MONTH_LAG).withDayOfMonth(1);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 29);
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
+  private static final double REFERENCE_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_START_DATE);
   private static final double REFERENCE_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_END_DATE);
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
-  private static final CouponInflationZeroCouponMonthly ZERO_COUPON = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008,
+  private static final CouponInflationYearOnYearMonthly YoY_COUPON = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
       REFERENCE_END_TIME, false);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
-    new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, null, INDEX_APRIL_2008, REFERENCE_END_TIME, false);
+    new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, null, REFERENCE_START_TIME, REFERENCE_END_TIME, false);
   }
 
   @Test
@@ -61,9 +59,9 @@ public class CouponInflationZeroCouponMonthlyTest {
    * Tests the class getter.
    */
   public void getter() {
-    assertEquals("Inflation Zero-coupon: getter", PRICE_INDEX, ZERO_COUPON.getPriceIndex());
-    assertEquals("Inflation Zero-coupon: getter", INDEX_APRIL_2008, ZERO_COUPON.getIndexStartValue());
-    assertEquals("Inflation Zero-coupon: getter", REFERENCE_END_TIME, ZERO_COUPON.getReferenceEndTime());
+    assertEquals("Inflation Zero-coupon: getter", PRICE_INDEX, YoY_COUPON.getPriceIndex());
+    assertEquals("Inflation Zero-coupon: getter", REFERENCE_START_TIME, YoY_COUPON.getReferenceStartTime());
+    assertEquals("Inflation Zero-coupon: getter", REFERENCE_END_TIME, YoY_COUPON.getReferenceEndTime());
   }
 
   @Test
@@ -71,16 +69,17 @@ public class CouponInflationZeroCouponMonthlyTest {
    * Tests the equal and hash-code methods.
    */
   public void equalHash() {
-    assertEquals(ZERO_COUPON, ZERO_COUPON);
-    CouponInflationZeroCouponMonthly couponDuplicate = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008,
+    assertEquals(YoY_COUPON, YoY_COUPON);
+    CouponInflationYearOnYearMonthly couponDuplicate = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
         REFERENCE_END_TIME, false);
-    assertEquals(ZERO_COUPON, couponDuplicate);
-    assertEquals(ZERO_COUPON.hashCode(), couponDuplicate.hashCode());
-    CouponInflationZeroCouponMonthly modified;
-    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008 + 0.1, REFERENCE_END_TIME, false);
-    assertFalse(ZERO_COUPON.equals(modified));
-    modified = new CouponInflationZeroCouponMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME + 0.1, false);
-    assertFalse(ZERO_COUPON.equals(modified));
+    assertEquals(YoY_COUPON, couponDuplicate);
+    assertEquals(YoY_COUPON.hashCode(), couponDuplicate.hashCode());
+    CouponInflationYearOnYearMonthly modified;
+    modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME + 0.1,
+        REFERENCE_END_TIME, false);
+    assertFalse(YoY_COUPON.equals(modified));
+    modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
+        REFERENCE_END_TIME + 0.1, false);
+    assertFalse(YoY_COUPON.equals(modified));
   }
-
 }

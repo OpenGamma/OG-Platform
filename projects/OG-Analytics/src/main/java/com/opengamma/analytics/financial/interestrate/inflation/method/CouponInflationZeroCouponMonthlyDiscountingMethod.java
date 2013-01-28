@@ -32,10 +32,35 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethod {
   public MultipleCurrencyAmount presentValue(CouponInflationZeroCouponMonthly coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
-    double estimatedIndex = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime());
+    double estimatedIndex = indexEstimation(coupon, inflation);
     double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     double pv = (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
+  }
+
+  /**
+   * Computes the net amount of the zero-coupon coupon with reference index at start of the month.
+   * @param coupon The zero-coupon payment.
+   * @param inflation The inflation provider.
+   * @return The net amount.
+   */
+  public MultipleCurrencyAmount netAmount(CouponInflationZeroCouponMonthly coupon, final InflationProviderInterface inflation) {
+    Validate.notNull(coupon, "Coupon");
+    Validate.notNull(inflation, "Inflation");
+    double estimatedIndex = indexEstimation(coupon, inflation);
+    double netAmount = (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional();
+    return MultipleCurrencyAmount.of(coupon.getCurrency(), netAmount);
+  }
+
+  /**
+   * Computes the estimated index with the weight and the reference end date.
+   * @param coupon The zero-coupon payment.
+   * @param inflation The inflation provider.
+   * @return The estimated index.
+   */
+  public double indexEstimation(CouponInflationZeroCouponMonthly coupon, final InflationProviderInterface inflation) {
+    final double estimatedIndex = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime());
+    return estimatedIndex;
   }
 
   /**
@@ -47,7 +72,7 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethod {
   public InflationSensitivity presentValueCurveSensitivity(final CouponInflationZeroCouponMonthly coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
-    double estimatedIndex = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime());
+    double estimatedIndex = indexEstimation(coupon, inflation);
     double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     // Backward sweep
     final double pvBar = 1.0;

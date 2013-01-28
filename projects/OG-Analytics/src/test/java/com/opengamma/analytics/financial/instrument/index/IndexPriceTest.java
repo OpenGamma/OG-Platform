@@ -49,8 +49,6 @@ public class IndexPriceTest {
   public void getter() {
     assertEquals("Price Index: getter: name", NAME, PRICE_INDEX.getName());
     assertEquals("Price Index: getter: currency", CUR, PRICE_INDEX.getCurrency());
-    assertEquals("Price Index: getter: region", REGION, PRICE_INDEX.getRegion());
-    assertEquals("Price Index: getter: lag", LAG, PRICE_INDEX.getPublicationLag());
   }
 
   @Test

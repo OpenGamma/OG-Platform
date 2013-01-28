@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -50,14 +49,6 @@ public abstract class CouponInflation extends Coupon {
   public String toString() {
     return super.toString() + ", price index=" + _priceIndex.toString();
   }
-
-  /**
-   * Computes the estimated price index for the coupon with a given market. 
-   * The estimation return the correct price index even if it is already fixed and the relevant data is in the price curve.
-   * @param market The market curve data.
-   * @return The estimated index.
-   */
-  public abstract double estimatedIndex(InflationProviderInterface market);
 
   @Override
   public int hashCode() {

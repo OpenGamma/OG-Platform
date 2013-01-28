@@ -32,10 +32,36 @@ public class CouponInflationZeroCouponInterpolationGearingDiscountingMethod {
   public MultipleCurrencyAmount presentValue(final CouponInflationZeroCouponInterpolationGearing coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
-    double estimatedIndex = coupon.estimatedIndex(inflation);
+    double estimatedIndex = indexEstimation(coupon, inflation);
     double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     double pv = coupon.getFactor() * (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
+  }
+
+  /**
+   * Computes the net amount of the zero-coupon coupon with reference index at start of the month.
+   * @param coupon The zero-coupon payment.
+   * @param inflation The inflation provider.
+   * @return The net amount.
+   */
+  public MultipleCurrencyAmount netAmount(final CouponInflationZeroCouponInterpolationGearing coupon, final InflationProviderInterface inflation) {
+    Validate.notNull(coupon, "Coupon");
+    Validate.notNull(inflation, "Inflation");
+    double estimatedIndex = indexEstimation(coupon, inflation);
+    double netAmount = coupon.getFactor() * (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional();
+    return MultipleCurrencyAmount.of(coupon.getCurrency(), netAmount);
+  }
+
+  /**
+   * Computes the estimated index with the weight and the two reference end dates.
+   * @param coupon The zero-coupon payment.
+   * @param inflation The inflation provider.
+   * @return The net amount.
+   */
+  public double indexEstimation(final CouponInflationZeroCouponInterpolationGearing coupon, final InflationProviderInterface inflation) {
+    final double estimatedIndexMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
+    final double estimatedIndexMonth1 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[1]);
+    return coupon.getWeight() * estimatedIndexMonth0 + (1 - coupon.getWeight()) * estimatedIndexMonth1;
   }
 
   /**

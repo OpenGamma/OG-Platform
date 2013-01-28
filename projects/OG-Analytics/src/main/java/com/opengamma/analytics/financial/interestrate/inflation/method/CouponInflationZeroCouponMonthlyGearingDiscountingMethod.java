@@ -32,10 +32,35 @@ public class CouponInflationZeroCouponMonthlyGearingDiscountingMethod {
   public MultipleCurrencyAmount presentValue(CouponInflationZeroCouponMonthlyGearing coupon, final InflationProviderInterface inflation) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(inflation, "Inflation");
-    double estimatedIndex = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime());
+    double estimatedIndex = indexEstimation(coupon, inflation);
     double discountFactor = inflation.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     double pv = coupon.getFactor() * (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * discountFactor * coupon.getNotional();
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
+  }
+
+  /**
+   * Computes the net amount of the zero-coupon coupon with reference index at start of the month and multiplicative factor.
+   * @param coupon The zero-coupon payment.
+   * @param inflation The inflation provider.
+   * @return The net amount.
+   */
+  public MultipleCurrencyAmount netAmount(CouponInflationZeroCouponMonthlyGearing coupon, final InflationProviderInterface inflation) {
+    Validate.notNull(coupon, "Coupon");
+    Validate.notNull(inflation, "Inflation");
+    double estimatedIndex = indexEstimation(coupon, inflation);
+    double netAmount = coupon.getFactor() * (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional();
+    return MultipleCurrencyAmount.of(coupon.getCurrency(), netAmount);
+  }
+
+  /**
+   * Computes the estimated index with the weight and the reference end date.
+   * @param coupon The zero-coupon payment.
+   * @param inflation The inflation provider.
+   * @return The net amount.
+   */
+  public double indexEstimation(CouponInflationZeroCouponMonthlyGearing coupon, final InflationProviderInterface inflation) {
+    final double estimatedIndex = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime());
+    return estimatedIndex;
   }
 
   /**

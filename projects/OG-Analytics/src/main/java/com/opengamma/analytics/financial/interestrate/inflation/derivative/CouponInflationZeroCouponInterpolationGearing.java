@@ -7,12 +7,9 @@ package com.opengamma.analytics.financial.interestrate.inflation.derivative;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationGearing;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -38,11 +35,7 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
    * The weight on the first month index in the interpolation.
    */
   private final double _weight;
-  /**
-   * The time on which the end index is expected to be known. The index is usually known two week after the end of the reference month.
-   * The date is only an "expected date" as the index publication could be delayed for different reasons. The date should not be enforced to strictly in pricing and instrument creation.
-   */
-  private final double _fixingEndTime;
+
   /**
    * Flag indicating if the notional is paid (true) or not (false).
    */
@@ -63,17 +56,15 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
    * @param indexStartValue The index value at the start of the coupon.
    * @param referenceEndTime The reference time for the index at the coupon end.
    * @param weight The weight on the first month index in the interpolation.
-   * @param fixingEndTime The time on which the end index is expected to be known.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @param factor The multiplicative factor.
    */
   public CouponInflationZeroCouponInterpolationGearing(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional,
       final IndexPrice priceIndex,
-      final double indexStartValue, final double[] referenceEndTime, final double weight, final double fixingEndTime, final boolean payNotional, final double factor) {
+      final double indexStartValue, final double[] referenceEndTime, final double weight, final boolean payNotional, final double factor) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;
-    this._fixingEndTime = fixingEndTime;
     _weight = weight;
     _payNotional = payNotional;
     _factor = factor;
@@ -96,14 +87,6 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
   }
 
   /**
-   * Gets the time on which the end index is expected to be known.
-   * @return The time on which the end index is expected to be known.
-   */
-  public double getFixingEndTime() {
-    return _fixingEndTime;
-  }
-
-  /**
    * Gets the weight on the first month index in the interpolation.
    * @return The weight.
    */
@@ -122,21 +105,12 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
   @Override
   public CouponInflationZeroCouponInterpolationGearing withNotional(final double notional) {
     return new CouponInflationZeroCouponInterpolationGearing(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue,
-        _referenceEndTime, _weight, _fixingEndTime, _payNotional, _factor);
+        _referenceEndTime, _weight, _payNotional, _factor);
   }
 
   @Override
   public double getFactor() {
     return _factor;
-  }
-
-  @Override
-  public double estimatedIndex(final InflationProviderInterface market) {
-    Validate.isTrue(_referenceEndTime.length == 2, "Incorrect number of reference time");
-    final double estimatedIndexMonth0 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[0]);
-    final double estimatedIndexMonth1 = market.getPriceIndex(getPriceIndex(), _referenceEndTime[1]);
-    final double estimatedIndex = _weight * estimatedIndexMonth0 + (1 - _weight) * estimatedIndexMonth1;
-    return estimatedIndex;
   }
 
   @Override
@@ -153,7 +127,7 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
 
   @Override
   public String toString() {
-    return super.toString() + ", reference=[" + _referenceEndTime[0] + ", " + _referenceEndTime[1] + ", fixing=" + _fixingEndTime;
+    return "CouponInflationZeroCouponInterpolationGearing [_referenceEndTime=" + Arrays.toString(_referenceEndTime) + "]";
   }
 
   @Override
@@ -161,21 +135,14 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
     final int prime = 31;
     int result = super.hashCode();
     long temp;
-    temp = Double.doubleToLongBits(_factor);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_fixingEndTime);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_indexStartValue);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + (_payNotional ? 1231 : 1237);
     result = prime * result + Arrays.hashCode(_referenceEndTime);
-    temp = Double.doubleToLongBits(_weight);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
@@ -185,23 +152,11 @@ public class CouponInflationZeroCouponInterpolationGearing extends CouponInflati
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final CouponInflationZeroCouponInterpolationGearing other = (CouponInflationZeroCouponInterpolationGearing) obj;
-    if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_fixingEndTime) != Double.doubleToLongBits(other._fixingEndTime)) {
-      return false;
-    }
+    CouponInflationZeroCouponInterpolationGearing other = (CouponInflationZeroCouponInterpolationGearing) obj;
     if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
       return false;
     }
-    if (_payNotional != other._payNotional) {
-      return false;
-    }
     if (!Arrays.equals(_referenceEndTime, other._referenceEndTime)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(_weight) != Double.doubleToLongBits(other._weight)) {
       return false;
     }
     return true;
