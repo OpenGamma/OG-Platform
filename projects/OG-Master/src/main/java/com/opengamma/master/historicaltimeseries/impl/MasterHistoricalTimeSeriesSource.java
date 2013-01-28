@@ -8,12 +8,11 @@ package com.opengamma.master.historicaltimeseries.impl;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;

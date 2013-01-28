@@ -6,11 +6,12 @@
 package com.opengamma.analytics.financial.instrument.bond;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
@@ -43,13 +44,13 @@ public class BondIborSecurityDefinitionTest {
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM = false;
-  private static final Period IBOR_TENOR = Period.ofMonths(3);
+  private static final Period IBOR_TENOR = Period.of(3, MONTHS);
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final int IBOR_SPOT_LAG = 2;
   private static final BusinessDayConvention IBOR_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IBOR_IS_EOM = false;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SPOT_LAG, CALENDAR, IBOR_DAY_COUNT, IBOR_BUSINESS_DAY, IBOR_IS_EOM);
-  private static final Period BOND_TENOR = Period.ofYears(2);
+  private static final Period BOND_TENOR = Period.of(2, YEARS);
   private static final int SETTLEMENT_DAYS = 3; // Standard for euro-bonds.
   private static final ZonedDateTime START_ACCRUAL_DATE = DateUtils.getUTCDate(2011, 7, 13);
   private static final ZonedDateTime MATURITY_DATE = START_ACCRUAL_DATE.plus(BOND_TENOR);

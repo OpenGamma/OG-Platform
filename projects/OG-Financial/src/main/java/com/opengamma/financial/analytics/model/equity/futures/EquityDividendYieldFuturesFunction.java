@@ -8,8 +8,6 @@ package com.opengamma.financial.analytics.model.equity.futures;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Period;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +39,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * This function will produce all valueRequirements that the EquityFutureSecurity offers. A trade may produce additional generic ones, e.g. date and number of contracts..
@@ -182,7 +181,7 @@ public class EquityDividendYieldFuturesFunction<T> extends FuturesFunction<T> {
       return null;
     }
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.DIVIDEND_YIELD,
-        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
+        DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(7)), true, DateConstraint.VALUATION_TIME, true);
   }
 
 }

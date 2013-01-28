@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.temporal.JulianFields;
 
 /**
  * The 'Actual/Actual ISDA' day count.
@@ -22,14 +23,14 @@ public class ActualActualISDA extends ActualTypeDayCount {
     final int y2 = secondDate.getYear();
     if (y1 == y2) {
       final double basis = firstDate.isLeapYear() ? 366 : 365;
-      final long firstJulian = firstDate.toModifiedJulianDays();
-      final long secondJulian = secondDate.toModifiedJulianDays();
+      final long firstJulian = firstDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
+      final long secondJulian = secondDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
       return (secondJulian - firstJulian) / basis;
     }
-    final long firstNewYearJulian = LocalDate.of(y1 + 1, 1, 1).toModifiedJulianDays();
-    final long firstJulian = firstDate.toModifiedJulianDays();
-    final long secondNewYearJulian = LocalDate.of(y2, 1, 1).toModifiedJulianDays();
-    final long secondJulian = secondDate.toModifiedJulianDays();
+    final long firstNewYearJulian = LocalDate.of(y1 + 1, 1, 1).getLong(JulianFields.MODIFIED_JULIAN_DAY);
+    final long firstJulian = firstDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
+    final long secondNewYearJulian = LocalDate.of(y2, 1, 1).getLong(JulianFields.MODIFIED_JULIAN_DAY);
+    final long secondJulian = secondDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
     final double firstBasis = firstDate.isLeapYear() ? 366 : 365;
     final double secondBasis = secondDate.isLeapYear() ? 366 : 365;
     return (firstNewYearJulian - firstJulian) / firstBasis + (secondJulian - secondNewYearJulian) / secondBasis + (y2 - y1 - 1);

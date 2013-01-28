@@ -5,14 +5,11 @@
  */
 package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition.CDSIndex;
-import com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition.IndexCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;

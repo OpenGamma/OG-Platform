@@ -19,7 +19,8 @@ import static com.opengamma.financial.analytics.volatility.surface.SurfaceAndCub
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -63,7 +64,7 @@ public abstract class PureBlackVolatilitySurfaceFunction extends AbstractFunctio
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final LocalDate date = executionContext.getValuationClock().zonedDateTime().toLocalDate();
+    final LocalDate date = ZonedDateTime.now(executionContext.getValuationClock()).getDate();
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final Object spotObject = inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     if (spotObject == null) {

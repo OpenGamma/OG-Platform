@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view.listener;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Function;
 

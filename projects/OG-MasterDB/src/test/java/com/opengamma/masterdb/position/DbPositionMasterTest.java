@@ -59,7 +59,7 @@ public class DbPositionMasterTest extends DbTest {
     assertNotNull(_posMaster);
     assertEquals(true, _posMaster.getUniqueIdScheme().equals("DbPos"));
     assertNotNull(_posMaster.getDbConnector());
-    assertNotNull(_posMaster.getTimeSource());
+    assertNotNull(_posMaster.getClock());
   }
 
   //-------------------------------------------------------------------------

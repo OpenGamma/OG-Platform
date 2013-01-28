@@ -5,14 +5,11 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZoneOffset;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
@@ -33,17 +30,17 @@ public class FlexiDateTimeFudgeEncodingTest extends AbstractFudgeBuilderTestCase
   }
 
   public void test_ODT() {
-    FlexiDateTime odt = FlexiDateTime.of(OffsetDateTime.of(2010, 7, 1, 13, 0, 0, ZoneOffset.ofHours(3)));
+    FlexiDateTime odt = FlexiDateTime.of(LocalDateTime.of(2010, 7, 1, 13, 0, 0).atOffset(ZoneOffset.ofHours(3)));
     assertEncodeDecodeCycle(FlexiDateTime.class, odt);
   }
 
   public void test_ZDT_UTC() {
-    FlexiDateTime zdtUTC = FlexiDateTime.of(ZonedDateTime.of(2010, 7, 1, 13, 0, 0, 0, TimeZone.UTC));
+    FlexiDateTime zdtUTC = FlexiDateTime.of(LocalDateTime.of(2010, 7, 1, 13, 0, 0, 0).atZone(ZoneOffset.UTC));
     assertEncodeDecodeCycle(FlexiDateTime.class, zdtUTC);
   }
 
   public void test_ZDT_newYork() {
-    FlexiDateTime zdtPST = FlexiDateTime.of(ZonedDateTime.of(2010, 7, 1, 13, 0, 0, 0, TimeZone.of("America/New_York")));
+    FlexiDateTime zdtPST = FlexiDateTime.of(LocalDateTime.of(2010, 7, 1, 13, 0, 0, 0).atZone(ZoneId.of("America/New_York")));
     assertEncodeDecodeCycle(FlexiDateTime.class, zdtPST);
   }
 

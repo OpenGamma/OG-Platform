@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.option;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
+import org.threeten.bp.Clock;
 
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;

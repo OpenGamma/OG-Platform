@@ -7,12 +7,13 @@ package com.opengamma.financial.view.rest;
 
 import java.net.URI;
 
-import javax.time.Instant;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;

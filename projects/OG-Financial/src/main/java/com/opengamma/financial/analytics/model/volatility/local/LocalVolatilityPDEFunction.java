@@ -11,7 +11,7 @@ import static com.opengamma.financial.analytics.model.volatility.local.PDEProper
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;

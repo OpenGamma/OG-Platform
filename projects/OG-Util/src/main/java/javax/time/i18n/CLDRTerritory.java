@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
 //CSOFF
 /**
@@ -41,7 +41,7 @@ public class CLDRTerritory extends Territory {
     /** The territory id, as per CLDR. */
     private String iID;
     /** The zones. */
-    private TimeZone[] iZones;
+    private ZoneId[] iZones;
     /** The first day of week. */
     private int iFirstDOW;
     /** The first day of the business week. */
@@ -124,11 +124,11 @@ public class CLDRTerritory extends Territory {
             // found matching id
             iID = id;
             byte zoneCount = in.readByte();
-            iZones = new TimeZone[zoneCount];
+            iZones = new ZoneId[zoneCount];
             for (int i = 0; i < zoneCount; i++) {
                 String zoneID = in.readUTF();
                 try {
-                    iZones[i] = TimeZone.of(zoneID);
+                    iZones[i] = ZoneId.of(zoneID);
                 } catch (IllegalArgumentException ex) {
                     // ignore unless primary, allowing different timezone data files to work
                     if (i == 0) {
@@ -153,8 +153,8 @@ public class CLDRTerritory extends Territory {
     }
 
     //-----------------------------------------------------------------------
-	public TimeZone[] getZones() {
-        return (TimeZone[]) iZones.clone();
+    public ZoneId[] getZones() {
+        return (ZoneId[]) iZones.clone();
     }
 
     public int getFirstDayOfWeek() {

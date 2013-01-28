@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.volatility.local;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.option.definition.BinomialOptionModelDefinition;
 import com.opengamma.analytics.financial.model.option.definition.CoxRossRubinsteinBinomialOptionModelDefinition;

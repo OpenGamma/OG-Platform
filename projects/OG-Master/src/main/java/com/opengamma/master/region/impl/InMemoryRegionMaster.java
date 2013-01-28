@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;

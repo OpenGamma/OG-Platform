@@ -6,14 +6,15 @@
 package com.opengamma.analytics.financial.interestrate.swaption.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 import it.unimi.dsi.fastutil.doubles.DoubleAVLTreeSet;
 
 import java.util.List;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import cern.colt.Arrays;
 import cern.jet.random.engine.MersenneTwister;
@@ -88,12 +89,12 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final int SETTLEMENT_DAYS = 2;
-  private static final Period IBOR_TENOR = Period.ofMonths(3);
+  private static final Period IBOR_TENOR = Period.of(3, MONTHS);
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, CALENDAR, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final int SWAP_TENOR_YEAR = 5;
-  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
-  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
+  private static final Period SWAP_TENOR = Period.of(SWAP_TENOR_YEAR, YEARS);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.of(6, MONTHS);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
@@ -339,16 +340,16 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
    * Calibrate and price an amortized swaption.
    */
   public void calibrateExactPriceAmortized() {
-    final Period fixedPaymentPeriod = Period.ofMonths(12);
+    final Period fixedPaymentPeriod = Period.of(12, MONTHS);
     final Currency ccy = Currency.EUR;
-    final Period iborTenor = Period.ofMonths(6);
+    final Period iborTenor = Period.of(6, MONTHS);
     final IborIndex iborIndex = new IborIndex(ccy, iborTenor, SETTLEMENT_DAYS, CALENDAR, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
     final int[] swapTenorYear = {1, 2, 3, 4, 5 };
     final IndexSwap[] cmsIndex = new IndexSwap[swapTenorYear.length];
     for (int loopexp = 0; loopexp < swapTenorYear.length; loopexp++) {
-      cmsIndex[loopexp] = new IndexSwap(fixedPaymentPeriod, FIXED_DAY_COUNT, iborIndex, Period.ofYears(swapTenorYear[loopexp]));
+      cmsIndex[loopexp] = new IndexSwap(fixedPaymentPeriod, FIXED_DAY_COUNT, iborIndex, Period.of(swapTenorYear[loopexp], YEARS));
     }
     final double[] amortization = new double[] {1.00, 0.80, 0.60, 0.40, 0.20 }; // For 5Y amortization
     //    double[] amortization = new double[] {1.00, 0.90, 0.80, 0.70, 0.60, 0.50, 0.40, 0.30, 0.20, 0.10}; // For 10Y amortization
@@ -525,7 +526,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
     final double[] amortization = new double[] {1.00, 0.80, 0.60, 0.40, 0.20 }; // For 5Y amortization
     final int nbPeriods = amortization.length;
-    final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, Period.ofYears(nbPeriods), EUR1YEURIBOR6M, NOTIONAL, RATE, FIXED_IS_PAYER);
+    final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, Period.of(nbPeriods, YEARS), EUR1YEURIBOR6M, NOTIONAL, RATE, FIXED_IS_PAYER);
     //    SwapFixedCoupon<Coupon> swap = swapDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final CouponFixedDefinition[] cpnFixed = new CouponFixedDefinition[nbPeriods];
     final AnnuityCouponFixedDefinition legFixed = swapDefinition.getFixedLeg();

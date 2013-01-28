@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.bond;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.core.holiday.HolidaySource;

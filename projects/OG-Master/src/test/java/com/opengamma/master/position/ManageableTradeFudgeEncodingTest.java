@@ -9,14 +9,13 @@ import static org.testng.AssertJUnit.fail;
 
 import java.math.BigDecimal;
 
-import javax.time.calendar.LocalDate;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;

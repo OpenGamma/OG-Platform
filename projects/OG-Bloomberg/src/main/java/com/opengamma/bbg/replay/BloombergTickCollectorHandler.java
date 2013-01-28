@@ -18,15 +18,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.BlockingQueue;
 
-import javax.time.Instant;
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
 
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Event;
@@ -125,8 +124,8 @@ public class BloombergTickCollectorHandler implements EventHandler {
         if (isValidMessage(msg)) {
           String securityDes = (String) msg.correlationID().object();
           MutableFudgeMsg tickMsg = s_fudgeContext.newMessage();
-          Instant instant = Clock.system(TimeZone.UTC).instant();
-          long epochMillis = instant.toEpochMillisLong();
+          Instant instant = Clock.systemUTC().instant();
+          long epochMillis = instant.toEpochMilli();
           tickMsg.add(RECEIVED_TS_KEY, epochMillis);
           tickMsg.add(SECURITY_KEY, securityDes);
           tickMsg.add(FIELDS_KEY, BloombergDataUtils.parseElement(msg.asElement()));

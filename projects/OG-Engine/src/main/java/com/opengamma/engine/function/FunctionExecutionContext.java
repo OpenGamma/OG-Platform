@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.function;
 
-import javax.time.Instant;
-import javax.time.calendar.Clock;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;

@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.equity.futures;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.future.pricing.DividendYieldFuturesCalculator;
@@ -103,7 +103,7 @@ public class EquityDividendYieldFuturesYCNSFunction extends EquityDividendYieldF
     } catch (final NoSuchElementException e) {
       throw new OpenGammaRuntimeException("Time series for " + security.getExternalIdBundle() + " was empty");
     }
-    final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final InstrumentDefinitionWithData<?, Double> definition = security.accept(_converter);
     final InstrumentDerivative derivative = definition.toDerivative(valuationTime, lastMarginPrice);
 

@@ -23,11 +23,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Duration;
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -490,7 +489,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       throw e;
     }
 
-    final long durationNanos = cycleReference.get().getDuration().toNanosLong();
+    final long durationNanos = cycleReference.get().getDuration().toNanos();
     _totalTimeNanos += durationNanos;
     _cycleCount += 1;
     s_logger.info("Last latency was {} ms, Average latency is {} ms",
@@ -924,7 +923,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     // straight away.
     if ((compiledViewDefinition.getValidTo() != null) && getExecutionOptions().getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED)) {
       final Duration durationToExpiry = _marketDataProvider.getRealTimeDuration(valuationTime, compiledViewDefinition.getValidTo());
-      final long expiryNanos = System.nanoTime() + durationToExpiry.toNanosLong();
+      final long expiryNanos = System.nanoTime() + durationToExpiry.toNanos();
       _compilationExpiryCycleTrigger.set(expiryNanos, ViewCycleTriggerResult.forceFull());
       // REVIEW Andrew 2012-11-02 -- If we are ticking live, then this is almost right (System.nanoTime will be close to valuationTime, depending on how
       // long the compilation took). If we are running through historical data then this is quite a meaningless trigger.

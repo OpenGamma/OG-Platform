@@ -10,10 +10,9 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.List;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;

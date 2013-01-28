@@ -23,8 +23,8 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void visitBean(MetaBean metaBean) {
-    _delegate.visitBean(metaBean);
+  public void visitMetaBean(MetaBean metaBean) {
+    _delegate.visitMetaBean(metaBean);
   }
 
   @Override

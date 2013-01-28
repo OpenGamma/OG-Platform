@@ -10,8 +10,6 @@ import java.io.Reader;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeFieldType;
@@ -28,6 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;

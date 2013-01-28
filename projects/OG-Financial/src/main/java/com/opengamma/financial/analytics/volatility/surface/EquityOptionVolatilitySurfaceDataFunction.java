@@ -13,11 +13,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
@@ -60,8 +59,8 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
    */
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 
-    final ZonedDateTime valTime = executionContext.getValuationClock().zonedDateTime();
-    final LocalDate valDate = valTime.toLocalDate();
+    final ZonedDateTime valTime = ZonedDateTime.now(executionContext.getValuationClock());
+    final LocalDate valDate = valTime.getDate();
 
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
 

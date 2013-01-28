@@ -16,9 +16,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -71,9 +72,9 @@ public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext compilationContext, final InstantProvider atInstantProvider) {
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext compilationContext, final Instant atInstant) {
+    final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
+    return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @SuppressWarnings("synthetic-access")
       @Override
@@ -94,7 +95,7 @@ public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
         final Map<ExternalId, Double> marketData = ((SnapshotDataBundle) dataObject).getDataPoints();
         final InterpolatedYieldCurveSpecificationWithSecurities yieldCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) yieldCurveSpecObject;
         final ISDACurve yieldCurve = (ISDACurve) yieldCurveObject;
-        final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+        final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
         final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
         final LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);

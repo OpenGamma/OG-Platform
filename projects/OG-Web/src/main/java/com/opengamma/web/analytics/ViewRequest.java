@@ -7,7 +7,7 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;

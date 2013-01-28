@@ -9,11 +9,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -55,6 +53,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -89,7 +88,7 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
     final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
 
     // 1. Build the analytic derivative to be priced
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final FutureSecurity security = (FutureSecurity) target.getTrade().getSecurity();
 
     // Get reference price
@@ -168,7 +167,7 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
       return null;
     }
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
+        DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(7)), true, DateConstraint.VALUATION_TIME, true);
   }
 
   @Override

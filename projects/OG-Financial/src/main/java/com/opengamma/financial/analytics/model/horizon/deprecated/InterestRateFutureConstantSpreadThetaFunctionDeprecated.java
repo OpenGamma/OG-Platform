@@ -9,9 +9,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
@@ -77,7 +77,7 @@ public class InterestRateFutureConstantSpreadThetaFunctionDeprecated extends Abs
     final Trade trade = target.getTrade();
     final InterestRateFutureSecurity security = (InterestRateFutureSecurity) trade.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
@@ -91,14 +91,14 @@ public class InterestRateFutureConstantSpreadThetaFunctionDeprecated extends Abs
     final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName);
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
     final ExternalIdBundle id = security.getExternalIdBundle();
-    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusMonths(1));
-    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), false);
+    final LocalDate startDate = DateUtils.previousWeekDay(now.getDate().minusMonths(1));
+    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.getDate(), false);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
     final int length = ts.getTimeSeries().size();
     if (length == 0) {
-      throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty between " + startDate + " and " + now.toLocalDate());
+      throw new OpenGammaRuntimeException("Price time series for " + security.getExternalIdBundle() + " was empty between " + startDate + " and " + now.getDate());
     }
     final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();

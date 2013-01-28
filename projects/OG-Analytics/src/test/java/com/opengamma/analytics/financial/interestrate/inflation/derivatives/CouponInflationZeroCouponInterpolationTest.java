@@ -7,11 +7,12 @@ package com.opengamma.analytics.financial.interestrate.inflation.derivatives;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
@@ -32,12 +33,12 @@ public class CouponInflationZeroCouponInterpolationTest {
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
   private static final Currency REGION = Currency.EUR;
-  private static final Period LAG = Period.ofDays(14);
+  private static final Period LAG = Period.of(14, DAYS);
   private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR, REGION, LAG);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
-  private static final Period COUPON_TENOR = Period.ofYears(10);
+  private static final Period COUPON_TENOR = Period.of(10, YEARS);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR);
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
@@ -58,7 +59,7 @@ public class CouponInflationZeroCouponInterpolationTest {
   }
   private static final double FIXING_TIME = ACT_ACT.getDayCountFraction(PRICING_DATE, FIXING_DATE);
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
-  private static final double WEIGHT = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getMonthOfYear().getLastDayOfMonth(PAYMENT_DATE.isLeapYear());
+  private static final double WEIGHT = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getDate().lengthOfMonth();
   private static final CouponInflationZeroCouponInterpolation ZERO_COUPON = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX,
       INDEX_APRIL_2008, REFERENCE_END_TIME, WEIGHT, FIXING_TIME, false);
 

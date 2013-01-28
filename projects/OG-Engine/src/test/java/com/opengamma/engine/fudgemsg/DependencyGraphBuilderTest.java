@@ -7,9 +7,8 @@ package com.opengamma.engine.fudgemsg;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;

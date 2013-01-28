@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionRepository;
@@ -122,7 +122,7 @@ public class DefaultFunctionResolver implements FunctionResolver {
 
   //-------------------------------------------------------------------------
   @Override
-  public CompiledFunctionResolver compile(final InstantProvider atInstant) {
+  public CompiledFunctionResolver compile(final Instant atInstant) {
     final DefaultCompiledFunctionResolver result = new DefaultCompiledFunctionResolver(_functionCompilationService.getFunctionCompilationContext());
     result.addRules(getRepositoryRules(_functionCompilationService.compileFunctionRepository(atInstant)));
     if (_defaultRules != null) {

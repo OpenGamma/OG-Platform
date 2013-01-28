@@ -9,7 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
 import org.testng.annotations.Test;
 
@@ -37,7 +37,7 @@ public class IntegrationDbExchangeMasterTest extends AbstractIntegrationDbExchan
     assertNotNull(doc.getCorrectionFromInstant());
     assertNull(doc.getCorrectionToInstant());
     assertEquals("London Stock Exchange", doc.getExchange().getName());
-    assertEquals(TimeZone.of("Europe/London"), doc.getExchange().getTimeZone());
+    assertEquals(ZoneId.of("Europe/London"), doc.getExchange().getTimeZone());
     assertEquals(true, doc.getExchange().getRegionIdBundle().contains(ExternalSchemes.countryRegionId(Country.GB)));
   }
 

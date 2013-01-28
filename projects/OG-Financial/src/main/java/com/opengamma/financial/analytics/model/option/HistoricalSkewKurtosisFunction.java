@@ -9,9 +9,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculator;

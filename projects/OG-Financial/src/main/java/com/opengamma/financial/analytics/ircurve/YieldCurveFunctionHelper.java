@@ -7,15 +7,14 @@ package com.opengamma.financial.analytics.ircurve;
 
 import java.util.Map;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.security.SecuritySource;
@@ -72,15 +71,14 @@ public class YieldCurveFunctionHelper {
     return _definition;
   }
 
-  public Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification> compile(
-      final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
+  public Triple<Instant, Instant, InterpolatedYieldCurveSpecification> compile(
+      final FunctionCompilationContext context, final Instant atInstant) {
     //TODO: avoid doing this compile twice all the time
-    final Instant atInstant = Instant.of(atInstantProvider);
-    final ZonedDateTime atInstantZDT = ZonedDateTime.ofInstant(atInstant, TimeZone.UTC);
-    final LocalDate curveDate = atInstantZDT.toLocalDate();
+    final ZonedDateTime atInstantZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
+    final LocalDate curveDate = atInstantZDT.getDate();
     final InterpolatedYieldCurveSpecification specification = buildCurve(curveDate);
-    final Instant expiry = findCurveExpiryDate(context.getSecuritySource(), atInstant, specification, atInstantZDT.withTime(0, 0).plusDays(1).minusNanos(1000000).toInstant());
-    return new Triple<InstantProvider, InstantProvider, InterpolatedYieldCurveSpecification>((expiry != null) ? atInstantZDT.withTime(0, 0) : null, expiry, specification);
+    final Instant expiry = findCurveExpiryDate(context.getSecuritySource(), atInstant, specification, atInstantZDT.with(LocalTime.MIDNIGHT).plusDays(1).minusNanos(1000000).toInstant());
+    return new Triple<Instant, Instant, InterpolatedYieldCurveSpecification>((expiry != null) ? atInstantZDT.with(LocalTime.MIDNIGHT).toInstant() : null, expiry, specification);
   }
 
   private YieldCurveDefinition getDefinition(final FunctionCompilationContext context) {

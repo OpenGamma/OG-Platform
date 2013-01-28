@@ -5,13 +5,14 @@
  */
 package com.opengamma.financial.analytics;
 
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.engine.ComputationTarget;
@@ -66,7 +67,7 @@ public class LastHistoricalValueFunction extends AbstractFunction.NonCompiledInv
       return null;
     }
     return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, fieldName,
-        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME.yesterday(), true));
+        DateConstraint.VALUATION_TIME.minus(Period.of(7, DAYS)), true, DateConstraint.VALUATION_TIME.yesterday(), true));
   }
 
   @Override

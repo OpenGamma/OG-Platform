@@ -13,11 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -396,7 +395,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       final InterpolatedYieldCurveSpecificationWithSecurities specificationWithSecurities, final Map<ExternalId, Double> marketDataMap, final HistoricalTimeSeriesBundle timeSeries,
       final boolean createYieldCurve, final boolean createJacobian, final boolean createSensitivities) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
     final int n = specificationWithSecurities.getStrips().size();
     final double[] initialRatesGuess = new double[n];
@@ -504,7 +503,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       final Map<ExternalId, Double> fundingMarketDataMap, final HistoricalTimeSeriesBundle fundingTimeSeries, final boolean createForwardYieldCurve, final boolean createFundingYieldCurve,
       final boolean createJacobian, final boolean createSensitivities) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
     final int nFunding = fundingCurveSpecificationWithSecurities.getStrips().size();
     final int nForward = forwardCurveSpecificationWithSecurities.getStrips().size();

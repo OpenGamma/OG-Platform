@@ -12,9 +12,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.resolver.IdentifierResolver;

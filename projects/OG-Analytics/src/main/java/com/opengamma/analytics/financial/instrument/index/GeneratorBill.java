@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;

@@ -7,8 +7,7 @@ package com.opengamma.engine.target;
 
 import java.math.BigDecimal;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -48,7 +47,7 @@ public class MockComputationTargetResolver extends MapComputationTargetResolver 
   /**
    * 
    */
-  public static final LocalDate TODAY = Clock.systemDefaultZone().today();
+  public static final LocalDate TODAY = LocalDate.now();
 
   private final InMemorySecuritySource _securitySource = new InMemorySecuritySource();
   private final MockPositionSource _positionSource = new MockPositionSource();

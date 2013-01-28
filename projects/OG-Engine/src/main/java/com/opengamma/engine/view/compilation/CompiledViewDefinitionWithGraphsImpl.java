@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;

@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view.listener;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;

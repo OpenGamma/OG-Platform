@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.horizon;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.calculator.PresentValueBlackSmileForexCalculator;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;

@@ -8,13 +8,13 @@ package com.opengamma.analytics.financial.instrument.annuity;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.Arrays;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -53,7 +53,7 @@ public class AnnuityDefinitionTest {
     FIXED_PAYMENTS = new PaymentFixedDefinition[n];
     FIXED_FLOAT_PAYMENTS = new PaymentDefinition[n];
     ZonedDateTime date = DateUtils.getUTCDate(2011, 1, 1);
-    final IborIndex index = new IborIndex(CCY, Period.ofMonths(3), 0, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/360"),
+    final IborIndex index = new IborIndex(CCY, Period.of(3, MONTHS), 0, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/360"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), false);
     for (int i = 0; i < n; i++) {
       FIXED_PAYMENTS[i] = new PaymentFixedDefinition(CCY, date, 1000);

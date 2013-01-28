@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ComputedValue;

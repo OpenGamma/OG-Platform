@@ -5,16 +5,15 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 
@@ -62,8 +61,8 @@ public final class ZonedDateTimeFudgeBuilder extends AbstractFudgeBuilder implem
       return null;
     }
     final OffsetDateTime odt = msg.getValue(OffsetDateTime.class, DATETIME_FIELD_NAME);
-    final TimeZone zone = msg.getValue(TimeZone.class, ZONE_FIELD_NAME);
-    return ZonedDateTime.of(odt, zone);
+    final ZoneId zone = msg.getValue(ZoneId.class, ZONE_FIELD_NAME);
+    return odt.atZoneSameInstant(zone);
   }
 
 }

@@ -8,10 +8,9 @@ package com.opengamma.core.change;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
-import javax.time.Instant;
-
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
 

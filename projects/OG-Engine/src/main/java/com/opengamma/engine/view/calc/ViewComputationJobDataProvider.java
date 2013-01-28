@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import javax.time.Duration;
-import javax.time.Instant;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;

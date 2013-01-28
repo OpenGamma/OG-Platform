@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.convention;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.temporal.TemporalAdjuster;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 public final class GoldFutureOptionExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
   /** Name of the calculator */
   public static final String NAME = "GoldFutureOptionExpiryCalculator";
-  private static final DateAdjuster LAST_DAY_ADJUSTER = DateAdjusters.lastDayOfMonth();
+  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
   private static final GoldFutureOptionExpiryCalculator INSTANCE = new GoldFutureOptionExpiryCalculator();
 
   public static GoldFutureOptionExpiryCalculator getInstance() {
@@ -50,7 +50,7 @@ public final class GoldFutureOptionExpiryCalculator implements ExchangeTradedIns
     // as options expire 1 month before futures need to get future expiry after this nth option (n + 1)
     final LocalDate futuresExpiry = GoldFutureExpiryCalculator.getInstance().getExpiryMonth(n + 1, today);
     int nBusinessDays = 4;
-    LocalDate date = LAST_DAY_ADJUSTER.adjustDate(futuresExpiry.minusMonths(1));
+    LocalDate date = futuresExpiry.minusMonths(1).with(LAST_DAY_ADJUSTER);
     if (holidayCalendar.isWorkingDay(date)) {
       nBusinessDays--;
     }

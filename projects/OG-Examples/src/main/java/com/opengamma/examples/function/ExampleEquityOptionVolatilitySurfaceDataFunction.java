@@ -11,16 +11,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
@@ -128,10 +128,10 @@ public class ExampleEquityOptionVolatilitySurfaceDataFunction extends AbstractFu
       // don't care what these are
       for (final Y y : definition.getYs()) {
         provider.init(true); // generate puts
-        final ExternalId putIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
+        final ExternalId putIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.getDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, putIdentifier));
         provider.init(false);
-        final ExternalId callIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
+        final ExternalId callIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.getDate());
         result.add(new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, callIdentifier));
       }
     }
@@ -142,11 +142,11 @@ public class ExampleEquityOptionVolatilitySurfaceDataFunction extends AbstractFu
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(_specification, _definition, atInstant));
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
+    final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
+    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(_specification, _definition, atZDT));
     //TODO ENG-252 see MarketInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
-    return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
+    return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @Override
       public ComputationTargetType getTargetType() {
@@ -188,7 +188,7 @@ public class ExampleEquityOptionVolatilitySurfaceDataFunction extends AbstractFu
           s_logger.error("Could not get underlying spot value for " + _definition.getTarget().getUniqueId());
           return Collections.emptySet();
         }
-        final ZonedDateTime now = snapshotClock.zonedDateTime();
+        final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
         final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<Pair<Object, Object>, Double>();
         //int numFound = 0;
         for (final Object x : _definition.getXs()) {
@@ -201,7 +201,7 @@ public class ExampleEquityOptionVolatilitySurfaceDataFunction extends AbstractFu
             } else {
               provider.init(true); // generate identifiers for put options
             }
-            final ExternalId identifier = provider.getInstrument(expiry, strike, now.toLocalDate());
+            final ExternalId identifier = provider.getInstrument(expiry, strike, now.getDate());
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);

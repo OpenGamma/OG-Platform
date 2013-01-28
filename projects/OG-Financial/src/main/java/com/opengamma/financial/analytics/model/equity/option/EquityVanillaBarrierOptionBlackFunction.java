@@ -9,10 +9,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -84,7 +83,7 @@ public abstract class EquityVanillaBarrierOptionBlackFunction extends EquityOpti
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
     throws AsynchronousExecution {
 
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final EquityBarrierOptionSecurity barrierSec = (EquityBarrierOptionSecurity) target.getSecurity();
     final ExternalId underlyingId = barrierSec.getUnderlyingId();
     final ValueRequirement desiredValue = desiredValues.iterator().next();

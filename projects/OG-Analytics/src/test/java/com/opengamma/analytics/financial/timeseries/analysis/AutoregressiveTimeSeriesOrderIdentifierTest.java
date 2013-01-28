@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.timeseries.analysis;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -39,7 +38,7 @@ public class AutoregressiveTimeSeriesOrderIdentifierTest {
     final double[] random = new double[n];
     final ProbabilityDistribution<Double> normal = new NormalDistribution(2, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
     for (int i = 0; i < n; i++) {
-      dates[i] = LocalDate.ofEpochDays(i);
+      dates[i] = LocalDate.ofEpochDay(i);
       random[i] = normal.nextRandom();
     }
     final int order = 3;

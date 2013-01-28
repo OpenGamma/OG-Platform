@@ -8,8 +8,6 @@ package com.opengamma.financial.convention;
 import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
-import javax.time.calendar.Period;
-
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -20,6 +18,7 @@ import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
  *
@@ -49,29 +48,29 @@ public class INConventions {
       final String weekDepositName = "INR DEPOSIT " + i + "w";
       final ExternalId weekBbgDeposit = bloombergTickerSecurityId("IRDR" + i + "Z Curncy");
       final ExternalId weekSimpleDeposit = simpleNameSecurityId(weekDepositName);
-      utils.addConventionBundle(ExternalIdBundle.of(dayBbgDeposit, daySimpleDeposit), dayDepositName, act365, following, Period.ofDays(i), 0, false, in);
-      utils.addConventionBundle(ExternalIdBundle.of(weekBbgDeposit, weekSimpleDeposit), weekDepositName, act365, following, Period.ofDays(i * 7), 0, false, in);
+      utils.addConventionBundle(ExternalIdBundle.of(dayBbgDeposit, daySimpleDeposit), dayDepositName, act365, following, DateUtils.periodOfDays(i), 0, false, in);
+      utils.addConventionBundle(ExternalIdBundle.of(weekBbgDeposit, weekSimpleDeposit), weekDepositName, act365, following, DateUtils.periodOfDays(i * 7), 0, false, in);
     }
 
     for (int i = 1; i < 12; i++) {
       final String depositName = "INR DEPOSIT " + i + "m";
       final ExternalId bbgDeposit = bloombergTickerSecurityId("IRDR" + BBG_MONTH_CODES[i - 1] + " Curncy");
       final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, act365, following, Period.ofMonths(i), 0, false, in);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, act365, following, DateUtils.periodOfMonths(i), 0, false, in);
     }
 
     for (int i = 1; i < 2; i++) {
       final String depositName = "INR DEPOSIT " + i + "y";
       final ExternalId bbgDeposit = bloombergTickerSecurityId("IRDR" + i + " Curncy");
       final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, act365, following, Period.ofYears(i), 0, false, in);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, simpleDeposit), depositName, act365, following, DateUtils.periodOfYears(i), 0, false, in);
     }
 
     // IR FUTURES
-    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR_IR_FUTURE")), "INR_IR_FUTURE", act365, modified, Period.ofMonths(3),
+    utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR_IR_FUTURE")), "INR_IR_FUTURE", act365, modified, DateUtils.periodOfMonths(3),
         0, true, in);
     utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("IRNI6M Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR SWAP INDEX")),
-        "INR SWAP INDEX", act365, modified, Period.ofMonths(6), 0, true, in);
+        "INR SWAP INDEX", act365, modified, DateUtils.periodOfMonths(6), 0, true, in);
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR_SWAP")), "INR_SWAP", act365, modified, semiAnnual, 0, in, act365,
         modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR SWAP INDEX"), in, true);
@@ -82,7 +81,7 @@ public class INConventions {
         act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "INR OVERNIGHT CASH RATE"), in, true, overnightPublicationLag);
 
     utils.addConventionBundle(ExternalIdBundle.of(ExternalSchemes.bloombergTickerSecurityId("NSERO Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME,
-        "INR OVERNIGHT CASH RATE")), "INR OVERNIGHT CASH RATE", act365, following, Period.ofDays(1), 0, false, in, 0);
+        "INR OVERNIGHT CASH RATE")), "INR OVERNIGHT CASH RATE", act365, following, DateUtils.periodOfDays(1), 0, false, in, 0);
 
   }
 

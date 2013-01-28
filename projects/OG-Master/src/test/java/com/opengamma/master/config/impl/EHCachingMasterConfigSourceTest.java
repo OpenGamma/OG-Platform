@@ -12,13 +12,12 @@ import static org.testng.AssertJUnit.assertSame;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.time.Instant;
-
 import net.sf.ehcache.CacheManager;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.config.impl.ConfigItem;

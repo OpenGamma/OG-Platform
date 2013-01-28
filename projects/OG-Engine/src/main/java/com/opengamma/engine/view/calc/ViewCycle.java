@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view.calc;
 
-import javax.time.Duration;
+import org.threeten.bp.Duration;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;

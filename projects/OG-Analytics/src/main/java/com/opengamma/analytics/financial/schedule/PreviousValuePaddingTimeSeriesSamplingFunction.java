@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;

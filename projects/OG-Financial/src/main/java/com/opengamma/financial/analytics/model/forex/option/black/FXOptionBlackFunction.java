@@ -11,7 +11,7 @@ import static com.opengamma.financial.analytics.model.forex.option.black.FXOptio
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -95,7 +95,7 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
       allCurveNames = new String[] {fullCallCurveName, fullPutCurveName };
     }
     final InstrumentDefinition<?> definition = security.accept(new ForexSecurityConverter(baseQuotePairs));
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final InstrumentDerivative fxOption = definition.toDerivative(now, allCurveNames);
 
     // Get market data

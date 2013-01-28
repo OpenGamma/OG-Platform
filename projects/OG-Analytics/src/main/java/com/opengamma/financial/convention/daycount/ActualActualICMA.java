@@ -5,13 +5,12 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.CalendricalMatchers;
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.JulianFields;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.financial.convention.StubType;
 
@@ -35,7 +34,7 @@ public class ActualActualICMA extends ActualTypeDayCount {
 
   public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear,
       final StubType stubType) {
-    return getAccruedInterest(previousCouponDate.toLocalDate(), date.toLocalDate(), nextCouponDate.toLocalDate(), coupon, paymentsPerYear, stubType);
+    return getAccruedInterest(previousCouponDate.getDate(), date.getDate(), nextCouponDate.getDate(), coupon, paymentsPerYear, stubType);
   }
 
   public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon, final double paymentsPerYear,
@@ -44,25 +43,25 @@ public class ActualActualICMA extends ActualTypeDayCount {
     Validate.notNull(stubType, "stub type");
 
     long daysBetween, daysBetweenCoupons;
-    final long previousCouponDateJulian = previousCouponDate.toModifiedJulianDays();
-    final long nextCouponDateJulian = nextCouponDate.toModifiedJulianDays();
-    final long dateJulian = date.toModifiedJulianDays();
+    final long previousCouponDateJulian = previousCouponDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
+    final long nextCouponDateJulian = nextCouponDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
+    final long dateJulian = date.getLong(JulianFields.MODIFIED_JULIAN_DAY);
     final int months = (int) (12 / paymentsPerYear);
     switch (stubType) {
       case NONE: {
         daysBetween = dateJulian - previousCouponDateJulian;
-        daysBetweenCoupons = nextCouponDate.toModifiedJulianDays() - previousCouponDateJulian;
+        daysBetweenCoupons = nextCouponDate.getLong(JulianFields.MODIFIED_JULIAN_DAY) - previousCouponDateJulian;
         return coupon * daysBetween / daysBetweenCoupons / paymentsPerYear;
       }
       case SHORT_START: {
         final LocalDate notionalStart = getEOMAdjustedDate(nextCouponDate, nextCouponDate.minusMonths(months));
-        daysBetweenCoupons = nextCouponDateJulian - notionalStart.toLocalDate().toModifiedJulianDays();
+        daysBetweenCoupons = nextCouponDateJulian - notionalStart.getLong(JulianFields.MODIFIED_JULIAN_DAY);
         daysBetween = dateJulian - previousCouponDateJulian;
         return coupon * daysBetween / daysBetweenCoupons / paymentsPerYear;
       }
       case LONG_START: {
-        final long firstNotionalJulian = getEOMAdjustedDate(nextCouponDate, nextCouponDate.minusMonths(months * 2)).toModifiedJulianDays();
-        final long secondNotionalJulian = getEOMAdjustedDate(nextCouponDate, nextCouponDate.minusMonths(months)).toModifiedJulianDays();
+        final long firstNotionalJulian = getEOMAdjustedDate(nextCouponDate, nextCouponDate.minusMonths(months * 2)).getLong(JulianFields.MODIFIED_JULIAN_DAY);
+        final long secondNotionalJulian = getEOMAdjustedDate(nextCouponDate, nextCouponDate.minusMonths(months)).getLong(JulianFields.MODIFIED_JULIAN_DAY);
         final long daysBetweenStub = secondNotionalJulian - previousCouponDateJulian;
         final double daysBetweenTwoNotionalCoupons = secondNotionalJulian - firstNotionalJulian;
         if (dateJulian > secondNotionalJulian) {
@@ -74,13 +73,13 @@ public class ActualActualICMA extends ActualTypeDayCount {
       }
       case SHORT_END: {
         final LocalDate notionalEnd = getEOMAdjustedDate(previousCouponDate, previousCouponDate.plusMonths(months));
-        daysBetweenCoupons = notionalEnd.toModifiedJulianDays() - previousCouponDateJulian;
+        daysBetweenCoupons = notionalEnd.getLong(JulianFields.MODIFIED_JULIAN_DAY) - previousCouponDateJulian;
         daysBetween = dateJulian - previousCouponDateJulian;
         return coupon * daysBetween / daysBetweenCoupons / paymentsPerYear;
       }
       case LONG_END: {
-        final long firstNotionalJulian = getEOMAdjustedDate(previousCouponDate, previousCouponDate.plusMonths(months)).toModifiedJulianDays();
-        final long secondNotionalJulian = getEOMAdjustedDate(previousCouponDate, previousCouponDate.plusMonths(2 * months)).toModifiedJulianDays();
+        final long firstNotionalJulian = getEOMAdjustedDate(previousCouponDate, previousCouponDate.plusMonths(months)).getLong(JulianFields.MODIFIED_JULIAN_DAY);
+        final long secondNotionalJulian = getEOMAdjustedDate(previousCouponDate, previousCouponDate.plusMonths(2 * months)).getLong(JulianFields.MODIFIED_JULIAN_DAY);
         final long daysBetweenPreviousAndFirstNotional = firstNotionalJulian - previousCouponDateJulian;
         if (dateJulian < firstNotionalJulian) {
           daysBetween = dateJulian - previousCouponDateJulian;
@@ -109,8 +108,8 @@ public class ActualActualICMA extends ActualTypeDayCount {
    * @return the adjusted date, not null
    */
   private static LocalDate getEOMAdjustedDate(final LocalDate comparison, final LocalDate date) {
-    if (comparison.matches(CalendricalMatchers.lastDayOfMonth())) {
-      return date.with(DateAdjusters.lastDayOfMonth());
+    if (comparison.getDayOfMonth() == comparison.lengthOfMonth()) {
+      return date.with(TemporalAdjusters.lastDayOfMonth());
     }
     return date;
   }

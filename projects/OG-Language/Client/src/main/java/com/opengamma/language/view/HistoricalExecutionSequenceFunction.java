@@ -5,16 +5,17 @@
  */
 package com.opengamma.language.view;
 
+import static org.threeten.bp.temporal.ChronoUnit.SECONDS;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -70,9 +71,9 @@ public class HistoricalExecutionSequenceFunction extends AbstractFunctionInvoker
       samplePeriodSeconds = DEFAULT_SAMPLE_PERIOD_SECONDS;
     }
     final Collection<ViewCycleExecutionOptions> cycles = new ArrayList<ViewCycleExecutionOptions>(
-        ((int) (to.getEpochSeconds() - from.getEpochSeconds()) + samplePeriodSeconds - 1) / samplePeriodSeconds);
-    for (Instant valuationTime = from; !valuationTime.isAfter(to); valuationTime = valuationTime.plus(samplePeriodSeconds, TimeUnit.SECONDS)) {
-      final LocalDate date = ZonedDateTime.ofInstant(valuationTime, TimeZone.UTC).toLocalDate();
+        ((int) (to.getEpochSecond() - from.getEpochSecond()) + samplePeriodSeconds - 1) / samplePeriodSeconds);
+    for (Instant valuationTime = from; !valuationTime.isAfter(to); valuationTime = valuationTime.plus(samplePeriodSeconds, SECONDS)) {
+      final LocalDate date = ZonedDateTime.ofInstant(valuationTime, ZoneOffset.UTC).getDate();
       final HistoricalMarketDataSpecification spec = MarketData.historical(date, timeSeriesResolverKey);
       final ViewCycleExecutionOptions options = ViewCycleExecutionOptions.builder().setValuationTime(valuationTime).setMarketDataSpecification(spec).create();
       cycles.add(options);

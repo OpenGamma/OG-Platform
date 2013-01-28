@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.bond;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -57,7 +57,7 @@ public abstract class BondZSpreadFunction extends AbstractFunction.NonCompiledIn
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime date = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime date = ZonedDateTime.now(executionContext.getValuationClock());
     final BondSecurity security = (BondSecurity) target.getSecurity();
     if (desiredValues.size() != 1) {
       throw new OpenGammaRuntimeException("This function " + getShortName() + " only provides a single output");

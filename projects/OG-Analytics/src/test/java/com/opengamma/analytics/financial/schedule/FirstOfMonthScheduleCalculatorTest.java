@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.schedule;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.time.DateUtils;
 
@@ -66,9 +65,9 @@ public class FirstOfMonthScheduleCalculatorTest extends ScheduleCalculatorTestCa
     assertEquals(forward[months - 1], lastDate);
     for (int i = 1; i < months; i++) {
       if (forward[i].getYear() == forward[i - 1].getYear()) {
-        assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), 1);
+        assertEquals(forward[i].getMonthValue() - forward[i - 1].getMonthValue(), 1);
       } else {
-        assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), -11);
+        assertEquals(forward[i].getMonthValue() - forward[i - 1].getMonthValue(), -11);
       }
       assertEquals(forward[i].getDayOfMonth(), 1);
     }
@@ -107,9 +106,9 @@ public class FirstOfMonthScheduleCalculatorTest extends ScheduleCalculatorTestCa
     assertEquals(forward[months - 1], lastDate);
     for (int i = 1; i < months; i++) {
       if (forward[i].getYear() == forward[i - 1].getYear()) {
-        assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), 1);
+        assertEquals(forward[i].getMonthValue() - forward[i - 1].getMonthValue(), 1);
       } else {
-        assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), -11);
+        assertEquals(forward[i].getMonthValue() - forward[i - 1].getMonthValue(), -11);
       }
       assertEquals(forward[i].getDayOfMonth(), 1);
     }

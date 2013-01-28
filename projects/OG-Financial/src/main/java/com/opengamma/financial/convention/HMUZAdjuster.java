@@ -8,17 +8,18 @@ package com.opengamma.financial.convention;
 import java.util.EnumSet;
 import java.util.Set;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.temporal.Temporal;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
-public final class HMUZAdjuster implements DateAdjuster {
-  private static final Set<MonthOfYear> FUTURE_EXPIRY_MONTHS = EnumSet.of(MonthOfYear.MARCH, MonthOfYear.JUNE, MonthOfYear.SEPTEMBER, MonthOfYear.DECEMBER);
+public final class HMUZAdjuster implements TemporalAdjuster {
+  private static final Set<Month> FUTURE_EXPIRY_MONTHS = EnumSet.of(Month.MARCH, Month.JUNE, Month.SEPTEMBER, Month.DECEMBER);
   private static final HMUZAdjuster INSTANCE = new HMUZAdjuster();
 
   public static HMUZAdjuster getInstance() {
@@ -29,13 +30,13 @@ public final class HMUZAdjuster implements DateAdjuster {
   }
 
   @Override
-  public LocalDate adjustDate(final LocalDate date) {
-    ArgumentChecker.notNull(date, "date");
-    LocalDate result = LocalDate.of(date);
-    while (!FUTURE_EXPIRY_MONTHS.contains(result.getMonthOfYear())) {
+  public Temporal adjustInto(final Temporal temporal) {
+    ArgumentChecker.notNull(temporal, "temporal");
+    LocalDate result = LocalDate.from(temporal);
+    while (!FUTURE_EXPIRY_MONTHS.contains(result.getMonth())) {
       result = result.plusMonths(1);
     }
-    return result;
+    return temporal.with(result);
   }
 
 }

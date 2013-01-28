@@ -7,15 +7,15 @@ package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import javax.time.calendar.Period;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.SABRTermStructureParameters;
@@ -60,7 +60,7 @@ public class CapletStrippingTest {
   private static final LinkedHashMap<String, Function1D<Double, Double>> PARAMETER_FUNCTIONS = new LinkedHashMap<String, Function1D<Double, Double>>();
 
   protected static final Currency CUR = Currency.USD;
-  private static final Period TENOR = Period.ofMonths(6);
+  private static final Period TENOR = Period.of(6, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");

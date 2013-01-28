@@ -7,11 +7,11 @@ package com.opengamma.analytics.financial.instrument.swap;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborIbor;
@@ -35,7 +35,7 @@ public class SwapIborIborDefinitionTest {
   private static final IndexIborMaster INDEX_MASTER = IndexIborMaster.getInstance();
   private static final IborIndex USDLIBOR3M = INDEX_MASTER.getIndex("USDLIBOR3M", CALENDAR);
   private static final IborIndex USDLIBOR6M = INDEX_MASTER.getIndex("USDLIBOR6M", CALENDAR);
-  private static final Period ANNUITY_TENOR = Period.ofYears(2);
+  private static final Period ANNUITY_TENOR = Period.of(2, YEARS);
 
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2012, 4, 18);
   private static final double NOTIONAL = 1000000;

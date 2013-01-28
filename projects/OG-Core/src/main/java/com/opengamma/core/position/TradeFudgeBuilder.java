@@ -8,9 +8,6 @@ package com.opengamma.core.position;
 import java.math.BigDecimal;
 import java.util.Map.Entry;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -19,6 +16,8 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import org.fudgemsg.wire.types.FudgeWireType;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;

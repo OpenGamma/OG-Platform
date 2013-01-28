@@ -14,13 +14,12 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.elsql.ElSqlBundle;

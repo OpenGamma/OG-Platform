@@ -12,9 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -36,6 +33,9 @@ import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -290,7 +290,7 @@ public class BlotterResource {
     }
     ManageableSecurity security = searchResult.getFirstSecurity();
     BeanVisitor<JSONObject> securityVisitor =
-        new BuildingBeanVisitor<>(security, new JsonDataSink(getStringConvert()), getStringConvert());
+        new BuildingBeanVisitor<>(security, new JsonDataSink(s_stringConvert), s_stringConvert);
     PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
     BeanTraverser securityTraverser = new BeanTraverser(securityPropertyFilter);
     MetaBean securityMetaBean = JodaBeanUtils.metaBean(security.getClass());
@@ -312,7 +312,7 @@ public class BlotterResource {
     ManageableSecurity security = findSecurity(trade.getSecurityLink());
     JSONObject root = new JSONObject();
     try {
-      JsonDataSink tradeSink = new JsonDataSink(getStringConvert());
+      JsonDataSink tradeSink = new JsonDataSink(s_stringConvert);
       if (isOtc(security)) {
         OtcTradeBuilder.extractTradeData(trade, tradeSink);
         MetaBean securityMetaBean = s_metaBeansByTypeName.get(security.getClass().getSimpleName());
@@ -320,7 +320,7 @@ public class BlotterResource {
           throw new DataNotFoundException("No MetaBean is registered for security type " + security.getClass().getName());
         }
         BeanVisitor<JSONObject> securityVisitor =
-            new BuildingBeanVisitor<>(security, new JsonDataSink(getStringConvert()), getStringConvert());
+            new BuildingBeanVisitor<>(security, new JsonDataSink(s_stringConvert), s_stringConvert);
         PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
         BeanTraverser securityTraverser = new BeanTraverser(securityPropertyFilter);
         JSONObject securityJson = (JSONObject) securityTraverser.traverse(securityMetaBean, securityVisitor);
@@ -329,7 +329,7 @@ public class BlotterResource {
           ManageableSecurity underlying = ((FinancialSecurity) security).accept(visitor);
           if (underlying != null) {
             BeanVisitor<JSONObject> underlyingVisitor =
-                new BuildingBeanVisitor<>(underlying, new JsonDataSink(getStringConvert()), getStringConvert());
+                new BuildingBeanVisitor<>(underlying, new JsonDataSink(s_stringConvert), s_stringConvert);
             MetaBean underlyingMetaBean = s_metaBeansByTypeName.get(underlying.getClass().getSimpleName());
             JSONObject underlyingJson = (JSONObject) securityTraverser.traverse(underlyingMetaBean, underlyingVisitor);
             root.put("underlying", underlyingJson);
@@ -514,12 +514,12 @@ public class BlotterResource {
     @Override
     public ZonedDateTime convertFromString(Class<? extends ZonedDateTime> cls, String localDateString) {
       LocalDate localDate = LocalDate.parse(localDateString);
-      return localDate.atTime(11, 0).atZone(TimeZone.UTC);
+      return localDate.atTime(11, 0).atZone(ZoneOffset.UTC);
     }
 
     @Override
     public String convertToString(ZonedDateTime dateTime) {
-      return dateTime.toLocalDate().toString();
+      return dateTime.getDate().toString();
     }
   }
 }

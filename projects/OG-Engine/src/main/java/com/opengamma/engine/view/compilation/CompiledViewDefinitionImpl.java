@@ -14,10 +14,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.apache.commons.collections.CollectionUtils;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -128,12 +126,11 @@ public class CompiledViewDefinitionImpl implements CompiledViewDefinition {
    * Checks whether the compilation results encapsulated in this instance are valid for a specific cycle. Note that
    * this does not ensure that the view definition used for compilation is still up-to-date.
    *
-   * @param valuationTimeProvider  the valuation time, not null
+   * @param valuationTime  the valuation time, not null
    * @return true if the compilation results are valid for the valuation time
    */
-  public boolean isValidFor(final InstantProvider valuationTimeProvider) {
-    ArgumentChecker.notNull(valuationTimeProvider, "valuationTimeProvider");
-    final Instant valuationTime = valuationTimeProvider.toInstant();
+  public boolean isValidFor(final Instant valuationTime) {
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
     return (getValidFrom() == null || !valuationTime.isBefore(getValidFrom()))
         && (getValidTo() == null || !valuationTime.isAfter(getValidTo()));
   }

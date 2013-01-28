@@ -14,15 +14,15 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -70,12 +70,12 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(ForwardSwapCurveFromMarketQuotesFunction.class);
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
+    final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBForwardSwapCurveDefinitionSource curveDefinitionSource = new ConfigDBForwardSwapCurveDefinitionSource(configSource);
     final ConfigDBForwardSwapCurveSpecificationSource curveSpecificationSource = new ConfigDBForwardSwapCurveSpecificationSource(configSource);
-    return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
+    return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @Override
       public ComputationTargetType getTargetType() {
@@ -135,7 +135,7 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
         final Clock snapshotClock = executionContext.getValuationClock();
         final ValueRequirement desiredValue = desiredValues.iterator().next();
         final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-        final ZonedDateTime now = snapshotClock.zonedDateTime();
+        final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
         final DoubleArrayList expiries = new DoubleArrayList();
         final DoubleArrayList forwards = new DoubleArrayList();
         final Currency currency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
@@ -172,7 +172,7 @@ public class ForwardSwapCurveFromMarketQuotesFunction extends AbstractFunction {
           throw new OpenGammaRuntimeException("Could not get number of settlement days");
         }
         final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, currency);
-        final LocalDate localNow = now.toLocalDate();
+        final LocalDate localNow = now.getDate();
         final Period forwardPeriod = Period.parse(forwardTenorName);
         final Tenor forwardTenor = new Tenor(forwardPeriod);
         final LocalDate forwardStart = ScheduleCalculator.getAdjustedDate(localNow.plus(forwardPeriod), settlementDays, calendar); //TODO check adjustments

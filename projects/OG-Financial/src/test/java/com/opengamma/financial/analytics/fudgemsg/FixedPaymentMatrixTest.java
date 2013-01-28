@@ -9,9 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.TreeMap;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.analytics.cashflow.FixedPaymentMatrix;
 import com.opengamma.util.money.Currency;

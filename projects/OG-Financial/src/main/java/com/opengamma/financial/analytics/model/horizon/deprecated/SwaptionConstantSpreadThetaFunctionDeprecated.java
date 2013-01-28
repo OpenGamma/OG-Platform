@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
@@ -96,7 +96,7 @@ public class SwaptionConstantSpreadThetaFunctionDeprecated extends AbstractFunct
     }
     final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final YieldCurveBundle bundle = getYieldCurves(target, inputs, forwardCurveName, fundingCurveName, curveCalculationMethod);
     final InstrumentDefinition<?> definition = security.accept(_visitor);
     if (definition == null) {

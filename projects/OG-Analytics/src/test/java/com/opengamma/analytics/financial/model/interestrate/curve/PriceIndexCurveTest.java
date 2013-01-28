@@ -6,11 +6,11 @@
 package com.opengamma.analytics.financial.model.interestrate.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -75,7 +75,7 @@ public class PriceIndexCurveTest {
     double[] nodeTimeOther = new double[swapTenor.length];
     ZonedDateTime[] referenceDate = new ZonedDateTime[swapTenor.length];
     for (int loopswap = 0; loopswap < swapTenor.length; loopswap++) {
-      ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(constructionDate, Period.ofYears(swapTenor[loopswap]), BUSINESS_DAY, CALENDAR);
+      ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(constructionDate, Period.of(swapTenor[loopswap], YEARS), BUSINESS_DAY, CALENDAR);
       referenceDate[loopswap] = paymentDate.minusMonths(monthLag).withDayOfMonth(1);
       nodeTimeOther[loopswap] = ACT_ACT.getDayCountFraction(constructionDate, referenceDate[loopswap]);
     }

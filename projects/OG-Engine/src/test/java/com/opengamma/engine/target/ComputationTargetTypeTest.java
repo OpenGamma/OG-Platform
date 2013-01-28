@@ -11,9 +11,8 @@ import static org.testng.Assert.assertTrue;
 
 import java.math.BigDecimal;
 
-import javax.time.calendar.OffsetDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.OffsetDateTime;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.position.Position;
@@ -40,7 +39,8 @@ public class ComputationTargetTypeTest {
   private static final Position POSITION = new SimplePosition(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalIdBundle.EMPTY);
   private static final Security SECURITY = new SimpleSecurity("");
   private static final OffsetDateTime TRADE_OFFSET_DATETIME = OffsetDateTime.now();
-  private static final Trade TRADE = new SimpleTrade(SECURITY, new BigDecimal(1), new SimpleCounterparty(ExternalId.of("CPARTY", "C100")), TRADE_OFFSET_DATETIME.toLocalDate(),
+  private static final Trade TRADE = new SimpleTrade(SECURITY, new BigDecimal(1),
+      new SimpleCounterparty(ExternalId.of("CPARTY", "C100")), TRADE_OFFSET_DATETIME.getDate(),
       TRADE_OFFSET_DATETIME.toOffsetTime());
 
   public void testIsCompatible_null() {

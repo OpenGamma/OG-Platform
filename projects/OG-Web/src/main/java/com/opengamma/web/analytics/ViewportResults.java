@@ -7,7 +7,7 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
-import javax.time.Duration;
+import org.threeten.bp.Duration;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.formatting.TypeFormatter;

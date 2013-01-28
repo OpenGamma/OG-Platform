@@ -5,10 +5,12 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.calendar.Period;
+import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -49,11 +51,11 @@ public final class GeneratorSwapFixedONMaster {
     IndexON fedFund = indexONMaster.getIndex("FED FUND", baseCalendar);
     _generatorSwap.put(
         "USD1YFEDFUND",
-        new GeneratorSwapFixedON("USD1YFEDFUND", fedFund, Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
+        new GeneratorSwapFixedON("USD1YFEDFUND", fedFund, Period.of(12, MONTHS), DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, 2, 2));
-    _generatorSwap.put("EUR1YEONIA", new GeneratorSwapFixedON("EUR1YEONIA", indexONMaster.getIndex("EONIA", baseCalendar), Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("Actual/360"),
+    _generatorSwap.put("EUR1YEONIA", new GeneratorSwapFixedON("EUR1YEONIA", indexONMaster.getIndex("EONIA", baseCalendar), Period.of(12, MONTHS), DayCountFactory.INSTANCE.getDayCount("Actual/360"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true, 2, 2));
-    _generatorSwap.put("AUD1YRBAON", new GeneratorSwapFixedON("AUD1YRBAON", indexONMaster.getIndex("RBA ON", baseCalendar), Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+    _generatorSwap.put("AUD1YRBAON", new GeneratorSwapFixedON("AUD1YRBAON", indexONMaster.getIndex("RBA ON", baseCalendar), Period.of(12, MONTHS), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), true, 2, 1));
   }
 

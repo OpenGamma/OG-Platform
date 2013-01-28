@@ -9,11 +9,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -94,7 +93,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     // 1. Build the analytic derivative to be priced
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
     final InstrumentDefinition<?> defn = security.accept(_converter);
@@ -342,7 +341,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
   private ExternalId getWeakUnderlyingId(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource) {
     if (ExternalSchemes.BLOOMBERG_BUID.equals(underlyingId.getScheme())) {
       // this is a hack so it doesn't hammer the db.
-      final Instant futureHour = Instant.ofEpochMillis(((System.currentTimeMillis() / 3600_000) * 3600_000) + 3600_000);
+      final Instant futureHour = Instant.ofEpochMilli(((System.currentTimeMillis() / 3600_000) * 3600_000) + 3600_000);
       final Security underlyingSecurity = securitySource.getSingle(ExternalIdBundle.of(underlyingId), VersionCorrection.of(futureHour, futureHour));
       if (underlyingSecurity == null) {
         final HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(underlyingId), null, null, true, null, true, 1);

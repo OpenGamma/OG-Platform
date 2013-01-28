@@ -8,15 +8,15 @@ package com.opengamma.language.view;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
@@ -162,8 +162,8 @@ public class RegressionTest {
   }
 
   public void testHistoricalData() {
-    final Instant firstValuationInstant = Instant.now().minus(90, TimeUnit.DAYS);
-    final Instant lastValuationInstant = firstValuationInstant.plus(30, TimeUnit.DAYS);
+    final Instant firstValuationInstant = Instant.now().minus(90, DAYS);
+    final Instant lastValuationInstant = firstValuationInstant.plus(30, DAYS);
     final UniqueId viewId = createRegressionView();
     createFunctionRepository();
     final ViewClientDescriptor viewClientDescriptor = ViewClientDescriptor.historicalMarketData(viewId, firstValuationInstant, lastValuationInstant);
@@ -181,7 +181,7 @@ public class RegressionTest {
         assertTrue(result instanceof ViewComputationResultModel);
         ViewComputationResultModel model = (ViewComputationResultModel) result;
         assertEquals(valuationInstant, model.getValuationTime());
-        valuationInstant = valuationInstant.plus(1, TimeUnit.DAYS);
+        valuationInstant = valuationInstant.plus(1, DAYS);
       } while (!valuationInstant.isAfter(lastValuationInstant));
       viewClient.triggerCycle();
       assertEquals(getResult(), "COMPLETED");

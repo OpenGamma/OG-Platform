@@ -37,9 +37,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.util.money.CurrencyAmount;
@@ -55,7 +54,7 @@ public class FloatingPayCashFlowVisitorTest {
   public void testIborDeposit() {
     final Map<LocalDate, MultipleCurrencyAmount> payment = PAY_IBOR_DEPOSIT.accept(VISITOR);
     assertEquals(1, payment.size());
-    assertEquals(PAY_IBOR_DEPOSIT.getEndDate().toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
+    assertEquals(PAY_IBOR_DEPOSIT.getEndDate().getDate(), Iterables.getOnlyElement(payment.keySet()));
     final MultipleCurrencyAmount mca = Iterables.getOnlyElement(payment.values());
     assertEquals(1, mca.size());
     final CurrencyAmount ca = Iterables.getOnlyElement(mca);
@@ -69,7 +68,7 @@ public class FloatingPayCashFlowVisitorTest {
   public void testIborCoupon() {
     Map<LocalDate, MultipleCurrencyAmount> payment = PAY_IBOR_COUPON.accept(VISITOR);
     assertEquals(1, payment.size());
-    assertEquals(PAY_IBOR_COUPON.getPaymentDate().toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
+    assertEquals(PAY_IBOR_COUPON.getPaymentDate().getDate(), Iterables.getOnlyElement(payment.keySet()));
     MultipleCurrencyAmount mca = Iterables.getOnlyElement(payment.values());
     assertEquals(1, mca.size());
     CurrencyAmount ca = Iterables.getOnlyElement(mca);
@@ -79,7 +78,7 @@ public class FloatingPayCashFlowVisitorTest {
     assertEquals(Collections.emptyMap(), RECEIVE_IBOR_COUPON.accept(VISITOR));
     payment = PAY_IBOR_SPREAD_COUPON.accept(VISITOR);
     assertEquals(1, payment.size());
-    assertEquals(PAY_IBOR_SPREAD_COUPON.getPaymentDate().toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
+    assertEquals(PAY_IBOR_SPREAD_COUPON.getPaymentDate().getDate(), Iterables.getOnlyElement(payment.keySet()));
     mca = Iterables.getOnlyElement(payment.values());
     assertEquals(1, mca.size());
     ca = Iterables.getOnlyElement(mca);
@@ -89,7 +88,7 @@ public class FloatingPayCashFlowVisitorTest {
     assertEquals(Collections.emptyMap(), RECEIVE_IBOR_SPREAD_COUPON.accept(VISITOR));
     payment = PAY_IBOR_GEARING_COUPON.accept(VISITOR);
     assertEquals(1, payment.size());
-    assertEquals(PAY_IBOR_GEARING_COUPON.getPaymentDate().toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
+    assertEquals(PAY_IBOR_GEARING_COUPON.getPaymentDate().getDate(), Iterables.getOnlyElement(payment.keySet()));
     mca = Iterables.getOnlyElement(payment.values());
     assertEquals(1, mca.size());
     ca = Iterables.getOnlyElement(mca);
@@ -103,7 +102,7 @@ public class FloatingPayCashFlowVisitorTest {
   public void testFRA() {
     final Map<LocalDate, MultipleCurrencyAmount> payment = RECEIVER_FRA.accept(VISITOR);
     assertEquals(1, payment.size());
-    assertEquals(RECEIVER_FRA.getPaymentDate().toLocalDate(), Iterables.getOnlyElement(payment.keySet()));
+    assertEquals(RECEIVER_FRA.getPaymentDate().getDate(), Iterables.getOnlyElement(payment.keySet()));
     final MultipleCurrencyAmount mca = Iterables.getOnlyElement(payment.values());
     assertEquals(1, mca.size());
     final CurrencyAmount ca = Iterables.getOnlyElement(mca);
@@ -117,7 +116,7 @@ public class FloatingPayCashFlowVisitorTest {
   public void testSwap() {
     Map<LocalDate, MultipleCurrencyAmount> payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(RECEIVER_SWAP.accept(VISITOR));
     assertEquals(60, payments.size());
-    LocalDate paymentDate = SWAP_START.plusMonths(6).toLocalDate();
+    LocalDate paymentDate = SWAP_START.plusMonths(6).getDate();
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {
       assertEquals(paymentDate, entry.getKey());
       paymentDate = paymentDate.plusMonths(6);
@@ -130,7 +129,7 @@ public class FloatingPayCashFlowVisitorTest {
     assertEquals(payments, RECEIVER_SWAP.accept(VISITOR, null));
     payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(RECEIVER_SWAP_WITH_SPREAD.accept(VISITOR));
     assertEquals(60, payments.size());
-    paymentDate = SWAP_START.plusMonths(6).toLocalDate();
+    paymentDate = SWAP_START.plusMonths(6).getDate();
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {
       assertEquals(paymentDate, entry.getKey());
       paymentDate = paymentDate.plusMonths(6);
@@ -149,7 +148,7 @@ public class FloatingPayCashFlowVisitorTest {
   public void testIborIborSwap() {
     Map<LocalDate, MultipleCurrencyAmount> payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(PAY_SPREAD_IBOR_IBOR_SWAP.accept(VISITOR));
     assertEquals(100, payments.size());
-    LocalDate paymentDate = SWAP_START.plusMonths(6).toLocalDate();
+    LocalDate paymentDate = SWAP_START.plusMonths(6).getDate();
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {
       assertEquals(paymentDate, entry.getKey());
       paymentDate = paymentDate.plusMonths(6);
@@ -162,7 +161,7 @@ public class FloatingPayCashFlowVisitorTest {
     assertEquals(payments, PAY_SPREAD_IBOR_IBOR_SWAP.accept(VISITOR, null));
     payments = new TreeMap<LocalDate, MultipleCurrencyAmount>(RECEIVE_SPREAD_IBOR_IBOR_SWAP.accept(VISITOR));
     assertEquals(200, payments.size());
-    paymentDate = SWAP_START.plusMonths(3).toLocalDate();
+    paymentDate = SWAP_START.plusMonths(3).getDate();
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payments.entrySet()) {
       assertEquals(paymentDate, entry.getKey());
       paymentDate = paymentDate.plusMonths(3);
