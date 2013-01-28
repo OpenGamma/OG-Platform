@@ -10,6 +10,7 @@ import java.util.Map;
 import org.joda.beans.MetaProperty;
 
 import com.google.common.collect.Maps;
+import com.opengamma.core.security.Security;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
 
@@ -19,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 @SuppressWarnings("unchecked")
 public class BlotterColumnMapper {
 
-  private final Map<Class<?>, Map<BlotterColumn, ValueProvider>> _mappings = Maps.newHashMap();
+  private final Map<Class<?>, Map<BlotterColumn, CellValueProvider>> _mappings = Maps.newHashMap();
 
   /* package */ BlotterColumnMapper() {
   }
@@ -28,17 +29,17 @@ public class BlotterColumnMapper {
     ArgumentChecker.notNull(column, "column");
     ArgumentChecker.notNull(metaProp, "metaProp");
     Class<? extends ManageableSecurity> securityType = (Class<? extends ManageableSecurity>) metaProp.metaBean().beanType();
-    Map<BlotterColumn, ValueProvider> mappings = mappingsFor(securityType);
+    Map<BlotterColumn, CellValueProvider> mappings = mappingsFor(securityType);
     mappings.put(column, propertyProvider(metaProp));
   }
 
   /* package */  <T extends ManageableSecurity> void mapColumn(BlotterColumn column,
                                                                Class<T> type,
-                                                               ValueProvider<T> provider) {
+                                                               CellValueProvider<T> provider) {
     ArgumentChecker.notNull(column, "column");
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(provider, "provider");
-    Map<BlotterColumn, ValueProvider> mappings = mappingsFor(type);
+    Map<BlotterColumn, CellValueProvider> mappings = mappingsFor(type);
     mappings.put(column, provider);
   }
 
@@ -46,26 +47,32 @@ public class BlotterColumnMapper {
     ArgumentChecker.notNull(column, "column");
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(value, "value");
-    Map<BlotterColumn, ValueProvider> mappings = mappingsFor(type);
+    Map<BlotterColumn, CellValueProvider> mappings = mappingsFor(type);
     mappings.put(column, new StaticValueProvider(value));
   }
 
-  private <T extends ManageableSecurity> Map<BlotterColumn, ValueProvider> mappingsFor(Class<T> type) {
-    Map<BlotterColumn, ValueProvider> securityMappings = _mappings.get(type);
+  private <T extends ManageableSecurity> Map<BlotterColumn, CellValueProvider> mappingsFor(Class<T> type) {
+    Map<BlotterColumn, CellValueProvider> securityMappings = _mappings.get(type);
     if (securityMappings != null) {
       return securityMappings;
     } else {
-      Map<BlotterColumn, ValueProvider> newMappings = Maps.newHashMap();
+      Map<BlotterColumn, CellValueProvider> newMappings = Maps.newHashMap();
       _mappings.put(type, newMappings);
       return newMappings;
     }
   }
 
-  private ValueProvider propertyProvider(MetaProperty<?> property) {
+  private CellValueProvider propertyProvider(MetaProperty<?> property) {
     ArgumentChecker.notNull(property, "property");
     return new PropertyValueProvider(property);
   }
 
+  /**
+   * Returns the value to display for a security in a blotter column.
+   * @param column The blotter column
+   * @param security The security, possibly null (for rows that represent a portfolio node)
+   * @return The value to display in the column, not null
+   */
   public Object valueFor(BlotterColumn column, ManageableSecurity security) {
     // position rows have no security
     if (security == null) {
@@ -75,11 +82,11 @@ public class BlotterColumnMapper {
   }
 
   private Object getValue(BlotterColumn column, ManageableSecurity security, Class<?> type) {
-    Map<BlotterColumn, ValueProvider> providerMap = getMappingsForType(type);
+    Map<BlotterColumn, CellValueProvider> providerMap = getMappingsForType(type);
     if (providerMap == null) {
       return "";
     } else {
-      ValueProvider valueProvider = providerMap.get(column);
+      CellValueProvider valueProvider = providerMap.get(column);
       if (valueProvider != null) {
         return valueProvider.getValue(security);
       } else {
@@ -93,8 +100,8 @@ public class BlotterColumnMapper {
     }
   }
 
-  private Map<BlotterColumn, ValueProvider> getMappingsForType(Class<?> type) {
-    Map<BlotterColumn, ValueProvider> providerMap = _mappings.get(type);
+  private Map<BlotterColumn, CellValueProvider> getMappingsForType(Class<?> type) {
+    Map<BlotterColumn, CellValueProvider> providerMap = _mappings.get(type);
     if (providerMap != null) {
       return providerMap;
     } else {
@@ -107,7 +114,7 @@ public class BlotterColumnMapper {
     }
   }
 
-  private static class PropertyValueProvider<T extends ManageableSecurity> implements ValueProvider<T> {
+  private static class PropertyValueProvider<T extends ManageableSecurity> implements CellValueProvider<T> {
 
     private final MetaProperty<?> _property;
 
@@ -122,7 +129,7 @@ public class BlotterColumnMapper {
     }
   }
 
-  private static class StaticValueProvider implements ValueProvider {
+  private static class StaticValueProvider implements CellValueProvider {
 
     private final Object _value;
 
@@ -132,7 +139,7 @@ public class BlotterColumnMapper {
     }
 
     @Override
-    public Object getValue(ManageableSecurity security) {
+    public Object getValue(Security security) {
       return _value;
     }
   }

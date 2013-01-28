@@ -125,7 +125,7 @@ public class DefaultBlotterColumnMappings {
     mapper.mapColumn(QUANTITY, CapFloorCMSSpreadSecurity.meta().notional());
     mapper.mapColumn(RATE, CapFloorCMSSpreadSecurity.meta().strike());
     mapper.mapColumn(FREQUENCY, CapFloorCMSSpreadSecurity.meta().frequency());
-    mapper.mapColumn(PRODUCT, CapFloorCMSSpreadSecurity.class, new ValueProvider<CapFloorCMSSpreadSecurity>() {
+    mapper.mapColumn(PRODUCT, CapFloorCMSSpreadSecurity.class, new CellValueProvider<CapFloorCMSSpreadSecurity>() {
       @Override
       public Object getValue(CapFloorCMSSpreadSecurity security) {
         return security.getLongId().getValue() + "/" + security.getShortId().getValue();
@@ -147,7 +147,7 @@ public class DefaultBlotterColumnMappings {
     mapper.mapColumn(TYPE, EquityIndexDividendFutureSecurity.class, "Equity Index Dividend Future");
 
     // ------------------- IndexFuture
-    mapper.mapColumn(INDEX, IndexFutureSecurity.class, new ValueProvider<IndexFutureSecurity>() {
+    mapper.mapColumn(INDEX, IndexFutureSecurity.class, new CellValueProvider<IndexFutureSecurity>() {
       @Override
       public Object getValue(IndexFutureSecurity security) {
         return security.getUnderlyingId().getValue();
@@ -157,7 +157,7 @@ public class DefaultBlotterColumnMappings {
     // ------------------- InterestRateFuture
     mapper.mapColumn(TYPE, InterestRateFutureSecurity.class, "Interest Rate Future");
     mapper.mapColumn(PRODUCT, InterestRateFutureSecurity.meta().currency());
-    mapper.mapColumn(INDEX, InterestRateFutureSecurity.class, new ValueProvider<InterestRateFutureSecurity>() {
+    mapper.mapColumn(INDEX, InterestRateFutureSecurity.class, new CellValueProvider<InterestRateFutureSecurity>() {
       @Override
       public Object getValue(InterestRateFutureSecurity security) {
         return security.getUnderlyingId().getValue();
@@ -217,7 +217,7 @@ public class DefaultBlotterColumnMappings {
     mapper.mapColumn(RATE, EquityIndexOptionSecurity.meta().strike());
     mapper.mapColumn(MATURITY, EquityIndexOptionSecurity.meta().expiry());
     mapper.mapColumn(DIRECTION, EquityIndexOptionSecurity.meta().optionType());
-    mapper.mapColumn(PRODUCT, EquityIndexOptionSecurity.class, new ValueProvider<EquityIndexOptionSecurity>() {
+    mapper.mapColumn(PRODUCT, EquityIndexOptionSecurity.class, new CellValueProvider<EquityIndexOptionSecurity>() {
       @Override
       public Object getValue(EquityIndexOptionSecurity security) {
         return security.getUnderlyingId().getValue();
@@ -229,7 +229,7 @@ public class DefaultBlotterColumnMappings {
     mapper.mapColumn(RATE, EquityBarrierOptionSecurity.meta().strike());
     mapper.mapColumn(MATURITY, EquityBarrierOptionSecurity.meta().expiry());
     mapper.mapColumn(DIRECTION, EquityBarrierOptionSecurity.meta().optionType());
-    mapper.mapColumn(PRODUCT, EquityBarrierOptionSecurity.class, new ValueProvider<EquityBarrierOptionSecurity>() {
+    mapper.mapColumn(PRODUCT, EquityBarrierOptionSecurity.class, new CellValueProvider<EquityBarrierOptionSecurity>() {
       @Override
       public Object getValue(EquityBarrierOptionSecurity security) {
         return security.getUnderlyingId().getValue();
@@ -243,13 +243,13 @@ public class DefaultBlotterColumnMappings {
     // ------------------- FXForward
     mapper.mapColumn(TYPE, FXForwardSecurity.class, "FX Forward");
     mapper.mapColumn(MATURITY, FXForwardSecurity.meta().forwardDate());
-    mapper.mapColumn(PRODUCT, FXForwardSecurity.class, new ValueProvider<FXForwardSecurity>() {
+    mapper.mapColumn(PRODUCT, FXForwardSecurity.class, new CellValueProvider<FXForwardSecurity>() {
       @Override
       public String getValue(FXForwardSecurity security) {
         return currencyPairName(security.getPayCurrency(), security.getReceiveCurrency(), currencyPairs);
       }
     });
-    mapper.mapColumn(QUANTITY, FXForwardSecurity.class, new ValueProvider<FXForwardSecurity>() {
+    mapper.mapColumn(QUANTITY, FXForwardSecurity.class, new CellValueProvider<FXForwardSecurity>() {
       @Override
       public FXAmounts getValue(FXForwardSecurity security) {
         return FXAmounts.forForward(security.getPayCurrency(),
@@ -259,7 +259,7 @@ public class DefaultBlotterColumnMappings {
                                     currencyPairs);
       }
     });
-    mapper.mapColumn(RATE, FXForwardSecurity.class, new ValueProvider<FXForwardSecurity>() {
+    mapper.mapColumn(RATE, FXForwardSecurity.class, new CellValueProvider<FXForwardSecurity>() {
       @Override
       public Double getValue(FXForwardSecurity security) {
         return CurrencyUtils.getRate(security.getPayCurrency(),
@@ -273,14 +273,14 @@ public class DefaultBlotterColumnMappings {
     // ------------------- FXOption
     mapper.mapColumn(TYPE, FXOptionSecurity.class, "FX Option");
     mapper.mapColumn(MATURITY, FXOptionSecurity.meta().expiry());
-    mapper.mapColumn(PRODUCT, FXOptionSecurity.class, new ValueProvider<FXOptionSecurity>() {
+    mapper.mapColumn(PRODUCT, FXOptionSecurity.class, new CellValueProvider<FXOptionSecurity>() {
       @Override
       public Object getValue(FXOptionSecurity security) {
         CurrencyPair pair = currencyPairs.getCurrencyPair(security.getPutCurrency(), security.getCallCurrency());
         return pair.getBase() + "/" + pair.getCounter();
       }
     });
-    mapper.mapColumn(QUANTITY, FXOptionSecurity.class, new ValueProvider<FXOptionSecurity>() {
+    mapper.mapColumn(QUANTITY, FXOptionSecurity.class, new CellValueProvider<FXOptionSecurity>() {
       @Override
       public FXAmounts getValue(FXOptionSecurity security) {
         return FXAmounts.forOption(security.getPutCurrency(),
@@ -291,7 +291,7 @@ public class DefaultBlotterColumnMappings {
                                    currencyPairs);
       }
     });
-    mapper.mapColumn(RATE, FXOptionSecurity.class, new ValueProvider<FXOptionSecurity>() {
+    mapper.mapColumn(RATE, FXOptionSecurity.class, new CellValueProvider<FXOptionSecurity>() {
       @Override
       public Object getValue(FXOptionSecurity security) {
         return CurrencyUtils.getRate(security.getPutCurrency(),
@@ -305,7 +305,7 @@ public class DefaultBlotterColumnMappings {
     // ------------------- FXBarrierOption
     mapper.mapColumn(TYPE, FXBarrierOptionSecurity.class, "FX Barrier Option");
     mapper.mapColumn(MATURITY, FXBarrierOptionSecurity.meta().expiry());
-    mapper.mapColumn(QUANTITY, FXBarrierOptionSecurity.class, new ValueProvider<FXBarrierOptionSecurity>() {
+    mapper.mapColumn(QUANTITY, FXBarrierOptionSecurity.class, new CellValueProvider<FXBarrierOptionSecurity>() {
       @Override
       public Object getValue(FXBarrierOptionSecurity security) {
         return FXAmounts.forOption(security.getPutCurrency(),
@@ -316,13 +316,13 @@ public class DefaultBlotterColumnMappings {
                                    currencyPairs);
       }
     });
-    mapper.mapColumn(PRODUCT, FXBarrierOptionSecurity.class, new ValueProvider<FXBarrierOptionSecurity>() {
+    mapper.mapColumn(PRODUCT, FXBarrierOptionSecurity.class, new CellValueProvider<FXBarrierOptionSecurity>() {
       @Override
       public Object getValue(FXBarrierOptionSecurity security) {
         return currencyPairName(security.getPutCurrency(), security.getCallCurrency(), currencyPairs);
       }
     });
-    mapper.mapColumn(RATE, FXBarrierOptionSecurity.class, new ValueProvider<FXBarrierOptionSecurity>() {
+    mapper.mapColumn(RATE, FXBarrierOptionSecurity.class, new CellValueProvider<FXBarrierOptionSecurity>() {
       @Override
       public Object getValue(FXBarrierOptionSecurity security) {
         return CurrencyUtils.getRate(security.getPutCurrency(),
@@ -336,13 +336,13 @@ public class DefaultBlotterColumnMappings {
     // ------------------- NonDeliverableFXDigitalOption
     mapper.mapColumn(TYPE, NonDeliverableFXDigitalOptionSecurity.class, "Non Deliverable FX Digital Option");
     mapper.mapColumn(MATURITY, NonDeliverableFXDigitalOptionSecurity.meta().expiry());
-    mapper.mapColumn(PRODUCT, NonDeliverableFXDigitalOptionSecurity.class, new ValueProvider<NonDeliverableFXDigitalOptionSecurity>() {
+    mapper.mapColumn(PRODUCT, NonDeliverableFXDigitalOptionSecurity.class, new CellValueProvider<NonDeliverableFXDigitalOptionSecurity>() {
       @Override
       public Object getValue(NonDeliverableFXDigitalOptionSecurity security) {
         return currencyPairName(security.getPutCurrency(), security.getCallCurrency(), currencyPairs);
       }
     });
-    mapper.mapColumn(QUANTITY, NonDeliverableFXDigitalOptionSecurity.class, new ValueProvider<NonDeliverableFXDigitalOptionSecurity>() {
+    mapper.mapColumn(QUANTITY, NonDeliverableFXDigitalOptionSecurity.class, new CellValueProvider<NonDeliverableFXDigitalOptionSecurity>() {
       @Override
       public Object getValue(NonDeliverableFXDigitalOptionSecurity security) {
         return FXAmounts.forOption(security.getPutCurrency(),
@@ -354,7 +354,7 @@ public class DefaultBlotterColumnMappings {
         );
       }
     });
-    mapper.mapColumn(RATE, NonDeliverableFXDigitalOptionSecurity.class, new ValueProvider<NonDeliverableFXDigitalOptionSecurity>() {
+    mapper.mapColumn(RATE, NonDeliverableFXDigitalOptionSecurity.class, new CellValueProvider<NonDeliverableFXDigitalOptionSecurity>() {
       @Override
       public Object getValue(NonDeliverableFXDigitalOptionSecurity security) {
         return CurrencyUtils.getRate(security.getPutCurrency(),
@@ -368,13 +368,13 @@ public class DefaultBlotterColumnMappings {
     // ------------------- NonDeliverableFXForward
     mapper.mapColumn(TYPE, NonDeliverableFXForwardSecurity.class, "Non Deliverable FX Forward");
     mapper.mapColumn(MATURITY, NonDeliverableFXForwardSecurity.meta().forwardDate());
-    mapper.mapColumn(PRODUCT, NonDeliverableFXForwardSecurity.class, new ValueProvider<NonDeliverableFXForwardSecurity>() {
+    mapper.mapColumn(PRODUCT, NonDeliverableFXForwardSecurity.class, new CellValueProvider<NonDeliverableFXForwardSecurity>() {
       @Override
       public Object getValue(NonDeliverableFXForwardSecurity security) {
         return currencyPairName(security.getPayCurrency(), security.getReceiveCurrency(), currencyPairs);
       }
     });
-    mapper.mapColumn(QUANTITY, NonDeliverableFXForwardSecurity.class, new ValueProvider<NonDeliverableFXForwardSecurity>() {
+    mapper.mapColumn(QUANTITY, NonDeliverableFXForwardSecurity.class, new CellValueProvider<NonDeliverableFXForwardSecurity>() {
       @Override
       public Object getValue(NonDeliverableFXForwardSecurity security) {
         return FXAmounts.forForward(security.getPayCurrency(),
@@ -384,7 +384,7 @@ public class DefaultBlotterColumnMappings {
                                     currencyPairs);
       }
     });
-    mapper.mapColumn(RATE, NonDeliverableFXForwardSecurity.class, new ValueProvider<NonDeliverableFXForwardSecurity>() {
+    mapper.mapColumn(RATE, NonDeliverableFXForwardSecurity.class, new CellValueProvider<NonDeliverableFXForwardSecurity>() {
       @Override
       public Object getValue(NonDeliverableFXForwardSecurity security) {
         return CurrencyUtils.getRate(security.getPayCurrency(),
@@ -398,7 +398,7 @@ public class DefaultBlotterColumnMappings {
         // ------------------- NonDeliverableFXOption
     mapper.mapColumn(TYPE, NonDeliverableFXOptionSecurity.class, "Non-deliverable FX Option");
     mapper.mapColumn(MATURITY, NonDeliverableFXOptionSecurity.meta().expiry());
-    mapper.mapColumn(QUANTITY, NonDeliverableFXOptionSecurity.class, new ValueProvider<NonDeliverableFXOptionSecurity>() {
+    mapper.mapColumn(QUANTITY, NonDeliverableFXOptionSecurity.class, new CellValueProvider<NonDeliverableFXOptionSecurity>() {
       @Override
       public Object getValue(NonDeliverableFXOptionSecurity security) {
         return FXAmounts.forOption(security.getPutCurrency(),
@@ -409,13 +409,13 @@ public class DefaultBlotterColumnMappings {
                                    currencyPairs);
       }
     });
-    mapper.mapColumn(PRODUCT, NonDeliverableFXOptionSecurity.class, new ValueProvider<NonDeliverableFXOptionSecurity>() {
+    mapper.mapColumn(PRODUCT, NonDeliverableFXOptionSecurity.class, new CellValueProvider<NonDeliverableFXOptionSecurity>() {
       @Override
       public Object getValue(NonDeliverableFXOptionSecurity security) {
         return currencyPairName(security.getPutCurrency(), security.getCallCurrency(), currencyPairs);
       }
     });
-    mapper.mapColumn(RATE, NonDeliverableFXOptionSecurity.class, new ValueProvider<NonDeliverableFXOptionSecurity>() {
+    mapper.mapColumn(RATE, NonDeliverableFXOptionSecurity.class, new CellValueProvider<NonDeliverableFXOptionSecurity>() {
       @Override
       public Object getValue(NonDeliverableFXOptionSecurity security) {
         return CurrencyUtils.getRate(security.getPutCurrency(),
@@ -428,7 +428,7 @@ public class DefaultBlotterColumnMappings {
     // ------------------- FXDigitalOption
     mapper.mapColumn(TYPE, FXDigitalOptionSecurity.class, "FX Digital Option");
     mapper.mapColumn(MATURITY, FXDigitalOptionSecurity.meta().expiry());
-    mapper.mapColumn(QUANTITY, FXDigitalOptionSecurity.class, new ValueProvider<FXDigitalOptionSecurity>() {
+    mapper.mapColumn(QUANTITY, FXDigitalOptionSecurity.class, new CellValueProvider<FXDigitalOptionSecurity>() {
       @Override
       public Object getValue(FXDigitalOptionSecurity security) {
         return FXAmounts.forOption(security.getPutCurrency(),
@@ -439,13 +439,13 @@ public class DefaultBlotterColumnMappings {
                                    currencyPairs);
       }
     });
-    mapper.mapColumn(PRODUCT, FXDigitalOptionSecurity.class, new ValueProvider<FXDigitalOptionSecurity>() {
+    mapper.mapColumn(PRODUCT, FXDigitalOptionSecurity.class, new CellValueProvider<FXDigitalOptionSecurity>() {
       @Override
       public Object getValue(FXDigitalOptionSecurity security) {
         return currencyPairName(security.getPutCurrency(), security.getCallCurrency(), currencyPairs);
       }
     });
-    mapper.mapColumn(RATE, FXDigitalOptionSecurity.class, new ValueProvider<FXDigitalOptionSecurity>() {
+    mapper.mapColumn(RATE, FXDigitalOptionSecurity.class, new CellValueProvider<FXDigitalOptionSecurity>() {
       @Override
       public Object getValue(FXDigitalOptionSecurity security) {
         return CurrencyUtils.getRate(security.getPutCurrency(),
@@ -458,7 +458,7 @@ public class DefaultBlotterColumnMappings {
 
     // -------------------
     // fallback type name for securities that haven't been explicitly mapped
-    mapper.mapColumn(TYPE, ManageableSecurity.class, new ValueProvider<ManageableSecurity>() {
+    mapper.mapColumn(TYPE, ManageableSecurity.class, new CellValueProvider<ManageableSecurity>() {
       @Override
       public Object getValue(ManageableSecurity security) {
         return security.getClass().getSimpleName();

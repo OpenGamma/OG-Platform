@@ -5,12 +5,12 @@
  */
 package com.opengamma.web.analytics.blotter;
 
-import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.core.security.Security;
 
 /**
-*
-*/
-public interface ValueProvider<T extends ManageableSecurity> {
+ * @param <T> The security type TODO does this need to be extend Security?
+ */
+public interface CellValueProvider<T extends Security> {
 
   Object getValue(T security);
 }

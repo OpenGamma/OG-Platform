@@ -169,11 +169,13 @@ public final class PortfolioGridStructure extends MainGridStructure {
         return new PortfolioGridRow(target, nodeName);
       }
 
+      // TODO need to return list of rows including trades - but only for fungible security types
       @Override
       public PortfolioGridRow apply(PortfolioNode parentNode, Position position) {
+        ComputationTargetSpecification nodeSpec = ComputationTargetSpecification.of(parentNode);
         // TODO I don't think toLatest() will do long term. resolution time available on the result model
-        ComputationTargetSpecification target = ComputationTargetSpecification.of(parentNode).containing(
-            ComputationTargetType.POSITION, position.getUniqueId().toLatest());
+        ComputationTargetSpecification target = nodeSpec.containing(ComputationTargetType.POSITION,
+                                                                    position.getUniqueId().toLatest());
         Security security = position.getSecurity();
         // TODO check the cast
         ManageableSecurity manageableSecurity = (ManageableSecurity) security;
