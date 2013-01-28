@@ -13,21 +13,24 @@ $.register_module({
             check_state: og.views.common.state.check.partial('/'),
             load: function (args) {
                 $('.OG-masthead .og-analytics-beta').addClass('og-active');
+                form = new og.analytics.form2({ callback:og.analytics.url.main });
                 var new_page = false;
-                form = og.analytics.form2({url_config:og.analytics.url.main()});
                 view.check_state({args: args, conditions: [
                     {new_page: function () {new_page = true; og.analytics.containers.initialize();}}
                 ]});
                 og.analytics.resize();
                 if (!new_page && !args.data && og.analytics.url.last.main) {
                     og.analytics.url.clear_main(), $(main_selector).html('');
-                    if (!og.analytics.url.last.main) form = og.analytics.form2();
+                    form = new og.analytics.form2({ callback:og.analytics.url.main });
                 }
             },
             load_item: function (args) {
                 view.check_state({args: args, conditions: [{new_page: view.load}]});
                 og.analytics.url.process(args, function () {
-                    form = og.analytics.form2({url_config:og.analytics.url.main()});
+                    form = new og.analytics.form2({
+                        callback: og.analytics.url.main,
+                        data: og.analytics.url.last.main
+                    });
                 });
             },
             init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},

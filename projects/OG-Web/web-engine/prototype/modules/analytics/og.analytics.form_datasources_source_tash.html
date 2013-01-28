@@ -4,11 +4,15 @@
     <option {{#if this.selected}}selected{{/if}} value="{{this.value}}">{{this.text}}</option>
   {{/each}}
 </select>
-{{#if this.historical}}
+{{#if historical.fixed}}
   <div class="extra-opts">
-    <input class="latest {{#unless date}}active{{/unless}}"
-      type="button" value="Latest" />
-    <input class="OG-js-datetimepicker custom {{#if date}}active date-selected{{/if}}" type="button"
-      {{#if date}}value="{{date}}"{{else}}value="Custom"{{/if}} />
+    <input class="latest" type="button" value="Latest" />
+    <input class="OG-js-datetimepicker custom hasDatepicker active date-selected" type="button" value="{{historical.date}}" />
+  </div>
+{{/if}}
+{{#if historical.latest}}
+  <div class="extra-opts">
+    <input class="latest active" type="button" value="Latest" />
+    <input class="OG-js-datetimepicker custom" type="button" value="Custom" />
   </div>
 {{/if}}

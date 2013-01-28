@@ -40,7 +40,7 @@ $.register_module({
             });
         };
 
-        var Portfolios = function (config, callback) {
+        var Portfolios = function (config) {
             var block = this, menu, form = config.form;
 
             form.Block.call(block, {
@@ -60,8 +60,13 @@ $.register_module({
                     source: ac_source(og.api.rest.portfolios, store_porfolios)
                 });
                 if (config.val) {
-                    menu.$input.val(config.val);
-                    og.api.rest.portfolios.get().pipe(store_porfolios);
+                    og.api.rest.portfolios.get().pipe(function (resp) {
+                        store_porfolios(resp);
+                        var val = portfolio_store.filter(function (entry) {
+                            return entry.split('|')[0] === config.val;
+                        });
+                        if (val.length && val[0] !== '') menu.$input.val(val[0].split('|')[2]);
+                    });
                 }
             });
         };

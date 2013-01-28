@@ -74,13 +74,16 @@ $.register_module({
                                 return { text: entry, value: entry, selected: obj.source === entry };
                             }) : obj.type === 'Snapshot' ? resp.data[0].snapshots.map(function (entry) {
                                 return { text: entry.name, value: entry.id, selected: obj.source === entry.id };
-                            }) : obj.type === 'Historical' ? ((data.historical = true), resp.data.data.map(
+                            }) : obj.type === 'Historical' ? resp.data.data.map(
                                 function (entry) {
                                     var arr = entry.split('|');
                                     return { text: arr[1], value: arr[0], selected: obj.source === arr[0]};
-                            })) : {};
-                            data.select_default = obj.source === '';
-                            data.date = 'date' in obj ? obj.date : null;
+                            }) : {};
+                            if (obj.type === 'Historical') data.historical = {
+                                    fixed: obj.date ? true : false,
+                                    latest: obj.date === '' ? true : false
+                                };
+                            if (data.historical && data.historical.fixed) data.historical.date = obj.date;
                             handler(tmpl(data));
                         });
                     }
@@ -131,6 +134,7 @@ $.register_module({
             var display_datepicker = function (entry) {
                 if (!menu.opts[entry]) return;
                 var custom_dp = $(custom_s, menu.opts[entry]), widget;
+                console.log(custom_dp);
                 custom_dp.datepicker({
                     dateFormat:'yy-mm-dd',
                     onSelect: function () {
@@ -314,7 +318,6 @@ $.register_module({
         };
 
         DatasourcesMenu.prototype = new Block;
-
         return DatasourcesMenu;
     }
 });

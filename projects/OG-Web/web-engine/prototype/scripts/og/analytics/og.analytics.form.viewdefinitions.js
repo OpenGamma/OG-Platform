@@ -60,8 +60,11 @@ $.register_module({
                     source: ac_source(og.api.rest.viewdefinitions, store_viewdefinitions)
                 });
                 if (config.val) {
-                    menu.$input.val(config.val);
-                    og.api.rest.viewdefinitions.get().pipe(store_viewdefinitions);
+                    og.api.rest.viewdefinitions.get().pipe(function (resp) {
+                        store_viewdefinitions(resp);
+                        var val = viewdefs_store.filter(function (entry) { return entry.id === config.val; });
+                        if (val.length && val[0].name) menu.$input.val(val[0].name);
+                    });
                 }
             });
         };

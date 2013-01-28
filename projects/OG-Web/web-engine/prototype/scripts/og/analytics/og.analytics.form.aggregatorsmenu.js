@@ -17,9 +17,11 @@ $.register_module({
 
             // Private
             var block = this, form = config.form, query = [], sel_val, sel_pos, $parent, default_aggregation = {idx:0},
-                aggregators = config.aggregators || [default_aggregation], initialized = false, $select,
-                default_sel_txt = 'select aggregation...', del_s = '.og-icon-delete',
-                options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox';
+                initialized = false, $select, default_sel_txt = 'select aggregation...', del_s = '.og-icon-delete',
+                options_s = '.OG-dropmenu-options', select_s = 'select', checkbox_s = '.og-option :checkbox',
+                aggregators = config.aggregators && config.aggregators.length ?
+                                config.aggregators :
+                                [default_aggregation];
 
             var add_handler = function (obj) {
                 add_row_handler(obj).html(function (html) {
