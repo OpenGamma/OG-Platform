@@ -11,7 +11,8 @@ $.register_module({
             dropdown = '.og-blotter-security-select', bond_future = 'BondFutureSecurity',
             bond_arr = ['CorporateBondSecurity', 'GovernmentBondSecurity','MunicipalBondSecurity'], 
             details_selector = 'og-blocks-fungible-details', ids_selector = 'og-blocks-fungible-security-ids',
-            blank_details = "<table class='" + details_selector + "'></div>";
+            blank_details = "<table class='" + details_selector + "'></div>",
+            type_map = {BOND: 1, BOND_FUTURE: 2, EXCHANGE_TRADED: 3};
             if(config) {data = config; data.id = config.trade.uniqueId;}
             else {data = {trade: og.blotter.util.fungible_trade};}
             constructor.load = function () {
@@ -55,19 +56,33 @@ $.register_module({
             };
             populate_data = function (config){
                 var details_block, ids_block;
-                details_block = new form.Block({module: 'og.blotter.forms.blocks.fungible_bond_tash',
-                    extras:{issuer: config.inputs.data.issuerName, coupon_type: config.inputs.data.couponType, 
-                        coupon_rate: config.inputs.data.couponRate, currency: config.inputs.data.currency}
-                });
+                switch(config.type){
+                    case type_map.BOND:
+                        details_block = new form.Block({module: 'og.blotter.forms.blocks.fungible_bond_tash',
+                            extras:{issuer: config.inputs.data.issuerName, coupon_type: config.inputs.data.couponType, 
+                            coupon_rate: config.inputs.data.couponRate, currency: config.inputs.data.currency}
+                        });
+                        break;
+                    case type_map.BOND_FUTURE:
+                        details_block = new form.Block({module: 'og.blotter.forms.blocks.fungible_bond_future_tash',
+                            extras:{}
+                        });
+                        break;
+                    case type_map.EXCHANGE_TRADED:
+                        details_block = new form.Block({module: 'og.blotter.forms.blocks.fungible_exchange_traded_tash',
+                            extras:{}
+                        });
+                        break;
+                }
                 details_block.html(function (html){
                     $('.' + details_selector).replaceWith(html);
                 });
             };     
             poplate_switch = function (data){
                 if(data.error) {clear_info(); return;}
-                if(bond_arr.indexOf(data.type)) populate_data({type:'bond', inputs: data});
-                else if(bond_future.indexOf(data.type)) populate_data({type:'future', data: data});
-                else populate_data({type:'stock', data: data});
+                if(bond_arr.indexOf(data.type)) populate_data({type: type_map.BOND, inputs: data});
+                else if(bond_future.indexOf(data.type)) populate_data({type: type_map.BOND_FUTURE, data: data});
+                else populate_data({type: type_map.EXCHANGE_TRADED, data: data});
             };
             clear_info = function (){
                 $('.' + details_selector).replaceWith(blank_details);
