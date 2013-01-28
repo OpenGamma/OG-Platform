@@ -6,12 +6,12 @@
 package com.opengamma.web.analytics.blotter.swap;
 
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.web.analytics.blotter.ValueProvider;
+import com.opengamma.web.analytics.blotter.CellValueProvider;
 
 /**
 *
 */
-public class SwapQuantityProvider implements ValueProvider<SwapSecurity> {
+public class SwapQuantityProvider implements CellValueProvider<SwapSecurity> {
 
   @Override
   public Double getValue(SwapSecurity security) {
