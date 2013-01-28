@@ -40,10 +40,13 @@ $.register_module({
                 }
             });
             block.name = function () {
-                return  $('#' + dropdown.id).val() + '~' +  $('#' + sec_id).val();
+                return  $(this.select_id()).val().trim() + '~' +  $(this.input_id()).val().trim();
             };
             block.input_id = function () {
                 return '#' + sec_id;
+            };
+            block.select_id = function () {
+                return '#' + dropdown.id;
             };
         };
         Security.prototype = new Block(); // inherit Block prototype

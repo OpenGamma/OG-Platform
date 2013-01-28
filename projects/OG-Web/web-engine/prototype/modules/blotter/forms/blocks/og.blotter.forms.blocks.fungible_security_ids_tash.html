@@ -13,56 +13,18 @@
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td>
-        <label>
-          <span>Bloomberg Ticker</span>
-        </label>
-      </td>
-      <td>
-        <span>{{bloomberg}}</span>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <label>
-          <span>RIC</span>
-        </label>
-      </td>
-      <td>
-        <span>{{ric}}</span>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <label>
-          <span>CUSIP</span>
-        </label>
-      </td>
-      <td>
-        <span>{{cusip}}</span>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <label>
-          <span>ISIN</span>
-        </label>
-      </td>
-      <td>
-        <span>{{isin}}</span>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <label>
-          <span>SEDOL</span>
-        </label>
-      </td>
-      <td>
-        <span>{{sedol}}</span>
-      </td>
-    </tr>
+    {{#each security}}
+      <tr>
+        <td>
+          <label>
+            <span>{{scheme}}</span>
+          </label>
+        </td>
+        <td>
+          <span>{{id}}</span>
+        </td>
+      </tr>
+    {{/each}}
   </tbody>
 </table>
 </section>
