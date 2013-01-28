@@ -8,6 +8,8 @@ package com.opengamma.web.analytics.blotter;
 import java.util.List;
 import java.util.Map;
 
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
@@ -39,7 +41,7 @@ import com.opengamma.util.money.Currency;
 
   static {
     ImmutableMap<String, String> attributes = ImmutableMap.of("attr1", "attrVal1", "attr2", "attrVal2");
-    String forwardDateStr = "2012-12-21T10:30+00:00[Europe/London]";
+    String forwardDateStr = "2012-12-21";
     FX_FORWARD_DATA_SOURCE = beanData(
         "name", "TODO",
         "externalIdBundle", "",
@@ -52,7 +54,7 @@ import com.opengamma.util.money.Currency;
         "regionId", "Reg~123",
         "attributes", attributes);
 
-    ZonedDateTime forwardDate = ZonedDateTime.parse(forwardDateStr);
+    ZonedDateTime forwardDate = parseDate(forwardDateStr);
     ExternalId regionId = ExternalId.of("Reg", "123");
     FX_FORWARD = new FXForwardSecurity(Currency.USD, 150, Currency.GBP, 100, forwardDate, regionId);
     FX_FORWARD.setName("TODO");
@@ -60,9 +62,9 @@ import com.opengamma.util.money.Currency;
 
     //-------------------------------------
 
-    String tradeDateStr = "2012-12-21T10:30+00:00[Europe/London]";
-    String effectiveDateStr = "2012-12-23T10:30+00:00[Europe/London]";
-    String maturityDateStr = "2013-12-21T10:30+00:00[Europe/London]";
+    String tradeDateStr = "2012-12-21";
+    String effectiveDateStr = "2012-12-23";
+    String maturityDateStr = "2013-12-21";
     SWAP_DATA_SOURCE = beanData(
         "externalIdBundle", "",
         "name", "TODO",
@@ -101,9 +103,9 @@ import com.opengamma.util.money.Currency;
         "currency", "GBP",
         "amount", "123.45")));
 
-    ZonedDateTime tradeDate = ZonedDateTime.parse(tradeDateStr);
-    ZonedDateTime effectiveDate = ZonedDateTime.parse(effectiveDateStr);
-    ZonedDateTime maturityDate = ZonedDateTime.parse(maturityDateStr);
+    ZonedDateTime tradeDate = parseDate(tradeDateStr);
+    ZonedDateTime effectiveDate = parseDate(effectiveDateStr);
+    ZonedDateTime maturityDate = parseDate(maturityDateStr);
 
     SwapLeg payLeg = new FixedInterestRateLeg(
         DayCountFactory.INSTANCE.getDayCount("Act/360"),
@@ -131,9 +133,9 @@ import com.opengamma.util.money.Currency;
 
     //-------------------------------------
 
-    String firstObservationDateStr = "2012-12-21T10:30+00:00[Europe/London]";
-    String lastObservationDateStr = "2013-12-21T10:30+00:00[Europe/London]";
-    String settlementDateStr = "2013-12-25T10:30+00:00[Europe/London]";
+    String firstObservationDateStr = "2012-12-21";
+    String lastObservationDateStr = "2013-12-21";
+    String settlementDateStr = "2013-12-25";
     EQUITY_VARIANCE_SWAP_DATA_SOURCE = beanData(
         "externalIdBundle", "",
         "name", "TODO",
@@ -158,13 +160,17 @@ import com.opengamma.util.money.Currency;
                                        1234,
                                        false,
                                        15,
-                                       ZonedDateTime.parse(firstObservationDateStr),
-                                       ZonedDateTime.parse(lastObservationDateStr),
-                                       ZonedDateTime.parse(settlementDateStr),
+                                       parseDate(firstObservationDateStr),
+                                       parseDate(lastObservationDateStr),
+                                       parseDate(settlementDateStr),
                                        ExternalId.of("Reg", "123"),
                                        SimpleFrequencyFactory.INSTANCE.getFrequency("Weekly"));
     EQUITY_VARIANCE_SWAP.setName("TODO");
     EQUITY_VARIANCE_SWAP.setAttributes(attributes);
+  }
+
+  private static ZonedDateTime parseDate(String dateStr) {
+    return LocalDate.parse(dateStr).atTime(11, 0).atZone(ZoneOffset.UTC);
   }
 
   /* package */ static BeanDataSource beanData(Object... pairs) {

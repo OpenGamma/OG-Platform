@@ -25,8 +25,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
- */ // TODO how should read-only properties be handled? I guess it depends on the use case of the data
+ * TODO can this be deleted?
+ * TODO how should read-only properties be handled? I guess it depends on the use case of the data
+ */
 // TODO do this as HTML, easier to consume
 /* package */ class JsonBeanStructureVisitor implements BeanVisitor<JSONObject> {
 
