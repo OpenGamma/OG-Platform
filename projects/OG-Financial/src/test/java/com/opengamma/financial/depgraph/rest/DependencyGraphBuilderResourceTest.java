@@ -13,6 +13,7 @@ import static org.testng.Assert.fail;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 import org.fudgemsg.FudgeMsg;
@@ -183,7 +184,7 @@ public class DependencyGraphBuilderResourceTest {
     final DependencyGraphBuilderResource prime = resource.setValuationTime("2007-12-03T10:15:30+01:00[Europe/Paris]");
     final Instant i2 = prime.getValuationTime();
     assertEquals(i1, resource.getValuationTime()); // original unchanged
-    assertFalse(i1.equals(i2));
+    assertFalse(Objects.equals(i1, i2));
   }
 
   // TODO: testSetResolutionTime method

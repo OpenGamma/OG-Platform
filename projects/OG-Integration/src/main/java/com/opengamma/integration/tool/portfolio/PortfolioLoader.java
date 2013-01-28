@@ -47,12 +47,12 @@ public class PortfolioLoader {
   private final boolean _write;
 
   /**
-   * Should existing data with the same name be overwritten.
+   * Should entirely new securities and positions be created, or new versions of matching existing ones.
    */
   private final boolean _overwrite;
 
   /**
-   * Should the output be vebose.
+   * Should the output be verbose.
    */
   private final boolean _verbose;
 
@@ -62,6 +62,16 @@ public class PortfolioLoader {
   private final boolean _ignoreVersion;
 
   /**
+   * Should positions in the same security and within the same portfolio node be merged into one.
+   */
+  private final boolean _mergePositions;
+
+  /**
+   * Should positions in the previous portfolio version be kept, otherwise start from scratch.
+   */
+  private final boolean _keepCurrentPositions;
+
+  /**
    * Constructs a new portfolio loader ready to load a portfolio from file.
    *
    * @param toolContext tool context for executing the load - must not be null
@@ -69,12 +79,15 @@ public class PortfolioLoader {
    * @param securityType the security type for the portfolio (if not a multi-asset portfolio)
    * @param fileName the filename to read the portfolio from - must not be null
    * @param write should the data actually be written to the masters
-   * @param overwrite should existing daat with the same name be overwritten
-   * @param verbose should the output be vebose
+   * @param overwrite should entirely new securities and positions be created, or new versions of matching existing ones
+   * @param verbose should the output be verbose
+   * @param mergePositions should positions in the same security and within the same portfolio node be merged into one
+   * @param keepCurrentPositions should positions in the previous portfolio version be kept, otherwise start from scratch
    * @param ignoreVersion should the version hashes in the multi-asset zip file be ignored
    */
   public PortfolioLoader(ToolContext toolContext, String portfolioName, String securityType, String fileName,
-                         boolean write, boolean overwrite, boolean verbose, boolean ignoreVersion) {
+                         boolean write, boolean overwrite, boolean verbose, boolean mergePositions,
+                         boolean keepCurrentPositions, boolean ignoreVersion) {
 
     ArgumentChecker.notNull(toolContext, "toolContext ");
     ArgumentChecker.isTrue(!write || portfolioName != null, "Portfolio name must be specified if writing to a master");
@@ -87,6 +100,8 @@ public class PortfolioLoader {
     _overwrite = overwrite;
     _securityType = securityType;
     _verbose = verbose;
+    _mergePositions = mergePositions;
+    _keepCurrentPositions = keepCurrentPositions;
     _ignoreVersion = ignoreVersion;
   }
 
@@ -95,7 +110,8 @@ public class PortfolioLoader {
    */
   public void execute() {
 
-    PortfolioWriter portfolioWriter = constructPortfolioWriter(_toolContext, _portfolioName, _write, _overwrite);
+    PortfolioWriter portfolioWriter = constructPortfolioWriter(_toolContext, _portfolioName, _write, _overwrite,
+                                                               _mergePositions, _keepCurrentPositions);
     PortfolioReader portfolioReader = constructPortfolioReader(_fileName, _securityType, _ignoreVersion);
     SimplePortfolioCopier portfolioCopier = new SimplePortfolioCopier();
 
@@ -111,7 +127,8 @@ public class PortfolioLoader {
     portfolioWriter.close();
   }
 
-  private PortfolioWriter constructPortfolioWriter(ToolContext toolContext, String portfolioName, boolean write, boolean overwrite) {
+  private PortfolioWriter constructPortfolioWriter(ToolContext toolContext, String portfolioName, boolean write,
+                                                   boolean overwrite, boolean mergePositions, boolean keepCurrentPositions) {
 
     if (write) {
 
@@ -126,7 +143,7 @@ public class PortfolioLoader {
           toolContext.getPortfolioMaster(),
           toolContext.getPositionMaster(),
           toolContext.getSecurityMaster(),
-          overwrite, false, false, false);
+          overwrite, mergePositions, keepCurrentPositions, false);
 
     } else {
 

@@ -11,6 +11,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -350,11 +351,17 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
       public Object visitValueRequirement(final CurrencyMatrixValueRequirement valueRequirement) {
         final Object marketValue = inputs.getValue(getSeriesConversionRequirement(valueRequirement));
         if (marketValue instanceof DoubleTimeSeries) {
-          DoubleTimeSeries<?> rate = (DoubleTimeSeries<?>) marketValue;
+          DoubleTimeSeries<?> fxRate = (DoubleTimeSeries<?>) marketValue;
           if (valueRequirement.isReciprocal()) {
-            rate = rate.reciprocal();
+            fxRate = fxRate.reciprocal();
           }
-          return rate;
+          return fxRate;
+        } else if (marketValue instanceof HistoricalTimeSeries) {
+          DoubleTimeSeries<?> fxRate = ((HistoricalTimeSeries) marketValue).getTimeSeries();
+          if (valueRequirement.isReciprocal()) {
+            fxRate = fxRate.reciprocal();
+          }
+          return fxRate;
         } else {
           throw new IllegalArgumentException(valueRequirement.toString());
         }
@@ -368,7 +375,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Pair<Currency, Currency> currencies = parse(target.getUniqueId());
-    final Set<ComputedValue> results = new HashSet<ComputedValue>();
+    final Set<ComputedValue> results = new HashSet<>();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     for (final ValueRequirement desiredValue : desiredValues) {
       final Object result;
