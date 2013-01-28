@@ -198,8 +198,7 @@ public class BlotterResource {
     s_stringConvert.register(LongShort.class, new EnumConverter<LongShort>());
     s_stringConvert.register(OptionType.class, new EnumConverter<OptionType>());
     s_stringConvert.register(GICSCode.class, new GICSCodeConverter());
-    // TODO this won't work until Joda Convert allows replacement of registered converters
-    //s_stringConvert.register(ZonedDateTime.class, new ZonedDateTimeConverter());
+    s_stringConvert.register(ZonedDateTime.class, new ZonedDateTimeConverter());
   }
 
   /** For loading and saving securities. */

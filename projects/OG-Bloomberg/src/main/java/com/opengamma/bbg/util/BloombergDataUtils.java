@@ -15,6 +15,7 @@ import static com.opengamma.bbg.BloombergConstants.ON_OFF_FIELDS;
 import static org.threeten.bp.temporal.ChronoField.DAY_OF_MONTH;
 import static org.threeten.bp.temporal.ChronoField.MONTH_OF_YEAR;
 import static org.threeten.bp.temporal.ChronoField.YEAR;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -804,7 +805,7 @@ public final class BloombergDataUtils {
       // Again, note that we're not taking into account exchange trading hours.
       LocalDate expiryDate = LocalDate.of(year, s_monthCode.inverse().get(monthCode), 1).with(s_monthlyExpiryAdjuster);
       ZonedDateTime expiry = DateUtils.offsetDateTime(expiryDate, futureExpiryTime).atZoneSimilarLocal(futureExpiryTimeZone);
-      int quarters = (int) ISOFields.QUARTER_YEARS.between(nextExpiry, expiry).getAmount();
+      int quarters = (int) nextExpiry.periodUntil(expiry, MONTHS) / 3;
       int genericFutureNumber = quarters + 1;
       StringBuilder sb = new StringBuilder();
       sb.append(typeCode);

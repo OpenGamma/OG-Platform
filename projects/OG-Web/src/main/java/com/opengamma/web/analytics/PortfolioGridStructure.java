@@ -169,11 +169,13 @@ public final class PortfolioGridStructure extends MainGridStructure {
         return new PortfolioGridRow(target, nodeName);
       }
 
+      // TODO need to return list of rows including trades - but only for fungible security types
       @Override
       public PortfolioGridRow apply(PortfolioNode parentNode, Position position) {
+        ComputationTargetSpecification nodeSpec = ComputationTargetSpecification.of(parentNode);
         // TODO I don't think toLatest() will do long term. resolution time available on the result model
-        ComputationTargetSpecification target = ComputationTargetSpecification.of(parentNode).containing(
-            ComputationTargetType.POSITION, position.getUniqueId().toLatest());
+        ComputationTargetSpecification target = nodeSpec.containing(ComputationTargetType.POSITION,
+                                                                    position.getUniqueId().toLatest());
         Security security = position.getSecurity();
         // TODO check the cast
         ManageableSecurity manageableSecurity = (ManageableSecurity) security;
@@ -189,24 +191,24 @@ public final class PortfolioGridStructure extends MainGridStructure {
   /* package */ static final class PortfolioGridRow extends Row {
 
     /** The row's security, null if the row represents a node in the portfolio structure. */
-    private final ManageableSecurity _security;
+    private final Security _security;
 
     private PortfolioGridRow(ComputationTargetSpecification target, String name) {
       super(target, name, null);
       _security = null;
     }
 
-    private PortfolioGridRow(ComputationTargetSpecification target, ManageableSecurity security, BigDecimal quantity) {
+    private PortfolioGridRow(ComputationTargetSpecification target, Security security, BigDecimal quantity) {
       super(target, securityName(security), quantity);
       _security = security;
     }
 
-    private static String securityName(ManageableSecurity security) {
+    private static String securityName(Security security) {
       ArgumentChecker.notNull(security, "security");
       return security.getName();
     }
 
-    /* package */ ManageableSecurity getSecurity() {
+    /* package */ Security getSecurity() {
       return _security;
     }
   }

@@ -95,7 +95,7 @@ public class NaturalCubicSplineInterpolator1DTest {
 
     final double ans1 = INTERPOLATOR.interpolate(nat, 11.0);
     final double ans2 = INTERPOLATOR.interpolate(cub, 11.0);
-    //TODO check why these don't agree PLAT-2910
+
     //assertEquals("natural", mlNat, ans1, 1e-9);
     assertEquals("grad given", mlCub, ans2, 1e-5);
   }

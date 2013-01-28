@@ -11,6 +11,9 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.joda.convert.StringConvert;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
 import com.opengamma.financial.security.option.BarrierDirection;
@@ -64,11 +67,10 @@ public class BlotterResourceTest {
     assertEquals(SamplingFrequency.ONE_LOOK, _stringConvert.convertFromString(SamplingFrequency.class, "One Look"));
   }
 
-  // TODO this won't work until Joda Convert allows replacement of registered converters
-  /*@Test
+  @Test
   public void convertZonedDateTime() {
-    ZonedDateTime date = LocalDate.of(2012, 12, 21).atTime(11, 0).atZone(TimeZone.UTC);
+    ZonedDateTime date = LocalDate.of(2012, 12, 21).atTime(11, 0).atZone(ZoneId.of("UTC"));
     assertEquals("2012-12-21", _stringConvert.convertToString(date));
     assertEquals(date, _stringConvert.convertFromString(ZonedDateTime.class, "2012-12-21"));
-  }*/
+  }
 }

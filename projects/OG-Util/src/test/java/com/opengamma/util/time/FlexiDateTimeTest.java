@@ -116,9 +116,9 @@ public class FlexiDateTimeTest {
     if (expectedTime != null) {
       if (expectedZone != null) {
         if (expectedZone instanceof ZoneOffset) {
-          assertEquals(ZonedDateTime.of(expectedDate.atTime(expectedTime), expectedZone).toOffsetDateTime(), test.toBest());
+          assertEquals(expectedDate.atTime(expectedTime).atOffset((ZoneOffset) expectedZone), test.toBest());
         } else {
-          assertEquals(ZonedDateTime.of(expectedDate.atTime(expectedTime), expectedZone), test.toBest());
+          assertEquals(expectedDate.atTime(expectedTime).atZone(expectedZone), test.toBest());
         }
       } else {
         assertEquals(LocalDateTime.of(expectedDate, expectedTime), test.toBest());
