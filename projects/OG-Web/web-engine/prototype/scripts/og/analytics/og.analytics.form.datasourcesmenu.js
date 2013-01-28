@@ -90,13 +90,12 @@ $.register_module({
                 });
             };
 
-            var date_handler = function (entry, preload) { // TODO AG: refocus custom, hide datepicker
+            var date_handler = function (entry) { // TODO AG: refocus custom, hide datepicker
                 if (!menu.opts[entry]) return;
                 var custom = $(custom_s, menu.opts[entry]), latest = $(latest_s, menu.opts[entry]),
                     idx = query.pluck('pos').indexOf(menu.opts[entry].data('pos'));
                 if (custom) custom.addClass(active_s+ ' ' +date_selected_s);
                 if (latest) latest.removeClass(active_s);
-                if (preload && 'date' in preload) custom.val(preload.date);
                 if (custom.parent().is(versions_s)) query[idx].version_date = custom.datepicker('getDate');
                 else if (custom.parent().is(corrections_s)) query[idx].correction_date = custom.val();
                 else query[idx].date = custom.val();
