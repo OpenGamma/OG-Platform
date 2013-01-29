@@ -139,8 +139,8 @@ $.register_module({
                         date_handler(entry);
                         widget.off('mouseup.prevent_blurkill');
                     }
-                })
-                .datepicker('show');
+                });
+                custom_dp.datepicker('show');
                 widget = custom_dp.datepicker('widget').on('mouseup.prevent_blurkill', function(event) {
                     menu.fire('dropmenu:open');
                 });
@@ -159,16 +159,16 @@ $.register_module({
                 } else $query.text(default_sel_txt);
             };
 
-            var enable_extra_options = function (entry, val) {
+            var enable_extra_options = function (entry, val, preload) {
                 if (!menu.opts[entry]) return;
                 var inputs = $(extra_opts_s, menu.opts[entry]).find('input');
-                if (!inputs) return;
+                if (!inputs || preload) return;
                 if (val) inputs.removeAttr('disabled').filter(latest_s).addClass(active_s);
                 else inputs.attr('disabled', true).filter('.'+active_s).removeClass(active_s);
                 inputs.filter(custom_s).removeClass(active_s+ ' ' +date_selected_s).val(custom_val);
             };
 
-            var init = function (config) {
+            var init = function () {
                 menu = new og.analytics.form.DropMenu({cntr: $('.OG-analytics-form .og-datasources')});
                 if (menu.$dom) {
                     $query = $('.datasources-query', menu.$dom.toggle);
@@ -262,7 +262,7 @@ $.register_module({
                 return arr;
             };
 
-            var source_handler = function (entry) {
+            var source_handler = function (entry, preload) {
                 if (!menu.opts[entry]) return;
                 var val, src, option, sel_pos = menu.opts[entry].data('pos'),
                     type_val = $(type_s, menu.opts[entry]).val().toLowerCase(),
@@ -274,7 +274,7 @@ $.register_module({
                     return remove_entry(idx), display_query(), enable_extra_options(entry, false);
                 } else if (~idx) query[idx] = {pos:sel_pos, type:type_val, src:source_val, txt: source_txt};
                 else query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:source_val, txt: source_txt});
-                enable_extra_options(entry, true);
+                enable_extra_options(entry, true, preload);
                 display_query();
             };
 
@@ -310,7 +310,7 @@ $.register_module({
                 processor: function (data) {
                     data.providers = serialize();
                 }
-            })
+            });
 
             form.on('form:load', init);
         };

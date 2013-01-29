@@ -70,12 +70,10 @@ $.register_module({
         var keydown_handler = function (event) {
             if (event.keyCode !== 9) return;
             var $elem = $(event.srcElement || event.target), shift = event.shiftKey, menus = dom.menus,
-                controls = dom.form_controls, menu = '.'+selectors.menu,
+                controls = dom.form_controls, menu_toggle = '.'+selectors.menu_toggle,
                 load_btn = '.'+selectors.load_btn,
                 toggle = function (entry) {
-                    menus[entry].find(menu).toggleClass('og-active').toggle();
-                    if (shift) controls[entry].eq(-1).focus(0);
-                    else controls[entry].eq(0).blur(0);
+                    menus[entry].find(menu_toggle).trigger('click', event);
                 };
             if (!shift) {
                 if ($elem.closest(dom.menus.views).length) return toggle('datasources');
@@ -84,11 +82,18 @@ $.register_module({
                 if ($elem.is(controls.aggregators.eq(-1))) return toggle('aggregators'), toggle('filters');
                 if ($elem.is(controls.filters.eq(-1))) return toggle('filters');
             } else if (shift) {
-                if ($elem.is(load_btn)) return toggle('filters');
-                if ($elem.is(controls.filters.eq(0))) return toggle('filters'), toggle('aggregators');
-                if ($elem.is(controls.aggregators.eq(0))) return toggle('aggregators'), toggle('temporal');
-                if ($elem.is(controls.temporal.eq(0))) return toggle('temporal'), toggle('datasources');
-                if ($elem.is(controls.datasources.eq(0))) return toggle('datasources');
+                if ($elem.is(load_btn)) return toggle('filters'), controls.filters.eq(-1).focus(0);
+                if ($elem.is(controls.filters.eq(0))) 
+                    return toggle('filters'), controls.filters.eq(0).blur(0), 
+                        toggle('aggregators'), controls.aggregators.eq(-1).focus(0);
+                if ($elem.is(controls.aggregators.eq(0)))
+                    return toggle('aggregators'), controls.aggregators.eq(0).blur(0), 
+                        toggle('temporal'), controls.filters.eq(-1).focus(0);
+                if ($elem.is(controls.temporal.eq(0))) 
+                    return toggle('temporal'), controls.temporal.eq(0).blur(0), 
+                        toggle('datasources'), controls.datasources.eq(-1).focus(0);
+                if ($elem.is(controls.datasources.eq(0))) 
+                    return toggle('datasources'), controls.datasources.eq(0).focus(0);
             }
         };
 

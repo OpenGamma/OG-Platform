@@ -22,8 +22,7 @@ $.register_module({
                 if (menu.$dom.menu) {
                     menu.$dom.menu_actions = $('.og-menu-actions', menu.$dom.menu);
                     menu.$dom.opt = $('.OG-dropmenu-options', menu.$dom.menu);
-                    menu.$dom.opt.each(function (idx, elem){
-                        // TODO AG: better solution needed to store type
+                    menu.$dom.opt.each(function (idx, elem){ // TODO AG: better solution needed to store type
                         var $elem = $(elem), cl = $elem.attr('class').replace(/\s*OG-dropmenu-options\s*/, "");
                         $elem.find('.number span').text(idx+1);
                         menu.opts.push($elem.data({ 'pos': idx, 'type': cl || null }));
