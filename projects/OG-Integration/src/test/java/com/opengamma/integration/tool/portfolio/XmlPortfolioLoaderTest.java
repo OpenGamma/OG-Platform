@@ -66,8 +66,13 @@ public class XmlPortfolioLoaderTest {
 
   @Test
   public void testSimplePortfolioCanBeParsed() {
-    PortfolioExtractor extractor = attemptLoad("simple_irs_portfolio.xml");
+    PortfolioExtractor extractor = attemptLoad(new FilesystemPortfolioSchemaLocator(new File("src/main/resources/portfolio-schemas")), "single_irs.xml");
     assertEquals(extractor.size(), 1);
+  }
+
+  private PortfolioExtractor attemptLoad(FilesystemPortfolioSchemaLocator schemaLocator, String fileName) {
+    String fileLocation = "src/test/resources/xml_portfolios/";
+    return new XmlPortfolioLoader(schemaLocator).load(new File(fileLocation + fileName));
   }
 
   private PortfolioExtractor attemptLoad(final String fileName) {
@@ -163,7 +168,7 @@ public class XmlPortfolioLoaderTest {
       XPathFactory xpf = XPathFactory.newInstance();
       XPath xpath = xpf.newXPath();
       try {
-        XPathExpression expression = xpath.compile("/og-portfolio/trades/trade");
+        XPathExpression expression = xpath.compile("/og-portfolio/trades/swapTrade");
         NodeList nodeList = (NodeList) expression.evaluate(document, XPathConstants.NODESET);
         _size = nodeList.getLength();
       } catch (XPathExpressionException e) {

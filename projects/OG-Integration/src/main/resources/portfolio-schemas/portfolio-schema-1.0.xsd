@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="og-portfolio" type="og-portfolioType"/>
+  <xs:complexType name="fixingIndexType">
+    <xs:sequence>
+      <xs:element type="idType" name="id"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="idType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="scheme" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="tradesType">
+    <xs:sequence>
+      <xs:element type="swapTradeType" name="swapTrade">
+        <xs:annotation>
+          <xs:documentation>Trade id must be unique in this list</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="tradeLegsType">
+    <xs:sequence>
+      <xs:element type="floatingRateLegType" name="floatingRateLeg"/>
+      <xs:element type="fixedLegType" name="fixedLeg"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="og-portfolioType">
+    <xs:sequence>
+      <xs:element type="tradesType" name="trades"/>
+    </xs:sequence>
+    <xs:attribute type="xs:float" name="schemaVersion"/>
+  </xs:complexType>
+  <xs:complexType name="swapTradeType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="externalId">
+        <xs:annotation>
+          <xs:documentation>Probably should be unique in this file too</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:date" name="tradeDate"/>
+      <xs:element type="counterpartyType" name="counterparty"/>
+      <xs:element type="xs:string" name="isCleared">
+        <xs:annotation>
+          <xs:documentation>optional</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="clearingBroker">
+        <xs:annotation>
+          <xs:documentation>optional</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="clearingHouse">
+        <xs:annotation>
+          <xs:documentation>optional</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="executingBroker">
+        <xs:annotation>
+          <xs:documentation>optional</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="primeBroker">
+        <xs:annotation>
+          <xs:documentation>optional</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="collateralAgreement">
+        <xs:annotation>
+          <xs:documentation>optional</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="tradeAttributesType" name="tradeAttributes">
+        <xs:annotation>
+          <xs:documentation>Additional trade attributes - generally data that won't affect analytics</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="tradeLegsType" name="tradeLegs"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="id"/>
+  </xs:complexType>
+  <xs:complexType name="paymentCalendarsType">
+    <xs:sequence>
+      <xs:element type="calendarType" name="calendar" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="tradeAttributesType">
+    <xs:sequence>
+      <xs:element type="entryType" name="entry"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="calendarType">
+    <xs:sequence>
+      <xs:element type="idType" name="id">
+        <xs:annotation>
+          <xs:documentation>default=BANK   default=BANK   default=BANK</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="type" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="fixedLegType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="payReceive"/>
+      <xs:element type="xs:string" name="currency"/>
+      <xs:element type="xs:int" name="notional">
+        <xs:annotation>
+          <xs:documentation>Notional could be array-valued</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="frequency"/>
+      <xs:element type="xs:date" name="effectiveDate"/>
+      <xs:element type="xs:date" name="maturity"/>
+      <xs:element type="xs:float" name="rate"/>
+      <xs:element type="xs:string" name="dayCount"/>
+      <xs:element type="xs:string" name="businessDayAdjustment"/>
+      <xs:element type="xs:string" name="interestCalculation"/>
+      <xs:element type="xs:string" name="scheduleGenerationDirection"/>
+      <xs:element type="xs:string" name="endOfMonth"/>
+      <xs:element type="paymentCalendarsType" name="paymentCalendars"/>
+      <xs:element type="xs:string" name="isIMM"/>
+      <xs:element type="xs:string" name="shortLongCoupon">
+        <xs:annotation>
+          <xs:documentation>default = short</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="entryType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="key"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="counterpartyType">
+    <xs:sequence>
+      <xs:element type="idType" name="id"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="floatingRateLegType">
+    <xs:sequence>
+      <xs:element type="xs:string" name="payReceive"/>
+      <xs:element type="xs:string" name="currency"/>
+      <xs:element type="xs:int" name="notional">
+        <xs:annotation>
+          <xs:documentation>Notional could be array-valued</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="frequency">
+        <xs:annotation>
+          <xs:documentation>map to our InterestRateNotional where sign = Pay/Recieve flag  values from SimpleFrequencyFactory</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:date" name="effectiveDate">
+        <xs:annotation>
+          <xs:documentation>loader needs to enforce against convention for now</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:date" name="maturity">
+        <xs:annotation>
+          <xs:documentation>loader should enforce same maturity on each leg for now</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:float" name="spread">
+        <xs:annotation>
+          <xs:documentation>loader should support either spread or gearing for now, schema should allow both</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:float" name="gearing"/>
+      <xs:element type="xs:string" name="dayCount">
+        <xs:annotation>
+          <xs:documentation>use DayCountFactory</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="businessDayConvention">
+        <xs:annotation>
+          <xs:documentation>use BusinessDayConventionFactory</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="interestCalculation">
+        <xs:annotation>
+          <xs:documentation>only adjusted supported now</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="scheduleGenerationDirection">
+        <xs:annotation>
+          <xs:documentation>only Backward supported</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="endOfMonth">
+        <xs:annotation>
+          <xs:documentation>EOM</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="isIMM">
+        <xs:annotation>
+          <xs:documentation>must be false for now</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="paymentCalendarsType" name="paymentCalendars">
+        <xs:annotation>
+          <xs:documentation>loader should enforce type=BANK for now and id schemes all the same for now</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="shortLongCoupon">
+        <xs:annotation>
+          <xs:documentation>always short for now</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="resetFrequency">
+        <xs:annotation>
+          <xs:documentation>same as frequency for now</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="compoundingMethod">
+        <xs:annotation>
+          <xs:documentation>not supported at the moment as frequencies must match</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="resetLag">
+        <xs:annotation>
+          <xs:documentation>we're assuming that resetLag == settlementLag at the moment</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="resetType">
+        <xs:annotation>
+          <xs:documentation>In Advance or In Arrears.  Only support In advance at the mo</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="xs:string" name="fixingCalendar">
+        <xs:annotation>
+          <xs:documentation>same as payment calendar at the moment</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element type="fixingIndexType" name="fixingIndex"/>
+      <xs:element type="xs:string" name="shortLongCouponAdjustment">
+        <xs:annotation>
+          <xs:documentation>Interpolated</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="type"/>
+  </xs:complexType>
+</xs:schema>
