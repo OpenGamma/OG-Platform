@@ -182,6 +182,12 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE);
     addSummingFunction(functions, ValueRequirementNames.PNL_SERIES);
     addSummingFunction(functions, ValueRequirementNames.POSITION_DELTA);
+    
+    addSummingFunction(functions, ValueRequirementNames.POSITION_GAMMA);
+    addSummingFunction(functions, ValueRequirementNames.POSITION_RHO);
+    addSummingFunction(functions, ValueRequirementNames.POSITION_THETA);
+    addSummingFunction(functions, ValueRequirementNames.POSITION_VEGA);    
+    
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY);
