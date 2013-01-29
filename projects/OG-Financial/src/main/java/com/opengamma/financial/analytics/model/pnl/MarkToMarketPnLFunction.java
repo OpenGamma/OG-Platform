@@ -45,6 +45,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -122,7 +123,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
         } else if (_closingPriceField.equals(field)) {
           // Get most recent closing price before today 
           // By intention, this will not be today's close even if it's available  
-          // TODO Review - Note that this may be stale, as we take latest value. Illiquid securities do not trade each day..
+          // TODO Review - Note that this may be stale, if time series aren't updated nightly, as we take latest value. Illiquid securities do not trade each day..
           Object value = input.getValue();
           if (value == null) {
             throw new NullPointerException("Did not satisfy time series latest requirement," + _closingPriceField + ", for security, " + security.getExternalIdBundle());
@@ -155,6 +156,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     }
     // Finally, multiply by the Trade's Quantity
     final Double dailyPnL = target.getTrade().getQuantity().doubleValue() * dailyValueMove;
+    CurrencyAmount pnlCcy = CurrencyAmount.of(FinancialSecurityUtils.getCurrency(security), dailyPnL); 
 
     // 3. Get Spec and Return
     final ValueRequirement desiredValue = desiredValues.iterator().next();
