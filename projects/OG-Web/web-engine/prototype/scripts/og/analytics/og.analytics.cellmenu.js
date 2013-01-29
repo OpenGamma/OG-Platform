@@ -109,6 +109,15 @@ $.register_module({
             if ((offset.left + inner.width())> $(window).width())
                 inner.css({marginLeft: -inner.width() + width} );
             new constructor(cellmenu.grid);
+            var startX, startY;
+            $('.og-inplace-resizer').on('mousedown', function(event) {
+                startX =  event.pageX,
+                startY =  event.pageY;
+            }).on('mouseup', function(event) {
+                console.log(event);
+                inner.width = startX + event.pageX,
+                inner.height = startY + event.pageY;
+            });
         };
         constructor.prototype.hide = function () {
            var cellmenu = this;

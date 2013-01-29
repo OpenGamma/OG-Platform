@@ -52,6 +52,12 @@
     height: 16px;
 }
 
+.og-inplace-resizer{
+    float: right;
+    margin-top: -17px;
+    position: relative!important;
+}
+
 .OG-analytics-resize.og-menu {
     color: #999;
     display: inline-block;
