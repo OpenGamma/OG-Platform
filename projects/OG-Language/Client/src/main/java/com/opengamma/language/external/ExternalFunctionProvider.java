@@ -80,6 +80,15 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
     return functions;
   }
 
+  public ExternalFunctionProvider() {
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        getFunctions();
+      }
+    }).start();
+  }
+
   protected synchronized List<MetaFunction> getFunctions() {
     if (_functions == null) {
       _functions = functions();
