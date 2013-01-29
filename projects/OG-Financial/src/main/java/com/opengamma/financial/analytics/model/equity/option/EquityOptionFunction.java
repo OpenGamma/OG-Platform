@@ -313,6 +313,19 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     return results;
   }
 
+  protected Set<ValueSpecification> getResultsWithoutCurrency(final Set<ValueSpecification> resultsWithCurrency) {
+    final Set<ValueSpecification> resultsWithoutCurrency = Sets.newHashSetWithExpectedSize(resultsWithCurrency.size());
+    for (final ValueSpecification spec : resultsWithCurrency) {
+      final String name = spec.getValueName();
+      final ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
+      final ValueProperties properties = spec.getProperties().copy()
+          .withoutAny(ValuePropertyNames.CURRENCY)
+          .get();
+      resultsWithoutCurrency.add(new ValueSpecification(name, targetSpec, properties));
+    }
+    return resultsWithoutCurrency;
+  }
+  
   private ValueRequirement getDiscountCurveRequirement(final String fundingCurveName, final String curveCalculationConfigName, final Security security) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, fundingCurveName)
