@@ -30,6 +30,7 @@ import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
@@ -64,7 +65,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  * @param <T> Return type for visitor.
  */
 class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVisitor<T> {
-
+  /** The delegate */
   private final FinancialSecurityVisitor<T> _delegate;
 
   public FinancialSecurityVisitorDelegate(final FinancialSecurityVisitor<T> delegate) {
@@ -107,7 +108,7 @@ class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVisitor<T>
   }
 
   @Override
-  public T visitCashFlowSecurity(CashFlowSecurity security) {
+  public T visitCashFlowSecurity(final CashFlowSecurity security) {
     return _delegate.visitCashFlowSecurity(security);
   }
 
@@ -329,5 +330,10 @@ class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVisitor<T>
   @Override
   public T visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
     return _delegate.visitLegacyRecoveryLockCDSSecurity(security);
+  }
+
+  @Override
+  public T visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+    return _delegate.visitDeliverableSwapFutureSecurity(security);
   }
 }
