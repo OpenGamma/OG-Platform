@@ -23,11 +23,8 @@ $.register_module({
             check_checkbox : function (name, value){
                 $('input:checkbox[name="'+ name +'"]').prop('checked', bools[value]);
             },
-            add_datetimepicker : function (name){
-                $('input[name="'+ name +'"]').datetimepicker({
-                    dateFormat: 'yy-mm-dd',separator: 'T',firstDay: 1, showTimezone: true, timeFormat: 'hh:mm:ss',
-                    timeSuffix: '+00:00[UTC]'
-                });
+            add_datetimepicker : function (name){$('input[name="'+ name +'"]').datepicker({
+                dateFormat: 'yy-mm-dd'});
             },
             get_checkbox : function (name) {
                 return $('input:checkbox[name="'+ name +'"]').is(':checked').toString();
@@ -59,8 +56,7 @@ $.register_module({
                 premiumTime: null,
                 attributes: {},
                 premiumDate: null,
-                type: "OtcTrade",
-                counterparty: 'ABC Counterparty'
+                type: "OtcTrade"
             },
             fungible_trade : {                
                 tradeDate: "2013-01-01",

@@ -66,7 +66,7 @@ $.register_module({
                     });
                 });
                 $('.fungibleb').click(function (){
-                    og.api.rest.blotter.trades.get({id:"DbPos~164322"}).pipe(function(data){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164540"}).pipe(function(data){
                         new og.blotter.Dialog(data);
                     });
                 });
@@ -76,7 +76,7 @@ $.register_module({
                     });
                 });
                 $('.fungibleet').click(function (){
-                    og.api.rest.blotter.trades.get({id:"DbPos~"}).pipe(function(data){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164554"}).pipe(function(data){
                         new og.blotter.Dialog(data);
                     });
                 });
