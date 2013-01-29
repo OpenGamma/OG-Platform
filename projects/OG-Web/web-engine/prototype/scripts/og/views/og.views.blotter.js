@@ -14,7 +14,6 @@ $.register_module({
             load: function (args) {
                 og.analytics.blotter = true;
 //                masthead.menu.set_tab(page_name);
-                if (!form) form = new og.analytics.form2();
                 $('.new_trade').css({display: 'inline-block'}).click(function (){new og.blotter.Dialog();});
                 $('.fxforward').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164134"}).pipe(function(data){
