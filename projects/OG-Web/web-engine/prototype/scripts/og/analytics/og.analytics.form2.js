@@ -3,10 +3,10 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.analytics.form2',
+    name: 'og.analytics.Form2',
     dependencies: [],
-    obj: function (config) {
-        var constructor, query, menus = {},
+    obj: function () {
+        var constructor, callback,
             tashes = { form_container:  'og.analytics.form_tash' },
             selectors = {
                 form_container: 'OG-analytics-form',
@@ -23,14 +23,11 @@ $.register_module({
                     filters: 'og-filters'
                 }
             },
-            dom = {
-                form_container : $('.' + selectors.form_container),
-                form_controls: {},
-                menus: {}
-            };
+            dom = {};
 
         var init = function (data) {
-            form = new og.common.util.ui.Form({
+            dom.form_container = $('.' + selectors.form_container);
+            var form = new og.common.util.ui.Form({
                 module: tashes.form_container,
                 selector: '.' + selectors.form_container
             });
@@ -48,24 +45,25 @@ $.register_module({
             form.dom();
         };
 
-        var load_handler = function (event) {
-            Object.keys(selectors.menus).map(function (entry, idx) {
+        var load_handler = function () {
+            dom.menus = {};
+            dom.form_controls = {};
+            Object.keys(selectors.menus).map(function (entry) {
                 dom.menus[entry] = $('.'+selectors.menus[entry], dom.form_container);
                 dom.form_controls[entry] = $(selectors.form_controls, dom.menus[entry]);
             });
-            og.common.events.on('.og-portfolios.og-autocombo:autocombo:initialized', function () {
-                return dom.menus.portfolios.find('input').select();
-            });
+            dom.menus.portfolios.find('input').select();
         };
 
         var load_form = function (data) {
-            callback(query = {
+            var query = {
                 aggregators: data.aggregators,
                 providers: data.providers,
                 viewdefinition: data.viewdefinition,
                 portfolio: data.portfolio,
                 temporal: data.temporal
-            });
+            };
+            callback(query);
             $(event.srcElement || event.target).focus(0);
         };
 

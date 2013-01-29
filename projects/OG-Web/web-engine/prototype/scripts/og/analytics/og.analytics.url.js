@@ -38,10 +38,12 @@ $.register_module({
                 return (last_object.main = params), go(), url;
             },
             process: function (args, handler) {
-                og.api.rest.compressor.get({content: args.data, dependencies: ['data']}).pipe(function (result) {
-                    var config = result.data.data, current_main;
+                $.when(args.data ? og.api.rest.compressor.get({content: args.data, dependencies: ['data']}) : void 0)
+                .then(function (result) {
+                    var config = result ? result.data.data : {}, current_main;
                     panels.forEach(function (panel) {delete last_object[panel];});
                     if (config.main && last_fingerprint.main !== (current_main = JSON.stringify(config.main))) {
+                        new og.analytics.Form2({callback: og.analytics.url.main, data: config.main});
                         if (og.analytics.grid) og.analytics.grid.kill();
                         last_object.main = JSON.parse(last_fingerprint.main = current_main);
                         og.analytics.grid = new og.analytics.Grid({
@@ -61,7 +63,10 @@ $.register_module({
                                ]
                            }, event, cell);
                         });
+                    } else {
+                        new og.analytics.Form2({callback: og.analytics.url.main, data: config.main});
                     }
+                    if (!config.main) new og.analytics.Form2({ callback: og.analytics.url.main });
                     panels.forEach(function (panel) {
                         var gadgets = config[panel], new_gadgets = [];
                         if (!gadgets || !gadgets.length)
