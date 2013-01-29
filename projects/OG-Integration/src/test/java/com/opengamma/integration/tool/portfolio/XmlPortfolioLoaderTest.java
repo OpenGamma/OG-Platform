@@ -8,16 +8,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -37,11 +30,17 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Test the loading of an xml portfolio file
  */
+@Test
 public class XmlPortfolioLoaderTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullSchemaLocatorFails() {
+    new XmlPortfolioLoader(null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLoadingWithNullFileFails() {
-    new XmlPortfolioLoader().load(null);
+    new XmlPortfolioLoader(createSchemaLocator()).load(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -73,12 +72,43 @@ public class XmlPortfolioLoaderTest {
 
   private PortfolioExtractor attemptLoad(final String fileName) {
     String fileLocation = "src/test/resources/xml_portfolios/";
-    return new XmlPortfolioLoader().load(new File(fileLocation + fileName));
+    return new XmlPortfolioLoader(createSchemaLocator()).load(new File(fileLocation + fileName));
   }
 
+  private SchemaLocator createSchemaLocator() {
+    return new SchemaLocator() {
+      @Override
+      public File lookupSchema(SchemaVersion version) {
+        return null;
+      }
+    };
+  }
+
+  /**
+   * Loads a set of trades/positions/portfolios from an XML format. The XML required
+   * is defined in a set of versioned schema files. When the loader is invoked, the
+   * schema version is parsed from the file. If the schema exists then the
+   * XML document is loaded and validated against it. If no schema exists then an
+   * attempt is made to find a compatible schema. If this fails, loading of the XML
+   * document is not possible.
+   */
   private static class XmlPortfolioLoader {
 
+    private static final String SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
+
+    private static final String W3C_XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
+
+    private static final String SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource";
+
     private static final Logger s_logger = LoggerFactory.getLogger(XmlPortfolioLoader.class);
+
+    private final SchemaLocator _schemaLocator;
+
+    private XmlPortfolioLoader(SchemaLocator schemaLocator) {
+      ArgumentChecker.notNull(schemaLocator, "schemaLocator");
+      _schemaLocator = schemaLocator;
+    }
+
 
     public PortfolioExtractor load(File file) {
 
@@ -88,24 +118,28 @@ public class XmlPortfolioLoaderTest {
       SchemaVersion version = parseSchemaVersion(file);
 
       // Use the schema version to lookup appropriate schema
-      String schemaLocation = lookupSchema(version);
-
-      DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-
+      File schema = _schemaLocator.lookupSchema(version);
 
       try {
-
-
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        // This is going to use DOM to parse the document which has memory/speed implications
+        // if the file is large. However, it makes processing the file much easier. If we need
+        // a smaller memory footprint, we should consider a StAX parser implementation.
+        DocumentBuilder documentBuilder = createDocumentBuilder(schema);
         Document document = documentBuilder.parse(file);
+
         return new PortfolioExtractor(document);
       } catch (ParserConfigurationException | SAXException | IOException e) {
         throw new OpenGammaRuntimeException("Error parsing xml document", e);
       }
     }
 
-    private String lookupSchema(SchemaVersion version) {
-      return null;  //To change body of created methods use File | Settings | File Templates.
+    private DocumentBuilder createDocumentBuilder(File schema) throws ParserConfigurationException {
+      DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+      documentBuilderFactory.setNamespaceAware(true);
+      documentBuilderFactory.setAttribute(SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
+      documentBuilderFactory.setValidating(true);
+      documentBuilderFactory.setAttribute(SCHEMA_SOURCE, schema);
+      return documentBuilderFactory.newDocumentBuilder();
     }
 
     private SchemaVersion parseSchemaVersion(File file) {
@@ -116,68 +150,6 @@ public class XmlPortfolioLoaderTest {
       }
     }
 
-    private class SchemaVersionParser {
-
-      private final Reader _reader;
-
-      public SchemaVersionParser(Reader reader) {
-        _reader = reader;
-      }
-
-      public SchemaVersion parseSchemaVersion() {
-
-        try {
-          StartElement element = findRootElement();
-          checkRootElement(element, "og-portfolio");
-          return parseVersionFromElement(element);
-
-        } catch (XMLStreamException e) {
-
-          throw new OpenGammaRuntimeException("Exception whilst trying to parse XML file", e);
-        }
-      }
-
-      private StartElement findRootElement() throws XMLStreamException {
-
-        // Work through the elements in the document until we hit a start element
-        for (XMLEventReader eventReader = createXmlEventReader(); eventReader.hasNext();) {
-          XMLEvent event = eventReader.nextEvent();
-          if (event.isStartElement()) {
-
-            // We've found the first proper element in the document, it may be
-            // what we're looking for or it may be incorrect but either way we
-            // don't need to read any more of the file
-            return (StartElement) event;
-          }
-        }
-        throw new OpenGammaRuntimeException("No root element was found - unable to parse file");
-      }
-
-      private void checkRootElement(StartElement element, String expectedName) {
-        String elementName = element.getName().getLocalPart();
-        if (!elementName.equals(expectedName)) {
-          throw new OpenGammaRuntimeException("Root element should have name [" + expectedName +
-                                                  "] but instead found [" + elementName +
-                                                  "] - unable to parse file");
-        }
-      }
-
-      private SchemaVersion parseVersionFromElement(StartElement element) {
-
-          Attribute schemaVersion = element.getAttributeByName(new QName("schemaVersion"));
-          if (schemaVersion != null) {
-            return new SchemaVersion(schemaVersion.getValue());
-          }
-          else {
-            throw new OpenGammaRuntimeException("No schema version was found - unable to parse file");
-          }
-      }
-
-      private XMLEventReader createXmlEventReader() throws XMLStreamException {
-        XMLInputFactory factory = XMLInputFactory.newFactory();
-        return factory.createXMLEventReader(_reader);
-      }
-    }
   }
 
   private static class PortfolioExtractor {
