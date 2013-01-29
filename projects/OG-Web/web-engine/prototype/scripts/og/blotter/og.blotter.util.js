@@ -56,8 +56,7 @@ $.register_module({
                 premiumTime: null,
                 attributes: {},
                 premiumDate: null,
-                type: "OtcTrade",
-                counterparty: 'ABC Counterparty'
+                type: "OtcTrade"
             },
             fungible_trade : {                
                 tradeDate: "2013-01-01",
