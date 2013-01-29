@@ -16,7 +16,6 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
@@ -36,13 +35,7 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
    * The underlying swap identifier.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _underlyingSwap;
-
-  /**
-   * The delivery date.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private ZonedDateTime _deliveryDate;
+  private ExternalId _underlyingSwapId;
 
   /**
    * The swap notional.
@@ -64,15 +57,13 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
    * @param currency The currency, not null
    * @param unitAmount The unit amount, not null
    * @param category The future category, not null
-   * @param underlyingSwap A reference to the underlying swap, not null
-   * @param deliveryDate The delivery date, not null
+   * @param underlyingSwapId A reference to the underlying swap, not null
    * @param notional The swap notional, not null
    */
   public DeliverableSwapFutureSecurity(final Expiry expiry, final String tradingExchange, final String settlementExchange, final Currency currency, final double unitAmount,
-      final String category, final ExternalId underlyingSwap, final ZonedDateTime deliveryDate, final double notional) {
+      final String category, final ExternalId underlyingSwapId, final double notional) {
     super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
-    setUnderlyingSwap(underlyingSwap);
-    setDeliveryDate(deliveryDate);
+    setUnderlyingSwapId(underlyingSwapId);
     setNotional(notional);
   }
 
@@ -102,10 +93,8 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
   @Override
   protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1497421456:  // underlyingSwap
-        return getUnderlyingSwap();
-      case 681469378:  // deliveryDate
-        return getDeliveryDate();
+      case 207977419:  // underlyingSwapId
+        return getUnderlyingSwapId();
       case 1585636160:  // notional
         return getNotional();
     }
@@ -115,11 +104,8 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
   @Override
   protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1497421456:  // underlyingSwap
-        setUnderlyingSwap((ExternalId) newValue);
-        return;
-      case 681469378:  // deliveryDate
-        setDeliveryDate((ZonedDateTime) newValue);
+      case 207977419:  // underlyingSwapId
+        setUnderlyingSwapId((ExternalId) newValue);
         return;
       case 1585636160:  // notional
         setNotional((Double) newValue);
@@ -130,8 +116,7 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_underlyingSwap, "underlyingSwap");
-    JodaBeanUtils.notNull(_deliveryDate, "deliveryDate");
+    JodaBeanUtils.notNull(_underlyingSwapId, "underlyingSwapId");
     JodaBeanUtils.notNull(_notional, "notional");
     super.validate();
   }
@@ -143,8 +128,7 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       final DeliverableSwapFutureSecurity other = (DeliverableSwapFutureSecurity) obj;
-      return JodaBeanUtils.equal(getUnderlyingSwap(), other.getUnderlyingSwap()) &&
-          JodaBeanUtils.equal(getDeliveryDate(), other.getDeliveryDate()) &&
+      return JodaBeanUtils.equal(getUnderlyingSwapId(), other.getUnderlyingSwapId()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           super.equals(obj);
     }
@@ -154,8 +138,7 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSwap());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDeliveryDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingSwapId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
     return hash ^ super.hashCode();
   }
@@ -165,51 +148,25 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
    * Gets the underlying swap identifier.
    * @return the value of the property, not null
    */
-  public ExternalId getUnderlyingSwap() {
-    return _underlyingSwap;
+  public ExternalId getUnderlyingSwapId() {
+    return _underlyingSwapId;
   }
 
   /**
    * Sets the underlying swap identifier.
-   * @param underlyingSwap  the new value of the property, not null
+   * @param underlyingSwapId  the new value of the property, not null
    */
-  public void setUnderlyingSwap(final ExternalId underlyingSwap) {
-    JodaBeanUtils.notNull(underlyingSwap, "underlyingSwap");
-    this._underlyingSwap = underlyingSwap;
+  public void setUnderlyingSwapId(final ExternalId underlyingSwapId) {
+    JodaBeanUtils.notNull(underlyingSwapId, "underlyingSwapId");
+    this._underlyingSwapId = underlyingSwapId;
   }
 
   /**
-   * Gets the the {@code underlyingSwap} property.
+   * Gets the the {@code underlyingSwapId} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> underlyingSwap() {
-    return metaBean().underlyingSwap().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the delivery date.
-   * @return the value of the property, not null
-   */
-  public ZonedDateTime getDeliveryDate() {
-    return _deliveryDate;
-  }
-
-  /**
-   * Sets the delivery date.
-   * @param deliveryDate  the new value of the property, not null
-   */
-  public void setDeliveryDate(final ZonedDateTime deliveryDate) {
-    JodaBeanUtils.notNull(deliveryDate, "deliveryDate");
-    this._deliveryDate = deliveryDate;
-  }
-
-  /**
-   * Gets the the {@code deliveryDate} property.
-   * @return the property, not null
-   */
-  public final Property<ZonedDateTime> deliveryDate() {
-    return metaBean().deliveryDate().createProperty(this);
+  public final Property<ExternalId> underlyingSwapId() {
+    return metaBean().underlyingSwapId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -249,15 +206,10 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code underlyingSwap} property.
+     * The meta-property for the {@code underlyingSwapId} property.
      */
-    private final MetaProperty<ExternalId> _underlyingSwap = DirectMetaProperty.ofReadWrite(
-        this, "underlyingSwap", DeliverableSwapFutureSecurity.class, ExternalId.class);
-    /**
-     * The meta-property for the {@code deliveryDate} property.
-     */
-    private final MetaProperty<ZonedDateTime> _deliveryDate = DirectMetaProperty.ofReadWrite(
-        this, "deliveryDate", DeliverableSwapFutureSecurity.class, ZonedDateTime.class);
+    private final MetaProperty<ExternalId> _underlyingSwapId = DirectMetaProperty.ofReadWrite(
+        this, "underlyingSwapId", DeliverableSwapFutureSecurity.class, ExternalId.class);
     /**
      * The meta-property for the {@code notional} property.
      */
@@ -268,8 +220,7 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "underlyingSwap",
-        "deliveryDate",
+        "underlyingSwapId",
         "notional");
 
     /**
@@ -281,10 +232,8 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
     @Override
     protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1497421456:  // underlyingSwap
-          return _underlyingSwap;
-        case 681469378:  // deliveryDate
-          return _deliveryDate;
+        case 207977419:  // underlyingSwapId
+          return _underlyingSwapId;
         case 1585636160:  // notional
           return _notional;
       }
@@ -308,19 +257,11 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code underlyingSwap} property.
+     * The meta-property for the {@code underlyingSwapId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> underlyingSwap() {
-      return _underlyingSwap;
-    }
-
-    /**
-     * The meta-property for the {@code deliveryDate} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ZonedDateTime> deliveryDate() {
-      return _deliveryDate;
+    public final MetaProperty<ExternalId> underlyingSwapId() {
+      return _underlyingSwapId;
     }
 
     /**
