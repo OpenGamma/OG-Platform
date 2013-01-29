@@ -66,8 +66,9 @@ public class LastHistoricalValueFunction extends AbstractFunction.NonCompiledInv
     if (timeSeries == null) {
       return null;
     }
+    // TODO - Can we do something more efficient than getting the whole series?
     return Collections.singleton(HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, fieldName,
-        DateConstraint.VALUATION_TIME.minus(Period.of(7, DAYS)), true, DateConstraint.VALUATION_TIME.yesterday(), true));
+        null, true, DateConstraint.VALUATION_TIME.yesterday(), true));
   }
 
   @Override

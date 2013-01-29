@@ -24,9 +24,9 @@ import com.opengamma.language.function.MetaFunction;
 public class ExternalFunctionProvider extends AbstractFunctionProvider {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ExternalFunctionProvider.class);
-  private static boolean s_excludeTests;
+  private static boolean s_excludeTests = true;
 
-  private final List<MetaFunction> _functions = functions();
+  private List<MetaFunction> _functions;
 
   private static List<MetaFunction> functions() {
     ExternalFunctionCache cache = ExternalFunctionCache.load();
@@ -50,7 +50,7 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
     return Collections.emptyList();
   }
 
-  public static void setExcludeTests(boolean excludeTests) {
+  public static void setExcludeTests(final boolean excludeTests) {
     s_excludeTests = excludeTests;
   }
 
@@ -59,8 +59,8 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
   }
 
   private static boolean isTestClass(final Class<?> clazz) {
-    String[] cs = clazz.getName().split("[\\.\\$]");
-    for (String c : cs) {
+    final String[] cs = clazz.getName().split("[\\.\\$]");
+    for (final String c : cs) {
       if (c.endsWith("Test")) {
         return true;
       }
@@ -70,7 +70,7 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
 
   private static List<MetaFunction> createFunctions(final ExternalFunctionCache cache) {
     final List<MetaFunction> functions = new ArrayList<MetaFunction>();
-    for (Class<?> clazz : cache.getClasses()) {
+    for (final Class<?> clazz : cache.getClasses()) {
       if (isExcludeTests() && isTestClass(clazz)) {
         continue;
       }
@@ -80,12 +80,24 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
     return functions;
   }
 
-  protected List<MetaFunction> getFunctions() {
+  public ExternalFunctionProvider() {
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        getFunctions();
+      }
+    }).start();
+  }
+
+  protected synchronized List<MetaFunction> getFunctions() {
+    if (_functions == null) {
+      _functions = functions();
+    }
     return _functions;
   }
 
   @Override
-  protected void loadDefinitions(Collection<MetaFunction> definitions) {
+  protected void loadDefinitions(final Collection<MetaFunction> definitions) {
     definitions.addAll(getFunctions());
   }
 

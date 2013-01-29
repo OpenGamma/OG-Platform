@@ -73,16 +73,7 @@ public class EquityOptionBjerksundStenslandGreeksFunction extends EquityOptionBj
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final Set<ValueSpecification> results = super.getResults(context, target, inputs);
-    final Set<ValueSpecification> resultsWithoutCurrency = Sets.newHashSetWithExpectedSize(results.size());
-    for (final ValueSpecification spec : results) {
-      final String name = spec.getValueName();
-      final ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
-      final ValueProperties properties = spec.getProperties().copy()
-          .withoutAny(ValuePropertyNames.CURRENCY)
-          .get();
-      resultsWithoutCurrency.add(new ValueSpecification(name, targetSpec, properties));
-    }
-    return results;
+    final Set<ValueSpecification> resultsWithCcy = super.getResults(context, target, inputs);
+    return getResultsWithoutCurrency(resultsWithCcy);
   }
 }

@@ -41,6 +41,7 @@ import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
@@ -109,6 +110,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String NAME = "Asset Class";
   /* package */static final String CDS = "CDS"; // TODO: is this the correct abbreviation?
   /* package */static final String EQUITY_INDEX_FUTURE_OPTIONS = "Equity Index Future Options";
+  /* package */static final String DELIVERABLE_SWAP_FUTURES = "Deliverable Swap Futures";
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
   /* package */static final List<String> ALL_CATEGORIES = Arrays.asList(FX_OPTIONS, NONDELIVERABLE_FX_FORWARDS, FX_BARRIER_OPTIONS, FX_DIGITAL_OPTIONS,
@@ -216,7 +218,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         }
 
         @Override
-        public String visitFxFutureOptionSecurity(FxFutureOptionSecurity security) {
+        public String visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
           return FX_FUTURE_OPTIONS;
         }
 
@@ -396,6 +398,10 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
           return CDS;
         }
 
+        @Override
+        public String visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+          return DELIVERABLE_SWAP_FUTURES;
+        }
       });
     } else {
       if (security instanceof RawSecurity && security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
