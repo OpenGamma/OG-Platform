@@ -48,7 +48,7 @@ public class DbTimeTest extends DbTest {
   private static final Instant INSTANT1 = LocalDateTime.of(2011, 1, 1, 12, 30, 40, 567123000).toInstant(ZoneOffset.UTC);  // winter
   private static final Instant INSTANT2 = LocalDateTime.of(2011, 7, 1, 12, 30, 40, 567123000).toInstant(ZoneOffset.UTC);  // summer
   private static final Instant INSTANT3 = LocalDateTime.of(2011, 3, 27, 1, 30, 40, 567123000).toInstant(ZoneOffset.UTC);  // Europe spring gap
-  private static final DateTimeFormatter FORMAT = DateTimeFormatters.pattern("yyyy-MM-dd HH:mm:ssfnnnnnn");
+  private static final DateTimeFormatter FORMAT = DateTimeFormatters.pattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
   private ElSqlBundle _elSqlBundle;
   
