@@ -14,7 +14,6 @@ LOGGING (com.opengamma.language.connector.LiveDataTest);
 
 #define TEST_LANGUAGE		TEXT ("test")
 #define TIMEOUT_STARTUP		30000
-#define TIMEOUT_CALL		3000
 
 static CConnector *g_poConnector;
 
@@ -30,10 +29,10 @@ static void StopConnector () {
 	g_poConnector = NULL;
 }
 
-static void QueryAvailable () {
+static void QueryAvailable (int nTimeout) {
 	CLiveDataQueryAvailable query (g_poConnector);
 	ASSERT (query.Send ());
-	com_opengamma_language_livedata_Available *pAvailable = query.Recv (CRequestBuilder::GetDefaultTimeout () * 2);
+	com_opengamma_language_livedata_Available *pAvailable = query.Recv (nTimeout);
 	ASSERT (pAvailable);
 	LOGINFO (TEXT ("Received ") << pAvailable->fudgeCountLiveData << TEXT (" definitions"));
 	ASSERT (pAvailable->fudgeCountLiveData > 0);
@@ -41,6 +40,14 @@ static void QueryAvailable () {
 	for (i = 0; i < pAvailable->fudgeCountLiveData; i++) {
 		LOGDEBUG (TEXT ("Live data ") << i << TEXT (": ") << pAvailable->_liveData[i]->_definition->fudgeParent._name << TEXT (" (") << pAvailable->_liveData[i]->_identifier << TEXT (")"));
 	}
+}
+
+static void QueryAvailableFirst () {
+	QueryAvailable (TIMEOUT_STARTUP);
+}
+
+static void QueryAvailableSecond () {
+	QueryAvailable (CRequestBuilder::GetDefaultTimeout () * 2);
 }
 
 static void ConnectInvalid () {
@@ -55,8 +62,9 @@ static void ConnectInvalid () {
 }
 
 BEGIN_TESTS(LiveDataTest)
-	TEST (QueryAvailable)
+	TEST (QueryAvailableFirst)
 	TEST (ConnectInvalid)
+	TEST (QueryAvailableSecond)
 	BEFORE_TEST (StartConnector)
 	AFTER_TEST (StopConnector)
 END_TESTS

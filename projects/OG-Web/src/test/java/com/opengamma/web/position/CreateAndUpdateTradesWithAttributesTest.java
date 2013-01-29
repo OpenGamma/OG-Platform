@@ -10,12 +10,12 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
 import javax.ws.rs.core.Response;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.google.common.collect.Maps;
 import com.opengamma.id.UniqueId;

@@ -17,10 +17,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-
 import org.mockito.Mockito;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;

@@ -33,11 +33,17 @@ import com.opengamma.util.tuple.Pair;
  */
 public class DependencyGraphGridStructure implements GridStructure {
 
+  /** Index of the target column */
   private static final int TARGET_COL = 0;
+  /** Index of the target type column */
   private static final int TARGET_TYPE_COL = 1;
+  /** Index of the value name column */
   private static final int VALUE_NAME_COL = 2;
+  /** Index of the value column */
   private static final int VALUE_COL = 3;
+  /** Index of the function name column */
   private static final int FUNCTION_NAME_COL = 4;
+  /** Index of the value properties column */
   private static final int PROPERTIES_COL = 5;
 
   /** Map of target types to displayable names. */
@@ -72,14 +78,15 @@ public class DependencyGraphGridStructure implements GridStructure {
     _columnGroups = new GridColumnGroups(ImmutableList.of(
         // fixed column group with one column for the row label
         new GridColumnGroup("", ImmutableList.<GridColumn>of(
-            column("Target", 0))),
+            column("Target", 0)), false),
         // non-fixed columns
         new GridColumnGroup("", ImmutableList.<GridColumn>of(
             column("Type", 1),
             column("Value Name", 2),
             column("Value", null, 3),
             column("Function", 4),
-            column("Properties", 5)))));
+            column("Properties", 5)),
+        false)));
   }
 
   /**
@@ -187,10 +194,16 @@ public class DependencyGraphGridStructure implements GridStructure {
     return map;
   }
 
-  private static class DependencyGraphCellRenderer implements GridColumn.CellRenderer {
+  /**
+   * Renderer for cells in the dependency graph grid.
+   */
+  private static final class DependencyGraphCellRenderer implements GridColumn.CellRenderer {
 
+    /** Index of the renderer's column. */
     private final int _colIndex;
+    /** {@link ValueSpecification}s for each row in the grid. */
     private final List<ValueSpecification> _valueSpecs;
+    /** Names of the functions used to calculate each row in the grid. */
     private final List<String> _fnNames;
     /** For looking up calculation targets using their specification. */
     private final ComputationTargetResolver _computationTargetResolver;

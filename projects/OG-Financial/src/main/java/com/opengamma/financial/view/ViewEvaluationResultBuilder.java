@@ -10,11 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ComputedValue;
@@ -71,12 +70,12 @@ import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
     }
 
     @SuppressWarnings("rawtypes")
-    protected TimeSeries makeTimeSeries(final TimeZone tz, final int[] dates) {
+    protected TimeSeries makeTimeSeries(final ZoneId tz, final int[] dates) {
       throw new IllegalStateException();
     }
 
     @SuppressWarnings("rawtypes")
-    public TimeSeries makeTimeSeries(final TimeZone tz) {
+    public TimeSeries makeTimeSeries(final ZoneId tz) {
       if (_next == 0) {
         return ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES;
       } else {
@@ -118,7 +117,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
     }
 
     @Override
-    protected LocalDateDoubleTimeSeries makeTimeSeries(final TimeZone tz, final int[] dates) {
+    protected LocalDateDoubleTimeSeries makeTimeSeries(final ZoneId tz, final int[] dates) {
       final double[] values;
       if (_values.length != dates.length) {
         values = new double[dates.length];
@@ -159,7 +158,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
 
     @Override
     @SuppressWarnings({"rawtypes", "unchecked" })
-    protected LocalDateObjectTimeSeries makeTimeSeries(final TimeZone tz, final int[] dates) {
+    protected LocalDateObjectTimeSeries makeTimeSeries(final ZoneId tz, final int[] dates) {
       final Object[] values;
       if (_values.length != dates.length) {
         values = new Object[dates.length];
@@ -206,7 +205,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
       }
     }
 
-    public ViewEvaluationResult makeResult(final TimeZone tz) {
+    public ViewEvaluationResult makeResult(final ZoneId tz) {
       final ViewEvaluationResult results = new ViewEvaluationResult();
       for (final Map.Entry<ValueRequirement, AbstractTimeSeriesBuilder> result : _results.entrySet()) {
         results.addTimeSeries(result.getKey(), result.getValue().makeTimeSeries(tz));
@@ -216,11 +215,11 @@ import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
 
   }
 
-  private final TimeZone _timeZone;
+  private final ZoneId _timeZone;
   private final LocalDateEpochDaysConverter _date;
   private final Map<String, ConfigurationResults> _results = new HashMap<String, ConfigurationResults>();
 
-  public ViewEvaluationResultBuilder(final TimeZone timeZone, final int cycles, final ViewDefinition viewDefinition) {
+  public ViewEvaluationResultBuilder(final ZoneId timeZone, final int cycles, final ViewDefinition viewDefinition) {
     _timeZone = timeZone;
     _date = new LocalDateEpochDaysConverter(timeZone);
     for (final ViewCalculationConfiguration calcConfig : viewDefinition.getAllCalculationConfigurations()) {
@@ -237,7 +236,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateObjectTimeSeries;
   }
 
   public void store(final ViewComputationResultModel results) {
-    final int date = _date.convertToInt(ZonedDateTime.ofInstant(results.getValuationTime(), _timeZone).toLocalDate());
+    final int date = _date.convertToInt(ZonedDateTime.ofInstant(results.getValuationTime(), _timeZone).getDate());
     for (final ViewResultEntry viewResult : results.getAllResults()) {
       final ComputedValue computedValue = viewResult.getComputedValue();
       final Object value = computedValue.getValue();

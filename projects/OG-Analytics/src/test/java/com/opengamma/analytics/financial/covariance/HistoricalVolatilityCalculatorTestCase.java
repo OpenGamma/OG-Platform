@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.covariance;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.financial.timeseries.returns.ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator;
 import com.opengamma.analytics.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
@@ -27,7 +26,7 @@ public abstract class HistoricalVolatilityCalculatorTestCase {
   private static final LocalDate[] T = new LocalDate[T_RAW.length];
   static {
     for (int i=0; i<T_RAW.length; i++) {
-      T[i] = LocalDate.ofEpochDays(T_RAW[i]);
+      T[i] = LocalDate.ofEpochDay(T_RAW[i]);
     }
   }
   private static final double[] CLOSE = new double[] {132.5, 133.5, 135., 133., 133., 137., 135., 135., 142.5, 143., 144.5, 145., 146., 149., 148., 147., 147., 147., 145., 145., 150.};
@@ -81,23 +80,23 @@ public abstract class HistoricalVolatilityCalculatorTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testShortTS() {
-    getCalculator().testTimeSeries(new LocalDateDoubleTimeSeries[] {new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(1)}, new double[] {3})}, 2);
+    getCalculator().testTimeSeries(new LocalDateDoubleTimeSeries[] {new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDay(1)}, new double[] {3})}, 2);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInputs1() {
     final LocalDateDoubleTimeSeries[] tsArray = (new LocalDateDoubleTimeSeries[] {
-        new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(2), LocalDate.ofEpochDays(3)}, new double[] {3, 4, 5}),
-        new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(2)}, new double[] {3, 4})});
+        new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2), LocalDate.ofEpochDay(3)}, new double[] {3, 4, 5}),
+        new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2)}, new double[] {3, 4})});
     getCalculator().testTimeSeries(tsArray, 2);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInputs2() {
     final LocalDateDoubleTimeSeries[] tsArray = new LocalDateDoubleTimeSeries[] {
-        new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(2), LocalDate.ofEpochDays(3)}, new double[] {3, 4, 5}),
-        new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(2), LocalDate.ofEpochDays(3)}, new double[] {4, 5, 6}), 
-        new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(2), LocalDate.ofEpochDays(3), LocalDate.ofEpochDays(4)}, new double[] {4, 5, 6})};
+        new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2), LocalDate.ofEpochDay(3)}, new double[] {3, 4, 5}),
+        new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDay(1), LocalDate.ofEpochDay(2), LocalDate.ofEpochDay(3)}, new double[] {4, 5, 6}), 
+        new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDay(2), LocalDate.ofEpochDay(3), LocalDate.ofEpochDay(4)}, new double[] {4, 5, 6})};
     getCalculator().testTimeSeries(tsArray, 2);
 
   }

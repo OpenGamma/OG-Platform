@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExpiredException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -277,10 +276,10 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
   public InterestRateFuture toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final LocalDate date = dateTime.toLocalDate();
+    final LocalDate date = dateTime.getDate();
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    final LocalDate transactionDateLocal = _transactionDate.toLocalDate();
-    final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().toLocalDate();
+    final LocalDate transactionDateLocal = _transactionDate.getDate();
+    final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().getDate();
     if (date.isAfter(lastMarginDateLocal)) {
       throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
     }

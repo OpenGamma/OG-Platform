@@ -63,7 +63,7 @@ public class DbConfigMasterTest extends DbTest {
     assertNotNull(_cfgMaster);
     assertEquals(true, _cfgMaster.getUniqueIdScheme().equals("DbCfg"));
     assertNotNull(_cfgMaster.getDbConnector());
-    assertNotNull(_cfgMaster.getTimeSource());
+    assertNotNull(_cfgMaster.getClock());
   }
 
   //-------------------------------------------------------------------------

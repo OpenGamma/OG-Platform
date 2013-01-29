@@ -12,16 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import javax.time.Instant;
-import javax.time.calendar.ZonedDateTime;
-
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.master.position.ManageableTrade;
-import com.opengamma.master.security.impl.MasterSecuritySource;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ObjectId;
@@ -34,6 +30,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
@@ -44,6 +41,7 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
+import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.beancompare.BeanCompare;
 import com.opengamma.util.beancompare.BeanDifference;
@@ -148,7 +146,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     // Write securities
     List<ManageableSecurity> writtenSecurities = new ArrayList<ManageableSecurity>();
     for (ManageableSecurity security : securities) {
-      if (security == null || !_discardIncompleteOptions) { // latter term preserves old behaviour
+      if (security != null || !_discardIncompleteOptions) { // latter term preserves old behaviour
         ManageableSecurity writtenSecurity = writeSecurity(security);
         if (writtenSecurity != null) {
           writtenSecurities.add(writtenSecurity);
@@ -267,7 +265,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     
     SecuritySearchRequest searchReq = new SecuritySearchRequest();
     ExternalIdSearch idSearch = new ExternalIdSearch(security.getExternalIdBundle());  // match any one of the IDs
-    searchReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(ZonedDateTime.now())); // valid now
+    searchReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now())); // valid now
     searchReq.setExternalIdSearch(idSearch);
     searchReq.setFullDetail(true);
     searchReq.setSortOrder(SecuritySearchSortOrder.VERSION_FROM_INSTANT_DESC);

@@ -8,9 +8,9 @@ package com.opengamma.analytics.financial.instrument.annuity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapIborON;
@@ -143,10 +143,10 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
     final List<Coupon> resultList = new ArrayList<Coupon>();
     final CouponOISDefinition[] payments = getPayments();
     ZonedDateTime valZdtInPaymentZone = valZdt.withZoneSameInstant(payments[0].getPaymentDate().getZone());
-    LocalDate valDate = valZdtInPaymentZone.toLocalDate();
+    LocalDate valDate = valZdtInPaymentZone.getDate();
 
     for (int loopcoupon = 0; loopcoupon < payments.length; loopcoupon++) {
-      if (!valDate.isAfter(payments[loopcoupon].getPaymentDate().toLocalDate())) {
+      if (!valDate.isAfter(payments[loopcoupon].getPaymentDate().getDate())) {
         resultList.add(payments[loopcoupon].toDerivative(valZdt, indexFixingTS, yieldCurveNames));
       }
     }

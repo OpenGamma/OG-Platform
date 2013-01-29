@@ -20,16 +20,15 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.time.Instant;
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
 
 import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Session;
@@ -192,8 +191,8 @@ public class BloombergTicksCollector implements Lifecycle {
       }
       
       MutableFudgeMsg tickMsg = s_fudgeContext.newMessage();
-      Instant instant = Clock.system(TimeZone.UTC).instant();
-      long epochMillis = instant.toEpochMillisLong();
+      Instant instant = Clock.systemUTC().instant();
+      long epochMillis = instant.toEpochMilli();
       tickMsg.add(RECEIVED_TS_KEY, epochMillis);
       tickMsg.add(SECURITY_KEY, bloombergKey);
       tickMsg.add(FIELDS_KEY, result);

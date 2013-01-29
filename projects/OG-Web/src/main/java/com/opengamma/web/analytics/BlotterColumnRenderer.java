@@ -7,7 +7,7 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
-import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.core.security.Security;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.blotter.BlotterColumn;
 import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
@@ -36,7 +36,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
   public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
     // TODO does the cache need to be modified to contain the flattened portfolio?
     PortfolioGridStructure.PortfolioGridRow row = _rows.get(rowIndex);
-    ManageableSecurity security = row.getSecurity();
+    Security security = row.getSecurity();
     return ResultsCell.forStaticValue(_columnMappings.valueFor(_column, security), columnType);
   }
 }

@@ -5,8 +5,8 @@
  */
 package com.opengamma.core.position;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.core.Attributable;
 import com.opengamma.util.PublicSPI;

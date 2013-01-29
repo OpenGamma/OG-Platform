@@ -10,13 +10,11 @@ import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.threeten.bp.temporal.ChronoUnit.HOURS;
+import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
 
 import java.sql.Types;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.time.Instant;
-import javax.time.TimeSource;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
@@ -33,6 +31,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.id.ExternalId;
@@ -83,9 +84,9 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
   }
 
   protected ObjectId setupTestData(Instant now) {
-    TimeSource origTimeSource = _cfgMaster.getTimeSource();
+    Clock origClock = _cfgMaster.getClock();
     try {
-      _cfgMaster.setTimeSource(TimeSource.fixed(now));
+      _cfgMaster.setClock(Clock.fixed(now, ZoneOffset.UTC));
 
       String initialValue = "initial";
       ConfigItem<String> initial = ConfigItem.of(initialValue, "some_name");      
@@ -99,15 +100,15 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
         String val = "setup_" + i;
         ConfigItem<String> item = ConfigItem.of(val, "some_name_"+i);
         ConfigDocument doc = new ConfigDocument(item);
-        doc.setVersionFromInstant(now.plus(i, TimeUnit.MINUTES));
+        doc.setVersionFromInstant(now.plus(i, MINUTES));
         firstReplacement.add(doc);
       }
-      _cfgMaster.setTimeSource(TimeSource.fixed(now.plus(1, TimeUnit.HOURS)));
+      _cfgMaster.setClock(Clock.fixed(now.plus(1, HOURS), ZoneOffset.UTC));
       _cfgMaster.replaceVersions(baseOid.getObjectId(), firstReplacement);
 
       return baseOid;
     } finally {
-      _cfgMaster.setTimeSource(origTimeSource);
+      _cfgMaster.setClock(origClock);
     }
   }
 
@@ -117,7 +118,7 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
     _cfgMaster = (DbConfigMaster) context.getBean(getDatabaseType() + "DbConfigMaster");
     
     Instant now = Instant.now();
-    _cfgMaster.setTimeSource(TimeSource.fixed(now));
+    _cfgMaster.setClock(Clock.fixed(now, ZoneOffset.UTC));
     _version1aInstant = now.minusSeconds(102);
     _version1bInstant = now.minusSeconds(101);
     _version1cInstant = now.minusSeconds(100);

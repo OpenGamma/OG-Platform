@@ -12,10 +12,9 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.Instant;
-
 import org.fudgemsg.types.ClasspathUtilities;
 import org.scannotation.AnnotationDB;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.lang.annotation.ExternalFunction;
@@ -47,7 +46,7 @@ import com.opengamma.lang.annotation.ExternalFunction;
         // Ignore this one
       }
     }
-    return Instant.ofEpochMillis(ctime);
+    return Instant.ofEpochMilli(ctime);
   }
 
   /**

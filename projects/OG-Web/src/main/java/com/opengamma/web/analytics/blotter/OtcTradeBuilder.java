@@ -10,14 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.convert.StringConvert;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -35,11 +34,12 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.OpenGammaClock;
 
 /**
- *
+ * Builds and saves trades, securities and underlying securities for OTC securities.
  */
 /* package */ abstract class OtcTradeBuilder extends AbstractTradeBuilder {
 
-  public static final String TRADE_TYPE_NAME = "OtcTrade";
+  /** Type name for OTC trades used in the data sent to the client. */
+  /* package */ static final String TRADE_TYPE_NAME = "OtcTrade";
 
   /* package */ OtcTradeBuilder(SecurityMaster securityMaster,
                                 PositionMaster positionMaster,

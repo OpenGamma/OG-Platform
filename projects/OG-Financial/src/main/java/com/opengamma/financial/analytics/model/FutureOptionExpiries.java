@@ -5,17 +5,16 @@
  */
 package com.opengamma.financial.analytics.model;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 
 /**
  *  Utility Class for computing Expiries of Future Options from ordinals (i.e. nth future after valuationDate)
- *  For IR Options use: DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY), new NextExpiryAdjuster()
+ *  For IR Options use: TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY), new NextExpiryAdjuster()
  *  For Equity Options use: new SaturdayAfterThirdFridayAdjuster(), new NextEquityExpiryAdjuster()
  */
 public final class FutureOptionExpiries {

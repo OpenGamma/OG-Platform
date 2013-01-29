@@ -1,4 +1,4 @@
-<section>
+<!--<section>
   <table class="OG-table">
     <colgroup>
       <col style="width: 30%">              
@@ -35,7 +35,7 @@
       </tr>       
     </tbody>
   </table>
-</section>
+</section>-->
 <section>
   <table class="OG-table">
     <colgroup>
@@ -58,7 +58,7 @@
           </label>
         </td>
         <td class="og-double-cell">
-          <div><span><select></select></span><span><input name="" type="text" /></span></div>
+          <div><span>{{{item_0}}}</span><span><input name="security.amount" type="text" value="{{amount}}"/></span></div>
         </td>
       </tr>
       <tr>
@@ -68,7 +68,7 @@
           </label>
         </td>
         <td>
-          <select></select>
+          <input name="security.regionId" type="text" value="{{region}}"/>
         </td>
       </tr>
       <tr>
@@ -78,19 +78,10 @@
           </label>
         </td>
         <td>
-          <input name="" type="text" />
+          <input name="security.rate" type="text" value="{{rate}}"/>
         </td>
       </tr>
-      <tr>
-        <td>
-          <label>
-            <span>Underlying Identifier</span>
-          </label>
-        </td>
-        <td>
-          <input name="" type="text" />
-        </td>
-      </tr>
+      {{{item_1}}}
     </tbody>
   </table>
   <table class="OG-table">
@@ -102,41 +93,31 @@
       <tr>
         <td>
           <label>
-            <span>Trade Date</span>
-          </label>
-        </td>
-        <td>
-          <input name="" type="text" />
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label>
             <span>Fixing Date</span>
           </label>
         </td>
         <td>
-          <input name="" type="text" />
+          <input name="security.fixingDate" type="text" value="{{fixing}}"/>
         </td>
       </tr>          
       <tr>
         <td>
           <label>
-            <span>Effective Date</span>
+            <span>Start Date</span>
           </label>
         </td>
         <td>
-          <input name="" type="text" />
+          <input name="security.startDate" type="text" value="{{start}}"/>
         </td>
       </tr>
       <tr>
         <td>
           <label>
-            <span>Termination Date</span>
+            <span>End Date</span>
           </label>
         </td>
         <td>
-          <input name="" type="text" />
+          <input name="security.endDate" type="text" value="{{end}}"/>
         </td>
       </tr>
     </tbody>

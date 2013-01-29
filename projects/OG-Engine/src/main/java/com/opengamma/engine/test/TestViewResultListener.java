@@ -7,7 +7,7 @@ package com.opengamma.engine.test;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;

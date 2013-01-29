@@ -1,0 +1,78 @@
+<section>
+<table class="OG-table">
+  <colgroup>
+    <col style="width: 30%">              
+    <col style="width: 70%">
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+        <label>
+          <span>Notional</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <div><span>{{{item_0}}}</span><span><input name="security.notional" type="text" value="{{notional}}"/></span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Strike</span>
+        </label>
+      </td>
+      <td>
+        <input name="security.strike" type="text" value="{{strike}}"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Region</span>
+        </label>
+      </td>
+      <td>
+        <input name="security.regionId" type="text" value="{{region}}"/>
+      </td>
+    </tr>
+    {{{item_1}}}
+    <tr>
+      <td>
+        <label>
+          <span>Settlement Date</span>
+        </label>
+      </td>
+      <td>
+        <input name="security.settlementDate" type="text" value="{{settlement}}"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <span>Observation</span>
+      </td>
+      <td class="og-triple-cell">
+       <div><span>{{{item_2}}}
+       </span><span><input name="security.firstObservationDate" type="text" placeholder="First Date" value="{{first}}"/>
+       </span><span><input name="security.lastObservationDate" type="text" placeholder="Last Date" value="{{last}}"/>
+       </span></div>
+      </td> 
+    </tr>
+    <tr>
+      <td>
+        Annualization Factor
+      </td>
+      <td>
+        <input name="security.annualizationFactor" type="text" value="{{annualization}}"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td>
+        <input name="security.parameterizedAsVariance" type="checkbox" /><span>Parameterized As Variance</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</section>

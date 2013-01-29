@@ -5,9 +5,8 @@
  */
 package com.opengamma.util.timeseries.zoneddatetime;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ArrayUtils;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.timeseries.AbstractIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.AbstractLongDoubleTimeSeries;

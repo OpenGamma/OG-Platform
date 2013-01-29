@@ -29,8 +29,8 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public BeanVisitor<?> decorate(final BeanVisitor<?> visitor) {
     return new BeanVisitor<Object>() {
-      public void visitBean(MetaBean metaBean) {
-        visitor.visitBean(metaBean);
+      public void visitMetaBean(MetaBean metaBean) {
+        visitor.visitMetaBean(metaBean);
       }
 
       public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {

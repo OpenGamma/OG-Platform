@@ -217,7 +217,7 @@ public class UserSearchRequest extends AbstractSearchRequest {
     if (getName() != null && RegexUtils.wildcardMatch(getName(), user.getName()) == false) {
       return false;
     }
-    if (getTimeZone() != null && RegexUtils.wildcardMatch(getTimeZone(), (user.getTimeZone() != null ? user.getTimeZone().getID() : null)) == false) {
+    if (getTimeZone() != null && RegexUtils.wildcardMatch(getTimeZone(), (user.getTimeZone() != null ? user.getTimeZone().getId() : null)) == false) {
       return false;
     }
     if (getEmailAddress() != null && RegexUtils.wildcardMatch(getEmailAddress(), user.getEmailAddress()) == false) {

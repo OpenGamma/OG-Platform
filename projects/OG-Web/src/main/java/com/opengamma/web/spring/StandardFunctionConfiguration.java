@@ -23,10 +23,12 @@ import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.financial.analytics.CurrencyPairsDefaults;
 import com.opengamma.financial.analytics.model.bond.BondFunctions;
 import com.opengamma.financial.analytics.model.bondfutureoption.BondFutureOptionFunctions;
+import com.opengamma.financial.analytics.model.commodity.CommodityForwardCurveFromFuturePerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.credit.CreditFunctions;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardFunctions;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterestRateFunctions;
-import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerCurrencyDefaults;
+import com.opengamma.financial.analytics.model.equity.EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerExchangeDefaults;
 import com.opengamma.financial.analytics.model.equity.EquityForwardCurvePerTickerDefaults;
 import com.opengamma.financial.analytics.model.equity.futures.EquityDividendYieldPricingDefaults;
@@ -120,6 +122,9 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     private final Value _curveName = new Value();
     private final Value _surfaceName = new Value();
     private final Value _cubeName = new Value();
+    private final Value _forwardCurveName = new Value();
+    private final Value _forwardCurveCalculationMethod = new Value();
+    private final Value _surfaceCalculationMethod = new Value();
 
     public CurrencyInfo(final String currency) {
       _currency = currency;
@@ -161,6 +166,29 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
       return _cubeName.get(key);
     }
 
+    public void setForwardCurveName(final String key, final String forwardCurveName) {
+      _forwardCurveName.set(key, forwardCurveName);
+    }
+    
+    public String getForwardCurveName(final String key) {
+      return _forwardCurveName.get(key);
+    }
+    
+    public void setForwardCurveCalculationMethod(final String key, final String forwardCurveCalculationMethod) {
+      _forwardCurveCalculationMethod.set(key, forwardCurveCalculationMethod);
+    }
+    
+    public String getForwardCurveCalculationMethod(final String key) {
+      return _forwardCurveCalculationMethod.get(key);
+    }
+    
+    public void setSurfaceCalculationMethod(final String key, final String surfaceCalculationMethod) {
+      _surfaceCalculationMethod.set(key, surfaceCalculationMethod);
+    }
+    
+    public String getSurfaceCalculationMethod(final String key) {
+      return _surfaceCalculationMethod.get(key);
+    }
   }
 
   /**
@@ -638,7 +666,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     equityForwardCurvePerCurrencyDefaults.addAll(equityForwardCurveCurrencyDefaults.createPerCurrencyDefaults());
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurvePerTickerDefaults.class.getName(), equityForwardCurvePerTickerDefaults));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurvePerExchangeDefaults.class.getName(), equityForwardCurvePerExchangeDefaults));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurvePerCurrencyDefaults.class.getName(), equityForwardCurvePerCurrencyDefaults));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(EquityForwardCurveYieldCurveImpliedPerCurrencyDefaults.class.getName(), equityForwardCurvePerCurrencyDefaults));
   }
 
   protected void addEquityIndexOptionBlackVolatilitySurfaceDefaults(final List<FunctionConfiguration> functionConfigs) {
@@ -742,7 +770,7 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceDefaults.class.getName(),
         GeneralLocalVolatilitySurfaceDefaults.getLocalVolatilitySurfaceDefaults()));
   }
-
+  
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     addBlackVolatilitySurfaceDefaults(functions);
@@ -1003,6 +1031,9 @@ public abstract class StandardFunctionConfiguration extends AbstractRepositoryCo
     defaults.setCurveName(i.getCurveName("model/futureoption"));
     defaults.setCurveCalculationConfig(i.getCurveConfiguration("model/futureoption"));
     defaults.setSurfaceName(i.getSurfaceName("model/futureoption"));
+    defaults.setForwardCurveName(i.getForwardCurveName("model/futureoption"));
+    defaults.setForwardCurveCalculationMethodName(i.getForwardCurveCalculationMethod("model/futureoption"));
+    defaults.setSurfaceCalculationMethod(i.getSurfaceCalculationMethod("model/futureoption"));
   }
 
   protected void setFutureOptionDefaults(final FutureOptionFunctions.Defaults defaults) {

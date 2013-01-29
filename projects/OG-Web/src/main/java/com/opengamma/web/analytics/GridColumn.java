@@ -13,7 +13,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Specifies the header label of a column and the type of data it displays.
- * TODO name is no longer correct, these aren't just used for analytics data any more
  */
 /* package */ class GridColumn {
 
@@ -159,7 +158,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   // TODO merge this into the AnalyticsColumn and create subclasses for each of the renderer classes
-  /* package */ static interface CellRenderer {
+  /* package */ interface CellRenderer {
 
     ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType);
   }

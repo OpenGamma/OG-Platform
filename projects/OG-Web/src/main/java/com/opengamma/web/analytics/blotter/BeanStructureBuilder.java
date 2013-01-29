@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
@@ -19,6 +17,7 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.PropertyReadWrite;
 import org.joda.convert.StringConvert;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -84,7 +83,7 @@ import com.opengamma.util.OpenGammaClock;
   }
 
   @Override
-  public void visitBean(MetaBean metaBean) {
+  public void visitMetaBean(MetaBean metaBean) {
     _beanData.clear();
     String typeName = metaBean.beanType().getSimpleName();
     _beanData.put("type", typeName);

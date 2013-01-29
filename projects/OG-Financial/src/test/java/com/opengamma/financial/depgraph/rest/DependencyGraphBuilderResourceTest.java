@@ -13,16 +13,16 @@ import static org.testng.Assert.fail;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
-
-import javax.time.Duration;
-import javax.time.Instant;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -184,7 +184,7 @@ public class DependencyGraphBuilderResourceTest {
     final DependencyGraphBuilderResource prime = resource.setValuationTime("2007-12-03T10:15:30+01:00[Europe/Paris]");
     final Instant i2 = prime.getValuationTime();
     assertEquals(i1, resource.getValuationTime()); // original unchanged
-    assertFalse(i1.equals(i2));
+    assertFalse(Objects.equals(i1, i2));
   }
 
   // TODO: testSetResolutionTime method

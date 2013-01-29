@@ -5,9 +5,8 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 

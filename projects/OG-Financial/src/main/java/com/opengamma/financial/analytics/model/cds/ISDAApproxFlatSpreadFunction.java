@@ -77,7 +77,7 @@ public class ISDAApproxFlatSpreadFunction extends AbstractFunction.NonCompiledIn
      * In may be necessary to index points on the spread curve using real dates rather than t-values  
     
     final CDSSecurity cds = (CDSSecurity) target.getSecurity();
-    final double maturity = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), cds.getMaturity());
+    final double maturity = TimeCalculator.getTimeBetween(ZonedDateTime.now(executionContext.getValuationClock()), cds.getMaturity());
     
     final YieldCurve spreadCurve = (YieldCurve) inputs.getValue(new ValueRequirement(
       ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, cds.getCurrency().getUniqueId(),

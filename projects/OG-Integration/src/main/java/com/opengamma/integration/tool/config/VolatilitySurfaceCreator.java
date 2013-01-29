@@ -22,6 +22,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
@@ -222,7 +223,7 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
 
     @Override
     public Object visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
-      if (TimeCalculator.getTimeBetween(OpenGammaClock.getInstance().zonedDateTime(), security.getExpiry().getExpiry()) < 0) {
+      if (TimeCalculator.getTimeBetween(ZonedDateTime.now(OpenGammaClock.getInstance()), security.getExpiry().getExpiry()) < 0) {
         return null;
       }
       final String ticker = security.getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER);
@@ -243,7 +244,7 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
 
     @Override
     public Object visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity security) {
-      if (TimeCalculator.getTimeBetween(OpenGammaClock.getInstance().zonedDateTime(), security.getExpiry().getExpiry()) < 0) {
+      if (TimeCalculator.getTimeBetween(ZonedDateTime.now(OpenGammaClock.getInstance()), security.getExpiry().getExpiry()) < 0) {
         return null;
       }
       final String ticker = security.getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER);
@@ -264,7 +265,7 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
 
     @Override
     public Object visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
-      if (TimeCalculator.getTimeBetween(OpenGammaClock.getInstance().zonedDateTime(), security.getExpiry().getExpiry()) < 0) {
+      if (TimeCalculator.getTimeBetween(ZonedDateTime.now(OpenGammaClock.getInstance()), security.getExpiry().getExpiry()) < 0) {
         return null;
       }
       final String ticker = security.getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER);
@@ -284,7 +285,7 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
 
     @Override
     public Object visitEquityOptionSecurity(final EquityOptionSecurity security) {
-      if (TimeCalculator.getTimeBetween(OpenGammaClock.getInstance().zonedDateTime(), security.getExpiry().getExpiry()) < 0) {
+      if (TimeCalculator.getTimeBetween(ZonedDateTime.now(OpenGammaClock.getInstance()), security.getExpiry().getExpiry()) < 0) {
         return null;
       }
       final String ticker = security.getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER);
@@ -304,7 +305,7 @@ public class VolatilitySurfaceCreator extends AbstractTool<IntegrationToolContex
 
     @Override
     public Object visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
-      if (TimeCalculator.getTimeBetween(OpenGammaClock.getInstance().zonedDateTime(), security.getExpiry().getExpiry()) < 0) {
+      if (TimeCalculator.getTimeBetween(ZonedDateTime.now(OpenGammaClock.getInstance()), security.getExpiry().getExpiry()) < 0) {
         return null;
       }
       final String ticker = security.getExternalIdBundle().getValue(ExternalSchemes.BLOOMBERG_TICKER);

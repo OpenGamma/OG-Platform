@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.marketdata;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;

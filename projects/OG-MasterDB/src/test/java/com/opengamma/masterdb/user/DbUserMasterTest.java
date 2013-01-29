@@ -71,7 +71,7 @@ public class DbUserMasterTest extends DbTest {
     assertNotNull(_userMaster);
     assertEquals(true, _userMaster.getUniqueIdScheme().equals("DbUsr"));
     assertNotNull(_userMaster.getDbConnector());
-    assertNotNull(_userMaster.getTimeSource());
+    assertNotNull(_userMaster.getClock());
   }
 
   //-------------------------------------------------------------------------

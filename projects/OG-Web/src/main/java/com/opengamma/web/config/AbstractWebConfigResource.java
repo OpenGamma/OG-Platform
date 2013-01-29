@@ -11,13 +11,13 @@ import java.io.StringWriter;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -30,8 +30,6 @@ import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
@@ -66,6 +64,8 @@ import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
  * 
  */
 public abstract class AbstractWebConfigResource extends AbstractPerRequestWebResource {
+  
+  private static final int INDENTATION_SIZE = 4;
   
   /**
    * Logger.
@@ -159,6 +159,7 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
    */
   protected Object parseXML(String xml) {
     final CharArrayReader car = new CharArrayReader(xml.toCharArray());
+    @SuppressWarnings("resource")
     final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeXMLStreamReader(getFudgeContext(), car));
     final FudgeMsg message = fmr.nextMessage();
     return getFudgeContext().fromFudgeMsg(message);
@@ -182,29 +183,30 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
   }
 
   protected String createXML(ConfigDocument doc) {
-    String configXML = null;
     // get xml and pretty print it
     FudgeMsgEnvelope msg = getFudgeContext().toFudgeMsg(doc.getConfig().getValue());
     s_logger.debug("config doc {} converted to fudge {}", doc.getUniqueId(), msg);
     StringWriter buf = new StringWriter(1024);  
+    @SuppressWarnings("resource")
     FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeXMLStreamWriter(getFudgeContext(), buf));
     writer.writeMessageEnvelope(msg);
     s_logger.debug("config doc {} converted to xmk {}", doc.getUniqueId(), buf.toString());
     try {
-      DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-      Document xmlDoc = db.parse(new InputSource(new StringReader(buf.toString())));
-      xmlDoc.getDocumentElement().normalize();
-      Transformer transformer = TransformerFactory.newInstance().newTransformer();
-      transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-      DOMSource source = new DOMSource(xmlDoc);
-      buf = new StringWriter(1024);
-      StreamResult result =  new StreamResult(buf);
-      transformer.transform(source, result);
-      configXML = buf.toString();
+      return prettyXML(buf.toString(), INDENTATION_SIZE);
     } catch (Exception ex) {
       throw new IllegalStateException(ex);
     }
-    return configXML;
+  }
+  
+  private static String prettyXML(String input, int indent) throws TransformerException {
+    Source xmlInput = new StreamSource(new StringReader(input));
+    StreamResult xmlOutput = new StreamResult(new StringWriter());
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    transformerFactory.setAttribute("indent-number", indent);
+    Transformer transformer = transformerFactory.newTransformer();
+    transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+    transformer.transform(xmlInput, xmlOutput);
+    return xmlOutput.getWriter().toString();
   }
 
   /**

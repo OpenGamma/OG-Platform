@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.cds;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.cds.ISDACDSCoupon;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;

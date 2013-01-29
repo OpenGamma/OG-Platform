@@ -9,7 +9,7 @@ package com.opengamma.language.view;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.SessionContext;

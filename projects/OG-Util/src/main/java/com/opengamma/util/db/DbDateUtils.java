@@ -10,13 +10,12 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.ZoneOffset;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.DateUtils;
@@ -65,13 +64,13 @@ public class DbDateUtils {
   /**
    * Creates a time-stamp from an {@code InstantProvider}.
    * 
-   * @param instantProvider  the instant to convert, not null
+   * @param instant  the instant to convert, not null
    * @return the SQL time-stamp, not null
    */
-  public static Timestamp toSqlTimestamp(InstantProvider instantProvider) {
-    ArgumentChecker.notNull(instantProvider, "instantProvider");
-    OffsetDateTime utc = OffsetDateTime.ofInstant(instantProvider, ZoneOffset.UTC);
-    return toSqlDateTime(utc.toLocalDateTime());
+  public static Timestamp toSqlTimestamp(Instant instant) {
+    ArgumentChecker.notNull(instant, "instant");
+    OffsetDateTime utc = OffsetDateTime.ofInstant(instant, ZoneOffset.UTC);
+    return toSqlDateTime(utc.getDateTime());
   }
 
   /**
@@ -109,8 +108,8 @@ public class DbDateUtils {
   public static Timestamp toSqlDateTime(LocalDateTime dateTime) {
     ArgumentChecker.notNull(dateTime, "dateTime");
     return new Timestamp(
-        dateTime.getYear() - 1900, dateTime.getMonthOfYear().getValue() - 1, dateTime.getDayOfMonth(),
-        dateTime.getHourOfDay(), dateTime.getMinuteOfHour(), dateTime.getSecondOfMinute(), dateTime.getNanoOfSecond());
+        dateTime.getYear() - 1900, dateTime.getMonthValue() - 1, dateTime.getDayOfMonth(),
+        dateTime.getHour(), dateTime.getMinute(), dateTime.getSecond(), dateTime.getNano());
   }
 
   /**
@@ -152,7 +151,7 @@ public class DbDateUtils {
   @SuppressWarnings("deprecation")
   public static Date toSqlDate(LocalDate date) {
     ArgumentChecker.notNull(date, "dateProvider");
-    return new Date(date.getYear() - 1900, date.getMonthOfYear().getValue() - 1, date.getDayOfMonth());
+    return new Date(date.getYear() - 1900, date.getMonthValue() - 1, date.getDayOfMonth());
   }
 
   /**
@@ -241,7 +240,7 @@ public class DbDateUtils {
   @SuppressWarnings("deprecation")
   public static Timestamp toSqlTimestamp(LocalTime time) {
     ArgumentChecker.notNull(time, "time");
-    return new Timestamp(70, 0, 1, time.getHourOfDay(), time.getMinuteOfHour(), time.getSecondOfMinute(), time.getNanoOfSecond());
+    return new Timestamp(70, 0, 1, time.getHour(), time.getMinute(), time.getSecond(), time.getNano());
   }
 
   /**
@@ -255,7 +254,7 @@ public class DbDateUtils {
   @SuppressWarnings("deprecation")
   public static Time toSqlTime(LocalTime time) {
     ArgumentChecker.notNull(time, "time");
-    return new Time(time.getHourOfDay(), time.getMinuteOfHour(), time.getSecondOfMinute());
+    return new Time(time.getHour(), time.getMinute(), time.getSecond());
   }
 
   /**

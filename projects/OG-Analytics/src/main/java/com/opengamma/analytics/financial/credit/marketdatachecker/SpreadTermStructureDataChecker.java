@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.marketdatachecker;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.ArgumentChecker;
 

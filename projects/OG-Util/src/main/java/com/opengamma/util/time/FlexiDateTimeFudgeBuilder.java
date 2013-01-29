@@ -5,13 +5,6 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.calendar.Calendrical;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -20,6 +13,13 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.FudgeDate;
 import org.fudgemsg.types.FudgeDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.Temporal;
 
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 
@@ -52,11 +52,12 @@ public final class FlexiDateTimeFudgeBuilder extends AbstractFudgeBuilder implem
   }
 
   public static void toFudgeMsg(final FudgeSerializer serializer, final FlexiDateTime object, final MutableFudgeMsg msg) {
-    Calendrical best = object.toBest();
+    Temporal best = object.toBest();
     best = (best instanceof ZonedDateTime ? ((ZonedDateTime) best).toOffsetDateTime() : best);
     addToMessage(msg, DATETIME_FIELD_NAME, best);
-    if (object.getZone() != null && object.getZone().isFixed() == false) {
-      addToMessage(msg, ZONE_FIELD_NAME, object.getZone());
+    ZoneId zone = object.getZone();
+    if (zone != null && zone instanceof ZoneOffset == false) {
+      addToMessage(msg, ZONE_FIELD_NAME, zone);
     }
   }
 
@@ -70,7 +71,7 @@ public final class FlexiDateTimeFudgeBuilder extends AbstractFudgeBuilder implem
     if (msg == null) {
       return null;
     }
-    final TimeZone zone = msg.getValue(TimeZone.class, ZONE_FIELD_NAME);
+    final ZoneId zone = msg.getValue(ZoneId.class, ZONE_FIELD_NAME);
     final Object obj = msg.getValue(DATETIME_FIELD_NAME);
     if (obj instanceof FudgeDateTime) {
       FudgeDateTime fudge = (FudgeDateTime) obj;

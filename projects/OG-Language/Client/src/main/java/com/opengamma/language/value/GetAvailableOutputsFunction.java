@@ -9,7 +9,7 @@ package com.opengamma.language.value;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.view.helper.AvailableOutputs;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;

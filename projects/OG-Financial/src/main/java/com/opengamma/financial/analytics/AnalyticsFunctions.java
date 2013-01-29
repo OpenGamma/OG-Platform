@@ -168,6 +168,8 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.MACAULAY_DURATION);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_CLEAN_PRICE);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_DIRTY_PRICE);
+    addSummingFunction(functions, ValueRequirementNames.MTM_PNL);
+    addUnitScalingFunction(functions, ValueRequirementNames.MTM_PNL);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_YTM);
     addUnitScalingFunction(functions, ValueRequirementNames.MODIFIED_DURATION);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NET_BASIS);
@@ -226,6 +228,8 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addScalingAndSummingFunction(functions, ValueRequirementNames.VEGA_QUOTE_MATRIX);
     addUnitScalingFunction(functions, ValueRequirementNames.VOMMA);
     addUnitScalingFunction(functions, ValueRequirementNames.VOMMA_P);
+    addUnitScalingFunction(functions, ValueRequirementNames.WEIGHTED_VEGA);
+    addSummingFunction(functions, ValueRequirementNames.WEIGHTED_VEGA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
     addUnitScalingFunction(functions, ValueRequirementNames.YTM);
     addUnitScalingFunction(functions, ValueRequirementNames.ZETA);

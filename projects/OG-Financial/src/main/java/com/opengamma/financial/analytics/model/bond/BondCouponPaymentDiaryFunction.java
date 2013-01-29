@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.bond;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
@@ -71,7 +71,7 @@ public class BondCouponPaymentDiaryFunction extends NonCompiledInvoker {
     final double[] payments = new double[n];
     for (int i = 0; i < n; i++) {
       final CouponFixedDefinition coupon = coupons.getNthPayment(i);
-      dates[i] = coupon.getPaymentDate().toLocalDate();
+      dates[i] = coupon.getPaymentDate().getDate();
       payments[i] = coupon.getAmount() * coupon.getNotional();
     }
     payments[n - 1] += coupons.getNthPayment(n - 1).getNotional();

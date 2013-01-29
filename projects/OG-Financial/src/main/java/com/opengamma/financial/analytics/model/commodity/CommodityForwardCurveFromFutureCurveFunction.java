@@ -85,7 +85,7 @@ public class CommodityForwardCurveFromFutureCurveFunction extends AbstractFuncti
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     final ValueProperties constraints = desiredValue.getConstraints();
 
     // curve

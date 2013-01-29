@@ -7,8 +7,8 @@ package com.opengamma.util.timeseries.localdate;
 
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
@@ -43,7 +43,7 @@ public class ListLocalDateObjectTimeSeries<T> extends MutableLocalDateObjectTime
         s_converter.convertToInt(dates), values));
   }
 
-  public ListLocalDateObjectTimeSeries(final TimeZone timeZone, final LocalDate[] dates, final T[] values) {
+  public ListLocalDateObjectTimeSeries(final ZoneId timeZone, final LocalDate[] dates, final T[] values) {
     super(new LocalDateEpochDaysConverter(timeZone), new FastListIntObjectTimeSeries<T>(
         DateTimeNumericEncoding.DATE_EPOCH_DAYS, new LocalDateEpochDaysConverter(timeZone).convertToInt(dates),
         values));
@@ -54,7 +54,7 @@ public class ListLocalDateObjectTimeSeries<T> extends MutableLocalDateObjectTime
         s_converter.convertToInt(dates), values));
   }
 
-  public ListLocalDateObjectTimeSeries(final TimeZone timeZone, final List<LocalDate> dates, final List<T> values) {
+  public ListLocalDateObjectTimeSeries(final ZoneId timeZone, final List<LocalDate> dates, final List<T> values) {
     super(new LocalDateEpochDaysConverter(timeZone), new FastListIntObjectTimeSeries<T>(
         DateTimeNumericEncoding.DATE_EPOCH_DAYS, new LocalDateEpochDaysConverter(timeZone).convertToInt(dates),
         values));
@@ -67,7 +67,7 @@ public class ListLocalDateObjectTimeSeries<T> extends MutableLocalDateObjectTime
   }
 
   @SuppressWarnings("unchecked")
-  public ListLocalDateObjectTimeSeries(final TimeZone timeZone, final LocalDateObjectTimeSeries<T> dts) {
+  public ListLocalDateObjectTimeSeries(final ZoneId timeZone, final LocalDateObjectTimeSeries<T> dts) {
     super(new LocalDateEpochDaysConverter(timeZone),
         (FastMutableIntObjectTimeSeries<T>) new LocalDateEpochDaysConverter(timeZone).convertToInt(
             (FastIntObjectTimeSeries<T>) TIMESERIES_TEMPLATE, dts));
@@ -77,7 +77,7 @@ public class ListLocalDateObjectTimeSeries<T> extends MutableLocalDateObjectTime
     super(s_converter, pmidts);
   }
 
-  public ListLocalDateObjectTimeSeries(final TimeZone timeZone, final FastMutableIntObjectTimeSeries<T> pmidts) {
+  public ListLocalDateObjectTimeSeries(final ZoneId timeZone, final FastMutableIntObjectTimeSeries<T> pmidts) {
     super(new LocalDateEpochDaysConverter(timeZone), pmidts);
   }
 

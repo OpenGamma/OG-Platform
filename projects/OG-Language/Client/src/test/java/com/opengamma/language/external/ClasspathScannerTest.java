@@ -11,9 +11,8 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.Collection;
 
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.lang.annotation.ExternalFunction;
 

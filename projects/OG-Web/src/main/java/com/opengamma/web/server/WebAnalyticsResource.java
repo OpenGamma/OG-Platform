@@ -6,7 +6,6 @@
 package com.opengamma.web.server;
 
 import javax.servlet.ServletContext;
-import javax.time.Instant;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -14,6 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import org.springframework.web.context.ServletContextAware;
+import org.threeten.bp.Instant;
 
 import com.opengamma.util.tuple.Pair;
 

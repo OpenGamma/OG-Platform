@@ -25,12 +25,21 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
     return new OptionFunctions().getObjectCreating();
   }
 
+  /**
+   * Gets the default values for calculations
+   * @return The repository with equity option defaults set
+   */
   public static RepositoryConfigurationSource defaults() {
     final Defaults factory = new Defaults();
     factory.afterPropertiesSet();
     return factory.getObject();
   }
 
+  /**
+   * @param overhedge The overhedge to use for equity barrier options
+   * @param callSpreadFullWidth The width of the call spread to use for barrier options
+   * @return The repository with equity barrier option defaults set
+   */
   public static RepositoryConfigurationSource defaults(final double overhedge, final double callSpreadFullWidth) {
     final Defaults factory = new Defaults();
     factory.setOverhedge(overhedge);
@@ -86,6 +95,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(EquityOptionBlackPresentValueFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackRhoFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackSpotDeltaFunction.class));
+    functions.add(functionConfiguration(EquityOptionBlackThetaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackSpotGammaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackSpotVannaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackVegaFunction.class));
@@ -106,6 +116,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(EquityVanillaBarrierOptionVegaMatrixFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionVegaFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionVommaFunction.class));
+    functions.add(functionConfiguration(WeightedVegaFunction.class));
   }
 
 }

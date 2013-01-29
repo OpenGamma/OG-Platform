@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -43,8 +43,8 @@ public class InterestRateFutureOptionTradeConverter {
     final int quantity = 1; // trade.getQuantity().intValue(); TODO: correct when position/trade dilemma is solved.
     //TODO trade time or premium time?
     //    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getPremiumDate().atTime(trade.getPremiumTime()),
-    //        TimeZone.UTC); //TODO get the real time zone
-    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()), TimeZone.UTC); //TODO get the real time zone
+    //        ZoneOffset.UTC); //TODO get the real time zone
+    final ZonedDateTime tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().getTime()).atZone(ZoneOffset.UTC); //TODO get the real time zone
 
     final Double tradePrice = trade.getPremium();
     ArgumentChecker.notNull(tradePrice, "IRFutureOption trade must have a premium set. The interpretation of premium is the market price, without unit, i.e. not %");

@@ -13,13 +13,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -135,14 +134,14 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
   protected Collection<ViewCycleExecutionOptions> getExecutionCycleOptions(final FunctionExecutionContext executionContext, final ViewEvaluationTarget target) {
     LocalDate startDate = DateConstraint.getLocalDate(executionContext, target.getFirstValuationDate());
     if (startDate == null) {
-      startDate = executionContext.getValuationClock().today();
+      startDate = LocalDate.now(executionContext.getValuationClock());
     }
     if (!target.isIncludeFirstValuationDate()) {
       startDate = startDate.plusDays(1);
     }
     LocalDate finishDate = DateConstraint.getLocalDate(executionContext, target.getLastValuationDate());
     if (finishDate == null) {
-      finishDate = executionContext.getValuationClock().today();
+      finishDate = LocalDate.now(executionContext.getValuationClock());
     }
     if (!target.isIncludeLastValuationDate()) {
       finishDate = finishDate.minusDays(1);
@@ -150,16 +149,16 @@ public class ViewEvaluationFunction extends AbstractFunction.NonCompiledInvoker 
     if (startDate.isAfter(finishDate)) {
       throw new IllegalArgumentException("First valuation date " + startDate + " is after last valuation date " + finishDate);
     }
-    LocalDateTime date = LocalDateTime.of(startDate, target.getValuationTime());
+    LocalDateTime dateTime = LocalDateTime.of(startDate, target.getValuationTime());
     final Collection<ViewCycleExecutionOptions> cycles = new ArrayList<ViewCycleExecutionOptions>(DateUtils.getDaysBetween(startDate, true, finishDate, true));
     do {
-      final ZonedDateTime valuation = ZonedDateTime.of(date, target.getTimeZone());
-      cycles.add(ViewCycleExecutionOptions.builder().setValuationTime(valuation).setMarketDataSpecification(MarketData.historical(date.toLocalDate(), null))
-          .setResolverVersionCorrection(VersionCorrection.of(valuation, target.getCorrection())).create());
-      if (date.toLocalDate().equals(finishDate)) {
+      final ZonedDateTime valuation = ZonedDateTime.of(dateTime, target.getTimeZone());
+      cycles.add(ViewCycleExecutionOptions.builder().setValuationTime(valuation.toInstant()).setMarketDataSpecification(MarketData.historical(dateTime.getDate(), null))
+          .setResolverVersionCorrection(VersionCorrection.of(valuation.toInstant(), target.getCorrection())).create());
+      if (dateTime.getDate().equals(finishDate)) {
         return cycles;
       }
-      date = date.plusDays(1);
+      dateTime = dateTime.plusDays(1);
     } while (true);
   }
 

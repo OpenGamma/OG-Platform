@@ -12,6 +12,10 @@
 
 LOGGING(com.opengamma.language.service.Service);
 
+#define SERVICE_STATE_RUNNING	0
+#define SERVICE_STATE_STOPPING	1
+#define SERVICE_STATE_STOPPED	2
+
 /// Mutex to guard access to other global variables.
 static CMutex g_oMutex;
 
@@ -33,8 +37,8 @@ static SERVICE_STATUS_HANDLE g_hServiceStatus = NULL;
 static DWORD g_dwServiceCheckPoint = 0;
 #endif /* ifdef _WIN32 */
 
-/// Service status; TRUE if the service is running and able to accept client connections, FALSE otherwise.
-static volatile bool g_bServiceRunning = false;
+/// Service status; one of SERVICE_STATE_RUNNING, SERVICE_STATE_STOPPING or SERVICE_STATE_STOPPED.
+static volatile int g_nServiceState = SERVICE_STATE_STOPPED;
 
 #ifdef _WIN32
 /// Report the service state back to the service control manager.
@@ -94,32 +98,32 @@ static void _ReportStateImpl (bool bInfo, const TCHAR *pszLabel) {
 /// the service enters its running state.
 static void _ReportStateStarting () {
 	_ReportState (SERVICE_START_PENDING, 0, false, TEXT ("Service starting"));
-	g_bServiceRunning = false;
+	g_nServiceState = SERVICE_STATE_STOPPED;
 }
 
 /// Reports a running state to the user.
 static void _ReportStateRunning () {
 	_ReportState (SERVICE_RUNNING, 0, true, TEXT ("Service started"));
-	g_bServiceRunning = true;
+	g_nServiceState = SERVICE_STATE_RUNNING;
 }
 
 /// Reports a stopping state to the user. This may happen any number of times (or not at all) before
 /// the service enters its stopped state.
 static void _ReportStateStopping () {
 	_ReportState (SERVICE_STOP_PENDING, 0, false, TEXT ("Service stopping"));
-	g_bServiceRunning = false;
+	g_nServiceState = SERVICE_STATE_STOPPING;
 }
 
 /// Reports a stopped state to the user.
 static void _ReportStateStopped () {
 	_ReportState (SERVICE_STOPPED, 0, true, TEXT ("Service stopped"));
-	g_bServiceRunning = false;
+	g_nServiceState = SERVICE_STATE_STOPPED;
 }
 
 /// Reports an errored state to the user.
 static void _ReportStateErrored () {
 	_ReportState (SERVICE_STOPPED, ERROR_INVALID_ENVIRONMENT, true, TEXT ("Service stopped"));
-	g_bServiceRunning = false;
+	g_nServiceState = SERVICE_STATE_STOPPED;
 }
 
 /// Attempts to stop the service.
@@ -130,9 +134,17 @@ void ServiceStop (bool bForce) {
 	g_oMutex.Enter ();
 	if (bForce) {
 		_ReportStateStopping ();
-		g_poPipe->Close ();
+		if (g_poPipe) {
+			g_poPipe->Close ();
+		} else {
+			LOGINFO (TEXT ("Pipe already destroyed at hard stop"));
+		}
 	} else {
-		g_poPipe->LazyClose ();
+		if (g_poPipe) {
+			g_poPipe->LazyClose ();
+		} else {
+			LOGINFO (TEXT ("Pipe already destroyed at soft stop"));
+		}
 	}
 	g_oMutex.Leave ();
 }
@@ -142,8 +154,12 @@ void ServiceStop (bool bForce) {
 void ServiceSuspend () {
 	_ReportStateStopping ();
 	g_oMutex.Enter ();
-	g_poPipe->Close ();
-	// Never leave the critical section - this function is designed specifically to fcuk up the
+	if (g_poPipe) {
+		g_poPipe->Close ();
+	} else {
+		LOGERROR (TEXT ("Pipe destroyed at suspend"));
+	}
+	// Never leave the critical section - this function is designed specifically to ruin the
 	// execution of the service to test a hung JVM. IT IS NOT THE WINDOWS SERVICE SUSPEND/RESUME.
 }
 
@@ -316,20 +332,29 @@ void ServiceRun (int nReason) {
 				}
 				g_oMutex.Enter ();
 				if (g_poPipe->IsClosed ()) {
-					LOGINFO (TEXT ("Pipe closed with pending connection - reopening"));
 					delete g_poPipe;
-					g_poPipe = CConnectionPipe::Create ();
-					if (g_poPipe) {
-						_ReportStateRunning ();
+					if (g_nServiceState == SERVICE_STATE_RUNNING) {
+						LOGINFO (TEXT ("Pipe closed with pending connection - reopening"));
+						g_poPipe = CConnectionPipe::Create ();
+						if (!g_poPipe) {
+							LOGERROR (TEXT ("Couldn't create IPC pipe"));
+						}
 					} else {
-						LOGERROR (TEXT ("Couldn't create IPC pipe - shutting down JVM"));
+						LOGINFO (TEXT ("Ignoring pending connections after hard close"));
+						g_poPipe = NULL;
+					}
+					if (!g_poPipe) {
+						g_oMutex.Leave ();
+						LOGINFO (TEXT ("Shutting down JVM after pipe close"));
 						g_poJVM->Stop ();
+						break;
 					}
 				}
 				g_oMutex.Leave ();
 			} else {
 				LOGERROR (TEXT ("Shutting down JVM after failing to read from pipe"));
 				g_poJVM->Stop ();
+				break;
 			}
 		} while (!g_poJVM->IsBusy (g_lBusyTimeout) && g_poJVM->IsRunning ());
 		_ReportStateStopping ();
@@ -353,7 +378,7 @@ void ServiceRun (int nReason) {
 ///
 /// @return TRUE if the service is running, FALSE otherwise
 bool ServiceRunning () {
-	return g_bServiceRunning;
+	return (g_nServiceState != SERVICE_STATE_STOPPED);
 }
 
 /// Configure the service.

@@ -5,7 +5,7 @@
  */
 package com.opengamma.core.holiday;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.Link;

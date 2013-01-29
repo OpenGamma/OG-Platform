@@ -7,11 +7,12 @@ package com.opengamma.analytics.financial.instrument.annuity;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
@@ -45,7 +46,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
   private static final Currency CUR = Currency.EUR;
   //Euribor 3m
   private static final int INDEX_TENOR_MONTH = 3;
-  private static final Period INDEX_TENOR = Period.ofMonths(INDEX_TENOR_MONTH);
+  private static final Period INDEX_TENOR = Period.of(INDEX_TENOR_MONTH, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -54,7 +55,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
   //Annuity description
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 9, 7);
   private static final int ANNUITY_TENOR_YEAR = 2;
-  private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
+  private static final Period ANNUITY_TENOR = Period.of(ANNUITY_TENOR_YEAR, YEARS);
   private static final int NB_COUPON = ANNUITY_TENOR_YEAR * 12 / INDEX_TENOR_MONTH;
   private static final boolean IS_PAYER = false;
   private static final double NOTIONAL = 100000000; // 100m

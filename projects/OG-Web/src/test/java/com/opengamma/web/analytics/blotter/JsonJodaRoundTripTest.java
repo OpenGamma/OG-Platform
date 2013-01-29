@@ -8,15 +8,16 @@ package com.opengamma.web.analytics.blotter;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.MetaBean;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -42,13 +43,13 @@ public class JsonJodaRoundTripTest {
 
   @Test
   public void fxForwardRoundTrip() throws JSONException {
-    ZonedDateTime forwardDate = ZonedDateTime.of(2012, 12, 21, 10, 0, 0, 0, TimeZone.UTC);
+    ZonedDateTime forwardDate = zdt(2012, 12, 21, 11, 0, 0, 0, ZoneOffset.UTC);
     ExternalId regionId = ExternalId.of("Reg", "123");
     FXForwardSecurity fxForward = new FXForwardSecurity(Currency.USD, 150, Currency.GBP, 100, forwardDate, regionId);
     fxForward.setName("GBP/USD forward");
 
-    JsonDataSink sink = new JsonDataSink();
-    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(fxForward, sink);
+    JsonDataSink sink = new JsonDataSink(BlotterResource.getStringConvert());
+    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(fxForward, sink, BlotterResource.getStringConvert());
     BeanTraverser traverser = new BeanTraverser();
     JSONObject json = (JSONObject) traverser.traverse(FXForwardSecurity.meta(), writingVisitor);
     assertNotNull(json);
@@ -66,9 +67,9 @@ public class JsonJodaRoundTripTest {
 
   @Test
   public void swapRoundTrip() throws JSONException {
-    ZonedDateTime tradeDate = ZonedDateTime.of(2012, 12, 21, 10, 0, 0, 0, TimeZone.UTC);
-    ZonedDateTime effectiveDate = ZonedDateTime.of(2013, 1, 21, 10, 0, 0, 0, TimeZone.UTC);
-    ZonedDateTime maturityDate = ZonedDateTime.of(2013, 12, 21, 10, 0, 0, 0, TimeZone.UTC);
+    ZonedDateTime tradeDate = zdt(2012, 12, 21, 11, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime effectiveDate = zdt(2013, 1, 21, 11, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime maturityDate = zdt(2013, 12, 21, 11, 0, 0, 0, ZoneOffset.UTC);
     SwapLeg payLeg = new FixedInterestRateLeg(
         DayCountFactory.INSTANCE.getDayCount("Act/360"),
         SimpleFrequency.MONTHLY,
@@ -89,9 +90,9 @@ public class JsonJodaRoundTripTest {
     SwapSecurity security = new SwapSecurity(tradeDate, effectiveDate, maturityDate, "cpty", payLeg, receiveLeg);
     security.setName("Test swap");
 
-    JsonDataSink sink = new JsonDataSink();
+    JsonDataSink sink = new JsonDataSink(BlotterResource.getStringConvert());
     BeanTraverser traverser = new BeanTraverser();
-    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(security, sink);
+    BeanVisitor<JSONObject> writingVisitor = new BuildingBeanVisitor<>(security, sink, BlotterResource.getStringConvert());
     JSONObject json = (JSONObject) traverser.traverse(SwapSecurity.meta(), writingVisitor);
     assertNotNull(json);
     System.out.println(json);
@@ -109,4 +110,10 @@ public class JsonJodaRoundTripTest {
     SwapSecurity security2 = beanBuilder.build();
     assertEquals(security, security2);
   }
+
+  //-------------------------------------------------------------------------
+  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+    return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
+  }
+
 }

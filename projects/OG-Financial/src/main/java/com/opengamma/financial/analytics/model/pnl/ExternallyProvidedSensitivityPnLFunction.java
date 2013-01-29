@@ -11,11 +11,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -86,7 +85,7 @@ public class ExternallyProvidedSensitivityPnLFunction extends AbstractFunction.N
     final RawSecurity security = (RawSecurity) position.getSecurity();
     final SecuritySource secSource = executionContext.getSecuritySource();
     //final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = MAGIC_DATE; //snapshotClock.zonedDateTime().toLocalDate();
+    final LocalDate now = MAGIC_DATE; //ZonedDateTime.now(snapshotClock).getDate();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     final ValueRequirement desiredValue = desiredValues.iterator().next();

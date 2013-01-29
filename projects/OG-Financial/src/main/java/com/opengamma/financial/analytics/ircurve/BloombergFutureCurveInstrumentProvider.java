@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -22,24 +22,24 @@ import com.opengamma.util.time.Tenor;
  */
 public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentProvider {
 
-  private static BiMap<MonthOfYear, Character> s_monthCode;
+  private static BiMap<Month, Character> s_monthCode;
   private final String _futurePrefix;
   private final String _marketSector;
 
   static {
     s_monthCode = HashBiMap.create();
-    s_monthCode.put(MonthOfYear.JANUARY, 'F');
-    s_monthCode.put(MonthOfYear.FEBRUARY, 'G');
-    s_monthCode.put(MonthOfYear.MARCH, 'H');
-    s_monthCode.put(MonthOfYear.APRIL, 'J');
-    s_monthCode.put(MonthOfYear.MAY, 'K');
-    s_monthCode.put(MonthOfYear.JUNE, 'M');
-    s_monthCode.put(MonthOfYear.JULY, 'N');
-    s_monthCode.put(MonthOfYear.AUGUST, 'Q');
-    s_monthCode.put(MonthOfYear.SEPTEMBER, 'U');
-    s_monthCode.put(MonthOfYear.OCTOBER, 'V');
-    s_monthCode.put(MonthOfYear.NOVEMBER, 'X');
-    s_monthCode.put(MonthOfYear.DECEMBER, 'Z');
+    s_monthCode.put(Month.JANUARY, 'F');
+    s_monthCode.put(Month.FEBRUARY, 'G');
+    s_monthCode.put(Month.MARCH, 'H');
+    s_monthCode.put(Month.APRIL, 'J');
+    s_monthCode.put(Month.MAY, 'K');
+    s_monthCode.put(Month.JUNE, 'M');
+    s_monthCode.put(Month.JULY, 'N');
+    s_monthCode.put(Month.AUGUST, 'Q');
+    s_monthCode.put(Month.SEPTEMBER, 'U');
+    s_monthCode.put(Month.OCTOBER, 'V');
+    s_monthCode.put(Month.NOVEMBER, 'X');
+    s_monthCode.put(Month.DECEMBER, 'Z');
   }
 
   public BloombergFutureCurveInstrumentProvider(final String futurePrefix, final String marketSector) {

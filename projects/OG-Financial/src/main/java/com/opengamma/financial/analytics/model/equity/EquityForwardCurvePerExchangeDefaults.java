@@ -33,6 +33,11 @@ import com.opengamma.util.tuple.Triple;
 public class EquityForwardCurvePerExchangeDefaults extends DefaultPropertyFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquityForwardCurvePerExchangeDefaults.class);
+  /** The value requirements for which these defaults apply */
+  private static final String[] VALUE_REQUIREMENTS = new String[] {
+    ValueRequirementNames.FORWARD_CURVE,
+    ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA
+  };
   /** The priority of this set of defaults */
   private final PriorityClass _priority;
   /** Map from exchange to curve configuration, curve name and currency */
@@ -43,7 +48,7 @@ public class EquityForwardCurvePerExchangeDefaults extends DefaultPropertyFuncti
    * @param perExchangeConfig The default values per exchange, not null
    */
   public EquityForwardCurvePerExchangeDefaults(final String priority, final String... perExchangeConfig) {
-    super(ComputationTargetType.LEGACY_PRIMITIVE, true); // // [PLAT-2286]: change to correct type; should this be SECURITY?
+    super(ComputationTargetType.PRIMITIVE, true); // // [PLAT-2286]: change to correct type; should this be SECURITY?
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perExchangeConfig, "per equity config");
     final int nPairs = perExchangeConfig.length;
@@ -71,9 +76,11 @@ public class EquityForwardCurvePerExchangeDefaults extends DefaultPropertyFuncti
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ValuePropertyNames.CURVE);
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ValuePropertyNames.CURVE_CURRENCY);
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    for (final String valueRequirement : VALUE_REQUIREMENTS) {
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CURRENCY);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    }
   }
 
   @Override

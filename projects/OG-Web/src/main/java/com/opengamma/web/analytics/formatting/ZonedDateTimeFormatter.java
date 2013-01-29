@@ -5,9 +5,9 @@
  */
 package com.opengamma.web.analytics.formatting;
 
-import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatters;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.engine.value.ValueSpecification;
 

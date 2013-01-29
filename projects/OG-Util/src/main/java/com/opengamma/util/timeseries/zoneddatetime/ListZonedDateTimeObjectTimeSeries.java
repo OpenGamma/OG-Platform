@@ -7,8 +7,8 @@ package com.opengamma.util.timeseries.zoneddatetime;
 
 import java.util.List;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.ObjectTimeSeries;
@@ -26,7 +26,7 @@ public class ListZonedDateTimeObjectTimeSeries<T> extends MutableZonedDateTimeOb
     super(new ZonedDateTimeEpochMillisConverter(), new FastListLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
   }
   
-  public ListZonedDateTimeObjectTimeSeries(TimeZone timeZone) {
+  public ListZonedDateTimeObjectTimeSeries(ZoneId timeZone) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), new FastListLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
   }
 
@@ -34,7 +34,7 @@ public class ListZonedDateTimeObjectTimeSeries<T> extends MutableZonedDateTimeOb
     super(s_converter, new FastListLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, s_converter.convertToLong(dates), values));
   }
 
-  public ListZonedDateTimeObjectTimeSeries(final TimeZone timeZone, final ZonedDateTime[] dates, final T[] values) {
+  public ListZonedDateTimeObjectTimeSeries(final ZoneId timeZone, final ZonedDateTime[] dates, final T[] values) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), new FastListLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new ZonedDateTimeEpochMillisConverter(timeZone)
         .convertToLong(dates), values));
   }
@@ -43,7 +43,7 @@ public class ListZonedDateTimeObjectTimeSeries<T> extends MutableZonedDateTimeOb
     super(s_converter, new FastListLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, s_converter.convertToLong(dates), values));
   }
 
-  public ListZonedDateTimeObjectTimeSeries(final TimeZone timeZone, final List<ZonedDateTime> dates, final List<T> values) {
+  public ListZonedDateTimeObjectTimeSeries(final ZoneId timeZone, final List<ZonedDateTime> dates, final List<T> values) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), new FastListLongObjectTimeSeries<T>(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new ZonedDateTimeEpochMillisConverter(timeZone)
         .convertToLong(dates), values));
   }
@@ -54,7 +54,7 @@ public class ListZonedDateTimeObjectTimeSeries<T> extends MutableZonedDateTimeOb
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })
-  public ListZonedDateTimeObjectTimeSeries(final TimeZone timeZone, final ObjectTimeSeries<ZonedDateTime, T> dts) {
+  public ListZonedDateTimeObjectTimeSeries(final ZoneId timeZone, final ObjectTimeSeries<ZonedDateTime, T> dts) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), (FastMutableLongObjectTimeSeries<T>) new ZonedDateTimeEpochMillisConverter(timeZone).convertToLong(new FastListLongObjectTimeSeries(
         DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
@@ -63,7 +63,7 @@ public class ListZonedDateTimeObjectTimeSeries<T> extends MutableZonedDateTimeOb
     super(s_converter, pmidts);
   }
 
-  public ListZonedDateTimeObjectTimeSeries(final TimeZone timeZone, final FastMutableLongObjectTimeSeries<T> pmidts) {
+  public ListZonedDateTimeObjectTimeSeries(final ZoneId timeZone, final FastMutableLongObjectTimeSeries<T> pmidts) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), pmidts);
   }
 

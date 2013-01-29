@@ -8,9 +8,6 @@ package com.opengamma.engine.fudgemsg;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -18,6 +15,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -186,7 +184,7 @@ public class DependencyNodeFudgeBuilder implements FudgeBuilder<DependencyNode> 
     }
 
     @Override
-    public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
+    public CompiledFunctionDefinition compile(FunctionCompilationContext context, Instant atInstant) {
       throw new UnsupportedOperationException();
     }
 

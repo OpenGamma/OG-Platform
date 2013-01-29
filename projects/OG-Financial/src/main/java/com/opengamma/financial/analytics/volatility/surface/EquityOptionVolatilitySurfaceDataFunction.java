@@ -9,21 +9,23 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -36,11 +38,10 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -58,34 +59,157 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
    */
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 
-    final ZonedDateTime valTime = executionContext.getValuationClock().zonedDateTime();
-    final LocalDate valDate = valTime.toLocalDate();
+    final ZonedDateTime valTime = ZonedDateTime.now(executionContext.getValuationClock());
+    final LocalDate valDate = valTime.getDate();
 
-    // 1. Build the surface name, in two parts: the given name and the target
-    final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String fullName = surfaceName + "_" + EquitySecurityUtils.getTrimmedTarget(target.getUniqueId());  // e.g. FOO_DJX
+    final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
 
-    final ConfigSource configSrc = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBVolatilitySurfaceSpecificationSource specSrc = new ConfigDBVolatilitySurfaceSpecificationSource(configSrc);
-    final VolatilitySurfaceSpecification specification = specSrc.getSpecification(fullName, InstrumentTypeProperties.EQUITY_OPTION);
-
-    // 2. Get the RawEquityVolatilitySurfaceData object
-    final ValueProperties surfaceProperties = ValueProperties.builder() // createValueProperties()
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits())
-        .get();
-    final Object rawSurfaceObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), surfaceProperties));
+    final Object specificationObject = inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE_SPEC);
+    if (specificationObject == null) {
+      throw new OpenGammaRuntimeException("Could not get volatility surface specification");
+    }
+    final VolatilitySurfaceSpecification specification = (VolatilitySurfaceSpecification) specificationObject;
+    final String surfaceQuoteUnits = specification.getQuoteUnits();
+    // Get the volatility surface data object
+    final Object rawSurfaceObject = inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE_DATA);
     if (rawSurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface");
     }
     @SuppressWarnings("unchecked")
     final VolatilitySurfaceData<Number, Double> rawSurface = (VolatilitySurfaceData<Number, Double>) rawSurfaceObject;
 
-    // 3. Remove empties, convert expiries from number to years, and scale vols
-    final Map<Pair<Double, Double>, Double> volValues = new HashMap<Pair<Double, Double>, Double>();
+    final VolatilitySurfaceData<Double, Double> stdVolSurface;
+    if (surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.VOLATILITY_QUOTE)) {
+      stdVolSurface = getSurfaceFromVolatilityQuote(valDate, rawSurface);
+    } else if (surfaceQuoteUnits.equals(SurfaceAndCubePropertyNames.PRICE_QUOTE)) {
+      // Get the forward curve
+      final Object forwardCurveObject = inputs.getValue(ValueRequirementNames.FORWARD_CURVE);
+      if (forwardCurveObject == null) {
+        throw new OpenGammaRuntimeException("Could not get forward curve");
+      }
+      final ForwardCurve forwardCurve = (ForwardCurve) forwardCurveObject;
+      stdVolSurface = getSurfaceFromPriceQuote(valDate, rawSurface, forwardCurve, specification);
+    } else {
+      throw new OpenGammaRuntimeException("Cannot handle quote units " + surfaceQuoteUnits);
+    }
+    // Return
+    final ValueProperties constraints = desiredValue.getConstraints().copy()
+        .with(ValuePropertyNames.FUNCTION, getUniqueId())
+        .get();
+    final ValueSpecification stdVolSpec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA,
+        target.toSpecification(), constraints);
+    return Collections.singleton(new ComputedValue(stdVolSpec, stdVolSurface));
+  }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.PRIMITIVE; // Bloomberg ticker, weak ticker or Activ ticker
+  }
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    final String targetScheme = target.getUniqueId().getScheme();
+    return targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
+        targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()) ||
+        targetScheme.equalsIgnoreCase(ExternalSchemes.ACTIVFEED_TICKER.getName());
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueProperties properties = ValueProperties.all();
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
+        properties);
+    return Collections.singleton(spec);
+  }
+
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    // Function requires a VolatilitySurfaceData
+    // Build the surface name, in two parts: the given name and the target
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> instrumentTypes = constraints.getValues(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
+    if (instrumentTypes != null && instrumentTypes.size() == 1) {
+      if (!Iterables.getOnlyElement(instrumentTypes).equals(InstrumentTypeProperties.EQUITY_OPTION)) {
+        return null;
+      }
+    }
+    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
+    if (surfaceNames == null || surfaceNames.size() != 1) {
+      s_logger.error("Function takes only get a single surface. Asked for {}", surfaceNames);
+      return null;
+    }
+    final String givenName = Iterables.getOnlyElement(surfaceNames);
+    final String fullName = givenName + "_" + EquitySecurityUtils.getTrimmedTarget(target.getUniqueId());
+
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBVolatilitySurfaceSpecificationSource volSpecSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
+    final VolatilitySurfaceSpecification specification = volSpecSource.getSpecification(fullName, InstrumentTypeProperties.EQUITY_OPTION);
+    if (specification == null) {
+      s_logger.error("Could not get volatility surface specification with name " + fullName);
+      return null;
+    }
+    // Build the ValueRequirements' constraints
+    final String quoteUnits = specification.getQuoteUnits();
+    final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.SURFACE, givenName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, quoteUnits)
+        .get();
+    final ValueRequirement surfaceReq = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), properties);
+    final ValueRequirement specificationReq = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_SPEC, target.toSpecification(), properties);
+    final Set<ValueRequirement> requirements = new HashSet<>();
+    requirements.add(surfaceReq);
+    requirements.add(specificationReq);
+    if (quoteUnits.equals(SurfaceAndCubePropertyNames.PRICE_QUOTE)) {
+      final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
+      if (curveNames == null || curveNames.size() != 1) {
+        return null;
+      }
+//      final Set<String> curveCalculationMethods = constraints.getValues(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
+//      if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
+//        return null;
+//      }
+      final String curveName = Iterables.getOnlyElement(curveNames);
+      //TODO get rid of hard-coding and add to properties
+      final String curveCalculationMethod = ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD; //Iterables.getOnlyElement(curveCalculationMethods);
+      final ValueProperties curveProperties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, curveName)
+          .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, curveCalculationMethod)
+          .get();
+      final ValueRequirement forwardCurveRequirement = new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), curveProperties);
+      requirements.add(forwardCurveRequirement);
+    }
+    return requirements;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final ValueProperties.Builder properties = createValueProperties()
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION);
+    boolean surfaceNameSet = false;
+    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+      final ValueSpecification key = entry.getKey();
+      if (key.getValueName().equals(ValueRequirementNames.VOLATILITY_SURFACE_DATA)) {
+        properties.with(ValuePropertyNames.SURFACE, key.getProperty(ValuePropertyNames.SURFACE));
+        surfaceNameSet = true;
+      } else if (key.getValueName().equals(ValueRequirementNames.FORWARD_CURVE)) {
+        final ValueProperties curveProperties = key.getProperties().copy()
+            .withoutAny(ValuePropertyNames.FUNCTION)
+            .get();
+        for (final String property : curveProperties.getProperties()) {
+          properties.with(property, curveProperties.getValues(property));
+        }
+        //don't check if forward curve is set, because it isn't needed if the quotes are volatility
+      }
+    }
+    assert surfaceNameSet;
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), properties.get()));
+  }
+
+  private static VolatilitySurfaceData<Double, Double> getSurfaceFromVolatilityQuote(final LocalDate valDate, final VolatilitySurfaceData<Number, Double> rawSurface) {
+    // Remove empties, convert expiries from number to years, and scale vols
+    final Map<Pair<Double, Double>, Double> volValues = new HashMap<>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
     for (final Number nthExpiry : rawSurface.getXs()) {
@@ -101,74 +225,52 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
         }
       }
     }
-    final VolatilitySurfaceData<Double, Double> stdVolSurface = new VolatilitySurfaceData<Double, Double>(rawSurface.getDefinitionName(), rawSurface.getSpecificationName(), rawSurface.getTarget(),
+    final VolatilitySurfaceData<Double, Double> stdVolSurface = new VolatilitySurfaceData<>(rawSurface.getDefinitionName(), rawSurface.getSpecificationName(), rawSurface.getTarget(),
         tList.toArray(new Double[0]), kList.toArray(new Double[0]), volValues);
-
-    // 4. Return
-    final ValueProperties stdVolProperties = createValueProperties()
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
-        .get();
-    final ValueSpecification stdVolSpec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA,
-        ComputationTargetSpecification.of(specification.getTarget().getUniqueId()), stdVolProperties);
-    return Collections.singleton(new ComputedValue(stdVolSpec, stdVolSurface));
+    return stdVolSurface;
   }
 
-  @Override
-  public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE.or(ComputationTargetType.CURRENCY); // Bloomberg ticker, weak ticker or currency
-  }
-
-  @Override
-  // TODO Review choice of target as BLOOMBERG_TICKER_WEAK~DJX. Seems arbitrary. Both are contained in the specification itself.
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getValue() instanceof Currency) {
-      return true;
-    } else {
-      final String targetScheme = target.getUniqueId().getScheme();
-      return targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
-          targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName());
+  private static VolatilitySurfaceData<Double, Double> getSurfaceFromPriceQuote(final LocalDate valDate, final VolatilitySurfaceData<Number, Double> rawSurface,
+      final ForwardCurve forwardCurve, final VolatilitySurfaceSpecification specification) {
+    final String surfaceQuoteType = specification.getSurfaceQuoteType();
+    double callAboveStrike = 0;
+    if (specification.getSurfaceInstrumentProvider() instanceof CallPutSurfaceInstrumentProvider) {
+      callAboveStrike = ((CallPutSurfaceInstrumentProvider<?, ?>) specification.getSurfaceInstrumentProvider()).useCallAboveStrike();
     }
-  }
-
-  @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
-        createValueProperties().withAny(ValuePropertyNames.SURFACE)
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
-            .get());
-    return Collections.singleton(spec);
-  }
-
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    // Function requires a VolatilitySurfaceData, typically supplied by RawOptionVolatilitySurfaceDataFunction
-    // 1. Build the surface name, in two parts: the given name and the target
-    final Set<String> surfaceNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      throw new OpenGammaRuntimeException("Function takes only get a single surface. One has asked for " + surfaceNames);
+    // Remove empties, convert expiries from number to years, and imply vols
+    final Map<Pair<Double, Double>, Double> volValues = new HashMap<>();
+    final DoubleArrayList tList = new DoubleArrayList();
+    final DoubleArrayList kList = new DoubleArrayList();
+    for (final Number nthExpiry : rawSurface.getXs()) {
+      final Double t = FutureOptionExpiries.EQUITY.getFutureOptionTtm(nthExpiry.intValue(), valDate);
+      final double forward = forwardCurve.getForward(t);
+      if (t > 5. / 365.) { // Bootstrapping vol surface to this data causes far more trouble than any gain. The data simply isn't reliable.
+        for (final Double strike : rawSurface.getYs()) {
+          final Double price = rawSurface.getVolatility(nthExpiry, strike);
+          if (price != null) {
+            try {
+              final double vol;
+              if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_STRIKE)) {
+                vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, t, true);
+              } else if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.PUT_STRIKE)) {
+                vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, t, false);
+              } else if (surfaceQuoteType.equals(SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE)) {
+                final boolean isCall = strike > callAboveStrike ? true : false;
+                vol = BlackFormulaRepository.impliedVolatility(price, forward, strike, t, isCall);
+              } else {
+                throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
+              }
+              tList.add(t);
+              kList.add(strike);
+              volValues.put(Pair.of(t, strike), vol);
+            } catch (final Exception e) {
+            }
+          }
+        }
+      }
     }
-    final String givenName = surfaceNames.iterator().next();
-    final String fullName = givenName + "_" + EquitySecurityUtils.getTrimmedTarget(target.getUniqueId());
-
-    // 2. Look up the specification
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBVolatilitySurfaceSpecificationSource volSpecSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    final VolatilitySurfaceSpecification specification = volSpecSource.getSpecification(fullName, InstrumentTypeProperties.EQUITY_OPTION);
-    if (specification == null) {
-      s_logger.error("Could not get volatility surface specification with name " + fullName);
-      return null;
-    }
-    // 3. Build the ValueRequirements' constraints
-    final ValueProperties constraints = ValueProperties.builder()
-        .with(ValuePropertyNames.SURFACE, givenName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, specification.getSurfaceQuoteType())
-        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, specification.getQuoteUnits())
-        .get();
-    // 4. Return
-    final ValueRequirement surfaceReq = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(), constraints);
-    return Collections.singleton(surfaceReq);
+    final VolatilitySurfaceData<Double, Double> stdVolSurface = new VolatilitySurfaceData<>(rawSurface.getDefinitionName(), rawSurface.getSpecificationName(), rawSurface.getTarget(),
+        tList.toArray(new Double[0]), kList.toArray(new Double[0]), volValues);
+    return stdVolSurface;
   }
-
 }

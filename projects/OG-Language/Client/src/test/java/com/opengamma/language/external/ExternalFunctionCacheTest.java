@@ -14,9 +14,8 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 /**
  * Tests the {@link ExternalFunctionCache} class.

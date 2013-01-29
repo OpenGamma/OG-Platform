@@ -16,6 +16,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
@@ -23,6 +24,10 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class EquityOptionPDEPresentValueFunction extends EquityOptionPDEFunction {
   private static final EqyOptPDEPresentValueCalculator CALCULATOR = EqyOptPDEPresentValueCalculator.getInstance();
+
+  public EquityOptionPDEPresentValueFunction() {
+    super(ValueRequirementNames.PRESENT_VALUE);
+  }
 
   @Override
   protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,

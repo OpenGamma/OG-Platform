@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.engine.ComputationTarget;
@@ -65,7 +65,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final EquityOptionSecurity option = (EquityOptionSecurity) target.getSecurity();
     final Object curveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (curveObject == null) {
@@ -73,7 +73,7 @@ public class BlackScholesModelCostOfCarryFunction extends AbstractFunction.NonCo
     }
     final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
     final Expiry expiry = option.getExpiry();
-    final double t = DateUtils.getDifferenceInYears(now, expiry.getExpiry().toInstant());
+    final double t = DateUtils.getDifferenceInYears(now, expiry.getExpiry());
     final double b = curve.getInterestRate(t);
     return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.COST_OF_CARRY, target.toSpecification(), createValueProperties().with(ValuePropertyNames.CURVE,
         desiredValues.iterator().next().getConstraint(ValuePropertyNames.CURVE)).get()), b));

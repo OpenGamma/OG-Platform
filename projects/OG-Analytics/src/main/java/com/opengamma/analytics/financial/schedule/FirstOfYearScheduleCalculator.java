@@ -8,12 +8,11 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 /**
  * 
@@ -30,13 +29,13 @@ public class FirstOfYearScheduleCalculator extends Schedule {
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
     if (startDate.equals(endDate)) {
-      if (startDate.getDayOfMonth() == 1 && startDate.getMonthOfYear() == MonthOfYear.JANUARY) {
+      if (startDate.getDayOfMonth() == 1 && startDate.getMonth() == Month.JANUARY) {
         return new LocalDate[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but neither was the first day of the year");
     }
     final List<LocalDate> dates = new ArrayList<LocalDate>();
-    LocalDate date = startDate.with(DateAdjusters.firstDayOfYear());
+    LocalDate date = startDate.with(TemporalAdjusters.firstDayOfYear());
     if (date.isBefore(startDate)) {
       date = date.plusYears(1);
     }
@@ -57,13 +56,13 @@ public class FirstOfYearScheduleCalculator extends Schedule {
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
     if (startDate.equals(endDate)) {
-      if (startDate.getDayOfMonth() == 1 && startDate.getMonthOfYear() == MonthOfYear.JANUARY) {
+      if (startDate.getDayOfMonth() == 1 && startDate.getMonth() == Month.JANUARY) {
         return new ZonedDateTime[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but neither was the first day of the year");
     }
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
-    ZonedDateTime date = startDate.with(DateAdjusters.firstDayOfYear());
+    ZonedDateTime date = startDate.with(TemporalAdjusters.firstDayOfYear());
     if (date.isBefore(startDate)) {
       date = date.plusYears(1);
     }

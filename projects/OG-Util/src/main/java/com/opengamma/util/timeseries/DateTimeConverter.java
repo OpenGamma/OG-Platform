@@ -11,6 +11,8 @@ import it.unimi.dsi.fastutil.longs.LongList;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.threeten.bp.ZoneId;
+
 import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.integer.object.FastIntObjectTimeSeries;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
@@ -25,7 +27,7 @@ public interface DateTimeConverter<DATE_TYPE> {
   // TimeZone methods.
   TimeZone getTimeZone();
   
-  javax.time.calendar.TimeZone getTimeZone310();
+  ZoneId getTimeZone310();
   // Long methods
   
   long convertToLong(DATE_TYPE dateTime);

@@ -63,7 +63,7 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     //final Clock snapshotClock = executionContext.getValuationClock();
-    //final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+    //final LocalDate now = ZonedDateTime.now(snapshotClock).getDate();
     //final ValueRequirement desiredValue = desiredValues.iterator().next();
     //final Set<String> samplingPeriodName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
     //final Set<String> scheduleCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);

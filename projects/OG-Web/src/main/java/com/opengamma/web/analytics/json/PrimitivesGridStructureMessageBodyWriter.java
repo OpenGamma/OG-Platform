@@ -29,8 +29,12 @@ import com.opengamma.web.analytics.PrimitivesGridStructure;
 @Produces(MediaType.APPLICATION_JSON)
 public class PrimitivesGridStructureMessageBodyWriter implements MessageBodyWriter<PrimitivesGridStructure> {
 
+  /** Writes the JSON. */
   private final GridColumnsJsonWriter _writer;
 
+  /**
+   * @param writer Writes the JSON
+   */
   public PrimitivesGridStructureMessageBodyWriter(GridColumnsJsonWriter writer) {
     ArgumentChecker.notNull(writer, "writer");
     _writer = writer;

@@ -5,10 +5,10 @@
  */
 package com.opengamma.financial.convention;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.temporal.TemporalAdjuster;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
@@ -19,9 +19,9 @@ import com.opengamma.util.ArgumentChecker;
 public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
   /** Name of the calculator */
   public static final String NAME = "IMMFutureOptionQuarterlyExpiryCalculator";
-  private static final DateAdjuster THIRD_WEDNESDAY_ADJUSTER = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
-  private static final DateAdjuster THIRD_MONDAY_ADJUSTER = DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.MONDAY);
-  private static final DateAdjuster MONTH_ADJUSTER = HMUZAdjuster.getInstance();
+  private static final TemporalAdjuster THIRD_WEDNESDAY_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
+  private static final TemporalAdjuster THIRD_MONDAY_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.MONDAY);
+  private static final TemporalAdjuster MONTH_ADJUSTER = HMUZAdjuster.getInstance();
   private static final int WORKING_DAYS_TO_SETTLE = 2;
   private static final IMMFutureAndFutureOptionQuarterlyExpiryCalculator INSTANCE = new IMMFutureAndFutureOptionQuarterlyExpiryCalculator();
 
@@ -37,13 +37,13 @@ public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements 
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
     ArgumentChecker.notNull(today, "today");
     ArgumentChecker.notNull(holidayCalendar, "holiday calendar");
-    final LocalDate nextExpiryMonth = MONTH_ADJUSTER.adjustDate(today);
+    final LocalDate nextExpiryMonth = today.with(MONTH_ADJUSTER);
     LocalDate result;
-    final LocalDate thirdWednesday = THIRD_WEDNESDAY_ADJUSTER.adjustDate(today);
+    final LocalDate thirdWednesday = today.with(THIRD_WEDNESDAY_ADJUSTER);
     if (today.isAfter(adjustForSettlement(thirdWednesday, holidayCalendar))) {
-      result = THIRD_WEDNESDAY_ADJUSTER.adjustDate(nextExpiryMonth.plusMonths(3 * n));
+      result = nextExpiryMonth.plusMonths(3 * n).with(THIRD_WEDNESDAY_ADJUSTER);
     } else {
-      result = THIRD_WEDNESDAY_ADJUSTER.adjustDate(nextExpiryMonth.plusMonths(3 * (n - 1)));
+      result = nextExpiryMonth.plusMonths(3 * (n - 1)).with(THIRD_WEDNESDAY_ADJUSTER);
     }
     return adjustForSettlement(result, holidayCalendar);
   }
@@ -52,8 +52,8 @@ public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements 
   public LocalDate getExpiryMonth(final int n, final LocalDate today) {
     ArgumentChecker.isTrue(n > 0, "n must be greater than zero");
     ArgumentChecker.notNull(today, "today");
-    final LocalDate nextExpiryMonth = MONTH_ADJUSTER.adjustDate(today);
-    if (today.isAfter(THIRD_MONDAY_ADJUSTER.adjustDate(today))) {
+    final LocalDate nextExpiryMonth = today.with(MONTH_ADJUSTER);
+    if (today.isAfter(today.with(THIRD_MONDAY_ADJUSTER))) {
       return nextExpiryMonth.plusMonths(3 * n);
     }
     return nextExpiryMonth.plusMonths(3 * (n - 1));
