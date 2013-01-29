@@ -6,14 +6,7 @@ $.register_module({
     name: 'og.blotter.util',
     dependencies: [],
     obj: function () {
-
-        var bools = {"false": false, "true": true},
-            FAKE_ATTRIBUTES = [
-                {key: 'what',value: 'that'},
-                {key: 'colour',value: 'white'},
-                {key: 'moral',value: 'bad'},
-                {key: 'direction',value: 'down'},
-                {key: 'speed',value: 'fast'}]; 
+        var bools = {"false": false, "true": true}; 
         return {
             /* Util methods */
             update_block : function (section, extras){

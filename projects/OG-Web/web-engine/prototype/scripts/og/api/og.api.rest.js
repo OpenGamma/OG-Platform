@@ -108,6 +108,7 @@ $.register_module({
         };
         var Promise = function () {
             var deferred = new $.Deferred, promise = deferred.promise();
+            promise.abort = function () {return api.abort(promise), promise;};
             promise.deferred = deferred;
             promise.id = ++request_id;
             return promise;

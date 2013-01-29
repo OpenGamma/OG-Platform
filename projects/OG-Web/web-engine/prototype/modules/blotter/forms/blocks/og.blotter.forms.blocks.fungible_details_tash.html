@@ -1,4 +1,4 @@
-<section class="og-blocks-fungible-security-ids">
+<section class="og-blocks-fungible-details">
 <table class="OG-table">
   <colgroup>
     <col style="width: 30%">              
@@ -7,21 +7,21 @@
   <thead>
     <tr>
       <th>
-        <span><em>IDs</em></span>
+        <span><em>Details</em></span>
       </th>
       <th></th>
     </tr>
   </thead>
   <tbody>
-    {{#each security}}
+    {{#each detail}}
       <tr>
         <td>
           <label>
-            <span>{{scheme}}</span>
+            <span>{{key}}</span>
           </label>
         </td>
         <td>
-          <span>{{id}}</span>
+          <span>{{value}}</span>
         </td>
       </tr>
     {{/each}}
