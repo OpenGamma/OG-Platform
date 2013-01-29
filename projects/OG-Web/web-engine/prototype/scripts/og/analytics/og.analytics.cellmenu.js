@@ -81,7 +81,7 @@ $.register_module({
                     cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-layout-analytics-', unique);
                     cellmenu.inplace.$dom.toggle.on('click', function () {
                         if (cellmenu.inplace.toggle_handler()) {
-                            cellmenu.create_inplace();
+                            cellmenu.create_inplace('.OG-layout-analytics-' + unique);
                             cellmenu.inplace.$dom.menu.blurkill(cellmenu.destroy_frozen.bind(cellmenu));
                         }
                         else cellmenu.destroy_frozen();
@@ -92,9 +92,10 @@ $.register_module({
         };
         constructor.prototype.destroy_frozen = function () {
            $('.OG-cell-options.og-frozen').remove();
+           $('.og-inplace-resizer').remove();
            og.common.gadgets.manager.clean();
         };
-        constructor.prototype.create_inplace = function () {
+        constructor.prototype.create_inplace = function (unique) {
             var cellmenu = this, panel = 'inplace', options, cell = cellmenu.current, fingerprint,
                 offset = cellmenu.inplace.$dom.cntr.offset(), inner = cellmenu.inplace.$dom.menu;
             cellmenu.destroy_frozen();
@@ -109,14 +110,19 @@ $.register_module({
             if ((offset.left + inner.width())> $(window).width())
                 inner.css({marginLeft: -inner.width() + width} );
             new constructor(cellmenu.grid);
-            var startX, startY;
-            $('.og-inplace-resizer').on('mousedown', function(event) {
-                startX =  event.pageX,
-                startY =  event.pageY;
-            }).on('mouseup', function(event) {
-                console.log(event);
-                inner.width = startX + event.pageX,
-                inner.height = startY + event.pageY;
+            og.analytics.resize({
+                selector: unique,
+                tmpl: '<div class="OG-analytics-resize og-resizer og-inplace-resizer" title="Drag to resize me" />',
+                handler: function (right, bottom) {
+                    var newWidth = ($(window).width()-right) - offset.left,
+                        newHeight = ($(window).height() -bottom) - offset.top;
+                    inner.css({width: newWidth}); 
+                    inner.css({height: newHeight});
+                    console.log(right, offset.left);
+                },
+                context:  function (preset) {
+                    console.log(preset);
+                }
             });
         };
         constructor.prototype.hide = function () {

@@ -53,9 +53,8 @@
 }
 
 .og-inplace-resizer{
-    float: right;
-    margin-top: -17px;
-    position: relative!important;
+    z-index: 5;
+    border: 1px solid red;
 }
 
 .OG-analytics-resize.og-menu {
