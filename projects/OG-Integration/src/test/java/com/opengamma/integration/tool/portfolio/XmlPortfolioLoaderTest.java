@@ -1,12 +1,15 @@
 package com.opengamma.integration.tool.portfolio;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -21,9 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
+import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
@@ -60,24 +67,35 @@ public class XmlPortfolioLoaderTest {
 
   @Test
   public void testEmptyPortfolioCanBeParsed() {
-    PortfolioExtractor extractor = attemptLoad("empty_portfolio.xml");
+    PortfolioExtractor extractor = attemptLoadWithStandardSchema("empty_portfolio.xml");
+    checkNoErrors(extractor);
     assertEquals(extractor.size(), 0);
   }
 
   @Test
   public void testSimplePortfolioCanBeParsed() {
-    PortfolioExtractor extractor = attemptLoad(new FilesystemPortfolioSchemaLocator(new File("src/main/resources/portfolio-schemas")), "single_irs.xml");
+    PortfolioExtractor extractor = attemptLoadWithStandardSchema("single_irs.xml");
+    checkNoErrors(extractor);
     assertEquals(extractor.size(), 1);
   }
 
-  private PortfolioExtractor attemptLoad(FilesystemPortfolioSchemaLocator schemaLocator, String fileName) {
+  private PortfolioExtractor attemptLoadWithStandardSchema(String fileName) {
+    return attemptLoad(new FilesystemPortfolioSchemaLocator(new File("src/main/resources/portfolio-schemas")),
+                       fileName);
+  }
+
+  private void checkNoErrors(PortfolioExtractor extractor) {
+    List<String> errors = extractor.getErrors();
+    assertTrue(errors.isEmpty(), "Errors parsing document: " + errors);
+  }
+
+  private PortfolioExtractor attemptLoad(SchemaLocator schemaLocator, String fileName) {
     String fileLocation = "src/test/resources/xml_portfolios/";
     return new XmlPortfolioLoader(schemaLocator).load(new File(fileLocation + fileName));
   }
 
   private PortfolioExtractor attemptLoad(final String fileName) {
-    String fileLocation = "src/test/resources/xml_portfolios/";
-    return new XmlPortfolioLoader(createSchemaLocator()).load(new File(fileLocation + fileName));
+    return attemptLoad(createSchemaLocator(), fileName);
   }
 
   private SchemaLocator createSchemaLocator() {
@@ -129,22 +147,27 @@ public class XmlPortfolioLoaderTest {
         // This is going to use DOM to parse the document which has memory/speed implications
         // if the file is large. However, it makes processing the file much easier. If we need
         // a smaller memory footprint, we should consider a StAX parser implementation.
-        DocumentBuilder documentBuilder = createDocumentBuilder(schema);
+        ParseReporter parseReporter = new ParseReporter();
+        DocumentBuilder documentBuilder = createDocumentBuilder(schema, parseReporter);
         Document document = documentBuilder.parse(file);
 
-        return new PortfolioExtractor(document);
+        return new PortfolioExtractor(version, parseReporter, document);
       } catch (ParserConfigurationException | SAXException | IOException e) {
         throw new OpenGammaRuntimeException("Error parsing xml document", e);
       }
     }
 
-    private DocumentBuilder createDocumentBuilder(File schema) throws ParserConfigurationException {
+    private DocumentBuilder createDocumentBuilder(File schema,
+                                                  ErrorHandler errorHandler) throws ParserConfigurationException {
       DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
       documentBuilderFactory.setNamespaceAware(true);
-      documentBuilderFactory.setAttribute(SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
       documentBuilderFactory.setValidating(true);
+      documentBuilderFactory.setAttribute(SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
       documentBuilderFactory.setAttribute(SCHEMA_SOURCE, schema);
-      return documentBuilderFactory.newDocumentBuilder();
+
+      DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+      documentBuilder.setErrorHandler(errorHandler);
+      return documentBuilder;
     }
 
     private SchemaVersion parseSchemaVersion(File file) {
@@ -155,6 +178,29 @@ public class XmlPortfolioLoaderTest {
       }
     }
 
+    private static class ParseReporter implements ErrorHandler {
+
+      private final List<String> _errors = Lists.newArrayList();
+
+      @Override
+      public void warning(SAXParseException exception) throws SAXException {
+        //To change body of implemented methods use File | Settings | File Templates.
+      }
+
+      @Override
+      public void error(SAXParseException exception) throws SAXException {
+        _errors.add(exception.getLocalizedMessage());
+      }
+
+      @Override
+      public void fatalError(SAXParseException exception) throws SAXException {
+        _errors.add(exception.getLocalizedMessage());
+      }
+
+      public List<String> errors() {
+        return _errors;
+      }
+    }
   }
 
   private static class PortfolioExtractor {
@@ -162,22 +208,54 @@ public class XmlPortfolioLoaderTest {
     private static final Logger s_logger = LoggerFactory.getLogger(PortfolioExtractor.class);
 
     private final int _size;
+    private final SchemaVersion _version;
+    private final XmlPortfolioLoader.ParseReporter _parseReporter;
+    private final Document _document;
 
-    public PortfolioExtractor(Document document) {
+    public PortfolioExtractor(SchemaVersion version,
+                              XmlPortfolioLoader.ParseReporter parseReporter,
+                              Document document) {
+      _version = version;
+      _parseReporter = parseReporter;
+      _document = document;
 
       XPathFactory xpf = XPathFactory.newInstance();
       XPath xpath = xpf.newXPath();
       try {
-        XPathExpression expression = xpath.compile("/og-portfolio/trades/swapTrade");
-        NodeList nodeList = (NodeList) expression.evaluate(document, XPathConstants.NODESET);
-        _size = nodeList.getLength();
+        // Retrieve all child nodes of the <trades> node, regardless of trade type
+        XPathExpression expression = xpath.compile("/og-portfolio/trades/child::*");
+        NodeList tradeList = (NodeList) expression.evaluate(document, XPathConstants.NODESET);
+        _size = tradeList.getLength();
+        for (int i = 0; i < _size; i++) {
+          handleTrade(tradeList.item(i));
+        }
       } catch (XPathExpressionException e) {
         throw new OpenGammaRuntimeException("Error parsing xml document", e);
       }
     }
 
+    private void handleTrade(Node item) {
+
+      String tradeType = item.getLocalName();
+      switch (tradeType) {
+        case "swapTrade":
+          s_logger.debug("Handling a swap trade");
+          break;
+        default:
+          s_logger.warn("unable to handle trade with type: {}", tradeType);
+      }
+    }
+
     public int size() {
       return _size;
+    }
+
+    public boolean hasErrors() {
+      return !_parseReporter.errors().isEmpty();
+    }
+
+    public List<String> getErrors() {
+      return _parseReporter.errors();
     }
   }
 

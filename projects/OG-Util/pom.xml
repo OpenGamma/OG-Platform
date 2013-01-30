@@ -158,6 +158,10 @@
       <groupId>com.yahoo.platform.yui</groupId>
       <artifactId>yuicompressor</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.threeten</groupId>
+      <artifactId>threetenbp</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.springframework.amqp</groupId>

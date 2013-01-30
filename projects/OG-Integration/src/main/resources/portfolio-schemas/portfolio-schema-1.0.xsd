@@ -13,27 +13,40 @@
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
+  <xs:simpleType name="payReceiveType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Pay"/>
+      <xs:enumeration value="Receive"/>
+    </xs:restriction>
+  </xs:simpleType>
   <xs:complexType name="tradesType">
-    <xs:sequence>
-      <xs:element type="swapTradeType" name="swapTrade">
+    <xs:all>
+      <xs:element type="swapTradeType" name="swapTrade" minOccurs="0">
         <xs:annotation>
           <xs:documentation>Trade id must be unique in this list</xs:documentation>
         </xs:annotation>
       </xs:element>
-    </xs:sequence>
+    </xs:all>
+  </xs:complexType>
+  <xs:complexType name="portfoliosType">
+    <xs:all>
+      <xs:element type="portfolioType" name="portfolio" minOccurs="0"/>
+    </xs:all>
   </xs:complexType>
   <xs:complexType name="tradeLegsType">
-    <xs:sequence>
-      <xs:element type="floatingRateLegType" name="floatingRateLeg"/>
-      <xs:element type="fixedLegType" name="fixedLeg"/>
-    </xs:sequence>
+    <xs:all>
+      <xs:element type="floatingRateLegType" name="floatingRateLeg" minOccurs="1" maxOccurs="1"/>
+      <xs:element type="fixedLegType" name="fixedLeg" minOccurs="1" maxOccurs="1"/>
+    </xs:all>
   </xs:complexType>
   <xs:complexType name="og-portfolioType">
-    <xs:sequence>
-      <xs:element type="tradesType" name="trades"/>
-    </xs:sequence>
+    <xs:all>
+      <xs:element type="tradesType" name="trades" minOccurs="0"/>
+      <xs:element type="portfoliosType" name="portfolios" minOccurs="0"/>
+    </xs:all>
     <xs:attribute type="xs:float" name="schemaVersion"/>
   </xs:complexType>
+  <xs:complexType name="portfolioType"/>
   <xs:complexType name="swapTradeType">
     <xs:sequence>
       <xs:element type="xs:string" name="externalId">
@@ -104,7 +117,7 @@
   </xs:complexType>
   <xs:complexType name="fixedLegType">
     <xs:sequence>
-      <xs:element type="xs:string" name="payReceive"/>
+      <xs:element type="payReceiveType" name="payReceive"/>
       <xs:element type="xs:string" name="currency"/>
       <xs:element type="xs:int" name="notional">
         <xs:annotation>
@@ -143,9 +156,9 @@
   </xs:complexType>
   <xs:complexType name="floatingRateLegType">
     <xs:sequence>
-      <xs:element type="xs:string" name="payReceive"/>
+      <xs:element type="payReceiveType" name="payReceive"/>
       <xs:element type="xs:string" name="currency"/>
-      <xs:element type="xs:int" name="notional">
+      <xs:element type="xs:decimal" name="notional">
         <xs:annotation>
           <xs:documentation>Notional could be array-valued</xs:documentation>
         </xs:annotation>
@@ -167,7 +180,7 @@
       </xs:element>
       <xs:element type="xs:float" name="spread">
         <xs:annotation>
-          <xs:documentation>loader should support either spread or gearing for now, schema should allow both</xs:documentation>
+          <xs:documentation>loader should support ei ther spread or gearing for now, schema should allow both</xs:documentation>
         </xs:annotation>
       </xs:element>
       <xs:element type="xs:float" name="gearing"/>
