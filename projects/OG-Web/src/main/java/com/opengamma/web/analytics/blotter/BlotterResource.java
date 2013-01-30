@@ -187,6 +187,7 @@ public class BlotterResource {
     s_stringConvert.register(CurrencyPair.class, new JodaBeanConverters.CurrencyPairConverter());
     s_stringConvert.register(ObjectId.class, new JodaBeanConverters.ObjectIdConverter());
     s_stringConvert.register(UniqueId.class, new JodaBeanConverters.UniqueIdConverter());
+    // TODO expiry converter in this class that uses the short date format
     s_stringConvert.register(Expiry.class, new JodaBeanConverters.ExpiryConverter());
     s_stringConvert.register(ExerciseType.class, new JodaBeanConverters.ExerciseTypeConverter());
     s_stringConvert.register(BusinessDayConvention.class, new JodaBeanConverters.BusinessDayConventionConverter());
@@ -288,8 +289,7 @@ public class BlotterResource {
       throw new DataNotFoundException("No security found with ID " + securityExternalId);
     }
     ManageableSecurity security = searchResult.getFirstSecurity();
-    BeanVisitor<JSONObject> securityVisitor =
-        new BuildingBeanVisitor<>(security, new JsonDataSink(s_stringConvert), s_stringConvert);
+    BeanVisitor<JSONObject> securityVisitor = new BuildingBeanVisitor<>(security, new JsonDataSink(s_stringConvert));
     PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
     BeanTraverser securityTraverser = new BeanTraverser(securityPropertyFilter);
     MetaBean securityMetaBean = JodaBeanUtils.metaBean(security.getClass());
@@ -318,8 +318,7 @@ public class BlotterResource {
         if (securityMetaBean == null) {
           throw new DataNotFoundException("No MetaBean is registered for security type " + security.getClass().getName());
         }
-        BeanVisitor<JSONObject> securityVisitor =
-            new BuildingBeanVisitor<>(security, new JsonDataSink(s_stringConvert), s_stringConvert);
+        BeanVisitor<JSONObject> securityVisitor = new BuildingBeanVisitor<>(security, new JsonDataSink(s_stringConvert));
         PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
         BeanTraverser securityTraverser = new BeanTraverser(securityPropertyFilter);
         JSONObject securityJson = (JSONObject) securityTraverser.traverse(securityMetaBean, securityVisitor);
@@ -328,7 +327,7 @@ public class BlotterResource {
           ManageableSecurity underlying = ((FinancialSecurity) security).accept(visitor);
           if (underlying != null) {
             BeanVisitor<JSONObject> underlyingVisitor =
-                new BuildingBeanVisitor<>(underlying, new JsonDataSink(s_stringConvert), s_stringConvert);
+                new BuildingBeanVisitor<>(underlying, new JsonDataSink(s_stringConvert));
             MetaBean underlyingMetaBean = s_metaBeansByTypeName.get(underlying.getClass().getSimpleName());
             JSONObject underlyingJson = (JSONObject) securityTraverser.traverse(underlyingMetaBean, underlyingVisitor);
             root.put("underlying", underlyingJson);

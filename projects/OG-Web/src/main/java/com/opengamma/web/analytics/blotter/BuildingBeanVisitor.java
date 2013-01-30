@@ -6,7 +6,6 @@
 package com.opengamma.web.analytics.blotter;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,8 +13,6 @@ import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
-import org.joda.convert.StringConvert;
-import org.joda.convert.StringConverter;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -24,21 +21,21 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * {@link BeanVisitor} that builds an object by pushing data from a bean into a {@link BeanDataSink sink}.
  * TODO a MUCH better name is required, this and BeanBuildingVisitor are too similar
+ * @param <T> Type of object built by this visitor's sink
  */
 @SuppressWarnings("unchecked")
 /* package */ class BuildingBeanVisitor<T> implements BeanVisitor<T> {
 
+  /** The bean that is the source of the data. */
   private final Bean _bean;
+  /** The sink that will receive the converted bean data. */
   private final BeanDataSink<T> _sink;
-  private final StringConvert _stringConvert;
 
-  /* package */ BuildingBeanVisitor(Bean bean, BeanDataSink<T> sink, StringConvert stringConvert) {
+  /* package */ BuildingBeanVisitor(Bean bean, BeanDataSink<T> sink) {
     ArgumentChecker.notNull(bean, "bean");
     ArgumentChecker.notNull(sink, "sink");
-    ArgumentChecker.notNull(stringConvert, "stringConvert");
     _bean = bean;
     _sink = sink;
-    _stringConvert = stringConvert;
   }
 
   @Override
@@ -52,74 +49,55 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
-    if (isConvertible(property.propertyType())) {
-      visitProperty(property);
-      return;
-    }
-    _sink.setBeanValue(property.name(), (Bean) property.get(_bean), traverser);
+    _sink.setValue(property.name(), _sink.convert(property.get(_bean), property.propertyType(), traverser));
   }
 
-  private Collection<String> convertCollection(MetaProperty<?> property) {
+  private Collection<Object> convertCollection(MetaProperty<?> property, BeanTraverser traverser) {
     Collection<?> values = (Collection<?>) property.get(_bean);
-    List<String> stringValues = Lists.newArrayList();
+    List<Object> convertedValues = Lists.newArrayList();
     Class<?> collectionType = JodaBeanUtils.collectionType(property, property.declaringType());
-    StringConverter<Object> converter =
-        (StringConverter<Object>) _stringConvert.findConverter(collectionType);
     for (Object value : values) {
-      stringValues.add(converter.convertToString(value));
+      convertedValues.add(_sink.convert(value, collectionType, traverser));
     }
-    return stringValues;
+    return convertedValues;
   }
 
   @Override
-  public void visitCollectionProperty(MetaProperty<?> property) {
-    _sink.setCollectionValues(property.name(), convertCollection(property));
+  public void visitCollectionProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    _sink.setCollection(property.name(), convertCollection(property, traverser));
   }
 
   @Override
-  public void visitSetProperty(MetaProperty<?> property) {
-    _sink.setCollectionValues(property.name(), convertCollection(property));
+  public void visitSetProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    _sink.setCollection(property.name(), convertCollection(property, traverser));
   }
 
   @Override
-  public void visitListProperty(MetaProperty<?> property) {
-    _sink.setCollectionValues(property.name(), convertCollection(property));
+  public void visitListProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    _sink.setCollection(property.name(), convertCollection(property, traverser));
   }
 
   @Override
-  public void visitMapProperty(MetaProperty<?> property) {
+  public void visitMapProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    Map<Object, Object> convertedMap = Maps.newHashMap();
+    Map<?, ?> valueMap = (Map<?, ?>) property.get(_bean);
     Class<?> keyType = JodaBeanUtils.mapKeyType(property, property.declaringType());
     Class<?> valueType = JodaBeanUtils.mapValueType(property, property.declaringType());
-    StringConverter<Object> keyConverter = (StringConverter<Object>) _stringConvert.findConverter(keyType);
-    StringConverter<Object> valueConverter = (StringConverter<Object>) _stringConvert.findConverter(valueType);
-    HashMap<String, String> stringMap = Maps.newHashMap();
-    Map<?, ?> valueMap = (Map<?, ?>) property.get(_bean);
     for (Map.Entry<?, ?> entry : valueMap.entrySet()) {
-      stringMap.put(keyConverter.convertToString(entry.getKey()), valueConverter.convertToString(entry.getValue()));
+      Object key = _sink.convert(entry.getKey(), keyType, traverser);
+      Object value = _sink.convert(entry.getValue(), valueType, traverser);
+      convertedMap.put(key, value);
     }
-    _sink.setMapValues(property.name(), stringMap);
+    _sink.setMap(property.name(), convertedMap);
   }
 
   @Override
-  public void visitProperty(MetaProperty<?> property) {
-    String value = _stringConvert.convertToString((Class<Object>) property.propertyType(), property.get(_bean));
-    _sink.setValue(property.name(), value);
+  public void visitProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    _sink.setValue(property.name(), _sink.convert(property.get(_bean), property.propertyType(), traverser));
   }
 
   @Override
   public T finish() {
     return _sink.finish();
   }
-
-  private boolean isConvertible(Class<?> type) {
-    boolean canConvert;
-    try {
-      _stringConvert.findConverter(type);
-      canConvert = true;
-    } catch (Exception e) {
-      canConvert = false;
-    }
-    return canConvert;
-  }
-
 }

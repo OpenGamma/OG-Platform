@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.analytics.blotter;
 
+import java.util.List;
 import java.util.Map;
 
 import org.joda.beans.Bean;
@@ -12,9 +13,10 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.PropertyReadWrite;
 import org.joda.convert.StringConvert;
+import org.joda.convert.StringConverter;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.util.ArgumentChecker;
 
@@ -48,56 +50,39 @@ import com.opengamma.util.ArgumentChecker;
   @SuppressWarnings("unchecked")
   @Override
   public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
-    if (isConvertible(property.propertyType())) {
-      visitProperty(property);
-      return;
-    }
-    if (isWriteable(property)) {
-      String propertyName = property.name();
-      BeanDataSource beanData = _data.getBeanData(propertyName);
-      Bean result;
-      if (beanData != null) {
-        BeanBuildingVisitor<?> visitor = new BeanBuildingVisitor<>(beanData, _metaBeanFactory, _stringConvert);
-        MetaBean metaBean = _metaBeanFactory.beanFor(beanData);
-        result = ((BeanBuilder<?>) traverser.traverse(metaBean, visitor)).build();
-      } else {
-        result = null;
-      }
-      _builder.set(property, result);
-    }
+    visitProperty(property, traverser);
   }
 
   @Override
-  public void visitSetProperty(MetaProperty<?> property) {
+  public void visitSetProperty(MetaProperty<?> property, BeanTraverser traverser) {
     // TODO implement visitSetProperty()
     throw new UnsupportedOperationException("visitSetProperty not implemented");
   }
 
   @Override
-  public void visitListProperty(MetaProperty<?> property) {
-    // TODO implement visitListProperty()
-    throw new UnsupportedOperationException("visitListProperty not implemented");
-  }
-
-  @Override
-  public void visitCollectionProperty(MetaProperty<?> property) {
-    // TODO implement visitCollectionProperty()
-    throw new UnsupportedOperationException("visitCollectionProperty not implemented");
-  }
-
-  @Override
-  public void visitMapProperty(MetaProperty<?> property) {
-    if (isWriteable(property)) {
-      _builder.set(property, buildMap(property, _data.getMapValues(property.name())));
+  public void visitListProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    List<?> dataValues = _data.getCollectionValues(property.name());
+    List<Object> values = Lists.newArrayList();
+    Class<?> collectionType = JodaBeanUtils.collectionType(property, property.declaringType());
+    for (Object dataValue : dataValues) {
+      values.add(convert(dataValue, collectionType, traverser));
     }
+    _builder.set(property, values);
   }
 
   @Override
-  public void visitProperty(MetaProperty<?> property) {
-    if (isWriteable(property)) {
-      String value = _data.getValue(property.name());
-      _builder.set(property, _stringConvert.convertFromString(property.propertyType(), value));
-    }
+  public void visitCollectionProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    visitListProperty(property, traverser);
+  }
+
+  @Override
+  public void visitMapProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    _builder.set(property, buildMap(property, traverser));
+  }
+
+  @Override
+  public void visitProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    _builder.set(property, convert(_data.getValue(property.name()), property.propertyType(), traverser));
   }
 
   @Override
@@ -105,34 +90,39 @@ import com.opengamma.util.ArgumentChecker;
     return _builder;
   }
 
-  private Map<?, ?> buildMap(MetaProperty<?> property, Map<String, String> values) {
-    if (values == null) {
+  @SuppressWarnings("unchecked")
+  private Object convert(Object value, Class<?> type, BeanTraverser traverser) {
+    if (value == null) {
       return null;
+    } else if (type.isAssignableFrom(value.getClass())) {
+      return value;
+    } else if (value instanceof String) {
+      try {
+        StringConverter<Object> converter = (StringConverter<Object>) _stringConvert.findConverter(type);
+        return converter.convertFromString(type, (String) value);
+      } catch (Exception e) {
+        // carry on and try something else
+      }
+    } else if (value instanceof BeanDataSource) {
+      BeanDataSource beanData = (BeanDataSource) value;
+      BeanBuildingVisitor<?> visitor = new BeanBuildingVisitor<>(beanData, _metaBeanFactory, _stringConvert);
+      MetaBean metaBean = _metaBeanFactory.beanFor(beanData);
+      return ((BeanBuilder<?>) traverser.traverse(metaBean, visitor)).build();
     }
+    throw new IllegalArgumentException("Unable to convert " + value + " to " + type);
+  }
+
+  private Map<?, ?> buildMap(MetaProperty<?> property, BeanTraverser traverser) {
+    Map<?, ?> sourceData = _data.getMapValues(property.name());
     Class<? extends Bean> beanType = property.metaBean().beanType();
     Class<?> keyType = JodaBeanUtils.mapKeyType(property, beanType);
     Class<?> valueType = JodaBeanUtils.mapValueType(property, beanType);
-    Map<Object, Object> map = Maps.newHashMapWithExpectedSize(values.size());
-    for (Map.Entry<String, String> entry : values.entrySet()) {
-      Object key = _stringConvert.convertFromString(keyType, entry.getKey());
-      Object value = _stringConvert.convertFromString(valueType, entry.getValue());
+    Map<Object, Object> map = Maps.newHashMapWithExpectedSize(sourceData.size());
+    for (Map.Entry<?, ?> entry : sourceData.entrySet()) {
+      Object key = convert(entry.getKey(), keyType, traverser);
+      Object value = convert(entry.getValue(), valueType, traverser);
       map.put(key, value);
     }
     return map;
-  }
-
-  private static boolean isWriteable(MetaProperty<?> property) {
-    return property.readWrite() != PropertyReadWrite.READ_ONLY;
-  }
-
-  private boolean isConvertible(Class<?> type) {
-    boolean canConvert;
-    try {
-      _stringConvert.findConverter(type);
-      canConvert = true;
-    } catch (Exception e) {
-      canConvert = false;
-    }
-    return canConvert;
   }
 }

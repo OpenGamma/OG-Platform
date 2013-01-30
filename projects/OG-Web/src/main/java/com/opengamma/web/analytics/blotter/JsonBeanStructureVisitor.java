@@ -89,22 +89,22 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void visitCollectionProperty(MetaProperty<?> property) {
+  public void visitCollectionProperty(MetaProperty<?> property, BeanTraverser traverser) {
     _json.put(property.name(), arrayType(property));
   }
 
   @Override
-  public void visitSetProperty(MetaProperty<?> property) {
+  public void visitSetProperty(MetaProperty<?> property, BeanTraverser traverser) {
     _json.put(property.name(), arrayType(property));
   }
 
   @Override
-  public void visitListProperty(MetaProperty<?> property) {
+  public void visitListProperty(MetaProperty<?> property, BeanTraverser traverser) {
     _json.put(property.name(), arrayType(property));
   }
 
   @Override
-  public void visitMapProperty(MetaProperty<?> property) {
+  public void visitMapProperty(MetaProperty<?> property, BeanTraverser traverser) {
     Class<? extends Bean> beanType = property.metaBean().beanType();
     Class<?> keyType = JodaBeanUtils.mapKeyType(property, beanType);
     Class<?> valueType = JodaBeanUtils.mapValueType(property, beanType);
@@ -112,7 +112,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public void visitProperty(MetaProperty<?> property) {
+  public void visitProperty(MetaProperty<?> property, BeanTraverser traverser) {
     _json.put(property.name(), optional(property, typeFor(property)));
   }
 
