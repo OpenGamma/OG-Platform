@@ -152,7 +152,7 @@ $.register_module({
                             depgraph = val.gadget.config.options.source.depgraph,
                             tmpl_data = og.common.gadgets.mapping.available_types(val.data_type, depgraph);
                         menu_template = typemenu_template(tmpl_data);
-                        menu_config = {$cntr: $('.og-tab-' + val.id + ' .OG-multiselect'), tmpl: menu_template};
+                        menu_config = {cntr: $('.og-tab-' + val.id + ' .OG-multiselect'), tmpl: menu_template};
                         menu = new og.common.util.ui.DropMenu(menu_config);
                         menu.$dom.toggle.on('mousedown', function () {
                             menu.toggle_handler();

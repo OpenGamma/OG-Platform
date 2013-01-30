@@ -22,7 +22,7 @@ $.register_module({
             menu.events = events;
             menu.$dom = {};
             if (config && config.hasOwnProperty('cntr')){
-                if (config.hasOwnProperty('tmpl') && config.hasOwnProperty('data')) {
+                if (config.hasOwnProperty('tmpl')) {
                     menu.$dom.cntr = config.cntr.html($((Handlebars.compile(config.tmpl||''))(config.data||{})));
                     menu.$dom.toggle = $('.og-menu-toggle', menu.$dom.cntr);
                     menu.$dom.menu = $('.og-menu', menu.$dom.cntr);
