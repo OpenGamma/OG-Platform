@@ -106,9 +106,9 @@ $.register_module({
             options.fingerprint = fingerprint;
             cellmenu.container.add([options]);
             if ((offset.top + inner.height())> $(window).height())
-                inner.css({marginTop: -inner.height()});
+                inner.css({marginTop: -inner.outerHeight(true)});
             if ((offset.left + inner.width())> $(window).width())
-                inner.css({marginLeft: -inner.width() + width} );
+                inner.css({marginLeft: -inner.width() + width - cellmenu.menu.left} );
             new constructor(cellmenu.grid);
             og.analytics.resize({
                 selector: unique,
@@ -131,6 +131,7 @@ $.register_module({
             var cellmenu = this, current = this.current;
             if (cellmenu.menu && cellmenu.menu.length) cellmenu.menu.appendTo($('body'))
                 .css({top: current.top, left: current.right - width + cellmenu.grid.offset.left}).show();
+
         };
         return constructor;
     }
