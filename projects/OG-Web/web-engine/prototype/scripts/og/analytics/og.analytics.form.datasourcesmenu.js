@@ -51,7 +51,6 @@ $.register_module({
             };
 
             var add_row_handler = function (obj) {
-                // console.log(obj);
                 return new form.Block({
                     module: 'og.analytics.form_datasources_row_tash',
                     extras: {
@@ -182,7 +181,6 @@ $.register_module({
                     og.common.events.on('datasources:dropmenu:focus', function() {menu.fire('dropmenu:focus', this);});
                     menu.fire('initialized', [initialized = true]);
                 }
-                console.log(query);
             };
 
             var menu_handler = function (event) {
