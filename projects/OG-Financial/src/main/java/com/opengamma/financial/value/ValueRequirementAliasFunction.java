@@ -11,11 +11,11 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueProperties.Builder;
@@ -65,11 +65,6 @@ public class ValueRequirementAliasFunction extends AbstractFunction.NonCompiledI
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-    return target.getType() == _targetType;
-  }
-
-  @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     final Builder builder = createValueProperties();
     for (String preservedProperty : _preservedProperties) {
@@ -95,7 +90,7 @@ public class ValueRequirementAliasFunction extends AbstractFunction.NonCompiledI
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final Object result = inputs.getValue(_inputRequirementName);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    return ImmutableSet.of(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints()), result));
+    return ImmutableSet.of(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), result));
   }
   
   private ValueRequirement createValueRequirement(ComputationTarget target, ValueRequirement desiredValue) {

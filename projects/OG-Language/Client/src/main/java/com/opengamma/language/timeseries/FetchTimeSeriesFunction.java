@@ -9,7 +9,7 @@ package com.opengamma.language.timeseries;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;

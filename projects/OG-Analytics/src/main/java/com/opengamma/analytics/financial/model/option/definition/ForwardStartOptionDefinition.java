@@ -5,12 +5,11 @@
  */
 package com.opengamma.analytics.financial.model.option.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.option.Moneyness;
 import com.opengamma.util.ArgumentChecker;

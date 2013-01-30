@@ -9,11 +9,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 /**
  * 
@@ -34,7 +32,7 @@ public class SemiAnnualScheduleCalculator extends Schedule {
       int i = 6;
       while (!date.isBefore(startDate)) {
         dates.add(date);
-        date = generateRecursive ? date.minus(Period.ofMonths(6)) : endDate.minus(Period.ofMonths(i));
+        date = generateRecursive ? date.minusMonths(6) : endDate.minusMonths(i);
         i += 6;
       }
       Collections.reverse(dates);
@@ -44,7 +42,7 @@ public class SemiAnnualScheduleCalculator extends Schedule {
     int i = 6;
     while (!date.isAfter(endDate)) {
       dates.add(date);
-      date = generateRecursive ? date.plus(Period.ofMonths(6)) : startDate.plus(Period.ofMonths(i));
+      date = generateRecursive ? date.plusMonths(6) : startDate.plusMonths(i);
       i += 6;
     }
     return dates.toArray(EMPTY_LOCAL_DATE_ARRAY);
@@ -64,7 +62,7 @@ public class SemiAnnualScheduleCalculator extends Schedule {
       int i = 6;
       while (!date.isBefore(startDate)) {
         dates.add(date);
-        date = generateRecursive ? date.minus(Period.ofMonths(6)) : endDate.minus(Period.ofMonths(i));
+        date = generateRecursive ? date.minusMonths(6) : endDate.minusMonths(i);
         i += 6;
       }
       Collections.reverse(dates);
@@ -74,7 +72,7 @@ public class SemiAnnualScheduleCalculator extends Schedule {
     int i = 6;
     while (!date.isAfter(endDate)) {
       dates.add(date);
-      date = generateRecursive ? date.plus(Period.ofMonths(6)) : startDate.plus(Period.ofMonths(i));
+      date = generateRecursive ? date.plusMonths(6) : startDate.plusMonths(i);
       i += 6;
     }
     return dates.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);

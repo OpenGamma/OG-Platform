@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.swaption.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -35,7 +34,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * Class to test the present value of the cash-settled European swaption in the Linear Terminal Swap Rate method. 
+ * Class to test the present value of the cash-settled European swaption in the Linear Terminal Swap Rate method.
  */
 public class SwaptionCashFixedIborLinearTSRMethodTest {
 
@@ -54,8 +53,8 @@ public class SwaptionCashFixedIborLinearTSRMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
 
   private static final int SWAP_TENOR_YEAR = 5;
-  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
-  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(12);
+  private static final Period SWAP_TENOR = DateUtils.periodOfYears(SWAP_TENOR_YEAR);
+  private static final Period FIXED_PAYMENT_PERIOD = DateUtils.periodOfMonths(12);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR6M, SWAP_TENOR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
@@ -79,37 +78,37 @@ public class SwaptionCashFixedIborLinearTSRMethodTest {
 
   @Test(enabled = true)
   /**
-   * Tests the present value v hard-coded values. 
+   * Tests the present value v hard-coded values.
    */
   public void presentValue() {
     //    double pvSABR = METHOD_CASH_SABR.presentValue(SWAPTION_PAYER_LONG, SABR_BUNDLE);
-    MultipleCurrencyAmount pvPayerTSR = METHOD_CASH_TSR.presentValue(SWAPTION_PAYER_LONG, SABR_MULTICURVES);
-    double pvPayerExpected = 1917641.961;
+    final MultipleCurrencyAmount pvPayerTSR = METHOD_CASH_TSR.presentValue(SWAPTION_PAYER_LONG, SABR_MULTICURVES);
+    final double pvPayerExpected = 1917641.961;
     assertEquals("Cash-settled swaption: linear TSR: present value", pvPayerExpected, pvPayerTSR.getAmount(EUR), 1E+0);
     //    double pvSABR = METHOD_CASH_SABR.presentValue(SWAPTION_RECEIVER_LONG, SABR_BUNDLE);
-    MultipleCurrencyAmount pvReceiverTSR = METHOD_CASH_TSR.presentValue(SWAPTION_RECEIVER_LONG, SABR_MULTICURVES);
-    double pvReceiverExpected = 4102844.469;
+    final MultipleCurrencyAmount pvReceiverTSR = METHOD_CASH_TSR.presentValue(SWAPTION_RECEIVER_LONG, SABR_MULTICURVES);
+    final double pvReceiverExpected = 4102844.469;
     assertEquals("Cash-settled swaption: linear TSR: present value", pvReceiverExpected, pvReceiverTSR.getAmount(EUR), 1E+0);
   }
 
   @Test(enabled = true)
   public void presentValueLongShortParity() {
-    MultipleCurrencyAmount pvLongTSR = METHOD_CASH_TSR.presentValue(SWAPTION_PAYER_LONG, SABR_MULTICURVES);
-    MultipleCurrencyAmount pvShortTSR = METHOD_CASH_TSR.presentValue(SWAPTION_PAYER_SHORT, SABR_MULTICURVES);
+    final MultipleCurrencyAmount pvLongTSR = METHOD_CASH_TSR.presentValue(SWAPTION_PAYER_LONG, SABR_MULTICURVES);
+    final MultipleCurrencyAmount pvShortTSR = METHOD_CASH_TSR.presentValue(SWAPTION_PAYER_SHORT, SABR_MULTICURVES);
     assertEquals("Cash-settled swaption: linear TSR: present value - long/short parity", -pvLongTSR.getAmount(EUR), pvShortTSR.getAmount(EUR), 1E-2);
   }
 
   @Test(enabled = true)
   public void presentValueMultiStrike() {
-    int nbStrike = 10;
-    double strikeMin = 0.030;
-    double strikeMax = 0.050;
-    double[] strike = new double[nbStrike + 1];
-    SwapFixedIborDefinition[] swapDefinition = new SwapFixedIborDefinition[nbStrike + 1];
-    SwaptionCashFixedIborDefinition[] swaptionCashDefinition = new SwaptionCashFixedIborDefinition[nbStrike + 1];
-    SwaptionCashFixedIbor[] swaptionCash = new SwaptionCashFixedIbor[nbStrike + 1];
-    SwaptionPhysicalFixedIborDefinition[] swaptionPhysDefinition = new SwaptionPhysicalFixedIborDefinition[nbStrike + 1];
-    SwaptionPhysicalFixedIbor[] swaptionPhys = new SwaptionPhysicalFixedIbor[nbStrike + 1];
+    final int nbStrike = 10;
+    final double strikeMin = 0.030;
+    final double strikeMax = 0.050;
+    final double[] strike = new double[nbStrike + 1];
+    final SwapFixedIborDefinition[] swapDefinition = new SwapFixedIborDefinition[nbStrike + 1];
+    final SwaptionCashFixedIborDefinition[] swaptionCashDefinition = new SwaptionCashFixedIborDefinition[nbStrike + 1];
+    final SwaptionCashFixedIbor[] swaptionCash = new SwaptionCashFixedIbor[nbStrike + 1];
+    final SwaptionPhysicalFixedIborDefinition[] swaptionPhysDefinition = new SwaptionPhysicalFixedIborDefinition[nbStrike + 1];
+    final SwaptionPhysicalFixedIbor[] swaptionPhys = new SwaptionPhysicalFixedIbor[nbStrike + 1];
     for (int loopstrike = 0; loopstrike < nbStrike + 1; loopstrike++) {
       strike[loopstrike] = strikeMin + loopstrike * (strikeMax - strikeMin) / nbStrike;
       swapDefinition[loopstrike] = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, strike[loopstrike], FIXED_IS_PAYER);
@@ -118,9 +117,9 @@ public class SwaptionCashFixedIborLinearTSRMethodTest {
       swaptionPhysDefinition[loopstrike] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapDefinition[loopstrike], IS_LONG);
       swaptionPhys[loopstrike] = swaptionPhysDefinition[loopstrike].toDerivative(REFERENCE_DATE, NOT_USED_A);
     }
-    double[] pvCashStandard = new double[nbStrike + 1];
-    double[] pvCashTSR = new double[nbStrike + 1];
-    double[] pvPhysical = new double[nbStrike + 1];
+    final double[] pvCashStandard = new double[nbStrike + 1];
+    final double[] pvCashTSR = new double[nbStrike + 1];
+    final double[] pvPhysical = new double[nbStrike + 1];
     for (int loopstrike = 0; loopstrike < nbStrike + 1; loopstrike++) {
       pvCashStandard[loopstrike] = METHOD_CASH_SABR.presentValue(swaptionCash[loopstrike], SABR_MULTICURVES).getAmount(EUR);
       pvCashTSR[loopstrike] = METHOD_CASH_TSR.presentValue(swaptionCash[loopstrike], SABR_MULTICURVES).getAmount(EUR);

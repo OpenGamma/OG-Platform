@@ -7,10 +7,10 @@ package com.opengamma.core.security.impl;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.change.BasicChangeManager;
@@ -91,7 +91,7 @@ public class RemoteSecuritySource extends AbstractRemoteSource<Security> impleme
     
     URI uri = DataSecuritySourceResource.uriBulk(getBaseUri(), uniqueIds);
     List<Security> list = accessRemote(uri).get(FudgeListWrapper.class).getList();
-    Map<UniqueId, Security> result = new HashMap<UniqueId, Security>(list.size());
+    Map<UniqueId, Security> result = Maps.newHashMap();
     for (Security security : list) {
       result.put(security.getUniqueId(), security);
     }

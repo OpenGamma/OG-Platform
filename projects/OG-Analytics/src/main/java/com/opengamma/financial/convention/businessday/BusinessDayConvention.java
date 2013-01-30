@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.convention.businessday;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 
@@ -38,12 +38,12 @@ public interface BusinessDayConvention {
   ZonedDateTime adjustDate(final Calendar workingDayCalendar, final ZonedDateTime dateTime);
 
   /**
-   * Converts this convention to a {@code DateAdjuster} using the specified working day calendar.
+   * Converts this convention to a {@code TemporalAdjuster} using the specified working day calendar.
    * 
    * @param workingDayCalendar  the working days, not null
    * @return the date adjuster, not null
    */
-  DateAdjuster getDateAdjuster(final Calendar workingDayCalendar);
+  TemporalAdjuster getTemporalAdjuster(final Calendar workingDayCalendar);
 
   /**
    * Gets the name of the convention.

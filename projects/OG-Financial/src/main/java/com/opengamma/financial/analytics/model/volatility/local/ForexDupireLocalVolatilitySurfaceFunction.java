@@ -8,10 +8,9 @@ package com.opengamma.financial.analytics.model.volatility.local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  *
@@ -20,12 +19,8 @@ public abstract class ForexDupireLocalVolatilitySurfaceFunction extends DupireLo
   private static final Logger s_logger = LoggerFactory.getLogger(ForexDupireLocalVolatilitySurfaceFunction.class);
 
   @Override
-  protected boolean isCorrectIdType(final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null; {}", target);
-      return false;
-    }
-    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.UNORDERED_CURRENCY_PAIR;
   }
 
   @Override

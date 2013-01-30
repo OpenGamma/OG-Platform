@@ -19,6 +19,7 @@ import com.opengamma.financial.analytics.model.pnl.PnLRequirementsGatherer;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
+import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 
 /**
@@ -26,20 +27,68 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
  */
 public final class OpenGammaCompilationContext {
 
-  private static final String CONFIG_SOURCE_NAME = "configSource";
-  private static final String REGION_SOURCE_NAME = "regionSource";
-  private static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
-  private static final String INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME = "interpolatedYieldCurveDefinitionSource";
-  private static final String INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME = "interpolatedYieldCurveSpecificationBuilder";
-  private static final String VOLATILITY_CUBE_DEFINITION_SOURCE_NAME = "volatilityCubeDefinitionSource";
-  private static final String CURRENCY_MATRIX_SOURCE_NAME = "currencyMatrixSource";
-  private static final String HOLIDAY_SOURCE_NAME = "holidaySource";
-  private static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
-  private static final String SECURITY_SOURCE_NAME = "securitySource";
-  private static final String CURVE_CALCULATION_CONFIG_NAME = "curveCalculationConfigurationSource";
-  private static final String HISTORICAL_TIME_SERIES_SOURCE = "historicalTimeSeriesSource";
-  private static final String HISTORICAL_TIME_SERIES_RESOLVER = "historicalTimeSeriesResolver";
+  /**
+   * The name under which an instance of {@link ConfigSource} should be bound.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
+   */
+  public static final String CONFIG_SOURCE_NAME = "configSource";
+  /**
+   * The name under which an instance of {@link RegionSource} should be bound.
+   */
+  public static final String REGION_SOURCE_NAME = "regionSource";
+  /**
+   * The name under which an instance of {@link ConvensionBundleSource} should be bound.
+   */
+  public static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
+  /**
+   * The name under which an instance of {@link InterpolatedYieldCurveDefinitionSource} should be bound.
+   */
+  public static final String INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME = "interpolatedYieldCurveDefinitionSource";
+  /**
+   * The name under which an instance of {@link InterpolatedYieldCurveSpecificationBuilder} should be bound.
+   */
+  public static final String INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME = "interpolatedYieldCurveSpecificationBuilder";
+  /**
+   * The name under which an instance of {@link VolatilityCubeDefinitionSource} should be bound.
+   */
+  public static final String VOLATILITY_CUBE_DEFINITION_SOURCE_NAME = "volatilityCubeDefinitionSource";
+  /**
+   * The name under which an instance of {@link CurrencyMatrixSource} should be bound.
+   */
+  public static final String CURRENCY_MATRIX_SOURCE_NAME = "currencyMatrixSource";
+  /**
+   * The name under which an instance of {@link HolidaySource} should be bound.
+   */
+  public static final String HOLIDAY_SOURCE_NAME = "holidaySource";
+  /**
+   * The name under which an instance of {@link ExchangeSource} should be bound.
+   */
+  public static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
+  /**
+   * The name under which an instance of {@link SecuritySource} should be bound.
+   */
+  public static final String SECURITY_SOURCE_NAME = "securitySource";
+  /**
+   * The name under which an instance of {@link CurveCalculationConfigSource} should be bound.
+   */
+  public static final String CURVE_CALCULATION_CONFIG_NAME = "curveCalculationConfigurationSource";
+  /**
+   * The name under which an instance of {@link HistoricalTimeSeriesSource} should be bound.
+   */
+  public static final String HISTORICAL_TIME_SERIES_SOURCE_NAME = "historicalTimeSeriesSource";
+  /**
+   * The name under which an instance of {@link HistoricalTimeSeriesResolver} should be bound.
+   */
+  public static final String HISTORICAL_TIME_SERIES_RESOLVER_NAME = "historicalTimeSeriesResolver";
+  /**
+   * The name under which an instance of {@link TempTargetRepository} should be bound.
+   */
+  public static final String TEMPORARY_TARGETS_NAME = "tempTargets";
+
   private static final String PERMISSIVE_FLAG_NAME = "permissive";
+
   private static final String PNL_REQUIREMENTS_GATHERER_NAME = "pnlRequirementsGatherer";
 
   /**
@@ -195,19 +244,27 @@ public final class OpenGammaCompilationContext {
   }
 
   public static HistoricalTimeSeriesSource getHistoricalTimeSeriesSource(final FunctionCompilationContext compilationContext) {
-    return get(compilationContext, HISTORICAL_TIME_SERIES_SOURCE);
+    return get(compilationContext, HISTORICAL_TIME_SERIES_SOURCE_NAME);
   }
 
   public static void setHistoricalTimeSeriesSource(final FunctionCompilationContext compilationContext, final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
-    set(compilationContext, HISTORICAL_TIME_SERIES_SOURCE, historicalTimeSeriesSource);
+    set(compilationContext, HISTORICAL_TIME_SERIES_SOURCE_NAME, historicalTimeSeriesSource);
   }
 
   public static HistoricalTimeSeriesResolver getHistoricalTimeSeriesResolver(final FunctionCompilationContext compilationContext) {
-    return get(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER);
+    return get(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER_NAME);
   }
 
   public static void setHistoricalTimeSeriesResolver(final FunctionCompilationContext compilationContext, final HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
-    set(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER, historicalTimeSeriesResolver);
+    set(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER_NAME, historicalTimeSeriesResolver);
+  }
+
+  public static TempTargetRepository getTempTargets(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, TEMPORARY_TARGETS_NAME);
+  }
+
+  public static void setTempTargets(final FunctionCompilationContext compilationContext, final TempTargetRepository tempTargets) {
+    set(compilationContext, TEMPORARY_TARGETS_NAME, tempTargets);
   }
 
   /**

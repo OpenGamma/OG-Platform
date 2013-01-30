@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.curve;
 
-
 /**
  * Data for the testing of curve construction with FX swaps and XCCy swaps
  * TODO: This is old code that has been commented. It should be removed at some point.

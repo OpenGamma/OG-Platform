@@ -8,10 +8,10 @@ package com.opengamma.analytics.financial.interestrate.bond.provider;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.JulianFields;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
@@ -54,12 +54,12 @@ public class BondSecurityDiscountingMethodTest {
   private static final String ISSUER = ISSUER_NAMES[0];
   private static final Currency CUR = Currency.USD;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final Period PAYMENT_TENOR_FIXED = Period.ofMonths(6);
+  private static final Period PAYMENT_TENOR_FIXED = DateUtils.periodOfMonths(6);
   private static final int COUPON_PER_YEAR = 2;
   private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BUSINESS_DAY_FIXED = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM_FIXED = false;
-  private static final Period BOND_TENOR_FIXED = Period.ofYears(10);
+  private static final Period BOND_TENOR_FIXED = DateUtils.periodOfYears(10);
   private static final int SETTLEMENT_DAYS = 3;
   private static final ZonedDateTime START_ACCRUAL_DATE_FIXED = DateUtils.getUTCDate(2006, 11, 15);
   private static final ZonedDateTime MATURITY_DATE_FIXED = START_ACCRUAL_DATE_FIXED.plus(BOND_TENOR_FIXED);
@@ -486,7 +486,8 @@ public class BondSecurityDiscountingMethodTest {
     final long[] jumpDays = new long[nbDateForward - 1];
     for (int loopdate = 1; loopdate < nbDateForward; loopdate++) {
       forwardDate[loopdate] = ScheduleCalculator.getAdjustedDate(forwardDate[loopdate - 1], 1, CALENDAR);
-      jumpDays[loopdate - 1] = forwardDate[loopdate].toLocalDate().toModifiedJulianDays() - forwardDate[loopdate - 1].toLocalDate().toModifiedJulianDays();
+      jumpDays[loopdate - 1] = forwardDate[loopdate].getLong(JulianFields.MODIFIED_JULIAN_DAY) -
+          forwardDate[loopdate - 1].getLong(JulianFields.MODIFIED_JULIAN_DAY);
     }
     final double[] cleanPriceForward = new double[nbDateForward];
     for (int loopdate = 0; loopdate < nbDateForward; loopdate++) {
@@ -510,13 +511,13 @@ public class BondSecurityDiscountingMethodTest {
   // UKT 5 09/07/14 - ISIN-GB0031829509 To check figures in the ex-dividend period
   private static final String ISSUER_UK = ISSUER_NAMES[3];
   private static final Currency GBP = Currency.GBP;
-  private static final Period PAYMENT_TENOR_UK = Period.ofMonths(6);
+  private static final Period PAYMENT_TENOR_UK = DateUtils.periodOfMonths(6);
   private static final int COUPON_PER_YEAR_G = 2;
   private static final Calendar CALENDAR_UK = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_UK = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"); // To check
   private static final BusinessDayConvention BUSINESS_DAY_UK = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM_UK = false;
-  private static final Period BOND_TENOR_G = Period.ofYears(12);
+  private static final Period BOND_TENOR_G = DateUtils.periodOfYears(12);
   private static final int SETTLEMENT_DAYS_UK = 1;
   private static final int EX_DIVIDEND_DAYS_UK = 7;
   private static final ZonedDateTime START_ACCRUAL_DATE_UK = DateUtils.getUTCDate(2002, 9, 7);

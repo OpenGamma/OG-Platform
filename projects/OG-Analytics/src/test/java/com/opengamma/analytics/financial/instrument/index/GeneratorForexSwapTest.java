@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -69,17 +68,17 @@ public class GeneratorForexSwapTest {
 
   @Test
   public void generateInstrument() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    Period tenor = Period.ofMonths(6);
-    double pts = 0.01;
-    double eurUsd = 1.25;
-    double notional = 123000000;
-    FXMatrix fxMatrix = new FXMatrix(EUR, USD, eurUsd);
-    GeneratorAttributeFX attribute = new GeneratorAttributeFX(tenor, fxMatrix);
-    ForexSwapDefinition insGenerated = GENERATOR_FX_EURUSD.generateInstrument(referenceDate, pts, notional, attribute);
-    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, BUSINESS_DAY, CALENDAR, IS_EOM);
-    ForexSwapDefinition insExpected = new ForexSwapDefinition(EUR, USD, startDate, endDate, notional, eurUsd, pts);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
+    final Period tenor = DateUtils.periodOfMonths(6);
+    final double pts = 0.01;
+    final double eurUsd = 1.25;
+    final double notional = 123000000;
+    final FXMatrix fxMatrix = new FXMatrix(EUR, USD, eurUsd);
+    final GeneratorAttributeFX attribute = new GeneratorAttributeFX(tenor, fxMatrix);
+    final ForexSwapDefinition insGenerated = GENERATOR_FX_EURUSD.generateInstrument(referenceDate, pts, notional, attribute);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, BUSINESS_DAY, CALENDAR, IS_EOM);
+    final ForexSwapDefinition insExpected = new ForexSwapDefinition(EUR, USD, startDate, endDate, notional, eurUsd, pts);
     assertEquals("Generator Deposit: generate instrument", insExpected, insGenerated);
   }
 

@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.schedulegeneration;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.time.DateUtils;
 
@@ -18,7 +18,7 @@ public class IMMDates {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Remove the previous December date (not needed because we always adjust to the following IMM date)
-  // TODO : Eventually will replace this with methods based on the DateAdjuster class
+  // TODO : Eventually will replace this with methods based on the TemporalAdjuster class
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

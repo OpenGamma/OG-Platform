@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
@@ -50,7 +50,7 @@ public class ActualTwoFiveTwo extends StatelessDayCount {
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate, final Calendar calendar) {
     ArgumentChecker.notNull(firstDate, "first date");
     ArgumentChecker.notNull(secondDate, "second date");
-    return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate(), calendar);
+    return getDayCountFraction(firstDate.getDate(), secondDate.getDate(), calendar);
   }
 
   @Override

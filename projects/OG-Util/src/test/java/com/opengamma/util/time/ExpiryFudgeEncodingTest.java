@@ -5,9 +5,8 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 

@@ -11,7 +11,7 @@ import static com.opengamma.language.convert.TypeMap.ZERO_LOSS;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.language.Value;
 import com.opengamma.language.ValueUtils;

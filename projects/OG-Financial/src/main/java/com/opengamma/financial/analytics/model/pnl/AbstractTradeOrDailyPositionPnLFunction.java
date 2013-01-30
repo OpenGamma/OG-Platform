@@ -10,11 +10,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -22,11 +21,11 @@ import com.opengamma.core.position.PositionOrTrade;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueProperties.Builder;
@@ -110,7 +109,7 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
     final Security security = trade.getSecurity();
     LocalDate tradeDate = getPreferredTradeDate(executionContext.getValuationClock(), trade);
     tradeDate = checkAvailableData(tradeDate, htsMarkToMarket, security, _mark2MarketField, _resolutionKey);
-    final ValueSpecification valueSpecification = new ValueSpecification(getResultValueRequirementName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints());
+    final ValueSpecification valueSpecification = new ValueSpecification(getResultValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
     final double costOfCarry = getCostOfCarry(security, tradeDate, htsCostOfCarry);
     Double markToMarket = htsMarkToMarket.getTimeSeries().getValue(tradeDate);
     if (security instanceof FutureSecurity) {
@@ -219,12 +218,12 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
     }
     UniqueId uidMarkToMarket = null;
     UniqueId uidCostOfCarry = null;
-    for (final ValueRequirement input : inputs.values()) {
-      if (ValueRequirementNames.HISTORICAL_TIME_SERIES.equals(input.getValueName())) {
-        if ("MarkToMarket".equals(input.getConstraint(".name"))) {
-          uidMarkToMarket = input.getTargetSpecification().getUniqueId();
+    for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
+      if (ValueRequirementNames.HISTORICAL_TIME_SERIES.equals(input.getValue().getValueName())) {
+        if ("MarkToMarket".equals(input.getValue().getConstraint(".name"))) {
+          uidMarkToMarket = input.getKey().getTargetSpecification().getUniqueId();
         } else {
-          uidCostOfCarry = input.getTargetSpecification().getUniqueId();
+          uidCostOfCarry = input.getKey().getTargetSpecification().getUniqueId();
         }
       }
     }

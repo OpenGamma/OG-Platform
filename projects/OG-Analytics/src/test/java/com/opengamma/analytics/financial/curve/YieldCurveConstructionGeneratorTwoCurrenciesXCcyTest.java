@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.curve;
 
-
 /**
 * TODO: This is old code that has been commented. It should be removed at some point.
  */

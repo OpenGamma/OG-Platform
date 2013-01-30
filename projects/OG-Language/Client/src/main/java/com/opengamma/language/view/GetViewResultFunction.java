@@ -11,10 +11,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -115,18 +114,18 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
       // Ignore
       s_logger.debug("View definition compiled");
     }
-    
+
     @Override
     public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
       postResult("View compilation failed - " + exception.getMessage());
     }
-    
+
     @Override
-    public void cycleStarted(ViewCycleMetadata cycleMetadata) {
+    public void cycleStarted(final ViewCycleMetadata cycleMetadata) {
     }
-    
+
     @Override
-    public void cycleFragmentCompleted(ViewComputationResultModel fullFragment, ViewDeltaResultModel deltaFragment) {
+    public void cycleFragmentCompleted(final ViewComputationResultModel fullFragment, final ViewDeltaResultModel deltaFragment) {
       // Ignore
       s_logger.debug("Ignoring partial results");
     }
@@ -189,9 +188,9 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
     public void processTerminated(final boolean executionInterrupted) {
       postResult("View process terminated");
     }
-   
+
     @Override
-    public void clientShutdown(Exception e) {
+    public void clientShutdown(final Exception e) {
     }
 
     // Cancellable
@@ -209,7 +208,7 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
     if ((result == null) || result.getViewCycleId().equals(lastViewCycleId)) {
       if (waitForResult != 0) {
         s_logger.info("Registering listener for asynchronous result");
-        final AsynchronousOperation<Object> async = new AsynchronousOperation<Object>();
+        final AsynchronousOperation<Object> async = AsynchronousOperation.create(Object.class);
         final Listener listener = new Listener(viewClientHandle, async.getCallback(), waitForResult, lastViewCycleId);
         result = viewClient.getLatestResult();
         if ((result != null) && !result.getViewCycleId().equals(lastViewCycleId)) {

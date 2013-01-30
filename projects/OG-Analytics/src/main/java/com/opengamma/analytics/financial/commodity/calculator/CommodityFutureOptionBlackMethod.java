@@ -5,10 +5,8 @@
  */
 package com.opengamma.analytics.financial.commodity.calculator;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.commodity.derivative.CommodityFutureOption;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.util.ArgumentChecker;
 
@@ -34,7 +32,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the <b>forward</b> price of an option using the Black formula. PV / ZeroBond(timeToSettlement)
    */
   public double forwardPrice(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -51,7 +49,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return Current DiscountBond or ZeroBond price for payment at the settlement date
    */
   public double discountToSettlement(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -63,7 +61,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the <b>forward</b> value of the index, ie the fair strike of a forward agreement paying the index value at maturity
    */
   public double forwardIndexValue(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -75,7 +73,7 @@ public final class CommodityFutureOptionBlackMethod {
   }
 
   /**
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the <b>spot</b> value of the index, i.e. the current market value
    */
   public double spotIndexValue(final StaticReplicationDataBundle marketData) {
@@ -86,7 +84,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the present value of the option
    */
   public double presentValue(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -99,18 +97,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData An YieldCurveBundle, which won't work
-   * @return OpenGammaRuntimeException
-   */
-  public double presentValue(final CommodityFutureOption<?> derivative, final YieldCurveBundle marketData) {
-    ArgumentChecker.notNull(derivative, "derivative");
-    ArgumentChecker.notNull(marketData, "marketData");
-    throw new OpenGammaRuntimeException("CommodityFutureOptionBlackMethod requires a data bundle of type StaticReplicationDataBundle. Found a YieldCurveBundle.");
-  }
-
-  /**
-   * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the sensitivity of the present value wrt the discounting rate
    */
   public double rho(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -123,7 +110,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the delta
    */
   public double delta(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -139,20 +126,19 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the forward delta wrt the forward underlying, ie the sensitivity of the undiscounted price to the forward value of the underlying, d(PV/Z)/d(fwdUnderlying)
    */
   public double forwardDelta(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(marketData, "marketData");
-    final double notional = derivative.getUnderlying().getAmount();
-    final double undiscountDelta = notional * delta(derivative, marketData);
+    final double undiscountDelta = delta(derivative, marketData);
     return undiscountDelta;
   }
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the sensitivity of the present value wrt the forward value of the underlying, d(PV)/d(fwdUnderlying)
    */
   public double deltaWrtForward(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -165,7 +151,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the spot delta wrt the underlying, d(PV)/d(spotUnderlying)
    */
   public double deltaWrtSpot(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -180,7 +166,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the gamma wrt the forward underlying
    */
   public double gamma(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -196,21 +182,20 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the forward gamma wrt the forward underlying, ie the 2nd order sensitivity of the undiscounted price to the forward value of the underlying,
    *          $\frac{\partial^2 (PV/Z)}{\partial F^2}$
    */
   public double forwardGamma(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
     ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.notNull(marketData, "marketData");
-    final double notional = derivative.getUnderlying().getAmount();
-    final double forwardGamma = notional * gamma(derivative, marketData);
+    final double forwardGamma = gamma(derivative, marketData);
     return forwardGamma;
   }
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the sensitivity of the forward delta wrt the forward value of the underlying, $\frac{\partial^2 (PV)}{\partial F^2}$
    */
   public double gammaWrtForward(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -223,7 +208,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the spot gamma wrt the spot underlying, ie the 2nd order sensitivity of the present value to the spot value of the underlying,
    *          $\frac{\partial^2 (PV)}{\partial S^2}$
    */
@@ -239,7 +224,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the simple vega, d(PV)/d(blackVol)
    */
   public double vega(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -251,13 +236,12 @@ public final class CommodityFutureOptionBlackMethod {
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     final double fwdVega = BlackFormulaRepository.vega(forward, strike, expiry, blackVol);
     final double df = discountToSettlement(derivative, marketData);
-    final double notional = derivative.getUnderlying().getAmount();
-    return df * fwdVega * notional;
+    return df * fwdVega;
   }
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the lognormal Black Volatility
    */
   public double impliedVol(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -271,7 +255,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the forward Vomma, ie the 2nd order sensitivity of the undiscounted price to the implied vol,
    *          $\frac{\partial^2 (PV/Z)}{\partial \sigma^2}$
    */
@@ -282,14 +266,13 @@ public final class CommodityFutureOptionBlackMethod {
     final double strike = derivative.getStrike();
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double notional = derivative.getUnderlying().getAmount();
     final double forwardVomma = BlackFormulaRepository.vomma(forward, strike, expiry, blackVol);
-    return notional * forwardVomma;
+    return forwardVomma;
   }
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the spot Vomma, ie the 2nd order sensitivity of the spot price to the implied vol,
    *          $\frac{\partial^2 (PV)}{\partial \sigma^2}$
    */
@@ -304,7 +287,7 @@ public final class CommodityFutureOptionBlackMethod {
   /**
    * Synonym for Vomma
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the spot Volga, ie the 2nd order sensitivity of the spot price to the implied vol,
    *          $\frac{\partial^2 (PV)}{\partial \sigma^2}$
    */
@@ -316,7 +299,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the forward vanna wrt the forward underlying, ie the 2nd order cross-sensitivity of the undiscounted price to the forward and implied vol,
    *          $\frac{\partial^2 (PV/Z)}{\partial F \partial \sigma}$
    */
@@ -328,13 +311,12 @@ public final class CommodityFutureOptionBlackMethod {
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     final double forwardVanna = BlackFormulaRepository.vanna(forward, strike, expiry, blackVol);
-    final double notional = derivative.getUnderlying().getAmount();
-    return notional * forwardVanna;
+    return forwardVanna;
   }
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the spot vanna wrt the forward underlying, ie the 2nd order cross-sensitivity of the present value to the forward and implied vol,
    *          $\frac{\partial^2 (PV)}{\partial F \partial \sigma}$
    */
@@ -348,7 +330,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the spot vanna wrt the spot underlying, ie the 2nd order cross-sensitivity of the present value to the spot and implied vol,
    *          $\frac{\partial^2 (PV)}{\partial spot \partial \sigma}$
    */
@@ -364,7 +346,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the forward (i.e. driftless) theta
    */
   public double theta(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -381,7 +363,7 @@ public final class CommodityFutureOptionBlackMethod {
 
   /**
    * @param derivative the OG-Analytics form of the derivative
-   * @param marketData the data bundle containing a BlackVolatilitySurface, forward equity and funding curves
+   * @param marketData the data bundle containing a BlackVolatilitySurface, forward commodity and funding curves
    * @return the forward (i.e. driftless) theta
    */
   public double forwardTheta(final CommodityFutureOption<?> derivative, final StaticReplicationDataBundle marketData) {
@@ -391,8 +373,7 @@ public final class CommodityFutureOptionBlackMethod {
     final double forward = marketData.getForwardCurve().getForward(expiry);
     final double strike = derivative.getStrike();
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
-    final double notional = derivative.getUnderlying().getAmount();
     final double forwardTheta = BlackFormulaRepository.theta(forward, strike, expiry, blackVol);
-    return notional * forwardTheta;
+    return forwardTheta;
   }
 }

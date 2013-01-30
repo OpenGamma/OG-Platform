@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.PriceType;

@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -104,7 +104,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String absoluteToleranceName = desiredValue.getConstraint(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);

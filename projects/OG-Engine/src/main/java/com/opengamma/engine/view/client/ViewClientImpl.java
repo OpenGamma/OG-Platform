@@ -13,10 +13,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.value.ValueSpecification;
@@ -36,7 +35,6 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -423,13 +421,6 @@ public class ViewClientImpl implements ViewClient {
     return _latestCompiledViewDefinition.get();
   }
 
-  @Override
-  public VersionCorrection getProcessVersionCorrection() {
-    checkAttached();
-    return getViewProcessor().getProcessVersionCorrection(getUniqueId());
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public boolean isViewCycleAccessSupported() {
     return _isViewCycleAccessSupported.get();

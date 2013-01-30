@@ -211,10 +211,11 @@ $.register_module({
                         display: idx === data.length - 1 ? 'block' : 'none'
                     });
                     gadget = {id: id, config: obj, type: type, gadget: new constructor(options)};
-                    if (swap && gadgets[index])
-                        $(selector + ' .OG-gadget-container .OG-gadget-' + gadgets[index].id).remove();
                     if (typeof index === 'number') {
-                        if (gadgets[index]) gadgets[index].gadget.alive();
+                        if (gadgets[index]) {
+                            $(selector + ' .OG-gadget-container .OG-gadget-' + gadgets[index].id).remove();
+                            if (gadgets[index]) gadgets[index].gadget.alive();
+                        }
                         gadgets.splice(index, 1, gadget);
                     } else gadgets.push(gadget);
                     if (obj.fingerprint) gadget.fingerprint = obj.fingerprint;

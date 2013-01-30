@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.model.volatility.curve;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.ArgumentChecker;
 

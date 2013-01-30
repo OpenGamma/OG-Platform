@@ -12,19 +12,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfacePropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
-public abstract class LocalVolatilitySurfaceDefaults extends DefaultPropertyFunction {
+public class LocalVolatilitySurfaceDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(LocalVolatilitySurfaceDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.LOCAL_VOLATILITY_SURFACE,
@@ -52,8 +53,11 @@ public abstract class LocalVolatilitySurfaceDefaults extends DefaultPropertyFunc
   };
   private final String _eps;
 
-  public LocalVolatilitySurfaceDefaults(final ComputationTargetType target, final String eps) {
-    super(target, true);
+  public LocalVolatilitySurfaceDefaults(final String eps) {
+    super(ComputationTargetType.CURRENCY
+        .or(ComputationTargetType.UNORDERED_CURRENCY_PAIR)
+        .or(FinancialSecurityTypes.FX_OPTION_SECURITY)
+        .or(FinancialSecurityTypes.EQUITY_VARIANCE_SWAP_SECURITY), true); // // [PLAT-2286]: change to correct type
     ArgumentChecker.notNull(eps, "eps");
     _eps = eps;
   }

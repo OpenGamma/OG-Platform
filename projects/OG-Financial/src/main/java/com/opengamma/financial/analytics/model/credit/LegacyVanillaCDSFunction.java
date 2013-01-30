@@ -21,7 +21,7 @@ import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPro
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -34,11 +34,11 @@ import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -47,6 +47,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -83,7 +84,7 @@ public abstract class LegacyVanillaCDSFunction extends AbstractFunction.NonCompi
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get yield curve");
@@ -108,15 +109,7 @@ public abstract class LegacyVanillaCDSFunction extends AbstractFunction.NonCompi
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return target.getSecurity() instanceof LegacyVanillaCDSSecurity;
+    return FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY;
   }
 
   @Override

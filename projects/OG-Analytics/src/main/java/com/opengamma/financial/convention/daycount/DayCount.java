@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
@@ -56,7 +56,7 @@ public abstract class DayCount {
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
     ArgumentChecker.notNull(firstDate, "first date");
     ArgumentChecker.notNull(secondDate, "second date");
-    return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate());
+    return getDayCountFraction(firstDate.getDate(), secondDate.getDate());
   }
 
   /**
@@ -73,7 +73,7 @@ public abstract class DayCount {
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate, final Calendar calendar) {
     ArgumentChecker.notNull(firstDate, "first date");
     ArgumentChecker.notNull(secondDate, "second date");
-    return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate());
+    return getDayCountFraction(firstDate.getDate(), secondDate.getDate());
   }
 
   /**
@@ -102,7 +102,7 @@ public abstract class DayCount {
     ArgumentChecker.notNull(previousCouponDate, "previous coupon date");
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(nextCouponDate, "next coupon date");
-    return getAccruedInterest(previousCouponDate.toLocalDate(), date.toLocalDate(), nextCouponDate.toLocalDate(), coupon, paymentsPerYear);
+    return getAccruedInterest(previousCouponDate.getDate(), date.getDate(), nextCouponDate.getDate(), coupon, paymentsPerYear);
   }
 
   /**

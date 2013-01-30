@@ -6,7 +6,6 @@
 package com.opengamma.engine.view;
 
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
@@ -20,7 +19,6 @@ import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
-import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.compilation.ViewCompilationServices;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.util.ArgumentChecker;
@@ -36,8 +34,6 @@ public class ViewProcessContext {
   private final FunctionResolver _functionResolver;
   private final ViewComputationCacheSource _computationCacheSource;
   private final JobDispatcher _computationJobDispatcher;
-  private final ViewProcessorQueryReceiver _viewProcessorQueryReceiver;
-  private final ComputationTargetResolver _computationTargetResolver; // REVIEW andrew 2012-03-05 -- This isn't necessary as there is a resolver in the FunctionCompilationContext 
   private final DependencyGraphBuilderFactory _dependencyGraphBuilderFactory;
   private final DependencyGraphExecutorFactory<?> _dependencyGraphExecutorFactory;
   private final GraphExecutorStatisticsGathererProvider _graphExecutorStatisticsGathererProvider;
@@ -46,19 +42,17 @@ public class ViewProcessContext {
   private final OverrideOperationCompiler _overrideOperationCompiler;
 
   public ViewProcessContext(
-      ConfigSource configSource,
-      ViewPermissionProvider viewPermissionProvider,
-      MarketDataProviderResolver marketDataProviderResolver,
-      CompiledFunctionService functionCompilationService,
-      FunctionResolver functionResolver,
-      ComputationTargetResolver computationTargetResolver,
-      ViewComputationCacheSource computationCacheSource,
-      JobDispatcher computationJobDispatcher,
-      ViewProcessorQueryReceiver viewProcessorQueryReceiver,
-      DependencyGraphBuilderFactory dependencyGraphBuilderFactory,
-      DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
-      GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider,
-      OverrideOperationCompiler overrideOperationCompiler) {
+      final ConfigSource configSource,
+      final ViewPermissionProvider viewPermissionProvider,
+      final MarketDataProviderResolver marketDataProviderResolver,
+      final CompiledFunctionService functionCompilationService,
+      final FunctionResolver functionResolver,
+      final ViewComputationCacheSource computationCacheSource,
+      final JobDispatcher computationJobDispatcher,
+      final DependencyGraphBuilderFactory dependencyGraphBuilderFactory,
+      final DependencyGraphExecutorFactory<?> dependencyGraphExecutorFactory,
+      final GraphExecutorStatisticsGathererProvider graphExecutorStatisticsProvider,
+      final OverrideOperationCompiler overrideOperationCompiler) {
     ArgumentChecker.notNull(configSource, "configSource");
     ArgumentChecker.notNull(viewPermissionProvider, "viewPermissionProvider");
     ArgumentChecker.notNull(marketDataProviderResolver, "marketDataSnapshotProviderResolver");
@@ -66,22 +60,19 @@ public class ViewProcessContext {
     ArgumentChecker.notNull(functionResolver, "functionResolver");
     ArgumentChecker.notNull(computationCacheSource, "computationCacheSource");
     ArgumentChecker.notNull(computationJobDispatcher, "computationJobDispatcher");
-    ArgumentChecker.notNull(viewProcessorQueryReceiver, "viewProcessorQueryReceiver");
     ArgumentChecker.notNull(dependencyGraphBuilderFactory, "dependencyGraphBuilderFactory");
     ArgumentChecker.notNull(dependencyGraphExecutorFactory, "dependencyGraphExecutorFactory");
     ArgumentChecker.notNull(graphExecutorStatisticsProvider, "graphExecutorStatisticsProvider");
     ArgumentChecker.notNull(overrideOperationCompiler, "overrideOperationCompiler");
     _configSource = configSource;
     _viewPermissionProvider = viewPermissionProvider;
-    final InMemoryLKVMarketDataProvider liveDataOverrideInjector = new InMemoryLKVMarketDataProvider(computationTargetResolver.getSecuritySource());
+    final InMemoryLKVMarketDataProvider liveDataOverrideInjector = new InMemoryLKVMarketDataProvider(functionCompilationService.getFunctionCompilationContext().getSecuritySource());
     _liveDataOverrideInjector = liveDataOverrideInjector;
     _marketDataProviderResolver = new MarketDataProviderResolverWithOverride(marketDataProviderResolver, liveDataOverrideInjector);
     _functionCompilationService = functionCompilationService;
     _functionResolver = functionResolver;
-    _computationTargetResolver = computationTargetResolver;
     _computationCacheSource = computationCacheSource;
     _computationJobDispatcher = computationJobDispatcher;
-    _viewProcessorQueryReceiver = viewProcessorQueryReceiver;
     _dependencyGraphBuilderFactory = dependencyGraphBuilderFactory;
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     _graphExecutorStatisticsGathererProvider = graphExecutorStatisticsProvider;
@@ -166,25 +157,6 @@ public class ViewProcessContext {
   }
 
   /**
-   * Gets the view processor query receiver.
-   * 
-   * @return the view processor query receiver, not null
-   */
-  public ViewProcessorQueryReceiver getViewProcessorQueryReceiver() {
-    return _viewProcessorQueryReceiver;
-  }
-
-  /**
-   * Gets the computation target resvoler. The target resolver is capable of returning fully
-   * constructed portfolio graphs with all security and internal references resolved.
-   * 
-   * @return the computationTargetResolver, not null
-   */
-  public ComputationTargetResolver getComputationTargetResolver() {
-    return _computationTargetResolver;
-  }
-
-  /**
    * Gets the dependency graph executor factory.
    * 
    * @return  the dependency graph executor factory, not null
@@ -208,9 +180,9 @@ public class ViewProcessContext {
    * @param marketDataAvailabilityProvider  the availability provider corresponding to the desired source of market data, not null
    * @return the services, not null
    */
-  public ViewCompilationServices asCompilationServices(MarketDataAvailabilityProvider marketDataAvailabilityProvider) {
-    return new ViewCompilationServices(marketDataAvailabilityProvider, getFunctionResolver(), getFunctionCompilationService().getFunctionCompilationContext(), getComputationTargetResolver(),
-        getFunctionCompilationService().getExecutorService(), getDependencyGraphBuilderFactory());
+  public ViewCompilationServices asCompilationServices(final MarketDataAvailabilityProvider marketDataAvailabilityProvider) {
+    return new ViewCompilationServices(marketDataAvailabilityProvider, getFunctionResolver(), getFunctionCompilationService().getFunctionCompilationContext(), getFunctionCompilationService()
+        .getExecutorService(), getDependencyGraphBuilderFactory());
   }
 
 }

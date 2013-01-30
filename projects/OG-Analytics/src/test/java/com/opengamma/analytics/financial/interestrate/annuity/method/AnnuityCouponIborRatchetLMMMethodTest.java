@@ -6,11 +6,11 @@
 package com.opengamma.analytics.financial.interestrate.annuity.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import cern.jet.random.engine.MersenneTwister;
 
@@ -53,7 +53,7 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
   // Annuity description
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 9, 7);
   private static final int ANNUITY_TENOR_YEAR = 2;
-  private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
+  private static final Period ANNUITY_TENOR = Period.of(ANNUITY_TENOR_YEAR, YEARS);
   private static final boolean IS_PAYER = false;
   private static final double NOTIONAL = 100000000; // 100m
   private static final double[] MAIN_COEF = new double[] {0.20, 0.80, 0.0010};
@@ -193,7 +193,7 @@ public class AnnuityCouponIborRatchetLMMMethodTest {
     long startTime, endTime;
     final int nbTest = 5;
     final int nbPath = 12500;
-    final AnnuityCouponIborRatchetDefinition annuityRatchetIbor20Definition = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, Period.ofYears(5), NOTIONAL,
+    final AnnuityCouponIborRatchetDefinition annuityRatchetIbor20Definition = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, DateUtils.periodOfYears(5), NOTIONAL,
         INDEX_EURIBOR3M, IS_PAYER, MAIN_COEF, FLOOR_COEF, CAP_COEF);
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 8, 18);
     final LiborMarketModelDisplacedDiffusionParameters parameterLMM = TestsDataSetLiborMarketModelDisplacedDiffusion.createLMMParameters(referenceDate, annuityRatchetIbor20Definition);

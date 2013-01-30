@@ -13,20 +13,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Period;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -35,7 +34,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -86,19 +84,7 @@ public class SwaptionATMVolatilitySurfaceDataFunction extends AbstractFunction.N
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    if (target.getUniqueId() == null) {
-      s_logger.error("Had a target with a null unique id: {}", target);
-      return false;
-    }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override

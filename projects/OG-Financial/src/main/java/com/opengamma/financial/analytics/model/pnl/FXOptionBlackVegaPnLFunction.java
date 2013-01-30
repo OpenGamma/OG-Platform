@@ -9,9 +9,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
@@ -28,11 +29,12 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -94,7 +96,7 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     final DoubleLabelledMatrix2D vegaMatrix = (DoubleLabelledMatrix2D) vegaMatrixObject;
     final HistoricalTimeSeriesBundle timeSeriesBundle = (HistoricalTimeSeriesBundle) volatilityHTSObject;
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).getDate();
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
@@ -225,7 +227,7 @@ public class FXOptionBlackVegaPnLFunction extends AbstractFunction.NonCompiledIn
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(putCurrency, callCurrency);
     final String vegaResultCurrency = getResultCurrency(target, currencyPair);
     final String currencyBase = currencyPair.getBase().getCode(); // The base currency
-    final ValueRequirement vegaMatrixRequirement = new ValueRequirement(ValueRequirementNames.VEGA_QUOTE_MATRIX, security,
+    final ValueRequirement vegaMatrixRequirement = new ValueRequirement(ValueRequirementNames.VEGA_QUOTE_MATRIX, ComputationTargetSpecification.of(security),
         ValueProperties.builder()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(FXOptionBlackFunction.PUT_CURVE, Iterables.getOnlyElement(putCurveNames))

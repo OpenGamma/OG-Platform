@@ -5,16 +5,15 @@
  */
 package com.opengamma.financial.conversion;
 
-import java.util.ArrayList;
-
-import javax.time.calendar.ZonedDateTime;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
+import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Lists;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -27,12 +26,9 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.AsianExerciseType;
-import com.opengamma.financial.security.option.BarrierDirection;
-import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
-import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
@@ -76,9 +72,6 @@ public final class JodaBeanConverters {
     stringConvert.register(BusinessDayConvention.class, new BusinessDayConventionConverter());
     stringConvert.register(YieldConvention.class, new YieldConventionConverter());
     stringConvert.register(BondFutureDeliverable.class, new BondFutureDeliverableConverter());
-    stringConvert.register(BarrierType.class, new BarrierTypeConverter());
-    stringConvert.register(BarrierDirection.class, new BarrierDirectionConverter());
-    stringConvert.register(SamplingFrequency.class, new SamplingFrequencyConverter());
   }
   
   /**
@@ -97,7 +90,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class FrequencyConverter implements StringConverter<Frequency> {
+  public static class FrequencyConverter implements StringConverter<Frequency> {
 
     @Override
     public String convertToString(Frequency frequency) {
@@ -110,7 +103,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  /* package */ static class DayCountConverter implements StringConverter<DayCount> {
+  public static class DayCountConverter implements StringConverter<DayCount> {
 
     @Override
     public String convertToString(DayCount dayCount) {
@@ -123,14 +116,14 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class CurrencyConverter extends AbstractConverter<Currency> {
+  public static class CurrencyConverter extends AbstractConverter<Currency> {
     @Override
     public Currency convertFromString(Class<? extends Currency> cls, String str) {
       return Currency.of(str);
     }
   }
   
-  private static class ExternalIdConverter extends AbstractConverter<ExternalId> {
+  public static class ExternalIdConverter extends AbstractConverter<ExternalId> {
 
     @Override
     public ExternalId convertFromString(Class<? extends ExternalId> cls, String str) {
@@ -139,7 +132,7 @@ public final class JodaBeanConverters {
     
   }
   
-  private static class ExternalIdBundleConverter extends AbstractConverter<ExternalIdBundle> {
+  public static class ExternalIdBundleConverter extends AbstractConverter<ExternalIdBundle> {
   
     @Override
     public String convertToString(ExternalIdBundle object) {
@@ -152,7 +145,7 @@ public final class JodaBeanConverters {
       if (StringUtils.isEmpty(str)) {
         return ExternalIdBundle.EMPTY;
       }
-      ArrayList<String> strings = new ArrayList<String>();
+      List<String> strings = Lists.newArrayList();
       for (String s : str.split(",")) {
         strings.add(s.trim());
       }
@@ -161,7 +154,7 @@ public final class JodaBeanConverters {
 
   }
   
-  private static class ObjectIdConverter extends AbstractConverter<ObjectId> {
+  public static class ObjectIdConverter extends AbstractConverter<ObjectId> {
 
     @Override
     public ObjectId convertFromString(Class<? extends ObjectId> cls, String str) {
@@ -170,7 +163,7 @@ public final class JodaBeanConverters {
     
   }
 
-  private static class UniqueIdConverter extends AbstractConverter<UniqueId> {
+  public static class UniqueIdConverter extends AbstractConverter<UniqueId> {
 
     @Override
     public UniqueId convertFromString(Class<? extends UniqueId> cls, String str) {
@@ -184,7 +177,7 @@ public final class JodaBeanConverters {
     
   }
 
-  private static class CurrencyPairConverter implements StringConverter<CurrencyPair> {
+  public static class CurrencyPairConverter implements StringConverter<CurrencyPair> {
 
     @Override
     public String convertToString(CurrencyPair object) {
@@ -198,7 +191,7 @@ public final class JodaBeanConverters {
     
   }
 
-  private static class ExpiryConverter extends AbstractConverter<Expiry> {
+  public static class ExpiryConverter extends AbstractConverter<Expiry> {
 
     @Override
     public String convertToString(Expiry expiry) {
@@ -211,7 +204,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class ExerciseTypeConverter extends AbstractConverter<ExerciseType> {
+  public static class ExerciseTypeConverter extends AbstractConverter<ExerciseType> {
 
     @Override
     public String convertToString(ExerciseType exType) {
@@ -220,16 +213,17 @@ public final class JodaBeanConverters {
 
     @Override
     public ExerciseType convertFromString(Class<? extends ExerciseType> cls, String str) {
-      if (str.equals("American")) {
-        return new AmericanExerciseType();
-      } else if (str.equals("Asian")) {
-        return new AsianExerciseType();
-      } else if (str.equals("Bermudan")) {
-        return new BermudanExerciseType();
-      } else if (str.equals("European")) {
-        return new EuropeanExerciseType();
-      } else {
-        return new EuropeanExerciseType();
+      switch (str) {
+        case "American":
+          return new AmericanExerciseType();
+        case "Asian":
+          return new AsianExerciseType();
+        case "Bermudan":
+          return new BermudanExerciseType();
+        case "European":
+          return new EuropeanExerciseType();
+        default:
+          return new EuropeanExerciseType();
       }
     }
   }
@@ -269,7 +263,7 @@ public final class JodaBeanConverters {
     }
   }
 
-  private static class BusinessDayConventionConverter extends AbstractConverter<BusinessDayConvention> {
+  public static class BusinessDayConventionConverter extends AbstractConverter<BusinessDayConvention> {
 
     @Override
     public String convertToString(BusinessDayConvention object) {
@@ -283,7 +277,7 @@ public final class JodaBeanConverters {
     
   }
 
-  private static class YieldConventionConverter extends AbstractConverter<YieldConvention> {
+  public static class YieldConventionConverter extends AbstractConverter<YieldConvention> {
 
     @Override
     public String convertToString(YieldConvention object) {
@@ -308,7 +302,7 @@ public final class JodaBeanConverters {
 
     @Override
     public BondFutureDeliverable convertFromString(Class<? extends BondFutureDeliverable> cls, String str) {
-      ArrayList<String> ids = new ArrayList<String>();
+      List<String> ids = Lists.newArrayList();
       for (String s : str.substring(str.indexOf('[') + 1, str.lastIndexOf(']')).trim().split(",")) {
         ids.add(s.trim());
       }
@@ -316,46 +310,6 @@ public final class JodaBeanConverters {
       result.setIdentifiers(ExternalIdBundle.parse(ids));
       result.setConversionFactor(Double.parseDouble(str.substring(str.indexOf(']') + 1).trim()));
       return result;
-    }
-    
-  }
-
-  private static class BarrierTypeConverter implements StringConverter<BarrierType> {
-
-    @Override
-    public BarrierType convertFromString(Class<? extends BarrierType> cls, String str) {
-      return BarrierType.valueOf(str.toUpperCase());
-    }
-
-    @Override
-    public String convertToString(BarrierType barrierType) {
-      return StringUtils.capitalize(barrierType.name().toLowerCase());
-    }
-  }
-
-  private static class BarrierDirectionConverter implements StringConverter<BarrierDirection> {
-
-    @Override
-    public BarrierDirection convertFromString(Class<? extends BarrierDirection> cls, String str) {
-      return BarrierDirection.valueOf(str.toUpperCase().replace(' ', '_'));
-    }
-
-    @Override
-    public String convertToString(BarrierDirection direction) {
-      return WordUtils.capitalize(direction.name().toLowerCase().replace('_', ' '));
-    }
-  }
-
-  private static class SamplingFrequencyConverter implements StringConverter<SamplingFrequency> {
-
-    @Override
-    public SamplingFrequency convertFromString(Class<? extends SamplingFrequency> cls, String str) {
-      return SamplingFrequency.valueOf(str.toUpperCase().replace(' ', '_'));
-    }
-
-    @Override
-    public String convertToString(SamplingFrequency frequency) {
-      return WordUtils.capitalize(frequency.name().toLowerCase().replace('_', ' '));
     }
   }
 }

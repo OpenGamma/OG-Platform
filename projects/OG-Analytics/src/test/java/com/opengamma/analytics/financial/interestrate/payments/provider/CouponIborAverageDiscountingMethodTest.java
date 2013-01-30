@@ -2,9 +2,8 @@ package com.opengamma.analytics.financial.interestrate.payments.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
@@ -101,8 +100,8 @@ public class CouponIborAverageDiscountingMethodTest {
 
   @Test
   public void presentValueCurveSensitivity() {
-    MultipleCurrencyParameterSensitivity pvpsAnnuityExact = PSC.calculateSensitivity(CPN_IBOR__AVERAGE, MULTICURVES, MULTICURVES.getAllNames());
-    MultipleCurrencyParameterSensitivity pvpsAnnuityFD = PSC_DSC_FD.calculateSensitivity(CPN_IBOR__AVERAGE, MULTICURVES);
+    final MultipleCurrencyParameterSensitivity pvpsAnnuityExact = PSC.calculateSensitivity(CPN_IBOR__AVERAGE, MULTICURVES, MULTICURVES.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsAnnuityFD = PSC_DSC_FD.calculateSensitivity(CPN_IBOR__AVERAGE, MULTICURVES);
     AssertSensivityObjects.assertEquals("CouponIborAverageDiscountingMethod: presentValueCurveSensitivity ", pvpsAnnuityExact, pvpsAnnuityFD, TOLERANCE_PV_DELTA);
   }
 

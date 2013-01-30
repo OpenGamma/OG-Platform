@@ -9,34 +9,25 @@ import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
-import com.opengamma.util.money.Currency;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 
 /**
  *
  */
 public abstract class CommodityBlackVolatilitySurfaceFunction extends BlackVolatilitySurfaceFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(CommodityBlackVolatilitySurfaceFunction.class);
 
   /**
    * Spline interpolator function for Black volatility surfaces
@@ -112,13 +103,8 @@ public abstract class CommodityBlackVolatilitySurfaceFunction extends BlackVolat
   }
 
   @Override
-  protected boolean isCorrectIdType(final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null; {}", target);
-      return false;
-    }
-    final String targetScheme = target.getUniqueId().getScheme();
-    return Currency.OBJECT_SCHEME.equals(targetScheme);
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
@@ -147,26 +133,18 @@ public abstract class CommodityBlackVolatilitySurfaceFunction extends BlackVolat
 
   @Override
   protected ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    final String forwardurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final String forwardCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final String forwardCurveCalculationMethod = desiredValue.getConstraint(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, forwardurveName).get();
+        .with(ValuePropertyNames.CURVE, forwardCurveName)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
+        .get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
   }
 
   @Override
   protected String getInstrumentType() {
     return InstrumentTypeProperties.COMMODITY_FUTURE_OPTION;
-  }
-
-  @Override
-  protected String getSurfaceQuoteUnits() {
-    return SurfaceAndCubePropertyNames.VOLATILITY_QUOTE;
-  }
-
-  @Override
-  //TODO Consider whether we might make this variable by reading the volatility specification.
-  protected String getSurfaceQuoteType() {
-    return SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE;
   }
 
   @Override
@@ -178,12 +156,4 @@ public abstract class CommodityBlackVolatilitySurfaceFunction extends BlackVolat
     return volDataRequirement;
   }
 
-  protected HistoricalTimeSeriesSource getTimeSeriesSource(final FunctionExecutionContext context) {
-    return OpenGammaExecutionContext.getHistoricalTimeSeriesSource(context);
-  }
-
-  protected HistoricalTimeSeriesSource getTimeSeriesSource(final FunctionCompilationContext context) {
-    final HistoricalTimeSeriesSource tss = OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
-    return tss;
-  }
 }

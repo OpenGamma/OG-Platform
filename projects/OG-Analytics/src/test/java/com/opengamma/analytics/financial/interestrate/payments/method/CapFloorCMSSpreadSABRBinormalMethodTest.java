@@ -7,16 +7,18 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 import it.unimi.dsi.fastutil.doubles.DoubleAVLTreeSet;
 
 import java.util.List;
 
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
@@ -74,22 +76,22 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.of(6, MONTHS);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final boolean FIXED_IS_PAYER = true; // Irrelevant for the underlying
   private static final double RATE = 0.0; // Irrelevant for the underlying
-  private static final Period INDEX_TENOR = Period.ofMonths(3);
+  private static final Period INDEX_TENOR = Period.of(3, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2010, 12, 30);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, SETTLEMENT_DAYS, CALENDAR);
   // Swap 10Y
-  private static final Period ANNUITY_TENOR_1 = Period.ofYears(10);
+  private static final Period ANNUITY_TENOR_1 = Period.of(10, YEARS);
   private static final IndexSwap CMS_INDEX_1 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR_1);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_1 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX_1, 1.0, RATE, FIXED_IS_PAYER);
   // Swap 2Y
-  private static final Period ANNUITY_TENOR_2 = Period.ofYears(2);
+  private static final Period ANNUITY_TENOR_2 = Period.of(2, YEARS);
   private static final IndexSwap CMS_INDEX_2 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR_2);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_2 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX_2, 1.0, RATE, FIXED_IS_PAYER);
   // CMS spread coupon
@@ -109,7 +111,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final SwapFixedCoupon<? extends Payment> SWAP_1 = SWAP_DEFINITION_1.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final SwapFixedCoupon<? extends Payment> SWAP_2 = SWAP_DEFINITION_2.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
+  private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.getDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, PAYMENT_DATE);
   private static final double FIXING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_DATE);
   private static final double SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SWAP_DEFINITION_1.getFixedLeg().getNthPayment(0).getAccrualStartDate());

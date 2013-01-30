@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.cash.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
@@ -53,7 +52,7 @@ public class CashDiscountingMethodTest {
 
   private static final double NOTIONAL = 100000000;
   private static final double RATE = 0.0250;
-  private static final Period DEPOSIT_PERIOD = Period.ofMonths(6);
+  private static final Period DEPOSIT_PERIOD = DateUtils.periodOfMonths(6);
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, DEPOSIT_PERIOD, GENERATOR);
   private static final double DEPOSIT_AF = GENERATOR.getDayCount().getDayCountFraction(SPOT_DATE, END_DATE);
   private static final CashDefinition DEPOSIT_DEFINITION = new CashDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE, DEPOSIT_AF);

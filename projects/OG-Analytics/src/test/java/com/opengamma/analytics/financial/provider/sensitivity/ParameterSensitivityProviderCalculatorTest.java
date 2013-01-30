@@ -11,10 +11,8 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
@@ -64,7 +62,7 @@ public class ParameterSensitivityProviderCalculatorTest {
   private static final ZonedDateTime EFFECTIVE_DATE = DateUtils.getUTCDate(2012, 10, 29);
   private static final double NOTIONAL = 100000000;
 
-  private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(EFFECTIVE_DATE, Period.ofYears(2), USD6MLIBOR3M, NOTIONAL, 0.05, false);
+  private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(EFFECTIVE_DATE, DateUtils.periodOfYears(2), USD6MLIBOR3M, NOTIONAL, 0.05, false);
   private static final AnnuityCouponFixedDefinition ANNUITY_DEFINITION = SWAP_DEFINITION.getFixedLeg();
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 9, 26);
   private static final String NOT_USED = "Not used";
@@ -73,7 +71,7 @@ public class ParameterSensitivityProviderCalculatorTest {
 
   private static final GeneratorSwapFixedON USD1YFEDFUND = GeneratorSwapFixedONMaster.getInstance().getGenerator("USD1YFEDFUND", NYC);
   private static final IndexON FEDFUND = USD1YFEDFUND.getIndex();
-  private static final SwapFixedONDefinition OIS_DEFINITION = SwapFixedONDefinition.from(EFFECTIVE_DATE, Period.ofMonths(6), NOTIONAL, USD1YFEDFUND, 0.02, false);
+  private static final SwapFixedONDefinition OIS_DEFINITION = SwapFixedONDefinition.from(EFFECTIVE_DATE, DateUtils.periodOfMonths(6), NOTIONAL, USD1YFEDFUND, 0.02, false);
   private static final SwapFixedCoupon<Coupon> OIS = OIS_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED, NOT_USED);
 
   private static final double[] TIME = {0.25, 0.50, 1.0, 2.0, 5.0};
@@ -110,33 +108,33 @@ public class ParameterSensitivityProviderCalculatorTest {
 
   @Test
   public void parameterSensitivityBlock() {
-    MultipleCurrencyParameterSensitivity pvpsAnnuityExact = PSC.calculateSensitivity(ANNUITY, MARKET_DSC, MARKET_DSC.getAllNames());
-    MultipleCurrencyParameterSensitivity pvpsAnnuityFD = PSC_DSC_FD.calculateSensitivity(ANNUITY, MARKET_DSC);
+    final MultipleCurrencyParameterSensitivity pvpsAnnuityExact = PSC.calculateSensitivity(ANNUITY, MARKET_DSC, MARKET_DSC.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsAnnuityFD = PSC_DSC_FD.calculateSensitivity(ANNUITY, MARKET_DSC);
     AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: fixed annuity ", pvpsAnnuityExact, pvpsAnnuityFD, TOLERANCE_DELTA);
 
-    MultipleCurrencyParameterSensitivity pvps2AnnuityExact = PSC.calculateSensitivity(ANNUITY, MARKET_FWD, MARKET_FWD.getAllNames());
-    MultipleCurrencyParameterSensitivity pvps2AnnuityFD = PSC_FWD_FD.calculateSensitivity(ANNUITY, MARKET_FWD);
+    final MultipleCurrencyParameterSensitivity pvps2AnnuityExact = PSC.calculateSensitivity(ANNUITY, MARKET_FWD, MARKET_FWD.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvps2AnnuityFD = PSC_FWD_FD.calculateSensitivity(ANNUITY, MARKET_FWD);
     AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: fixed annuity ", pvps2AnnuityExact, pvps2AnnuityFD, TOLERANCE_DELTA);
 
-    MultipleCurrencyParameterSensitivity pvpsSwapExact = PSC.calculateSensitivity(SWAP, MARKET_DSC, MARKET_DSC.getAllNames());
-    MultipleCurrencyParameterSensitivity pvpsSwapFD = PSC_DSC_FD.calculateSensitivity(SWAP, MARKET_DSC);
+    final MultipleCurrencyParameterSensitivity pvpsSwapExact = PSC.calculateSensitivity(SWAP, MARKET_DSC, MARKET_DSC.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsSwapFD = PSC_DSC_FD.calculateSensitivity(SWAP, MARKET_DSC);
     AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: swap ", pvpsSwapExact, pvpsSwapFD, TOLERANCE_DELTA);
 
-    MultipleCurrencyParameterSensitivity pvps2SwapExact = PSC.calculateSensitivity(SWAP, MARKET_FWD, MARKET_FWD.getAllNames());
-    MultipleCurrencyParameterSensitivity pvps2SwapFD = PSC_FWD_FD.calculateSensitivity(SWAP, MARKET_FWD);
+    final MultipleCurrencyParameterSensitivity pvps2SwapExact = PSC.calculateSensitivity(SWAP, MARKET_FWD, MARKET_FWD.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvps2SwapFD = PSC_FWD_FD.calculateSensitivity(SWAP, MARKET_FWD);
     AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: swap", pvps2SwapExact, pvps2SwapFD, TOLERANCE_DELTA);
 
-    MultipleCurrencyParameterSensitivity pvpsOisExact = PSC.calculateSensitivity(OIS, MARKET_DSC, MARKET_DSC.getAllNames());
-    MultipleCurrencyParameterSensitivity pvpsOisFD = PSC_DSC_FD.calculateSensitivity(OIS, MARKET_DSC);
+    final MultipleCurrencyParameterSensitivity pvpsOisExact = PSC.calculateSensitivity(OIS, MARKET_DSC, MARKET_DSC.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsOisFD = PSC_DSC_FD.calculateSensitivity(OIS, MARKET_DSC);
     AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: Ois", pvpsOisExact, pvpsOisFD, TOLERANCE_DELTA);
 
-    MultipleCurrencyParameterSensitivity pvps2OisExact = PSC.calculateSensitivity(OIS, MARKET_FWD, MARKET_FWD.getAllNames());
-    MultipleCurrencyParameterSensitivity pvps2OisFD = PSC_FWD_FD.calculateSensitivity(OIS, MARKET_FWD);
+    final MultipleCurrencyParameterSensitivity pvps2OisExact = PSC.calculateSensitivity(OIS, MARKET_FWD, MARKET_FWD.getAllNames());
+    final MultipleCurrencyParameterSensitivity pvps2OisFD = PSC_FWD_FD.calculateSensitivity(OIS, MARKET_FWD);
     AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: Ois", pvps2OisExact, pvps2OisFD, TOLERANCE_DELTA);
 
-    Set<String> required = new TreeSet<String>();
+    final Set<String> required = new TreeSet<String>();
     required.add(DSC_NAME);
-    MultipleCurrencyParameterSensitivity pvpsSwapNoFwd = PSC.calculateSensitivity(SWAP, MARKET_DSC, required);
+    final MultipleCurrencyParameterSensitivity pvpsSwapNoFwd = PSC.calculateSensitivity(SWAP, MARKET_DSC, required);
     assertTrue("ParameterSensitivityMarketBlockCalculator: fixed curve ", pvpsSwapNoFwd.getAllNamesCurrency().size() == 1);
     assertArrayEquals("ParameterSensitivityMarketBlockCalculator: fixed curve ", pvpsSwapNoFwd.getSensitivity(DSC_NAME, USD).getData(), pvpsSwapExact.getSensitivity(DSC_NAME, USD).getData(),
         TOLERANCE_DELTA);

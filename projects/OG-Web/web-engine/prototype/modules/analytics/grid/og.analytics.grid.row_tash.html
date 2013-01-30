@@ -1,7 +1,7 @@
 <div>
   <div class="OG-g-rows" style="height: {{holder_height}}px;">
     {{#each rows}}
-      <div class="OG-g-row" style="top: {{top}}px;">
+      <div class="OG-g-row{{#row_class}}{{../row_class}}{{/row_class}}" style="top: {{top}}px;">
         {{#each cells}}
           <div class="OG-g-cell c{{column}}{{#error}} og-error{{/error}}
           {{#logging}} og-log og-log-{{../logging}}{{/logging}}">

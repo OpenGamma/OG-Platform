@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.forex.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
@@ -63,7 +62,8 @@ public class ForexOptionVanillaBlackFlatMethodTest {
   private static final int SETTLEMENT_DAYS = 2;
   // Vol data
   private static final Pair<Currency, Currency> CURRENCY_PAIR = Pair.of(EUR, USD);
-  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
+  private static final Period[] EXPIRY_PERIOD = new Period[] {DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1),
+      DateUtils.periodOfYears(2), DateUtils.periodOfYears(5)};
   private static final double[] VOL = new double[] {0.20, 0.25, 0.20, 0.15, 0.20};
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
@@ -78,8 +78,8 @@ public class ForexOptionVanillaBlackFlatMethodTest {
       TIME_TO_EXPIRY[loopexp] = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRY_DATE[loopexp]);
     }
   }
-  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
-      Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+  private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR,
+      Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final InterpolatedDoublesCurve TERM_STRUCTURE_VOL = new InterpolatedDoublesCurve(TIME_TO_EXPIRY, VOL, LINEAR_FLAT, true);
 
   // Methods and curves
@@ -102,8 +102,8 @@ public class ForexOptionVanillaBlackFlatMethodTest {
   private static final double[] DELTA = new double[] {0.10, 0.25};
   private static final double[][] RISK_REVERSAL_FLAT = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
   private static final double[][] STRANGLE_FLAT = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
-  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, VOL, RISK_REVERSAL_FLAT,
-      STRANGLE_FLAT, LINEAR_FLAT, LINEAR_FLAT);
+  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY,
+      DELTA, VOL, RISK_REVERSAL_FLAT, STRANGLE_FLAT, LINEAR_FLAT, LINEAR_FLAT);
   private static final BlackForexSmileProvider SMILE_FLAT_MULTICURVES = new BlackForexSmileProvider(MULTICURVES, SMILE_TERM_FLAT, CURRENCY_PAIR);
 
   // Some options
@@ -111,7 +111,7 @@ public class ForexOptionVanillaBlackFlatMethodTest {
   private static final boolean IS_CALL = true;
   private static final boolean IS_LONG = true;
   private static final double NOTIONAL_EUR = 100000000;
-  private static final ZonedDateTime OPT_PAY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+  private static final ZonedDateTime OPT_PAY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(9), BUSINESS_DAY, CALENDAR);
   private static final ZonedDateTime OPT_EXP_DATE = ScheduleCalculator.getAdjustedDate(OPT_PAY_DATE, -SETTLEMENT_DAYS, CALENDAR);
   private static final ForexDefinition FX_DEFINITION = new ForexDefinition(EUR, USD, OPT_PAY_DATE, NOTIONAL_EUR, STRIKE);
   private static final ForexOptionVanillaDefinition CALL_LONG_DEFINITION = new ForexOptionVanillaDefinition(FX_DEFINITION, OPT_EXP_DATE, IS_CALL, IS_LONG);
@@ -147,8 +147,8 @@ public class ForexOptionVanillaBlackFlatMethodTest {
     final MultipleCurrencyAmount pvCall = METHOD_BLACK_FLAT.presentValue(CALL_LONG, BLACK_MULTICURVES);
     final MultipleCurrencyAmount pvPut = METHOD_BLACK_FLAT.presentValue(PUT_SHORT, BLACK_MULTICURVES);
     final MultipleCurrencyAmount pvForward = FX.accept(PVDC, MULTICURVES);
-    assertEquals("Forex vanilla option: present value put/call parity", MULTICURVES.getFxRates().convert(pvForward, EUR).getAmount(), MULTICURVES.getFxRates().convert(pvCall.plus(pvPut), EUR)
-        .getAmount(), TOLERANCE_PV);
+    assertEquals("Forex vanilla option: present value put/call parity", MULTICURVES.getFxRates().convert(pvForward, EUR).getAmount(),
+        MULTICURVES.getFxRates().convert(pvCall.plus(pvPut), EUR).getAmount(), TOLERANCE_PV);
   }
 
   @Test
@@ -201,10 +201,10 @@ public class ForexOptionVanillaBlackFlatMethodTest {
     final MultipleCurrencyAmount currencyExposureCall = METHOD_BLACK_FLAT.currencyExposure(CALL_LONG, BLACK_MULTICURVES);
     final MultipleCurrencyAmount currencyExposurePut = METHOD_BLACK_FLAT.currencyExposure(PUT_SHORT, BLACK_MULTICURVES);
     final MultipleCurrencyAmount currencyExposureForward = FX.accept(CEDC, MULTICURVES);
-    assertEquals("Forex vanilla option: currency exposure put/call parity foreign", currencyExposureForward.getAmount(EUR), currencyExposureCall.getAmount(EUR) + currencyExposurePut.getAmount(EUR),
-        TOLERANCE_PV);
-    assertEquals("Forex vanilla option: currency exposure put/call parity domestic", currencyExposureForward.getAmount(USD), currencyExposureCall.getAmount(USD) + currencyExposurePut.getAmount(USD),
-        TOLERANCE_PV);
+    assertEquals("Forex vanilla option: currency exposure put/call parity foreign", currencyExposureForward.getAmount(EUR), currencyExposureCall.getAmount(EUR)
+        + currencyExposurePut.getAmount(EUR), TOLERANCE_PV);
+    assertEquals("Forex vanilla option: currency exposure put/call parity domestic", currencyExposureForward.getAmount(USD), currencyExposureCall.getAmount(USD)
+        + currencyExposurePut.getAmount(USD), TOLERANCE_PV);
   }
 
   @Test

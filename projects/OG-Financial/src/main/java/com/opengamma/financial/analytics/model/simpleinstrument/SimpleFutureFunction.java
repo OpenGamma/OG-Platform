@@ -9,11 +9,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -24,11 +22,11 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction.NonCompiledInvoker;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueProperties.Builder;
@@ -55,6 +53,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -89,7 +88,7 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
     final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
 
     // 1. Build the analytic derivative to be priced
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final FutureSecurity security = (FutureSecurity) target.getTrade().getSecurity();
 
     // Get reference price
@@ -120,9 +119,6 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
-      return false;
-    }
     final Security security = target.getTrade().getSecurity();
     return security instanceof EnergyFutureSecurity
         || security instanceof MetalFutureSecurity
@@ -171,7 +167,7 @@ public abstract class SimpleFutureFunction extends NonCompiledInvoker {
       return null;
     }
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
+        DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(7)), true, DateConstraint.VALUATION_TIME, true);
   }
 
   @Override

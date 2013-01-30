@@ -8,10 +8,8 @@ package com.opengamma.analytics.financial.interestrate.payments.provider;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
@@ -55,7 +53,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
 
   // Dates
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 7);
-  private static final ZonedDateTime START_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofYears(9), EURIBOR6M);
+  private static final ZonedDateTime START_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfYears(9), EURIBOR6M);
   private static final ZonedDateTime END_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(START_ACCRUAL_DATE, EURIBOR6M);
   private static final double ACCRUAL_FACTOR = EURIBOR6M.getDayCount().getDayCountFraction(START_ACCRUAL_DATE, END_ACCRUAL_DATE);
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(END_ACCRUAL_DATE, -EURIBOR6M.getSpotLag(), CALENDAR);
@@ -100,7 +98,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
     final CapFloorIbor capStandard = new CapFloorIbor(EUR, CAP_LONG.getFixingPeriodEndTime(), NOT_USED, CAP_LONG.getPaymentYearFraction(), NOTIONAL, CAP_LONG.getFixingTime(), EURIBOR6M,
         CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor(), NOT_USED, STRIKE, IS_CAP);
     final MultipleCurrencyAmount priceStandard = capStandard.accept(PVSCC, SABR_MULTICURVES);
-    double forward = MULTICURVES.getForwardRate(CAP_LONG.getIndex(), CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
+    final double forward = MULTICURVES.getForwardRate(CAP_LONG.getIndex(), CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingAccrualFactor());
     final double beta = (1.0 + CAP_LONG.getFixingAccrualFactor() * forward) * MULTICURVES.getDiscountFactor(EUR, CAP_LONG.getFixingPeriodEndTime())
         / MULTICURVES.getDiscountFactor(EUR, CAP_LONG.getFixingPeriodStartTime());
     final double strikePart = (1.0 + CAP_LONG.getFixingAccrualFactor() * STRIKE) * priceStandard.getAmount(EUR);

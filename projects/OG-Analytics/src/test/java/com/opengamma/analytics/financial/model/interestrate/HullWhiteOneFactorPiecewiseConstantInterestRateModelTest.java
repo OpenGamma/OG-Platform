@@ -8,14 +8,15 @@ package com.opengamma.analytics.financial.model.interestrate;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
@@ -88,7 +89,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    */
   public void futureConvexityFactor() {
     //EURIBOR 3M Index
-    final Period TENOR = Period.ofMonths(3);
+    final Period TENOR = Period.of(3, MONTHS);
     final int SETTLEMENT_DAYS = 2;
     final Calendar CALENDAR = new MondayToFridayCalendar("A");
     final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -107,7 +108,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     final int quantity = 123;
     final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
     DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
+    ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE, LocalTime.MIDNIGHT), ZoneOffset.UTC);
     double LAST_TRADING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, LAST_TRADING_DATE);
     double FIXING_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SPOT_LAST_TRADING_DATE);
     double FIXING_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_END_DATE);

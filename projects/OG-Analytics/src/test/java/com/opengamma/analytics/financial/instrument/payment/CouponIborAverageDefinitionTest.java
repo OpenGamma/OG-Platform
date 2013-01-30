@@ -9,10 +9,9 @@ package com.opengamma.analytics.financial.instrument.payment;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -33,8 +32,8 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 
 public class CouponIborAverageDefinitionTest {
 
-  private static final Period TENOR_1 = Period.ofMonths(3);
-  private static final Period TENOR_2 = Period.ofMonths(6);
+  private static final Period TENOR_1 = DateUtils.periodOfMonths(3);
+  private static final Period TENOR_2 = DateUtils.periodOfMonths(6);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -164,7 +163,7 @@ public class CouponIborAverageDefinitionTest {
     other = new CouponIborAverageDefinition(Currency.AUD, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(Currency.AUD, TENOR_1,
         SETTLEMENT_DAYS,
         CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), new IborIndex(Currency.AUD, TENOR_2, SETTLEMENT_DAYS,
-        CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), WEIGHT_1, WEIGHT_2);
+            CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), WEIGHT_1, WEIGHT_2);
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
     other = new CouponIborAverageDefinition(CUR, PAYMENT_DATE.plusDays(1), ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX_1, INDEX_2, WEIGHT_1, WEIGHT_2);
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
@@ -180,11 +179,11 @@ public class CouponIborAverageDefinitionTest {
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
     other = new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(CUR, TENOR_1, SETTLEMENT_DAYS + 1, CALENDAR,
         DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), new IborIndex(CUR, TENOR_2, SETTLEMENT_DAYS,
-        CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), WEIGHT_1, WEIGHT_2);
+            CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), WEIGHT_1, WEIGHT_2);
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
     other = new CouponIborAverageDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(CUR, TENOR_1, SETTLEMENT_DAYS, CALENDAR,
         DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), new IborIndex(CUR, TENOR_2, SETTLEMENT_DAYS + 1,
-        CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), WEIGHT_1, WEIGHT_2);
+            CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), WEIGHT_1, WEIGHT_2);
     assertFalse(IBOR_AVERAGE_COUPON_DEFINITION_1.equals(other));
 
   }

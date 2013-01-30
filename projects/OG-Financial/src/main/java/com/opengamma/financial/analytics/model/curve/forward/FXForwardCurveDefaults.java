@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -81,7 +81,7 @@ public abstract class FXForwardCurveDefaults extends DefaultPropertyFunction {
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
-      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
+      defaults.addValuePropertyName(valueRequirement, ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     }
   }
 
@@ -96,7 +96,7 @@ public abstract class FXForwardCurveDefaults extends DefaultPropertyFunction {
     if (ValuePropertyNames.CURVE.equals(propertyName)) {
       return Collections.singleton(curveName);
     }
-    if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
+    if (ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_currencyPairToCurveCalculationMethodName.get(currencyPair));
     }
     s_logger.error("Could not find default value for {} in this function", propertyName);

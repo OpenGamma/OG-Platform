@@ -1,12 +1,18 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.analytics.financial.instrument.swap;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
@@ -28,10 +34,10 @@ public class SwapFixedOISDefinitionTest {
   private static final boolean IS_PAYER = true;
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, EONIA_GENERATOR.getSpotLag(), EUR_CALENDAR);
   // Swap EONIA 3M
-  private static final Period EUR_SWAP_3M_TENOR = Period.ofMonths(3);
+  private static final Period EUR_SWAP_3M_TENOR = Period.of(3, MONTHS);
   private static final SwapFixedONDefinition EONIA_SWAP_3M_DEFINITION = SwapFixedONDefinition.from(SPOT_DATE, EUR_SWAP_3M_TENOR, NOTIONAL, EONIA_GENERATOR, FIXED_RATE, IS_PAYER);
   // Swap EONIA 3Y
-  private static final Period EUR_SWAP_3Y_TENOR = Period.ofYears(3);
+  private static final Period EUR_SWAP_3Y_TENOR = Period.of(3, YEARS);
   private static final SwapFixedONDefinition EONIA_SWAP_3Y_DEFINITION = SwapFixedONDefinition.from(SPOT_DATE, EUR_SWAP_3Y_TENOR, NOTIONAL, EONIA_GENERATOR, FIXED_RATE, IS_PAYER);
 
   @Test
@@ -86,10 +92,10 @@ public class SwapFixedOISDefinitionTest {
   private static final boolean AUD_IS_PAYER = true;
   private static final ZonedDateTime AUD_SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, RBAON_GENERATOR.getSpotLag(), AUD_CALENDAR);
   // Swap EONIA 3M
-  private static final Period AUD_SWAP_3M_TENOR = Period.ofMonths(3);
+  private static final Period AUD_SWAP_3M_TENOR = Period.of(3, MONTHS);
   private static final SwapFixedONDefinition RBAON_SWAP_3M_DEFINITION = SwapFixedONDefinition.from(AUD_SPOT_DATE, AUD_SWAP_3M_TENOR, AUD_NOTIONAL, RBAON_GENERATOR, AUD_FIXED_RATE, AUD_IS_PAYER);
   // Swap EONIA 3Y
-  private static final Period AUD_SWAP_3Y_TENOR = Period.ofYears(3);
+  private static final Period AUD_SWAP_3Y_TENOR = Period.of(3, YEARS);
   private static final SwapFixedONDefinition RBAON_SWAP_3Y_DEFINITION = SwapFixedONDefinition.from(AUD_SPOT_DATE, AUD_SWAP_3Y_TENOR, AUD_NOTIONAL, RBAON_GENERATOR, AUD_FIXED_RATE, AUD_IS_PAYER);
 
   @Test

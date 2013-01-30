@@ -6,15 +6,22 @@
 package com.opengamma.financial.analytics.model.equity.option;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.equity.EquityOptionBlackRhoCalculator;
+import com.opengamma.analytics.financial.equity.EquityOptionBlackScholesRhoCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -23,20 +30,36 @@ import com.opengamma.engine.value.ValueSpecification;
  * Calculates the rho of an equity index or equity option using the Black formula.
  */
 public class EquityOptionBlackRhoFunction extends EquityOptionBlackFunction {
+  /** Rho calculator */
+  private static final InstrumentDerivativeVisitor<StaticReplicationDataBundle, Double> CALCULATOR = EquityOptionBlackRhoCalculator.getInstance();
 
   /**
    * Default constructor
    */
   public EquityOptionBlackRhoFunction() {
-    super(ValueRequirementNames.VALUE_RHO);
+    super(ValueRequirementNames.RHO);
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    return Collections.singleton(new ComputedValue(resultSpec, model.rho(derivative, market)));
+    final double rho = derivative.accept(CALCULATOR, market);
+    return Collections.singleton(new ComputedValue(resultSpec, rho));
   }
 
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final Set<ValueSpecification> results = super.getResults(context, target, inputs);
+    final Set<ValueSpecification> resultsWithoutCurrency = Sets.newHashSetWithExpectedSize(results.size());
+    for (final ValueSpecification spec : results) {
+      final String name = spec.getValueName();
+      final ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
+      final ValueProperties properties = spec.getProperties().copy()
+          .withoutAny(ValuePropertyNames.CURRENCY)
+          .get();
+      resultsWithoutCurrency.add(new ValueSpecification(name, targetSpec, properties));
+    }
+    return results;
+  }
 }

@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionD
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
+import com.opengamma.analytics.financial.equity.option.EquityOptionDefinition;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwapDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
@@ -850,6 +851,16 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitEquityIndexOptionDefinition(final EquityIndexOptionDefinition option) {
     return _delegate.visitEquityIndexOptionDefinition(option);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityOptionDefinition(final EquityOptionDefinition option, final DATA_TYPE data) {
+    return _delegate.visitEquityOptionDefinition(option, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityOptionDefinition(final EquityOptionDefinition option) {
+    return _delegate.visitEquityOptionDefinition(option);
   }
 
   @Override

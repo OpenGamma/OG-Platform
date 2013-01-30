@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.swaption.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -57,8 +56,8 @@ public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
   private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor("EUR3MEURIBOR3M", EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 8, 31);
-  private static final Period START_TENOR = Period.ofMonths(6);
-  private static final Period SWAP_TENOR = Period.ofYears(5);
+  private static final Period START_TENOR = DateUtils.periodOfMonths(6);
+  private static final Period SWAP_TENOR = DateUtils.periodOfYears(5);
   private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, START_TENOR, EURIBOR3M);
   private static final double NOTIONAL = 123000000;
   private static final double SPREAD = 0.0010;
@@ -91,16 +90,16 @@ public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
 
   @Test
   public void presentValue() {
-    MultipleCurrencyAmount pvComputed = METHOD_SWAPTION_SPREAD.presentValue(SWAPTION_SPREAD_EUR1Y3M, BLACK_MULTICURVES);
-    double pvbp = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR1Y3M, EUR1YEURIBOR3M.getFixedLegDayCount(), MULTICURVES);
-    double forward = METHOD_SWAP_SPREAD.forwardSwapSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp, MULTICURVES);
-    double strike = METHOD_SWAP_SPREAD.couponEquivalentSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp, MULTICURVES);
-    double volatility = BLACK.getVolatility(SWAPTION_SPREAD_EUR1Y3M.getTimeToExpiry(), SWAPTION_SPREAD_EUR1Y3M.getMaturityTime());
+    final MultipleCurrencyAmount pvComputed = METHOD_SWAPTION_SPREAD.presentValue(SWAPTION_SPREAD_EUR1Y3M, BLACK_MULTICURVES);
+    final double pvbp = METHOD_SWAP_SPREAD.presentValueBasisPoint(SWAP_SPREAD_EUR1Y3M, EUR1YEURIBOR3M.getFixedLegDayCount(), MULTICURVES);
+    final double forward = METHOD_SWAP_SPREAD.forwardSwapSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp, MULTICURVES);
+    final double strike = METHOD_SWAP_SPREAD.couponEquivalentSpreadModified(SWAP_SPREAD_EUR1Y3M, pvbp, MULTICURVES);
+    final double volatility = BLACK.getVolatility(SWAPTION_SPREAD_EUR1Y3M.getTimeToExpiry(), SWAPTION_SPREAD_EUR1Y3M.getMaturityTime());
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, SWAPTION_SPREAD_EUR1Y3M.getTimeToExpiry(), SWAPTION_SPREAD_EUR1Y3M.isCall());
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, pvbp, volatility);
     final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
-    double pvExpected = func.evaluate(dataBlack) * (IS_LONG ? 1.0 : -1.0);
+    final double pvExpected = func.evaluate(dataBlack) * (IS_LONG ? 1.0 : -1.0);
     assertEquals("SwaptionPhysicalFixedIborSpreadBlackMethod: presentValue", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -109,8 +108,8 @@ public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
    * Compare the present value of a swaption with spread to a swaption wihout spread and an adjusted strike.
    */
   public void presentValueNoSpread() {
-    MultipleCurrencyAmount pvComputed = METHOD_SWAPTION_SPREAD.presentValue(SWAPTION_SPREAD_EUR3M3M, BLACK_MULTICURVES);
-    MultipleCurrencyAmount pvExpected = METHOD_SWAPTION.presentValue(SWAPTION_NOSPREAD_EUR3M3M, BLACK_MULTICURVES);
+    final MultipleCurrencyAmount pvComputed = METHOD_SWAPTION_SPREAD.presentValue(SWAPTION_SPREAD_EUR3M3M, BLACK_MULTICURVES);
+    final MultipleCurrencyAmount pvExpected = METHOD_SWAPTION.presentValue(SWAPTION_NOSPREAD_EUR3M3M, BLACK_MULTICURVES);
     assertEquals("SwaptionPhysicalFixedIborSpreadBlackMethod: presentValue", pvExpected.getAmount(EUR), pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 

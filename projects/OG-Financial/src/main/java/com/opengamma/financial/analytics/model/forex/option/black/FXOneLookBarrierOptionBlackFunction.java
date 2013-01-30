@@ -10,10 +10,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
@@ -24,7 +23,6 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -63,9 +61,6 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     final Security security = target.getSecurity();
     if (security instanceof FXBarrierOptionSecurity) {
       return ((FXBarrierOptionSecurity) security).getSamplingFrequency().equals(SamplingFrequency.ONE_LOOK);
@@ -75,7 +70,7 @@ public abstract class FXOneLookBarrierOptionBlackFunction extends FXOptionBlackS
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final FXBarrierOptionSecurity barrierSec = (FXBarrierOptionSecurity) target.getSecurity();
 
     final ValueRequirement desiredValue = desiredValues.iterator().next();

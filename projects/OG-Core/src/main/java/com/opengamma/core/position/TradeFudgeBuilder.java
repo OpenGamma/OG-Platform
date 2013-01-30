@@ -8,9 +8,6 @@ package com.opengamma.core.position;
 import java.math.BigDecimal;
 import java.util.Map.Entry;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -19,6 +16,8 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import org.fudgemsg.wire.types.FudgeWireType;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
@@ -47,8 +46,6 @@ public class TradeFudgeBuilder implements FudgeBuilder<Trade> {
   public static final String PREMIUM_FIELD_NAME = "premium";
   /** Field name. */
   public static final String UNIQUE_ID_FIELD_NAME = "uniqueId";
-  /** Field name. */
-  public static final String PARENT_POSITION_ID_FIELD_NAME = "parentPositionId";
   /** Field name. */
   public static final String QUANTITY_FIELD_NAME = "quantity";
   /** Field name. */
@@ -114,9 +111,6 @@ public class TradeFudgeBuilder implements FudgeBuilder<Trade> {
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final Trade trade) {
     final MutableFudgeMsg message = buildMessageImpl(serializer, trade);
-    if (trade.getParentPositionId() != null) {
-      serializer.addToMessage(message, PARENT_POSITION_ID_FIELD_NAME, null, trade.getParentPositionId());
-    }
     message.add(null, FudgeSerializer.TYPES_HEADER_ORDINAL, FudgeWireType.STRING, Trade.class.getName());
     return message;
   }
@@ -204,12 +198,7 @@ public class TradeFudgeBuilder implements FudgeBuilder<Trade> {
 
   @Override
   public Trade buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    final SimpleTrade trade = buildObjectImpl(deserializer, message);
-    FudgeField positionField = message.getByName(PARENT_POSITION_ID_FIELD_NAME);
-    if (positionField != null) {
-      trade.setParentPositionId(deserializer.fieldValueToObject(UniqueId.class, positionField));
-    }
-    return trade;
+    return buildObjectImpl(deserializer, message);
   }
 
 }

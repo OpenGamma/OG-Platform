@@ -10,7 +10,7 @@ import java.util.Iterator;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.ParameterizedFunction;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.tuple.Triple;
@@ -26,11 +26,12 @@ public interface CompiledFunctionResolver {
    * <p>
    * The resolution finds functions that are capable of satisfying the requirement. If multiple functions can satisfy, they should be returned from highest priority to lowest priority.
    * 
-   * @param requirement Output requirement to satisfy
+   * @param valueName Value requirement name to satisfy
    * @param target Target to satisfy the requirement on
+   * @param constraints Constraints that the outputs must satisfy
    * @return the function(s) found, the specification from the output set that matches the requirement and the maximal set of outputs from the function on that target
    */
-  Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> resolveFunction(ValueRequirement requirement, ComputationTarget target);
+  Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> resolveFunction(String valueName, ComputationTarget target, ValueProperties constraints);
 
   /**
    * Gets the full set of resolution rules backing the resolver.

@@ -9,10 +9,9 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import cern.jet.random.engine.MersenneTwister;
 
@@ -79,7 +78,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   // Swaption 5Yx5Y
   private static final int SPOT_LAG = EURIBOR6M.getSpotLag();
   private static final int SWAP_TENOR_YEAR = 5;
-  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
+  private static final Period SWAP_TENOR = DateUtils.periodOfYears(SWAP_TENOR_YEAR);
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
   private static final boolean IS_LONG = true;
@@ -228,25 +227,25 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Approximation analysis.
    */
   public void presentValueApproximationAnalysis() {
-    NormalImpliedVolatilityFormula implied = new NormalImpliedVolatilityFormula();
-    int nbStrike = 20;
-    double[] pvExplicit = new double[nbStrike + 1];
-    double[] pvApproximation = new double[nbStrike + 1];
-    double[] strike = new double[nbStrike + 1];
-    double[] volExplicit = new double[nbStrike + 1];
-    double[] volApprox = new double[nbStrike + 1];
-    double strikeRange = 0.010;
-    SwapFixedCoupon<Coupon> swap = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-    double forward = swap.accept(PRDC, MULTICURVES);
-    double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, MULTICURVES);
+    final NormalImpliedVolatilityFormula implied = new NormalImpliedVolatilityFormula();
+    final int nbStrike = 20;
+    final double[] pvExplicit = new double[nbStrike + 1];
+    final double[] pvApproximation = new double[nbStrike + 1];
+    final double[] strike = new double[nbStrike + 1];
+    final double[] volExplicit = new double[nbStrike + 1];
+    final double[] volApprox = new double[nbStrike + 1];
+    final double strikeRange = 0.010;
+    final SwapFixedCoupon<Coupon> swap = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+    final double forward = swap.accept(PRDC, MULTICURVES);
+    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, MULTICURVES);
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
       strike[loopstrike] = forward - strikeRange + 3 * strikeRange * loopstrike / nbStrike; // From forward-strikeRange to forward+2*strikeRange
-      SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, EUR1YEURIBOR6M, NOTIONAL, strike[loopstrike], FIXED_IS_PAYER);
-      SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapDefinition, IS_LONG);
-      SwaptionPhysicalFixedIbor swaption = swaptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+      final SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, EUR1YEURIBOR6M, NOTIONAL, strike[loopstrike], FIXED_IS_PAYER);
+      final SwaptionPhysicalFixedIborDefinition swaptionDefinition = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapDefinition, IS_LONG);
+      final SwaptionPhysicalFixedIbor swaption = swaptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
       pvExplicit[loopstrike] = METHOD_HW.presentValue(swaption, HW_MULTICURVES).getAmount(EUR);
       pvApproximation[loopstrike] = METHOD_HW_APPROXIMATION.presentValue(swaption, HW_MULTICURVES).getAmount(EUR);
-      NormalFunctionData data = new NormalFunctionData(forward, pvbp, 0.01);
+      final NormalFunctionData data = new NormalFunctionData(forward, pvbp, 0.01);
       volExplicit[loopstrike] = implied.getImpliedVolatility(data, swaption, pvExplicit[loopstrike]);
       volApprox[loopstrike] = implied.getImpliedVolatility(data, swaption, pvApproximation[loopstrike]);
       assertEquals("Swaption physical - Hull-White - implied volatility - explicit/approximation", volExplicit[loopstrike], volApprox[loopstrike], 1.0E-3); // 0.10%
@@ -261,16 +260,16 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     HullWhiteMonteCarloMethod methodMC;
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
     // Seed fixed to the DEFAULT_SEED for testing purposes.
-    MultipleCurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
-    MultipleCurrencyAmount pvPayerLongMC = methodMC.presentValue(SWAPTION_LONG_PAYER, EUR, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerLongMC = methodMC.presentValue(SWAPTION_LONG_PAYER, EUR, HW_MULTICURVES);
     assertEquals("Swaption physical - Hull-White - Monte Carlo", pvPayerLongExplicit.getAmount(EUR), pvPayerLongMC.getAmount(EUR), 1.0E+4);
-    double pvMCPreviousRun = 4221400.891;
+    final double pvMCPreviousRun = 4221400.891;
     assertEquals("Swaption physical - Hull-White - Monte Carlo", pvMCPreviousRun, pvPayerLongMC.getAmount(EUR), TOLERANCE_PV);
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
-    MultipleCurrencyAmount pvPayerShortMC = methodMC.presentValue(SWAPTION_SHORT_PAYER, EUR, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerShortMC = methodMC.presentValue(SWAPTION_SHORT_PAYER, EUR, HW_MULTICURVES);
     assertEquals("Swaption physical - Hull-White - Monte Carlo", -pvPayerLongMC.getAmount(EUR), pvPayerShortMC.getAmount(EUR), TOLERANCE_PV);
-    MultipleCurrencyAmount pvReceiverLongMC = methodMC.presentValue(SWAPTION_LONG_RECEIVER, EUR, HW_MULTICURVES);
-    MultipleCurrencyAmount pvSwap = SWAP_RECEIVER.accept(PVDC, MULTICURVES);
+    final MultipleCurrencyAmount pvReceiverLongMC = methodMC.presentValue(SWAPTION_LONG_RECEIVER, EUR, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvSwap = SWAP_RECEIVER.accept(PVDC, MULTICURVES);
     assertEquals("Swaption physical - Hull-White - Monte Carlo - payer/receiver/swap parity", pvReceiverLongMC.getAmount(EUR) + pvPayerShortMC.getAmount(EUR), pvSwap.getAmount(EUR), 1.0E+5);
   }
 
@@ -345,23 +344,23 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   public void presentValueCurveSensitivityStability() {
     // 5Yx5Y
     final MultipleCurrencyParameterSensitivity pvpsExact = PS_HW_C.calculateSensitivity(SWAPTION_SHORT_RECEIVER, HW_MULTICURVES, HW_MULTICURVES.getMulticurveProvider().getAllNames());
-    double derivativeExact = pvpsExact.totalSensitivity(MULTICURVES.getFxRates(), EUR);
-    double startingShift = 1.0E-4;
-    double ratio = Math.sqrt(2.0);
+    final double derivativeExact = pvpsExact.totalSensitivity(MULTICURVES.getFxRates(), EUR);
+    final double startingShift = 1.0E-4;
+    final double ratio = Math.sqrt(2.0);
     final int nbShift = 55;
     final double[] eps = new double[nbShift + 1];
     final double[] derivative_FD = new double[nbShift];
     final double[] diff = new double[nbShift];
     eps[0] = startingShift;
     for (int loopshift = 0; loopshift < nbShift; loopshift++) {
-      ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator fdShift = new ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(PVHWC, eps[loopshift]);
-      MultipleCurrencyParameterSensitivity pvpsFD = fdShift.calculateSensitivity(SWAPTION_SHORT_RECEIVER, HW_MULTICURVES);
+      final ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator fdShift = new ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(PVHWC, eps[loopshift]);
+      final MultipleCurrencyParameterSensitivity pvpsFD = fdShift.calculateSensitivity(SWAPTION_SHORT_RECEIVER, HW_MULTICURVES);
       derivative_FD[loopshift] = pvpsFD.totalSensitivity(MULTICURVES.getFxRates(), EUR);
       diff[loopshift] = derivative_FD[loopshift] - derivativeExact;
       eps[loopshift + 1] = eps[loopshift] / ratio;
     }
     // 1Mx5Y
-    final Period expirationPeriod = Period.ofDays(1); // Period.ofDays(1); Period.ofDays(7); Period.ofMonths(1); Period.ofYears(1); Period.ofYears(10);
+    final Period expirationPeriod = DateUtils.periodOfDays(1); // DateUtils.periodOfDays(1); DateUtils.periodOfDays(7); DateUtils.periodOfMonths(1); DateUtils.periodOfYears(1); DateUtils.periodOfYears(10);
     final ZonedDateTime expiryDateExp = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expirationPeriod, EURIBOR6M);
     final ZonedDateTime settlementDateExp = ScheduleCalculator.getAdjustedDate(expiryDateExp, SPOT_LAG, CALENDAR);
     final double ATM = 0.0151; //  1W: 1.52% - 1M: 1.52% - 1Y: 1.51% - 10Y: 1.51%
@@ -370,12 +369,12 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     final SwaptionPhysicalFixedIbor swaptionExpx5Y = swaptionExpx5YDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
     //    final double forward = swaptionExpx5Y.getUnderlyingSwap().accept(PRDC, MULTICURVES);
     final MultipleCurrencyParameterSensitivity pvpsExactExp = PS_HW_C.calculateSensitivity(swaptionExpx5Y, HW_MULTICURVES, HW_MULTICURVES.getMulticurveProvider().getAllNames());
-    double derivativeExactExp = pvpsExactExp.totalSensitivity(MULTICURVES.getFxRates(), EUR);
+    final double derivativeExactExp = pvpsExactExp.totalSensitivity(MULTICURVES.getFxRates(), EUR);
     final double[] derivative_FDExp = new double[nbShift];
     final double[] diffExp = new double[nbShift];
     for (int loopshift = 0; loopshift < nbShift; loopshift++) {
-      ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator fdShift = new ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(PVHWC, eps[loopshift]);
-      MultipleCurrencyParameterSensitivity pvpsFD = fdShift.calculateSensitivity(swaptionExpx5Y, HW_MULTICURVES);
+      final ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator fdShift = new ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(PVHWC, eps[loopshift]);
+      final MultipleCurrencyParameterSensitivity pvpsFD = fdShift.calculateSensitivity(swaptionExpx5Y, HW_MULTICURVES);
       derivative_FDExp[loopshift] = pvpsFD.totalSensitivity(MULTICURVES.getFxRates(), EUR);
       diffExp[loopshift] = derivative_FDExp[loopshift] - derivativeExactExp;
     }
@@ -410,10 +409,10 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
    * Tests the curve sensitivity in Monte Carlo approach.
    */
   public void presentValueCurveSensitivityMonteCarlo() {
-    double toleranceDelta = 1.0E+6; // 100 USD by bp
-    MultipleCurrencyMulticurveSensitivity pvcsExplicit = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES).cleaned(TOLERANCE_PV_DELTA);
-    HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
-    MultipleCurrencyMulticurveSensitivity pvcsMC = methodMC.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, EUR, HW_MULTICURVES).cleaned(TOLERANCE_PV_DELTA);
+    final double toleranceDelta = 1.0E+6; // 100 USD by bp
+    final MultipleCurrencyMulticurveSensitivity pvcsExplicit = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES).cleaned(TOLERANCE_PV_DELTA);
+    final HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
+    final MultipleCurrencyMulticurveSensitivity pvcsMC = methodMC.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, EUR, HW_MULTICURVES).cleaned(TOLERANCE_PV_DELTA);
     AssertSensivityObjects.assertEquals("Swaption physical - Hull-White - presentValueCurveSensitivity - payer/receiver/swap parity", pvcsExplicit, pvcsMC, toleranceDelta);
   }
 
@@ -503,9 +502,9 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     long startTime, endTime;
     final int nbTest = 25;
     MultipleCurrencyAmount pvMC = MultipleCurrencyAmount.of(EUR, 0.0);
-    MultipleCurrencyMulticurveSensitivity pvcsExplicit = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES);
+    final MultipleCurrencyMulticurveSensitivity pvcsExplicit = METHOD_HW.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, HW_MULTICURVES);
     MultipleCurrencyMulticurveSensitivity pvcsMC = pvcsExplicit;
-    HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
+    final HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {

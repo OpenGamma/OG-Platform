@@ -10,11 +10,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.Validate;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
@@ -26,20 +28,22 @@ import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilit
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurfaceInterpolator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.NodalDoublesSurface;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -90,7 +94,7 @@ public class EquityVanillaBarrierOptionVegaMatrixFunction extends EquityVanillaB
       // Bump market at each expiry and strike scenario
       // In each scenario, reprice each of the underlying vanillaOptions
       // NOTE: Only computing down-shift as this appears to produce more stable risk, and is faster
-      final List<Triple<Double, Double, Double>> triplesExpiryStrikeVega = new ArrayList<Triple<Double, Double, Double>>();
+      final List<Triple<Double, Double, Double>> triplesExpiryStrikeVega = new ArrayList<>();
       final int expiryIndex = SurfaceArrayUtils.getLowerBoundIndex(expiries, optionExpiry);
       for (int t = Math.max(0, expiryIndex - 3); t < Math.min(nExpiries, expiryIndex + 4); t++) {
         final int nStrikes = strikes[t].length;
@@ -117,7 +121,7 @@ public class EquityVanillaBarrierOptionVegaMatrixFunction extends EquityVanillaB
             final Double shiftedPV = vanillas[v].accept(PVC, shiftedMarket);
             Validate.notNull(shiftedPV, "Null PV in shifted scenario, T = " + expiries[t] + ", k = " + strikes[t][k]);
             final Double vega = (shiftedPV - basePrices[v]) / -SHIFT;
-            final Triple<Double, Double, Double> xyz = new Triple<Double, Double, Double>(expiries[t], strikes[t][k], vega);
+            final Triple<Double, Double, Double> xyz = new Triple<>(expiries[t], strikes[t][k], vega);
             triplesExpiryStrikeVega.add(xyz);
           }
         }
@@ -128,7 +132,7 @@ public class EquityVanillaBarrierOptionVegaMatrixFunction extends EquityVanillaB
       // Find unique set of expiries,
       final Double[] uniqueX = ArrayUtils.toObject(expiries);
       // and strikes
-      final Set<Double> strikeSet = new HashSet<Double>();
+      final Set<Double> strikeSet = new HashSet<>();
       for (final double[] strike : strikes) {
         strikeSet.addAll(Arrays.asList(ArrayUtils.toObject(strike)));
       }
@@ -156,30 +160,22 @@ public class EquityVanillaBarrierOptionVegaMatrixFunction extends EquityVanillaB
   }
 
   @Override
-  /* The VegaMatrixFunction advertises the particular underlying Bloomberg ticker that it applies to. The target must share this underlying. */
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final String bbgTicker = getBloombergTicker(OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context), ((EquityBarrierOptionSecurity) target.getSecurity()).getUnderlyingId());
-    return Collections.singleton(new ValueSpecification(getValueRequirementNames()[0], target.toSpecification(), createValueProperties(target, bbgTicker).get()));
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final Set<ValueSpecification> results = super.getResults(context, target, inputs);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
+    //final String bbgTicker = getBloombergTicker(securitySource, underlyingId);
+    final Set<ValueSpecification> resultsWithExtraProperties = Sets.newHashSetWithExpectedSize(results.size());
+    for (final ValueSpecification spec : results) {
+      final String name = spec.getValueName();
+      final ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
+      final ValueProperties properties = spec.getProperties().copy()
+          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
+//          .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker)
+          .get();
+      resultsWithExtraProperties.add(new ValueSpecification(name, targetSpec, properties));
+    }
+    return results;
   }
-
-  /* We specify one additional property, the UnderlyingTicker, to allow a View to contain a VegaQuoteMatrix for each VolMatrix */
-  @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
-    return super.createValueProperties(target)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
-        .withAny(ValuePropertyNames.UNDERLYING_TICKER);
-  }
-
-  /* We specify one additional property, the UnderlyingTicker, to allow a View to contain a VegaQuoteMatrix for each VolMatrix */
-  private ValueProperties.Builder createValueProperties(final ComputationTarget target, final String bbgTicker) {
-    return super.createValueProperties(target)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.EQUITY_OPTION)
-        .with(ValuePropertyNames.UNDERLYING_TICKER, bbgTicker);
-  }
-
-  @Override
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
-    throw new UnsupportedOperationException();
-  }
-
 }

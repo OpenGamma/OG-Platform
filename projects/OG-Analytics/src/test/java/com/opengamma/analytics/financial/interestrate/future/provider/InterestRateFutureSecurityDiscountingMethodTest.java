@@ -7,13 +7,13 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
@@ -47,7 +47,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   public static final String NOT_USED = "Not used";
   public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   //EURIBOR 3M Index
-  private static final Period TENOR = Period.ofMonths(3);
+  private static final Period TENOR = DateUtils.periodOfMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -64,7 +64,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   private static final int QUANTITY = 123;
   // Time version
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2011, 5, 12);
-  private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
+  private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE, LocalTime.of(0, 0)), ZoneOffset.UTC);
   private static final double LAST_TRADING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE_ZONED, LAST_TRADING_DATE);
   private static final double FIXING_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE_ZONED, SPOT_LAST_TRADING_DATE);
   private static final double FIXING_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE_ZONED, FIXING_END_DATE);

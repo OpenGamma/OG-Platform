@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -58,8 +57,8 @@ public class GeneratorDeposit extends GeneratorInstrument<GeneratorAttributeIR> 
    * @param businessDayConvention The business day convention associated to the index.
    * @param endOfMonth Flag indicating if the end-of-month rule is used.
    */
-  public GeneratorDeposit(final String name, final Currency currency, final Calendar calendar, final int spotLag, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final boolean endOfMonth) {
+  public GeneratorDeposit(final String name, final Currency currency, final Calendar calendar, final int spotLag, final DayCount dayCount,
+      final BusinessDayConvention businessDayConvention, final boolean endOfMonth) {
     super(name);
     Validate.notNull(currency, "Currency");
     Validate.notNull(calendar, "Calendar");

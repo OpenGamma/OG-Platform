@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view.calcnode.stats;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.util.ArgumentChecker;
 

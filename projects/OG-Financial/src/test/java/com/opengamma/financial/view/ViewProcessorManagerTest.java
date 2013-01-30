@@ -17,9 +17,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
@@ -62,7 +61,7 @@ public class ViewProcessorManagerTest {
     public MockViewProcessor() {
       final InMemoryFunctionRepository functions = new InMemoryFunctionRepository();
       _compiledFunctionService = new CompiledFunctionService(functions, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
-      functions.addFunction(new MockFunction("mock", new ComputationTarget("Foo")) {
+      functions.addFunction(new MockFunction("mock", ComputationTarget.NULL) {
 
         @Override
         public void init(final FunctionCompilationContext context) {

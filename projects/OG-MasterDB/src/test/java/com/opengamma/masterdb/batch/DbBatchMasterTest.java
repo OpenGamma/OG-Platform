@@ -18,26 +18,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Maps;
 import com.opengamma.batch.RunCreationMode;
 import com.opengamma.batch.SnapshotMode;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.rest.BatchRunSearchRequest;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ViewCycleMetadata;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.masterdb.DbMasterTestUtils;
@@ -68,10 +66,9 @@ public class DbBatchMasterTest extends DbTest {
     final String calculationConfigName = "config_1";
 
     _compTargetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Sec", "APPL"));
-    final Security security = new SimpleSecurity(_compTargetSpec.getUniqueId(), ExternalIdBundle.of("Sec", "APPL"), "equity", "APPL");                            
 
-    _requirement = new ValueRequirement("FAIR_VALUE", security);
-    _specification = new ValueSpecification(_requirement, "IDENTITY_FUNCTION");
+    _requirement = new ValueRequirement("FAIR_VALUE", _compTargetSpec);
+    _specification = new ValueSpecification("FAIR_VALUE", _compTargetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "IDENTITY_FUNCTION").get());
 
     _cycleMetadataStub = new ViewCycleMetadata() {
 
@@ -88,7 +85,7 @@ public class DbBatchMasterTest extends DbTest {
       @Override
       public Collection<com.opengamma.engine.ComputationTargetSpecification> getComputationTargets(String configurationName) {
         if (configurationName.equals(calculationConfigName)) {
-          return Arrays.asList(new ComputationTargetSpecification(UniqueId.of("Primitive", "Value")), _compTargetSpec);
+          return Arrays.asList(new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Primitive", "Value")), _compTargetSpec);
         } else {
           return emptyList();
         }

@@ -10,12 +10,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -61,20 +60,20 @@ public final class ScheduleCalculator {
     Validate.notNull(date);
     Validate.notNull(calendar);
     ZonedDateTime result = date;
-    while (!calendar.isWorkingDay(result.toLocalDate())) {
+    while (!calendar.isWorkingDay(result.getDate())) {
       result = result.plusDays(1);
     }
     if (shiftDays > 0) {
       for (int loopday = 0; loopday < shiftDays; loopday++) {
         result = result.plusDays(1);
-        while (!calendar.isWorkingDay(result.toLocalDate())) {
+        while (!calendar.isWorkingDay(result.getDate())) {
           result = result.plusDays(1);
         }
       }
     } else {
       for (int loopday = 0; loopday < -shiftDays; loopday++) {
         result = result.minusDays(1);
-        while (!calendar.isWorkingDay(result.toLocalDate())) {
+        while (!calendar.isWorkingDay(result.getDate())) {
           result = result.minusDays(1);
         }
       }
@@ -165,7 +164,7 @@ public final class ScheduleCalculator {
     Validate.notNull(convention);
     Validate.notNull(calendar);
     Validate.notNull(tenor);
-    ZonedDateTime endDate = startDate.plus(tenor); // Unadjusted date.
+    final ZonedDateTime endDate = startDate.plus(tenor); // Unadjusted date.
     return convention.adjustDate(calendar, endDate); // Adjusted by Business day convention
   }
 
@@ -180,17 +179,18 @@ public final class ScheduleCalculator {
    * When the rule applies, the end date is the last business day of the month.
    * @return The end date.
    */
-  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final Period tenor, final BusinessDayConvention convention, final Calendar calendar, boolean endOfMonthRule) {
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final Period tenor, final BusinessDayConvention convention, final Calendar calendar,
+      final boolean endOfMonthRule) {
     Validate.notNull(startDate, "Start date");
     Validate.notNull(convention, "Convention");
     Validate.notNull(calendar, "Calendar");
     Validate.notNull(tenor, "Tenor");
-    ZonedDateTime endDate = startDate.plus(tenor); // Unadjusted date.
+    final ZonedDateTime endDate = startDate.plus(tenor); // Unadjusted date.
     // Adjusted to month-end: when start date is last business day of the month, the end date is the last business day of the month.
-    boolean isStartDateEOM = (startDate.getMonthOfYear() != getAdjustedDate(startDate, 1, calendar).getMonthOfYear());
+    final boolean isStartDateEOM = (startDate.getMonth() != getAdjustedDate(startDate, 1, calendar).getMonth());
     if ((tenor.getDays() == 0) & (endOfMonthRule) & (isStartDateEOM)) {
-      BusinessDayConvention preceding = new PrecedingBusinessDayConvention();
-      return preceding.adjustDate(calendar, endDate.with(DateAdjusters.lastDayOfMonth()));
+      final BusinessDayConvention preceding = new PrecedingBusinessDayConvention();
+      return preceding.adjustDate(calendar, endDate.with(TemporalAdjusters.lastDayOfMonth()));
     }
     return convention.adjustDate(calendar, endDate); // Adjusted by Business day convention
   }
@@ -255,7 +255,8 @@ public final class ScheduleCalculator {
    * @param fromEnd The dates in the schedule can be computed from the end date (true) or from the start date (false).
    * @return The date schedule (not including the start date).
    */
-  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period tenorPeriod, final boolean stubShort, final boolean fromEnd) {
+  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period tenorPeriod, final boolean stubShort,
+      final boolean fromEnd) {
     Validate.notNull(startDate, "Start date");
     Validate.notNull(endDate, "End date");
     Validate.notNull(tenorPeriod, "Period tenor");
@@ -297,12 +298,13 @@ public final class ScheduleCalculator {
    * @param eomApply The flag indicating if the EOM apply, i.e. if the flag is true, the adjusted date is the last business day of the unadjusted date.  
    * @return The adjusted dates.
    */
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar, final boolean eomApply) {
-    ZonedDateTime[] result = new ZonedDateTime[dates.length];
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar,
+      final boolean eomApply) {
+    final ZonedDateTime[] result = new ZonedDateTime[dates.length];
     if (eomApply) {
-      BusinessDayConvention precedingDBC = new PrecedingBusinessDayConvention(); //To ensure that the date stays in the current month.
+      final BusinessDayConvention precedingDBC = new PrecedingBusinessDayConvention(); //To ensure that the date stays in the current month.
       for (int loopdate = 0; loopdate < dates.length; loopdate++) {
-        result[loopdate] = precedingDBC.adjustDate(calendar, dates[loopdate].with(DateAdjusters.lastDayOfMonth()));
+        result[loopdate] = precedingDBC.adjustDate(calendar, dates[loopdate].with(TemporalAdjusters.lastDayOfMonth()));
       }
       return result;
     }
@@ -324,10 +326,10 @@ public final class ScheduleCalculator {
   * @param eomRule Flag indicating if the end-of-month rule should be applied.  
   * @return The adjusted dates schedule.
   */
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period schedulePeriod, final boolean stubShort, final boolean fromEnd,
-      final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
-    ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stubShort, fromEnd);
-    boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonthOfYear() != startDate.getMonthOfYear()));
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period schedulePeriod, final boolean stubShort,
+      final boolean fromEnd, final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
+    final ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stubShort, fromEnd);
+    final boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()));
     return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply);
   }
 
@@ -343,8 +345,8 @@ public final class ScheduleCalculator {
   * @param eomRule Flag indicating if the end-of-month rule should be applied.  
   * @return The adjusted dates schedule.
    */
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Frequency scheduleFrequency, final boolean stubShort, final boolean fromEnd,
-      final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Frequency scheduleFrequency,
+      final boolean stubShort, final boolean fromEnd, final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
     Validate.notNull(scheduleFrequency, "Schedule frequency");
     final Period schedulePeriod = periodFromFrequency(scheduleFrequency);
     return getAdjustedDateSchedule(startDate, endDate, schedulePeriod, stubShort, fromEnd, convention, calendar, eomRule);
@@ -362,10 +364,10 @@ public final class ScheduleCalculator {
   * @param eomRule Flag indicating if the end-of-month rule should be applied.  
   * @return The adjusted dates schedule (not including the start date).
   */
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final Period tenorTotal, final Period tenorPeriod, final boolean stubShort, final boolean fromEnd,
-      final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
-    ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, startDate.plus(tenorTotal), tenorPeriod, stubShort, fromEnd);
-    boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonthOfYear() != startDate.getMonthOfYear()) && (tenorTotal.getMonths() >= 1));
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final Period tenorTotal, final Period tenorPeriod, final boolean stubShort,
+      final boolean fromEnd, final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
+    final ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, startDate.plus(tenorTotal), tenorPeriod, stubShort, fromEnd);
+    final boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()) && (tenorTotal.getMonths() >= 1));
     // Implementation note: the "tenorTotal.getMonths()>=1" condition is required as the rule does not apply for period of less than 1 month (like 1 week).
     return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply);
   }
@@ -379,8 +381,10 @@ public final class ScheduleCalculator {
    * @param index The related ibor index. The period tenor, business day convention, calendar and EOM rule of the index are used. 
   * @return The adjusted dates schedule (not including the start date).
    */
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final Period tenorTotal, final boolean stubShort, final boolean fromEnd, final IborIndex index) {
-    return getAdjustedDateSchedule(startDate, tenorTotal, index.getTenor(), stubShort, fromEnd, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final Period tenorTotal, final boolean stubShort, final boolean fromEnd,
+      final IborIndex index) {
+    return getAdjustedDateSchedule(startDate, tenorTotal, index.getTenor(), stubShort, fromEnd, index.getBusinessDayConvention(), index.getCalendar(),
+        index.isEndOfMonth());
   }
 
   /**
@@ -430,7 +434,8 @@ public final class ScheduleCalculator {
    * @param frequency  how many times a year dates occur, not null
    * @return the schedule, not null
    */
-  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime accrualDate, final ZonedDateTime maturityDate, final Frequency frequency) {
+  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime accrualDate, final ZonedDateTime maturityDate,
+      final Frequency frequency) {
     Validate.notNull(effectiveDate);
     Validate.notNull(accrualDate);
     Validate.notNull(maturityDate);
@@ -463,7 +468,8 @@ public final class ScheduleCalculator {
   }
 
   //TODO: add doc
-  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime accrualDate, final ZonedDateTime maturityDate, final Period period) {
+  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime accrualDate, final ZonedDateTime maturityDate,
+      final Period period) {
     Validate.notNull(effectiveDate);
     Validate.notNull(accrualDate);
     Validate.notNull(maturityDate);
@@ -551,7 +557,8 @@ public final class ScheduleCalculator {
    * @param settlementDays The number of days of the adjustment. Can be negative or positive.
    * @return The adjusted dates.
    */
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar, final int settlementDays) {
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar,
+      final int settlementDays) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(convention);
@@ -563,14 +570,14 @@ public final class ScheduleCalculator {
       if (settlementDays > 0) {
         for (int loopday = 0; loopday < settlementDays; loopday++) {
           date = date.plusDays(1);
-          while (!calendar.isWorkingDay(date.toLocalDate())) {
+          while (!calendar.isWorkingDay(date.getDate())) {
             date = date.plusDays(1);
           }
         }
       } else {
         for (int loopday = 0; loopday < -settlementDays; loopday++) {
           date = date.minusDays(1);
-          while (!calendar.isWorkingDay(date.toLocalDate())) {
+          while (!calendar.isWorkingDay(date.getDate())) {
             date = date.minusDays(1);
           }
         }
@@ -593,12 +600,12 @@ public final class ScheduleCalculator {
    * @param stubShort Flag indicating if the stub, if any, is short (true) or long (false).
    * @return The array of dates.
    */
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, ZonedDateTime endDate, Period period, BusinessDayConvention businessDayConvention, Calendar calendar,
-      boolean isEOM, boolean stubShort) {
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period period,
+      final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean isEOM, final boolean stubShort) {
     boolean eomApply = false;
     if (isEOM) {
-      BusinessDayConvention following = new FollowingBusinessDayConvention();
-      eomApply = (following.adjustDate(calendar, startDate.plusDays(1)).getMonthOfYear() != startDate.getMonthOfYear());
+      final BusinessDayConvention following = new FollowingBusinessDayConvention();
+      eomApply = (following.adjustDate(calendar, startDate.plusDays(1)).getMonth() != startDate.getMonth());
     }
     // When the end-of-month rule applies and the start date is on month-end, the dates are the last business day of the month.
     BusinessDayConvention actualBDC;
@@ -606,10 +613,10 @@ public final class ScheduleCalculator {
     ZonedDateTime date = startDate;
     if (eomApply) {
       actualBDC = new PrecedingBusinessDayConvention(); //To ensure that the date stays in the current month.
-      date = date.plus(period).with(DateAdjusters.lastDayOfMonth());
+      date = date.plus(period).with(TemporalAdjusters.lastDayOfMonth());
       while (date.isBefore(endDate)) { // date is strictly before endDate
         adjustedDates.add(actualBDC.adjustDate(calendar, date));
-        date = date.plus(period).with(DateAdjusters.lastDayOfMonth());
+        date = date.plus(period).with(TemporalAdjusters.lastDayOfMonth());
       }
     } else {
       actualBDC = businessDayConvention;
@@ -627,8 +634,8 @@ public final class ScheduleCalculator {
     return adjustedDates.toArray(EMPTY_ARRAY);
   }
 
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, ZonedDateTime endDate, final Frequency frequency, BusinessDayConvention businessDayConvention,
-      Calendar calendar, boolean isEOM) {
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Frequency frequency,
+      final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean isEOM) {
     PeriodFrequency periodFrequency;
     if (frequency instanceof PeriodFrequency) {
       periodFrequency = (PeriodFrequency) frequency;
@@ -653,8 +660,8 @@ public final class ScheduleCalculator {
    * @param isEOM The end-of-month rule flag.
    * @return The array of dates.
    */
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, ZonedDateTime endDate, Period period, BusinessDayConvention businessDayConvention, Calendar calendar,
-      boolean isEOM) {
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period period,
+      final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean isEOM) {
     return getAdjustedDateSchedule(startDate, endDate, period, businessDayConvention, calendar, isEOM, true);
   }
 
@@ -671,9 +678,9 @@ public final class ScheduleCalculator {
    * @param shortStub Flag indicating if the stub, if any, is short (true) or long (false).
    * @return The array of dates.
    */
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, Period tenor, Period period, BusinessDayConvention businessDayConvention, Calendar calendar, boolean isEOM,
-      boolean shortStub) {
-    ZonedDateTime endDate = startDate.plus(tenor);
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final Period tenor, final Period period,
+      final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean isEOM, final boolean shortStub) {
+    final ZonedDateTime endDate = startDate.plus(tenor);
     return getAdjustedDateSchedule(startDate, endDate, period, businessDayConvention, calendar, isEOM, shortStub);
   }
 
@@ -689,13 +696,14 @@ public final class ScheduleCalculator {
    * @param isEOM The end-of-month rule flag.
    * @return The array of dates.
    */
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, Period tenorAnnuity, Period periodPayments, BusinessDayConvention businessDayConvention, Calendar calendar,
-      boolean isEOM) {
-    ZonedDateTime endDate = startDate.plus(tenorAnnuity);
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final Period tenorAnnuity, final Period periodPayments,
+      final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean isEOM) {
+    final ZonedDateTime endDate = startDate.plus(tenorAnnuity);
     return getAdjustedDateSchedule(startDate, endDate, periodPayments, businessDayConvention, calendar, isEOM, true);
   }
 
-  public static ZonedDateTime[] getSettlementDateSchedule(final ZonedDateTime[] dates, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {
+  public static ZonedDateTime[] getSettlementDateSchedule(final ZonedDateTime[] dates, final Calendar calendar, final BusinessDayConvention businessDayConvention,
+      final int settlementDays) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(calendar);
@@ -711,7 +719,8 @@ public final class ScheduleCalculator {
     return result;
   }
 
-  public static LocalDate[] getSettlementDateSchedule(final LocalDate[] dates, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {
+  public static LocalDate[] getSettlementDateSchedule(final LocalDate[] dates, final Calendar calendar, final BusinessDayConvention businessDayConvention,
+      final int settlementDays) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(calendar);
@@ -727,8 +736,8 @@ public final class ScheduleCalculator {
     return result;
   }
 
-  public static ZonedDateTime[] getAdjustedResetDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar,
-      final int settlementDays) {
+  public static ZonedDateTime[] getAdjustedResetDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime[] dates, final BusinessDayConvention convention,
+      final Calendar calendar, final int settlementDays) {
     Validate.notNull(effectiveDate);
     Validate.notNull(dates);
     Validate.notEmpty(dates);
@@ -744,8 +753,8 @@ public final class ScheduleCalculator {
     return result;
   }
 
-  public static ZonedDateTime[] getAdjustedMaturityDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar,
-      final Frequency frequency) {
+  public static ZonedDateTime[] getAdjustedMaturityDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime[] dates, final BusinessDayConvention convention,
+      final Calendar calendar, final Frequency frequency) {
     Validate.notNull(dates);
     Validate.notEmpty(dates);
     Validate.notNull(convention);

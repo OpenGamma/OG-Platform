@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
@@ -33,6 +33,7 @@ public class LegacyForwardStartingCreditDefaultSwapDefinition extends LegacyCred
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Member variables specific to the legacy forward starting CDS contract
+
   private final ZonedDateTime _forwardStartDate;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

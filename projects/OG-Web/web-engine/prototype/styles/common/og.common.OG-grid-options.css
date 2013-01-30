@@ -94,3 +94,10 @@
     display: none;
 }
 
+/*
+ * Buttons
+ */
+.OG-grid-options .og-buttons {
+    position: absolute;
+    right: 0;
+}

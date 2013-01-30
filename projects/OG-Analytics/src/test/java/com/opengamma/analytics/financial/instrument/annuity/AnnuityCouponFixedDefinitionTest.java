@@ -7,11 +7,12 @@ package com.opengamma.analytics.financial.instrument.annuity;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
@@ -31,12 +32,12 @@ public class AnnuityCouponFixedDefinitionTest {
   //Semi-annual 2Y
   private static final Currency CUR = Currency.EUR;
   private static final PeriodFrequency PAYMENT_FREQUENCY = PeriodFrequency.SEMI_ANNUAL;
-  private static final Period PAYMENT_TENOR = Period.ofMonths(6);
+  private static final Period PAYMENT_TENOR = Period.of(6, MONTHS);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Period ANNUITY_TENOR = Period.ofYears(2);
+  private static final Period ANNUITY_TENOR = Period.of(2, YEARS);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 17);
   private static final double NOTIONAL = 1000000;
   private static final double RATE = 0.0325;
@@ -145,7 +146,7 @@ public class AnnuityCouponFixedDefinitionTest {
     final AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(coupons);
 
     //    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    //    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
+    //    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), ZoneOffset.UTC);
     final String fundingCurve = "Funding";
     final CouponFixed[] couponFixedConverted = new CouponFixed[PAYMENT_DATES.length];
     for (int loopcpn = 0; loopcpn < PAYMENT_DATES.length; loopcpn++) {

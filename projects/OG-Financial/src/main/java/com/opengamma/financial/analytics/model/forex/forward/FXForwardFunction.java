@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -20,11 +20,12 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -35,11 +36,9 @@ import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  *
@@ -59,7 +58,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
@@ -103,15 +102,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return target.getSecurity() instanceof FXForwardSecurity || target.getSecurity() instanceof NonDeliverableFXForwardSecurity;
+    return FinancialSecurityTypes.FX_FORWARD_SECURITY.or(FinancialSecurityTypes.NON_DELIVERABLE_FX_FORWARD_SECURITY);
   }
 
   @Override
@@ -148,8 +139,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
     final ValueRequirement payFundingCurve = getPayCurveRequirement(payCurveName, payCurrency, payCurveCalculationConfig);
     final ValueRequirement receiveFundingCurve = getReceiveCurveRequirement(receiveCurveName, receiveCurrency, receiveCurveCalculationConfig);
-    final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(payCurrency, receiveCurrency);
-    final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetType.PRIMITIVE, currencyPair.getUniqueId());
+    final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL);
     return Sets.newHashSet(payFundingCurve, receiveFundingCurve, pairQuoteRequirement);
   }
 
@@ -166,7 +156,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .withOptional(ValuePropertyNames.PAY_CURVE);
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, currency.getUniqueId(), properties.get());
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), properties.get());
   }
 
   protected static YieldAndDiscountCurve getPayCurve(final FunctionInputs inputs, final Currency currency, final String curveName, final String curveCalculationConfig) {
@@ -183,7 +173,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .withOptional(ValuePropertyNames.RECEIVE_CURVE);
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, currency.getUniqueId(), properties.get());
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), properties.get());
   }
 
   protected static YieldAndDiscountCurve getReceiveCurve(final FunctionInputs inputs, final Currency currency, final String curveName, final String curveCalculationConfig) {

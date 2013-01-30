@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.equity;
 
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BaroneAdesiWhaleyModel;
 import com.opengamma.util.ArgumentChecker;
@@ -40,7 +41,21 @@ public final class EqyOptBaroneAdesiWhaleyPresentValueCalculator extends Instrum
     final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
     final boolean isCall = option.isCall();
     final double interestRate = data.getDiscountCurve().getInterestRate(time);
-    final double costOfCarry = 0; //TODO
+    final double costOfCarry = interestRate; //TODO
+    return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
+  }
+
+  @Override
+  public Double visitEquityOption(final EquityOption option, final StaticReplicationDataBundle data) {
+    ArgumentChecker.notNull(option, "option");
+    ArgumentChecker.notNull(data, "data");
+    final double spot = data.getForwardCurve().getSpot();
+    final double strike = option.getStrike();
+    final double time = option.getTimeToExpiry();
+    final double sigma = data.getVolatilitySurface().getVolatility(time, strike);
+    final boolean isCall = option.isCall();
+    final double interestRate = data.getDiscountCurve().getInterestRate(time);
+    final double costOfCarry = interestRate; //TODO
     return option.getUnitAmount() * MODEL.price(spot, strike, interestRate, costOfCarry, time, sigma, isCall);
   }
 }

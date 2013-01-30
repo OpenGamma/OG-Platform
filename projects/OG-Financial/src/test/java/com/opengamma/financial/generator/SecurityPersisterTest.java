@@ -10,9 +10,8 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.EquityOptionSecurity;

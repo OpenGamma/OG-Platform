@@ -5,11 +5,10 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.convention.calendar.Calendar;

@@ -14,11 +14,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.config.ConfigSource;
@@ -126,8 +125,8 @@ public class CurveNodeHistoricalDataLoader {
   private List<LocalDate> buildDates() {
     final Clock clock = Clock.systemDefaultZone();
     final List<LocalDate> dates = new ArrayList<LocalDate>();
-    final LocalDate twoYearsAgo = clock.today().minusYears(2);
-    final LocalDate twoYearsTime = clock.today().plusYears(2);
+    final LocalDate twoYearsAgo = LocalDate.now(clock).minusYears(2);
+    final LocalDate twoYearsTime = LocalDate.now(clock).plusYears(2);
     for (LocalDate next = twoYearsAgo; next.isBefore(twoYearsTime); next = next.plusMonths(3)) {
       dates.add(next);
     }

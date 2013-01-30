@@ -7,11 +7,12 @@ package com.opengamma.masterdb.security;
 
 import java.net.URI;
 
-import javax.time.TimeSource;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+
+import org.threeten.bp.Clock;
 
 import com.opengamma.master.security.impl.DataSecurityMasterResource;
 import com.opengamma.masterdb.TimeOverrideRequest;
@@ -51,9 +52,9 @@ public class DataDbSecurityMasterResource extends DataSecurityMasterResource {
   public Response setTimeOverride(final TimeOverrideRequest doc) {
     ArgumentChecker.notNull(doc, "doc");
     if (doc.getTimeOverride() == null) {
-      getDbSecurityMaster().resetTimeSource();
+      getDbSecurityMaster().resetClock();
     } else {
-      getDbSecurityMaster().setTimeSource(TimeSource.fixed(doc.getTimeOverride()));
+      getDbSecurityMaster().setClock(Clock.fixed(doc.getTimeOverride(), getDbSecurityMaster().getClock().getZone()));
     }
     return responseOk();
   }

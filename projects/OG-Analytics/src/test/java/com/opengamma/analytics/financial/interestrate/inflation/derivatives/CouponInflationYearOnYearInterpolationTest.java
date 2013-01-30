@@ -9,10 +9,9 @@ package com.opengamma.analytics.financial.interestrate.inflation.derivatives;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
@@ -31,12 +30,12 @@ public class CouponInflationYearOnYearInterpolationTest {
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
   private static final Currency REGION = Currency.EUR;
-  private static final Period LAG = Period.ofDays(14);
+  private static final Period LAG = DateUtils.periodOfDays(14);
   private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR, REGION, LAG);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
-  private static final Period COUPON_TENOR = Period.ofYears(10);
+  private static final Period COUPON_TENOR = DateUtils.periodOfYears(10);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR);
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
@@ -65,8 +64,8 @@ public class CouponInflationYearOnYearInterpolationTest {
     REFERENCE_END_TIME[1] = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_END_DATE[1]);
   }
   private static final String DISCOUNTING_CURVE_NAME = "Discounting";
-  private static final double WEIGHT_START = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getMonthOfYear().getLastDayOfMonth(PAYMENT_DATE.isLeapYear());
-  private static final double WEIGHT_END = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getMonthOfYear().getLastDayOfMonth(PAYMENT_DATE.isLeapYear());
+  private static final double WEIGHT_START = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getDate().lengthOfMonth();
+  private static final double WEIGHT_END = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getDate().lengthOfMonth();
   private static final CouponInflationYearOnYearInterpolation YoY_COUPON = new CouponInflationYearOnYearInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX,
       REFERENCE_START_TIME, REFERENCE_END_TIME, WEIGHT_START, WEIGHT_END, false);
 
@@ -94,18 +93,18 @@ public class CouponInflationYearOnYearInterpolationTest {
    */
   public void equalHash() {
     assertEquals(YoY_COUPON, YoY_COUPON);
-    CouponInflationYearOnYearInterpolation couponDuplicate = new CouponInflationYearOnYearInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX,
+    final CouponInflationYearOnYearInterpolation couponDuplicate = new CouponInflationYearOnYearInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX,
         REFERENCE_START_TIME, REFERENCE_END_TIME, WEIGHT_START, WEIGHT_END, false);
     assertEquals(YoY_COUPON, couponDuplicate);
     assertEquals(YoY_COUPON.hashCode(), couponDuplicate.hashCode());
     CouponInflationYearOnYearInterpolation modified;
-    double[] modifiedReferenceStartTime = new double[2];
+    final double[] modifiedReferenceStartTime = new double[2];
     modifiedReferenceStartTime[0] = REFERENCE_START_TIME[0];
     modifiedReferenceStartTime[1] = REFERENCE_START_TIME[1] + 0.1;
     modified = new CouponInflationYearOnYearInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX,
         modifiedReferenceStartTime, REFERENCE_END_TIME, WEIGHT_START, WEIGHT_END, false);
     assertFalse(YoY_COUPON.equals(modified));
-    double[] modifiedReferenceEndTime = new double[2];
+    final double[] modifiedReferenceEndTime = new double[2];
     modifiedReferenceEndTime[0] = REFERENCE_END_TIME[0];
     modifiedReferenceEndTime[1] = REFERENCE_END_TIME[1] + 0.1;
     modified = new CouponInflationYearOnYearInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX,

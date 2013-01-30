@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.curve;
 
-
 /**
  * Build of curve in several blocks with relevant Jacobian matrices.
  * Curves are using different types of interpolations (on cc rate, periodic rates and discount factors) and spread curves.

@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 
@@ -27,7 +26,7 @@ public abstract class GeneratorInstrument<ATTRIBUTE_TYPE extends GeneratorAttrib
    * Constructor.
    * @param name The generator name.
    */
-  public GeneratorInstrument(String name) {
+  public GeneratorInstrument(final String name) {
     Validate.notNull(name, "Name");
     _name = name;
   }
@@ -59,7 +58,7 @@ public abstract class GeneratorInstrument<ATTRIBUTE_TYPE extends GeneratorAttrib
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -69,7 +68,7 @@ public abstract class GeneratorInstrument<ATTRIBUTE_TYPE extends GeneratorAttrib
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorInstrument<?> other = (GeneratorInstrument<?>) obj;
+    final GeneratorInstrument<?> other = (GeneratorInstrument<?>) obj;
     if (!ObjectUtils.equals(_name, other._name)) {
       return false;
     }

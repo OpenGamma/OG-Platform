@@ -8,6 +8,8 @@ package com.opengamma.analytics.financial.interestrate;
 import com.opengamma.analytics.financial.commodity.derivative.AgricultureFutureOption;
 import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
 import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
@@ -226,4 +228,13 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
     return option.getUnderlyingOption().getExpirationTime();
   }
 
+  @Override
+  public Double visitEquityIndexOption(final EquityIndexOption option) {
+    return option.getTimeToExpiry();
+  }
+
+  @Override
+  public Double visitEquityOption(final EquityOption option) {
+    return option.getTimeToExpiry();
+  }
 }

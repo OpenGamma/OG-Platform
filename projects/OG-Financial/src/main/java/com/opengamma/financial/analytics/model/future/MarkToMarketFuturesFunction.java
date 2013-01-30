@@ -8,13 +8,15 @@ package com.opengamma.financial.analytics.model.future;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.opengamma.OpenGammaRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueProperties;
@@ -29,6 +31,7 @@ import com.opengamma.util.money.Currency;
  * @param <T> The type of the data returned from the calculator
  */
 public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> {
+  private static final Logger s_logger = LoggerFactory.getLogger(MarkToMarketFuturesFunction.class);
   /** The calculation method name */
   public static final String CALCULATION_METHOD_NAME = "MarkToMarket";
 
@@ -43,7 +46,7 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FutureSecurity security = (FutureSecurity)  target.getTrade().getSecurity();
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     // Spot
     final ValueRequirement refPriceReq = getReferencePriceRequirement(context, security);
     if (refPriceReq == null) {
@@ -76,14 +79,14 @@ public abstract class MarkToMarketFuturesFunction<T> extends FuturesFunction<T> 
   }
 
   private ValueRequirement getMarketPriceRequirement(final Security security) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId());
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetSpecification.of(security));
   }
 
   private Double getMarketPrice(final Security security, final FunctionInputs inputs) {
     final ValueRequirement marketPriceRequirement = getMarketPriceRequirement(security);
     final Object marketPriceObject = inputs.getValue(marketPriceRequirement);
     if (marketPriceObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + marketPriceRequirement);
+      s_logger.error("Could not get " + marketPriceRequirement);
     }
     return (Double) marketPriceObject;
   }

@@ -20,11 +20,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.bbg.historicaltimeseries.BloombergHistoricalTimeSeriesProvider;
 import com.opengamma.bbg.test.BloombergTestUtils;

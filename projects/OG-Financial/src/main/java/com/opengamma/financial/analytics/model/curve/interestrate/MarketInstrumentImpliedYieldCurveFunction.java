@@ -13,11 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -53,11 +52,11 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -71,7 +70,6 @@ import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveE
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunctionHelper;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -179,15 +177,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      return false;
-    }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
@@ -368,11 +358,11 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       } else if (ValueRequirementNames.YIELD_CURVE_MARKET_DATA.equals(input.getSpecification().getValueName())) {
         if (curveName.equals(fundingCurveName)) {
           assert fundingMarketDataMap == null;
-          fundingMarketDataMap = YieldCurveFunctionHelper.buildMarketDataMap((SnapshotDataBundle) input.getValue());
+          fundingMarketDataMap = ((SnapshotDataBundle) input.getValue()).getDataPoints();
         }
         if (curveName.equals(forwardCurveName)) {
           assert forwardMarketDataMap == null;
-          forwardMarketDataMap = YieldCurveFunctionHelper.buildMarketDataMap((SnapshotDataBundle) input.getValue());
+          forwardMarketDataMap = ((SnapshotDataBundle) input.getValue()).getDataPoints();
         }
       } else if (ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES.equals(input.getSpecification().getValueName())) {
         if (curveName.equals(fundingCurveName)) {
@@ -405,7 +395,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       final InterpolatedYieldCurveSpecificationWithSecurities specificationWithSecurities, final Map<ExternalId, Double> marketDataMap, final HistoricalTimeSeriesBundle timeSeries,
       final boolean createYieldCurve, final boolean createJacobian, final boolean createSensitivities) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
     final int n = specificationWithSecurities.getStrips().size();
     final double[] initialRatesGuess = new double[n];
@@ -513,7 +503,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       final Map<ExternalId, Double> fundingMarketDataMap, final HistoricalTimeSeriesBundle fundingTimeSeries, final boolean createForwardYieldCurve, final boolean createFundingYieldCurve,
       final boolean createJacobian, final boolean createSensitivities) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
     final int nFunding = fundingCurveSpecificationWithSecurities.getStrips().size();
     final int nForward = forwardCurveSpecificationWithSecurities.getStrips().size();

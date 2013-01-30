@@ -6,11 +6,12 @@
 package com.opengamma.analytics.financial.interestrate.swaption.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
@@ -48,16 +49,16 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
   private static final boolean IS_EOM = true;
   private static final double NOTIONAL = 100000000; //100m
   //  Fixed leg: Semi-annual bond
-  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.of(6, MONTHS);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final double RATE = 0.0325;
   private static final boolean FIXED_IS_PAYER = true;
   //  Ibor leg: quarterly money
-  private static final Period INDEX_TENOR = Period.ofMonths(3);
+  private static final Period INDEX_TENOR = Period.of(3, MONTHS);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
   private static final int SWAP_TENOR_YEAR = 9;
-  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, Period.ofYears(SWAP_TENOR_YEAR));
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, Period.of(SWAP_TENOR_YEAR, YEARS));
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
   private static final int[] EXPIRY_TENOR = new int[] {1, 2, 3, 4, 5};
   private static final ZonedDateTime[] EXPIRY_DATE = new ZonedDateTime[EXPIRY_TENOR.length];
@@ -66,7 +67,7 @@ public class SwaptionHullWhiteCalibrationObjectiveTest {
   private static final SwaptionPhysicalFixedIborDefinition[] SWAPTION_LONG_PAYER_DEFINITION = new SwaptionPhysicalFixedIborDefinition[EXPIRY_TENOR.length];
   static {
     for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
-      EXPIRY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofYears(EXPIRY_TENOR[loopexp]), BUSINESS_DAY, CALENDAR);
+      EXPIRY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(EXPIRY_TENOR[loopexp], YEARS), BUSINESS_DAY, CALENDAR);
       SETTLEMENT_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE[loopexp], SETTLEMENT_DAYS, CALENDAR);
       SWAP_PAYER_DEFINITION[loopexp] = SwapFixedIborDefinition.from(SETTLEMENT_DATE[loopexp], CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
       SWAPTION_LONG_PAYER_DEFINITION[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE[loopexp], SWAP_PAYER_DEFINITION[loopexp], IS_LONG);

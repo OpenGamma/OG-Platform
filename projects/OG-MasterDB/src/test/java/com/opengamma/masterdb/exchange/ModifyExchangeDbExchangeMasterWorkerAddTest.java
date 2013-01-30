@@ -9,22 +9,17 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.Instant;
-
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.PositionDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.util.test.DbTest;
-
-import java.math.BigDecimal;
 
 /**
  * Tests ModifyExchangeDbExchangeMasterWorker.
@@ -56,7 +51,7 @@ public class ModifyExchangeDbExchangeMasterWorkerAddTest extends AbstractDbExcha
 
   @Test
   public void test_add() {
-    Instant now = Instant.now(_exgMaster.getTimeSource());
+    Instant now = Instant.now(_exgMaster.getClock());
     
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);
     ExchangeDocument doc = new ExchangeDocument(exchange);

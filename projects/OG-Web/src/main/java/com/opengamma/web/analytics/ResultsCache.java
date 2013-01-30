@@ -12,9 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Duration;
-
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
+import org.threeten.bp.Duration;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -60,12 +59,12 @@ import com.opengamma.util.money.CurrencyAmount;
    * Puts a set of results into the cache.
    * @param results The results, not null
    */
-  /* package */ void put(ViewResultModel results) {
+  /* package */ void put(final ViewResultModel results) {
     ArgumentChecker.notNull(results, "results");
     _lastUpdateId++;
     _lastCalculationDuration = results.getCalculationDuration();
-    List<ViewResultEntry> allResults = results.getAllResults();
-    for (ViewResultEntry result : allResults) {
+    final List<ViewResultEntry> allResults = results.getAllResults();
+    for (final ViewResultEntry result : allResults) {
       put(result.getCalculationConfiguration(), result.getComputedValue());
     }
   }
@@ -76,10 +75,10 @@ import com.opengamma.util.money.CurrencyAmount;
    * @param results The results
    * @param duration Duration of the calculation cycle that produced the results
    */
-  /* package */ void put(String calcConfigName, Map<ValueSpecification, ComputedValueResult> results, Duration duration) {
+  /* package */ void put(final String calcConfigName, final Map<ValueSpecification, ComputedValueResult> results, final Duration duration) {
     _lastUpdateId++;
     _lastCalculationDuration = duration;
-    for (ComputedValueResult result : results.values()) {
+    for (final ComputedValueResult result : results.values()) {
       put(calcConfigName, result);
     }
   }
@@ -89,11 +88,11 @@ import com.opengamma.util.money.CurrencyAmount;
    * @param calcConfigName The name of the calculation configuration used to calculate the results
    * @param result The result value and associated data
    */
-  private void put(String calcConfigName, ComputedValueResult result) {
-    ValueSpecification spec = result.getSpecification();
-    Object value = result.getValue();
-    ResultKey key = new ResultKey(calcConfigName, spec);
-    CacheItem cacheResult = _results.get(key);
+  private void put(final String calcConfigName, final ComputedValueResult result) {
+    final ValueSpecification spec = result.getSpecification();
+    final Object value = result.getValue();
+    final ResultKey key = new ResultKey(calcConfigName, spec);
+    final CacheItem cacheResult = _results.get(key);
     if (cacheResult == null) {
       _results.put(key, new CacheItem(value, result.getAggregatedExecutionLog(), _lastUpdateId));
     } else {
@@ -110,11 +109,11 @@ import com.opengamma.util.money.CurrencyAmount;
    * provided for missing values.
    * @return A cache result, not null
    */
-  /* package */ Result getResult(String calcConfigName, ValueSpecification valueSpec, Class<?> columnType) {
-    CacheItem item = _results.get(new ResultKey(calcConfigName, valueSpec));
+  /* package */ Result getResult(final String calcConfigName, final ValueSpecification valueSpec, final Class<?> columnType) {
+    final CacheItem item = _results.get(new ResultKey(calcConfigName, valueSpec));
     if (item != null) {
       // flag whether this result was updated by the last set of results that were put into the cache
-      boolean updatedByLastResults = (item.getLastUpdateId() == _lastUpdateId);
+      final boolean updatedByLastResults = (item.getLastUpdateId() == _lastUpdateId);
       return new Result(item.getValue(), item.getHistory(), item.getAggregatedExecutionLog(), updatedByLastResults);
     } else {
       if (s_historyTypes.contains(columnType)) {
@@ -138,7 +137,7 @@ import com.opengamma.util.money.CurrencyAmount;
    * @param type The type, possibly null
    * @return The history, possibly null
    */
-  /* package */ Collection<Object> emptyHistory(Class<?> type) {
+  /* package */ Collection<Object> emptyHistory(final Class<?> type) {
     if (s_historyTypes.contains(type)) {
       return Collections.emptyList();
     } else {
@@ -157,7 +156,7 @@ import com.opengamma.util.money.CurrencyAmount;
     private final boolean _updated;
     private final AggregatedExecutionLog _aggregatedExecutionLog;
 
-    private Result(Object value, Collection<Object> history, AggregatedExecutionLog aggregatedExecutionLog, boolean updated) {
+    private Result(final Object value, final Collection<Object> history, final AggregatedExecutionLog aggregatedExecutionLog, final boolean updated) {
       _value = value;
       _history = history;
       _aggregatedExecutionLog = aggregatedExecutionLog;
@@ -215,7 +214,7 @@ import com.opengamma.util.money.CurrencyAmount;
     private long _lastUpdateId = -1;
     private AggregatedExecutionLog _aggregatedExecutionLog;
 
-    private CacheItem(Object value, AggregatedExecutionLog executionLog, long lastUpdateId) {
+    private CacheItem(final Object value, final AggregatedExecutionLog executionLog, final long lastUpdateId) {
       setLatestValue(value, executionLog, lastUpdateId);
     }
 
@@ -226,7 +225,7 @@ import com.opengamma.util.money.CurrencyAmount;
      * @param lastUpdateId ID of the set of results that calculated it
      */
     @SuppressWarnings("unchecked")
-    private void setLatestValue(Object latestValue, AggregatedExecutionLog executionLog, long lastUpdateId) {
+    private void setLatestValue(final Object latestValue, final AggregatedExecutionLog executionLog, final long lastUpdateId) {
       ArgumentChecker.notNull(latestValue, "latestValue");
       _latestValue = latestValue;
       _lastUpdateId = lastUpdateId;
@@ -266,6 +265,7 @@ import com.opengamma.util.money.CurrencyAmount;
     private AggregatedExecutionLog getAggregatedExecutionLog() {
       return _aggregatedExecutionLog;
     }
+
   }
 
   /**
@@ -276,20 +276,20 @@ import com.opengamma.util.money.CurrencyAmount;
     private final String _calcConfigName;
     private final ValueSpecification _valueSpec;
 
-    private ResultKey(String calcConfigName, ValueSpecification valueSpec) {
+    private ResultKey(final String calcConfigName, final ValueSpecification valueSpec) {
       _calcConfigName = calcConfigName;
       _valueSpec = valueSpec;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
       if (this == o) {
         return true;
       }
       if (o == null || getClass() != o.getClass()) {
         return false;
       }
-      ResultKey resultKey = (ResultKey) o;
+      final ResultKey resultKey = (ResultKey) o;
       if (!_calcConfigName.equals(resultKey._calcConfigName)) {
         return false;
       }
@@ -302,5 +302,11 @@ import com.opengamma.util.money.CurrencyAmount;
       result = 31 * result + _valueSpec.hashCode();
       return result;
     }
+
+    @Override
+    public String toString() {
+      return _valueSpec.toString() + "/" + _calcConfigName;
+    }
+
   }
 }

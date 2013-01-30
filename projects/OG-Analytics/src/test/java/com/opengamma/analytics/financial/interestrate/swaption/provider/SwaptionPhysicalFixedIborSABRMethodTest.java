@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.swaption.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -77,7 +76,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   //  private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   //  private static final boolean IS_EOM = true;
   private static final int ANNUITY_TENOR_YEAR = 5;
-  private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
+  private static final Period ANNUITY_TENOR = DateUtils.periodOfYears(ANNUITY_TENOR_YEAR);
   private static final double NOTIONAL = 100000000; //100m
   private static final double RATE = 0.0325;
   private static final SwapFixedIborDefinition SWAP_PAYER_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, EUR1YEURIBOR6M, NOTIONAL, RATE, true);
@@ -255,9 +254,9 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
    * Tests the present value of the Hull-White Monte-Carlo calibrated to SABR swaption.
    */
   public void presentValueSABRHullWhiteMonteCarlo() {
-    MultipleCurrencyAmount pvSABR = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
-    PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
-    MultipleCurrencyAmount pvMC = SWAPTION_LONG_PAYER.accept(pvcSABRHWMC, SABR_MULTICURVES);
+    final MultipleCurrencyAmount pvSABR = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
+    final PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
+    final MultipleCurrencyAmount pvMC = SWAPTION_LONG_PAYER.accept(pvcSABRHWMC, SABR_MULTICURVES);
     assertEquals("Swaption Physical SABR: Present value using Hull-White by Monte Carlo", pvSABR.getAmount(EUR), pvMC.getAmount(EUR), 2.5E+4);
   }
 
@@ -267,8 +266,8 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   //   */
   //  public void analysisSensitivities() {
   //    IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR);
-  //    Period expiryTenor = Period.ofYears(5);
-  //    Period underlyingTenor = Period.ofYears(10);
+  //    Period expiryTenor = DateUtils.periodOfYears(5);
+  //    Period underlyingTenor = DateUtils.periodOfYears(10);
   //    ZonedDateTime expiryDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, expiryTenor, USDLIBOR3M);
   //    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(expiryDate, USDLIBOR3M.getSpotLag(), CALENDAR);
   //    GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", CALENDAR);
@@ -342,8 +341,8 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     // Performance note: price+delta: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 380 ms for 5000 swaptions.
 
     final int nbTest2 = 10;
-    PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
-    MultipleCurrencyAmount[] pvMC = new MultipleCurrencyAmount[nbTest2];
+    final PresentValueSABRHullWhiteMonteCarloCalculator pvcSABRHWMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
+    final MultipleCurrencyAmount[] pvMC = new MultipleCurrencyAmount[nbTest2];
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest2; looptest++) {

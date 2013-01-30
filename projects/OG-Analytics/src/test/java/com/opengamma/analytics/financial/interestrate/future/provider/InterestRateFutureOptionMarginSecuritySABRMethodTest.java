@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -57,7 +56,7 @@ public class InterestRateFutureOptionMarginSecuritySABRMethodTest {
   private static final double STRIKE = 0.9850;
   private static final InterestRateFutureDefinition EDU2_DEFINITION = new InterestRateFutureDefinition(LAST_TRADING_DATE, STRIKE, LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, 1, NAME);
   private static final InterestRateFuture EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, NOT_USED_A);
-  // Option 
+  // Option
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final double EXPIRATION_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);

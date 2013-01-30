@@ -10,14 +10,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.PropertyReadWrite;
+import org.joda.convert.StringConvert;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -29,7 +29,7 @@ import com.opengamma.util.OpenGammaClock;
 /**
  * Builds an HTML page containing a description of a type's attributes. It's intended to help with the development
  * of the blotter, not to be a long-term feature of the platform (hence the hacky nature of it).
- * Its output is used to populate bean-structure.tfl.
+ * Its output is used to populate bean-structure.ftl.
  * TODO decide if this is worth keeping and clean it up or delete it when it's not useful any more
  */
 /* package */ class BeanStructureBuilder implements BeanVisitor<Map<String, Object>> {
@@ -61,6 +61,7 @@ import com.opengamma.util.OpenGammaClock;
     s_types.put(String.class, STRING);
   }
 
+  private final StringConvert _stringConvert;
   private final Map<String, Object> _beanData = Maps.newHashMap();
   private final BeanHierarchy _beanHierarchy;
   private final List<Map<String, Object>> _propertyData = Lists.newArrayList();
@@ -69,17 +70,20 @@ import com.opengamma.util.OpenGammaClock;
 
   /* package */ BeanStructureBuilder(Set<MetaBean> metaBeans,
                                      Map<Class<?>, Class<?>> underlyingSecurityTypes,
-                                     Map<Class<?>, String> endpoints) {
+                                     Map<Class<?>, String> endpoints,
+                                     StringConvert stringConvert) {
     ArgumentChecker.notNull(underlyingSecurityTypes, "underlyingSecurityTypes");
     ArgumentChecker.notNull(metaBeans, "metaBeans");
     ArgumentChecker.notNull(endpoints, "endpoints");
+    ArgumentChecker.notNull(stringConvert, "stringConvert");
     _endpoints = endpoints;
     _underlyingSecurityTypes = underlyingSecurityTypes;
     _beanHierarchy = new BeanHierarchy(metaBeans);
+    _stringConvert = stringConvert;
   }
 
   @Override
-  public void visitBean(MetaBean metaBean) {
+  public void visitMetaBean(MetaBean metaBean) {
     _beanData.clear();
     String typeName = metaBean.beanType().getSimpleName();
     _beanData.put("type", typeName);
@@ -142,10 +146,10 @@ import com.opengamma.util.OpenGammaClock;
     return property(property, typesFor(property.propertyType()), null, PropertyType.ARRAY);
   }
 
-  private static boolean isConvertible(Class<?> type) {
+  private boolean isConvertible(Class<?> type) {
     boolean canConvert;
     try {
-      JodaBeanUtils.stringConverter().findConverter(type);
+      _stringConvert.findConverter(type);
       canConvert = true;
     } catch (Exception e) {
       canConvert = false;

@@ -10,10 +10,10 @@
         Type
       </td>
       <td class="og-double-cell">
-        <div><span><label>Cap <input type="radio" name="cap" value="true">
-        </label><label>Floor <input type="radio" name="cap" value="false"></label>
-        </span><span><label>Buy<input type="radio" name="payer" value="false">
-        </label><label>Sell<input type="radio" name="payer" value="true"></label></span></div>
+        <div><span><label>Cap <input type="radio" name="security.cap" value="true">
+        </label><label>Floor <input type="radio" name="security.cap" value="false"></label>
+        </span><span><label>Buy<input type="radio" name="security.payer" value="false">
+        </label><label>Sell<input type="radio" name="security.payer" value="true"></label></span></div>
       </td>
     </tr>
     <tr>
@@ -23,7 +23,7 @@
         </label>
       </td>
       <td>
-        <input name="startDate" type="text" />
+        <input name="security.startDate" type="text" value="{{start}}"/>
       </td>
     </tr>
     <tr>
@@ -33,7 +33,7 @@
         </label>
       </td>
       <td>
-        <input name="maturityDate" type="text" />
+        <input name="security.maturityDate" type="text" value="{{maturity}}"/>
       </td>
     </tr>
     <tr>
@@ -43,7 +43,8 @@
         </label>
       </td>
       <td class="og-double-cell">
-        <div><span><select name="currency"></select></span><span><input name="notional" type="text" /></span></div>
+        <div><span>{{{item_0}}}</span><span><input name="security.notional" type="text" value="{{notional}}"/></span>
+        </div>
       </td>
     </tr>
     <tr>
@@ -53,7 +54,7 @@
         </label>
       </td>
       <td>
-        <input name="strike" type="text" />
+        <input name="security.strike" type="text" value="{{strike}}"/>
       </td>
     </tr>
   </tbody>
@@ -64,23 +65,7 @@
     <col style="width: 70%">              
   </colgroup>
   <tbody>
-    <tr>
-      <td>
-        <label>
-          <span>Index</span>
-        </label>
-      </td>
-      {{#if cms}}
-        <td class="og-double-cell">
-          <div><span><input name="longId" type="text" />
-          </span><span><input name="shortId" type="text" /></span></div>
-        </td>
-      {{else}}
-        <td>
-          <input name="underlyingId" type="text" />
-        </td>
-    {{/if}}
-    </tr>
+    {{{item_1}}}
     <tr>
       <td>
         <label>
@@ -88,7 +73,7 @@
         </label>
       </td>
       <td>
-        <select name="frequency"></select>
+        {{{item_2}}}
       </td>
     </tr>
     <tr>
@@ -98,7 +83,14 @@
         </label>
       </td>
       <td>
-        <select name="dayCount"></select>
+        {{{item_3}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+      </td>
+      <td>
+        <input name="security.ibor" type="checkbox" /><span>Ibor</span>
       </td>
     </tr>
   </tbody>

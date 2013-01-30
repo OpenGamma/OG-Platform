@@ -14,11 +14,10 @@ import static com.opengamma.financial.analytics.model.volatility.local.deprecate
 import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS;
 import static com.opengamma.financial.analytics.model.volatility.local.deprecated.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE;
 
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  *
@@ -28,11 +27,8 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 public class ForexLocalVolatilitySurfaceFunction extends LocalVolatilitySurfaceFunction {
 
   @Override
-  protected boolean isCorrectIdType(final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      return false;
-    }
-    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.UNORDERED_CURRENCY_PAIR;
   }
 
   @Override

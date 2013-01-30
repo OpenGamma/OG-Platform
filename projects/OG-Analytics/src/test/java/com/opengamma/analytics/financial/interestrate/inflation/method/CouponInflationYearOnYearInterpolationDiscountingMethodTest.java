@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.interestrate.inflation.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
@@ -41,14 +40,14 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
   private static final Calendar CALENDAR_EUR = EURIBOR3M.getCalendar();
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
-  private static final Period COUPON_TENOR = Period.ofYears(10);
+  private static final Period COUPON_TENOR = DateUtils.periodOfYears(10);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR_EUR);
-  private static final ZonedDateTime PAYMENT_DATE_MINUS1 = ScheduleCalculator.getAdjustedDate(START_DATE, Period.ofYears(9), BUSINESS_DAY, CALENDAR_EUR);
+  private static final ZonedDateTime PAYMENT_DATE_MINUS1 = ScheduleCalculator.getAdjustedDate(START_DATE, DateUtils.periodOfYears(9), BUSINESS_DAY, CALENDAR_EUR);
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 3);
-  private static final double WEIGHT_START = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getMonthOfYear().getLastDayOfMonth(PAYMENT_DATE.isLeapYear());
-  private static final double WEIGHT_END = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getMonthOfYear().getLastDayOfMonth(PAYMENT_DATE.isLeapYear());
+  private static final double WEIGHT_START = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getDate().lengthOfMonth();
+  private static final double WEIGHT_END = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getDate().lengthOfMonth();
   private static final CouponInflationYearOnYearInterpolationDefinition YEAR_ON_YEAR_NO_DEFINITION = CouponInflationYearOnYearInterpolationDefinition.from(PAYMENT_DATE_MINUS1, PAYMENT_DATE, NOTIONAL,
       PRICE_INDEX_EUR, WEIGHT_START, WEIGHT_END, MONTH_LAG, false);
   private static final CouponInflationYearOnYearInterpolation YEAR_ON_YEAR_NO = YEAR_ON_YEAR_NO_DEFINITION.toDerivative(PRICING_DATE, "not used");

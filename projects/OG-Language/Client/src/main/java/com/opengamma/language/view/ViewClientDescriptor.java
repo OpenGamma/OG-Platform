@@ -5,13 +5,11 @@
  */
 package com.opengamma.language.view;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -83,9 +81,9 @@ public final class ViewClientDescriptor {
    */
   public static ViewClientDescriptor staticMarketData(final UniqueId viewId, final String dataSource) {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
-    final LiveMarketDataSpecification marketDataSpec = dataSource == null ? MarketData.live() : MarketData.live(dataSource);
-    final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(null, marketDataSpec);
-    final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, ExecutionFlags.none().waitForInitialTrigger().awaitMarketData().get());
+    final ViewCycleExecutionOptions.Builder cycleOptions = ViewCycleExecutionOptions.builder();
+    cycleOptions.setMarketDataSpecification((dataSource == null) ? MarketData.live() : MarketData.live(dataSource));
+    final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions.create(), ExecutionFlags.none().waitForInitialTrigger().awaitMarketData().get());
     return new ViewClientDescriptor(viewId, options);
   }
   
@@ -102,12 +100,10 @@ public final class ViewClientDescriptor {
    * @param timeSeriesFieldResolverKey resolution key for the time series provider, use null for a default
    * @return the descriptor
    */
-  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime, final int samplePeriod,
+  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final Instant firstValuationTime, final Instant lastValuationTime, final int samplePeriod,
       final String timeSeriesResolverKey, final String timeSeriesFieldResolverKey) {
-    final Instant firstValuationTimeValue = Instant.of(firstValuationTime);
-    final Instant lastValuationTimeValue = Instant.of(lastValuationTime);
     ViewCycleExecutionSequence executionSequence = HistoricalExecutionSequenceFunction.generate(
-        firstValuationTimeValue, lastValuationTimeValue, samplePeriod, timeSeriesResolverKey, timeSeriesFieldResolverKey);
+        firstValuationTime, lastValuationTime, samplePeriod, timeSeriesResolverKey, timeSeriesFieldResolverKey);
     final ViewExecutionOptions options = ExecutionOptions.of(executionSequence, null, ExecutionFlags.none().waitForInitialTrigger().get());
     return new ViewClientDescriptor(viewId, options);
   }
@@ -123,7 +119,7 @@ public final class ViewClientDescriptor {
    * @param samplePeriod period between each samples in seconds, e.g. 86400 for a day
    * @return the descriptor
    */
-  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime, final int samplePeriod) {
+  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final Instant firstValuationTime, final Instant lastValuationTime, final int samplePeriod) {
     return historicalMarketData(viewId, firstValuationTime, lastValuationTime, samplePeriod, null, null);
   }
 
@@ -139,7 +135,7 @@ public final class ViewClientDescriptor {
    * @param timeSeriesFieldResolverKey resolution key for the time series provider, use null for a default
    * @return the descriptor
    */
-  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime, final String timeSeriesResolverKey,
+  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final Instant firstValuationTime, final Instant lastValuationTime, final String timeSeriesResolverKey,
       final String timeSeriesFieldResolverKey) {
     return historicalMarketData(viewId, firstValuationTime, lastValuationTime, DEFAULT_SAMPLE_PERIOD, timeSeriesResolverKey, timeSeriesFieldResolverKey);
   }
@@ -154,7 +150,7 @@ public final class ViewClientDescriptor {
    * @param lastValuationTime last valuation time in the sample, not null
    * @return the descriptor
    */
-  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final InstantProvider firstValuationTime, final InstantProvider lastValuationTime) {
+  public static ViewClientDescriptor historicalMarketData(final UniqueId viewId, final Instant firstValuationTime, final Instant lastValuationTime) {
     return historicalMarketData(viewId, firstValuationTime, lastValuationTime, DEFAULT_SAMPLE_PERIOD, null, null);
   }
 
@@ -167,9 +163,9 @@ public final class ViewClientDescriptor {
    * @param valuationTime valuation time to use, null for current time
    * @return the descriptor 
    */
-  public static ViewClientDescriptor tickingSnapshot(final UniqueId viewId, final UniqueId snapshotId, final InstantProvider valuationTime) {
+  public static ViewClientDescriptor tickingSnapshot(final UniqueId viewId, final UniqueId snapshotId, final Instant valuationTime) {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
-    final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(valuationTime, MarketData.user(snapshotId));
+    final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(valuationTime).setMarketDataSpecification(MarketData.user(snapshotId)).create();
     final ExecutionFlags flags = ExecutionFlags.none().triggerOnMarketData();
     final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, flags.get());
     return new ViewClientDescriptor(viewId, options);
@@ -186,9 +182,9 @@ public final class ViewClientDescriptor {
    * @param valuationTime valuation time to use, null for current time
    * @return the descriptor
    */
-  public static ViewClientDescriptor staticSnapshot(final UniqueId viewId, final UniqueId snapshotId, final InstantProvider valuationTime) {
+  public static ViewClientDescriptor staticSnapshot(final UniqueId viewId, final UniqueId snapshotId, final Instant valuationTime) {
     final ViewCycleExecutionSequence cycleSequence = new InfiniteViewCycleExecutionSequence();
-    final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(valuationTime, MarketData.user(snapshotId));
+    final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(valuationTime).setMarketDataSpecification(MarketData.user(snapshotId)).create();
     final ExecutionFlags flags = ExecutionFlags.none().waitForInitialTrigger();
     final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, flags.get());
     return new ViewClientDescriptor(viewId, options);

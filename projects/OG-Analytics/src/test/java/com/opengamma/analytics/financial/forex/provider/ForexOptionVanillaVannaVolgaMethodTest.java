@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.forex.provider;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
@@ -63,7 +62,8 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final int SETTLEMENT_DAYS = 2;
   // Smile data
-  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
+  private static final Period[] EXPIRY_PERIOD = new Period[] {DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1),
+      DateUtils.periodOfYears(2), DateUtils.periodOfYears(5)};
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
@@ -84,13 +84,13 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
   private static final double[][] STRANGLE = new double[][] { {0.002}, {0.003}, {0.004}, {0.0045}, {0.0045}, {0.0045}};
   private static final double[][] RISK_REVERSAL_FLAT = new double[][] { {0.0}, {0.0}, {0.0}, {0.0}, {0.0}, {0.0}};
   private static final double[][] STRANGLE_FLAT = new double[][] { {0.0}, {0.0}, {0.0}, {0.0}, {0.0}, {0.0}};
-  private static final Interpolator1D INTERPOLATOR_STRIKE = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
-      Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+  private static final Interpolator1D INTERPOLATOR_STRIKE = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
+      Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   private static final SmileDeltaTermStructureParameters SMILE_TERM = new SmileDeltaTermStructureParameters(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
-  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_STRIKE_INT = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL,
-      STRANGLE, INTERPOLATOR_STRIKE);
-  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_STRIKE_INT_FLAT = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, ATM,
-      RISK_REVERSAL_FLAT, STRANGLE_FLAT, INTERPOLATOR_STRIKE);
+  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_STRIKE_INT = new SmileDeltaTermStructureParametersStrikeInterpolation(
+      TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE, INTERPOLATOR_STRIKE);
+  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_STRIKE_INT_FLAT = new SmileDeltaTermStructureParametersStrikeInterpolation(
+      TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL_FLAT, STRANGLE_FLAT, INTERPOLATOR_STRIKE);
 
   // Methods and curves
   private static final ForexOptionVanillaVannaVolgaMethod METHOD_VANNA_VOLGA = ForexOptionVanillaVannaVolgaMethod.getInstance();
@@ -123,7 +123,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] call = new ForexOptionVanilla[nbStrike + 1];
     final ForexOptionVanilla[] put = new ForexOptionVanilla[nbStrike + 1];
@@ -139,19 +139,23 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
       final MultipleCurrencyAmount pvCall = METHOD_VANNA_VOLGA.presentValue(call[loopstrike], VANNAVOLGA_MULTICURVES);
       final MultipleCurrencyAmount pvPut = METHOD_VANNA_VOLGA.presentValue(put[loopstrike], VANNAVOLGA_MULTICURVES);
       final MultipleCurrencyAmount pvForward = METHOD_DISC.presentValue(forexForward, MULTICURVES);
-      assertEquals("Forex vanilla option: vanna-volga present value put/call parity", pvForward.getAmount(USD) + pvForward.getAmount(EUR) * SPOT, pvCall.getAmount(USD) + pvPut.getAmount(USD),
-          TOLERANCE_PV);
+      assertEquals("Forex vanilla option: vanna-volga present value put/call parity", pvForward.getAmount(USD) + pvForward.getAmount(EUR) * SPOT, pvCall.getAmount(USD)
+          + pvPut.getAmount(USD), TOLERANCE_PV);
       // Currency exposure
       final MultipleCurrencyAmount ceCall = METHOD_VANNA_VOLGA.currencyExposure(call[loopstrike], VANNAVOLGA_MULTICURVES);
       final MultipleCurrencyAmount cePut = METHOD_VANNA_VOLGA.currencyExposure(put[loopstrike], VANNAVOLGA_MULTICURVES);
       final MultipleCurrencyAmount ceForward = METHOD_DISC.currencyExposure(forexForward, MULTICURVES);
-      assertEquals("Forex vanilla option: vanna-volga currency exposure put/call parity", ceForward.getAmount(USD), ceCall.getAmount(USD) + cePut.getAmount(USD), TOLERANCE_PV);
-      assertEquals("Forex vanilla option: vanna-volga currency exposure put/call parity", ceForward.getAmount(EUR), ceCall.getAmount(EUR) + cePut.getAmount(EUR), TOLERANCE_PV);
+      assertEquals("Forex vanilla option: vanna-volga currency exposure put/call parity", ceForward.getAmount(USD), ceCall.getAmount(USD) + cePut.getAmount(USD),
+          TOLERANCE_PV);
+      assertEquals("Forex vanilla option: vanna-volga currency exposure put/call parity", ceForward.getAmount(EUR), ceCall.getAmount(EUR) + cePut.getAmount(EUR),
+          TOLERANCE_PV);
       // Vega
       final PresentValueForexBlackVolatilitySensitivity pvbsCall = METHOD_VANNA_VOLGA.presentValueBlackVolatilitySensitivity(call[loopstrike], VANNAVOLGA_MULTICURVES);
       final PresentValueForexBlackVolatilitySensitivity pvbsPut = METHOD_VANNA_VOLGA.presentValueBlackVolatilitySensitivity(put[loopstrike], VANNAVOLGA_MULTICURVES);
-      assertTrue("Forex vanilla option: vanna-volga sensitivity put/call parity - strike " + loopstrike, PresentValueForexBlackVolatilitySensitivity.compare(pvbsCall.plus(pvbsPut),
-          new PresentValueForexBlackVolatilitySensitivity(EUR, USD, SurfaceValue.from(DoublesPair.of(0.0d, 0.0d), 0.0d)), TOLERANCE_PV));
+      assertTrue(
+          "Forex vanilla option: vanna-volga sensitivity put/call parity - strike " + loopstrike,
+          PresentValueForexBlackVolatilitySensitivity.compare(pvbsCall.plus(pvbsPut),
+              new PresentValueForexBlackVolatilitySensitivity(EUR, USD, SurfaceValue.from(DoublesPair.of(0.0d, 0.0d), 0.0d)), TOLERANCE_PV));
       // Curve sensitivty
       final MultipleCurrencyMulticurveSensitivity pvcsCall = METHOD_VANNA_VOLGA.presentValueCurveSensitivity(call[loopstrike], VANNAVOLGA_MULTICURVES);
       final MultipleCurrencyMulticurveSensitivity pvcsPut = METHOD_VANNA_VOLGA.presentValueCurveSensitivity(put[loopstrike], VANNAVOLGA_MULTICURVES);
@@ -173,7 +177,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
@@ -223,12 +227,12 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final double strikeMin = 1.00;
     final double strikeRange = 0.80;
     final double[] strikes = new double[nbStrike + 1];
-    final double[] pvExpected = new double[] {3.860405407112769E7, 3.0897699603079587E7, 2.3542824458812844E7, 1.6993448607300103E7, 1.1705393621236656E7, 7865881.826, 5312495.846, 3680367.677,
-        2607701.430, 1849818.30, 1282881.98};
+    final double[] pvExpected = new double[] {3.860405407112769E7, 3.0897699603079587E7, 2.3542824458812844E7, 1.6993448607300103E7, 1.1705393621236656E7, 7865881.826,
+        5312495.846, 3680367.677, 2607701.430, 1849818.30, 1282881.98};
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
@@ -252,7 +256,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingSpotDefinition = new ForexDefinition(EUR, USD, optionPay, notional, SPOT);
     final ForexOptionVanillaDefinition forexOptionSpotDefinition = new ForexOptionVanillaDefinition(forexUnderlyingSpotDefinition, optionExpiry, isCall, isLong);
@@ -288,7 +292,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
@@ -347,7 +351,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
@@ -368,7 +372,8 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
       ceVV[loopstrike] = METHOD_VANNA_VOLGA.currencyExposure(forexOption[loopstrike], VANNAVOLGA_MULTICURVES);
       ceInt[loopstrike] = METHOD_BLACK.currencyExposure(forexOption[loopstrike], SMILE_MULTICURVES);
-      assertEquals("Forex vanilla option: currency exposure vanna-volga vs Black " + loopstrike, 1, ceVV[loopstrike].getAmount(EUR) / ceInt[loopstrike].getAmount(EUR), 0.15);
+      assertEquals("Forex vanilla option: currency exposure vanna-volga vs Black " + loopstrike, 1, ceVV[loopstrike].getAmount(EUR) / ceInt[loopstrike].getAmount(EUR),
+          0.15);
     }
 
     final MultipleCurrencyMulticurveSensitivity[] pvcsVV = new MultipleCurrencyMulticurveSensitivity[nbStrike + 1];
@@ -397,7 +402,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
@@ -435,7 +440,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 1000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
@@ -471,7 +476,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingSpotDefinition = new ForexDefinition(EUR, USD, optionPay, notional, SPOT);
     final ForexOptionVanillaDefinition forexOptionSpotDefinition = new ForexOptionVanillaDefinition(forexUnderlyingSpotDefinition, optionExpiry, isCall, isLong);
@@ -516,7 +521,7 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(18), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime optionExpiry = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(18), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime optionPay = ScheduleCalculator.getAdjustedDate(optionExpiry, SETTLEMENT_DAYS, CALENDAR);
     final ForexOptionVanilla[] forexOption = new ForexOptionVanilla[nbStrike + 1];
     final ForexOptionVanillaDefinition[] forexOptionDefinition = new ForexOptionVanillaDefinition[nbStrike + 1];

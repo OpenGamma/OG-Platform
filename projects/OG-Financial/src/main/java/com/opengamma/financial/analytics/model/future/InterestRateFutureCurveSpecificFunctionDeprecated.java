@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -22,11 +22,12 @@ import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -76,7 +77,7 @@ public abstract class InterestRateFutureCurveSpecificFunctionDeprecated extends 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final Trade trade = target.getTrade();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -108,9 +109,6 @@ public abstract class InterestRateFutureCurveSpecificFunctionDeprecated extends 
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
-      return false;
-    }
     return target.getTrade().getSecurity() instanceof InterestRateFutureSecurity;
   }
 
@@ -172,7 +170,7 @@ public abstract class InterestRateFutureCurveSpecificFunctionDeprecated extends 
   private static ValueRequirement getCurveSpecRequirement(final ComputationTarget target, final String curveName) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     final ValueProperties.Builder properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName);
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), properties.get());
   }
 
   private static YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs, final String forwardCurveName, final String fundingCurveName,

@@ -6,11 +6,11 @@
 package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
@@ -39,7 +39,7 @@ public class CouponIborSpreadDiscountingMethodTest {
   private static final IborIndex EURIBOR3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M", TARGET);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 8, 31);
-  private static final Period START_TENOR = Period.ofMonths(6);
+  private static final Period START_TENOR = Period.of(6, MONTHS);
   private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, START_TENOR, EURIBOR3M);
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, EURIBOR3M);
   private static final double NOTIONAL = -123000000;

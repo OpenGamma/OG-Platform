@@ -7,7 +7,7 @@ package com.opengamma.engine.function;
 
 import java.util.concurrent.ExecutorService;
 
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 /**
  * Compilation service to convert a {@link FunctionRepository} to a {@link CompiledFunctionRepository}. 
@@ -23,6 +23,6 @@ public interface FunctionRepositoryCompiler {
    * @param atInstant the snapshot time.
    * @return the repository of compiled functions.
    */
-  CompiledFunctionRepository compile(FunctionRepository repository, FunctionCompilationContext context, ExecutorService executor, InstantProvider atInstant);
+  CompiledFunctionRepository compile(FunctionRepository repository, FunctionCompilationContext context, ExecutorService executor, Instant atInstant);
 
 }

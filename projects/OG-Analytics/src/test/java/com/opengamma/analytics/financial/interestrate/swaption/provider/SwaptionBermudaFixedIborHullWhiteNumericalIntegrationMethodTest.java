@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.interestrate.swaption.provider;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
@@ -48,12 +47,12 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
   // General
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 22);
   // Total swap - 5Y semi bond vs quarterly money
-  private static final Period FORWARD_TENOR = Period.ofYears(1);
+  private static final Period FORWARD_TENOR = DateUtils.periodOfYears(1);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, FORWARD_TENOR, EURIBOR3M);
-  private static final Period SWAP_TENOR = Period.ofYears(5);
+  private static final Period SWAP_TENOR = DateUtils.periodOfYears(5);
   private static final double NOTIONAL = 123000000;
   private static final boolean FIXED_IS_PAYER = true;
-  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
+  private static final Period FIXED_PAYMENT_PERIOD = DateUtils.periodOfMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR3M, SWAP_TENOR);
   private static final double RATE = 0.0200;
@@ -86,13 +85,13 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
    * Test the present value against European swaptions.
    */
   public void presentValue() {
-    MultipleCurrencyAmount pv = METHOD_BERMUDA.presentValue(BERMUDA_SWAPTION, HW_MULTICURVES);
-    double pvPrevious = 4477405.551; // Hard-coded - previous run
+    final MultipleCurrencyAmount pv = METHOD_BERMUDA.presentValue(BERMUDA_SWAPTION, HW_MULTICURVES);
+    final double pvPrevious = 4477405.551; // Hard-coded - previous run
     assertEquals("Bermuda swaption vs European", pvPrevious, pv.getAmount(CUR), TOLERANCE_PV);
     // European swaptions
-    SwaptionPhysicalFixedIborDefinition[] swaptionEuropeanDefinition = new SwaptionPhysicalFixedIborDefinition[NB_EXPIRY];
-    SwaptionPhysicalFixedIbor[] swaptionEuropean = new SwaptionPhysicalFixedIbor[NB_EXPIRY];
-    MultipleCurrencyAmount[] pvEuropean = new MultipleCurrencyAmount[NB_EXPIRY];
+    final SwaptionPhysicalFixedIborDefinition[] swaptionEuropeanDefinition = new SwaptionPhysicalFixedIborDefinition[NB_EXPIRY];
+    final SwaptionPhysicalFixedIbor[] swaptionEuropean = new SwaptionPhysicalFixedIbor[NB_EXPIRY];
+    final MultipleCurrencyAmount[] pvEuropean = new MultipleCurrencyAmount[NB_EXPIRY];
     for (int loopexp = 0; loopexp < NB_EXPIRY; loopexp++) {
       swaptionEuropeanDefinition[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE[loopexp], EXPIRY_SWAP_DEFINITION[loopexp], IS_LONG);
       swaptionEuropean[loopexp] = swaptionEuropeanDefinition[loopexp].toDerivative(REFERENCE_DATE, NOT_USED_A);
@@ -108,10 +107,10 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
    * Test the present value long/short parity.
    */
   public void longShortParity() {
-    MultipleCurrencyAmount pvLong = METHOD_BERMUDA.presentValue(BERMUDA_SWAPTION, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvLong = METHOD_BERMUDA.presentValue(BERMUDA_SWAPTION, HW_MULTICURVES);
     final SwaptionBermudaFixedIborDefinition bermudaShortDefinition = new SwaptionBermudaFixedIborDefinition(EXPIRY_SWAP_DEFINITION, !IS_LONG, EXPIRY_DATE);
     final SwaptionBermudaFixedIbor bermudShort = bermudaShortDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-    MultipleCurrencyAmount pvShort = METHOD_BERMUDA.presentValue(bermudShort, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvShort = METHOD_BERMUDA.presentValue(bermudShort, HW_MULTICURVES);
     assertEquals("Bermuda swaption pv: short/long parity", pvLong.getAmount(CUR), -pvShort.getAmount(CUR), TOLERANCE_PV);
   }
 
@@ -136,7 +135,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
       swaptionBermuda[looptest] = swaptionBermudaDefinition[looptest].toDerivative(REFERENCE_DATE, NOT_USED_A);
     }
     // Loop for pricing
-    MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbTest];
+    final MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbTest];
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {

@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -53,7 +53,7 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
    * @param valuationTimeProviders  the valuation times, not null
    * @return the sequence, not null
    */
-  public static ArbitraryViewCycleExecutionSequence of(InstantProvider... valuationTimeProviders) {
+  public static ArbitraryViewCycleExecutionSequence of(Instant... valuationTimeProviders) {
     return of(Arrays.asList(valuationTimeProviders));
   }
 
@@ -63,11 +63,12 @@ public class ArbitraryViewCycleExecutionSequence extends MergingViewCycleExecuti
    * @param valuationTimeProviders  the valuation times, not  null
    * @return the sequence, not null
    */
-  public static ArbitraryViewCycleExecutionSequence of(Collection<InstantProvider> valuationTimeProviders) {
+  public static ArbitraryViewCycleExecutionSequence of(Collection<Instant> valuationTimeProviders) {
     ArgumentChecker.notNull(valuationTimeProviders, "valuationTimeProviders");
     List<ViewCycleExecutionOptions> executionSequence = new ArrayList<ViewCycleExecutionOptions>(valuationTimeProviders.size());
-    for (InstantProvider valuationTimeProvider : valuationTimeProviders) {
-      ViewCycleExecutionOptions options = new ViewCycleExecutionOptions(valuationTimeProvider);
+    final ViewCycleExecutionOptions.Builder builder = ViewCycleExecutionOptions.builder();
+    for (Instant valuationTimeProvider : valuationTimeProviders) {
+      ViewCycleExecutionOptions options = builder.setValuationTime(valuationTimeProvider).create();
       executionSequence.add(options);
     }
     return new ArbitraryViewCycleExecutionSequence(executionSequence);

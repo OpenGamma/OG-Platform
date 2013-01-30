@@ -6,7 +6,7 @@
 package com.opengamma.financial.analytics.model.volatility.surface.black;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
+import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 
 import java.util.Set;
 
@@ -17,14 +17,15 @@ import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
@@ -32,6 +33,11 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilitySurfaceFunction {
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.UNORDERED_CURRENCY_PAIR;
+  }
 
   /**
    * Spline interpolator function for Black volatility surfaces
@@ -139,14 +145,6 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
   }
 
   @Override
-  protected boolean isCorrectIdType(final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      return false;
-    }
-    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
-  }
-
-  @Override
   protected SmileSurfaceDataBundle getData(final FunctionInputs inputs) {
     final Object volatilitySurfaceObject = inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE_DATA);
     if (volatilitySurfaceObject == null) {
@@ -164,12 +162,23 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
 
   @Override
   protected ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    final String curveCalculationMethodName = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
+    final String curveCalculationMethodName = desiredValue.getConstraint(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
     final String forwardCurveName = desiredValue.getConstraint(CURVE);
     final ValueProperties properties = ValueProperties.builder()
-        .with(CURVE_CALCULATION_METHOD, curveCalculationMethodName)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, curveCalculationMethodName)
         .with(CURVE, forwardCurveName).get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
+  }
+
+  @Override
+  protected ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName) {
+    final ValueRequirement volDataRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
+        ValueProperties.builder()
+        .with(SURFACE, surfaceName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType())
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, getSurfaceQuoteType())
+        .with(SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS, getSurfaceQuoteUnits()).get());
+    return volDataRequirement;
   }
 
   @Override
@@ -177,13 +186,11 @@ public abstract class ForexBlackVolatilitySurfaceFunction extends BlackVolatilit
     return InstrumentTypeProperties.FOREX;
   }
 
-  @Override
-  protected String getSurfaceQuoteUnits() {
+  private String getSurfaceQuoteUnits() {
     return SurfaceAndCubePropertyNames.VOLATILITY_QUOTE;
   }
 
-  @Override
-  protected String getSurfaceQuoteType() {
+  private String getSurfaceQuoteType() {
     return SurfaceAndCubeQuoteType.MARKET_STRANGLE_RISK_REVERSAL;
   }
 }

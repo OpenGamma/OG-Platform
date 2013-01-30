@@ -14,6 +14,7 @@ import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
+import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 
 import com.google.common.collect.Lists;
@@ -29,16 +30,19 @@ import com.opengamma.util.ArgumentChecker;
 
   private final Bean _bean;
   private final BeanDataSink<T> _sink;
+  private final StringConvert _stringConvert;
 
-  /* package */ BuildingBeanVisitor(Bean bean, BeanDataSink<T> sink) {
+  /* package */ BuildingBeanVisitor(Bean bean, BeanDataSink<T> sink, StringConvert stringConvert) {
     ArgumentChecker.notNull(bean, "bean");
     ArgumentChecker.notNull(sink, "sink");
+    ArgumentChecker.notNull(stringConvert, "stringConvert");
     _bean = bean;
     _sink = sink;
+    _stringConvert = stringConvert;
   }
 
   @Override
-  public void visitBean(MetaBean metaBean) {
+  public void visitMetaBean(MetaBean metaBean) {
     if (!_bean.getClass().equals(metaBean.beanType())) {
       throw new IllegalArgumentException("Bean type " + _bean.getClass().getName() + " is not the same as " +
                                              "MetaBean type " + metaBean.beanType().getName());
@@ -48,6 +52,10 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    if (isConvertible(property.propertyType())) {
+      visitProperty(property);
+      return;
+    }
     _sink.setBeanValue(property.name(), (Bean) property.get(_bean), traverser);
   }
 
@@ -56,7 +64,7 @@ import com.opengamma.util.ArgumentChecker;
     List<String> stringValues = Lists.newArrayList();
     Class<?> collectionType = JodaBeanUtils.collectionType(property, property.declaringType());
     StringConverter<Object> converter =
-        (StringConverter<Object>) JodaBeanUtils.stringConverter().findConverter(collectionType);
+        (StringConverter<Object>) _stringConvert.findConverter(collectionType);
     for (Object value : values) {
       stringValues.add(converter.convertToString(value));
     }
@@ -82,10 +90,8 @@ import com.opengamma.util.ArgumentChecker;
   public void visitMapProperty(MetaProperty<?> property) {
     Class<?> keyType = JodaBeanUtils.mapKeyType(property, property.declaringType());
     Class<?> valueType = JodaBeanUtils.mapValueType(property, property.declaringType());
-    StringConverter<Object> keyConverter =
-        (StringConverter<Object>) JodaBeanUtils.stringConverter().findConverter(keyType);
-    StringConverter<Object> valueConverter =
-        (StringConverter<Object>) JodaBeanUtils.stringConverter().findConverter(valueType);
+    StringConverter<Object> keyConverter = (StringConverter<Object>) _stringConvert.findConverter(keyType);
+    StringConverter<Object> valueConverter = (StringConverter<Object>) _stringConvert.findConverter(valueType);
     HashMap<String, String> stringMap = Maps.newHashMap();
     Map<?, ?> valueMap = (Map<?, ?>) property.get(_bean);
     for (Map.Entry<?, ?> entry : valueMap.entrySet()) {
@@ -96,11 +102,24 @@ import com.opengamma.util.ArgumentChecker;
 
   @Override
   public void visitProperty(MetaProperty<?> property) {
-    _sink.setValue(property.name(), property.getString(_bean));
+    String value = _stringConvert.convertToString((Class<Object>) property.propertyType(), property.get(_bean));
+    _sink.setValue(property.name(), value);
   }
 
   @Override
   public T finish() {
     return _sink.finish();
   }
+
+  private boolean isConvertible(Class<?> type) {
+    boolean canConvert;
+    try {
+      _stringConvert.findConverter(type);
+      canConvert = true;
+    } catch (Exception e) {
+      canConvert = false;
+    }
+    return canConvert;
+  }
+
 }

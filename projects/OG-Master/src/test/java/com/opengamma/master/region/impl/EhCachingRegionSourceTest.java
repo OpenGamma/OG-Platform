@@ -15,14 +15,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.time.Instant;
-import javax.time.calendar.TimeZone;
-
 import net.sf.ehcache.CacheManager;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneId;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
@@ -201,7 +200,7 @@ public class EhCachingRegionSourceTest {
     region.setName("United Kingdom");
     region.setCurrency(Currency.GBP);
     region.setCountry(Country.GB);
-    region.setTimeZone(TimeZone.of("Europe/London"));
+    region.setTimeZone(ZoneId.of("Europe/London"));
     region.setExternalIdBundle(BUNDLE);
     return region;
   }

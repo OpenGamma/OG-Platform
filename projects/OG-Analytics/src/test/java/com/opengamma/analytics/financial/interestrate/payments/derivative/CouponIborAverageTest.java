@@ -3,9 +3,8 @@ package com.opengamma.analytics.financial.interestrate.payments.derivative;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
@@ -102,7 +101,7 @@ public class CouponIborAverageTest {
    */
   public void testEqualHash() {
     assertEquals("CouponIbor: equal-hash", CPN_IBOR_AVERAGE, CPN_IBOR_AVERAGE);
-    CouponIborAverage other = new CouponIborAverage(EUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME_1, FIXING_END_TIME_1,
+    final CouponIborAverage other = new CouponIborAverage(EUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME_1, FIXING_END_TIME_1,
         FIXING_ACCRUAL_FACTOR_1, INDEX_EURIBOR6M, FIXING_START_TIME_2, FIXING_END_TIME_2, FIXING_ACCRUAL_FACTOR_2, WEIGHT_1, WEIGHT_2);
     assertEquals("CouponIbor: equal-hash", other, CPN_IBOR_AVERAGE);
     assertEquals("CouponIbor: equal-hash", other.hashCode(), CPN_IBOR_AVERAGE.hashCode());

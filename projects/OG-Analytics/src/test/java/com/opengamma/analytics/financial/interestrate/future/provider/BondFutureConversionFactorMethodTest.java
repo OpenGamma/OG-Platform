@@ -6,11 +6,12 @@
 package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -30,7 +31,7 @@ public class BondFutureConversionFactorMethodTest {
 
   // ===== LIFFE Gilt =====
   private static final Currency G_CUR = Currency.GBP;
-  private static final Period G_PAYMENT_TENOR = Period.ofMonths(6);
+  private static final Period G_PAYMENT_TENOR = Period.of(6, MONTHS);
   private static final Calendar G_CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount G_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention G_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -38,7 +39,7 @@ public class BondFutureConversionFactorMethodTest {
   private static final int G_SETTLEMENT_DAYS = 2;
   private static final int G_EX_COUPON = 7;
   private static final YieldConvention G_YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD");
-  private static final Period[] G_BOND_TENOR = new Period[] {Period.ofYears(4), Period.ofYears(4), Period.ofYears(4)};
+  private static final Period[] G_BOND_TENOR = new Period[] {Period.of(4, YEARS), Period.of(4, YEARS), Period.of(4, YEARS)};
   private static final ZonedDateTime[] G_START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 3, 7), DateUtils.getUTCDate(2010, 9, 7), DateUtils.getUTCDate(2011, 1, 22)};
   private static final double[] G_RATE = new double[] {0.0225, 0.0500, 0.0275};
   private static final int G_NB_BOND = G_BOND_TENOR.length;
@@ -73,7 +74,7 @@ public class BondFutureConversionFactorMethodTest {
 
   // ===== EURONEXT Buxl =====
   private static final Currency EUR = Currency.EUR;
-  private static final Period PAYMENT_TENOR_GER = Period.ofMonths(12);
+  private static final Period PAYMENT_TENOR_GER = Period.of(12, MONTHS);
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
   private static final DayCount DAY_COUNT_GER = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BUSINESS_DAY_GER = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");

@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.forex.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
@@ -59,7 +58,8 @@ public class ForexNonDeliverableOptionBlackSmileMethodTest {
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2012, 5, 4);
   private static final double NOMINAL_USD = 100000000; // 1m
   private static final double STRIKE = 1200.00;
-  private static final ForexNonDeliverableForwardDefinition NDF_DEFINITION = new ForexNonDeliverableForwardDefinition(KRW, USD, NOMINAL_USD, STRIKE, FIXING_DATE, PAYMENT_DATE);
+  private static final ForexNonDeliverableForwardDefinition NDF_DEFINITION = new ForexNonDeliverableForwardDefinition(KRW, USD, NOMINAL_USD, STRIKE, FIXING_DATE,
+      PAYMENT_DATE);
   private static final ForexDefinition FOREX_DEFINITION = new ForexDefinition(KRW, USD, PAYMENT_DATE, -NOMINAL_USD * STRIKE, 1.0 / STRIKE);
 
   private static final boolean IS_CALL = true;
@@ -80,7 +80,8 @@ public class ForexNonDeliverableOptionBlackSmileMethodTest {
   private static final CurrencyExposureForexBlackSmileCalculator CEFBC = CurrencyExposureForexBlackSmileCalculator.getInstance();
 
   // Smile data
-  private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5)};
+  private static final Period[] EXPIRY_PERIOD = new Period[] {DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1),
+      DateUtils.periodOfYears(2), DateUtils.periodOfYears(5)};
   private static final int NB_EXP = EXPIRY_PERIOD.length;
   private static final ZonedDateTime REFERENCE_SPOT = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
   private static final ZonedDateTime[] PAY_DATE = new ZonedDateTime[NB_EXP];
@@ -96,9 +97,11 @@ public class ForexNonDeliverableOptionBlackSmileMethodTest {
   }
   private static final double[] ATM = {0.175, 0.185, 0.18, 0.17, 0.16, 0.16};
   private static final double[] DELTA = new double[] {0.10, 0.25};
-  private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}, {-0.014, -0.0090}};
+  private static final double[][] RISK_REVERSAL = new double[][] { {-0.010, -0.0050}, {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090},
+      {-0.014, -0.0090}};
   private static final double[][] STRANGLE = new double[][] { {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}, {0.0340, 0.0140}};
-  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
+  private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA,
+      ATM, RISK_REVERSAL, STRANGLE);
   private static final BlackForexSmileProviderDiscount SMILE_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pair.of(USD, KRW));
 
   private static final double TOLERANCE_PV = 1.0E-2;
@@ -185,7 +188,8 @@ public class ForexNonDeliverableOptionBlackSmileMethodTest {
     final PresentValueForexBlackVolatilitySensitivity pvvsNDO = METHOD_NDO.presentValueBlackVolatilitySensitivity(NDO, SMILE_MULTICURVES);
     final PresentValueForexBlackVolatilitySensitivity pvvsFXO = METHOD_FXO.presentValueBlackVolatilitySensitivity(FOREX_OPT, SMILE_MULTICURVES);
     final DoublesPair point = DoublesPair.of(NDO.getExpiryTime(), NDO.getStrike());
-    assertEquals("Forex non-deliverable option: present value curve sensitivity", pvvsFXO.getVega().getMap().get(point), pvvsNDO.getVega().getMap().get(point), TOLERANCE_PV_DELTA);
+    assertEquals("Forex non-deliverable option: present value curve sensitivity", pvvsFXO.getVega().getMap().get(point), pvvsNDO.getVega().getMap().get(point),
+        TOLERANCE_PV_DELTA);
   }
 
   @Test
@@ -197,7 +201,8 @@ public class ForexNonDeliverableOptionBlackSmileMethodTest {
     final PresentValueForexBlackVolatilityNodeSensitivityDataBundle nsFXO = METHOD_FXO.presentValueBlackVolatilityNodeSensitivity(FOREX_OPT, SMILE_MULTICURVES);
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       for (int loopstrike = 0; loopstrike < nsNDO.getDelta().getNumberOfElements(); loopstrike++) {
-        assertEquals("Forex non-deliverable option: vega node", nsFXO.getVega().getEntry(loopexp, loopstrike), nsNDO.getVega().getEntry(loopexp, loopstrike), TOLERANCE_PV_DELTA);
+        assertEquals("Forex non-deliverable option: vega node", nsFXO.getVega().getEntry(loopexp, loopstrike), nsNDO.getVega().getEntry(loopexp, loopstrike),
+            TOLERANCE_PV_DELTA);
       }
     }
   }

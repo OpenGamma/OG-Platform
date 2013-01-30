@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
@@ -144,7 +145,7 @@ public class ForexDerivativeVisitorTest {
     testException(NDO, o);
     testException(FX_OPTION_DIGITAL);
     testException(FX_OPTION_DIGITAL, o);
-    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP };
+    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP};
     try {
       forexArray[0].accept(VISITOR_ABSTRACT);
       assertTrue(false);
@@ -874,52 +875,62 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitForexForward(ForexForward fx, T data) {
+    public String visitEquityOption(final EquityOption option, final T data) {
       return null;
     }
 
     @Override
-    public String visitForexForward(ForexForward fx) {
+    public String visitForexForward(final ForexForward fx) {
       return null;
     }
 
     @Override
-    public String visitCouponIborCompoundingSpread(CouponIborCompoundingSpread payment) {
+    public String visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread payment) {
       return null;
     }
 
     @Override
-    public String visitCouponIborCompoundingSpread(CouponIborCompoundingSpread payment, T data) {
+    public String visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponIborAverage(CouponIborAverage payment, T data) {
+    public String visitCouponIborAverage(final CouponIborAverage payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponIborAverage(CouponIborAverage payment) {
+    public String visitCouponIborAverage(final CouponIborAverage payment) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationYearOnYearMonthly(CouponInflationYearOnYearMonthly coupon, T data) {
+    public String visitCouponInflationYearOnYearMonthly(final CouponInflationYearOnYearMonthly coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationYearOnYearMonthly(CouponInflationYearOnYearMonthly coupon) {
+    public String visitCouponInflationYearOnYearMonthly(final CouponInflationYearOnYearMonthly coupon) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationYearOnYearInterpolation(CouponInflationYearOnYearInterpolation coupon, T data) {
+    public String visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationYearOnYearInterpolation(CouponInflationYearOnYearInterpolation coupon) {
+    public String visitCouponInflationYearOnYearInterpolation(final CouponInflationYearOnYearInterpolation coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitEquityOption(final EquityOption option) {
+      return null;
+    }
+
+    @Override
+    public String visitForexForward(final ForexForward fx, final T data) {
       return null;
     }
 

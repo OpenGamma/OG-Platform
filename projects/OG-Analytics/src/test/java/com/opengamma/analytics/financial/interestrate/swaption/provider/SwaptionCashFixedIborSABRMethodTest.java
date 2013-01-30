@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.swaption.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDefinition;
@@ -55,7 +54,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Class to test the present value and present value rate sensitivity of the cash-settled European swaption in the SABR model. 
+ * Class to test the present value and present value rate sensitivity of the cash-settled European swaption in the SABR model.
  */
 public class SwaptionCashFixedIborSABRMethodTest {
 
@@ -78,11 +77,11 @@ public class SwaptionCashFixedIborSABRMethodTest {
   // Swap 5Y description
   private static final boolean IS_EOM = true;
   private static final int ANNUITY_TENOR_YEAR = 5;
-  private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
+  private static final Period ANNUITY_TENOR = DateUtils.periodOfYears(ANNUITY_TENOR_YEAR);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE, EURIBOR6M.getSpotLag(), CALENDAR);
   private static final double NOTIONAL = 100000000; //100m
   //  Fixed leg: Semi-annual bond
-  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
+  private static final Period FIXED_PAYMENT_PERIOD = DateUtils.periodOfMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final double RATE = 0.0175;
   private static final boolean FIXED_IS_PAYER = true;

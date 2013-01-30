@@ -7,8 +7,8 @@ package com.opengamma.util.timeseries.zoneddatetime;
 
 import java.util.List;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -30,7 +30,7 @@ public class ArrayZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeS
     super(new ZonedDateTimeEpochMillisConverter(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }
 
-  public ArrayZonedDateTimeDoubleTimeSeries(final TimeZone timeZone) {
+  public ArrayZonedDateTimeDoubleTimeSeries(final ZoneId timeZone) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }
   
@@ -38,7 +38,7 @@ public class ArrayZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeS
     super(s_converter, new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, s_converter.convertToLong(dates), values));
   }
 
-  public ArrayZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final ZonedDateTime[] dates, final double[] values) {
+  public ArrayZonedDateTimeDoubleTimeSeries(final ZoneId timeZone, final ZonedDateTime[] dates, final double[] values) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new ZonedDateTimeEpochMillisConverter(timeZone)
         .convertToLong(dates), values));
   }
@@ -47,7 +47,7 @@ public class ArrayZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeS
     super(s_converter, new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, s_converter.convertToLong(dates), values));
   }
 
-  public ArrayZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final List<ZonedDateTime> dates, final List<Double> values) {
+  public ArrayZonedDateTimeDoubleTimeSeries(final ZoneId timeZone, final List<ZonedDateTime> dates, final List<Double> values) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new ZonedDateTimeEpochMillisConverter(timeZone)
         .convertToLong(dates), values));
   }
@@ -56,7 +56,7 @@ public class ArrayZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeS
     super(s_converter, s_converter.convertToLong(DEFAULT_SERIES_TEMPLATE, dts));
   }
 
-  public ArrayZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final DoubleTimeSeries<ZonedDateTime> dts) {
+  public ArrayZonedDateTimeDoubleTimeSeries(final ZoneId timeZone, final DoubleTimeSeries<ZonedDateTime> dts) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), new ZonedDateTimeEpochMillisConverter(timeZone).convertToLong(DEFAULT_SERIES_TEMPLATE, dts));
   }
 
@@ -68,7 +68,7 @@ public class ArrayZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeS
     super(converter, pidts);
   }
 
-  public ArrayZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final FastLongDoubleTimeSeries pidts) {
+  public ArrayZonedDateTimeDoubleTimeSeries(final ZoneId timeZone, final FastLongDoubleTimeSeries pidts) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), pidts);
   }
 

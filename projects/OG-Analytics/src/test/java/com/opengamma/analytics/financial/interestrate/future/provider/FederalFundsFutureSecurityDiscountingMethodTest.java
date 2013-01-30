@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
@@ -42,36 +41,36 @@ public class FederalFundsFutureSecurityDiscountingMethodTest {
   @Test
   public void priceBeforeFixing() {
     double interest = 0.0;
-    double[] ratePeriod = new double[FUTURE_SECURITY_DEFINITION.getFixingPeriodAccrualFactor().length];
+    final double[] ratePeriod = new double[FUTURE_SECURITY_DEFINITION.getFixingPeriodAccrualFactor().length];
     for (int loopfix = 0; loopfix < FUTURE_SECURITY_DEFINITION.getFixingPeriodAccrualFactor().length; loopfix++) {
       ratePeriod[loopfix] = MULTICURVES.getForwardRate(INDEX_FEDFUND, FUTURE_SECURITY.getFixingPeriodTime()[loopfix], FUTURE_SECURITY.getFixingPeriodTime()[loopfix + 1],
           FUTURE_SECURITY.getFixingPeriodAccrualFactor()[loopfix]);
       interest += ratePeriod[loopfix] * FUTURE_SECURITY.getFixingPeriodAccrualFactor()[loopfix];
     }
-    double rate = interest / FUTURE_SECURITY.getFixingTotalAccrualFactor();
-    double priceExpected = 1.0 - rate;
-    double priceComputed = METHOD_SECURITY.price(FUTURE_SECURITY, MULTICURVES);
+    final double rate = interest / FUTURE_SECURITY.getFixingTotalAccrualFactor();
+    final double priceExpected = 1.0 - rate;
+    final double priceComputed = METHOD_SECURITY.price(FUTURE_SECURITY, MULTICURVES);
     assertEquals("Federal Funds Future Security: price", priceExpected, priceComputed, TOLERANCE_PRICE);
   }
 
   @Test
   public void priceAfterFixing() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 7);
-    ZonedDateTime[] dateFixing = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6),
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 7);
+    final ZonedDateTime[] dateFixing = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6),
         DateUtils.getUTCDate(2012, 3, 7)};
-    double[] rateFixing = new double[] {0.0010, 0.0011, 0.0012, 0.0013, 0.0014};
-    DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(dateFixing, rateFixing);
-    FederalFundsFutureSecurity futureSecurity = FUTURE_SECURITY_DEFINITION.toDerivative(referenceDate, fixingTS, NOT_USED_A);
+    final double[] rateFixing = new double[] {0.0010, 0.0011, 0.0012, 0.0013, 0.0014};
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(dateFixing, rateFixing);
+    final FederalFundsFutureSecurity futureSecurity = FUTURE_SECURITY_DEFINITION.toDerivative(referenceDate, fixingTS, NOT_USED_A);
     double interest = futureSecurity.getAccruedInterest();
-    double[] ratePeriod = new double[futureSecurity.getFixingPeriodAccrualFactor().length];
+    final double[] ratePeriod = new double[futureSecurity.getFixingPeriodAccrualFactor().length];
     for (int loopfix = 0; loopfix < futureSecurity.getFixingPeriodAccrualFactor().length; loopfix++) {
       ratePeriod[loopfix] = MULTICURVES.getForwardRate(INDEX_FEDFUND, futureSecurity.getFixingPeriodTime()[loopfix], futureSecurity.getFixingPeriodTime()[loopfix + 1],
           futureSecurity.getFixingPeriodAccrualFactor()[loopfix]);
       interest += ratePeriod[loopfix] * futureSecurity.getFixingPeriodAccrualFactor()[loopfix];
     }
-    double rate = interest / futureSecurity.getFixingTotalAccrualFactor();
-    double priceExpected = 1.0 - rate;
-    double priceComputed = METHOD_SECURITY.price(futureSecurity, MULTICURVES);
+    final double rate = interest / futureSecurity.getFixingTotalAccrualFactor();
+    final double priceExpected = 1.0 - rate;
+    final double priceComputed = METHOD_SECURITY.price(futureSecurity, MULTICURVES);
     assertEquals("Federal Funds Future Security: price", priceExpected, priceComputed, TOLERANCE_PRICE);
   }
 

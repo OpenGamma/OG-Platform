@@ -17,8 +17,8 @@ import static com.opengamma.financial.analytics.model.volatility.local.PDEProper
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -56,7 +56,7 @@ public abstract class LocalVolatilityForwardPDEFunction extends LocalVolatilityP
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final double theta = Double.parseDouble(desiredValue.getConstraint(PROPERTY_THETA));
@@ -111,8 +111,9 @@ public abstract class LocalVolatilityForwardPDEFunction extends LocalVolatilityP
         constraintsBuilder.with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, getBlackSmileInterpolatorName());
       } else if (values.size() != 1) {
         constraintsBuilder = constraints.copy();
-        constraintsBuilder.withoutAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
-            .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, getBlackSmileInterpolatorName());
+        constraintsBuilder
+          .withoutAny(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR)
+          .with(BlackVolatilitySurfacePropertyNamesAndValues.PROPERTY_SMILE_INTERPOLATOR, getBlackSmileInterpolatorName());
       }
       values = constraints.getValues(PDEPropertyNamesAndValues.PROPERTY_PDE_DIRECTION);
       if (values == null) {

@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.curve;
 
+
 /**
  * Build curves using bills and bonds. 
  * TODO: This is old code that has been commented. It should be removed at some point.
@@ -300,5 +301,4 @@ public class CurveConstructionBillBondTest {
   //        throw new IllegalArgumentException(unit.toString());
   //    }
   //  }
-
 }

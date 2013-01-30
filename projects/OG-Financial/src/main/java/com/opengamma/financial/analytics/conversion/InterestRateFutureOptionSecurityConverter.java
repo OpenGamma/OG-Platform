@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -50,6 +50,7 @@ public class InterestRateFutureOptionSecurityConverter extends FinancialSecurity
   public InstrumentDefinition<?> visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final ExternalId underlyingIdentifier = security.getUnderlyingId();
+    // REVIEW Andrew 2012-01-17 -- This call to getSingle is not correct as the resolution time of the view cycle will not be considered
     final InterestRateFutureSecurity underlyingSecurity = ((InterestRateFutureSecurity) _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier)));
     if (underlyingSecurity == null) {
       throw new OpenGammaRuntimeException("Underlying security " + underlyingIdentifier + " was not found in database");

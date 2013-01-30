@@ -10,9 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -84,7 +83,7 @@ public class AsymmetricPowerOptionModelTest {
   }
 
   private StandardOptionDataBundle getModifiedDataBundle(final StandardOptionDataBundle data, final double p) {
-    final double t = DateUtils.getDifferenceInYears(DATE, EXPIRY);
+    final double t = DateUtils.getDifferenceInYears(DATE, EXPIRY.getExpiry());
     final double spot = Math.pow(data.getSpot(), p);
     double sigma = data.getVolatility(t, STRIKE);
     final double b = p * (data.getCostOfCarry() + (p - 1) * sigma * sigma * 0.5);

@@ -11,7 +11,7 @@
         </label>
       </td>
       <td>
-        <input name="expiry" type="text" />
+        <input name="security.expiry" type="text" value="{{expiry}}"/>
       </td>
     </tr>
     <tr>
@@ -21,7 +21,7 @@
         </label>
       </td>
       <td>
-        <select name="exerciseType"></select>
+        {{{item_0}}}
       </td>
     </tr>
     <tr>
@@ -31,18 +31,16 @@
         </label>
       </td>
       <td>
-        <input name="settlementDate" type="text" />
+        <input name="security.settlementDate" type="text" value="{{settlement}}"/>
       </td>
     </tr>
     {{#if nondev}}
       <tr>
         <td>
-          <label>
-            <span>Delivery Currency</span>
-          </label>
         </td>
         <td>
-          <div><select name="ITTODO"></select></div>
+          <div><input name="security.deliveryInCallCurrency" type="checkbox" /><span>Deliver In Call Currency</span>
+          </div>
         </td>
       </tr>
     {{else}}
@@ -53,7 +51,7 @@
           </label>
         </td>
         <td class="og-double-cell">
-          <div><span><select name="ITTODO"></select></span><span><input name="ITTODO" type="text" /></span></div>
+          <div><span>{{{item_1}}}</span><span><input name="trade.premium" type="text" value="{{premium}}" /></span></div>
         </td>
       </tr>
     {{/if}}

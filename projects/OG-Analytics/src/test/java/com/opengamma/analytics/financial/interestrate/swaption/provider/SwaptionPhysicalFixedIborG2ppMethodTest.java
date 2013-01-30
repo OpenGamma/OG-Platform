@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.swaption.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import cern.jet.random.engine.MersenneTwister;
 
@@ -56,8 +55,8 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final int SPOT_LAG = IBOR_INDEX.getSpotLag();
   private static final int SWAP_TENOR_YEAR = 5;
-  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
-  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
+  private static final Period SWAP_TENOR = DateUtils.periodOfYears(SWAP_TENOR_YEAR);
+  private static final Period FIXED_PAYMENT_PERIOD = DateUtils.periodOfMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
@@ -162,10 +161,10 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Test the present value by approximation vs Monte Carlo.
    */
   public void presentValueMonteCarlo() {
-    int nbPath = 12500;
-    G2ppMonteCarloMethod methodMC = new G2ppMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
-    MultipleCurrencyAmount pvMC = methodMC.presentValue(SWAPTION_LONG_PAYER, CUR, G2PP_MULTICURVES);
-    MultipleCurrencyAmount pvApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
+    final int nbPath = 12500;
+    final G2ppMonteCarloMethod methodMC = new G2ppMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
+    final MultipleCurrencyAmount pvMC = methodMC.presentValue(SWAPTION_LONG_PAYER, CUR, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
     assertEquals("Swaption physical - G2++ - present value - approximation vs Monte Carlo", pvApproximation.getAmount(CUR), pvMC.getAmount(CUR), 2.5E+4);
   }
 
@@ -174,12 +173,12 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Test the present value by approximation vs Monte Carlo: convergence.
    */
   public void presentValueMonteCarloConvergence() {
-    MultipleCurrencyAmount pvApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
-    int[] nbPath = new int[] {12500, 100000, 1000000, 10000000};
-    MultipleCurrencyAmount[] pvMC = new MultipleCurrencyAmount[nbPath.length];
-    double[] pvDiff = new double[nbPath.length];
+    final MultipleCurrencyAmount pvApproximation = METHOD_G2PP_APPROXIMATION.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
+    final int[] nbPath = new int[] {12500, 100000, 1000000, 10000000};
+    final MultipleCurrencyAmount[] pvMC = new MultipleCurrencyAmount[nbPath.length];
+    final double[] pvDiff = new double[nbPath.length];
     for (int loopmc = 0; loopmc < nbPath.length; loopmc++) {
-      G2ppMonteCarloMethod methodMC = new G2ppMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath[loopmc]);
+      final G2ppMonteCarloMethod methodMC = new G2ppMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath[loopmc]);
       pvMC[loopmc] = methodMC.presentValue(SWAPTION_LONG_PAYER, CUR, G2PP_MULTICURVES);
       pvDiff[loopmc] = pvApproximation.getAmount(CUR) - pvMC[loopmc].getAmount(CUR);
     }
@@ -195,9 +194,9 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
     final G2ppPiecewiseConstantParameters parametersG2pp = TestsDataSetG2pp.createG2ppParameters3();
     final G2ppProviderDiscount bundleG2pp = new G2ppProviderDiscount(MULTICURVES, parametersG2pp, CUR);
     final GeneratorSwapFixedIbor generator = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
-    final Period[] expiry = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(25)};
+    final Period[] expiry = new Period[] {DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10), DateUtils.periodOfYears(25)};
     final int nbExpiry = expiry.length;
-    final Period[] tenor = new Period[] {Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(25)};
+    final Period[] tenor = new Period[] {DateUtils.periodOfYears(2), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10), DateUtils.periodOfYears(25)};
     final int nbTenor = tenor.length;
     final double[] fixedRate = new double[] {0.01, 0.02, 0.025, 0.03, 0.04};
     final int nbStrike = fixedRate.length;
@@ -299,8 +298,8 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
     long startTime, endTime;
     final int nbTest = 10;
 
-    int nbPath = 12500;
-    G2ppMonteCarloMethod methodMC = new G2ppMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
+    final int nbPath = 12500;
+    final G2ppMonteCarloMethod methodMC = new G2ppMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     @SuppressWarnings("unused")
     MultipleCurrencyAmount pvMC;
 

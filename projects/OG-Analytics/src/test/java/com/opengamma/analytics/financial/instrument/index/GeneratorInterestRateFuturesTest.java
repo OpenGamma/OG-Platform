@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -29,8 +28,8 @@ public class GeneratorInterestRateFuturesTest {
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(FIXING_PERIOD_START_DATE, -USDLIBOR3M.getSpotLag(), NYC);
   private static final ZonedDateTime FIXING_PERIOD_END_DATE = ScheduleCalculator.getAdjustedDate(FIXING_PERIOD_START_DATE, USDLIBOR3M);
   private static final double NOTIONAL = 100000;
-  private static final InterestRateFutureDefinition FUTURES_DEFINITION = new InterestRateFutureDefinition(LAST_TRADING_DATE, 0, 1, LAST_TRADING_DATE, FIXING_PERIOD_START_DATE, FIXING_PERIOD_END_DATE,
-      USDLIBOR3M, NOTIONAL, 0.25, "IRF");
+  private static final InterestRateFutureDefinition FUTURES_DEFINITION = new InterestRateFutureDefinition(LAST_TRADING_DATE, 0, 1, LAST_TRADING_DATE,
+      FIXING_PERIOD_START_DATE, FIXING_PERIOD_END_DATE, USDLIBOR3M, NOTIONAL, 0.25, "IRF");
   private static final GeneratorInterestRateFutures GENERATOR_FUTURES_ED = new GeneratorInterestRateFutures("USD-ED", FUTURES_DEFINITION);
 
   @Test
@@ -44,15 +43,15 @@ public class GeneratorInterestRateFuturesTest {
 
   @Test
   public void generateInstrument() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
     //    Period tenorInit = Period.ofMonths(1);
     //    Integer num = 2;
-    double price = 0.99;
-    double notional = 100000;
-    GeneratorAttribute attribute = new GeneratorAttribute();
-    InterestRateFutureDefinition insGenerated = GENERATOR_FUTURES_ED.generateInstrument(referenceDate, price, notional, attribute);
-    InterestRateFutureDefinition insExpected = new InterestRateFutureDefinition(referenceDate, price, 1, LAST_TRADING_DATE, FIXING_PERIOD_START_DATE, FIXING_PERIOD_END_DATE, USDLIBOR3M, notional,
-        0.25, "IRF");
+    final double price = 0.99;
+    final double notional = 100000;
+    final GeneratorAttribute attribute = new GeneratorAttribute();
+    final InterestRateFutureDefinition insGenerated = GENERATOR_FUTURES_ED.generateInstrument(referenceDate, price, notional, attribute);
+    final InterestRateFutureDefinition insExpected = new InterestRateFutureDefinition(referenceDate, price, 1, LAST_TRADING_DATE, FIXING_PERIOD_START_DATE,
+        FIXING_PERIOD_END_DATE, USDLIBOR3M, notional, 0.25, "IRF");
     assertEquals("Generator Deposit: generate instrument", insExpected, insGenerated);
   }
 

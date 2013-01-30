@@ -8,12 +8,11 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 /**
  * 
@@ -42,10 +41,10 @@ public class WeeklyScheduleOnDayCalculator extends Schedule {
     }
     final List<LocalDate> dates = new ArrayList<LocalDate>();
     LocalDate date = startDate;
-    date = date.with(DateAdjusters.nextOrCurrent(_dayOfWeek));
+    date = date.with(TemporalAdjusters.nextOrSame(_dayOfWeek));
     while (!date.isAfter(endDate)) {
       dates.add(date);
-      date = date.with(DateAdjusters.next(_dayOfWeek));
+      date = date.with(TemporalAdjusters.next(_dayOfWeek));
     }
     return dates.toArray(EMPTY_LOCAL_DATE_ARRAY);
   }
@@ -67,10 +66,10 @@ public class WeeklyScheduleOnDayCalculator extends Schedule {
     }
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     ZonedDateTime date = startDate;
-    date = date.with(DateAdjusters.nextOrCurrent(_dayOfWeek));
+    date = date.with(TemporalAdjusters.nextOrSame(_dayOfWeek));
     while (!date.isAfter(endDate)) {
       dates.add(date);
-      date = date.with(DateAdjusters.next(_dayOfWeek));
+      date = date.with(TemporalAdjusters.next(_dayOfWeek));
     }
     return dates.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);
   }

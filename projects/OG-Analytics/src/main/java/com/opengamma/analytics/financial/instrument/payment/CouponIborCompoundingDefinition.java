@@ -7,13 +7,11 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import java.util.Arrays;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -94,9 +92,9 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
    * @param fixingPeriodEndDates The end dates of the fixing periods.
    * @param fixingPeriodAccrualFactors The accrual factors (or year fraction) associated with the fixing periods in the Index day count convention.
    */
-  private CouponIborCompoundingDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double paymentAccrualFactor, final double notional, final IborIndex index, final ZonedDateTime[] accrualStartDates, final ZonedDateTime[] accrualEndDates,
-      final double[] paymentAccrualFactors, final ZonedDateTime[] fixingDates, final ZonedDateTime[] fixingPeriodStartDates,
+  private CouponIborCompoundingDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
+      final ZonedDateTime accrualEndDate, final double paymentAccrualFactor, final double notional, final IborIndex index, final ZonedDateTime[] accrualStartDates,
+      final ZonedDateTime[] accrualEndDates, final double[] paymentAccrualFactors, final ZonedDateTime[] fixingDates, final ZonedDateTime[] fixingPeriodStartDates,
       final ZonedDateTime[] fixingPeriodEndDates, final double[] fixingPeriodAccrualFactors) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional);
     ArgumentChecker.isTrue(accrualStartDates.length == accrualEndDates.length, "Accrual start and end dates should have same length");
@@ -133,10 +131,10 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
    */
   public static CouponIborCompoundingDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional, final IborIndex index, final ZonedDateTime[] accrualStartDates, final ZonedDateTime[] accrualEndDates,
-      final double[] paymentAccrualFactors, final ZonedDateTime[] fixingDates, final ZonedDateTime[] fixingPeriodStartDates,
-      final ZonedDateTime[] fixingPeriodEndDates, final double[] fixingPeriodAccrualFactors) {
-    return new CouponIborCompoundingDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, index, accrualStartDates, accrualEndDates,
-        paymentAccrualFactors, fixingDates, fixingPeriodStartDates, fixingPeriodEndDates, fixingPeriodAccrualFactors);
+      final double[] paymentAccrualFactors, final ZonedDateTime[] fixingDates, final ZonedDateTime[] fixingPeriodStartDates, final ZonedDateTime[] fixingPeriodEndDates,
+      final double[] fixingPeriodAccrualFactors) {
+    return new CouponIborCompoundingDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, index,
+        accrualStartDates, accrualEndDates, paymentAccrualFactors, fixingDates, fixingPeriodStartDates, fixingPeriodEndDates, fixingPeriodAccrualFactors);
   }
 
   /**
@@ -149,8 +147,8 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
    * @param paymentAccrualFactors The accrual factors (or year fraction) associated to the sub-periods.
    * @return The compounded coupon.
    */
-  public static CouponIborCompoundingDefinition from(final ZonedDateTime paymentDate, final double notional, final IborIndex index, final ZonedDateTime[] accrualStartDates,
-      final ZonedDateTime[] accrualEndDates, final double[] paymentAccrualFactors) {
+  public static CouponIborCompoundingDefinition from(final ZonedDateTime paymentDate, final double notional, final IborIndex index,
+      final ZonedDateTime[] accrualStartDates, final ZonedDateTime[] accrualEndDates, final double[] paymentAccrualFactors) {
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime accrualStartDate = accrualStartDates[0];
     final ZonedDateTime accrualEndDate = accrualEndDates[nbSubPeriod - 1];
@@ -164,8 +162,8 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
       fixingPeriodEndDates[loopsub] = ScheduleCalculator.getAdjustedDate(accrualStartDates[loopsub], index);
       fixingPeriodAccrualFactors[loopsub] = index.getDayCount().getDayCountFraction(accrualStartDates[loopsub], fixingPeriodEndDates[loopsub]);
     }
-    return new CouponIborCompoundingDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, index, accrualStartDates, accrualEndDates,
-        paymentAccrualFactors, fixingDates, accrualStartDates, fixingPeriodEndDates, fixingPeriodAccrualFactors);
+    return new CouponIborCompoundingDefinition(index.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, index,
+        accrualStartDates, accrualEndDates, paymentAccrualFactors, fixingDates, accrualStartDates, fixingPeriodEndDates, fixingPeriodAccrualFactors);
   }
 
   /**
@@ -256,19 +254,19 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
 
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    final LocalDate dateConversion = dateTime.toLocalDate();
+    final LocalDate dateConversion = dateTime.getDate();
     ArgumentChecker.notNull(indexFixingTimeSeries, "Index fixing time series");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    ArgumentChecker.isTrue(!dateConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    ArgumentChecker.isTrue(!dateConversion.isAfter(getPaymentDate().getDate()), "date is after payment date");
     final String discountingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
     final int nbSubPeriods = _fixingDates.length;
     int nbFixed = 0;
     double ratioAccrued = 1.0;
-    while ((nbFixed < nbSubPeriods) && (dateConversion.isAfter(_fixingDates[nbFixed].toLocalDate()))) {
-      final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(_fixingDates[nbFixed].toLocalDate(), LocalTime.of(0, 0), TimeZone.UTC);
+    while ((nbFixed < nbSubPeriods) && (dateConversion.isAfter(_fixingDates[nbFixed].getDate()))) {
+      final ZonedDateTime rezonedFixingDate = _fixingDates[nbFixed].getDate().atStartOfDay(ZoneOffset.UTC);
       final Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate);
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + rezonedFixingDate);
@@ -276,8 +274,8 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
       ratioAccrued *= 1.0 + _paymentAccrualFactors[nbFixed] * fixedRate;
       nbFixed++;
     }
-    if ((nbFixed < nbSubPeriods) && dateConversion.equals(_fixingDates[nbFixed].toLocalDate())) {
-      final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(_fixingDates[nbFixed].toLocalDate(), LocalTime.of(0, 0), TimeZone.UTC);
+    if ((nbFixed < nbSubPeriods) && dateConversion.equals(_fixingDates[nbFixed].getDate())) {
+      final ZonedDateTime rezonedFixingDate = _fixingDates[nbFixed].getDate().atStartOfDay(ZoneOffset.UTC);
       final Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate);
       if (fixedRate != null) {
         // Implementation note: on the fixing date and fixing already known.
@@ -302,22 +300,22 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
     System.arraycopy(TimeCalculator.getTimeBetween(dateTime, _fixingPeriodEndDates), nbFixed, fixingPeriodEndTimesLeft, 0, nbSubPeriodLeft);
     final double[] fixingPeriodAccrualFactorsLeft = new double[nbSubPeriodLeft];
     System.arraycopy(_fixingPeriodAccrualFactors, nbFixed, fixingPeriodAccrualFactorsLeft, 0, nbSubPeriodLeft);
-    return new CouponIborCompounding(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), notionalAccrued, _index, paymentAccrualFactorsLeft, fixingTimesLeft,
-        fixingPeriodStartTimesLeft, fixingPeriodEndTimesLeft, fixingPeriodAccrualFactorsLeft, forwardCurveName);
+    return new CouponIborCompounding(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), notionalAccrued, _index,
+        paymentAccrualFactorsLeft, fixingTimesLeft, fixingPeriodStartTimesLeft, fixingPeriodEndTimesLeft, fixingPeriodAccrualFactorsLeft, forwardCurveName);
   }
 
   @Override
   public CouponIborCompounding toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    final LocalDate dateConversion = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!dateConversion.isAfter(_fixingDates[0].toLocalDate()), "toDerivative without time series should have a date before the first fixing date.");
+    final LocalDate dateConversion = dateTime.getDate();
+    ArgumentChecker.isTrue(!dateConversion.isAfter(_fixingDates[0].getDate()), "toDerivative without time series should have a date before the first fixing date.");
     final String discountingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
     final double[] fixingTimes = TimeCalculator.getTimeBetween(dateTime, _fixingDates);
     final double[] fixingPeriodStartTimes = TimeCalculator.getTimeBetween(dateTime, _fixingPeriodStartDates);
     final double[] fixingPeriodEndTimes = TimeCalculator.getTimeBetween(dateTime, _fixingPeriodEndDates);
-    return new CouponIborCompounding(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getNotional(), _index, _paymentAccrualFactors, fixingTimes,
-        fixingPeriodStartTimes, fixingPeriodEndTimes, _fixingPeriodAccrualFactors, forwardCurveName);
+    return new CouponIborCompounding(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getNotional(), _index,
+        _paymentAccrualFactors, fixingTimes, fixingPeriodStartTimes, fixingPeriodEndTimes, _fixingPeriodAccrualFactors, forwardCurveName);
   }
 
   @Override

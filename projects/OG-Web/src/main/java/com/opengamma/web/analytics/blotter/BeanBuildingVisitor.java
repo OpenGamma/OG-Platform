@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics.blotter;
 
-import java.util.Collections;
 import java.util.Map;
 
 import org.joda.beans.Bean;
@@ -22,48 +21,45 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-/* package */ class BeanBuildingVisitor<T extends Bean> implements BeanVisitor<T> {
+/* package */ class BeanBuildingVisitor<T extends Bean> implements BeanVisitor<BeanBuilder<T>> {
 
   private final BeanDataSource _data;
   private final MetaBeanFactory _metaBeanFactory;
-  private final Map<MetaProperty<?>, StringConvert> _converters;
+  private final StringConvert _stringConvert;
 
   private BeanBuilder<T> _builder;
 
   @SuppressWarnings("unchecked")
-  /* package */ BeanBuildingVisitor(BeanDataSource data, MetaBeanFactory metaBeanFactory) {
-    this(data, metaBeanFactory, Collections.<MetaProperty<?>, StringConvert>emptyMap());
-  }
-
-  @SuppressWarnings("unchecked")
-  /* package */ BeanBuildingVisitor(BeanDataSource data,
-                                    MetaBeanFactory metaBeanFactory,
-                                    Map<MetaProperty<?>, StringConvert> converters) {
+  /* package */ BeanBuildingVisitor(BeanDataSource data, MetaBeanFactory metaBeanFactory, StringConvert stringConvert) {
     ArgumentChecker.notNull(data, "data");
     ArgumentChecker.notNull(metaBeanFactory, "metaBeanFactory");
-    ArgumentChecker.notNull(converters, "converters");
-    _converters = converters;
+    ArgumentChecker.notNull(stringConvert, "stringConvert");
     _metaBeanFactory = metaBeanFactory;
     _data = data;
+    _stringConvert = stringConvert;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public void visitBean(MetaBean metaBean) {
+  public void visitMetaBean(MetaBean metaBean) {
     _builder = (BeanBuilder<T>) metaBean.builder();
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public void visitBeanProperty(MetaProperty<?> property, BeanTraverser traverser) {
+    if (isConvertible(property.propertyType())) {
+      visitProperty(property);
+      return;
+    }
     if (isWriteable(property)) {
       String propertyName = property.name();
       BeanDataSource beanData = _data.getBeanData(propertyName);
       Bean result;
       if (beanData != null) {
-        BeanBuildingVisitor<?> visitor = new BeanBuildingVisitor<Bean>(beanData, _metaBeanFactory, _converters);
+        BeanBuildingVisitor<?> visitor = new BeanBuildingVisitor<>(beanData, _metaBeanFactory, _stringConvert);
         MetaBean metaBean = _metaBeanFactory.beanFor(beanData);
-        result = (Bean) traverser.traverse(metaBean, visitor);
+        result = ((BeanBuilder<?>) traverser.traverse(metaBean, visitor)).build();
       } else {
         result = null;
       }
@@ -99,24 +95,17 @@ import com.opengamma.util.ArgumentChecker;
   @Override
   public void visitProperty(MetaProperty<?> property) {
     if (isWriteable(property)) {
-      StringConvert converter = _converters.get(property);
       String value = _data.getValue(property.name());
-      if (converter != null) {
-        _builder.set(property, converter.convertFromString(property.propertyType(), value));
-      } else {
-        _builder.setString(property, value);
-      }
+      _builder.set(property, _stringConvert.convertFromString(property.propertyType(), value));
     }
   }
 
   @Override
-  public T finish() {
-    // TODO return builder instead?
-    // allows handling properties that need to be manually fudged before building the bean
-    return _builder.build();
+  public BeanBuilder<T> finish() {
+    return _builder;
   }
 
-  private static Map<?, ?> buildMap(MetaProperty<?> property, Map<String, String> values) {
+  private Map<?, ?> buildMap(MetaProperty<?> property, Map<String, String> values) {
     if (values == null) {
       return null;
     }
@@ -124,10 +113,9 @@ import com.opengamma.util.ArgumentChecker;
     Class<?> keyType = JodaBeanUtils.mapKeyType(property, beanType);
     Class<?> valueType = JodaBeanUtils.mapValueType(property, beanType);
     Map<Object, Object> map = Maps.newHashMapWithExpectedSize(values.size());
-    StringConvert converter = JodaBeanUtils.stringConverter();
     for (Map.Entry<String, String> entry : values.entrySet()) {
-      Object key = converter.convertFromString(keyType, entry.getKey());
-      Object value = converter.convertFromString(valueType, entry.getValue());
+      Object key = _stringConvert.convertFromString(keyType, entry.getKey());
+      Object value = _stringConvert.convertFromString(valueType, entry.getValue());
       map.put(key, value);
     }
     return map;
@@ -135,5 +123,16 @@ import com.opengamma.util.ArgumentChecker;
 
   private static boolean isWriteable(MetaProperty<?> property) {
     return property.readWrite() != PropertyReadWrite.READ_ONLY;
+  }
+
+  private boolean isConvertible(Class<?> type) {
+    boolean canConvert;
+    try {
+      _stringConvert.findConverter(type);
+      canConvert = true;
+    } catch (Exception e) {
+      canConvert = false;
+    }
+    return canConvert;
   }
 }

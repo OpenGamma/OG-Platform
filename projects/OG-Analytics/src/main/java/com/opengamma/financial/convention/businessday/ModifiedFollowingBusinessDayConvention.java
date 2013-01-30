@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.convention.businessday;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 
@@ -27,7 +27,7 @@ public class ModifiedFollowingBusinessDayConvention extends AbstractBusinessDayC
   @Override
   public LocalDate adjustDate(final Calendar workingDays, final LocalDate date) {
     final LocalDate followingDate = FOLLOWING.adjustDate(workingDays, date);
-    if (followingDate.getMonthOfYear() == date.getMonthOfYear()) {
+    if (followingDate.getMonth() == date.getMonth()) {
       return followingDate;
     }
     return PRECEDING.adjustDate(workingDays, date);

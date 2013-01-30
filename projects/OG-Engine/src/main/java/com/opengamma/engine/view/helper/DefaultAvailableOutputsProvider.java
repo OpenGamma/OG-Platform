@@ -7,8 +7,7 @@ package com.opengamma.engine.view.helper;
 
 import java.util.List;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
@@ -18,13 +17,14 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -61,29 +61,29 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
 
   //------------------------------------------------------------------------
   @Override
-  public AvailableOutputs getPortfolioOutputs(Portfolio portfolio, InstantProvider instantProvider) {
-    return getPortfolioOutputs(portfolio, instantProvider, null, null);
+  public AvailableOutputs getPortfolioOutputs(Portfolio portfolio, Instant instant) {
+    return getPortfolioOutputs(portfolio, instant, null, null);
   }
 
   @Override
-  public AvailableOutputs getPortfolioOutputs(Portfolio portfolio, InstantProvider instantProvider, Integer maxNodes, Integer maxPositions) {
+  public AvailableOutputs getPortfolioOutputs(Portfolio portfolio, Instant instant, Integer maxNodes, Integer maxPositions) {
     portfolio = preparePortfolio(portfolio, maxNodes, maxPositions);
-    InstantProvider compileInstantProvider = instantProvider != null ? instantProvider : Instant.now();
-    CompiledFunctionRepository functionRepository = getCompiledFunctionService().compileFunctionRepository(compileInstantProvider);
+    Instant compileInstant = (instant != null ? instant : Instant.now());
+    CompiledFunctionRepository functionRepository = getCompiledFunctionService().compileFunctionRepository(compileInstant);
     return new AvailablePortfolioOutputs(portfolio, functionRepository, getFunctionExclusionGroups(), getMarketDataAvailabilityProvider(), getWildcardIndicator());
   }
 
   @Override
-  public AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, InstantProvider instantProvider) {
-    return getPortfolioOutputs(portfolioId, instantProvider, null, null);
+  public AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, Instant instant) {
+    return getPortfolioOutputs(portfolioId, instant, null, null);
   }
 
   @Override
-  public AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, InstantProvider instantProvider, Integer maxNodes, Integer maxPositions) {
+  public AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, Instant instant, Integer maxNodes, Integer maxPositions) {
     Portfolio portfolio = getPortfolio(portfolioId);
     portfolio = preparePortfolio(portfolio, maxNodes, maxPositions);
-    InstantProvider compileInstantProvider = instantProvider != null ? instantProvider : Instant.now();
-    CompiledFunctionRepository functionRepository = getCompiledFunctionService().compileFunctionRepository(compileInstantProvider);
+    Instant compileInstant = (instant != null ? instant : Instant.now());
+    CompiledFunctionRepository functionRepository = getCompiledFunctionService().compileFunctionRepository(compileInstant);
     return new AvailablePortfolioOutputs(portfolio, functionRepository, getFunctionExclusionGroups(), getMarketDataAvailabilityProvider(), getWildcardIndicator());
   }
 
@@ -157,7 +157,7 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
    */
   protected Portfolio getPortfolio(UniqueId portfolioId) {
     ArgumentChecker.notNull(portfolioId, "portfolioId");
-    return getPositionSource().getPortfolio(portfolioId);
+    return getPositionSource().getPortfolio(portfolioId, VersionCorrection.LATEST);
   }
 
   /**

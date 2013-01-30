@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.marketdata.spec;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;

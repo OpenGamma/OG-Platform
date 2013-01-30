@@ -5,13 +5,13 @@
  */
 package com.opengamma.web.analytics.blotter;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
-import javax.time.calendar.ZonedDateTime;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -22,12 +22,20 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang.WordUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
+import org.joda.convert.StringConvert;
+import org.joda.convert.StringConverter;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -35,14 +43,19 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.Security;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.conversion.JodaBeanConverters;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -54,6 +67,7 @@ import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
+import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -63,15 +77,14 @@ import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioMaster;
-import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.position.PositionSearchRequest;
-import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
@@ -80,9 +93,12 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
 import com.opengamma.web.FreemarkerOutputter;
 
 /**
+ * REST resource for the trade blotter and trade entry forms.
  * TODO move some of this into subresources?
  * TODO date and time zone handling
  */
@@ -98,11 +114,6 @@ public class BlotterResource {
       FXForwardSecurity.meta(),
       SwapSecurity.meta(),
       SwaptionSecurity.meta(),
-      FixedInterestRateLeg.meta(),
-      FloatingInterestRateLeg.meta(),
-      FloatingSpreadIRLeg.meta(),
-      FloatingGearingIRLeg.meta(),
-      InterestRateNotional.meta(),
       CapFloorCMSSpreadSecurity.meta(),
       NonDeliverableFXOptionSecurity.meta(),
       FXOptionSecurity.meta(),
@@ -110,13 +121,20 @@ public class BlotterResource {
       CapFloorSecurity.meta(),
       EquityVarianceSwapSecurity.meta(),
       FXBarrierOptionSecurity.meta(),
-      NonDeliverableFXOptionSecurity.meta());
+      FixedInterestRateLeg.meta(),
+      FloatingInterestRateLeg.meta(),
+      FloatingSpreadIRLeg.meta(),
+      FloatingGearingIRLeg.meta(),
+      InterestRateNotional.meta());
+  /** For building and saving new trades and associated securities. */
   private final NewOtcTradeBuilder _newTradeBuilder;
 
+  /** Map of underlying security types keyed by the owning security type. */
   private static final Map<Class<?>, Class<?>> s_underlyingSecurityTypes = ImmutableMap.<Class<?>, Class<?>>of(
       IRFutureOptionSecurity.class, InterestRateFutureSecurity.class,
       SwaptionSecurity.class, SwapSecurity.class);
 
+  /** Map of paths to the endpoints for looking up values, keyed by the value class. */
   private static final Map<Class<?>, String> s_endpoints = Maps.newHashMap();
 
   // TODO this is an ugly but it's only temporay - fix or remove when the HTML bean info isn't needed
@@ -133,9 +151,14 @@ public class BlotterResource {
     s_endpoints.put(MonitoringType.class, "monitoringtype");
   }
 
-  private static final List<String> s_otherTypeNames = Lists.newArrayList();
+  /** OTC Security types that can be created by the trade entry froms. */
   private static final List<String> s_securityTypeNames = Lists.newArrayList();
+  /** Types that can be created by the trade entry forms that aren't securities by are required by them (e.g. legs). */
+  private static final List<String> s_otherTypeNames = Lists.newArrayList();
+  /** Meta beans for types that can be created by the trade entry forms keyed by type name. */
   private static final Map<String, MetaBean> s_metaBeansByTypeName = Maps.newHashMap();
+  /** For converting between strings values used by the UI and real objects. */
+  private static final StringConvert s_stringConvert;
 
   static {
     JodaBeanConverters.getInstance();
@@ -154,12 +177,38 @@ public class BlotterResource {
     s_otherTypeNames.add(FungibleTradeBuilder.TRADE_TYPE_NAME);
     Collections.sort(s_otherTypeNames);
     Collections.sort(s_securityTypeNames);
+
+    s_stringConvert = new StringConvert();
+    s_stringConvert.register(Frequency.class, new JodaBeanConverters.FrequencyConverter());
+    s_stringConvert.register(Currency.class, new JodaBeanConverters.CurrencyConverter());
+    s_stringConvert.register(DayCount.class, new JodaBeanConverters.DayCountConverter());
+    s_stringConvert.register(ExternalId.class, new JodaBeanConverters.ExternalIdConverter());
+    s_stringConvert.register(ExternalIdBundle.class, new JodaBeanConverters.ExternalIdBundleConverter());
+    s_stringConvert.register(CurrencyPair.class, new JodaBeanConverters.CurrencyPairConverter());
+    s_stringConvert.register(ObjectId.class, new JodaBeanConverters.ObjectIdConverter());
+    s_stringConvert.register(UniqueId.class, new JodaBeanConverters.UniqueIdConverter());
+    s_stringConvert.register(Expiry.class, new JodaBeanConverters.ExpiryConverter());
+    s_stringConvert.register(ExerciseType.class, new JodaBeanConverters.ExerciseTypeConverter());
+    s_stringConvert.register(BusinessDayConvention.class, new JodaBeanConverters.BusinessDayConventionConverter());
+    s_stringConvert.register(YieldConvention.class, new JodaBeanConverters.YieldConventionConverter());
+    s_stringConvert.register(MonitoringType.class, new EnumConverter<MonitoringType>());
+    s_stringConvert.register(BarrierType.class, new EnumConverter<BarrierType>());
+    s_stringConvert.register(BarrierDirection.class, new EnumConverter<BarrierDirection>());
+    s_stringConvert.register(SamplingFrequency.class, new EnumConverter<SamplingFrequency>());
+    s_stringConvert.register(LongShort.class, new EnumConverter<LongShort>());
+    s_stringConvert.register(OptionType.class, new EnumConverter<OptionType>());
+    s_stringConvert.register(GICSCode.class, new GICSCodeConverter());
+    s_stringConvert.register(ZonedDateTime.class, new ZonedDateTimeConverter());
   }
 
+  /** For loading and saving securities. */
   private final SecurityMaster _securityMaster;
+  /** For loading and saving portfolio. */
   private final PortfolioMaster _portfolioMaster;
+  /** For loading and saving positions. */
   private final PositionMaster _positionMaster;
 
+  /** For creating output from Freemarker templates. */
   private FreemarkerOutputter _freemarker;
 
   public BlotterResource(SecurityMaster securityMaster, PortfolioMaster portfolioMaster, PositionMaster positionMaster) {
@@ -169,11 +218,14 @@ public class BlotterResource {
     _securityMaster = securityMaster;
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
-    _newTradeBuilder = new NewOtcTradeBuilder(_securityMaster, _positionMaster, s_metaBeans);
+    _newTradeBuilder = new NewOtcTradeBuilder(_securityMaster, _positionMaster, s_metaBeans, s_stringConvert);
   }
 
-  /* package */
-  static boolean isSecurity(Class<?> type) {
+  /* package */ static StringConvert getStringConvert() {
+    return s_stringConvert;
+  }
+
+  /* package */ static boolean isSecurity(Class<?> type) {
     if (type == null) {
       return false;
     } else if (ManageableSecurity.class.equals(type)) {
@@ -216,12 +268,33 @@ public class BlotterResource {
       }
       BeanStructureBuilder structureBuilder = new BeanStructureBuilder(s_metaBeans,
                                                                        s_underlyingSecurityTypes,
-                                                                       s_endpoints);
+                                                                       s_endpoints,
+                                                                       s_stringConvert);
       BeanVisitorDecorator propertyNameFilter = new PropertyNameFilter("externalIdBundle", "securityType");
-      BeanTraverser traverser = new BeanTraverser(propertyNameFilter);
+      PropertyFilter swaptionUnderlyingFilter = new PropertyFilter(SwaptionSecurity.meta().underlyingId());
+      BeanTraverser traverser = new BeanTraverser(propertyNameFilter, swaptionUnderlyingFilter);
       beanData = (Map<String, Object>) traverser.traverse(metaBean, structureBuilder);
     }
     return _freemarker.build("blotter/bean-structure.ftl", beanData);
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("securities/{securityExternalId}")
+  public String getSecurityJSON(@PathParam("securityExternalId") String securityExternalIdStr) {
+    ExternalId securityExternalId = ExternalId.parse(securityExternalIdStr);
+    SecuritySearchResult searchResult = _securityMaster.search(new SecuritySearchRequest(securityExternalId));
+    if (searchResult.getSecurities().size() == 0) {
+      throw new DataNotFoundException("No security found with ID " + securityExternalId);
+    }
+    ManageableSecurity security = searchResult.getFirstSecurity();
+    BeanVisitor<JSONObject> securityVisitor =
+        new BuildingBeanVisitor<>(security, new JsonDataSink(s_stringConvert), s_stringConvert);
+    PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
+    BeanTraverser securityTraverser = new BeanTraverser(securityPropertyFilter);
+    MetaBean securityMetaBean = JodaBeanUtils.metaBean(security.getClass());
+    JSONObject securityJson = (JSONObject) securityTraverser.traverse(securityMetaBean, securityVisitor);
+    return securityJson.toString();
   }
 
   // TODO move this logic to trade builder? can it populate a BeanDataSink to build the JSON?
@@ -230,26 +303,40 @@ public class BlotterResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("trades/{tradeId}")
   public String getTradeJSON(@PathParam("tradeId") String tradeIdStr) {
-    ManageableTrade trade = findTrade(tradeIdStr);
+    UniqueId tradeId = UniqueId.parse(tradeIdStr);
+    if (!tradeId.isLatest()) {
+      throw new IllegalArgumentException("The blotter can only be used to update the latest version of a trade");
+    }
+    ManageableTrade trade = _positionMaster.getTrade(tradeId);
     ManageableSecurity security = findSecurity(trade.getSecurityLink());
-    // TODO visitor that returns trade builder? what about underlying?
     JSONObject root = new JSONObject();
     try {
-      JsonDataSink tradeSink = new JsonDataSink();
+      JsonDataSink tradeSink = new JsonDataSink(s_stringConvert);
       if (isOtc(security)) {
         OtcTradeBuilder.extractTradeData(trade, tradeSink);
         MetaBean securityMetaBean = s_metaBeansByTypeName.get(security.getClass().getSimpleName());
         if (securityMetaBean == null) {
           throw new DataNotFoundException("No MetaBean is registered for security type " + security.getClass().getName());
         }
-        BeanVisitor<JSONObject> securityVisitor = new BuildingBeanVisitor<JSONObject>(security, new JsonDataSink());
+        BeanVisitor<JSONObject> securityVisitor =
+            new BuildingBeanVisitor<>(security, new JsonDataSink(s_stringConvert), s_stringConvert);
         PropertyFilter securityPropertyFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
-        JSONObject securityJson = (JSONObject) new BeanTraverser(securityPropertyFilter).traverse(securityMetaBean, securityVisitor);
+        BeanTraverser securityTraverser = new BeanTraverser(securityPropertyFilter);
+        JSONObject securityJson = (JSONObject) securityTraverser.traverse(securityMetaBean, securityVisitor);
+        if (security instanceof FinancialSecurity) {
+          UnderlyingSecurityVisitor visitor = new UnderlyingSecurityVisitor(VersionCorrection.LATEST, _securityMaster);
+          ManageableSecurity underlying = ((FinancialSecurity) security).accept(visitor);
+          if (underlying != null) {
+            BeanVisitor<JSONObject> underlyingVisitor =
+                new BuildingBeanVisitor<>(underlying, new JsonDataSink(s_stringConvert), s_stringConvert);
+            MetaBean underlyingMetaBean = s_metaBeansByTypeName.get(underlying.getClass().getSimpleName());
+            JSONObject underlyingJson = (JSONObject) securityTraverser.traverse(underlyingMetaBean, underlyingVisitor);
+            root.put("underlying", underlyingJson);
+          }
+        }
         root.put("security", securityJson);
-        // TODO filter out underlyingId for securities with OTC underlying
-        // TODO include underlying security for securities with OTC underlying (i.e. swaptions)
       } else {
-        FungibleTradeBuilder.extractTradeData(trade, tradeSink);
+        FungibleTradeBuilder.extractTradeData(trade, tradeSink, s_stringConvert);
       }
       JSONObject tradeJson = tradeSink.finish();
       root.put("trade", tradeJson);
@@ -268,25 +355,13 @@ public class BlotterResource {
     }
   }
 
-  // TODO this is a bit of a palaver, surely there's something that already does this?
-  private ManageableTrade findTrade(String tradeIdStr) {
-    ObjectId tradeId = ObjectId.parse(tradeIdStr);
-    PositionSearchRequest positionSearch = new PositionSearchRequest();
-    positionSearch.addTradeObjectId(tradeId);
-    PositionSearchResult searchResult = _positionMaster.search(positionSearch);
-    ManageablePosition position = searchResult.getFirstPosition();
-    if (position == null) {
-      throw new DataNotFoundException("No position found with trade ID " + tradeId);
-    }
-    // TODO this should never fail but there's a bug in position searching
-    ManageableTrade trade = position.getTrade(tradeId);
-    if (trade == null) {
-      throw new DataNotFoundException("No trade with ID " + tradeId + " found on position " + position.getUniqueId() +
-                                             ", this is a known bug (http://jira.opengamma.com/browse/PLAT-2946)");
-    }
-    return trade;
-  }
-
+  /**
+   * Finds the security referred to by securityLink. This basically does the same thing as resolving the link but
+   * it returns a {@link ManageableSecurity} instead of a {@link Security}.
+   * @param securityLink Contains the security ID(s)
+   * @return The security, not null
+   * @throws DataNotFoundException If a matching security can't be found
+   */
   private ManageableSecurity findSecurity(ManageableSecurityLink securityLink) {
     SecurityDocument securityDocument;
     if (securityLink.getObjectId() != null) {
@@ -306,23 +381,28 @@ public class BlotterResource {
   @Path("trades")
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
-  public String createTrade(@FormParam("trade") String jsonStr) {
+  public Response createTrade(@Context UriInfo uriInfo, @FormParam("trade") String jsonStr) {
+    // TODO need to make sure this can't be used for updating existing trades, only for creating new ones
     try {
       JSONObject json = new JSONObject(jsonStr);
       JSONObject tradeJson = json.getJSONObject("trade");
       String tradeTypeName = tradeJson.getString("type");
       // TODO tell don't ask - it is an option to ask each of the new trade builders?
+      UniqueId updatedTradeId;
       if (tradeTypeName.equals(OtcTradeBuilder.TRADE_TYPE_NAME)) {
-        return createOtcTrade(json, tradeJson, _newTradeBuilder);
+        updatedTradeId =  createOtcTrade(json, tradeJson, _newTradeBuilder);
       } else if (tradeTypeName.equals(FungibleTradeBuilder.TRADE_TYPE_NAME)) {
-        return createFungibleTrade(tradeJson, new NewFungibleTradeBuilder(_positionMaster, _securityMaster, s_metaBeans));
+        NewFungibleTradeBuilder tradeBuilder =
+            new NewFungibleTradeBuilder(_positionMaster, _securityMaster, s_metaBeans, s_stringConvert);
+        updatedTradeId = createFungibleTrade(tradeJson, tradeBuilder);
       } else {
         throw new IllegalArgumentException("Unknown trade type " + tradeTypeName);
       }
+      URI createdTradeUri = uriInfo.getAbsolutePathBuilder().path(updatedTradeId.getObjectId().toString()).build();
+      return Response.status(Response.Status.CREATED).header("Location", createdTradeUri).build();
     } catch (JSONException e) {
       throw new IllegalArgumentException("Failed to parse JSON", e);
     }
-    // TODO don't return JSON, just set the created header with the URL
   }
 
   @PUT
@@ -330,7 +410,7 @@ public class BlotterResource {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
-  public String updateTrade(@FormParam("trade") String jsonStr, @PathParam("tradeIdStr") String tradeIdStr) {
+  public void updateTrade(@FormParam("trade") String jsonStr, @PathParam("tradeIdStr") String tradeIdStr) {
     try {
       UniqueId tradeId = UniqueId.parse(tradeIdStr);
       JSONObject json = new JSONObject(jsonStr);
@@ -338,12 +418,13 @@ public class BlotterResource {
       String tradeTypeName = tradeJson.getString("type");
       // TODO tell don't ask - ask each of the existing trade builders until one of them can handle it?
       if (tradeTypeName.equals(OtcTradeBuilder.TRADE_TYPE_NAME)) {
-        OtcTradeBuilder tradeBuilder = new ExistingOtcTradeBuilder(tradeId, _securityMaster, _positionMaster, s_metaBeans);
-        return createOtcTrade(json, tradeJson, tradeBuilder);
+        OtcTradeBuilder tradeBuilder =
+            new ExistingOtcTradeBuilder(tradeId, _securityMaster, _positionMaster, s_metaBeans, s_stringConvert);
+        createOtcTrade(json, tradeJson, tradeBuilder);
       } else if (tradeTypeName.equals(FungibleTradeBuilder.TRADE_TYPE_NAME)) {
         ExistingFungibleTradeBuilder tradeBuilder =
-            new ExistingFungibleTradeBuilder(_positionMaster, _securityMaster, s_metaBeans, tradeId);
-        return createFungibleTrade(tradeJson, tradeBuilder);
+            new ExistingFungibleTradeBuilder(_positionMaster, _securityMaster, s_metaBeans, tradeId, s_stringConvert);
+        createFungibleTrade(tradeJson, tradeBuilder);
       } else {
         throw new IllegalArgumentException("Unknown trade type " + tradeTypeName);
       }
@@ -352,7 +433,7 @@ public class BlotterResource {
     }
   }
 
-  private String createOtcTrade(JSONObject json, JSONObject tradeJson, OtcTradeBuilder tradeBuilder) {
+  private UniqueId createOtcTrade(JSONObject json, JSONObject tradeJson, OtcTradeBuilder tradeBuilder) {
     try {
       JSONObject securityJson = json.getJSONObject("security");
       JSONObject underlyingJson = json.optJSONObject("underlying");
@@ -364,16 +445,14 @@ public class BlotterResource {
       } else {
         underlyingData = null;
       }
-      UniqueId tradeId = tradeBuilder.buildAndSaveTrade(tradeData, securityData, underlyingData);
-      return new JSONObject(ImmutableMap.of("tradeId", tradeId)).toString();
+      return tradeBuilder.buildAndSaveTrade(tradeData, securityData, underlyingData);
     } catch (JSONException e) {
       throw new IllegalArgumentException("Failed to parse JSON", e);
     }
   }
 
-  private String createFungibleTrade(JSONObject tradeJson, FungibleTradeBuilder tradeBuilder) {
-    UniqueId tradeId = tradeBuilder.buildAndSaveTrade(new JsonBeanDataSource(tradeJson));
-    return new JSONObject(ImmutableMap.of("tradeId", tradeId)).toString();
+  private UniqueId createFungibleTrade(JSONObject tradeJson, FungibleTradeBuilder tradeBuilder) {
+    return tradeBuilder.buildAndSaveTrade(new JsonBeanDataSource(tradeJson));
   }
 
   private static Map<Object, Object> map(Object... values) {
@@ -387,9 +466,60 @@ public class BlotterResource {
 
   @Path("lookup")
   public BlotterLookupResource getLookupResource() {
-    return new BlotterLookupResource();
+    return new BlotterLookupResource(s_stringConvert);
   }
 
-  // TODO create fungible trade - identifier and quantity
+  /**
+   * For converting between enum instances and strings. The enum value names are made more readable by downcasing
+   * and capitalizing them and replacing underscores with spaces.
+   * @param <T> Type of the enum
+   */
+  private static class EnumConverter<T extends Enum> implements StringConverter<T> {
 
+    @Override
+    public T convertFromString(Class<? extends T> type, String str) {
+      // IntelliJ says this cast is redundant but javac disagrees
+      //noinspection RedundantCast
+      return (T) Enum.valueOf(type, str.toUpperCase().replace(' ', '_'));
+    }
+
+    @Override
+    public String convertToString(T e) {
+      return WordUtils.capitalize(e.name().toLowerCase().replace('_', ' '));
+    }
+  }
+
+  /**
+   * For converting between strings and {@link GICSCode}.
+   */
+  private static class GICSCodeConverter implements StringConverter<GICSCode> {
+
+    @Override
+    public GICSCode convertFromString(Class<? extends GICSCode> cls, String code) {
+      return GICSCode.of(code);
+    }
+
+    @Override
+    public String convertToString(GICSCode code) {
+      return code.getCode();
+    }
+  }
+
+  /**
+   * Converts {@link ZonedDateTime} to a local date string (e.g. 2012-12-21) and creates a {@link ZonedDateTime} from
+   * a local date string with a time of 11:00 and a zone of UTC.
+   */
+  private static class ZonedDateTimeConverter implements StringConverter<ZonedDateTime> {
+
+    @Override
+    public ZonedDateTime convertFromString(Class<? extends ZonedDateTime> cls, String localDateString) {
+      LocalDate localDate = LocalDate.parse(localDateString);
+      return localDate.atTime(11, 0).atZone(ZoneOffset.UTC);
+    }
+
+    @Override
+    public String convertToString(ZonedDateTime dateTime) {
+      return dateTime.getDate().toString();
+    }
+  }
 }

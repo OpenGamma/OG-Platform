@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.interestrate.payments.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import cern.jet.random.engine.MersenneTwister;
 
@@ -38,7 +37,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * Tests on the Hull-White one factor method to price Cap/Floor on Ibor. 
+ * Tests on the Hull-White one factor method to price Cap/Floor on Ibor.
  */
 public class CapFloorIborHullWhiteMethodTest {
 
@@ -81,16 +80,16 @@ public class CapFloorIborHullWhiteMethodTest {
 
   @Test
   public void presentValueStandard() {
-    double tp = CAP_LONG.getPaymentTime();
-    double t0 = CAP_LONG.getFixingPeriodStartTime();
-    double t1 = CAP_LONG.getFixingPeriodEndTime();
-    double theta = CAP_LONG.getFixingTime();
-    double deltaF = CAP_LONG.getFixingAccrualFactor();
-    double deltaP = CAP_LONG.getPaymentYearFraction();
-    double alpha0 = MODEL.alpha(HW_PARAMETERS, 0.0, theta, tp, t0);
-    double alpha1 = MODEL.alpha(HW_PARAMETERS, 0.0, theta, tp, t1);
-    double ptp = MULTICURVES.getDiscountFactor(EUR, tp);
-    double forward = MULTICURVES.getForwardRate(EURIBOR3M, t0, t1, CAP_LONG.getFixingAccrualFactor());
+    final double tp = CAP_LONG.getPaymentTime();
+    final double t0 = CAP_LONG.getFixingPeriodStartTime();
+    final double t1 = CAP_LONG.getFixingPeriodEndTime();
+    final double theta = CAP_LONG.getFixingTime();
+    final double deltaF = CAP_LONG.getFixingAccrualFactor();
+    final double deltaP = CAP_LONG.getPaymentYearFraction();
+    final double alpha0 = MODEL.alpha(HW_PARAMETERS, 0.0, theta, tp, t0);
+    final double alpha1 = MODEL.alpha(HW_PARAMETERS, 0.0, theta, tp, t1);
+    final double ptp = MULTICURVES.getDiscountFactor(EUR, tp);
+    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, t0, t1, CAP_LONG.getFixingAccrualFactor());
     double kappa = Math.log((1.0 + deltaF * STRIKE) / (1.0 + deltaF * forward));
     kappa += -(alpha1 * alpha1 - alpha0 * alpha0) / 2.0;
     kappa /= alpha1 - alpha0;
@@ -98,7 +97,7 @@ public class CapFloorIborHullWhiteMethodTest {
     double priceExpected = (1.0 + deltaF * forward) * normal.getCDF(-kappa - alpha0) - (1.0 + deltaF * STRIKE) * normal.getCDF(-kappa - alpha1);
     priceExpected *= deltaP / deltaF * ptp;
     priceExpected *= NOTIONAL;
-    MultipleCurrencyAmount priceMethod = METHOD_HW.presentValue(CAP_LONG, HW_MULTICURVES);
+    final MultipleCurrencyAmount priceMethod = METHOD_HW.presentValue(CAP_LONG, HW_MULTICURVES);
     assertEquals("Cap/floor: Hull-White pricing", priceExpected, priceMethod.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -106,8 +105,8 @@ public class CapFloorIborHullWhiteMethodTest {
 
   @Test
   public void presentValueLongShort() {
-    MultipleCurrencyAmount priceLong = METHOD_HW.presentValue(CAP_LONG, HW_MULTICURVES);
-    MultipleCurrencyAmount priceShort = METHOD_HW.presentValue(CAP_SHORT, HW_MULTICURVES);
+    final MultipleCurrencyAmount priceLong = METHOD_HW.presentValue(CAP_LONG, HW_MULTICURVES);
+    final MultipleCurrencyAmount priceShort = METHOD_HW.presentValue(CAP_SHORT, HW_MULTICURVES);
     assertEquals("Cap/floor: Hull-White pricing", priceLong.getAmount(EUR), -priceShort.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -132,18 +131,18 @@ public class CapFloorIborHullWhiteMethodTest {
   }
 
   private void presentValueHullWhiteSensitivityInstrument(final CapFloorIbor instrument) {
-    double[] hwSensitivity = METHOD_HW.presentValueHullWhiteSensitivity(instrument, HW_MULTICURVES);
-    int nbVolatility = HW_PARAMETERS.getVolatility().length;
-    double shiftVol = 1.0E-6;
-    double[] volatilityBumped = new double[nbVolatility];
+    final double[] hwSensitivity = METHOD_HW.presentValueHullWhiteSensitivity(instrument, HW_MULTICURVES);
+    final int nbVolatility = HW_PARAMETERS.getVolatility().length;
+    final double shiftVol = 1.0E-6;
+    final double[] volatilityBumped = new double[nbVolatility];
     System.arraycopy(HW_PARAMETERS.getVolatility(), 0, volatilityBumped, 0, nbVolatility);
-    double[] volatilityTime = new double[nbVolatility - 1];
+    final double[] volatilityTime = new double[nbVolatility - 1];
     System.arraycopy(HW_PARAMETERS.getVolatilityTime(), 1, volatilityTime, 0, nbVolatility - 1);
-    double[] pvBumpedPlus = new double[nbVolatility];
-    double[] pvBumpedMinus = new double[nbVolatility];
-    HullWhiteOneFactorPiecewiseConstantParameters parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(HW_PARAMETERS.getMeanReversion(), volatilityBumped, volatilityTime);
-    HullWhiteOneFactorProviderDiscount bundleBumped = new HullWhiteOneFactorProviderDiscount(MULTICURVES, parametersBumped, EUR);
-    double[] hwSensitivityExpected = new double[hwSensitivity.length];
+    final double[] pvBumpedPlus = new double[nbVolatility];
+    final double[] pvBumpedMinus = new double[nbVolatility];
+    final HullWhiteOneFactorPiecewiseConstantParameters parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(HW_PARAMETERS.getMeanReversion(), volatilityBumped, volatilityTime);
+    final HullWhiteOneFactorProviderDiscount bundleBumped = new HullWhiteOneFactorProviderDiscount(MULTICURVES, parametersBumped, EUR);
+    final double[] hwSensitivityExpected = new double[hwSensitivity.length];
     for (int loopvol = 0; loopvol < nbVolatility; loopvol++) {
       volatilityBumped[loopvol] += shiftVol;
       parametersBumped.setVolatility(volatilityBumped);
@@ -166,13 +165,13 @@ public class CapFloorIborHullWhiteMethodTest {
     HullWhiteMonteCarloMethod methodMC;
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), 10 * NB_PATH);
     // Seed fixed to the DEFAULT_SEED for testing purposes.
-    MultipleCurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, HW_MULTICURVES);
-    MultipleCurrencyAmount pvMC = methodMC.presentValue(CAP_LONG, EUR, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvMC = methodMC.presentValue(CAP_LONG, EUR, HW_MULTICURVES);
     assertEquals("Cap/floor - Hull-White - Monte Carlo", pvExplicit.getAmount(EUR), pvMC.getAmount(EUR), 5.0E+2);
-    double pvMCPreviousRun = 136707.032;
+    final double pvMCPreviousRun = 136707.032;
     assertEquals("Swaption physical - Hull-White - Monte Carlo", pvMCPreviousRun, pvMC.getAmount(EUR), TOLERANCE_PV);
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), 10 * NB_PATH);
-    MultipleCurrencyAmount pvShortMC = methodMC.presentValue(CAP_SHORT, EUR, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvShortMC = methodMC.presentValue(CAP_SHORT, EUR, HW_MULTICURVES);
     assertEquals("Swaption physical - Hull-White - Monte Carlo", -pvMC.getAmount(EUR), pvShortMC.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -182,13 +181,13 @@ public class CapFloorIborHullWhiteMethodTest {
    */
   public void performance() {
     long startTime, endTime;
-    MultipleCurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvExplicit = METHOD_HW.presentValue(CAP_LONG, HW_MULTICURVES);
     HullWhiteMonteCarloMethod methodMC;
-    int nbPath = 1000000;
+    final int nbPath = 1000000;
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
-    int nbTest = 10;
-    double[] pv = new double[nbTest];
-    double[] pvDiff = new double[nbTest];
+    final int nbTest = 10;
+    final double[] pv = new double[nbTest];
+    final double[] pvDiff = new double[nbTest];
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {

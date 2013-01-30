@@ -8,9 +8,9 @@ package com.opengamma.financial.analytics.model.equity.varianceswap;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
@@ -44,7 +44,7 @@ public class EquityVarianceSwapPureImpliedVolPVFunction extends EquityVarianceSw
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime().minusYears(3); //TODO remove me - just for testing
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock).minusYears(3); //TODO remove me - just for testing
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
     final EquityVarianceSwapDefinition definition = security.accept(getConverter());

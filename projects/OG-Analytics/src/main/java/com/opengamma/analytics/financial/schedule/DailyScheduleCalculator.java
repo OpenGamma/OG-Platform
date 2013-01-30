@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 /**
  * 

@@ -8,16 +8,16 @@ package com.opengamma.analytics.financial.interestrate;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -62,7 +62,7 @@ public abstract class NodeSensitivityCalculatorTest {
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", NYC);
   private static final IborIndex USDLIBOR6M = USD6MLIBOR3M.getIborIndex();
-  private static final Period SWAP_TENOR = Period.ofYears(5);
+  private static final Period SWAP_TENOR = Period.of(5, YEARS);
   private static final double SWAP_RATE = 0.05;
   private static final double SWAP_NOTIONAL = 1.0;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 6, 29);

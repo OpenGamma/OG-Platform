@@ -7,16 +7,16 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -47,7 +47,7 @@ public class CouponIborCompoundedDiscountingMethodTest {
 
   private static final Calendar TOR = new MondayToFridayCalendar("TOR");
   private static final IborIndex CDOR3M = IndexIborMaster.getInstance().getIndex("CADCDOR3M", TOR);
-  private static final Period M6 = Period.ofMonths(6);
+  private static final Period M6 = Period.of(6, MONTHS);
   private static final double NOTIONAL = 123000000;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2012, 8, 24);
   private static final CouponIborCompoundingDefinition CPN_DEFINITION = CouponIborCompoundingDefinition.from(NOTIONAL, START_DATE, M6, CDOR3M);

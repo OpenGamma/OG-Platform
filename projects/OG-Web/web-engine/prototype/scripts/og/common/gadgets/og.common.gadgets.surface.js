@@ -31,8 +31,8 @@ $.register_module({
                             return !surface && $selector.html('bad data: ' + JSON.stringify(data));
                         surface_options.data = {
                             vol: data.vol,
-                            xs: data.xValues, xs_labels: data.xLabels, xs_label: data.xTitle,
-                            zs: data.yValues, zs_labels: data.yLabels, zs_label: data.yTitle
+                            xs: data.xValues, xs_labels: data.xLabels, xs_label: data.xTitle || 'X Axis',
+                            zs: data.yValues, zs_labels: data.yLabels, zs_label: data.yTitle || 'Y Axis'
                         };
                         if (!surface) surface = new JSurface3D(surface_options);
                         else surface.update('surface', surface_options.data);

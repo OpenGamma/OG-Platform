@@ -6,7 +6,7 @@
 
 package com.opengamma.analytics.financial.instrument.inflation;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -25,7 +25,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * The pay-off is paymentYearFraction*(Index_End / Index_Start - X) with X=0 for notional payment and X=1 for no notional payment.
  */
 
-public class CouponInflationYearOnYearInterpolationDefinition extends CouponInflationDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
+public class CouponInflationYearOnYearInterpolationDefinition extends CouponInflationDefinition implements
+    InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The reference date for the index at the coupon start. May not be relevant as the index value is known.
@@ -95,17 +96,17 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @return The inflation zero-coupon.
    */
-  public static CouponInflationYearOnYearInterpolationDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional, final IndexPrice priceIndex,
-      final double weightStart, final double weightEnd, final int monthLag, final boolean payNotional) {
-    ZonedDateTime[] referenceStartDate = new ZonedDateTime[2];
-    ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
+  public static CouponInflationYearOnYearInterpolationDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
+      final IndexPrice priceIndex, final double weightStart, final double weightEnd, final int monthLag, final boolean payNotional) {
+    final ZonedDateTime[] referenceStartDate = new ZonedDateTime[2];
+    final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
     referenceStartDate[0] = accrualStartDate.minusMonths(monthLag);
     referenceStartDate[1] = referenceStartDate[0].plusMonths(1);
     referenceEndDate[0] = paymentDate.minusMonths(monthLag).withDayOfMonth(1);
     referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
 
-    return new CouponInflationYearOnYearInterpolationDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, referenceStartDate,
-        referenceEndDate, weightStart, weightEnd, monthLag, payNotional);
+    return new CouponInflationYearOnYearInterpolationDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex,
+        referenceStartDate, referenceEndDate, weightStart, weightEnd, monthLag, payNotional);
   }
 
   /**
@@ -162,12 +163,12 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
     referenceEndDate[0] = refInterpolatedDate.withDayOfMonth(1);
     referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
-    return new CouponInflationYearOnYearInterpolationDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(), getPriceIndex(),
-        getReferenceStartDate(), referenceEndDate, getWeightStart(), getWeightEnd(), _monthLag, payNotional());
+    return new CouponInflationYearOnYearInterpolationDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
+        getPriceIndex(), getReferenceStartDate(), referenceEndDate, getWeightStart(), getWeightEnd(), _monthLag, payNotional());
   }
 
   @Override
-  public CouponInflationYearOnYearInterpolation toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public CouponInflationYearOnYearInterpolation toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
@@ -182,36 +183,36 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     referenceEndTime[1] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[1]);
 
     final String discountingCurveName = yieldCurveNames[0];
-    return new CouponInflationYearOnYearInterpolation(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, referenceEndTime,
-        _weightStart, _weightStart, _payNotional);
+    return new CouponInflationYearOnYearInterpolation(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(),
+        referenceStartTime, referenceEndTime, _weightStart, _weightStart, _payNotional);
   }
 
   @Override
-  public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> data, String... yieldCurveNames) {
+  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final String discountingCurveName = yieldCurveNames[0];
-    double[] referenceEndTime = new double[2];
-    double[] referenceStartTime = new double[2];
+    final double[] referenceEndTime = new double[2];
+    final double[] referenceStartTime = new double[2];
     referenceEndTime[0] = TimeCalculator.getTimeBetween(date, _referenceEndDate[0]);
     referenceEndTime[1] = TimeCalculator.getTimeBetween(date, _referenceEndDate[1]);
     referenceStartTime[0] = TimeCalculator.getTimeBetween(date, _referenceStartDate[0]);
     referenceStartTime[1] = TimeCalculator.getTimeBetween(date, _referenceStartDate[1]);
-    return new CouponInflationYearOnYearInterpolation(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, referenceEndTime,
-        _weightStart, _weightStart, _payNotional);
+    return new CouponInflationYearOnYearInterpolation(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(),
+        referenceStartTime, referenceEndTime, _weightStart, _weightStart, _payNotional);
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponInflationYearOnYearInterpolationDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponInflationYearOnYearInterpolationDefinition(this);
   }
@@ -226,7 +227,7 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -236,7 +237,7 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponInflationYearOnYearInterpolationDefinition other = (CouponInflationYearOnYearInterpolationDefinition) obj;
+    final CouponInflationYearOnYearInterpolationDefinition other = (CouponInflationYearOnYearInterpolationDefinition) obj;
     if (_referenceEndDate == null) {
       if (other._referenceEndDate != null) {
         return false;

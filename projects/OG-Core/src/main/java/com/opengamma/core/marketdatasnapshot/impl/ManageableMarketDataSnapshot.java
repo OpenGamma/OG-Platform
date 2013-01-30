@@ -5,7 +5,6 @@
  */
 package com.opengamma.core.marketdatasnapshot.impl;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -20,6 +19,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeKey;
@@ -77,7 +77,7 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
    * The vol surfaces in this snapshot
    */
   @PropertyDefinition
-  private Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> _volatilitySurfaces = new HashMap<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>(); //Initialize in order to handle old format
+  private Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> _volatilitySurfaces = Maps.newHashMap(); //Initialize in order to handle old format
   
   /**
    * Creates a snapshot

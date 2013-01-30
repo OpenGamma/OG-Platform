@@ -8,14 +8,13 @@ package com.opengamma.master.historicaltimeseries.impl;
 import java.text.MessageFormat;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.time.calendar.LocalDate;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;

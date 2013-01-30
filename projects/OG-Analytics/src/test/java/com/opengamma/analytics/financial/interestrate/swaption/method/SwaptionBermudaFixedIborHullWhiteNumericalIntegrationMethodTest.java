@@ -7,11 +7,12 @@ package com.opengamma.analytics.financial.interestrate.swaption.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
@@ -47,14 +48,14 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
   private static final boolean IS_EOM = true;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 22);
   // Total swap - 5Y semi bond vs quarterly money
-  private static final Period FORWARD_TENOR = Period.ofYears(1);
+  private static final Period FORWARD_TENOR = Period.of(1, YEARS);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, FORWARD_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM);
-  private static final Period SWAP_TENOR = Period.ofYears(5);
+  private static final Period SWAP_TENOR = Period.of(5, YEARS);
   private static final double NOTIONAL = 123000000;
   private static final boolean FIXED_IS_PAYER = true;
-  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.of(6, MONTHS);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
-  private static final Period IBOR_TENOR = Period.ofMonths(3);
+  private static final Period IBOR_TENOR = Period.of(3, MONTHS);
   private static final int IBOR_SETTLEMENT_DAYS = 2;
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, CALENDAR, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);

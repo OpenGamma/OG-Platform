@@ -76,7 +76,7 @@ public class PortfolioNodeTraverserTest {
     }
 
     @Override
-    public void postOrderOperation(final Position position) {
+    public void postOrderOperation(final PortfolioNode parentNode, final Position position) {
       visit(POSITION_POST, position);
     }
 
@@ -86,7 +86,7 @@ public class PortfolioNodeTraverserTest {
     }
 
     @Override
-    public void preOrderOperation(final Position position) {
+    public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
       visit(POSITION_PRE, position);
     }
 

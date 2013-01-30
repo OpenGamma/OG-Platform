@@ -196,6 +196,10 @@ import com.opengamma.engine.value.ValueRequirement;
 
   public void addProducer(final GraphBuildingContext context, final ResolvedValueProducer producer) {
     synchronized (this) {
+      if (_pendingTasks == Integer.MIN_VALUE) {
+        s_logger.debug("Discarded before fallback producer {} added to {}", producer, this);
+        return;
+      }
       assert _pendingTasks >= 0;
       if (_pendingTasks == 0) {
         _wantResult = true;

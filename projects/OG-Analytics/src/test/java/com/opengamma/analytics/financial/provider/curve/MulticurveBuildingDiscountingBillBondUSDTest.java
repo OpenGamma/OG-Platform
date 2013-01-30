@@ -12,11 +12,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
@@ -126,10 +125,10 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
   public static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400};
   /** Generators for the dsc USD curve */
   public static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
-      GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD};
+    GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD};
   /** Tenors for the dsc USD curve */
-  public static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1),
-      Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
+  public static final Period[] DSC_USD_TENOR = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfMonths(1), DateUtils.periodOfMonths(2), DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfMonths(9), DateUtils.periodOfYears(1),
+    DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10)};
   public static final GeneratorAttributeIR[] DSC_USD_ATTR = new GeneratorAttributeIR[DSC_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < DSC_USD_TENOR.length; loopins++) {
@@ -141,9 +140,9 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
   public static final double[] GOVTUS_USD_MARKET_QUOTES = new double[] {0.0010, 0.0015, 0.0020, 0.0015};
   /** Generators for the govt USD curve */
   public static final GeneratorInstrument<? extends GeneratorAttribute>[] GOVTUS_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USGOVT, GENERATOR_BILL[0], GENERATOR_BILL[1],
-      GENERATOR_BILL[2]};
+    GENERATOR_BILL[2]};
   /** Tenors for the govt USD curve */
-  public static final Period[] GOVTUS_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0)};
+  public static final Period[] GOVTUS_USD_TENOR = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfDays(0), DateUtils.periodOfDays(0), DateUtils.periodOfDays(0)};
   public static final GeneratorAttributeIR[] GOVTUS_USD_ATTR = new GeneratorAttributeIR[GOVTUS_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < GOVTUS_USD_TENOR.length; loopins++) {

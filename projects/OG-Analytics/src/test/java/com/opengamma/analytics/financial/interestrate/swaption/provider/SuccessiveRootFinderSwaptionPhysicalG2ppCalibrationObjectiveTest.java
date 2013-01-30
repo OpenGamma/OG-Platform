@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.swaption.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -60,13 +59,13 @@ public class SuccessiveRootFinderSwaptionPhysicalG2ppCalibrationObjectiveTest {
   // Swap 5Y description
   private static final double NOTIONAL = 100000000; //100m
   //  Fixed leg: Semi-annual bond
-  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
+  private static final Period FIXED_PAYMENT_PERIOD = DateUtils.periodOfMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final double RATE = 0.0325;
   private static final boolean FIXED_IS_PAYER = true;
   //  Ibor leg: quarterly money
   private static final int SWAP_TENOR_YEAR = 9;
-  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR3M, Period.ofYears(SWAP_TENOR_YEAR));
+  private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR3M, DateUtils.periodOfYears(SWAP_TENOR_YEAR));
   private static final int[] EXPIRY_TENOR = new int[] {1, 2, 3, 4, 5};
   private static final ZonedDateTime[] EXPIRY_DATE = new ZonedDateTime[EXPIRY_TENOR.length];
   private static final ZonedDateTime[] SETTLEMENT_DATE = new ZonedDateTime[EXPIRY_TENOR.length];
@@ -74,7 +73,7 @@ public class SuccessiveRootFinderSwaptionPhysicalG2ppCalibrationObjectiveTest {
   private static final SwaptionPhysicalFixedIborDefinition[] SWAPTION_LONG_PAYER_DEFINITION = new SwaptionPhysicalFixedIborDefinition[EXPIRY_TENOR.length];
   static {
     for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
-      EXPIRY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofYears(EXPIRY_TENOR[loopexp]), EURIBOR3M);
+      EXPIRY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfYears(EXPIRY_TENOR[loopexp]), EURIBOR3M);
       SETTLEMENT_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE[loopexp], EURIBOR3M.getSpotLag(), CALENDAR);
       SWAP_PAYER_DEFINITION[loopexp] = SwapFixedIborDefinition.from(SETTLEMENT_DATE[loopexp], CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
       SWAPTION_LONG_PAYER_DEFINITION[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE[loopexp], SWAP_PAYER_DEFINITION[loopexp], IS_LONG);
@@ -97,19 +96,19 @@ public class SuccessiveRootFinderSwaptionPhysicalG2ppCalibrationObjectiveTest {
    * Tests the correctness of G2++ calibration to swaptions with SABR price.
    */
   public void calibration() {
-    double[] meanReversion = new double[] {0.01, 0.30};
-    double ratio = 4.0;
-    double correlation = -0.50;
-    G2ppPiecewiseConstantParameters g2Parameters = new G2ppPiecewiseConstantParameters(meanReversion, new double[][] { {0.01}, {0.01 / ratio}}, new double[0], correlation);
-    SuccessiveRootFinderG2ppCalibrationObjective objective = new SuccessiveRootFinderG2ppCalibrationObjective(g2Parameters, EUR, ratio);
-    SuccessiveRootFinderG2ppCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderG2ppCalibrationEngine<SABRSwaptionProviderInterface>(objective);
+    final double[] meanReversion = new double[] {0.01, 0.30};
+    final double ratio = 4.0;
+    final double correlation = -0.50;
+    final G2ppPiecewiseConstantParameters g2Parameters = new G2ppPiecewiseConstantParameters(meanReversion, new double[][] { {0.01}, {0.01 / ratio}}, new double[0], correlation);
+    final SuccessiveRootFinderG2ppCalibrationObjective objective = new SuccessiveRootFinderG2ppCalibrationObjective(g2Parameters, EUR, ratio);
+    final SuccessiveRootFinderG2ppCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderG2ppCalibrationEngine<SABRSwaptionProviderInterface>(objective);
 
     for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
       calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[loopexp], PVSSC);
     }
     calibrationEngine.calibrate(SABR_MULTICURVES);
-    MultipleCurrencyAmount[] pvSabr = new MultipleCurrencyAmount[EXPIRY_TENOR.length];
-    MultipleCurrencyAmount[] pvHw = new MultipleCurrencyAmount[EXPIRY_TENOR.length];
+    final MultipleCurrencyAmount[] pvSabr = new MultipleCurrencyAmount[EXPIRY_TENOR.length];
+    final MultipleCurrencyAmount[] pvHw = new MultipleCurrencyAmount[EXPIRY_TENOR.length];
     for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
       pvSabr[loopexp] = SWAPTION_LONG_PAYER[loopexp].accept(PVSSC, SABR_MULTICURVES);
       pvHw[loopexp] = METHOD_G2PP.presentValue(SWAPTION_LONG_PAYER[loopexp], objective.getG2Provider());
@@ -122,18 +121,18 @@ public class SuccessiveRootFinderSwaptionPhysicalG2ppCalibrationObjectiveTest {
    * Test of performance. In normal testing, "enabled = false".
    */
   public void performance() {
-    double[] meanReversion = new double[] {0.01, 0.30};
-    double ratio = 4.0;
-    double correlation = -0.50;
+    final double[] meanReversion = new double[] {0.01, 0.30};
+    final double ratio = 4.0;
+    final double correlation = -0.50;
     long startTime, endTime;
     final int nbTest = 100;
-    MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbTest];
+    final MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbTest];
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      G2ppPiecewiseConstantParameters g2Parameters = new G2ppPiecewiseConstantParameters(meanReversion, new double[][] { {0.01}, {0.01 / ratio}}, new double[0], correlation);
-      SuccessiveRootFinderG2ppCalibrationObjective objective = new SuccessiveRootFinderG2ppCalibrationObjective(g2Parameters, EUR, ratio);
-      SuccessiveRootFinderG2ppCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderG2ppCalibrationEngine<SABRSwaptionProviderInterface>(objective);
+      final G2ppPiecewiseConstantParameters g2Parameters = new G2ppPiecewiseConstantParameters(meanReversion, new double[][] { {0.01}, {0.01 / ratio}}, new double[0], correlation);
+      final SuccessiveRootFinderG2ppCalibrationObjective objective = new SuccessiveRootFinderG2ppCalibrationObjective(g2Parameters, EUR, ratio);
+      final SuccessiveRootFinderG2ppCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderG2ppCalibrationEngine<SABRSwaptionProviderInterface>(objective);
       for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
         calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[loopexp], PVSSC);
       }

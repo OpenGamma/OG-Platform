@@ -9,9 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
@@ -138,8 +137,8 @@ public class ForexDefinitionTest {
    */
   public void testToString() {
     final String fxToString = FX.toString();
-    final String expected = "Forex transaction:\nCurrency 1 payment: \nPayment Currency = EUR, Date = 2011-05-24T00:00Z[UTC]Amount = 1.0E8"
-        + "\nCurrency 2 payment: \nPayment Currency = USD, Date = 2011-05-24T00:00Z[UTC]Amount = -1.4177E8";
+    final String expected = "Forex transaction:\nCurrency 1 payment: \nPayment Currency = EUR, Date = 2011-05-24T00:00ZAmount = 1.0E8"
+        + "\nCurrency 2 payment: \nPayment Currency = USD, Date = 2011-05-24T00:00ZAmount = -1.4177E8";
     assertEquals(expected, fxToString);
   }
 

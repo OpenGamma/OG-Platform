@@ -8,10 +8,9 @@ package com.opengamma.analytics.financial.schedule;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.time.DateUtils;
 
@@ -65,11 +64,11 @@ public class QuarterlyScheduleCalculatorTest extends ScheduleCalculatorTestCase 
     assertEquals(backward[quarters - 1], endDate);
     for (int i = 1; i < quarters; i++) {
       if (forward[i].getYear() == forward[i - 1].getYear()) {
-        assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), 3);
-        assertEquals(backward[i].getMonthOfYear().getValue() - backward[i - 1].getMonthOfYear().getValue(), 3);
+        assertEquals(forward[i].getMonthValue() - forward[i - 1].getMonthValue(), 3);
+        assertEquals(backward[i].getMonthValue() - backward[i - 1].getMonthValue(), 3);
       } else {
-        assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), -9);
-        assertEquals(backward[i].getMonthOfYear().getValue() - backward[i - 1].getMonthOfYear().getValue(), -9);
+        assertEquals(forward[i].getMonthValue() - forward[i - 1].getMonthValue(), -9);
+        assertEquals(backward[i].getMonthValue() - backward[i - 1].getMonthValue(), -9);
       }
       assertEquals(forward[i].getDayOfMonth(), 1);
       assertEquals(backward[i].getDayOfMonth(), 9);
@@ -99,11 +98,11 @@ public class QuarterlyScheduleCalculatorTest extends ScheduleCalculatorTestCase 
     assertEquals(backward[quarters - 1], endDate);
     for (int i = 1; i < quarters; i++) {
       if (forward[i].getYear() == forward[i - 1].getYear()) {
-        assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), 3);
-        assertEquals(backward[i].getMonthOfYear().getValue() - backward[i - 1].getMonthOfYear().getValue(), 3);
+        assertEquals(forward[i].getMonthValue() - forward[i - 1].getMonthValue(), 3);
+        assertEquals(backward[i].getMonthValue() - backward[i - 1].getMonthValue(), 3);
       } else {
-        assertEquals(forward[i].getMonthOfYear().getValue() - forward[i - 1].getMonthOfYear().getValue(), -9);
-        assertEquals(backward[i].getMonthOfYear().getValue() - backward[i - 1].getMonthOfYear().getValue(), -9);
+        assertEquals(forward[i].getMonthValue() - forward[i - 1].getMonthValue(), -9);
+        assertEquals(backward[i].getMonthValue() - backward[i - 1].getMonthValue(), -9);
       }
       assertEquals(forward[i].getDayOfMonth(), 1);
       assertEquals(backward[i].getDayOfMonth(), 9);

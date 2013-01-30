@@ -8,9 +8,8 @@ package com.opengamma.analytics.financial.forex.provider;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
@@ -46,7 +45,8 @@ public class ForexSwapDiscountingProviderMethodTest {
   private static final ZonedDateTime FAR_DATE = DateUtils.getUTCDate(2011, 6, 27); // 1m
   private static final double NOMINAL_1 = 100000000;
   private static final double FORWARD_POINTS = -0.0007;
-  private static final ForexSwapDefinition FX_SWAP_DEFINITION = new ForexSwapDefinition(CUR_1, CUR_2, NEAR_DATE, FAR_DATE, NOMINAL_1, PROVIDER.getFxRate(CUR_1, CUR_2), FORWARD_POINTS);
+  private static final ForexSwapDefinition FX_SWAP_DEFINITION = new ForexSwapDefinition(CUR_1, CUR_2, NEAR_DATE, FAR_DATE, NOMINAL_1, PROVIDER.getFxRate(CUR_1, CUR_2),
+      FORWARD_POINTS);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 20);
 
@@ -62,9 +62,11 @@ public class ForexSwapDiscountingProviderMethodTest {
   private static final CurrencyExposureDiscountingCalculator CEDC = CurrencyExposureDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
   private static final ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator PSMQCSDC = ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator.getInstance();
-  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSPSC = new SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PSMQCSDC);
+  private static final SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSPSC = new SimpleParameterSensitivityParameterCalculator<MulticurveProviderInterface>(
+      PSMQCSDC);
   private static final double SHIFT = 1.0E-7;
-  private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSMQCS_FDC = new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PSMQDC, SHIFT);
+  private static final SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSMQCS_FDC = new SimpleParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(
+      PSMQDC, SHIFT);
 
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
 
@@ -149,10 +151,10 @@ public class ForexSwapDiscountingProviderMethodTest {
   public void forexTodayPaymentOnNearDate() {
     final InstrumentDerivative fx = FX_SWAP_DEFINITION.toDerivative(NEAR_DATE, NOT_USED_2);
     final MultipleCurrencyAmount cash = fx.accept(TPC);
-    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getNearLeg().getPaymentCurrency1().getReferenceAmount(), cash.getAmount(FX_SWAP_DEFINITION.getNearLeg().getCurrency1()),
-        TOLERANCE_PV);
-    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getNearLeg().getPaymentCurrency2().getReferenceAmount(), cash.getAmount(FX_SWAP_DEFINITION.getNearLeg().getCurrency2()),
-        TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getNearLeg().getPaymentCurrency1().getReferenceAmount(),
+        cash.getAmount(FX_SWAP_DEFINITION.getNearLeg().getCurrency1()), TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getNearLeg().getPaymentCurrency2().getReferenceAmount(),
+        cash.getAmount(FX_SWAP_DEFINITION.getNearLeg().getCurrency2()), TOLERANCE_PV);
     assertEquals("TodayPaymentCalculator: forex", 2, cash.getCurrencyAmounts().length);
   }
 
@@ -175,10 +177,10 @@ public class ForexSwapDiscountingProviderMethodTest {
   public void forexTodayPaymentOnFarDate() {
     final InstrumentDerivative fx = FX_SWAP_DEFINITION.toDerivative(FAR_DATE, NOT_USED_2);
     final MultipleCurrencyAmount cash = fx.accept(TPC);
-    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getFarLeg().getPaymentCurrency1().getReferenceAmount(), cash.getAmount(FX_SWAP_DEFINITION.getFarLeg().getCurrency1()),
-        TOLERANCE_PV);
-    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getFarLeg().getPaymentCurrency2().getReferenceAmount(), cash.getAmount(FX_SWAP_DEFINITION.getFarLeg().getCurrency2()),
-        TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getFarLeg().getPaymentCurrency1().getReferenceAmount(),
+        cash.getAmount(FX_SWAP_DEFINITION.getFarLeg().getCurrency1()), TOLERANCE_PV);
+    assertEquals("TodayPaymentCalculator: forex", FX_SWAP_DEFINITION.getFarLeg().getPaymentCurrency2().getReferenceAmount(),
+        cash.getAmount(FX_SWAP_DEFINITION.getFarLeg().getCurrency2()), TOLERANCE_PV);
     assertEquals("TodayPaymentCalculator: forex", 2, cash.getCurrencyAmounts().length);
   }
 
@@ -188,7 +190,8 @@ public class ForexSwapDiscountingProviderMethodTest {
    */
   public void parSpread() {
     final double parSpread = METHOD_FX_SWAP.parSpread(FX_SWAP, PROVIDER);
-    final ForexSwapDefinition fxSwap0Definition = new ForexSwapDefinition(CUR_1, CUR_2, NEAR_DATE, FAR_DATE, NOMINAL_1, PROVIDER.getFxRate(CUR_1, CUR_2), FORWARD_POINTS + parSpread);
+    final ForexSwapDefinition fxSwap0Definition = new ForexSwapDefinition(CUR_1, CUR_2, NEAR_DATE, FAR_DATE, NOMINAL_1, PROVIDER.getFxRate(CUR_1, CUR_2), FORWARD_POINTS
+        + parSpread);
     final ForexSwap fxSwap0 = (ForexSwap) fxSwap0Definition.toDerivative(REFERENCE_DATE, NOT_USED_2);
     final MultipleCurrencyAmount pv0 = METHOD_FX_SWAP.presentValue(fxSwap0, PROVIDER);
     assertEquals("Forex swap: par spread", 0, PROVIDER.getFxRates().convert(pv0, CUR_1).getAmount(), TOLERANCE_PV);

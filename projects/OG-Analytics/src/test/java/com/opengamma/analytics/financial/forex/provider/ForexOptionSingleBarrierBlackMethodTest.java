@@ -8,10 +8,8 @@ package com.opengamma.analytics.financial.forex.provider;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
@@ -85,7 +83,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   private static final Barrier BARRIER_KI = new Barrier(KnockType.IN, BarrierType.DOWN, ObservationType.CLOSE, 1.35);
   private static final Barrier BARRIER_KO = new Barrier(KnockType.OUT, BarrierType.DOWN, ObservationType.CLOSE, 1.35);
   private static final double REBATE = 50000;
-  private static final ZonedDateTime OPTION_PAY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(39), BUSINESS_DAY, CALENDAR);
+  private static final ZonedDateTime OPTION_PAY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(39), BUSINESS_DAY, CALENDAR);
   private static final ZonedDateTime OPTION_EXPIRY_DATE = ScheduleCalculator.getAdjustedDate(OPTION_PAY_DATE, -SETTLEMENT_DAYS, CALENDAR);
   private static final ForexDefinition FOREX_DEFINITION = new ForexDefinition(EUR, USD, OPTION_PAY_DATE, NOTIONAL, STRIKE);
   private static final ForexOptionVanillaDefinition VANILLA_LONG_DEFINITION = new ForexOptionVanillaDefinition(FOREX_DEFINITION, OPTION_EXPIRY_DATE, IS_CALL, IS_LONG);
@@ -101,12 +99,15 @@ public class ForexOptionSingleBarrierBlackMethodTest {
 
   private static final PresentValueForexBlackSmileCalculator PVFBC = PresentValueForexBlackSmileCalculator.getInstance();
   private static final PresentValueCurveSensitivityForexBlackSmileCalculator PVCSFBC = PresentValueCurveSensitivityForexBlackSmileCalculator.getInstance();
-  private static final PresentValueForexVolatilitySensitivityForexBlackSmileCalculator PVFVFBC = PresentValueForexVolatilitySensitivityForexBlackSmileCalculator.getInstance();
+  private static final PresentValueForexVolatilitySensitivityForexBlackSmileCalculator PVFVFBC = PresentValueForexVolatilitySensitivityForexBlackSmileCalculator
+      .getInstance();
   private static final CurrencyExposureForexBlackSmileCalculator CEFBC = CurrencyExposureForexBlackSmileCalculator.getInstance();
 
   private static final double SHIFT_FD = 1.0E-6;
-  private static final ParameterSensitivityParameterCalculator<BlackForexSmileProviderInterface> PS_FBS_C = new ParameterSensitivityParameterCalculator<BlackForexSmileProviderInterface>(PVCSFBC);
-  private static final ParameterSensitivityForexBlackSmileDiscountInterpolatedFDCalculator PS_FBS_FDC = new ParameterSensitivityForexBlackSmileDiscountInterpolatedFDCalculator(PVFBC, SHIFT_FD);
+  private static final ParameterSensitivityParameterCalculator<BlackForexSmileProviderInterface> PS_FBS_C = new ParameterSensitivityParameterCalculator<BlackForexSmileProviderInterface>(
+      PVCSFBC);
+  private static final ParameterSensitivityForexBlackSmileDiscountInterpolatedFDCalculator PS_FBS_FDC = new ParameterSensitivityForexBlackSmileDiscountInterpolatedFDCalculator(
+      PVFBC, SHIFT_FD);
 
   // The following Barrier Option is essentially just a vanilla
   private static final Barrier BARRIER_IMPOSSIBLE_DOWN = new Barrier(KnockType.OUT, BarrierType.DOWN, ObservationType.CLOSE, 1e-8);
@@ -122,7 +123,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   public void comparisonOfBarrierPricersWithVeryHighAndVeryLowBarrierLevels() {
     final MultipleCurrencyAmount priceBarrierUp = METHOD_BARRIER.presentValue(BARRIER_LIKE_VANILLA_UP, SMILE_MULTICURVES);
     final MultipleCurrencyAmount priceBarrierDown = METHOD_BARRIER.presentValue(BARRIER_LIKE_VANILLA_DOWN, SMILE_MULTICURVES);
-    assertTrue("PV : Knock-Out Barrier with unreachably HIGH level doesn't match one with unreachably LOWlevel", Math.abs(priceBarrierDown.getAmount(USD) / priceBarrierUp.getAmount(USD) - 1) < 1e-4);
+    assertTrue("PV : Knock-Out Barrier with unreachably HIGH level doesn't match one with unreachably LOWlevel",
+        Math.abs(priceBarrierDown.getAmount(USD) / priceBarrierUp.getAmount(USD) - 1) < 1e-4);
   }
 
   @Test
@@ -217,9 +219,9 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double shiftSpotEURUSD = 1E-6;
     final MultipleCurrencyAmount pv = METHOD_BARRIER.presentValue(OPTION_BARRIER, SMILE_FLAT_MULTICURVES);
     final FXMatrix fxMatrixShift = new FXMatrix(EUR, USD, SPOT + shiftSpotEURUSD);
-    MulticurveProviderDiscount multicurvesShiftedFX = MULTICURVES.copy();
+    final MulticurveProviderDiscount multicurvesShiftedFX = MULTICURVES.copy();
     multicurvesShiftedFX.setForexMatrix(fxMatrixShift);
-    BlackForexSmileProviderDiscount smileBumpedSpot = new BlackForexSmileProviderDiscount(multicurvesShiftedFX, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final BlackForexSmileProviderDiscount smileBumpedSpot = new BlackForexSmileProviderDiscount(multicurvesShiftedFX, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final MultipleCurrencyAmount pvBumpedSpot = METHOD_BARRIER.presentValue(OPTION_BARRIER, smileBumpedSpot);
     final double ceDomesticFD = (pvBumpedSpot.getAmount(USD) - pv.getAmount(USD));
     assertEquals("Barrier currency exposure: domestic currency", ceDomesticFD, ce.getAmount(EUR) * shiftSpotEURUSD, 2.0E-4);
@@ -231,8 +233,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double spotGBPEURshifted = spotGBPUSDshifted / spotEURUSDshifted;
     final double pvInGBPBeforeShift = pv.getAmount(USD) / spotGBPUSD;
     final double pvInGBPAfterShift = pvBumpedSpot.getAmount(USD) / spotGBPUSDshifted;
-    assertEquals("Barrier currency exposure: all currencies", pvInGBPAfterShift - pvInGBPBeforeShift, ce.getAmount(EUR) * (1 / spotGBPEURshifted - 1 / spotGBPEUR) + ce.getAmount(USD)
-        * (1 / spotGBPUSDshifted - 1 / spotGBPUSD), 1.0E-4);
+    assertEquals("Barrier currency exposure: all currencies", pvInGBPAfterShift - pvInGBPBeforeShift,
+        ce.getAmount(EUR) * (1 / spotGBPEURshifted - 1 / spotGBPEUR) + ce.getAmount(USD) * (1 / spotGBPUSDshifted - 1 / spotGBPUSD), 1.0E-4);
   }
 
   @Test
@@ -251,7 +253,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    * Tests the present value curve sensitivity.
    */
   public void presentValueCurveSensitivity() {
-    final MultipleCurrencyParameterSensitivity pvpsExact = PS_FBS_C.calculateSensitivity(OPTION_BARRIER, SMILE_FLAT_MULTICURVES, SMILE_FLAT_MULTICURVES.getMulticurveProvider().getAllNames());
+    final MultipleCurrencyParameterSensitivity pvpsExact = PS_FBS_C.calculateSensitivity(OPTION_BARRIER, SMILE_FLAT_MULTICURVES, SMILE_FLAT_MULTICURVES
+        .getMulticurveProvider().getAllNames());
     final MultipleCurrencyParameterSensitivity pvpsFD = PS_FBS_FDC.calculateSensitivity(OPTION_BARRIER, SMILE_FLAT_MULTICURVES);
     AssertSensivityObjects.assertEquals("SwaptionPhysicalFixedIborSABRMethod: presentValueCurveSensitivity ", pvpsExact, pvpsFD, TOLERANCE_PV_DELTA);
   }
@@ -387,12 +390,17 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final CurrencyAmount gammaBarrier_10 = METHOD_BARRIER.gammaFd(BARRIER_LIKE_VANILLA_DOWN, SMILE_MULTICURVES, 0.001);
     final CurrencyAmount gammaBarrier_100 = METHOD_BARRIER.gammaFd(BARRIER_LIKE_VANILLA_DOWN, SMILE_MULTICURVES, 0.01);
     final CurrencyAmount gammaVanilla = METHOD_VANILLA.gamma(VANILLA_LONG, SMILE_MULTICURVES, true);
-    assertEquals("Gamma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", gammaVanilla.getAmount(), gammaBarrier_p1.getAmount(), 1e-8 * NOTIONAL);
-    assertTrue("Gamma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", Math.abs(gammaVanilla.getAmount() / gammaBarrier_1.getAmount() - 1.0) < 1e-6);
-    assertEquals("Gamma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", gammaBarrier_p1.getAmount(), gammaBarrier_1.getAmount(), 1e-6 * NOTIONAL);
+    assertEquals("Gamma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", gammaVanilla.getAmount(), gammaBarrier_p1.getAmount(),
+        1e-8 * NOTIONAL);
+    assertTrue("Gamma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's",
+        Math.abs(gammaVanilla.getAmount() / gammaBarrier_1.getAmount() - 1.0) < 1e-6);
+    assertEquals("Gamma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", gammaBarrier_p1.getAmount(), gammaBarrier_1.getAmount(),
+        1e-6 * NOTIONAL);
     assertEquals("Gamma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", gammaVanilla.getAmount(), gammaBarrier_1.getAmount(), 1e-7 * NOTIONAL);
-    assertEquals("Gamma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", gammaBarrier_1.getAmount(), gammaBarrier_10.getAmount(), 1e-4 * NOTIONAL);
-    assertEquals("Gamma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", gammaBarrier_10.getAmount(), gammaBarrier_100.getAmount(), 1e-3 * NOTIONAL);
+    assertEquals("Gamma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", gammaBarrier_1.getAmount(), gammaBarrier_10.getAmount(),
+        1e-4 * NOTIONAL);
+    assertEquals("Gamma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", gammaBarrier_10.getAmount(), gammaBarrier_100.getAmount(),
+        1e-3 * NOTIONAL);
   }
 
   @Test
@@ -406,14 +414,20 @@ public class ForexOptionSingleBarrierBlackMethodTest {
 
     final PresentValueForexBlackVolatilitySensitivity vegaBarrier = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(BARRIER_LIKE_VANILLA_DOWN, SMILE_MULTICURVES);
     final PresentValueForexBlackVolatilitySensitivity vegaVanilla = METHOD_VANILLA.presentValueBlackVolatilitySensitivity(VANILLA_LONG, SMILE_MULTICURVES);
-    assertEquals("Vega of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vegaVanilla.getVega().toSingleValue(), vegaBarrier.getVega().toSingleValue(), 1e-8 * NOTIONAL);
+    assertEquals("Vega of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vegaVanilla.getVega().toSingleValue(), vegaBarrier.getVega()
+        .toSingleValue(), 1e-8 * NOTIONAL);
 
-    assertEquals("Vomma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vommaVanilla.getAmount(), vommaBarrier_p1.getAmount(), 1e-6 * NOTIONAL);
-    assertTrue("Vomma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", Math.abs(vommaVanilla.getAmount() / vommaBarrier_1.getAmount() - 1.0) < 1e-6);
-    assertEquals("Vomma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vommaBarrier_p1.getAmount(), vommaBarrier_1.getAmount(), 1e-6 * NOTIONAL);
+    assertEquals("Vomma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vommaVanilla.getAmount(), vommaBarrier_p1.getAmount(),
+        1e-6 * NOTIONAL);
+    assertTrue("Vomma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's",
+        Math.abs(vommaVanilla.getAmount() / vommaBarrier_1.getAmount() - 1.0) < 1e-6);
+    assertEquals("Vomma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vommaBarrier_p1.getAmount(), vommaBarrier_1.getAmount(),
+        1e-6 * NOTIONAL);
     assertEquals("Vomma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vommaVanilla.getAmount(), vommaBarrier_1.getAmount(), 1e-7 * NOTIONAL);
-    assertEquals("Vomma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vommaBarrier_1.getAmount(), vommaBarrier_10.getAmount(), 1e-4 * NOTIONAL);
-    assertEquals("Vomma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vommaBarrier_10.getAmount(), vommaBarrier_100.getAmount(), 1e-3 * NOTIONAL);
+    assertEquals("Vomma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vommaBarrier_1.getAmount(), vommaBarrier_10.getAmount(),
+        1e-4 * NOTIONAL);
+    assertEquals("Vomma of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vommaBarrier_10.getAmount(), vommaBarrier_100.getAmount(),
+        1e-3 * NOTIONAL);
   }
 
   @Test
@@ -425,11 +439,15 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final CurrencyAmount vannaBarrier_100 = METHOD_BARRIER.vannaFd(BARRIER_LIKE_VANILLA_DOWN, SMILE_MULTICURVES, 0.01);
     final CurrencyAmount vannaVanilla = METHOD_VANILLA.vanna(VANILLA_LONG, SMILE_MULTICURVES);
     assertEquals("Vanna of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", 1.0, vannaVanilla.getAmount() / vannaBarrier_p1.getAmount(), 1e-6);
-    assertTrue("Vanna of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", Math.abs(vannaVanilla.getAmount() / vannaBarrier_1.getAmount() - 1.0) < 1e-6);
-    assertEquals("Vanna of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vannaBarrier_p1.getAmount(), vannaBarrier_1.getAmount(), 1e-6 * NOTIONAL);
+    assertTrue("Vanna of KO Barrier with unreachable barrier doesn't match underlying Vanilla's",
+        Math.abs(vannaVanilla.getAmount() / vannaBarrier_1.getAmount() - 1.0) < 1e-6);
+    assertEquals("Vanna of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vannaBarrier_p1.getAmount(), vannaBarrier_1.getAmount(),
+        1e-6 * NOTIONAL);
     assertEquals("Vanna of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vannaVanilla.getAmount(), vannaBarrier_1.getAmount(), 1e-7 * NOTIONAL);
-    assertEquals("Vanna of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vannaBarrier_1.getAmount(), vannaBarrier_10.getAmount(), 1e-4 * NOTIONAL);
-    assertEquals("Vanna of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vannaBarrier_10.getAmount(), vannaBarrier_100.getAmount(), 1e-3 * NOTIONAL);
+    assertEquals("Vanna of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vannaBarrier_1.getAmount(), vannaBarrier_10.getAmount(),
+        1e-4 * NOTIONAL);
+    assertEquals("Vanna of KO Barrier with unreachable barrier doesn't match underlying Vanilla's", vannaBarrier_10.getAmount(), vannaBarrier_100.getAmount(),
+        1e-3 * NOTIONAL);
   }
 
   //  @Test
@@ -471,8 +489,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double foreignAmount = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getAmount();
     final double rebateByForeignUnit = optionForex.getRebate() / Math.abs(foreignAmount);
     final double sign = (optionForex.getUnderlyingOption().isLong() ? 1.0 : -1.0);
-    final double vol = SMILE_MULTICURVES.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex.getUnderlyingOption()
-        .getStrike(), forward);
+    final double vol = SMILE_MULTICURVES.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption().getTimeToExpiry(),
+        optionForex.getUnderlyingOption().getStrike(), forward);
 
     // Bump scenarios
     final double volUp = (1.0 + relShift) * vol;
@@ -481,20 +499,28 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double spotDown = (1.0 - relShift) * spot;
 
     // Prices in scenarios
-    final double pxBase = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, costOfCarry, rateDomestic, vol);
-    final double pxVolUp = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, costOfCarry, rateDomestic, volUp);
-    final double pxVolDown = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, costOfCarry, rateDomestic, volDown);
-    final double pxSpotUp = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spotUp, costOfCarry, rateDomestic, vol);
-    final double pxSpotDown = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spotDown, costOfCarry, rateDomestic, vol);
-    final double pxUpUp = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spotUp, costOfCarry, rateDomestic, volUp);
-    final double pxDownDown = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spotDown, costOfCarry, rateDomestic, volDown);
+    final double pxBase = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, costOfCarry,
+        rateDomestic, vol);
+    final double pxVolUp = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, costOfCarry,
+        rateDomestic, volUp);
+    final double pxVolDown = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, costOfCarry,
+        rateDomestic, volDown);
+    final double pxSpotUp = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spotUp, costOfCarry,
+        rateDomestic, vol);
+    final double pxSpotDown = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spotDown, costOfCarry,
+        rateDomestic, vol);
+    final double pxUpUp = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spotUp, costOfCarry,
+        rateDomestic, volUp);
+    final double pxDownDown = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spotDown, costOfCarry,
+        rateDomestic, volDown);
 
     // 1. Compare the analytic vega to the finite difference vega
     // Bump vol and compute *price*
 
     final double vegaFD = (pxVolUp - pxVolDown) / (2 * relShift * vol);
     final double[] adjoint = new double[5];
-    final double pxBaseTest = BLACK_BARRIER_FUNCTION.getPriceAdjoint(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, costOfCarry, rateDomestic, vol, adjoint);
+    final double pxBaseTest = BLACK_BARRIER_FUNCTION.getPriceAdjoint(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, costOfCarry,
+        rateDomestic, vol, adjoint);
     final double vegaBlack = adjoint[4];
     assertEquals("Vega: Analytic and FiniteDifference are out.", vegaBlack, vegaFD, bp10);
 
@@ -504,7 +530,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     // 3. Vomma from Vega vs Price
     final double VommaViaVega = METHOD_BARRIER.vommaFd(optionForex, SMILE_MULTICURVES, relShift).getAmount();
     final double VommaViaPrice = (pxVolUp - 2 * pxBase + pxVolDown) / (relShift * vol) / (relShift * vol) * Math.abs(foreignAmount) * sign;
-    assertTrue("Vomma: FiniteDifference from 2nd order from Price and 1st order from Vega are out.", Math.abs(VommaViaVega - VommaViaPrice) < Math.abs(foreignAmount * bp10));
+    assertTrue("Vomma: FiniteDifference from 2nd order from Price and 1st order from Vega are out.",
+        Math.abs(VommaViaVega - VommaViaPrice) < Math.abs(foreignAmount * bp10));
 
     // 4. Compare Analytic to FD Delta
     final double deltaFD = (pxSpotUp - pxSpotDown) / (2 * relShift * spot);
@@ -514,7 +541,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     // 5. Computing Gamma from Delta vs Price
     final double GammaViaDelta = METHOD_BARRIER.gammaFd(optionForex, SMILE_MULTICURVES, relShift).getAmount();
     final double GammaViaPrice = (pxSpotUp - 2 * pxBase + pxSpotDown) / (relShift * spot) / (relShift * spot) * Math.abs(foreignAmount) * sign;
-    assertTrue("Gamma: FiniteDifference from 2nd order from Price and 1st order from Delta are out.", Math.abs(GammaViaPrice - GammaViaDelta) < Math.abs(foreignAmount) * bp10);
+    assertTrue("Gamma: FiniteDifference from 2nd order from Price and 1st order from Delta are out.", Math.abs(GammaViaPrice - GammaViaDelta) < Math.abs(foreignAmount)
+        * bp10);
 
     // 6. Computing Vanna - darn cross-derivative
 
@@ -523,7 +551,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double d2PdSdsig = METHOD_BARRIER.d2PriceDSpotDVolFD(OPTION_BARRIER, SMILE_MULTICURVES, relShift).getAmount();
     // This is the last form given here:http: //en.wikipedia.org/wiki/Finite_difference#Finite_difference_in_several_variables
     final double d2PdSdsigAlt = METHOD_BARRIER.d2PriceDSpotDVolFdAlt(OPTION_BARRIER, SMILE_MULTICURVES, relShift).getAmount();
-    final double vannaAlt = (2 * pxBase + pxUpUp + pxDownDown - pxSpotUp - pxVolUp - pxSpotDown - pxVolDown) / (2 * relShift * vol * relShift * spot) * Math.abs(foreignAmount) * sign;
+    final double vannaAlt = (2 * pxBase + pxUpUp + pxDownDown - pxSpotUp - pxVolUp - pxSpotDown - pxVolDown) / (2 * relShift * vol * relShift * spot)
+        * Math.abs(foreignAmount) * sign;
     assertTrue("Vanna: Agreement of methods is out", Math.abs(d2PdSdsig - d2PdSdsigAlt) < Math.abs(foreignAmount) * bp10);
   }
 

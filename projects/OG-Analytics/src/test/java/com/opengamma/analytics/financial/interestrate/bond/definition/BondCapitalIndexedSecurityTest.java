@@ -6,11 +6,12 @@
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
@@ -44,7 +45,7 @@ public class BondCapitalIndexedSecurityTest {
   private static final String NAME = "UK RPI";
   private static final Currency CUR = Currency.GBP;
   private static final Currency REGION = Currency.GBP;
-  private static final Period LAG = Period.ofDays(14);
+  private static final Period LAG = Period.of(14, DAYS);
   private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR, REGION, LAG);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("GBP");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -58,7 +59,7 @@ public class BondCapitalIndexedSecurityTest {
   private static final double INDEX_START = 173.60; // November 2001 
   private static final double REAL_RATE = 0.02;
   private static final double NOTIONAL_GILT_1 = 1.00;
-  private static final Period COUPON_PERIOD = Period.ofMonths(6);
+  private static final Period COUPON_PERIOD = Period.of(6, MONTHS);
   private static final int COUPON_PER_YEAR_GILT_1 = 2;
   private static final int SETTLEMENT_DAYS = 2;
   private static final String ISSUER_UK = "UK GOVT";

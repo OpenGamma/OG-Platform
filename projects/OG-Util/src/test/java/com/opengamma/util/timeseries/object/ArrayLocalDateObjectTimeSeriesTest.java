@@ -9,9 +9,8 @@ package com.opengamma.util.timeseries.object;
 import java.math.BigDecimal;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.util.timeseries.ObjectTimeSeries;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateObjectTimeSeries;

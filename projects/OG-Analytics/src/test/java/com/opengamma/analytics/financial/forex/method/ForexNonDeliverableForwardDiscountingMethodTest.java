@@ -10,9 +10,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureForexCalculator;

@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.forex.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
@@ -41,7 +40,8 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
   private static final ZonedDateTime PAYMENT_DATE = DateUtils.getUTCDate(2012, 5, 4);
   private static final double NOMINAL_USD = 100000000; // 1m
   private static final double FX_RATE = 1123.45;
-  private static final ForexNonDeliverableForwardDefinition NDF_DEFINITION = new ForexNonDeliverableForwardDefinition(KRW, USD, NOMINAL_USD, FX_RATE, FIXING_DATE, PAYMENT_DATE);
+  private static final ForexNonDeliverableForwardDefinition NDF_DEFINITION = new ForexNonDeliverableForwardDefinition(KRW, USD, NOMINAL_USD, FX_RATE, FIXING_DATE,
+      PAYMENT_DATE);
   private static final ForexDefinition FOREX_DEFINITION = new ForexDefinition(USD, KRW, PAYMENT_DATE, NOMINAL_USD, FX_RATE);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 11, 10);

@@ -8,10 +8,8 @@ package com.opengamma.analytics.financial.forex.provider;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefinition;
@@ -87,13 +85,15 @@ public class ForexOptionDigitalCallSpreadMethodTest {
   private static final boolean IS_CALL = true;
   private static final boolean IS_LONG = true;
   private static final double NOTIONAL = 100000000;
-  private static final ZonedDateTime OPTION_PAY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+  private static final ZonedDateTime OPTION_PAY_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(9), BUSINESS_DAY, CALENDAR);
   private static final ZonedDateTime OPTION_EXP_DATE = ScheduleCalculator.getAdjustedDate(OPTION_PAY_DATE, -SETTLEMENT_DAYS, CALENDAR);
   private static final ForexDefinition FOREX_DEFINITION = new ForexDefinition(EUR, USD, OPTION_PAY_DATE, NOTIONAL, STRIKE);
   private static final Forex FOREX = FOREX_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
-  private static final ForexOptionDigitalDefinition FOREX_DIGITAL_CALL_DOM_DEFINITION = new ForexOptionDigitalDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, IS_LONG, true);
+  private static final ForexOptionDigitalDefinition FOREX_DIGITAL_CALL_DOM_DEFINITION = new ForexOptionDigitalDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL,
+      IS_LONG, true);
   private static final ForexOptionDigital FOREX_DIGITAL_CALL_DOM = FOREX_DIGITAL_CALL_DOM_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
-  private static final ForexOptionDigitalDefinition FOREX_DIGITAL_CALL_FOR_DEFINITION = new ForexOptionDigitalDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, IS_LONG, false);
+  private static final ForexOptionDigitalDefinition FOREX_DIGITAL_CALL_FOR_DEFINITION = new ForexOptionDigitalDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL,
+      IS_LONG, false);
   private static final ForexOptionDigital FOREX_DIGITAL_CALL_FOR = FOREX_DIGITAL_CALL_FOR_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_FLAT = 1.0E+1; // The spread size will create a discrepancy.
@@ -124,7 +124,8 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, FOREX_DIGITAL_CALL_DOM.getExpirationTime(), IS_CALL, IS_LONG);
     final MultipleCurrencyAmount pvP = METHOD_VANILLA_BLACK.presentValue(vanillaP, SMILE_MULTICURVES);
     final MultipleCurrencyAmount pvM = METHOD_VANILLA_BLACK.presentValue(vanillaM, SMILE_MULTICURVES);
-    final MultipleCurrencyAmount pvExpected = pvM.plus(pvP.multipliedBy(-1.0)).multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
+    final MultipleCurrencyAmount pvExpected = pvM.plus(pvP.multipliedBy(-1.0))
+        .multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
     final MultipleCurrencyAmount pvComputed = METHOD_DIGITAL_SPREAD.presentValue(FOREX_DIGITAL_CALL_DOM, SMILE_MULTICURVES);
     assertEquals("Forex Digital option: call spread method - present value", pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
   }
@@ -134,8 +135,8 @@ public class ForexOptionDigitalCallSpreadMethodTest {
    * Tests the present value with an explicit computation.
    */
   public void presentValueDoubleQuadratic() {
-    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
-        Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     final SmileDeltaTermStructureParametersStrikeInterpolation smileTerm = TestsDataSetsForex.smile3points(REFERENCE_DATE, interpolator);
     final BlackForexSmileProviderDiscount smile = new BlackForexSmileProviderDiscount(MULTICURVES, smileTerm, Pair.of(EUR, USD));
     final double strikeM = STRIKE * (1 - CALL_SPREAD);
@@ -146,7 +147,8 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, FOREX_DIGITAL_CALL_DOM.getExpirationTime(), IS_CALL, IS_LONG);
     final MultipleCurrencyAmount pvP = METHOD_VANILLA_BLACK.presentValue(vanillaP, smile);
     final MultipleCurrencyAmount pvM = METHOD_VANILLA_BLACK.presentValue(vanillaM, smile);
-    final MultipleCurrencyAmount pvExpected = pvM.plus(pvP.multipliedBy(-1.0)).multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
+    final MultipleCurrencyAmount pvExpected = pvM.plus(pvP.multipliedBy(-1.0))
+        .multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
     final MultipleCurrencyAmount pvComputed = METHOD_DIGITAL_SPREAD.presentValue(FOREX_DIGITAL_CALL_DOM, smile);
     assertEquals("Forex Digital option: call spread method - present value", pvExpected.getAmount(USD), pvComputed.getAmount(USD), TOLERANCE_PV);
   }
@@ -160,7 +162,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(9), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
     final ForexOptionDigitalDefinition callDefinition = new ForexOptionDigitalDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
@@ -182,7 +184,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(9), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
     final ForexOptionDigitalDefinition callDefinition = new ForexOptionDigitalDefinition(forexUnderlyingDefinition, expDate, isCall, isLong, false);
@@ -236,7 +238,8 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, FOREX_DIGITAL_CALL_DOM.getExpirationTime(), IS_CALL, IS_LONG);
     final MultipleCurrencyAmount ceP = METHOD_VANILLA_BLACK.currencyExposure(vanillaP, SMILE_MULTICURVES);
     final MultipleCurrencyAmount ceM = METHOD_VANILLA_BLACK.currencyExposure(vanillaM, SMILE_MULTICURVES);
-    final MultipleCurrencyAmount ceExpected = ceM.plus(ceP.multipliedBy(-1.0)).multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
+    final MultipleCurrencyAmount ceExpected = ceM.plus(ceP.multipliedBy(-1.0))
+        .multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
     final MultipleCurrencyAmount ceComputed = METHOD_DIGITAL_SPREAD.currencyExposure(FOREX_DIGITAL_CALL_DOM, SMILE_MULTICURVES);
     assertEquals("Forex Digital option: call spread method - currency exposure", ceExpected.getAmount(USD), ceComputed.getAmount(USD), TOLERANCE_PV);
     assertEquals("Forex Digital option: call spread method - currency exposure", ceExpected.getAmount(EUR), ceComputed.getAmount(EUR), TOLERANCE_PV);
@@ -253,10 +256,10 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final double strikeRelM = 1.0 / strikeP;
     final double strikeRelP = 1.0 / strikeM;
     final double amount = amountPaid / (strikeRelP - strikeRelM);
-    final Forex forexM = new Forex(FOREX_DIGITAL_CALL_FOR.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), FOREX_DIGITAL_CALL_FOR.getUnderlyingForex().getPaymentCurrency1()
-        .withAmount(-strikeRelM * amount));
-    final Forex forexP = new Forex(FOREX_DIGITAL_CALL_FOR.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), FOREX_DIGITAL_CALL_FOR.getUnderlyingForex().getPaymentCurrency1()
-        .withAmount(-strikeRelP * amount));
+    final Forex forexM = new Forex(FOREX_DIGITAL_CALL_FOR.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), FOREX_DIGITAL_CALL_FOR.getUnderlyingForex()
+        .getPaymentCurrency1().withAmount(-strikeRelM * amount));
+    final Forex forexP = new Forex(FOREX_DIGITAL_CALL_FOR.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), FOREX_DIGITAL_CALL_FOR.getUnderlyingForex()
+        .getPaymentCurrency1().withAmount(-strikeRelP * amount));
     final ForexOptionVanilla vanillaM = new ForexOptionVanilla(forexM, FOREX_DIGITAL_CALL_FOR.getExpirationTime(), !IS_CALL, false);
     final ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, FOREX_DIGITAL_CALL_FOR.getExpirationTime(), !IS_CALL, true);
     final MultipleCurrencyAmount ceP = METHOD_VANILLA_BLACK.currencyExposure(vanillaP, SMILE_MULTICURVES);
@@ -274,15 +277,16 @@ public class ForexOptionDigitalCallSpreadMethodTest {
   public void currencyExposureForeign2() {
     final double shift = 0.000005;
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT + shift);
-    MulticurveProviderDiscount multicurvesP = MULTICURVES.copy();
+    final MulticurveProviderDiscount multicurvesP = MULTICURVES.copy();
     multicurvesP.setForexMatrix(fxMatrixP);
     final BlackForexSmileProviderDiscount smileP = new BlackForexSmileProviderDiscount(multicurvesP, SMILE_TERM_FLAT, Pair.of(EUR, USD));
     final MultipleCurrencyAmount ce = METHOD_DIGITAL_SPREAD.currencyExposure(FOREX_DIGITAL_CALL_FOR, SMILE_FLAT_MULTICURVES);
     final MultipleCurrencyAmount pv = METHOD_DIGITAL_SPREAD.presentValue(FOREX_DIGITAL_CALL_FOR, SMILE_FLAT_MULTICURVES);
     final MultipleCurrencyAmount pvP = METHOD_DIGITAL_SPREAD.presentValue(FOREX_DIGITAL_CALL_FOR, smileP);
-    assertEquals("Forex Digital option: call spread method - currency exposure - PL EUR", pvP.getAmount(EUR) - pv.getAmount(EUR), ce.getAmount(USD) * (1.0 / (SPOT + shift) - 1 / SPOT), TOLERANCE_PV);
-    assertEquals("Forex Digital option: call spread method - currency exposure - PL USD", pvP.getAmount(EUR) * (SPOT + shift) - pv.getAmount(EUR) * SPOT, ce.getAmount(EUR) * (SPOT + shift - SPOT),
-        TOLERANCE_PV);
+    assertEquals("Forex Digital option: call spread method - currency exposure - PL EUR", pvP.getAmount(EUR) - pv.getAmount(EUR), ce.getAmount(USD)
+        * (1.0 / (SPOT + shift) - 1 / SPOT), TOLERANCE_PV);
+    assertEquals("Forex Digital option: call spread method - currency exposure - PL USD", pvP.getAmount(EUR) * (SPOT + shift) - pv.getAmount(EUR) * SPOT,
+        ce.getAmount(EUR) * (SPOT + shift - SPOT), TOLERANCE_PV);
   }
 
   @Test
@@ -292,7 +296,8 @@ public class ForexOptionDigitalCallSpreadMethodTest {
   public void currencyExposureVsPresentValue() {
     final MultipleCurrencyAmount pv = METHOD_DIGITAL_SPREAD.presentValue(FOREX_DIGITAL_CALL_DOM, SMILE_MULTICURVES);
     final MultipleCurrencyAmount ce = METHOD_DIGITAL_SPREAD.currencyExposure(FOREX_DIGITAL_CALL_DOM, SMILE_MULTICURVES);
-    assertEquals("Forex Digital option: call spread method - currency exposure vs present value", ce.getAmount(USD) + ce.getAmount(EUR) * SPOT, pv.getAmount(USD), TOLERANCE_PV);
+    assertEquals("Forex Digital option: call spread method - currency exposure vs present value", ce.getAmount(USD) + ce.getAmount(EUR) * SPOT, pv.getAmount(USD),
+        TOLERANCE_PV);
   }
 
   @Test
@@ -304,7 +309,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(9), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
     final ForexOptionDigitalDefinition forexOptionDefinitionCall = new ForexOptionDigitalDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
@@ -314,9 +319,10 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final MultipleCurrencyAmount currencyExposureCall = METHOD_DIGITAL_SPREAD.currencyExposure(forexOptionCall, SMILE_MULTICURVES);
     final MultipleCurrencyAmount currencyExposurePut = METHOD_DIGITAL_SPREAD.currencyExposure(forexOptionPut, SMILE_MULTICURVES);
     final MultipleCurrencyAmount pvCash = forexOptionPut.getUnderlyingForex().getPaymentCurrency2().accept(PVDC, MULTICURVES);
-    assertEquals("Forex Digital option: currency exposure put/call parity foreign", 0, currencyExposureCall.getAmount(EUR) + currencyExposurePut.getAmount(EUR), TOLERANCE_PV);
-    assertEquals("Forex Digital option: currency exposure put/call parity domestic", Math.abs(pvCash.getAmount(USD)), currencyExposureCall.getAmount(USD) + currencyExposurePut.getAmount(USD),
+    assertEquals("Forex Digital option: currency exposure put/call parity foreign", 0, currencyExposureCall.getAmount(EUR) + currencyExposurePut.getAmount(EUR),
         TOLERANCE_PV);
+    assertEquals("Forex Digital option: currency exposure put/call parity domestic", Math.abs(pvCash.getAmount(USD)), currencyExposureCall.getAmount(USD)
+        + currencyExposurePut.getAmount(USD), TOLERANCE_PV);
   }
 
   @Test
@@ -328,7 +334,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final boolean isCall = true;
     final boolean isLong = true;
     final double notional = 100000000;
-    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(9), BUSINESS_DAY, CALENDAR);
     final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
     final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
     final ForexOptionDigitalDefinition forexOptionDefinitionCall = new ForexOptionDigitalDefinition(forexUnderlyingDefinition, expDate, isCall, isLong, false);
@@ -338,9 +344,10 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final MultipleCurrencyAmount currencyExposureCall = METHOD_DIGITAL_SPREAD.currencyExposure(forexOptionCall, SMILE_MULTICURVES);
     final MultipleCurrencyAmount currencyExposurePut = METHOD_DIGITAL_SPREAD.currencyExposure(forexOptionPut, SMILE_MULTICURVES);
     final MultipleCurrencyAmount pvCash = forexOptionPut.getUnderlyingForex().getPaymentCurrency1().accept(PVDC, MULTICURVES);
-    assertEquals("Forex Digital option: currency exposure put/call parity foreign", 0, currencyExposureCall.getAmount(USD) + currencyExposurePut.getAmount(USD), TOLERANCE_PV);
-    assertEquals("Forex Digital option: currency exposure put/call parity domestic", Math.abs(pvCash.getAmount(EUR)), currencyExposureCall.getAmount(EUR) + currencyExposurePut.getAmount(EUR),
+    assertEquals("Forex Digital option: currency exposure put/call parity foreign", 0, currencyExposureCall.getAmount(USD) + currencyExposurePut.getAmount(USD),
         TOLERANCE_PV);
+    assertEquals("Forex Digital option: currency exposure put/call parity domestic", Math.abs(pvCash.getAmount(EUR)), currencyExposureCall.getAmount(EUR)
+        + currencyExposurePut.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test
@@ -375,10 +382,10 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final double strikeRelM = 1.0 / strikeP;
     final double strikeRelP = 1.0 / strikeM;
     final double amount = amountPaid / (strikeRelP - strikeRelM);
-    final Forex forexM = new Forex(digitalForeign.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), digitalForeign.getUnderlyingForex().getPaymentCurrency1()
-        .withAmount(-strikeRelM * amount));
-    final Forex forexP = new Forex(digitalForeign.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), digitalForeign.getUnderlyingForex().getPaymentCurrency1()
-        .withAmount(-strikeRelP * amount));
+    final Forex forexM = new Forex(digitalForeign.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), digitalForeign.getUnderlyingForex()
+        .getPaymentCurrency1().withAmount(-strikeRelM * amount));
+    final Forex forexP = new Forex(digitalForeign.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), digitalForeign.getUnderlyingForex()
+        .getPaymentCurrency1().withAmount(-strikeRelP * amount));
     final ForexOptionVanilla vanillaM = new ForexOptionVanilla(forexM, digitalForeign.getExpirationTime(), !IS_CALL, false);
     final ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, digitalForeign.getExpirationTime(), !IS_CALL, true);
     final CurrencyAmount gammaP = METHOD_VANILLA_BLACK.gamma(vanillaP, SMILE_MULTICURVES, false);
@@ -420,10 +427,10 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final double strikeRelM = 1.0 / strikeP;
     final double strikeRelP = 1.0 / strikeM;
     final double amount = amountPaid / (strikeRelP - strikeRelM);
-    final Forex forexM = new Forex(digitalForeign.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), digitalForeign.getUnderlyingForex().getPaymentCurrency1()
-        .withAmount(-strikeRelM * amount));
-    final Forex forexP = new Forex(digitalForeign.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), digitalForeign.getUnderlyingForex().getPaymentCurrency1()
-        .withAmount(-strikeRelP * amount));
+    final Forex forexM = new Forex(digitalForeign.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), digitalForeign.getUnderlyingForex()
+        .getPaymentCurrency1().withAmount(-strikeRelM * amount));
+    final Forex forexP = new Forex(digitalForeign.getUnderlyingForex().getPaymentCurrency2().withAmount(amount), digitalForeign.getUnderlyingForex()
+        .getPaymentCurrency1().withAmount(-strikeRelP * amount));
     final ForexOptionVanilla vanillaM = new ForexOptionVanilla(forexM, digitalForeign.getExpirationTime(), !IS_CALL, false);
     final ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, digitalForeign.getExpirationTime(), !IS_CALL, true);
     final CurrencyAmount gammaP = METHOD_VANILLA_BLACK.gammaSpot(vanillaP, SMILE_MULTICURVES, false);
@@ -474,7 +481,8 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, FOREX_DIGITAL_CALL_DOM.getExpirationTime(), IS_CALL, !IS_LONG);
     final MultipleCurrencyMulticurveSensitivity pvcsP = METHOD_VANILLA_BLACK.presentValueCurveSensitivity(vanillaP, SMILE_MULTICURVES);
     final MultipleCurrencyMulticurveSensitivity pvcsM = METHOD_VANILLA_BLACK.presentValueCurveSensitivity(vanillaM, SMILE_MULTICURVES);
-    final MultipleCurrencyMulticurveSensitivity pvcsExpected = pvcsM.plus(pvcsP).multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
+    final MultipleCurrencyMulticurveSensitivity pvcsExpected = pvcsM.plus(pvcsP).multipliedBy(
+        1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
     final MultipleCurrencyMulticurveSensitivity pvcsComputed = METHOD_DIGITAL_SPREAD.presentValueCurveSensitivity(FOREX_DIGITAL_CALL_DOM, SMILE_MULTICURVES);
     AssertSensivityObjects.assertEquals("Forex Digital option: call spread method - present value", pvcsExpected, pvcsComputed, TOLERANCE_DELTA);
   }
@@ -492,10 +500,13 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, FOREX_DIGITAL_CALL_DOM.getExpirationTime(), IS_CALL, IS_LONG);
     final PresentValueForexBlackVolatilitySensitivity pvbvP = METHOD_VANILLA_BLACK.presentValueBlackVolatilitySensitivity(vanillaP, SMILE_MULTICURVES);
     final PresentValueForexBlackVolatilitySensitivity pvbvM = METHOD_VANILLA_BLACK.presentValueBlackVolatilitySensitivity(vanillaM, SMILE_MULTICURVES);
-    final PresentValueForexBlackVolatilitySensitivity pvbvExpected = pvbvM.plus(pvbvP.multipliedBy(-1.0)).multipliedBy(1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
-    final PresentValueForexBlackVolatilitySensitivity pvbvComputed = METHOD_DIGITAL_SPREAD.presentValueBlackVolatilitySensitivity(FOREX_DIGITAL_CALL_DOM, SMILE_MULTICURVES);
+    final PresentValueForexBlackVolatilitySensitivity pvbvExpected = pvbvM.plus(pvbvP.multipliedBy(-1.0)).multipliedBy(
+        1.0 / (strikeP - strikeM) * Math.abs(FOREX.getPaymentCurrency2().getAmount()));
+    final PresentValueForexBlackVolatilitySensitivity pvbvComputed = METHOD_DIGITAL_SPREAD.presentValueBlackVolatilitySensitivity(FOREX_DIGITAL_CALL_DOM,
+        SMILE_MULTICURVES);
     assertEquals("Forex Digital option: call spread method - present value volatility sensitivity", pvbvComputed.getVega().getMap().size(), 2);
-    assertTrue("Forex Digital option: call spread method - present value volatility sensitivity", PresentValueForexBlackVolatilitySensitivity.compare(pvbvExpected, pvbvComputed, TOLERANCE_DELTA));
+    assertTrue("Forex Digital option: call spread method - present value volatility sensitivity",
+        PresentValueForexBlackVolatilitySensitivity.compare(pvbvExpected, pvbvComputed, TOLERANCE_DELTA));
   }
 
   @Test
@@ -566,24 +577,28 @@ public class ForexOptionDigitalCallSpreadMethodTest {
   public void presentValueBlackVolatilityNodeSensitivity() {
     final double strikeM = STRIKE * (1 - CALL_SPREAD);
     final double strikeP = STRIKE * (1 + CALL_SPREAD);
-    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle sensi = METHOD_DIGITAL_SPREAD.presentValueBlackVolatilityNodeSensitivity(FOREX_DIGITAL_CALL_DOM, SMILE_MULTICURVES);
+    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle sensi = METHOD_DIGITAL_SPREAD.presentValueBlackVolatilityNodeSensitivity(FOREX_DIGITAL_CALL_DOM,
+        SMILE_MULTICURVES);
     assertEquals("Forex vanilla option: vega node size", SMILE_TERM.getNumberExpiration(), sensi.getVega().getData().length);
     assertEquals("Forex vanilla option: vega node size", SMILE_TERM.getNumberStrike(), sensi.getVega().getData()[0].length);
     final Pair<Currency, Currency> currencyPair = ObjectsPair.of(EUR, USD);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
-    final PresentValueForexBlackVolatilitySensitivity pointSensitivity = METHOD_DIGITAL_SPREAD.presentValueBlackVolatilitySensitivity(FOREX_DIGITAL_CALL_DOM, SMILE_MULTICURVES);
+    final PresentValueForexBlackVolatilitySensitivity pointSensitivity = METHOD_DIGITAL_SPREAD.presentValueBlackVolatilitySensitivity(FOREX_DIGITAL_CALL_DOM,
+        SMILE_MULTICURVES);
     final double df = MULTICURVES.getDiscountFactor(USD, TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE));
     final double forward = SPOT * MULTICURVES.getDiscountFactor(EUR, TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE)) / df;
-    final VolatilityAndBucketedSensitivities volAndSensitivitiesDown = SMILE_TERM.getVolatilityAndSensitivities(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strikeM, forward);
-    final VolatilityAndBucketedSensitivities volAndSensitivitiesUp = SMILE_TERM.getVolatilityAndSensitivities(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strikeP, forward);
+    final VolatilityAndBucketedSensitivities volAndSensitivitiesDown = SMILE_TERM.getVolatilityAndSensitivities(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strikeM,
+        forward);
+    final VolatilityAndBucketedSensitivities volAndSensitivitiesUp = SMILE_TERM.getVolatilityAndSensitivities(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strikeP,
+        forward);
     final double[][] nodeWeightM = volAndSensitivitiesDown.getBucketedSensitivities();
     final double[][] nodeWeightP = volAndSensitivitiesUp.getBucketedSensitivities();
     final DoublesPair pointM = DoublesPair.of(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strikeM);
     final DoublesPair pointP = DoublesPair.of(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strikeP);
     for (int loopexp = 0; loopexp < SMILE_TERM.getNumberExpiration(); loopexp++) {
       for (int loopstrike = 0; loopstrike < SMILE_TERM.getNumberStrike(); loopstrike++) {
-        assertEquals("Forex vanilla digital: vega node", nodeWeightM[loopexp][loopstrike] * pointSensitivity.getVega().getMap().get(pointM) + nodeWeightP[loopexp][loopstrike]
-            * pointSensitivity.getVega().getMap().get(pointP), sensi.getVega().getData()[loopexp][loopstrike], TOLERANCE_DELTA);
+        assertEquals("Forex vanilla digital: vega node", nodeWeightM[loopexp][loopstrike] * pointSensitivity.getVega().getMap().get(pointM)
+            + nodeWeightP[loopexp][loopstrike] * pointSensitivity.getVega().getMap().get(pointP), sensi.getVega().getData()[loopexp][loopstrike], TOLERANCE_DELTA);
       }
     }
   }
@@ -619,8 +634,8 @@ public class ForexOptionDigitalCallSpreadMethodTest {
    * Analyzes the profile for digital options.
    */
   public void profile() {
-    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
-        Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+    final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
+        Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     final SmileDeltaTermStructureParametersStrikeInterpolation smileTerm = TestsDataSetsForex.smile5points(REFERENCE_DATE, interpolator);
     final BlackForexSmileProviderDiscount smile = new BlackForexSmileProviderDiscount(MULTICURVES, smileTerm, Pair.of(EUR, USD));
 

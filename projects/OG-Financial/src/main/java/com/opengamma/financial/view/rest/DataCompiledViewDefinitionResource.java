@@ -13,6 +13,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
+import org.threeten.bp.Instant;
+
 import com.google.common.collect.Lists;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
@@ -79,13 +81,15 @@ public class DataCompiledViewDefinitionResource extends AbstractDataResource {
   @GET
   @Path(PATH_VALID_FROM)
   public Response getValidFrom() {
-    return responseOkFudge(_compiledViewDefinition.getValidFrom());
+    Instant validFrom = _compiledViewDefinition.getValidFrom();
+    return validFrom != null ? responseOkFudge(validFrom) : responseOkNoContent();
   }
   
   @GET
   @Path(PATH_VALID_TO)
   public Response getValidTo() {
-    return responseOkFudge(_compiledViewDefinition.getValidTo());
+    Instant validTo = _compiledViewDefinition.getValidTo();
+    return validTo != null ? responseOkFudge(validTo) : responseOkNoContent();
   }
   
   @Path(PATH_GRAPHS + "/{calcConfigName}")

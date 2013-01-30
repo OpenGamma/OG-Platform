@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.swaption.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -52,7 +51,7 @@ public class SwaptionCashFixedIborG2ppMethodTest {
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final int SPOT_LAG = EURIBOR3M.getSpotLag();
   private static final int SWAP_TENOR_YEAR = 5;
-  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
+  private static final Period SWAP_TENOR = DateUtils.periodOfYears(SWAP_TENOR_YEAR);
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final IndexSwap CMS_INDEX = new IndexSwap(EUR1YEURIBOR6M, SWAP_TENOR);
   private static final ZonedDateTime EXPIRY_DATE = DateUtils.getUTCDate(2016, 7, 7);
@@ -90,8 +89,8 @@ public class SwaptionCashFixedIborG2ppMethodTest {
    * Tests the present value vs a physical delivery swaption.
    */
   public void physical() {
-    MultipleCurrencyAmount pvPhys = METHOD_G2PP_PHYS_APPROXIMATION.presentValue(SWAPTION_PHYS_PAYER_LONG, G2PP_MULTICURVES);
-    MultipleCurrencyAmount pvCash = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvPhys = METHOD_G2PP_PHYS_APPROXIMATION.presentValue(SWAPTION_PHYS_PAYER_LONG, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvCash = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
     assertEquals("Swaption physical - G2++ - present value - hard coded value", pvPhys.getAmount(EUR), pvCash.getAmount(EUR), 2.0E+5);
   }
 
@@ -100,8 +99,8 @@ public class SwaptionCashFixedIborG2ppMethodTest {
    * Test the present value vs a hard-coded value.
    */
   public void presentValue() {
-    MultipleCurrencyAmount pv = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
-    double pvExpected = 1583688.804;
+    final MultipleCurrencyAmount pv = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
+    final double pvExpected = 1583688.804;
     assertEquals("Swaption physical - G2++ - present value - hard coded value", pvExpected, pv.getAmount(EUR), 1E-2);
   }
 
@@ -110,11 +109,11 @@ public class SwaptionCashFixedIborG2ppMethodTest {
    * Tests long/short parity.
    */
   public void longShortParity() {
-    MultipleCurrencyAmount pvPayerLong = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
-    MultipleCurrencyAmount pvPayerShort = METHOD_G2PP_NI.presentValue(SWAPTION_SHORT_PAYER, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerLong = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_PAYER, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvPayerShort = METHOD_G2PP_NI.presentValue(SWAPTION_SHORT_PAYER, G2PP_MULTICURVES);
     assertEquals("Swaption physical - G2++ - present value - long/short parity", pvPayerLong.getAmount(EUR), -pvPayerShort.getAmount(EUR), TOLERANCE_PV);
-    MultipleCurrencyAmount pvReceiverLong = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_RECEIVER, G2PP_MULTICURVES);
-    MultipleCurrencyAmount pvReceiverShort = METHOD_G2PP_NI.presentValue(SWAPTION_SHORT_RECEIVER, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvReceiverLong = METHOD_G2PP_NI.presentValue(SWAPTION_LONG_RECEIVER, G2PP_MULTICURVES);
+    final MultipleCurrencyAmount pvReceiverShort = METHOD_G2PP_NI.presentValue(SWAPTION_SHORT_RECEIVER, G2PP_MULTICURVES);
     assertEquals("Swaption physical - G2++ - present value - long/short parity", pvReceiverLong.getAmount(EUR), -pvReceiverShort.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -126,7 +125,7 @@ public class SwaptionCashFixedIborG2ppMethodTest {
     long startTime, endTime;
     final int nbTest = 100;
 
-    MultipleCurrencyAmount[] pvPayerLongNI = new MultipleCurrencyAmount[nbTest];
+    final MultipleCurrencyAmount[] pvPayerLongNI = new MultipleCurrencyAmount[nbTest];
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {

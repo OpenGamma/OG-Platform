@@ -24,6 +24,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #endif
 #include <assert.h>
 

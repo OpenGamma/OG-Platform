@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 /**
  * Base class for monitoring a collection of {@code AbstractRestfulJmsResultPublisher} resources and expiring those
@@ -42,7 +42,7 @@ public abstract class AbstractRestfulJmsResultPublisherExpiryJob<T extends Abstr
   
   //-------------------------------------------------------------------------
   private void removeStaleResources() {
-    Instant timeoutBefore = Instant.now().minus(getResourceTimeoutMillis(), TimeUnit.MILLISECONDS);
+    Instant timeoutBefore = Instant.now().minusMillis(getResourceTimeoutMillis());
     Collection<T> currentResources = getResources();
     Iterator<T> iterator = currentResources.iterator();
     while (iterator.hasNext()) {

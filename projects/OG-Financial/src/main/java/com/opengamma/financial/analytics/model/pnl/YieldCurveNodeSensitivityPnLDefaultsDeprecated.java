@@ -12,8 +12,8 @@ import java.util.Set;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -126,11 +126,6 @@ public class YieldCurveNodeSensitivityPnLDefaultsDeprecated extends DefaultPrope
   @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.PNL_SERIES;
-  }
-
-  @Override
-  public PriorityClass getPriority() {
-    return PriorityClass.NORMAL;
   }
 
 }

@@ -9,16 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
-import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.master.holiday.HolidayDocument;
-import com.opengamma.master.holiday.ManageableHoliday;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
@@ -56,7 +52,7 @@ public class DbHistoricalTimeSeriesMasterWorkerAddTest extends AbstractDbHistori
 
   @Test
   public void test_add_add() {
-    Instant now = Instant.now(_htsMaster.getTimeSource());
+    Instant now = Instant.now(_htsMaster.getClock());
     
     ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
     info.setName("Added");

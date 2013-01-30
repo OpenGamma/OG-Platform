@@ -33,6 +33,7 @@ import com.opengamma.livedata.LiveDataValueUpdate;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
+import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -47,6 +48,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
   private final LiveDataClient _liveDataClient;
   private final SecuritySource _securitySource;
   private final MarketDataAvailabilityProvider _availabilityProvider;
+  private final LiveDataSpecificationLookup _liveDataLookup;
 
   // Runtime State:
   private final InMemoryLKVMarketDataProvider _underlyingProvider;
@@ -78,6 +80,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
     ArgumentChecker.notNull(permissionProvider, "permissionProvider");
     ArgumentChecker.notNull(marketDataUser, "marketDataUser");
     _liveDataClient = liveDataClient;
+    _liveDataLookup = new LiveDataSpecificationLookup(securitySource, StandardRules.getOpenGammaRuleSetId());
     _securitySource = securitySource;
     _availabilityProvider = availabilityProvider;
     _underlyingProvider = new InMemoryLKVMarketDataProvider(securitySource);
@@ -85,7 +88,10 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
     _marketDataUser = marketDataUser;
   }
 
-  //-------------------------------------------------------------------------
+  private LiveDataSpecificationLookup getLiveDataSpecificationLookup() {
+    return _liveDataLookup;
+  }
+
   @Override
   public void subscribe(ValueRequirement valueRequirement) {
     subscribe(Collections.singleton(valueRequirement));
@@ -99,7 +105,7 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
 
     Set<LiveDataSpecification> liveDataSpecs = new HashSet<LiveDataSpecification>();
     for (ValueRequirement requirement : valueRequirements) {
-      LiveDataSpecification liveDataSpec = requirement.getTargetSpecification().getRequiredLiveData(_securitySource);
+      LiveDataSpecification liveDataSpec = getLiveDataSpecificationLookup().getRequiredLiveData(requirement);
       liveDataSpecs.add(liveDataSpec);
       registerLiveDataSpec(requirement, liveDataSpec);
     }
@@ -163,7 +169,12 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
       return;
     }
     if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
-      _liveDataSpec2ValueRequirements.put(subscriptionResult.getFullyQualifiedSpecification(), valueRequirements);
+      Set<ValueRequirement> existingSatisfiedRequirements = _liveDataSpec2ValueRequirements.get(subscriptionResult.getFullyQualifiedSpecification());
+      if (existingSatisfiedRequirements != null) {
+        existingSatisfiedRequirements.addAll(valueRequirements);
+      } else {
+        _liveDataSpec2ValueRequirements.put(subscriptionResult.getFullyQualifiedSpecification(), valueRequirements);
+      }
       _failedRequirements.removeAll(valueRequirements); //We expect a valueUpdate call for this later
       s_logger.debug("Subscription made to {} resulted in fully qualified {}", subscriptionResult.getRequestedSpecification(), subscriptionResult.getFullyQualifiedSpecification());
 

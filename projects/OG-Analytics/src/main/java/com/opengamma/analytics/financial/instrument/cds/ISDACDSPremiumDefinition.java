@@ -8,7 +8,7 @@ package com.opengamma.analytics.financial.instrument.cds;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.cds.ISDACDSCoupon;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSPremium;

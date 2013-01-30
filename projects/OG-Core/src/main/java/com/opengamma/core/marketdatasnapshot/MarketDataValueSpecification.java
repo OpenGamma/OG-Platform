@@ -11,7 +11,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -29,19 +29,19 @@ public final class MarketDataValueSpecification {
   /**
    * The identifier of the target.
    */
-  private final UniqueId _uniqueId;
+  private final ExternalId _identifier;
 
   /**
    * Creates an instance for a type of market data and a unique identifier.
    * 
-   * @param type  the type of market data this refers to, not null
-   * @param uniqueId  the unique identifier of the data this refers to, not null
+   * @param type the type of market data this refers to, not null
+   * @param identifier an identifier of the data this refers to, for example a ticker, not null
    */
-  public MarketDataValueSpecification(MarketDataValueType type, UniqueId uniqueId) {
+  public MarketDataValueSpecification(MarketDataValueType type, ExternalId identifier) {
     ArgumentChecker.notNull(type, "type");
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(identifier, "identifier");
     _type = type;
-    _uniqueId = uniqueId;
+    _identifier = identifier;
   }
 
   //-------------------------------------------------------------------------
@@ -55,12 +55,12 @@ public final class MarketDataValueSpecification {
   }
 
   /**
-   * Gets the unique identifier.
+   * Gets the identifier of the data.
    * 
-   * @return the unique identifier
+   * @return the identifier
    */
-  public UniqueId getUniqueId() {
-    return _uniqueId;
+  public ExternalId getIdentifier() {
+    return _identifier;
   }
 
   //-------------------------------------------------------------------------
@@ -80,7 +80,7 @@ public final class MarketDataValueSpecification {
     if (object instanceof MarketDataValueSpecification) {
       MarketDataValueSpecification other = (MarketDataValueSpecification) object;
       return ObjectUtils.equals(getType(), other.getType()) &&
-              ObjectUtils.equals(getUniqueId(), other.getUniqueId());
+              ObjectUtils.equals(getIdentifier(), other.getIdentifier());
     }
     return false;
   }
@@ -92,7 +92,7 @@ public final class MarketDataValueSpecification {
    */
   @Override
   public int hashCode() {
-    return ObjectUtils.hashCode(getType()) ^ ObjectUtils.hashCode(getUniqueId());
+    return ObjectUtils.hashCode(getType()) ^ ObjectUtils.hashCode(getIdentifier());
   }
 
   /**
@@ -110,14 +110,15 @@ public final class MarketDataValueSpecification {
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     final MutableFudgeMsg msg = serializer.newMessage();
     msg.add("type", null, _type.name());
-    serializer.addToMessage(msg, "uniqueId", null, _uniqueId);
+    serializer.addToMessage(msg, "uniqueId", null, _identifier);
+    // TODO: the field should be called identifier, not uniqueId, if it's an external identifier
     return msg;
   }
 
   public static MarketDataValueSpecification fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
     MarketDataValueType type = deserializer.fieldValueToObject(MarketDataValueType.class, msg.getByName("type"));
-    UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, msg.getByName("uniqueId"));
-    return new MarketDataValueSpecification(type, uniqueId);
+    ExternalId identifier = deserializer.fieldValueToObject(ExternalId.class, msg.getByName("uniqueId"));
+    return new MarketDataValueSpecification(type, identifier);
   }
 
 }

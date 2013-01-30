@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.transport.DirectFudgeConnection;
@@ -56,8 +56,8 @@ public class RemoteCacheRequestResponseTest {
 
     final ValueSpecification[] valueSpec = new ValueSpecification[10];
     for (int i = 0; i < valueSpec.length; i++) {
-      valueSpec[i] = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Kirk", "Value" + i))),
-          "mockFunctionId");
+      valueSpec[i] = new ValueSpecification("Test Value", ComputationTargetSpecification.of(UniqueId.of("Kirk", "Value" + i)),
+          ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId").get());
     }
     // Make single value calls
     s_logger.debug("Begin single value lookup");
@@ -93,16 +93,16 @@ public class RemoteCacheRequestResponseTest {
     Map<String, Long> _idsByValueName = new HashMap<String, Long>();
     for (int i = 0; i < 10; i++) {
       String valueName = "Value" + i;
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Kirk",
-          valueName))), "mockFunctionId");
+      ValueSpecification valueSpec = new ValueSpecification("Test Value",
+          ComputationTargetSpecification.of(UniqueId.of("Kirk", valueName)), ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId").get());
       long id = identifierMap.getIdentifier(valueSpec);
       _idsByValueName.put(valueName, id);
     }
 
     for (int i = 0; i < 10; i++) {
       String valueName = "Value" + i;
-      ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Kirk",
-          valueName))), "mockFunctionId");
+      ValueSpecification valueSpec = new ValueSpecification("Test Value",
+          ComputationTargetSpecification.of(UniqueId.of("Kirk", valueName)), ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId").get());
       long id = identifierMap.getIdentifier(valueSpec);
       assertEquals(_idsByValueName.get(valueName), new Long(id));
     }
@@ -131,8 +131,8 @@ public class RemoteCacheRequestResponseTest {
             for (int j = 0; j < 1000; j++) {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
-              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Kirk",
-                  valueName))), "mockFunctionId");
+              ValueSpecification valueSpec = new ValueSpecification("Test Value",
+                  ComputationTargetSpecification.of(UniqueId.of("Kirk", valueName)), ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId").get());
               long id = identifierMap.getIdentifier(valueSpec);
               Long previousValue = _idsByValueName.putIfAbsent(valueName, id);
               if (previousValue != null) {
@@ -166,19 +166,19 @@ public class RemoteCacheRequestResponseTest {
     final AtomicBoolean failed = new AtomicBoolean(false);
     List<Thread> threads = new ArrayList<Thread>();
     for (int i = 0; i < 10; i++) {
-      final DirectFudgeConnection conduit = new DirectFudgeConnection (cache.getFudgeContext ());
-      conduit.connectEnd2 (server);
+      final DirectFudgeConnection conduit = new DirectFudgeConnection(cache.getFudgeContext());
+      conduit.connectEnd2(server);
       Thread t = new Thread(new Runnable() {
         @Override
         public void run() {
-          final RemoteCacheClient client = new RemoteCacheClient(conduit.getEnd1 ());
+          final RemoteCacheClient client = new RemoteCacheClient(conduit.getEnd1());
           final IdentifierMap identifierMap = new RemoteIdentifierMap(client);
           try {
             for (int j = 0; j < 1000; j++) {
               int randomValue = rand.nextInt(100);
               String valueName = "Value" + randomValue;
-              ValueSpecification valueSpec = new ValueSpecification(new ValueRequirement("Test Value", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Kirk",
-                  valueName))), "mockFunctionId");
+              ValueSpecification valueSpec = new ValueSpecification("Test Value",
+                  ComputationTargetSpecification.of(UniqueId.of("Kirk", valueName)), ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId").get());
               long id = identifierMap.getIdentifier(valueSpec);
               Long previousValue = _idsByValueName.putIfAbsent(valueName, id);
               if (previousValue != null) {
@@ -207,8 +207,8 @@ public class RemoteCacheRequestResponseTest {
   public void singleThreadPutLoad() throws InterruptedException {
     InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(s_fudgeContext);
     ViewComputationCacheServer server = new ViewComputationCacheServer(cache);
-    DirectFudgeConnection conduit = new DirectFudgeConnection (cache.getFudgeContext ());
-    conduit.connectEnd2  (server);
+    DirectFudgeConnection conduit = new DirectFudgeConnection(cache.getFudgeContext());
+    conduit.connectEnd2(server);
     RemoteCacheClient client = new RemoteCacheClient(conduit.getEnd1());
     FudgeMessageStore dataStore = new RemoteFudgeMessageStore(client, new ViewComputationCacheKey(UniqueId.of("Test", "ViewCycle1"), "Config1"));
 
@@ -253,8 +253,8 @@ public class RemoteCacheRequestResponseTest {
   public void singleThreadPutLoadPurgeLoad() throws InterruptedException {
     InMemoryViewComputationCacheSource cache = new InMemoryViewComputationCacheSource(s_fudgeContext);
     ViewComputationCacheServer server = new ViewComputationCacheServer(cache);
-    DirectFudgeConnection conduit = new DirectFudgeConnection (cache.getFudgeContext ());
-    conduit.connectEnd2 (server);
+    DirectFudgeConnection conduit = new DirectFudgeConnection(cache.getFudgeContext());
+    conduit.connectEnd2(server);
     RemoteCacheClient client = new RemoteCacheClient(conduit.getEnd1());
     FudgeMessageStore dataStore = new RemoteFudgeMessageStore(client, new ViewComputationCacheKey(
         UniqueId.of("Test", "ViewCycle1"), "Config1"));

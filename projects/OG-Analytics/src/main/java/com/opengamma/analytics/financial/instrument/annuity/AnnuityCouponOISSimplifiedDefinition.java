@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.annuity;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;

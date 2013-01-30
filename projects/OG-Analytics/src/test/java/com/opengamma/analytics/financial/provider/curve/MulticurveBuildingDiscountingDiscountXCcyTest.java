@@ -13,11 +13,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.generator.GeneratorYDCurve;
@@ -116,8 +115,8 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
   private static final IborIndex USDLIBOR3M = USD6MLIBOR3M.getIborIndex();
   private static final IborIndex JPYLIBOR6M = JPY6MLIBOR6M.getIborIndex();
   private static final IborIndex JPYLIBOR3M = IndexIborMaster.getInstance().getIndex("JPYLIBOR3M", TARGET);
-  private static final IborIndex EUROLIBOR3M = new IborIndex(EUR, Period.ofMonths(3), 2, TARGET, EURIBOR3M.getDayCount(), EURIBOR3M.getBusinessDayConvention(), true, "EUROLIBOR3M");
-  //  private static final IborIndex EUROLIBOR6M = new IborIndex(EUR, Period.ofMonths(6), 2, TARGET, EURIBOR6M.getDayCount(), EURIBOR6M.getBusinessDayConvention(), true, "EUROLIBOR6M");
+  private static final IborIndex EUROLIBOR3M = new IborIndex(EUR, DateUtils.periodOfMonths(3), 2, TARGET, EURIBOR3M.getDayCount(), EURIBOR3M.getBusinessDayConvention(), true, "EUROLIBOR3M");
+  //  private static final IborIndex EUROLIBOR6M = new IborIndex(EUR, DateUtils.periodOfMonths(6), 2, TARGET, EURIBOR6M.getDayCount(), EURIBOR6M.getBusinessDayConvention(), true, "EUROLIBOR6M");
   private static final GeneratorFRA GENERATOR_USD_FRA_3M = new GeneratorFRA("GENERATOR USD FRA 3M", USDLIBOR3M);
   private static final GeneratorDepositIbor GENERATOR_EURIBOR3M = new GeneratorDepositIbor("GENERATOR_EURIBOR3M", EURIBOR3M);
   //  private static final GeneratorDepositIbor GENERATOR_EURIBOR6M = new GeneratorDepositIbor("GENERATOR_EURIBOR6M", EURIBOR6M);
@@ -190,10 +189,10 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
   public static final double[] DSC_USD_MARKET_QUOTES = new double[] {0.0010, 0.0010, 0.0010, 0.0010, 0.0010, 0.0010, 0.0010, 0.0010, 0.0015, 0.0020, 0.0035, 0.0050, 0.0130};
   /** Generators for the dsc USD curve */
   public static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD,
-      GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD};
+    GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD};
   /** Tenors for the dsc USD curve */
-  public static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-      Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
+  public static final Period[] DSC_USD_TENOR = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfDays(1), DateUtils.periodOfMonths(1), DateUtils.periodOfMonths(2), DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfMonths(9),
+    DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10)};
   public static final GeneratorAttributeIR[] DSC_USD_ATTR = new GeneratorAttributeIR[DSC_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < 2; loopins++) {
@@ -208,10 +207,10 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
   public static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0045, 0.0045, 0.0045, 0.0045, 0.0060, 0.0070, 0.0080, 0.0160};
   /** Generators for the Fwd 3M USD curve */
   public static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_USD_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_USDLIBOR3M, GENERATOR_USD_FRA_3M, USD6MLIBOR3M, USD6MLIBOR3M,
-      USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
+    USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
-  public static final Period[] FWD3_USD_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-      Period.ofYears(10)};
+  public static final Period[] FWD3_USD_TENOR = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5),
+    DateUtils.periodOfYears(10)};
   public static final GeneratorAttributeIR[] FWD3_USD_ATTR = new GeneratorAttributeIR[FWD3_USD_TENOR.length];
   static {
     for (int loopins = 0; loopins < FWD3_USD_TENOR.length; loopins++) {
@@ -223,11 +222,11 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
   public static final double[] DSC_EUR_MARKET_QUOTES = new double[] {0.0010, 0.0010, 0.0004, 0.0009, 0.0015, 0.0035, 0.0050, 0.0060, -0.0050, -0.0050, -0.0050, -0.0045, -0.0040};
   /** Generators for the dsc EUR curve */
   public static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_EUR_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_EUR, GENERATOR_DEPOSIT_ON_EUR, GENERATOR_FX_EURUSD,
-      GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M,
-      EURIBOR3MUSDLIBOR3M};
+    GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, GENERATOR_FX_EURUSD, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M, EURIBOR3MUSDLIBOR3M,
+    EURIBOR3MUSDLIBOR3M};
   /** Tenors for the dsc EUR curve */
-  public static final Period[] DSC_EUR_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-      Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
+  public static final Period[] DSC_EUR_TENOR = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfDays(1), DateUtils.periodOfMonths(1), DateUtils.periodOfMonths(2), DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfMonths(9),
+    DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10)};
   public static final GeneratorAttribute[] DSC_EUR_ATTR = new GeneratorAttribute[DSC_EUR_TENOR.length];
   static {
     for (int loopins = 0; loopins < 2; loopins++) {
@@ -242,10 +241,10 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
   public static final double[] FWD3_EUR_MARKET_QUOTES = new double[] {0.0045, 0.0045, 0.0045, 0.0045, 0.0050, 0.0060, 0.0085, 0.0160};
   /** Generators for the Fwd 3M USD curve */
   public static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_EUR_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_EURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M,
-      EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M};
+    EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M};
   /** Tenors for the Fwd 3M USD curve */
-  public static final Period[] FWD3_EUR_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-      Period.ofYears(10)};
+  public static final Period[] FWD3_EUR_TENOR = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5),
+    DateUtils.periodOfYears(10)};
   public static final GeneratorAttributeIR[] FWD3_EUR_ATTR = new GeneratorAttributeIR[FWD3_EUR_TENOR.length];
   static {
     for (int loopins = 0; loopins < FWD3_EUR_TENOR.length; loopins++) {
@@ -257,11 +256,11 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
   public static final double[] DSC_JPY_MARKET_QUOTES = new double[] {0.0005, 0.0005, -0.0004, -0.0008, -0.0012, -0.0024, -0.0036, -0.0048, -0.0030, -0.0040, -0.0040, -0.0045, -0.0050};
   /** Generators for the dsc EUR curve */
   public static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_JPY_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_JPY, GENERATOR_DEPOSIT_ON_JPY, GENERATOR_FX_USDJPY,
-      GENERATOR_FX_USDJPY, GENERATOR_FX_USDJPY, GENERATOR_FX_USDJPY, GENERATOR_FX_USDJPY, GENERATOR_FX_USDJPY, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M,
-      JPYLIBOR3MUSDLIBOR3M};
+    GENERATOR_FX_USDJPY, GENERATOR_FX_USDJPY, GENERATOR_FX_USDJPY, GENERATOR_FX_USDJPY, GENERATOR_FX_USDJPY, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M, JPYLIBOR3MUSDLIBOR3M,
+    JPYLIBOR3MUSDLIBOR3M};
   /** Tenors for the dsc EUR curve */
-  public static final Period[] DSC_JPY_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-      Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
+  public static final Period[] DSC_JPY_TENOR = new Period[] {DateUtils.periodOfDays(0), DateUtils.periodOfDays(1), DateUtils.periodOfMonths(1), DateUtils.periodOfMonths(2), DateUtils.periodOfMonths(3), DateUtils.periodOfMonths(6), DateUtils.periodOfMonths(9),
+    DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10)};
   public static final GeneratorAttribute[] DSC_JPY_ATTR = new GeneratorAttribute[DSC_JPY_TENOR.length];
   static {
     for (int loopins = 0; loopins < 2; loopins++) {
@@ -276,10 +275,10 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
   public static final double[] FWD3_JPY_MARKET_QUOTES = new double[] {0.0020, 0.0010, 0.0010, 0.0010, 0.0010, 0.0015, 0.0015, 0.0015};
   /** Generators for the Fwd 3M JPY curve */
   public static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD3_JPY_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_JPYLIBOR3M, JPYLIBOR6MLIBOR3M, JPYLIBOR6MLIBOR3M,
-      JPYLIBOR6MLIBOR3M, JPYLIBOR6MLIBOR3M, JPYLIBOR6MLIBOR3M, JPYLIBOR6MLIBOR3M, JPYLIBOR6MLIBOR3M};
+    JPYLIBOR6MLIBOR3M, JPYLIBOR6MLIBOR3M, JPYLIBOR6MLIBOR3M, JPYLIBOR6MLIBOR3M, JPYLIBOR6MLIBOR3M};
   /** Tenors for the Fwd 3M JPY curve */
-  public static final Period[] FWD3_JPY_TENOR = new Period[] {Period.ofMonths(0), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-      Period.ofYears(10)};
+  public static final Period[] FWD3_JPY_TENOR = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfMonths(6), DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5),
+    DateUtils.periodOfYears(10)};
   public static final GeneratorAttributeIR[] FWD3_JPY_ATTR = new GeneratorAttributeIR[FWD3_JPY_TENOR.length];
   static {
     for (int loopins = 0; loopins < FWD3_JPY_TENOR.length; loopins++) {
@@ -291,9 +290,9 @@ public class MulticurveBuildingDiscountingDiscountXCcyTest {
   public static final double[] FWD6_JPY_MARKET_QUOTES = new double[] {0.0035, 0.0035, 0.0035, 0.0040, 0.0040, 0.0040, 0.0075};
   /** Generators for the Fwd 6M JPY curve */
   public static final GeneratorInstrument<? extends GeneratorAttribute>[] FWD6_JPY_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_JPYLIBOR6M, JPY6MLIBOR6M, JPY6MLIBOR6M, JPY6MLIBOR6M,
-      JPY6MLIBOR6M, JPY6MLIBOR6M, JPY6MLIBOR6M};
+    JPY6MLIBOR6M, JPY6MLIBOR6M, JPY6MLIBOR6M};
   /** Tenors for the Fwd 6M JPY curve */
-  public static final Period[] FWD6_JPY_TENOR = new Period[] {Period.ofMonths(0), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10)};
+  public static final Period[] FWD6_JPY_TENOR = new Period[] {DateUtils.periodOfMonths(0), DateUtils.periodOfYears(1), DateUtils.periodOfYears(2), DateUtils.periodOfYears(3), DateUtils.periodOfYears(4), DateUtils.periodOfYears(5), DateUtils.periodOfYears(10)};
   public static final GeneratorAttributeIR[] FWD6_JPY_ATTR = new GeneratorAttributeIR[FWD6_JPY_TENOR.length];
   static {
     for (int loopins = 0; loopins < FWD6_JPY_TENOR.length; loopins++) {

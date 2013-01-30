@@ -5,14 +5,13 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.calendar.LocalDate;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.LocalDate;
 
 /**
  * Fudge builder for {@code LocalDate}.

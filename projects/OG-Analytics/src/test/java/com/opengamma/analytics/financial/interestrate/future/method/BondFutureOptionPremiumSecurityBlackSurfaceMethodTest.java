@@ -6,11 +6,12 @@
 package com.opengamma.analytics.financial.interestrate.future.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -65,14 +66,14 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
   private static final YieldCurveWithBlackCubeBundle DATA = TestsDataSetsBlack.createCubesBondFutureOption();
   private static final BondFixedSecurityDefinition[] BASKET_DEFINITION = new BondFixedSecurityDefinition[NB_BOND];
   private static final Currency CUR = Currency.EUR;
-  private static final Period PAYMENT_TENOR = Period.ofMonths(6);
+  private static final Period PAYMENT_TENOR = Period.of(6, MONTHS);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean IS_EOM = false;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
-  private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8), Period.ofYears(5), Period.ofYears(5), Period.ofYears(5)};
+  private static final Period[] BOND_TENOR = new Period[] {Period.of(5, YEARS), Period.of(5, YEARS), Period.of(5, YEARS), Period.of(8, YEARS), Period.of(5, YEARS), Period.of(5, YEARS), Period.of(5, YEARS)};
   private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31), DateUtils.getUTCDate(2011, 1, 31),
-      DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31)};
+    DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31)};
   private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175};
   private static final ZonedDateTime[] MATURITY_DATE = new ZonedDateTime[NB_BOND];
   static {
@@ -393,13 +394,13 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
    * Tests the curve sensitivity when the future price is computed from the curves.
    */
   public void priceCurveSensitivityFromCurves() {
-    InterestRateCurveSensitivity pcsCallComputed = METHOD_OPTION.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, DATA).cleaned();
-    InterestRateCurveSensitivity pcsPutComputed = METHOD_OPTION.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_PUT, DATA);
-    InterestRateCurveSensitivity pcsFuture = METHOD_FUTURES.priceCurveSensitivity(BOND_FUTURE_DERIV, DATA).cleaned();
-    InterestRateCurveSensitivity pcsCallPut = pcsCallComputed.plus(pcsPutComputed.multipliedBy(-1.0)).cleaned();
+    final InterestRateCurveSensitivity pcsCallComputed = METHOD_OPTION.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, DATA).cleaned();
+    final InterestRateCurveSensitivity pcsPutComputed = METHOD_OPTION.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_PUT, DATA);
+    final InterestRateCurveSensitivity pcsFuture = METHOD_FUTURES.priceCurveSensitivity(BOND_FUTURE_DERIV, DATA).cleaned();
+    final InterestRateCurveSensitivity pcsCallPut = pcsCallComputed.plus(pcsPutComputed.multipliedBy(-1.0)).cleaned();
     AssertSensivityObjects.assertEquals("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity - put/call parity", pcsFuture, pcsCallPut, TOLERANCE_PRICE_SENSI);
-    double delta = METHOD_OPTION.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, DATA);
-    InterestRateCurveSensitivity pcsCallExpected = pcsFuture.multipliedBy(delta);
+    final double delta = METHOD_OPTION.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, DATA);
+    final InterestRateCurveSensitivity pcsCallExpected = pcsFuture.multipliedBy(delta);
     AssertSensivityObjects.assertEquals("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity", pcsCallExpected, pcsCallComputed, TOLERANCE_PRICE_SENSI);
   }
 
@@ -408,15 +409,15 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
    * Tests the curve sensitivity when the future price is directly provided.
    */
   public void priceCurveSensitivityFromFuturesPrice() {
-    InterestRateCurveSensitivity pcsCallComputed = METHOD_OPTION.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, DATA_WITH_FUTURE).cleaned();
-    InterestRateCurveSensitivity pcsCallNoFut = METHOD_OPTION.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, DATA).cleaned();
+    final InterestRateCurveSensitivity pcsCallComputed = METHOD_OPTION.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, DATA_WITH_FUTURE).cleaned();
+    final InterestRateCurveSensitivity pcsCallNoFut = METHOD_OPTION.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_CALL, DATA).cleaned();
     AssertSensivityObjects.assertDoesNotEqual("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity", pcsCallComputed, pcsCallNoFut, TOLERANCE_PRICE_SENSI);
-    InterestRateCurveSensitivity pcsPutComputed = METHOD_OPTION.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_PUT, DATA_WITH_FUTURE);
-    InterestRateCurveSensitivity pcsFuture = METHOD_FUTURES.priceCurveSensitivity(BOND_FUTURE_DERIV, DATA).cleaned();
-    InterestRateCurveSensitivity pcsCallPut = pcsCallComputed.plus(pcsPutComputed.multipliedBy(-1.0)).cleaned();
+    final InterestRateCurveSensitivity pcsPutComputed = METHOD_OPTION.priceCurveSensitivity(BOND_FUTURE_OPTION_DERIV_PUT, DATA_WITH_FUTURE);
+    final InterestRateCurveSensitivity pcsFuture = METHOD_FUTURES.priceCurveSensitivity(BOND_FUTURE_DERIV, DATA).cleaned();
+    final InterestRateCurveSensitivity pcsCallPut = pcsCallComputed.plus(pcsPutComputed.multipliedBy(-1.0)).cleaned();
     AssertSensivityObjects.assertEquals("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity - put/call parity", pcsFuture, pcsCallPut, TOLERANCE_PRICE_SENSI);
-    double delta = METHOD_OPTION.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, DATA_WITH_FUTURE);
-    InterestRateCurveSensitivity pcsCallExpected = pcsFuture.multipliedBy(delta);
+    final double delta = METHOD_OPTION.optionPriceDelta(BOND_FUTURE_OPTION_DERIV_CALL, DATA_WITH_FUTURE);
+    final InterestRateCurveSensitivity pcsCallExpected = pcsFuture.multipliedBy(delta);
     AssertSensivityObjects.assertEquals("BondFutureOptionPremiumSecurityBlackSurfaceMethod: option price curve sensitivity", pcsCallExpected, pcsCallComputed, TOLERANCE_PRICE_SENSI);
   }
 

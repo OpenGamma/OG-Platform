@@ -23,24 +23,28 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 @Test(groups="unit")
 public class NoneFoundSecurityProviderTest {
 
+  private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of("A", "B");
+
   @Test
   public void test_get_single() {
     NoneFoundSecurityProvider test = new NoneFoundSecurityProvider();
-    assertEquals(null, test.getSecurity(ExternalIdBundle.of("A", "B")));
+    assertEquals(null, test.getSecurity(BUNDLE));
   }
 
   @Test
   public void test_get_bulk() {
     NoneFoundSecurityProvider test = new NoneFoundSecurityProvider();
     HashMap<ExternalIdBundle, LocalDateDoubleTimeSeries> expected = new HashMap<ExternalIdBundle, LocalDateDoubleTimeSeries>();
-    assertEquals(expected, test.getSecurities(ImmutableSet.of(ExternalIdBundle.of("A", "B"))));
+    expected.put(BUNDLE, null);
+    assertEquals(expected, test.getSecurities(ImmutableSet.of(BUNDLE)));
   }
 
   @Test
   public void test_get_request() {
     NoneFoundSecurityProvider test = new NoneFoundSecurityProvider();
-    SecurityProviderGetRequest request = SecurityProviderGetRequest.createGet(ExternalIdBundle.of("A", "B"), "FOO");
+    SecurityProviderGetRequest request = SecurityProviderGetRequest.createGet(BUNDLE, "FOO");
     SecurityProviderGetResult expected = new SecurityProviderGetResult();
+    expected.getResultMap().put(BUNDLE, null);
     assertEquals(expected, test.getSecurities(request));
   }
 

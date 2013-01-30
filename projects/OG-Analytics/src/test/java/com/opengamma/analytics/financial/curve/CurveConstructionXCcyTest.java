@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.curve;
 
-
 /**
  * Build of curve in several currencies in several blocks with relevant Jacobian matrices.
  * Currencies: USD (2 curves), EUR (2 curves), JPY (3 curves)

@@ -7,10 +7,11 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-
-import javax.time.calendar.Period;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -22,7 +23,7 @@ import com.opengamma.util.money.Currency;
 
 public class CMSIndexTest {
   //Libor3m
-  private static final Period IBOR_TENOR = Period.ofMonths(3);
+  private static final Period IBOR_TENOR = Period.of(3, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_IBOR = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -31,9 +32,9 @@ public class CMSIndexTest {
   private static final Currency CUR = Currency.EUR;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_IBOR, BUSINESS_DAY, IS_EOM);
   //CMS index: CMS2YUSD3M6M - Semi-bond/Quarterly-money
-  private static final Period FIXED_LEG_PERIOD = Period.ofMonths(6);
+  private static final Period FIXED_LEG_PERIOD = Period.of(6, MONTHS);
   private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("30/360");
-  private static final Period CMS_TENOR = Period.ofYears(2);
+  private static final Period CMS_TENOR = Period.of(2, YEARS);
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, CMS_TENOR);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -76,7 +77,7 @@ public class CMSIndexTest {
     assertEquals(CMS_INDEX, indexDuplicate);
     assertEquals(CMS_INDEX.hashCode(), indexDuplicate.hashCode());
     IndexSwap indexModified;
-    Period otherPeriod = Period.ofMonths(12);
+    Period otherPeriod = Period.of(12, MONTHS);
     indexModified = new IndexSwap(otherPeriod, DAY_COUNT_FIXED, IBOR_INDEX, CMS_TENOR);
     assertFalse(CMS_INDEX.equals(indexModified));
     indexModified = new IndexSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, otherPeriod);

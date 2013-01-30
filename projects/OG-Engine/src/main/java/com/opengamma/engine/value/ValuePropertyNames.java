@@ -130,6 +130,11 @@ public final class ValuePropertyNames {
   public static final String SURFACE_CALCULATION_METHOD = "SurfaceCalculationMethod";
 
   /**
+   * A general name for a property describing how a surface was calculated
+   */
+  public static final String CUBE_CALCULATION_METHOD = "CubeCalculationMethod";
+
+  /**
    * A general name for a property describing how volatility smiles were modelled (e.g. Heston, SABR)
    */
   public static final String SMILE_FITTING_METHOD = "SmileFittingMethod";
@@ -231,7 +236,6 @@ public final class ValuePropertyNames {
    *
    */
   public static final String VALUE_AGGREGATION = "ValueAggregation";
-
 
   /**
    * The underlying ticker is used in Equity Options to tie results to the vol surface used,

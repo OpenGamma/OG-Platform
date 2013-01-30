@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -70,8 +69,8 @@ public class GeneratorSwapXCcyIborIbor extends GeneratorInstrument<GeneratorAttr
    * @param endOfMonth The end-of-month flag.
    * @param spotLag The swap spot lag (usually 2 or 0).
    */
-  public GeneratorSwapXCcyIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final BusinessDayConvention businessDayConvention, final boolean endOfMonth,
-      final int spotLag) {
+  public GeneratorSwapXCcyIborIbor(final String name, final IborIndex iborIndex1, final IborIndex iborIndex2, final BusinessDayConvention businessDayConvention,
+      final boolean endOfMonth, final int spotLag) {
     super(name);
     Validate.notNull(iborIndex1, "ibor index");
     Validate.notNull(iborIndex2, "ibor index");
@@ -158,7 +157,7 @@ public class GeneratorSwapXCcyIborIbor extends GeneratorInstrument<GeneratorAttr
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -168,7 +167,7 @@ public class GeneratorSwapXCcyIborIbor extends GeneratorInstrument<GeneratorAttr
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorSwapXCcyIborIbor other = (GeneratorSwapXCcyIborIbor) obj;
+    final GeneratorSwapXCcyIborIbor other = (GeneratorSwapXCcyIborIbor) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }

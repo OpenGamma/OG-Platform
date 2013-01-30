@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -70,7 +69,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAMES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final InterestRateFuture EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, CURVES_NAMES);
-  // Option 
+  // Option
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final double EXPIRATION_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRATION_DATE);
   private static final boolean IS_CALL = true;

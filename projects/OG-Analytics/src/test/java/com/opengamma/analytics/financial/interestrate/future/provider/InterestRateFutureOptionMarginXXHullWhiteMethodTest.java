@@ -8,9 +8,8 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -151,25 +150,25 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
    * Tests the price versus an explicit formula.
    */
   public void price() {
-    double t0 = ERH3.getLastTradingTime();
-    double delta = ERH3.getFixingPeriodAccrualFactor();
-    double t1 = ERH3.getFixingPeriodStartTime();
-    double t2 = ERH3.getFixingPeriodEndTime();
-    double expiry = OPT_ERH3_CALL_9900.getExpirationTime();
-    double alphaOpt = MODEL_HW.alpha(HW_PARAMETERS, 0.0, expiry, t1, t2);
-    double gammaFut = MODEL_HW.futureConvexityFactor(HW_PARAMETERS, t0, t1, t2);
-    double ktilde = 1 - STRIKE_1;
-    double forward = MULTICURVES.getForwardRate(EURIBOR3M, t1, t2, delta);
-    double exerciseBoundary = -1.0 / alphaOpt * (Math.log((1.0 + delta * ktilde) / (1 + delta * forward) / gammaFut) + alphaOpt * alphaOpt / 2.0);
-    double nKC = NORMAL.getCDF(-exerciseBoundary);
-    double nAKC = NORMAL.getCDF(-alphaOpt - exerciseBoundary);
-    double priceCallExpected = (1 - STRIKE_1 + 1.0 / delta) * nKC - 1.0 / delta * (1 + delta * forward) * gammaFut * nAKC;
-    double priceCallComputed = METHOD_OPT_SEC.price(OPT_ERH3_CALL_9900, HW_MULTICURVES);
+    final double t0 = ERH3.getLastTradingTime();
+    final double delta = ERH3.getFixingPeriodAccrualFactor();
+    final double t1 = ERH3.getFixingPeriodStartTime();
+    final double t2 = ERH3.getFixingPeriodEndTime();
+    final double expiry = OPT_ERH3_CALL_9900.getExpirationTime();
+    final double alphaOpt = MODEL_HW.alpha(HW_PARAMETERS, 0.0, expiry, t1, t2);
+    final double gammaFut = MODEL_HW.futureConvexityFactor(HW_PARAMETERS, t0, t1, t2);
+    final double ktilde = 1 - STRIKE_1;
+    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, t1, t2, delta);
+    final double exerciseBoundary = -1.0 / alphaOpt * (Math.log((1.0 + delta * ktilde) / (1 + delta * forward) / gammaFut) + alphaOpt * alphaOpt / 2.0);
+    final double nKC = NORMAL.getCDF(-exerciseBoundary);
+    final double nAKC = NORMAL.getCDF(-alphaOpt - exerciseBoundary);
+    final double priceCallExpected = (1 - STRIKE_1 + 1.0 / delta) * nKC - 1.0 / delta * (1 + delta * forward) * gammaFut * nAKC;
+    final double priceCallComputed = METHOD_OPT_SEC.price(OPT_ERH3_CALL_9900, HW_MULTICURVES);
     assertEquals("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", priceCallExpected, priceCallComputed, TOLERANCE_PRICE);
-    double nKP = NORMAL.getCDF(exerciseBoundary);
-    double nAKP = NORMAL.getCDF(alphaOpt + exerciseBoundary);
-    double pricePutExpected = 1.0 / delta * (1 + delta * forward) * gammaFut * nAKP - (1 - STRIKE_1 + 1.0 / delta) * nKP;
-    double pricePutComputed = METHOD_OPT_SEC.price(OPT_ERH3_PUT_9900, HW_MULTICURVES);
+    final double nKP = NORMAL.getCDF(exerciseBoundary);
+    final double nAKP = NORMAL.getCDF(alphaOpt + exerciseBoundary);
+    final double pricePutExpected = 1.0 / delta * (1 + delta * forward) * gammaFut * nAKP - (1 - STRIKE_1 + 1.0 / delta) * nKP;
+    final double pricePutComputed = METHOD_OPT_SEC.price(OPT_ERH3_PUT_9900, HW_MULTICURVES);
     assertEquals("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", pricePutExpected, pricePutComputed, TOLERANCE_PRICE);
   }
 
@@ -178,13 +177,13 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
    * Tests the price for very deep out-of-the-money options.
    */
   public void priceDeepOTM() {
-    InterestRateFutureOptionMarginSecurityDefinition callDefinition = new InterestRateFutureOptionMarginSecurityDefinition(ERH3_DEFINITION, OPT_EXP_MAR13, 1.25, true);
-    InterestRateFutureOptionMarginSecurity call = callDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-    double priceCallDeep = METHOD_OPT_SEC.price(call, HW_MULTICURVES);
+    final InterestRateFutureOptionMarginSecurityDefinition callDefinition = new InterestRateFutureOptionMarginSecurityDefinition(ERH3_DEFINITION, OPT_EXP_MAR13, 1.25, true);
+    final InterestRateFutureOptionMarginSecurity call = callDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+    final double priceCallDeep = METHOD_OPT_SEC.price(call, HW_MULTICURVES);
     assertEquals("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", 0.0, priceCallDeep, TOLERANCE_PRICE);
-    InterestRateFutureOptionMarginSecurityDefinition putDefinition = new InterestRateFutureOptionMarginSecurityDefinition(ERH3_DEFINITION, OPT_EXP_MAR13, 0.75, false);
-    InterestRateFutureOptionMarginSecurity put = putDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-    double pricePutDeep = METHOD_OPT_SEC.price(put, HW_MULTICURVES);
+    final InterestRateFutureOptionMarginSecurityDefinition putDefinition = new InterestRateFutureOptionMarginSecurityDefinition(ERH3_DEFINITION, OPT_EXP_MAR13, 0.75, false);
+    final InterestRateFutureOptionMarginSecurity put = putDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+    final double pricePutDeep = METHOD_OPT_SEC.price(put, HW_MULTICURVES);
     assertEquals("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", 0.0, pricePutDeep, TOLERANCE_PRICE);
   }
 
@@ -193,18 +192,18 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
    * Tests the price positivity for a range of strikes.
    */
   public void pricePositive() {
-    double minStrike = 0.9700;
-    double maxStrike = 1.0100;
-    double nbStrikes = 20;
+    final double minStrike = 0.9700;
+    final double maxStrike = 1.0100;
+    final double nbStrikes = 20;
     for (int loopstrike = 0; loopstrike <= nbStrikes; loopstrike++) {
-      double strike = minStrike + loopstrike * (maxStrike - minStrike) / nbStrikes;
-      InterestRateFutureOptionMarginSecurityDefinition callDefinition = new InterestRateFutureOptionMarginSecurityDefinition(ERH3_DEFINITION, OPT_EXP_MAR13, strike, true);
-      InterestRateFutureOptionMarginSecurity call = callDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-      double priceCall = METHOD_OPT_SEC.price(call, HW_MULTICURVES);
+      final double strike = minStrike + loopstrike * (maxStrike - minStrike) / nbStrikes;
+      final InterestRateFutureOptionMarginSecurityDefinition callDefinition = new InterestRateFutureOptionMarginSecurityDefinition(ERH3_DEFINITION, OPT_EXP_MAR13, strike, true);
+      final InterestRateFutureOptionMarginSecurity call = callDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+      final double priceCall = METHOD_OPT_SEC.price(call, HW_MULTICURVES);
       assertTrue("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", priceCall > 0);
-      InterestRateFutureOptionMarginSecurityDefinition putDefinition = new InterestRateFutureOptionMarginSecurityDefinition(ERH3_DEFINITION, OPT_EXP_MAR13, strike, false);
-      InterestRateFutureOptionMarginSecurity put = putDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-      double pricePut = METHOD_OPT_SEC.price(put, HW_MULTICURVES);
+      final InterestRateFutureOptionMarginSecurityDefinition putDefinition = new InterestRateFutureOptionMarginSecurityDefinition(ERH3_DEFINITION, OPT_EXP_MAR13, strike, false);
+      final InterestRateFutureOptionMarginSecurity put = putDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+      final double pricePut = METHOD_OPT_SEC.price(put, HW_MULTICURVES);
       assertTrue("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", pricePut > 0);
     }
   }
@@ -214,9 +213,9 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
    * Tests the Call/Put parity for options on futures at the price level.
    */
   public void priceCallPutParityStandard() {
-    double priceFutures = METHOD_FUT.price(ERH3, HW_MULTICURVES);
-    double priceCall = METHOD_OPT_SEC.price(OPT_ERH3_CALL_9900, HW_MULTICURVES);
-    double pricePut = METHOD_OPT_SEC.price(OPT_ERH3_PUT_9900, HW_MULTICURVES);
+    final double priceFutures = METHOD_FUT.price(ERH3, HW_MULTICURVES);
+    final double priceCall = METHOD_OPT_SEC.price(OPT_ERH3_CALL_9900, HW_MULTICURVES);
+    final double pricePut = METHOD_OPT_SEC.price(OPT_ERH3_PUT_9900, HW_MULTICURVES);
     assertEquals("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", priceCall - pricePut, priceFutures - STRIKE_1, TOLERANCE_PRICE);
   }
 
@@ -225,9 +224,9 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
    * Tests the Call/Put parity for mid-curve options on futures at the price level.
    */
   public void priceCallPutParityMid() {
-    double priceFutures = METHOD_FUT.price(ERM4, HW_MULTICURVES);
-    double priceCall = METHOD_OPT_SEC.price(OPT_ERM4_MID_CALL_9875, HW_MULTICURVES);
-    double pricePut = METHOD_OPT_SEC.price(OPT_ERM4_MID_PUT_9875, HW_MULTICURVES);
+    final double priceFutures = METHOD_FUT.price(ERM4, HW_MULTICURVES);
+    final double priceCall = METHOD_OPT_SEC.price(OPT_ERM4_MID_CALL_9875, HW_MULTICURVES);
+    final double pricePut = METHOD_OPT_SEC.price(OPT_ERM4_MID_PUT_9875, HW_MULTICURVES);
     assertEquals("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", priceCall - pricePut, priceFutures - STRIKE_2, TOLERANCE_PRICE);
   }
 
@@ -260,9 +259,9 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
    * Tests the present value versus an explicit formula.
    */
   public void presentValueStandard() {
-    MultipleCurrencyAmount pvComputed = METHOD_OPT_TRA.presentValue(OPT_ERH3_CALL_9900_TRA_1, HW_MULTICURVES);
-    double price = METHOD_OPT_SEC.price(OPT_ERH3_CALL_9900, HW_MULTICURVES);
-    double pvExpected = (price - LAST_MARGIN_1) * QUANTITY_1 * NOTIONAL * FUTURE_FACTOR;
+    final MultipleCurrencyAmount pvComputed = METHOD_OPT_TRA.presentValue(OPT_ERH3_CALL_9900_TRA_1, HW_MULTICURVES);
+    final double price = METHOD_OPT_SEC.price(OPT_ERH3_CALL_9900, HW_MULTICURVES);
+    final double pvExpected = (price - LAST_MARGIN_1) * QUANTITY_1 * NOTIONAL * FUTURE_FACTOR;
     assertEquals("InterestRateFutureOptionMarginTransactionHullWhiteMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -271,11 +270,11 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
    * Tests the present value versus an explicit formula.
    */
   public void presentValueLongShort() {
-    MultipleCurrencyAmount pvLongStd = METHOD_OPT_TRA.presentValue(OPT_ERH3_CALL_9900_TRA_1, HW_MULTICURVES);
-    MultipleCurrencyAmount pvShortStd = METHOD_OPT_TRA.presentValue(OPT_ERH3_CALL_9900_TRA_2, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvLongStd = METHOD_OPT_TRA.presentValue(OPT_ERH3_CALL_9900_TRA_1, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvShortStd = METHOD_OPT_TRA.presentValue(OPT_ERH3_CALL_9900_TRA_2, HW_MULTICURVES);
     assertEquals("InterestRateFutureOptionMarginTransactionHullWhiteMethod: present value", pvLongStd.getAmount(EUR), -pvShortStd.getAmount(EUR), TOLERANCE_PV);
-    MultipleCurrencyAmount pvLongMid = METHOD_OPT_TRA.presentValue(OPT_ERM4_MID_CALL_9875_TRA_1, HW_MULTICURVES);
-    MultipleCurrencyAmount pvShortMid = METHOD_OPT_TRA.presentValue(OPT_ERM4_MID_CALL_9875_TRA_2, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvLongMid = METHOD_OPT_TRA.presentValue(OPT_ERM4_MID_CALL_9875_TRA_1, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvShortMid = METHOD_OPT_TRA.presentValue(OPT_ERM4_MID_CALL_9875_TRA_2, HW_MULTICURVES);
     assertEquals("InterestRateFutureOptionMarginTransactionHullWhiteMethod: present value", pvLongMid.getAmount(EUR), -pvShortMid.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -284,9 +283,9 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
    * Tests the present value versus an explicit formula.
    */
   public void presentValueMidCurve() {
-    MultipleCurrencyAmount pvComputed = METHOD_OPT_TRA.presentValue(OPT_ERM4_MID_CALL_9875_TRA_1, HW_MULTICURVES);
-    double price = METHOD_OPT_SEC.price(OPT_ERM4_MID_CALL_9875, HW_MULTICURVES);
-    double pvExpected = (price - TRADE_PRICE_2) * QUANTITY_2 * NOTIONAL * FUTURE_FACTOR;
+    final MultipleCurrencyAmount pvComputed = METHOD_OPT_TRA.presentValue(OPT_ERM4_MID_CALL_9875_TRA_1, HW_MULTICURVES);
+    final double price = METHOD_OPT_SEC.price(OPT_ERM4_MID_CALL_9875, HW_MULTICURVES);
+    final double pvExpected = (price - TRADE_PRICE_2) * QUANTITY_2 * NOTIONAL * FUTURE_FACTOR;
     assertEquals("InterestRateFutureOptionMarginTransactionHullWhiteMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -295,14 +294,14 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
    * Tests the present value: Put/Call parity.
    */
   public void presentValuePutCallParity() {
-    MultipleCurrencyAmount pvLongCallStd = METHOD_OPT_TRA.presentValue(OPT_ERH3_CALL_9900_TRA_1, HW_MULTICURVES);
-    MultipleCurrencyAmount pvShortPutStd = METHOD_OPT_TRA.presentValue(OPT_ERH3_PUT_9900_TRA_1, HW_MULTICURVES);
-    double priceFuturesH3 = METHOD_FUT.price(ERH3, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvLongCallStd = METHOD_OPT_TRA.presentValue(OPT_ERH3_CALL_9900_TRA_1, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvShortPutStd = METHOD_OPT_TRA.presentValue(OPT_ERH3_PUT_9900_TRA_1, HW_MULTICURVES);
+    final double priceFuturesH3 = METHOD_FUT.price(ERH3, HW_MULTICURVES);
     assertEquals("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", pvLongCallStd.getAmount(EUR) - pvShortPutStd.getAmount(EUR), (priceFuturesH3 - STRIKE_1) * QUANTITY_1 * NOTIONAL
         * FUTURE_FACTOR, TOLERANCE_PV);
-    MultipleCurrencyAmount pvLongCallMid = METHOD_OPT_TRA.presentValue(OPT_ERM4_MID_CALL_9875_TRA_1, HW_MULTICURVES);
-    MultipleCurrencyAmount pvShortPutMid = METHOD_OPT_TRA.presentValue(OPT_ERM4_MID_PUT_9875_TRA_1, HW_MULTICURVES);
-    double priceFuturesM4 = METHOD_FUT.price(ERM4, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvLongCallMid = METHOD_OPT_TRA.presentValue(OPT_ERM4_MID_CALL_9875_TRA_1, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvShortPutMid = METHOD_OPT_TRA.presentValue(OPT_ERM4_MID_PUT_9875_TRA_1, HW_MULTICURVES);
+    final double priceFuturesM4 = METHOD_FUT.price(ERM4, HW_MULTICURVES);
     assertEquals("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", pvLongCallMid.getAmount(EUR) - pvShortPutMid.getAmount(EUR), (priceFuturesM4 - STRIKE_2) * QUANTITY_2 * NOTIONAL
         * FUTURE_FACTOR, TOLERANCE_PV);
   }
@@ -312,8 +311,8 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
    * Tests the present value versus an explicit formula.
    */
   public void presentValueMethodVsCalculator() {
-    MultipleCurrencyAmount pvMethod = METHOD_OPT_TRA.presentValue(OPT_ERH3_CALL_9900_TRA_1, HW_MULTICURVES);
-    MultipleCurrencyAmount pvCalculator = OPT_ERH3_CALL_9900_TRA_1.accept(PVHWC, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvMethod = METHOD_OPT_TRA.presentValue(OPT_ERH3_CALL_9900_TRA_1, HW_MULTICURVES);
+    final MultipleCurrencyAmount pvCalculator = OPT_ERH3_CALL_9900_TRA_1.accept(PVHWC, HW_MULTICURVES);
     assertEquals("InterestRateFutureOptionMarginTransactionHullWhiteMethod: present value", pvMethod.getAmount(EUR), pvCalculator.getAmount(EUR), TOLERANCE_PV);
   }
 

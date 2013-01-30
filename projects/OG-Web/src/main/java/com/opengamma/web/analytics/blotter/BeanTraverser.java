@@ -12,11 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 
 import com.google.common.collect.Lists;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -38,11 +40,11 @@ import com.opengamma.util.ArgumentChecker;
     Collections.reverse(_decorators);
   }
 
-  /* package */ Object traverse(MetaBean bean, BeanVisitor<?> visitor) {
+  /* package */ Object traverse(MetaBean metaBean, BeanVisitor<?> visitor) {
     BeanVisitor<?> decoratedVisitor = decorate(visitor);
-    decoratedVisitor.visitBean(bean);
-    List<TraversalFailure> failures = Lists.newArrayList();
-    for (MetaProperty<?> property : bean.metaPropertyIterable()) {
+    decoratedVisitor.visitMetaBean(metaBean);
+    List<BeanTraversalFailure> failures = Lists.newArrayList();
+    for (MetaProperty<?> property : metaBean.metaPropertyIterable()) {
       Class<?> propertyType = property.propertyType();
       try {
         if (Bean.class.isAssignableFrom(propertyType)) {
@@ -59,15 +61,13 @@ import com.opengamma.util.ArgumentChecker;
           decoratedVisitor.visitProperty(property);
         }
       } catch (Exception e) {
-        failures.add(new TraversalFailure(e, property));
-        // TODO temporary. need to make the stack traces from traversal failures nice and obvious
-        throw new RuntimeException(e);
+        failures.add(new BeanTraversalFailure(e, property));
       }
     }
     if (failures.isEmpty()) {
       return decoratedVisitor.finish();
     } else {
-      throw new TraversalException(failures);
+      throw new BeanTraversalException(metaBean, visitor, failures);
     }
   }
 
@@ -78,40 +78,47 @@ import com.opengamma.util.ArgumentChecker;
     }
     return decoratedVisitor;
   }
+}
 
-  /* package */ static final class TraversalFailure {
+/* package */ class BeanTraversalFailure {
 
-    private final Exception _exception;
-    private final MetaProperty<?> _property;
+  private final Exception _exception;
+  private final MetaProperty<?> _property;
 
-    private TraversalFailure(Exception exception, MetaProperty<?> property) {
-      ArgumentChecker.notNull(exception, "exception");
-      ArgumentChecker.notNull(property, "property");
-      _exception = exception;
-      _property = property;
-    }
+  /* package */ BeanTraversalFailure(Exception exception, MetaProperty<?> property) {
+    ArgumentChecker.notNull(exception, "exception");
+    ArgumentChecker.notNull(property, "property");
+    _exception = exception;
+    _property = property;
+  }
 
-    /* package */ Exception getException() {
-      return _exception;
-    }
+  /* package */ Exception getException() {
+    return _exception;
+  }
 
-    /* package */ MetaProperty<?> getProperty() {
-      return _property;
+  @Override
+  public String toString() {
+    String message = _exception.getMessage() == null ? null : "'" + _exception.getMessage() + "'";
+    return "[" + _property.toString() + ", " + message + "]";
+  }
+}
+
+/* package */ class BeanTraversalException extends OpenGammaRuntimeException {
+
+  /* package */ BeanTraversalException(MetaBean metaBean, BeanVisitor<?> visitor, List<BeanTraversalFailure> failures) {
+    super(buildMessage(metaBean, visitor, failures));
+    for (BeanTraversalFailure failure : failures) {
+      addSuppressed(failure.getException());
     }
   }
 
-  /* package */ static final class TraversalException extends RuntimeException {
-
-    private final List<TraversalFailure> _failures;
-
-    /* package */ TraversalException(List<TraversalFailure> failures) {
-      super("Bean traversal failed");
-      ArgumentChecker.notEmpty(failures, "failures");
-      _failures = failures;
-    }
-
-    /* package */ List<TraversalFailure> getFailures() {
-      return _failures;
-    }
+  private static String buildMessage(MetaBean metaBean, BeanVisitor<?> visitor, List<BeanTraversalFailure> failures) {
+    ArgumentChecker.notNull(metaBean, "metaBean");
+    ArgumentChecker.notEmpty(failures, "failures");
+    ArgumentChecker.notNull(visitor, "visitor");
+    return "Bean traversal failed. " +
+        "bean: " + metaBean + ", " +
+        "visitor: " + visitor + ", " +
+        "failures: [" + StringUtils.join(failures, ", ") + "]";
   }
 }

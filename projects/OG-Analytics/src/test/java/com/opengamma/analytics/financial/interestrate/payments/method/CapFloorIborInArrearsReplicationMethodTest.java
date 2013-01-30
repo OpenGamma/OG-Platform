@@ -7,11 +7,12 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
@@ -46,7 +47,7 @@ import com.opengamma.util.time.DateUtils;
 public class CapFloorIborInArrearsReplicationMethodTest {
 
   // Euribor 6m
-  private static final Period TENOR = Period.ofMonths(6);
+  private static final Period TENOR = Period.of(6, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -56,7 +57,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
   private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
   // Dates
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 7);
-  private static final ZonedDateTime START_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofYears(9), BUSINESS_DAY, CALENDAR, IS_EOM);
+  private static final ZonedDateTime START_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.of(9, YEARS), BUSINESS_DAY, CALENDAR, IS_EOM);
   private static final ZonedDateTime END_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(START_ACCRUAL_DATE, TENOR, BUSINESS_DAY, CALENDAR, IS_EOM);
   private static final double ACCRUAL_FACTOR = DAY_COUNT_INDEX.getDayCountFraction(START_ACCRUAL_DATE, END_ACCRUAL_DATE);
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(END_ACCRUAL_DATE, -SETTLEMENT_DAYS, CALENDAR);

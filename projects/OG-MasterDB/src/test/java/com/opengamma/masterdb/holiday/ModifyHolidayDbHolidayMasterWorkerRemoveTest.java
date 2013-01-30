@@ -10,13 +10,12 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.util.Arrays;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.holiday.HolidayType;
@@ -48,7 +47,7 @@ public class ModifyHolidayDbHolidayMasterWorkerRemoveTest extends AbstractDbHoli
 
   @Test
   public void test_remove_removed() {
-    Instant now = Instant.now(_holMaster.getTimeSource());
+    Instant now = Instant.now(_holMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbHol", "101", "0");
     _holMaster.remove(uniqueId);

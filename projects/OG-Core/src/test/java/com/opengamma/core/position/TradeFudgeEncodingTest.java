@@ -7,10 +7,9 @@ package com.opengamma.core.position;
 
 import java.math.BigDecimal;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
@@ -35,7 +34,6 @@ public class TradeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   public void testTrade() {
     SimpleTrade trade = new SimpleTrade();
     trade.setUniqueId(UniqueId.of("A", "B"));
-    trade.setParentPositionId(UniqueId.of("C", "D"));
     trade.setQuantity(BigDecimal.valueOf(12.34d));
     trade.setSecurityLink(new SimpleSecurityLink(ExternalId.of("E", "F")));
     trade.setCounterparty(new SimpleCounterparty(ExternalId.of("G", "H")));
@@ -47,7 +45,6 @@ public class TradeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   public void testFull() {
     SimpleTrade trade = new SimpleTrade();
     trade.setUniqueId(UniqueId.of("A", "B"));
-    trade.setParentPositionId(UniqueId.of("C", "D"));
     trade.setQuantity(BigDecimal.valueOf(12.34d));
     trade.setSecurityLink(new SimpleSecurityLink(ExternalId.of("E", "F")));
     trade.setCounterparty(new SimpleCounterparty(ExternalId.of("G", "H")));
@@ -69,7 +66,6 @@ public class TradeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   public void testTrade_withPremium() {
     SimpleTrade trade = new SimpleTrade();
     trade.setUniqueId(UniqueId.of("A", "B"));
-    trade.setParentPositionId(UniqueId.of("C", "D"));
     trade.setQuantity(BigDecimal.valueOf(12.34d));
     trade.setSecurityLink(new SimpleSecurityLink(ObjectId.of("E", "F")));
     trade.setCounterparty(new SimpleCounterparty(ExternalId.of("G", "H")));
@@ -87,7 +83,6 @@ public class TradeFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   public void testTrade_withAttributes() {
     SimpleTrade trade = new SimpleTrade();
     trade.setUniqueId(UniqueId.of("A", "B"));
-    trade.setParentPositionId(UniqueId.of("C", "D"));
     trade.setQuantity(BigDecimal.valueOf(12.34d));
     trade.setSecurityLink(new SimpleSecurityLink(ExternalId.of("E", "F")));
     trade.setCounterparty(new SimpleCounterparty(ExternalId.of("G", "H")));

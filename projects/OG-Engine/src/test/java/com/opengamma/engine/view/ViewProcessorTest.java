@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,12 +23,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
@@ -163,7 +162,9 @@ public class ViewProcessorTest {
     final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     final CycleCountingViewResultListener listener = new CycleCountingViewResultListener(10);
     client.setResultListener(listener);
-    final ViewExecutionOptions executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), new ViewCycleExecutionOptions(MarketData.live()), ExecutionFlags.none().runAsFastAsPossible().get());
+    final ViewExecutionOptions executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live())
+        .create(),
+        ExecutionFlags.none().runAsFastAsPossible().get());
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     listener.awaitCycles(10 * Timeout.standardTimeoutMillis());
 
@@ -185,7 +186,7 @@ public class ViewProcessorTest {
     vp.start();
 
     final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
-    final ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), new ViewCycleExecutionOptions(MarketData.live()));
+    final ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create());
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
     waitForCompletionAndShutdown(vp, client, env);
     assertEquals(0, vp.getViewCycleManager().getResourceCount());
@@ -219,7 +220,7 @@ public class ViewProcessorTest {
 
     };
     client.setResultListener(resultListener);
-    final ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), new ViewCycleExecutionOptions(MarketData.live()));
+    final ViewExecutionOptions executionOptions = ExecutionOptions.batch(generateExecutionSequence(10), ViewCycleExecutionOptions.builder().setMarketDataSpecification(MarketData.live()).create());
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
@@ -243,10 +244,10 @@ public class ViewProcessorTest {
   }
 
   private ViewCycleExecutionSequence generateExecutionSequence(final int cycleCount) {
-    final Collection<InstantProvider> valuationTimes = new ArrayList<InstantProvider>(cycleCount);
+    final Collection<Instant> valuationTimes = new ArrayList<Instant>(cycleCount);
     final Instant now = Instant.now();
     for (int i = 0; i < cycleCount; i++) {
-      valuationTimes.add(now.plus(i, TimeUnit.MINUTES));
+      valuationTimes.add(now.plus(i, MINUTES));
     }
     return ArbitraryViewCycleExecutionSequence.of(valuationTimes);
   }

@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -35,14 +34,14 @@ public class CapFloorCMSHullWhiteMethodsTest {
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor GENERATOR_EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", TARGET);
-  private static final Period TENOR_SWAP = Period.ofYears(10);
+  private static final Period TENOR_SWAP = DateUtils.periodOfYears(10);
   private static final IndexSwap SWAP_EUR10Y = new IndexSwap(GENERATOR_EUR1YEURIBOR6M, TENOR_SWAP);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 17);
 
   // Cap floor CMS: 6m fixing in advance (payment in arrears); ACT/360
-  private static final Period TENOR_COUPON = Period.ofMonths(6);
-  private static final Period TENOR_FIXING = Period.ofMonths(60);
+  private static final Period TENOR_COUPON = DateUtils.periodOfMonths(6);
+  private static final Period TENOR_FIXING = DateUtils.periodOfMonths(60);
   private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, TENOR_FIXING, GENERATOR_EUR1YEURIBOR6M.getBusinessDayConvention(), TARGET,
       GENERATOR_EUR1YEURIBOR6M.isEndOfMonth());
@@ -75,11 +74,11 @@ public class CapFloorCMSHullWhiteMethodsTest {
   @Test
   public void presentValueApproximation() {
     for (int loopstrike = 0; loopstrike < NB_STRIKE; loopstrike++) {
-      CurrencyAmount pvNumericalIntegration = METHOD_NI.presentValue(CAP_CMS[loopstrike], BUNDLE_HW);
-      CurrencyAmount pvApproximation = METHOD_APP.presentValue(CAP_CMS[loopstrike], BUNDLE_HW);
+      final CurrencyAmount pvNumericalIntegration = METHOD_NI.presentValue(CAP_CMS[loopstrike], BUNDLE_HW);
+      final CurrencyAmount pvApproximation = METHOD_APP.presentValue(CAP_CMS[loopstrike], BUNDLE_HW);
       assertEquals("Cap floor CMS - Hull-White - present value - approximation - strike: " + STRIKE[loopstrike], pvNumericalIntegration.getAmount(), pvApproximation.getAmount(), NOTIONAL
           * ACCRUAL_FACTOR * BP1);
-      // Error of less than 1.0bp in rate 
+      // Error of less than 1.0bp in rate
     }
     //TODO: Review if error can be decreased.
   }

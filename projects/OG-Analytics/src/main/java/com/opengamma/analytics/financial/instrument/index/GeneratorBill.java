@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BillSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BillTransactionDefinition;
@@ -27,7 +27,7 @@ public class GeneratorBill extends GeneratorInstrument<GeneratorAttribute> {
    * @param name Generator name.
    * @param security The underlying bill security.
    */
-  public GeneratorBill(String name, BillSecurityDefinition security) {
+  public GeneratorBill(final String name, final BillSecurityDefinition security) {
     super(name);
     ArgumentChecker.notNull(security, "Bill security");
     _security = security;
@@ -39,8 +39,8 @@ public class GeneratorBill extends GeneratorInstrument<GeneratorAttribute> {
    */
   public BillTransactionDefinition generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final GeneratorAttribute attribute) {
     ArgumentChecker.notNull(date, "Reference date");
-    int quantity = (int) Math.round(notional / _security.getNotional());
-    ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(date, _security.getSettlementDays(), _security.getCalendar());
+    final int quantity = (int) Math.round(notional / _security.getNotional());
+    final ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(date, _security.getSettlementDays(), _security.getCalendar());
     return BillTransactionDefinition.fromYield(_security, quantity, settleDate, marketQuote);
   }
 

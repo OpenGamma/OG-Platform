@@ -8,18 +8,22 @@ package com.opengamma.web.analytics.blotter;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.joda.beans.JodaBeanUtils;
+import org.joda.convert.StringConvert;
 import org.joda.convert.StringConverter;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -28,16 +32,15 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.conversion.JodaBeanConverters;
 import com.opengamma.financial.security.LongShort;
-import com.opengamma.financial.security.option.AmericanExerciseType;
-import com.opengamma.financial.security.option.AsianExerciseType;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
-import com.opengamma.financial.security.option.BermudanExerciseType;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.swap.FloatingRateType;
+import com.opengamma.id.ExternalScheme;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  *
@@ -49,9 +52,16 @@ public class BlotterLookupResource {
     JodaBeanConverters.getInstance();
   }
 
+  private final StringConvert _stringConvert;
+
+  /* package */ BlotterLookupResource(StringConvert stringConvert) {
+    ArgumentChecker.notNull(stringConvert, "stringConvert");
+    _stringConvert = stringConvert;
+  }
+
   @SuppressWarnings("unchecked")
   private String convertToJsonArray(Class<?> type, Iterator<?> it) {
-    StringConverter<Object> converter = (StringConverter<Object>) JodaBeanUtils.stringConverter().findConverter(type);
+    StringConverter<Object> converter = (StringConverter<Object>) _stringConvert.findConverter(type);
     List<String> results = Lists.newArrayList();
     while (it.hasNext()) {
       Object item = it.next();
@@ -73,9 +83,9 @@ public class BlotterLookupResource {
   @Path("exercisetypes")
   @Produces(MediaType.APPLICATION_JSON)
   public String getExerciseTypes() {
-    ImmutableList<ExerciseType> exerciseTypes = ImmutableList.of(new AmericanExerciseType(),
+    ImmutableList<ExerciseType> exerciseTypes = ImmutableList.<ExerciseType>of(/*new AmericanExerciseType(),
                                                                  new AsianExerciseType(),
-                                                                 new BermudanExerciseType(),
+                                                                 new BermudanExerciseType(),*/
                                                                  new EuropeanExerciseType());
     return convertToJsonArray(ExerciseType.class, exerciseTypes.iterator());
   }
@@ -135,5 +145,26 @@ public class BlotterLookupResource {
   @Produces(MediaType.APPLICATION_JSON)
   public String getMonitoringType() {
     return convertToJsonArray(MonitoringType.class, Arrays.asList(MonitoringType.values()).iterator());
+  }
+
+  @GET
+  @Path("idschemes")
+  @Produces(MediaType.APPLICATION_JSON)
+  public String getIdSchemes() {
+    Map<String, ExternalScheme> schemes = Maps.newHashMap();
+    // TODO should this include the weak ticker types?
+    // TODO are all the names correct?
+    schemes.put("ISIN", ExternalSchemes.ISIN);
+    schemes.put("CUSIP", ExternalSchemes.CUSIP);
+    schemes.put("SEDOL1", ExternalSchemes.SEDOL1);
+    schemes.put("Bloomberg BUID", ExternalSchemes.BLOOMBERG_BUID);
+    schemes.put("Bloomberg Ticker", ExternalSchemes.BLOOMBERG_TICKER);
+    schemes.put("Bloomberg Ticker/Coupon/Maturity", ExternalSchemes.BLOOMBERG_TCM);
+    schemes.put("Reuters RIC", ExternalSchemes.RIC);
+    schemes.put("ActiveFeed Ticker", ExternalSchemes.ACTIVFEED_TICKER);
+    schemes.put("Tullett Prebon SURF", ExternalSchemes.SURF);
+    schemes.put("ICAP", ExternalSchemes.ICAP);
+    schemes.put("GMI", ExternalSchemes.GMI);
+    return new JSONObject(schemes).toString();
   }
 }

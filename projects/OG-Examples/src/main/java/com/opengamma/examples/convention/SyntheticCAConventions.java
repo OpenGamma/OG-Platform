@@ -8,8 +8,6 @@ package com.opengamma.examples.convention;
 import static com.opengamma.core.id.ExternalSchemes.syntheticSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.core.id.ExternalSchemes;
@@ -23,6 +21,7 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -42,9 +41,9 @@ public class SyntheticCAConventions {
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
     
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CADLIBORP3M"), simpleNameSecurityId("CDOR 3m")), "CAD LIBOR 3m", act360, following, Period.ofMonths(3), 2, false, ca);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CADLIBORP6M")), "CAD LIBOR 6m", act360, following, Period.ofMonths(6), 2, false, ca);
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CADLIBORP12M")), "CAD LIBOR 12m", act360, following, Period.ofMonths(12), 2, false, ca);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CADLIBORP3M"), simpleNameSecurityId("CDOR 3m")), "CAD LIBOR 3m", act360, following, DateUtils.periodOfMonths(3), 2, false, ca);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CADLIBORP6M")), "CAD LIBOR 6m", act360, following, DateUtils.periodOfMonths(6), 2, false, ca);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("CADLIBORP12M")), "CAD LIBOR 12m", act360, following, DateUtils.periodOfMonths(12), 2, false, ca);
     
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("CAD_SWAP")), "CAD_SWAP", act365, modified, semiAnnual, 0, ca, act365, modified,
         quarterly, 0, simpleNameSecurityId("CDOR 3m"), ca, true);

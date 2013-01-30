@@ -8,25 +8,25 @@ package com.opengamma.examples.tutorial;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.master.security.RawSecurity;
 
 /**
@@ -47,13 +47,12 @@ public class TutorialValueFunction extends AbstractFunction.NonCompiledInvoker {
    */
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return FinancialSecurityTypes.RAW_SECURITY;
   }
 
   /**
    * Checks that the target is a {@link Tutorial1Security}. The target will always be a security - the result from {@link #getTargetType} will be used by the graph builder. As we implemented the
-   * tutorial asset class using {@link RawSecurity} we are checking that the target is an instance of that, and that the {@code RawSecurity} contains a valid {@code Tutorial1Security} encoding (see
-   * {@link Tutorial1Security#isInstance}).
+   * tutorial asset class using {@link RawSecurity} we are checking that it contains a valid {@code Tutorial1Security} encoding (see {@link Tutorial1Security#isInstance}).
    *
    * @param context the function compilation context, not used in this example
    * @param target the target to consider
@@ -61,8 +60,7 @@ public class TutorialValueFunction extends AbstractFunction.NonCompiledInvoker {
    */
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Security security = target.getSecurity();
-    return (security instanceof RawSecurity) && Tutorial1Security.isInstance((RawSecurity) security);
+    return Tutorial1Security.isInstance((RawSecurity) target.getSecurity());
   }
 
   /**
@@ -124,10 +122,10 @@ public class TutorialValueFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Tutorial1Security security = getSecurity(target);
-    final ValueRequirement yieldCurve = new ValueRequirement(ValueRequirementNames.YIELD_CURVE, new ComputationTargetSpecification(security.getCurrency()), ValueProperties.with(
+    final ValueRequirement yieldCurve = new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(security.getCurrency()), ValueProperties.with(
         ValuePropertyNames.CURVE, "SECONDARY").get());
-    final ValueRequirement underlyingPrice = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, security.getUnderlying(), ValueProperties.with(ValuePropertyNames.CURRENCY,
-        security.getCurrency().getCode()).get());
+    final ValueRequirement underlyingPrice = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUnderlying(), ValueProperties.with(
+        ValuePropertyNames.CURRENCY, security.getCurrency().getCode()).get());
     return ImmutableSet.of(yieldCurve, underlyingPrice);
   }
 

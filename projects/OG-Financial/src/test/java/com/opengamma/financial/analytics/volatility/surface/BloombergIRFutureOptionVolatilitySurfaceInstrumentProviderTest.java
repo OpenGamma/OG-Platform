@@ -7,11 +7,10 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
@@ -35,9 +34,9 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProviderTest {
 
   private static final FutureOptionExpiries UTILS =  FutureOptionExpiries.of(new NextExpiryAdjuster(3, DayOfWeek.WEDNESDAY));
   private static final LocalDate[] EXPIRY_DATES = new LocalDate[] {
-    UTILS.getQuarterlyExpiry(1, LocalDate.of(2011, MonthOfYear.SEPTEMBER, 1)),
-    UTILS.getQuarterlyExpiry(1, LocalDate.of(2013, MonthOfYear.MARCH, 1)),
-    UTILS.getQuarterlyExpiry(1, LocalDate.of(2013, MonthOfYear.DECEMBER, 1)) };
+    UTILS.getQuarterlyExpiry(1, LocalDate.of(2011, Month.SEPTEMBER, 1)),
+    UTILS.getQuarterlyExpiry(1, LocalDate.of(2013, Month.MARCH, 1)),
+    UTILS.getQuarterlyExpiry(1, LocalDate.of(2013, Month.DECEMBER, 1)) };
 
   private static final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider PROVIDER =
       new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(PREFIX, POSTFIX, DATA_FIELD_NAME, 97.625, EXCHANGE);

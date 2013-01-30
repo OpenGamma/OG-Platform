@@ -8,9 +8,10 @@ package com.opengamma.financial.analytics.model.equity.option;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.analytics.financial.equity.EquityOptionBlackSpotVannaCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
-import com.opengamma.analytics.financial.equity.option.EquityIndexOptionBlackMethod;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
@@ -24,20 +25,22 @@ import com.opengamma.engine.value.ValueSpecification;
  * $\frac{\partial^2 (PV)}{\partial spot \partial \sigma}$
  */
 public class EquityOptionBlackSpotVannaFunction extends EquityOptionBlackFunction {
+  /** Spot vanna calculator */
+  private static final InstrumentDerivativeVisitor<StaticReplicationDataBundle, Double> CALCULATOR = EquityOptionBlackSpotVannaCalculator.getInstance();
 
   /**
    * Default constructor
    */
   public EquityOptionBlackSpotVannaFunction() {
-    super(ValueRequirementNames.VALUE_VANNA);
+    super(ValueRequirementNames.VANNA);
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final EquityIndexOption derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    final EquityIndexOptionBlackMethod model = EquityIndexOptionBlackMethod.getInstance();
-    return Collections.singleton(new ComputedValue(resultSpec, model.vannaWrtSpot(derivative, market)));
+    final double spotVanna = derivative.accept(CALCULATOR, market);
+    return Collections.singleton(new ComputedValue(resultSpec, spotVanna));
   }
 
 }

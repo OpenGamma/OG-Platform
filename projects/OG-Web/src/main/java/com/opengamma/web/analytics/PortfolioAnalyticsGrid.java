@@ -7,11 +7,13 @@ package com.opengamma.web.analytics;
 
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
 /**
  * A grid for displaying portfolio analytics data.
+ * TODO this subclass doesn't have much reason to exist any more
  */
-/* package */ class PortfolioAnalyticsGrid extends MainAnalyticsGrid<PortfolioGridViewport> {
+/* package */ class PortfolioAnalyticsGrid extends MainAnalyticsGrid {
 
   /**
    * @param compiledViewDef The view definition whose results the grid will display
@@ -24,8 +26,24 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
                                        String gridId,
                                        ComputationTargetResolver targetResolver,
                                        ValueMappings valueMappings,
-                                       ViewportListener viewportListener) {
-    this(new PortfolioGridStructure(compiledViewDef, valueMappings), gridId, targetResolver, viewportListener);
+                                       ViewportListener viewportListener,
+                                       BlotterColumnMapper blotterColumnMapper,
+                                       boolean blotter) {
+    this(buildGridStructure(compiledViewDef, valueMappings, blotterColumnMapper, blotter),
+         gridId,
+         targetResolver,
+         viewportListener);
+  }
+
+  private static PortfolioGridStructure buildGridStructure(CompiledViewDefinition compiledViewDef,
+                                                           ValueMappings valueMappings,
+                                                           BlotterColumnMapper blotterColumnMapper,
+                                                           boolean blotter) {
+    if (!blotter) {
+      return PortfolioGridStructure.forAnalytics(compiledViewDef, valueMappings);
+    } else {
+      return PortfolioGridStructure.forBlotter(compiledViewDef, valueMappings, blotterColumnMapper);
+    }
   }
 
   /* package */ PortfolioAnalyticsGrid(PortfolioGridStructure gridStructure,
@@ -35,15 +53,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
     super(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId, targetResolver, viewportListener);
   }
 
-  /**
-   * @param viewportDefinition Defines the extent and properties of the viewport
-   * @param callbackId ID that will be passed to listeners when the grid's data changes
-   * @return The viewport
-   */
-  @Override
-  protected PortfolioGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
-    return new PortfolioGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, _cache);
-  }
+  
 
   /**
    * Factory method for creating a portfolio grid that doesn't contain any data.

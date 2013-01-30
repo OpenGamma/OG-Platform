@@ -2,10 +2,8 @@ package com.opengamma.analytics.financial.interestrate.payments.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
@@ -43,17 +41,17 @@ public class CapFloorCMSSpreadG2ppMethodTest {
 
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final GeneratorDeposit GEN_EUR_DEPOSIT = new EURDeposit(CALENDAR);
-  private static final IndexSwap SWAP_EUR10Y = new IndexSwap(EUR1YEURIBOR6M, Period.ofYears(10));
-  private static final IndexSwap SWAP_EUR2Y = new IndexSwap(EUR1YEURIBOR6M, Period.ofYears(2));
+  private static final IndexSwap SWAP_EUR10Y = new IndexSwap(EUR1YEURIBOR6M, DateUtils.periodOfYears(10));
+  private static final IndexSwap SWAP_EUR2Y = new IndexSwap(EUR1YEURIBOR6M, DateUtils.periodOfYears(2));
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
-  private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(60), GEN_EUR_DEPOSIT);
+  private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfMonths(60), GEN_EUR_DEPOSIT);
 
   // CMS spread coupon
   private static final double NOTIONAL = 100000000;
   //  private static final double BP1 = 1.0E-4; // 1 basis point
   private static final ZonedDateTime ACCRUAL_START_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, EUR1YEURIBOR6M.getSpotLag(), CALENDAR);
-  private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, Period.ofMonths(6), GEN_EUR_DEPOSIT);
+  private static final ZonedDateTime ACCRUAL_END_DATE = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, DateUtils.periodOfMonths(6), GEN_EUR_DEPOSIT);
   private static final ZonedDateTime PAYMENT_DATE = ACCRUAL_END_DATE;
   private static final DayCount PAYMENT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final double PAYMENT_ACCRUAL_FACTOR = PAYMENT_DAY_COUNT.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
@@ -74,11 +72,11 @@ public class CapFloorCMSSpreadG2ppMethodTest {
 
   @Test
   /**
-   * Tests the present value against a previous run. 
+   * Tests the present value against a previous run.
    */
   public void presentValue() {
-    MultipleCurrencyAmount pv = METHOD_NI.presentValue(CMS_SPREAD, G2PP_MULTICURVES);
-    double pvPreviousRun = 102469.279; // 5Y - 6M - strike 10bp
+    final MultipleCurrencyAmount pv = METHOD_NI.presentValue(CMS_SPREAD, G2PP_MULTICURVES);
+    final double pvPreviousRun = 102469.279; // 5Y - 6M - strike 10bp
     assertEquals("CMS spread: G2++ - present value", pvPreviousRun, pv.getAmount(EUR), TOLERANCE_PV);
   }
 
@@ -88,7 +86,7 @@ public class CapFloorCMSSpreadG2ppMethodTest {
    */
   public void presentValueNIntegrationVsApproximation() {
 
-    // TODO 
+    // TODO
     //    double[] forward = new double[] {PRC.visit(CMS_SPREAD.getUnderlyingSwap1(), CURVES), PRC.visit(CMS_SPREAD.getUnderlyingSwap2(), CURVES)};
     //    double atm = forward[0] - forward[1];
     //    double[] shift = new double[] {-0.0100, -0.0050, 0.0, 0.0050, 0.0100};

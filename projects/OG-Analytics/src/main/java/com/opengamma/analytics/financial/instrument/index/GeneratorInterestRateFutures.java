@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.util.ArgumentChecker;
@@ -27,7 +26,7 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument<GeneratorA
    * @param name The generator name.
    * @param security The underlying STIR futures security.
    */
-  public GeneratorInterestRateFutures(String name, final InterestRateFutureDefinition security) {
+  public GeneratorInterestRateFutures(final String name, final InterestRateFutureDefinition security) {
     super(name);
     ArgumentChecker.notNull(security, "STIR futures security");
     _security = security;
@@ -45,10 +44,10 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument<GeneratorA
   /**
    * The quantity is modified to be in line with the required quantity.
    */
-  public InterestRateFutureDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, final GeneratorAttribute attribute) {
-    int quantity = (int) Math.ceil(notional / _security.getNotional());
-    return InterestRateFutureDefinition.fromFixingPeriodStartDate(date, marketQuote, quantity, _security.getFixingPeriodStartDate(), _security.getIborIndex(), _security.getNotional(),
-        _security.getFixingPeriodAccrualFactor(), _security.getName());
+  public InterestRateFutureDefinition generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final GeneratorAttribute attribute) {
+    final int quantity = (int) Math.ceil(notional / _security.getNotional());
+    return InterestRateFutureDefinition.fromFixingPeriodStartDate(date, marketQuote, quantity, _security.getFixingPeriodStartDate(), _security.getIborIndex(),
+        _security.getNotional(), _security.getFixingPeriodAccrualFactor(), _security.getName());
   }
 
   @Override
@@ -60,7 +59,7 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument<GeneratorA
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -70,7 +69,7 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument<GeneratorA
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorInterestRateFutures other = (GeneratorInterestRateFutures) obj;
+    final GeneratorInterestRateFutures other = (GeneratorInterestRateFutures) obj;
     if (!ObjectUtils.equals(_security, other._security)) {
       return false;
     }

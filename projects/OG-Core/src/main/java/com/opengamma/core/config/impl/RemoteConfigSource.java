@@ -6,13 +6,13 @@
 package com.opengamma.core.config.impl;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 
+import com.google.common.collect.Lists;
 import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -57,7 +57,7 @@ public class RemoteConfigSource extends AbstractRemoteSource<ConfigItem<?>> impl
 
   @SuppressWarnings("unchecked")
   private <R> Collection<ConfigItem<R>> configItemCollectionResult(final FudgeMsg msg) {
-    final Collection<ConfigItem<R>> result = new ArrayList<ConfigItem<R>>(msg.getNumFields());
+    final Collection<ConfigItem<R>> result = Lists.newArrayListWithCapacity(msg.getNumFields());
     final FudgeDeserializer deserializer = new FudgeDeserializer(OpenGammaFudgeContext.getInstance());
     for (final FudgeField field : msg) {
       result.add(deserializer.fieldValueToObject(ConfigItem.class, field));
@@ -118,7 +118,6 @@ public class RemoteConfigSource extends AbstractRemoteSource<ConfigItem<?>> impl
     return accessRemote(uri).get(clazz);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <R> Collection<ConfigItem<R>> get(final Class<R> clazz, final String configName, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");
@@ -133,7 +132,6 @@ public class RemoteConfigSource extends AbstractRemoteSource<ConfigItem<?>> impl
     return getSingle(clazz, name, VersionCorrection.LATEST);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <R> Collection<ConfigItem<R>> getAll(final Class<R> clazz, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");

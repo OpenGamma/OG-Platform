@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.interestrate.payments.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
@@ -42,7 +41,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Test related to the pricing and sensitivity of the Ibor cap/floor with the SABR model and extrapolation for high strikes. 
+ * Test related to the pricing and sensitivity of the Ibor cap/floor with the SABR model and extrapolation for high strikes.
  */
 public class CapFloorIborSABRExtrapolationRightMethodTest {
 
@@ -124,7 +123,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
    * Test the present value using the method with the direct formula with extrapolation.
    */
   public void presentValueAboveCutOff() {
-    MultipleCurrencyAmount methodPrice = METHOD_CAP_X.presentValue(CAP_HIGH_LONG, SABR_MULTICURVES);
+    final MultipleCurrencyAmount methodPrice = METHOD_CAP_X.presentValue(CAP_HIGH_LONG, SABR_MULTICURVES);
     final double df = MULTICURVES.getDiscountFactor(EUR, CAP_HIGH_LONG.getPaymentTime());
     final double forward = MULTICURVES.getForwardRate(EURIBOR3M, CAP_HIGH_LONG.getFixingPeriodStartTime(), CAP_HIGH_LONG.getFixingPeriodEndTime(), CAP_HIGH_LONG.getFixingAccrualFactor());
     final double maturity = CAP_HIGH_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime();

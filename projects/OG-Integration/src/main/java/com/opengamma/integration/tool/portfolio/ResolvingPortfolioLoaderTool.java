@@ -134,7 +134,7 @@ public class ResolvingPortfolioLoaderTool extends AbstractTool<IntegrationToolCo
           portfolioMaster, 
           positionMaster, 
           securityMaster,
-          overwrite, false, false);
+          overwrite, false, false, false);
     } else {
       // Create a dummy portfolio writer to pretty-print instead of persisting
       return new PrettyPrintingPortfolioWriter(true);         

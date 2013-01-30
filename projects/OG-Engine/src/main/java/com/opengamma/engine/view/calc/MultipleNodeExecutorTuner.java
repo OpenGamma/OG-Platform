@@ -8,13 +8,12 @@ package com.opengamma.engine.view.calc;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.time.Instant;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.view.calc.stats.GraphExecutionStatistics;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;

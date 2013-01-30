@@ -11,10 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -46,10 +45,10 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunctionTest {
     final List<LocalDate> t2 = new ArrayList<LocalDate>();
     final List<Double> d2 = new ArrayList<Double>();
     for (int i = 0; i < DAILY_SCHEDULE.length; i++) {
-      t1.add(DAILY_SCHEDULE[i].toLocalDate());
+      t1.add(DAILY_SCHEDULE[i]);
       d1.add(Double.valueOf(i));
       if (!(DAILY_SCHEDULE[i].equals(MISSING_DAY_MONDAY_1) || DAILY_SCHEDULE[i].equals(MISSING_DAY_MONDAY_2))) {
-        t2.add(DAILY_SCHEDULE[i].toLocalDate());
+        t2.add(DAILY_SCHEDULE[i]);
         d2.add(Double.valueOf(i));
       }
     }

@@ -7,14 +7,13 @@ package com.opengamma.masterdb.security;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.testng.Assert;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.elsql.ElSqlBundle;
@@ -81,7 +80,7 @@ public class ModifySecurityDbSecurityMasterWorkerUpdateTest extends AbstractDbSe
 
   @Test
   public void test_update_getUpdateGet() {
-    Instant now = Instant.now(_secMaster.getTimeSource());
+    Instant now = Instant.now(_secMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbSec", "101", "0");
     SecurityDocument base = _secMaster.get(uniqueId);

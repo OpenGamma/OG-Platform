@@ -6,9 +6,9 @@
 package com.opengamma.core.security;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -21,7 +21,7 @@ public abstract class AbstractSecuritySource implements SecuritySource {
   @Override
   public Map<UniqueId, Security> get(Collection<UniqueId> uniqueIds) {
     ArgumentChecker.notNull(uniqueIds, "uniqueIds");
-    Map<UniqueId, Security> result = new HashMap<UniqueId, Security>(uniqueIds.size());
+    Map<UniqueId, Security> result = Maps.newHashMapWithExpectedSize(uniqueIds.size());
     for (UniqueId uniqueId : uniqueIds) {
       try {
         Security security = get(uniqueId);

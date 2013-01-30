@@ -16,9 +16,9 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
 import com.opengamma.analytics.math.function.DoubleFunction1D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -26,8 +26,8 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -38,11 +38,8 @@ import com.opengamma.util.money.Currency;
 public class SABRCMSSpreadRightExtrapolationYCNSFunctionDeprecated extends SABRYCNSFunctionDeprecated {
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return target.getSecurity() instanceof CapFloorCMSSpreadSecurity;
+  public ComputationTargetType getTargetType() {
+    return FinancialSecurityTypes.CAP_FLOOR_CMS_SPREAD_SECURITY;
   }
 
   @Override

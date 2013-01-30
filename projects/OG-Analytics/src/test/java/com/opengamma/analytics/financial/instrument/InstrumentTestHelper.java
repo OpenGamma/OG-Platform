@@ -5,13 +5,18 @@
  */
 package com.opengamma.analytics.financial.instrument;
 
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
@@ -48,26 +53,27 @@ public class InstrumentTestHelper {
   public static final DayCount QUARTERLY_DAY_COUNT = new QuarterlyDayCount();
   public static final BusinessDayConvention NONE = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("None");
   public static final Currency FIXED_INCOME_CURRENCY = Currency.EUR;
-  public static final IborIndex USD_IBOR_INDEX1 = new IborIndex(FIXED_INCOME_CURRENCY, Period.ofMonths(6), 0, NO_HOLIDAY, SEMI_ANNUAL_DAY_COUNT, NONE, false, "f");
-  public static final IborIndex USD_IBOR_INDEX2 = new IborIndex(FIXED_INCOME_CURRENCY, Period.ofMonths(3), 0, NO_HOLIDAY, QUARTERLY_DAY_COUNT, NONE, false, "f");
-  public static final ZonedDateTime CASH_START = ZonedDateTime.of(2012, 6, 1, 11, 0, 0, 0, TimeZone.UTC);
-  public static final ZonedDateTime CASH_MATURITY = ZonedDateTime.of(2012, 12, 1, 11, 0, 0, 0, TimeZone.UTC);
+  public static final IborIndex USD_IBOR_INDEX1 = new IborIndex(FIXED_INCOME_CURRENCY, DateUtils.periodOfMonths(6), 0, NO_HOLIDAY, SEMI_ANNUAL_DAY_COUNT, NONE, false,
+      "f");
+  public static final IborIndex USD_IBOR_INDEX2 = new IborIndex(FIXED_INCOME_CURRENCY, DateUtils.periodOfMonths(3), 0, NO_HOLIDAY, QUARTERLY_DAY_COUNT, NONE, false, "f");
+  public static final ZonedDateTime CASH_START = ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 11, 0, 0, 0), ZoneOffset.UTC);
+  public static final ZonedDateTime CASH_MATURITY = ZonedDateTime.of(LocalDateTime.of(2012, 12, 1, 11, 0, 0, 0), ZoneOffset.UTC);
   public static final double CASH_NOTIONAL = 234000;
   public static final double CASH_RATE = 0.002;
-  public static final ZonedDateTime PAYMENT_MATURITY = ZonedDateTime.of(2011, 1, 1, 11, 0, 0, 0, TimeZone.UTC);
+  public static final ZonedDateTime PAYMENT_MATURITY = zdt(2011, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC);
   public static final double PAYMENT_AMOUNT = 34500;
-  public static final ZonedDateTime FIXED_COUPON_START = ZonedDateTime.of(2011, 1, 1, 11, 0, 0, 0, TimeZone.UTC);
-  public static final ZonedDateTime FIXED_COUPON_MATURITY = ZonedDateTime.of(2011, 2, 1, 11, 0, 0, 0, TimeZone.UTC);
+  public static final ZonedDateTime FIXED_COUPON_START = zdt(2011, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC);
+  public static final ZonedDateTime FIXED_COUPON_MATURITY = zdt(2011, 2, 1, 11, 0, 0, 0, ZoneOffset.UTC);
   public static final double FIXED_COUPON_NOTIONAL = 45600;
   public static final double FIXED_COUPON_RATE = 0.0001;
   public static final double IBOR_COUPON_SPREAD = 0.00023;
-  public static final ZonedDateTime FRA_START = ZonedDateTime.of(2011, 6, 3, 11, 0, 0, 0, TimeZone.UTC);
-  public static final ZonedDateTime FRA_END = ZonedDateTime.of(2011, 12, 3, 11, 0, 0, 0, TimeZone.UTC);
+  public static final ZonedDateTime FRA_START = zdt(2011, 6, 3, 11, 0, 0, 0, ZoneOffset.UTC);
+  public static final ZonedDateTime FRA_END = zdt(2011, 12, 3, 11, 0, 0, 0, ZoneOffset.UTC);
   public static final double FRA_NOTIONAL = 567000;
   public static final double FRA_RATE = 0.004;
-  public static final ZonedDateTime SWAP_START = ZonedDateTime.of(2001, 1, 1, 11, 0, 0, 0, TimeZone.UTC);
-  public static final ZonedDateTime SWAP_MATURITY = ZonedDateTime.of(2031, 1, 1, 11, 0, 0, 0, TimeZone.UTC);
-  public static final GeneratorSwapFixedIbor SWAP_GENERATOR = new GeneratorSwapFixedIbor("a", Period.ofMonths(6), SEMI_ANNUAL_DAY_COUNT, USD_IBOR_INDEX1);
+  public static final ZonedDateTime SWAP_START = zdt(2001, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC);
+  public static final ZonedDateTime SWAP_MATURITY = zdt(2031, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC);
+  public static final GeneratorSwapFixedIbor SWAP_GENERATOR = new GeneratorSwapFixedIbor("a", Period.of(6, MONTHS), SEMI_ANNUAL_DAY_COUNT, USD_IBOR_INDEX1);
   public static final double SWAP_NOTIONAL = 789000;
   public static final double SWAP_FIXED_RATE = 0.04;
   public static final double IBOR_SPREAD = 0.01;
@@ -77,10 +83,10 @@ public class InstrumentTestHelper {
   public static final double FX_PAY_AMOUNT = -12345;
   public static final double FX_RECEIVE_AMOUNT = 23456;
   public static final GeneratorSwapIborIbor IBOR_IBOR_GENERATOR = new GeneratorSwapIborIbor("s", USD_IBOR_INDEX1, USD_IBOR_INDEX2);
-  public static final ZonedDateTime DEPOSIT_START = ZonedDateTime.of(2012, 1, 1, 11, 0, 0, 0, TimeZone.UTC);
+  public static final ZonedDateTime DEPOSIT_START = zdt(2012, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC);
   public static final double DEPOSIT_NOTIONAL = -12300;
   public static final double DEPOSIT_RATE = 0.002;
-  public static final ZonedDateTime IBOR_COUPON_FIXING_DATE = ZonedDateTime.of(2011, 1, 1, 11, 0, 0, 0, TimeZone.UTC);
+  public static final ZonedDateTime IBOR_COUPON_FIXING_DATE = zdt(2011, 1, 1, 11, 0, 0, 0, ZoneOffset.UTC);
   public static final double IBOR_COUPON_NOTIONAL = -45600;
   public static final double GEARING = 3.;
 
@@ -115,9 +121,9 @@ public class InstrumentTestHelper {
       SWAP_NOTIONAL, SWAP_FIXED_RATE, IBOR_SPREAD, true);
   public static final SwapFixedIborSpreadDefinition RECEIVER_SWAP_WITH_SPREAD = SwapFixedIborSpreadDefinition.from(SWAP_START, SWAP_MATURITY, SWAP_GENERATOR,
       SWAP_NOTIONAL, SWAP_NOTIONAL, SWAP_FIXED_RATE, IBOR_SPREAD, false);
-  public static final SwapIborIborDefinition PAY_SPREAD_IBOR_IBOR_SWAP = SwapIborIborDefinition.from(SWAP_START, Period.ofYears(50), IBOR_IBOR_GENERATOR, SWAP_NOTIONAL,
-      IBOR_SPREAD, true);
-  public static final SwapIborIborDefinition RECEIVE_SPREAD_IBOR_IBOR_SWAP = SwapIborIborDefinition.from(SWAP_START, Period.ofYears(50), IBOR_IBOR_GENERATOR,
+  public static final SwapIborIborDefinition PAY_SPREAD_IBOR_IBOR_SWAP = SwapIborIborDefinition.from(SWAP_START, Period.of(50, YEARS), IBOR_IBOR_GENERATOR,
+      SWAP_NOTIONAL, IBOR_SPREAD, true);
+  public static final SwapIborIborDefinition RECEIVE_SPREAD_IBOR_IBOR_SWAP = SwapIborIborDefinition.from(SWAP_START, Period.of(50, YEARS), IBOR_IBOR_GENERATOR,
       SWAP_NOTIONAL, IBOR_SPREAD, false);
   public static final DoubleTimeSeries<LocalDate> IBOR_FIXING_SERIES;
   public static final double FIXING_RATE = 0.03;
@@ -180,4 +186,10 @@ public class InstrumentTestHelper {
     }
 
   }
+
+  //-------------------------------------------------------------------------
+  private static ZonedDateTime zdt(final int y, final int m, final int d, final int hr, final int min, final int sec, final int nanos, final ZoneId zone) {
+    return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
+  }
+
 }

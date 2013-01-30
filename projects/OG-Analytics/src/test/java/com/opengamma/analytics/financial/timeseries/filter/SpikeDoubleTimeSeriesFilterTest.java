@@ -9,9 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -37,7 +36,7 @@ public class SpikeDoubleTimeSeriesFilterTest {
     double random;
     for (int i = 0; i < N; i++) {
       random = RANDOM.nextDouble();
-      DATES[i] = LocalDate.ofEpochDays(i);
+      DATES[i] = LocalDate.ofEpochDay(i);
       DATA[i] = value * (random < 0.5 ? 1 - random : 1 + random);
     }
   }

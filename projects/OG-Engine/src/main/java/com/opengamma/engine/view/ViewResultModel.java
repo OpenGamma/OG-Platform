@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.Duration;
-import javax.time.Instant;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.id.UniqueId;

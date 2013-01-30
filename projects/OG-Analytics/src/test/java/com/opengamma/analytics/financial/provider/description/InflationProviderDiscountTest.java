@@ -6,10 +6,10 @@
 package com.opengamma.analytics.financial.provider.description;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
@@ -39,7 +39,7 @@ public class InflationProviderDiscountTest {
   private static final IborIndex EURIBOR_6M = IndexIborMaster.getInstance().getIndex("EURIBOR6M", CALENDAR_EUR);
   private static final IborIndex USDLIBOR_3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR_USD);
   private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
-  private static final Period LAG = Period.ofDays(14);
+  private static final Period LAG = Period.of(14, DAYS);
   private static final IndexPrice PRICE_INDEX_EUR = new IndexPrice(NAME_EUR_PRICE_INDEX, Currency.EUR, Currency.EUR, LAG);
   private static double[] INDEX_VALUE = new double[] {108.23, 108.64, 111.0, 119.0, 129.0, 149.0};
   private static double[] TIME_VALUE = new double[] {-3.0 / 12.0, -2.0 / 12.0, 9.0 / 12.0, 4.0 + 9.0 / 12.0, 9.0 + 9.0 / 12.0, 19.0 + 9.0 / 12.0};

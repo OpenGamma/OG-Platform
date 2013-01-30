@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.swap.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
@@ -47,8 +46,8 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR3M", TARGET);
   private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor("EUR3MEURIBOR3M", EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M);
 
-  private static final Period START_TENOR = Period.ofMonths(6);
-  private static final Period SWAP_TENOR = Period.ofYears(5);
+  private static final Period START_TENOR = DateUtils.periodOfMonths(6);
+  private static final Period SWAP_TENOR = DateUtils.periodOfYears(5);
   private static final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, START_TENOR, EURIBOR3M);
   private static final double NOTIONAL = 123000000;
   private static final double SPREAD = 0.0010;
@@ -118,21 +117,21 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
    * Test the performance of building swaps and computing their PV and delta.
    */
   public void performanceBuildPV() {
-    int nbSwap = 2500;
+    final int nbSwap = 2500;
     long startTime, endTime;
-    double strikeMin = 0.01;
-    double strikeMax = 0.02;
-    Period tenor = Period.ofYears(10);
-    SwapFixedIborSpreadDefinition[] swapDefinition = new SwapFixedIborSpreadDefinition[nbSwap + 1];
-    double[] pv = new double[nbSwap + 1];
+    final double strikeMin = 0.01;
+    final double strikeMax = 0.02;
+    final Period tenor = DateUtils.periodOfYears(10);
+    final SwapFixedIborSpreadDefinition[] swapDefinition = new SwapFixedIborSpreadDefinition[nbSwap + 1];
+    final double[] pv = new double[nbSwap + 1];
 
     startTime = System.currentTimeMillis();
     for (int loopswap = 0; loopswap <= nbSwap; loopswap++) {
-      double strike = strikeMin + loopswap * (strikeMax - strikeMin) / nbSwap;
+      final double strike = strikeMin + loopswap * (strikeMax - strikeMin) / nbSwap;
       swapDefinition[loopswap] = SwapFixedIborSpreadDefinition.from(START_DATE, tenor, EUR1YEURIBOR3M, NOTIONAL, strike, SPREAD, IS_PAYER);
-      SwapFixedCoupon<Coupon> swap = swapDefinition[loopswap].toDerivative(REFERENCE_DATE, NOT_USED_A);
+      final SwapFixedCoupon<Coupon> swap = swapDefinition[loopswap].toDerivative(REFERENCE_DATE, NOT_USED_A);
       pv[loopswap] = swap.accept(PVDC, MULTICURVES).getAmount(EUR);
-      MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSDC, MULTICURVES);
+      final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSDC, MULTICURVES);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbSwap + " swap construction/pv/delta: " + (endTime - startTime) + " ms");
@@ -140,11 +139,11 @@ public class SwapFixedIborSpreadDiscountingMethodTest {
 
     startTime = System.currentTimeMillis();
     for (int loopswap = 0; loopswap <= nbSwap; loopswap++) {
-      double strike = strikeMin + loopswap * (strikeMax - strikeMin) / nbSwap;
+      final double strike = strikeMin + loopswap * (strikeMax - strikeMin) / nbSwap;
       swapDefinition[loopswap] = SwapFixedIborSpreadDefinition.from(START_DATE, tenor, EUR1YEURIBOR3M, NOTIONAL, strike, SPREAD, IS_PAYER);
-      SwapFixedCoupon<Coupon> swap = swapDefinition[loopswap].toDerivative(REFERENCE_DATE, NOT_USED_A);
+      final SwapFixedCoupon<Coupon> swap = swapDefinition[loopswap].toDerivative(REFERENCE_DATE, NOT_USED_A);
       pv[loopswap] = swap.accept(PVDC, MULTICURVES).getAmount(EUR);
-      MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSDC, MULTICURVES);
+      final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSDC, MULTICURVES);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbSwap + " swap construction/pv/delta: " + (endTime - startTime) + " ms");

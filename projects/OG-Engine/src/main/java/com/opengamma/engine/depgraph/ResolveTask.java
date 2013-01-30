@@ -18,7 +18,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
-import com.opengamma.engine.target.LazyComputationTargetResolver;
+import com.opengamma.engine.target.lazy.LazyComputationTargetResolver;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
@@ -85,8 +85,20 @@ import com.opengamma.engine.value.ValueSpecification;
       return getTask().getValueRequirement();
     }
 
+    protected ComputationTargetSpecification getTargetSpecification(final GraphBuildingContext context) {
+      return context.resolveTargetReference(getValueRequirement().getTargetReference());
+    }
+
     protected ComputationTarget getComputationTarget(final GraphBuildingContext context) {
-      return getTask().getComputationTarget(context);
+      final ComputationTargetSpecification specification = getTargetSpecification(context);
+      if (specification == null) {
+        return null;
+      }
+      final ComputationTarget target = LazyComputationTargetResolver.resolve(context.getCompilationContext().getComputationTargetResolver(), specification);
+      if (target == null) {
+        s_logger.warn("Computation target {} not found", specification);
+      }
+      return target;
     }
 
     protected boolean run(final GraphBuildingContext context) {
@@ -180,12 +192,13 @@ import com.opengamma.engine.value.ValueSpecification;
     assert state != null;
     s_logger.debug("State transition {} to {}", _state, state);
     if (_state == null) {
-      // Increase the ref-count as the state holds a reference to us 
+      // Increase the ref-count as the state holds a reference to us
       addRef();
     }
     _state = state;
   }
 
+  @Override
   public boolean isFinished() {
     return _state == null;
   }
@@ -221,15 +234,6 @@ import com.opengamma.engine.value.ValueSpecification;
 
   private Set<ValueRequirement> getParentValueRequirements() {
     return _parentRequirements;
-  }
-
-  private ComputationTarget getComputationTarget(final GraphBuildingContext context) {
-    final ComputationTargetSpecification specification = getValueRequirement().getTargetSpecification();
-    final ComputationTarget target = LazyComputationTargetResolver.resolve(context.getCompilationContext().getComputationTargetResolver(), specification);
-    if (target == null) {
-      s_logger.warn("Computation target {} not found", specification);
-    }
-    return target;
   }
 
   public boolean hasParent(final ResolveTask task) {
@@ -274,7 +278,7 @@ import com.opengamma.engine.value.ValueSpecification;
     if (!(o instanceof ResolveTask)) {
       return false;
     }
-    ResolveTask other = (ResolveTask) o;
+    final ResolveTask other = (ResolveTask) o;
     if (!getValueRequirement().equals(other.getValueRequirement())) {
       return false;
     }
@@ -298,17 +302,16 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public int release(final GraphBuildingContext context) {
     final int count = super.release(context);
-    if (getState() != null) {
+    final State state = getState();
+    if (state != null) {
       if (count == 2) {
         // References held from the cache and the simulated one from our state
-        final State state = getState();
         if (!state.isActive()) {
           s_logger.debug("Remove unfinished {} from the cache", this);
           context.discardTask(this);
         }
       } else if (count == 1) {
         // Simulated reference held from our state only
-        final State state = getState();
         if (!state.isActive()) {
           s_logger.debug("Discarding state for unfinished {}", this);
           state.onDiscard(context);

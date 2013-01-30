@@ -26,10 +26,11 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -147,8 +148,8 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    final ValueRequirement putFundingCurve = getCurveRequirement(putCurrency, putCurveName, putCurveCalculationConfigName);
-    final ValueRequirement callFundingCurve = getCurveRequirement(callCurrency, callCurveName, callCurveCalculationConfigName);
+    final ValueRequirement putFundingCurve = getCurveRequirement(ComputationTargetSpecification.of(putCurrency), putCurveName, putCurveCalculationConfigName);
+    final ValueRequirement callFundingCurve = getCurveRequirement(ComputationTargetSpecification.of(callCurrency), callCurveName, callCurveCalculationConfigName);
     final String resultCurrency, resultCurveName, resultCurveConfigName;
     if (!(curveName.equals(putCurveName) || curveName.equals(callCurveName))) {
       s_logger.info("Curve name {} did not match either put curve name {} or call curve name {}", new Object[] {curveName, putCurveName, callCurveName});
@@ -176,11 +177,11 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
       return null;
     }
     requirements.add(getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName));
-    final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     requirements.add(getCurveSensitivitiesRequirement(putCurveName, putCurveCalculationConfigName, callCurveName, callCurveCalculationConfigName, surfaceName,
         interpolatorName, leftExtrapolatorName, rightExtrapolatorName, currency, resultCurrency, resultCurveName, target));
-    requirements.add(new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetType.PRIMITIVE, currencyPair.getUniqueId()));
-    requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, currencyPair));
+    requirements.add(new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL));
+    final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
+    requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(currencyPair)));
     return requirements;
   }
 

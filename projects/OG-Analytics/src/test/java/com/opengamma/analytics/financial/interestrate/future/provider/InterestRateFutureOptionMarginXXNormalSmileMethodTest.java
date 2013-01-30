@@ -3,9 +3,8 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -61,7 +60,7 @@ public class InterestRateFutureOptionMarginXXNormalSmileMethodTest {
   private static final InterestRateFutureDefinition ERU2_DEFINITION = new InterestRateFutureDefinition(LAST_TRADING_DATE, STRIKE, LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, 1, NAME);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final InterestRateFuture ERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, NOT_USED_A);
-  // Option 
+  // Option
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final boolean IS_CALL = true;
 
@@ -149,8 +148,8 @@ public class InterestRateFutureOptionMarginXXNormalSmileMethodTest {
   public void priceNormalSensitivity() {
     final InterpolatedDoublesSurface normalParameterPlus = NormalDataSets.createNormalSurfaceFuturesPricesShift(VOL_SHIFT);
     final InterpolatedDoublesSurface NormalParameterMinus = NormalDataSets.createNormalSurfaceFuturesPricesShift(-VOL_SHIFT);
-    NormalSTIRFuturesSmileProviderDiscount blackPlus = new NormalSTIRFuturesSmileProviderDiscount(MULTICURVES, normalParameterPlus, EURIBOR3M);
-    NormalSTIRFuturesSmileProviderDiscount blackMinus = new NormalSTIRFuturesSmileProviderDiscount(MULTICURVES, NormalParameterMinus, EURIBOR3M);
+    final NormalSTIRFuturesSmileProviderDiscount blackPlus = new NormalSTIRFuturesSmileProviderDiscount(MULTICURVES, normalParameterPlus, EURIBOR3M);
+    final NormalSTIRFuturesSmileProviderDiscount blackMinus = new NormalSTIRFuturesSmileProviderDiscount(MULTICURVES, NormalParameterMinus, EURIBOR3M);
     final double pricePlus = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, blackPlus);
     final double priceMinus = METHOD_SECURITY_OPTION_NORMAL.price(OPTION_ERU2, blackMinus);
     final double priceSensiExpected = (pricePlus - priceMinus) / (2 * VOL_SHIFT);

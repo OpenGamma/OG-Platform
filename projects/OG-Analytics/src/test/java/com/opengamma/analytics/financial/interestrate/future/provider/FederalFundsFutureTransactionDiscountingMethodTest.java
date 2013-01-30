@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
@@ -75,17 +74,17 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
 
   @Test
   public void presentValueFromPrice() {
-    double price = 0.99895;
-    MultipleCurrencyAmount pv = METHOD_TRANSACTION.presentValueFromPrice(FUTURE_TRANSACTION, price);
-    double pvExpected = (price - FUTURE_TRANSACTION.getReferencePrice()) * FUTURE_SECURITY_DEFINITION.getNotional() * FUTURE_SECURITY_DEFINITION.getMarginAccrualFactor() * QUANTITY;
+    final double price = 0.99895;
+    final MultipleCurrencyAmount pv = METHOD_TRANSACTION.presentValueFromPrice(FUTURE_TRANSACTION, price);
+    final double pvExpected = (price - FUTURE_TRANSACTION.getReferencePrice()) * FUTURE_SECURITY_DEFINITION.getNotional() * FUTURE_SECURITY_DEFINITION.getMarginAccrualFactor() * QUANTITY;
     assertEquals("Federal Funds Future transaction: present value", pvExpected, pv.getAmount(USD), TOLERANCE_PV);
   }
 
   @Test
   public void presentValue() {
-    MultipleCurrencyAmount pv = METHOD_TRANSACTION.presentValue(FUTURE_TRANSACTION, MULTICURVES);
-    double price = METHOD_SECURITY.price(FUTURE_SECURITY, MULTICURVES);
-    MultipleCurrencyAmount pvExpected = METHOD_TRANSACTION.presentValueFromPrice(FUTURE_TRANSACTION, price);
+    final MultipleCurrencyAmount pv = METHOD_TRANSACTION.presentValue(FUTURE_TRANSACTION, MULTICURVES);
+    final double price = METHOD_SECURITY.price(FUTURE_SECURITY, MULTICURVES);
+    final MultipleCurrencyAmount pvExpected = METHOD_TRANSACTION.presentValueFromPrice(FUTURE_TRANSACTION, price);
     assertEquals("Federal Funds Future transaction: present value", pvExpected.getAmount(USD), pv.getAmount(USD), TOLERANCE_PV);
   }
 

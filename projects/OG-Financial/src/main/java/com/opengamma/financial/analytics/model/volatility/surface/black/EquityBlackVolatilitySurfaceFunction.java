@@ -5,14 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.volatility.surface.black;
 
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CONFIG;
-import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -22,19 +17,18 @@ import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubePropertyNames;
-import com.opengamma.financial.analytics.volatility.surface.SurfaceAndCubeQuoteType;
+import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
 
 /**
  *
  */
 public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatilitySurfaceFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityBlackVolatilitySurfaceFunction.class);
 
   /**
    * Spline interpolator function for Black volatility surfaces
@@ -60,7 +54,6 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
       ValueProperties properties = createValueProperties().get();
       properties = BlackVolatilitySurfacePropertyUtils.addBlackSurfaceProperties(properties, getInstrumentType()).get();
       properties = BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(properties).get();
-      properties = properties.copy().withAny(CURVE_CALCULATION_CONFIG).withAny(CURVE_CURRENCY).get();
       return properties;
     }
 
@@ -69,9 +62,6 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
       ValueProperties properties = createValueProperties().get();
       properties = BlackVolatilitySurfacePropertyUtils.addSplineVolatilityInterpolatorProperties(properties, desiredValue).get();
       properties = BlackVolatilitySurfacePropertyUtils.addBlackSurfaceProperties(properties, getInstrumentType(), desiredValue).get();
-      final String curveCurrency = desiredValue.getConstraint(CURVE_CURRENCY);
-      final String curveCalculationConfig = desiredValue.getConstraint(CURVE_CALCULATION_CONFIG);
-      properties = properties.copy().with(CURVE_CURRENCY, curveCurrency).with(CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
       return properties;
     }
 
@@ -101,7 +91,6 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
       ValueProperties properties = createValueProperties().get();
       properties = BlackVolatilitySurfacePropertyUtils.addBlackSurfaceProperties(properties, getInstrumentType()).get();
       properties = BlackVolatilitySurfacePropertyUtils.addSABRVolatilityInterpolatorProperties(properties).get();
-      properties = properties.copy().withAny(CURVE_CURRENCY).withAny(CURVE_CALCULATION_CONFIG).get();
       return properties;
     }
 
@@ -110,21 +99,21 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
       ValueProperties properties = createValueProperties().get();
       properties = BlackVolatilitySurfacePropertyUtils.addSABRVolatilityInterpolatorProperties(properties, desiredValue).get();
       properties = BlackVolatilitySurfacePropertyUtils.addBlackSurfaceProperties(properties, getInstrumentType(), desiredValue).get();
-      final String curveCurrency = desiredValue.getConstraint(CURVE_CURRENCY);
-      final String curveCalculationConfig = desiredValue.getConstraint(CURVE_CALCULATION_CONFIG);
-      properties = properties.copy().with(CURVE_CURRENCY, curveCurrency).with(CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
       return properties;
     }
   }
 
   @Override
-  protected boolean isCorrectIdType(final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null; {}", target);
-      return false;
-    }
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.PRIMITIVE;
+  }
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final String targetScheme = target.getUniqueId().getScheme();
-    return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) || targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
+    return targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName())
+        || targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName())
+        || targetScheme.equalsIgnoreCase(ExternalSchemes.ACTIVFEED_TICKER.getName());
   }
 
   @Override
@@ -146,27 +135,13 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveCurrencyNames = constraints.getValues(CURVE_CURRENCY);
-    if (curveCurrencyNames == null || curveCurrencyNames.size() != 1) {
-      return null;
-    }
-    final Set<String> curveCalculationConfigs = constraints.getValues(CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigs == null || curveCalculationConfigs.size() != 1) {
-      return null;
-    }
-    return super.getRequirements(context, target, desiredValue);
-  }
-
-  @Override
   protected ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    final String forwardCurveCcyName = desiredValue.getConstraint(CURVE_CURRENCY);
-    final String discountingCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    final String curveCalculationConfig = desiredValue.getConstraint(CURVE_CALCULATION_CONFIG);
-    final ValueProperties properties = ValueProperties.builder().with(CURVE_CURRENCY, forwardCurveCcyName).with(ValuePropertyNames.CURVE, discountingCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig).get();
+    final String forwardCurveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final String curveCalculationMethod = desiredValue.getConstraint(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD);
+    final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE, forwardCurveName)
+        .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, curveCalculationMethod)
+        .get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
   }
 
@@ -176,20 +151,11 @@ public abstract class EquityBlackVolatilitySurfaceFunction extends BlackVolatili
   }
 
   @Override
-  protected String getSurfaceQuoteUnits() {
-    return SurfaceAndCubePropertyNames.VOLATILITY_QUOTE;
-  }
-
-  @Override
-  //TODO Consider whether we might make this variable by reading the volatility specification.
-  protected String getSurfaceQuoteType() {
-    return SurfaceAndCubeQuoteType.CALL_AND_PUT_STRIKE;
-  }
-
-  @Override
   protected ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName) {
-    final ValueProperties properties = ValueProperties.builder().with(SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType()).get();
+    final ValueProperties properties = ValueProperties.builder()
+        .with(SURFACE, surfaceName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, getInstrumentType())
+        .get();
     final ValueRequirement volDataRequirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), properties);
     return volDataRequirement;
   }

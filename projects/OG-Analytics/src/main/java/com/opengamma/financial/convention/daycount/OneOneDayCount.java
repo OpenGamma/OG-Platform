@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 /**
  * The 1/1 day count convention.

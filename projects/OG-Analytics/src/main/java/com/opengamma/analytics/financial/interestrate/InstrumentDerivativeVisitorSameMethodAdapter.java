@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
@@ -810,6 +811,16 @@ public abstract class InstrumentDerivativeVisitorSameMethodAdapter<DATA_TYPE, RE
 
   @Override
   public RESULT_TYPE visitEquityIndexOption(final EquityIndexOption option, final DATA_TYPE data) {
+    return visit(option, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityOption(final EquityOption option) {
+    return visit(option);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityOption(final EquityOption option, final DATA_TYPE data) {
     return visit(option, data);
   }
 

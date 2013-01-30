@@ -162,30 +162,22 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     final boolean isCall = strike >= forward;
     final double blackDD = BlackFormulaRepository.dualDelta(forward, strike, timeToExpiry, vol, isCall);
     final double blackVega = BlackFormulaRepository.vega(forward, strike, timeToExpiry, vol);
-    final double dd = blackDD + blackVega * volGrad;
 
     final double minGrad = (isCall ? -(1 + blackDD) : -blackDD) / blackVega;
     final double maxGrad = (isCall ? -blackDD : 1 - blackDD) / blackVega;
 
     if (volGrad >= maxGrad || volGrad <= minGrad) {
+      LOG.info("Extrapolation - Expiry = " + timeToExpiry + "- failed to fit tail to strike, " + strike + ". volGrad, " + volGrad + ", out of bounds. minGrad = "
+          + minGrad + ", maxGrad = " + maxGrad);
       throw new IllegalArgumentException("Volatility smile gradient must be in range " + minGrad + " to " + maxGrad + ", but value is " + volGrad);
     }
 
-    final DoubleMatrix1D start = TRANSFORMS.transform(new DoubleMatrix1D(0.0, vol));
-    final Function1D<DoubleMatrix1D, DoubleMatrix1D> func = getVolGradDifferenceFunc(forward, strike, vol, volGrad, timeToExpiry);
-    final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac = getVolGradJac(forward, strike, vol, volGrad, timeToExpiry);
-    final NonLinearTransformFunction nltf = new NonLinearTransformFunction(func, jac, TRANSFORMS);
-
-    //The shifted log-normal model does not guarantee that call prices are below the forward and hence that the implied volatility exists. The root finding can fail (when 
-    //a genuine solution does exist) because the parameters have wandered into a region where the implied volatility does not exist. In this case the remedy is to fit for
-    //price and dual delta, which will give the correct answer (prices above the forward, while not economically possible, do not bother the root finder)
-    try {
-      return TRANSFORMS.inverseTransform(ROOTFINDER.getRoot(nltf.getFittingFunction(), nltf.getFittingJacobian(), start)).getData();
-    } catch (final Exception e) {
-      LOG.info("failed on vol/volGrad - trying price/priceGrad");
-      final double price = BlackFormulaRepository.price(forward, strike, timeToExpiry, vol, isCall);
-      return fitPriceAndGrad(forward, strike, price, dd, timeToExpiry, isCall);
-    }
+    // The shifted log-normal model does not guarantee that call prices are below the forward and hence that the implied volatility exists. 
+    // The root finding can fail (even when a genuine solution does exist) because the parameters have wandered into a region where the implied volatility does not exist. 
+    // The remedy is to fit for price and dual delta, which will give the correct answer (prices above the forward, while not economically possible, do not bother the root finder)   
+    final double price = BlackFormulaRepository.price(forward, strike, timeToExpiry, vol, isCall);
+    final double dd = blackDD + blackVega * volGrad;
+    return fitPriceAndGrad(forward, strike, price, dd, timeToExpiry, isCall);
   }
 
   /**
@@ -211,10 +203,10 @@ public class ShiftedLogNormalTailExtrapolationFitter {
    * @param dSigmaDx Function1D<Double, Double> that produces the vol gradient at given strike
    * @param expiry option expiry
    * @param lowTail True if fitting extrapolation model to low strikes, false if fitting to high strike tail.
-   * @return 3-element array containing: [0] mu = ln(shiftedForward / originalForward) [1] theta = new ln volatility to use [2] new extapolation boundary
+   * @return 3-element array containing: [0] mu = ln(shiftedForward / originalForward) [1] theta = new ln volatility to use [2] new extrapolation boundary
    */
-  public ArrayList<Double> fitVolatilityAndGradRecursively(final double forward, final double[] strikes, final double[] vols, final Function1D<Double, Double> dSigmaDx,
-      final double expiry, final boolean lowTail) {
+  public ArrayList<Double> fitVolatilityAndGradRecursivelyByTossingPoints(final double forward, final double[] strikes, final double[] vols,
+      final Function1D<Double, Double> dSigmaDx, final double expiry, final boolean lowTail) {
     final int n = strikes.length;
     ArgumentChecker.isTrue(vols.length == n, "Lengths of strikes and vols unexpectedly differ!");
     double[] shiftAndVol;
@@ -224,9 +216,9 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     } catch (final Exception e) {
       LOG.info("Extrapolation - Expiry = " + expiry + "- failed to fit tail to " + strikes[endIdx] + ". Trying next strike. Caught " + e);
       if (lowTail) {
-        return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 1, n), Arrays.copyOfRange(vols, 1, n), dSigmaDx, expiry, lowTail);
-      } 
-      return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 0, n - 1), Arrays.copyOfRange(vols, 0, n - 1), dSigmaDx, expiry, lowTail);      
+        return fitVolatilityAndGradRecursivelyByTossingPoints(forward, Arrays.copyOfRange(strikes, 1, n), Arrays.copyOfRange(vols, 1, n), dSigmaDx, expiry, lowTail);
+      }
+      return fitVolatilityAndGradRecursivelyByTossingPoints(forward, Arrays.copyOfRange(strikes, 0, n - 1), Arrays.copyOfRange(vols, 0, n - 1), dSigmaDx, expiry, lowTail);
     }
     LOG.info("Extrapolating from strike, " + strikes[endIdx] + ", with shifted forward, " + forward * Math.exp(shiftAndVol[0]) + ", and vol, " + shiftAndVol[1]);
     final ArrayList<Double> listShiftVolStrike = new ArrayList<Double>();
@@ -246,7 +238,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
    * @param lowTail True if fitting extrapolation model to low strikes, false if fitting to high strike tail.
    * @return 3-element array containing: [0] mu = ln(shiftedForward / originalForward) [1] theta = new ln volatility to use [2] new extapolation boundary
    */
-  public ArrayList<Double> fitVolatilityAndGradRecursively(final double forward, final double[] strikes, final double[] vols, final double[] dSigmaDx,
+  public ArrayList<Double> fitVolatilityAndGradRecursivelyByTossingPoints(final double forward, final double[] strikes, final double[] vols, final double[] dSigmaDx,
       final double expiry, final boolean lowTail) {
     final int n = strikes.length;
     ArgumentChecker.isTrue(vols.length == n, "Lengths of strikes and vols unexpectedly differ!");
@@ -259,10 +251,10 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     } catch (final Exception e) {
       LOG.info("Extrapolation - Expiry = " + expiry + "- failed to fit tail to " + strikes[endIdx] + ". Trying next strike. Caught " + e);
       if (lowTail) {
-        return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 1, n), Arrays.copyOfRange(vols, 1, n), Arrays.copyOfRange(dSigmaDx, 1, n), expiry,
-            lowTail);
-      } 
-      return fitVolatilityAndGradRecursively(forward, Arrays.copyOfRange(strikes, 0, n - 1), Arrays.copyOfRange(vols, 0, n - 1),
+        return fitVolatilityAndGradRecursivelyByTossingPoints(forward, Arrays.copyOfRange(strikes, 1, n), Arrays.copyOfRange(vols, 1, n),
+            Arrays.copyOfRange(dSigmaDx, 1, n), expiry, lowTail);
+      }
+      return fitVolatilityAndGradRecursivelyByTossingPoints(forward, Arrays.copyOfRange(strikes, 0, n - 1), Arrays.copyOfRange(vols, 0, n - 1),
           Arrays.copyOfRange(dSigmaDx, 0, n - 1), expiry, lowTail);
     }
     LOG.info("Extrapolating from strike, " + strikes[endIdx] + ", with shifted forward, " + forward * Math.exp(shiftAndVol[0]) + ", and vol, " + shiftAndVol[1]);
@@ -271,6 +263,47 @@ public class ShiftedLogNormalTailExtrapolationFitter {
     listShiftVolStrike.add(1, shiftAndVol[1]); // theta = new ln volatility to use
     listShiftVolStrike.add(2, strikes[endIdx]); // new extrapolation boundary
     return listShiftVolStrike;
+  }
+
+  /**
+   * Calls fitVolatilityAndGrad. If this fails, it will retry from the nearest strike within the domain, then continue to reduce smile until success is found
+   * @param forward forward
+   * @param strike strike at which to begin extrapolation
+   * @param vol lognormal implied volatility at strike
+   * @param volGrad the vol gradient at given strike
+   * @param expiry option expiry
+   * @return 2-element array containing: [0] mu = ln(shiftedForward / originalForward) [1] sigma = new lognormal volatility to use
+   */
+  public double[] fitVolatilityAndGradRecursivelyByReducingSmile(final double forward, final double strike, final double vol, final double volGrad, final double expiry) {
+    double[] shiftAndVol;
+    try {
+      shiftAndVol = fitVolatilityAndGrad(forward, strike, vol, volGrad, expiry);
+    } catch (final Exception e) {
+
+      double newVolGrad;
+
+      // Find the bounds in which a solution should exist
+      final boolean isCall = strike >= forward;
+      final double blackDD = BlackFormulaRepository.dualDelta(forward, strike, expiry, vol, isCall);
+      final double blackVega = BlackFormulaRepository.vega(forward, strike, expiry, vol);
+      final double minGrad = (isCall ? -(1 + blackDD) : -blackDD) / blackVega;
+      final double maxGrad = (isCall ? -blackDD : 1 - blackDD) / blackVega;
+      // Adjust gradient dVol/dStrike to just within these bounds
+      if (volGrad >= maxGrad) {
+        newVolGrad = (maxGrad > 0.0 ? 0.99 : 1.01) * maxGrad;
+      } else if (volGrad <= minGrad) {
+        newVolGrad = (minGrad < 0.0 ? 0.99 : 1.01) * minGrad;
+      } else {
+
+        // Although within bounds, the root finder is failing to find a solution. Reducing smile further works, but it is not optimal. A solution exists, but the starting point isn't close enough..  
+        // TODO Review this fail-over behaviour
+        LOG.info("Extrapolation - Expiry = " + expiry + "- failed to fit tail to strike, " + strike + ", and DVolDStrike, " + volGrad
+            + ", though within bounds. Lowering smile.");
+        newVolGrad = 0.95 * volGrad;
+      }
+      return fitVolatilityAndGradRecursivelyByReducingSmile(forward, strike, vol, newVolGrad, expiry);
+    }
+    return shiftAndVol;
   }
 
   private Function1D<DoubleMatrix1D, DoubleMatrix1D> getPriceDifferenceFunc(final double forward, final double[] strike, final double[] prices,
@@ -303,7 +336,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
         final double j21 = BlackFormulaRepository.delta(fStar, strike[1], timeToExpiry, theta, isCall) * fStar / prices[1];
         final double j22 = BlackFormulaRepository.vega(fStar, strike[1], timeToExpiry, theta) / prices[1];
 
-        final DoubleMatrix2D modelParmJac = new DoubleMatrix2D(new double[][] {{j11, j12}, {j21, j22}});
+        final DoubleMatrix2D modelParmJac = new DoubleMatrix2D(new double[][] { {j11, j12}, {j21, j22}});
         return modelParmJac;
       }
     };
@@ -348,7 +381,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
         final double j21 = BlackFormulaRepository.delta(fStar, strike[1], timeToExpiry, theta, isCall) * fStar / vega2;
         final double j22 = BlackFormulaRepository.vega(fStar, strike[1], timeToExpiry, theta) / vega2;
 
-        return new DoubleMatrix2D(new double[][] {{j11, j12}, {j21, j22}});
+        return new DoubleMatrix2D(new double[][] { {j11, j12}, {j21, j22}});
       }
     };
   }
@@ -387,7 +420,7 @@ public class ShiftedLogNormalTailExtrapolationFitter {
         final double j21 = scale2 * BlackFormulaRepository.crossGamma(fStar, strike, expiry, theta) * fStar;
         final double j22 = scale2 * BlackFormulaRepository.dualVanna(fStar, strike, expiry, theta);
 
-        return new DoubleMatrix2D(new double[][] {{j11, j12}, {j21, j22}});
+        return new DoubleMatrix2D(new double[][] { {j11, j12}, {j21, j22}});
       }
     };
 

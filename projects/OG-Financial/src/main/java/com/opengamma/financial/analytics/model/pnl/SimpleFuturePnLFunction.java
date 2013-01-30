@@ -9,13 +9,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.schedule.HolidayDateRemovalFunction;
 import com.opengamma.analytics.financial.schedule.Schedule;
@@ -28,11 +27,11 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -75,7 +74,7 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
     final FutureSecurity security = (FutureSecurity) position.getSecurity();
     final Currency currency = security.getCurrency();
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).getDate();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Set<String> samplingPeriodName = desiredValue.getConstraints().getValues(ValuePropertyNames.SAMPLING_PERIOD);
     final Set<String> scheduleCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.SCHEDULE_CALCULATOR);
@@ -91,7 +90,7 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
     if (ts.isEmpty()) {
       throw new OpenGammaRuntimeException("Empty price series for id " + underlyingId);
     }
-    final Object pvObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, ComputationTargetType.SECURITY, security.getUniqueId()));
+    final Object pvObject = inputs.getValue(ValueRequirementNames.PRESENT_VALUE);
     if (pvObject == null) {
       throw new OpenGammaRuntimeException("Present value was null");
     }
@@ -103,7 +102,7 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
     pnlSeries = DIFFERENCE.evaluate(pnlSeries);
     pnlSeries = pnlSeries.multiply(pv);
     final ValueProperties resultProperties = getResultProperties(desiredValue, currency.getCode());
-    final ValueSpecification spec = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, resultProperties), getUniqueId());
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), resultProperties);
     return Collections.singleton(new ComputedValue(spec, pnlSeries));
   }
 
@@ -114,9 +113,6 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.POSITION) {
-      return false;
-    }
     final Position position = target.getPosition();
     final Security security = (Security) position.getSecurity();
     return security instanceof EnergyFutureSecurity || security instanceof MetalFutureSecurity || security instanceof IndexFutureSecurity;
@@ -132,7 +128,7 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.CURVE)
         .get();
-    return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, properties), getUniqueId()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
   @Override

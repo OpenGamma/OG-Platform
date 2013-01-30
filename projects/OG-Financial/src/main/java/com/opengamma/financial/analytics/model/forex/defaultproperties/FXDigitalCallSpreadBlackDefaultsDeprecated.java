@@ -9,20 +9,17 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
-import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.analytics.model.forex.option.black.deprecated.FXOptionBlackFunctionDeprecated;
 import com.opengamma.financial.analytics.model.forex.option.callspreadblack.deprecated.FXDigitalCallSpreadBlackFunctionDeprecated;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 
 /**
  * @deprecated Use the version that does not refer to funding or forward curves
@@ -60,7 +57,7 @@ public class FXDigitalCallSpreadBlackDefaultsDeprecated extends DefaultPropertyF
   public FXDigitalCallSpreadBlackDefaultsDeprecated(final String putCurveName, final String putForwardCurveName, final String putCurveCalculationMethod, final String callCurveName,
       final String callForwardCurveName, final String callCurveCalculationMethod, final String surfaceName, final String interpolatorName, final String leftExtrapolatorName,
       final String rightExtrapolatorName, final String putCurrency, final String callCurrency, final String spread) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY, true);
     ArgumentChecker.notNull(putCurveName, "put curve name");
     ArgumentChecker.notNull(putForwardCurveName, "put forward curve name");
     ArgumentChecker.notNull(putCurveCalculationMethod, "put curve calculation method");
@@ -91,19 +88,8 @@ public class FXDigitalCallSpreadBlackDefaultsDeprecated extends DefaultPropertyF
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
-      return false;
-    }
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    if (!(security instanceof FXDigitalOptionSecurity)) {
-      return false;
-    }
-    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
-    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
-    return callCurrency.getCode().equals(_callCurrency) && putCurrency.getCode().equals(_putCurrency);
+    final FXDigitalOptionSecurity security = target.getValue(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY);
+    return security.getCallCurrency().getCode().equals(_callCurrency) && security.getPutCurrency().getCode().equals(_putCurrency);
   }
 
   @Override

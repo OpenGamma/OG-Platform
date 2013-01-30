@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -17,17 +18,19 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.id.ExternalId;
 
@@ -48,7 +51,7 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
     final String curveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     // 1. Get the expiry _time_ from the trade
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
-    final double expiry = TimeCalculator.getTimeBetween(executionContext.getValuationClock().zonedDateTime(), security.getLastObservationDate());
+    final double expiry = TimeCalculator.getTimeBetween(ZonedDateTime.now(executionContext.getValuationClock()), security.getLastObservationDate());
 
     // 2. Get the discount curve and spot value
     final Object discountObject = inputs.getValue(getDiscountRequirement(security, curveName, curveCalculationConfig));
@@ -68,21 +71,13 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
     Validate.isTrue(discountFactor != 0, "The discount curve has returned a zero value for a discount bond. Check rates.");
     final double forward = spot / discountFactor;
 
-    final ValueSpecification valueSpec = getValueSpecification(security);
+    final ValueSpecification valueSpec = getValueSpecification(target.toSpecification(), security);
     return Collections.singleton(new ComputedValue(valueSpec, forward));
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return target.getSecurity() instanceof EquityVarianceSwapSecurity;
+    return FinancialSecurityTypes.EQUITY_VARIANCE_SWAP_SECURITY;
   }
 
   @Override
@@ -111,22 +106,22 @@ public class EquityForwardFromSpotAndYieldCurveFunction extends AbstractFunction
 
   private ValueRequirement getSpotRequirement(final EquityVarianceSwapSecurity security) {
     final ExternalId id = security.getSpotUnderlyingId();
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, id);
+    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, id);
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(getValueSpecification((EquityVarianceSwapSecurity) target.getSecurity()));
+    return Collections.singleton(getValueSpecification(target.toSpecification(), (EquityVarianceSwapSecurity) target.getSecurity()));
   }
 
   // Note that the properties are created using createValueProperties() - this sets the name of the function in the properties.
   // Not using this means that this function will not work
-  private ValueSpecification getValueSpecification(final EquityVarianceSwapSecurity security) {
+  private ValueSpecification getValueSpecification(final ComputationTargetSpecification targetSpec, final EquityVarianceSwapSecurity security) {
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode())
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.CURVE)
         .with(FORWARD_CALCULATION_METHOD, FORWARD_FROM_SPOT_AND_YIELD_CURVE).get();
-    return ValueSpecification.of(ValueRequirementNames.FORWARD, ComputationTargetType.SECURITY, security.getUniqueId(), properties);
+    return new ValueSpecification(ValueRequirementNames.FORWARD, targetSpec, properties);
   }
 }

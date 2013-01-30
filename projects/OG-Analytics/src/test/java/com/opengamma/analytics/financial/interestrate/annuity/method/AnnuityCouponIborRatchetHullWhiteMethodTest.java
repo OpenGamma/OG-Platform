@@ -7,14 +7,15 @@ package com.opengamma.analytics.financial.interestrate.annuity.method;
 
 import static com.opengamma.analytics.financial.interestrate.TestUtils.assertSensitivityEquals;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 import it.unimi.dsi.fastutil.doubles.DoubleAVLTreeSet;
 
 import java.util.List;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import cern.jet.random.engine.MersenneTwister;
 
@@ -66,7 +67,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
   private static final Currency CUR = Currency.EUR;
   //Euribor 3m
   private static final int INDEX_TENOR_MONTH = 3;
-  private static final Period INDEX_TENOR = Period.ofMonths(INDEX_TENOR_MONTH);
+  private static final Period INDEX_TENOR = Period.of(INDEX_TENOR_MONTH, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -75,7 +76,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
   //Annuity description
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 9, 7);
   private static final int ANNUITY_TENOR_YEAR = 2;
-  private static final Period ANNUITY_TENOR = Period.ofYears(ANNUITY_TENOR_YEAR);
+  private static final Period ANNUITY_TENOR = Period.of(ANNUITY_TENOR_YEAR, YEARS);
   private static final boolean IS_PAYER = false;
   private static final double NOTIONAL = 100000000; // 100m
   private static final double[] MAIN_COEF = new double[] {0.20, 0.80, 0.0010};
@@ -305,7 +306,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     long startTime, endTime;
     final int nbTest = 10;
     final int nbPath = 12500;
-    final AnnuityCouponIborRatchetDefinition annuityRatchetIbor20Definition = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, Period.ofYears(5), NOTIONAL, IBOR_INDEX,
+    final AnnuityCouponIborRatchetDefinition annuityRatchetIbor20Definition = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, Period.of(5, YEARS), NOTIONAL, IBOR_INDEX,
         IS_PAYER, MAIN_COEF, FLOOR_COEF, CAP_COEF);
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 8, 18);
     final AnnuityCouponIborRatchet annuityRatchetIbor20 = annuityRatchetIbor20Definition.toDerivative(referenceDate, FIXING_TS, CURVES_NAMES);

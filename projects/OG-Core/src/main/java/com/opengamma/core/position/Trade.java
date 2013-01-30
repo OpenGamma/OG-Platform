@@ -5,11 +5,10 @@
  */
 package com.opengamma.core.position;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.core.Attributable;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.money.Currency;
 
@@ -25,13 +24,6 @@ import com.opengamma.util.money.Currency;
  */
 @PublicSPI
 public interface Trade extends PositionOrTrade, Attributable {
-
-  /**
-   * Gets the unique identifier of the parent position.
-   * 
-   * @return the unique identifier of the parent position, null if not attached to a position
-   */
-  UniqueId getParentPositionId();
 
   /**
    * Gets the counterparty associated with the trade.

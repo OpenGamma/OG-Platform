@@ -5,12 +5,12 @@
  */
 package com.opengamma.analytics.financial.instrument.payment;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -88,10 +88,9 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    */
 
   public CouponIborAverageDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double paymentAccrualFactor, final double notional, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2,
-      final double weight1, final double weight2) {
-    super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor,
-        notional, fixingDate);
+      final double paymentAccrualFactor, final double notional, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2, final double weight1,
+      final double weight2) {
+    super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, fixingDate);
     ArgumentChecker.notNull(index1, "index1");
     ArgumentChecker.notNull(index2, "index2");
     ArgumentChecker.isTrue(currency.equals(index1.getCurrency()), "index1 currency different from payment currency");
@@ -101,10 +100,12 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
     _weight1 = weight1;
     _weight2 = weight2;
     _fixingPeriodStartDate1 = ScheduleCalculator.getAdjustedDate(fixingDate, _index1.getSpotLag(), _index1.getCalendar());
-    _fixingPeriodEndDate1 = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate1, index1.getTenor(), index1.getBusinessDayConvention(), index1.getCalendar(), index1.isEndOfMonth());
+    _fixingPeriodEndDate1 = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate1, index1.getTenor(), index1.getBusinessDayConvention(), index1.getCalendar(),
+        index1.isEndOfMonth());
     _fixingPeriodAccrualFactor1 = index1.getDayCount().getDayCountFraction(_fixingPeriodStartDate1, _fixingPeriodEndDate1);
     _fixingPeriodStartDate2 = ScheduleCalculator.getAdjustedDate(fixingDate, _index2.getSpotLag(), _index2.getCalendar());
-    _fixingPeriodEndDate2 = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate2, index2.getTenor(), index2.getBusinessDayConvention(), index2.getCalendar(), index2.isEndOfMonth());
+    _fixingPeriodEndDate2 = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate2, index2.getTenor(), index2.getBusinessDayConvention(), index2.getCalendar(),
+        index2.isEndOfMonth());
     _fixingPeriodAccrualFactor2 = index2.getDayCount().getDayCountFraction(_fixingPeriodStartDate2, _fixingPeriodEndDate2);
   }
 
@@ -129,10 +130,10 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * @param weight2 The weight of the second index.
    */
   public CouponIborAverageDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double paymentAccrualFactor,
-      final double notional, final ZonedDateTime fixingDate, final ZonedDateTime fixingPeriodStartDate1, final ZonedDateTime fixingPeriodEndDate1, final double fixingPeriodAccrualFactor1,
-      final ZonedDateTime fixingPeriodStartDate2, final ZonedDateTime fixingPeriodEndDate2, final double fixingPeriodAccrualFactor2, final IborIndex index1, final IborIndex index2,
-      final double weight1, final double weight2) {
+      final double paymentAccrualFactor, final double notional, final ZonedDateTime fixingDate, final ZonedDateTime fixingPeriodStartDate1,
+      final ZonedDateTime fixingPeriodEndDate1, final double fixingPeriodAccrualFactor1, final ZonedDateTime fixingPeriodStartDate2,
+      final ZonedDateTime fixingPeriodEndDate2, final double fixingPeriodAccrualFactor2, final IborIndex index1, final IborIndex index2, final double weight1,
+      final double weight2) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, fixingDate);
     ArgumentChecker.notNull(index1, "index1");
     ArgumentChecker.notNull(index2, "index2");
@@ -165,12 +166,14 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * @param weight2 The weight of the second index.
    * @return The Ibor coupon.
    */
-  public static CouponIborAverageDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double paymentAccrualFactor,
-      final double notional, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2, final double weight1, final double weight2) {
+  public static CouponIborAverageDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+      final double paymentAccrualFactor, final double notional, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2, final double weight1,
+      final double weight2) {
     ArgumentChecker.notNull(index1, "index1");
     ArgumentChecker.notNull(index2, "index2");
     ArgumentChecker.isTrue(index1.getCurrency().equals(index2.getCurrency()), "index1 currency different from index2 currency");
-    return new CouponIborAverageDefinition(index1.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, fixingDate, index1, index2, weight1, weight2);
+    return new CouponIborAverageDefinition(index1.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional, fixingDate, index1,
+        index2, weight1, weight2);
   }
 
   /**
@@ -183,16 +186,15 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * @param weight2 The weight of the second index.
    * @return The Ibor coupon.
    */
-  public static CouponIborAverageDefinition from(final CouponDefinition coupon, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2, final double weight1,
-      final double weight2) {
+  public static CouponIborAverageDefinition from(final CouponDefinition coupon, final ZonedDateTime fixingDate, final IborIndex index1, final IborIndex index2,
+      final double weight1, final double weight2) {
     ArgumentChecker.notNull(coupon, "coupon");
     ArgumentChecker.notNull(fixingDate, "fixing date");
     ArgumentChecker.notNull(index1, "index1");
     ArgumentChecker.notNull(index2, "index1");
     ArgumentChecker.isTrue(index1.getCurrency().equals(index2.getCurrency()), "index1 currency different from index2 currency");
-    return new CouponIborAverageDefinition(index1.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(),
-        coupon.getNotional(),
-        fixingDate, index1, index2, weight1, weight2);
+    return new CouponIborAverageDefinition(index1.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(), coupon.getAccrualEndDate(),
+        coupon.getPaymentYearFraction(), coupon.getNotional(), fixingDate, index1, index2, weight1, weight2);
   }
 
   /**
@@ -281,27 +283,27 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    * @return The coupon.
    */
   public CouponIborAverageDefinition withNotional(final double notional) {
-    return new CouponIborAverageDefinition(getCurrency(), getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(),
-        notional, getFixingDate(), _fixingPeriodStartDate1, _fixingPeriodEndDate1, _fixingPeriodAccrualFactor1,
-        _fixingPeriodStartDate2, _fixingPeriodEndDate2, _fixingPeriodAccrualFactor2, _index1, _index2, _weight1, _weight2);
+    return new CouponIborAverageDefinition(getCurrency(), getPaymentDate(), getAccrualStartDate(), getAccrualEndDate(), getPaymentYearFraction(), notional,
+        getFixingDate(), _fixingPeriodStartDate1, _fixingPeriodEndDate1, _fixingPeriodAccrualFactor1, _fixingPeriodStartDate2, _fixingPeriodEndDate2,
+        _fixingPeriodAccrualFactor2, _index1, _index2, _weight1, _weight2);
   }
 
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
-    final LocalDate dayConversion = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getFixingDate().toLocalDate()), "Do not have any fixing data but are asking for a derivative at " + dateTime + " which is after fixing date "
-        + getFixingDate());
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    final LocalDate dayConversion = dateTime.getDate();
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getFixingDate().getDate()), "Do not have any fixing data but are asking for a derivative at " + dateTime
+        + " which is after fixing date " + getFixingDate());
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().getDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
     final double fixingTime = TimeCalculator.getTimeBetween(dateTime, getFixingDate());
     final double fixingPeriodStartTime1 = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate1());
     final double fixingPeriodEndTime1 = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate1());
     final double fixingPeriodStartTime2 = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate2());
     final double fixingPeriodEndTime2 = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate2());
-    return new CouponIborAverage(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, getIndex1(), fixingPeriodStartTime1, fixingPeriodEndTime1,
-        getFixingPeriodAccrualFactor1(), getIndex2(), fixingPeriodStartTime2, fixingPeriodEndTime2,
-        getFixingPeriodAccrualFactor2(), getWeight1(), getWeight2());
+    return new CouponIborAverage(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, getIndex1(), fixingPeriodStartTime1,
+        fixingPeriodEndTime1, getFixingPeriodAccrualFactor1(), getIndex2(), fixingPeriodStartTime2, fixingPeriodEndTime2, getFixingPeriodAccrualFactor2(), getWeight1(),
+        getWeight2());
   }
 
   @Override
@@ -313,11 +315,11 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
    */
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
-    final LocalDate dayConversion = dateTime.toLocalDate();
+    final LocalDate dayConversion = dateTime.getDate();
     ArgumentChecker.notNull(indexFixingTimeSeries, "Index fixing time series");
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().getDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
-    final LocalDate dayFixing = getFixingDate().toLocalDate();
+    final LocalDate dayFixing = getFixingDate().getDate();
     if (dayConversion.equals(dayFixing)) { // The fixing is on the reference date; if known the fixing is used and if not, the floating coupon is created.
       final Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
       if (fixedRate != null) {
@@ -325,7 +327,7 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
       }
     }
     if (dayConversion.isAfter(dayFixing)) { // The fixing is required
-      final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(getFixingDate().toLocalDate(), LocalTime.of(0, 0), TimeZone.UTC);
+      final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(LocalDateTime.of(getFixingDate().getDate(), LocalTime.of(0, 0)), ZoneOffset.UTC);
       final Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate); // TODO: remove time from fixing date.
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
@@ -337,19 +339,19 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
     final double fixingPeriodEndTime1 = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate1());
     final double fixingPeriodStartTime2 = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate2());
     final double fixingPeriodEndTime2 = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate2());
-    return new CouponIborAverage(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, getIndex1(), fixingPeriodStartTime1, fixingPeriodEndTime1,
-        getFixingPeriodAccrualFactor1(), getIndex2(), fixingPeriodStartTime2, fixingPeriodEndTime2,
-        getFixingPeriodAccrualFactor2(), getWeight1(), getWeight2());
+    return new CouponIborAverage(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, getIndex1(), fixingPeriodStartTime1,
+        fixingPeriodEndTime1, getFixingPeriodAccrualFactor1(), getIndex2(), fixingPeriodStartTime2, fixingPeriodEndTime2, getFixingPeriodAccrualFactor2(), getWeight1(),
+        getWeight2());
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponIborAverageDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponIborAverageDefinition(this);
   }
@@ -377,7 +379,7 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -387,7 +389,7 @@ public class CouponIborAverageDefinition extends CouponFloatingDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponIborAverageDefinition other = (CouponIborAverageDefinition) obj;
+    final CouponIborAverageDefinition other = (CouponIborAverageDefinition) obj;
     if (Double.doubleToLongBits(_fixingPeriodAccrualFactor1) != Double.doubleToLongBits(other._fixingPeriodAccrualFactor1)) {
       return false;
     }

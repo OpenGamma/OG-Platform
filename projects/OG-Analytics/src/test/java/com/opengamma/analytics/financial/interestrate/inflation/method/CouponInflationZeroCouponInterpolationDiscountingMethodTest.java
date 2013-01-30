@@ -6,11 +6,11 @@
 package com.opengamma.analytics.financial.interestrate.inflation.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
@@ -45,7 +45,7 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
   private static final Calendar CALENDAR_USD = USDLIBOR3M.getCalendar();
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
-  private static final Period COUPON_TENOR = Period.ofYears(10);
+  private static final Period COUPON_TENOR = Period.of(10, YEARS);
   private static final ZonedDateTime PAYMENT_DATE = ScheduleCalculator.getAdjustedDate(START_DATE, COUPON_TENOR, BUSINESS_DAY, CALENDAR_EUR);
   private static final double NOTIONAL = 98765432;
   private static final int MONTH_LAG = 3;
@@ -147,8 +147,8 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethodTest {
     final int tenorYear = 5;
     final double notional = 100000000;
     final ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(PRICING_DATE, USDLIBOR3M.getSpotLag(), CALENDAR_USD);
-    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settleDate, Period.ofYears(tenorYear), BUSINESS_DAY, CALENDAR_USD, USDLIBOR3M.isEndOfMonth());
-    final double weightSettle = 1.0 - (settleDate.getDayOfMonth() - 1.0) / settleDate.getMonthOfYear().getLastDayOfMonth(settleDate.isLeapYear());
+    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settleDate, Period.of(tenorYear, YEARS), BUSINESS_DAY, CALENDAR_USD, USDLIBOR3M.isEndOfMonth());
+    final double weightSettle = 1.0 - (settleDate.getDayOfMonth() - 1.0) / settleDate.getDate().lengthOfMonth();
     final double indexStart = weightSettle * 225.964 + (1 - weightSettle) * 225.722;
     final CouponInflationZeroCouponInterpolationDefinition zeroCouponUsdDefinition = CouponInflationZeroCouponInterpolationDefinition.from(settleDate, paymentDate, notional, PRICE_INDEX_US,
         indexStart,

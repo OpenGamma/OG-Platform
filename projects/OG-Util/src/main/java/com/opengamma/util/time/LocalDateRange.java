@@ -7,8 +7,8 @@ package com.opengamma.util.time;
 
 import java.io.Serializable;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -22,7 +22,7 @@ public final class LocalDateRange implements Serializable {
   /**
    * A range over the whole time-line.
    */
-  public static final LocalDateRange ALL = LocalDateRange.of(LocalDate.MIN_DATE, LocalDate.MAX_DATE, true);
+  public static final LocalDateRange ALL = LocalDateRange.of(LocalDate.MIN, LocalDate.MAX, true);
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -47,7 +47,7 @@ public final class LocalDateRange implements Serializable {
   public static LocalDateRange of(LocalDate startDateInclusive, LocalDate endDate, boolean endDateInclusive) {
     ArgumentChecker.notNull(startDateInclusive, "startDate");
     ArgumentChecker.notNull(endDate, "endDate");
-    if (endDateInclusive == false && endDate.isBefore(LocalDate.MAX_DATE)) {
+    if (endDateInclusive == false && endDate.isBefore(LocalDate.MAX)) {
       endDate = endDate.minusDays(1);
     }
     if (endDate.isBefore(startDateInclusive)) {
@@ -68,8 +68,8 @@ public final class LocalDateRange implements Serializable {
    * @return the range, not null
    */
   public static LocalDateRange ofNullUnbounded(LocalDate startDateInclusive, LocalDate endDate, boolean endDateInclusive) {
-    startDateInclusive = (startDateInclusive != null ? startDateInclusive : LocalDate.MIN_DATE);
-    endDate = (endDate != null ? endDate : LocalDate.MAX_DATE);
+    startDateInclusive = (startDateInclusive != null ? startDateInclusive : LocalDate.MIN);
+    endDate = (endDate != null ? endDate : LocalDate.MAX);
     return of(startDateInclusive, endDate, endDateInclusive);
   }
 
@@ -124,7 +124,7 @@ public final class LocalDateRange implements Serializable {
    * @return true if maximum
    */
   public boolean isStartDateMinimum() {
-    return _startDate.equals(LocalDate.MIN_DATE);
+    return _startDate.equals(LocalDate.MIN);
   }
 
   /**
@@ -133,7 +133,7 @@ public final class LocalDateRange implements Serializable {
    * @return true if maximum
    */
   public boolean isEndDateMaximum() {
-    return _endDateInclusive.equals(LocalDate.MAX_DATE);
+    return _endDateInclusive.equals(LocalDate.MAX);
   }
 
   //-------------------------------------------------------------------------
@@ -143,7 +143,7 @@ public final class LocalDateRange implements Serializable {
    * @param adjuster  the adjuster to use, not null
    * @return the new range, not null
    */
-  public LocalDateRange withStartDate(DateAdjuster adjuster) {
+  public LocalDateRange withStartDate(TemporalAdjuster adjuster) {
     return new LocalDateRange(_startDate.with(adjuster), _endDateInclusive);
   }
 
@@ -153,7 +153,7 @@ public final class LocalDateRange implements Serializable {
    * @param adjuster  the adjuster to use, not null
    * @return the new range, not null
    */
-  public LocalDateRange withEndDate(DateAdjuster adjuster) {
+  public LocalDateRange withEndDate(TemporalAdjuster adjuster) {
     return new LocalDateRange(_startDate, _endDateInclusive.with(adjuster));
   }
 

@@ -7,10 +7,8 @@ package com.opengamma.analytics.financial.interestrate.swaption.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -64,7 +62,7 @@ public class SuccessiveRootFinderSwaptionPhysicalHullWhiteCalibrationObjectiveTe
   private static final boolean FIXED_IS_PAYER = true;
   //  Ibor leg: quarterly money
   private static final int SWAP_TENOR_YEAR = 9;
-  private static final IndexSwap SWAP_INDEX = new IndexSwap(EUR1YEURIBOR3M, Period.ofYears(SWAP_TENOR_YEAR));
+  private static final IndexSwap SWAP_INDEX = new IndexSwap(EUR1YEURIBOR3M, DateUtils.periodOfYears(SWAP_TENOR_YEAR));
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
   private static final int[] EXPIRY_TENOR = new int[] {1, 2, 3, 4, 5};
   private static final ZonedDateTime[] EXPIRY_DATE = new ZonedDateTime[EXPIRY_TENOR.length];
@@ -73,7 +71,7 @@ public class SuccessiveRootFinderSwaptionPhysicalHullWhiteCalibrationObjectiveTe
   private static final SwaptionPhysicalFixedIborDefinition[] SWAPTION_LONG_PAYER_DEFINITION = new SwaptionPhysicalFixedIborDefinition[EXPIRY_TENOR.length];
   static {
     for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
-      EXPIRY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofYears(EXPIRY_TENOR[loopexp]), BUSINESS_DAY, CALENDAR);
+      EXPIRY_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, DateUtils.periodOfYears(EXPIRY_TENOR[loopexp]), BUSINESS_DAY, CALENDAR);
       SETTLEMENT_DATE[loopexp] = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE[loopexp], EURIBOR3M.getSpotLag(), CALENDAR);
       SWAP_PAYER_DEFINITION[loopexp] = SwapFixedIborDefinition.from(SETTLEMENT_DATE[loopexp], SWAP_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
       SWAPTION_LONG_PAYER_DEFINITION[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE[loopexp], SWAP_PAYER_DEFINITION[loopexp], IS_LONG);
@@ -96,16 +94,16 @@ public class SuccessiveRootFinderSwaptionPhysicalHullWhiteCalibrationObjectiveTe
    * Tests the correctness of Hull-White one factor calibration to swaptions with SABR price.
    */
   public void calibration() {
-    double meanReversion = 0.01;
-    HullWhiteOneFactorPiecewiseConstantParameters hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, new double[] {0.01}, new double[0]);
-    SuccessiveRootFinderHullWhiteCalibrationObjective objective = new SuccessiveRootFinderHullWhiteCalibrationObjective(hwParameters, EUR);
-    SuccessiveRootFinderHullWhiteCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderHullWhiteCalibrationEngine<SABRSwaptionProviderInterface>(objective);
+    final double meanReversion = 0.01;
+    final HullWhiteOneFactorPiecewiseConstantParameters hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, new double[] {0.01}, new double[0]);
+    final SuccessiveRootFinderHullWhiteCalibrationObjective objective = new SuccessiveRootFinderHullWhiteCalibrationObjective(hwParameters, EUR);
+    final SuccessiveRootFinderHullWhiteCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderHullWhiteCalibrationEngine<SABRSwaptionProviderInterface>(objective);
     for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
       calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[loopexp], PVSSC);
     }
     calibrationEngine.calibrate(SABR_MULTICURVES);
-    MultipleCurrencyAmount[] pvSabr = new MultipleCurrencyAmount[EXPIRY_TENOR.length];
-    MultipleCurrencyAmount[] pvHw = new MultipleCurrencyAmount[EXPIRY_TENOR.length];
+    final MultipleCurrencyAmount[] pvSabr = new MultipleCurrencyAmount[EXPIRY_TENOR.length];
+    final MultipleCurrencyAmount[] pvHw = new MultipleCurrencyAmount[EXPIRY_TENOR.length];
     for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
       pvSabr[loopexp] = SWAPTION_LONG_PAYER[loopexp].accept(PVSSC, SABR_MULTICURVES);
       pvHw[loopexp] = METHOD_HW.presentValue(SWAPTION_LONG_PAYER[loopexp], objective.getHwProvider());
@@ -118,15 +116,15 @@ public class SuccessiveRootFinderSwaptionPhysicalHullWhiteCalibrationObjectiveTe
    * Test of performance. In normal testing, "enabled = false".
    */
   public void performance() {
-    double meanReversion = 0.01;
+    final double meanReversion = 0.01;
     long startTime, endTime;
     final int nbTest = 100;
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      HullWhiteOneFactorPiecewiseConstantParameters hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, new double[] {0.01}, new double[0]);
-      SuccessiveRootFinderHullWhiteCalibrationObjective objective = new SuccessiveRootFinderHullWhiteCalibrationObjective(hwParameters, EUR);
-      SuccessiveRootFinderHullWhiteCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderHullWhiteCalibrationEngine<SABRSwaptionProviderInterface>(objective);
+      final HullWhiteOneFactorPiecewiseConstantParameters hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, new double[] {0.01}, new double[0]);
+      final SuccessiveRootFinderHullWhiteCalibrationObjective objective = new SuccessiveRootFinderHullWhiteCalibrationObjective(hwParameters, EUR);
+      final SuccessiveRootFinderHullWhiteCalibrationEngine<SABRSwaptionProviderInterface> calibrationEngine = new SuccessiveRootFinderHullWhiteCalibrationEngine<SABRSwaptionProviderInterface>(objective);
       for (int loopexp = 0; loopexp < EXPIRY_TENOR.length; loopexp++) {
         calibrationEngine.addInstrument(SWAPTION_LONG_PAYER[loopexp], PVSSC);
       }

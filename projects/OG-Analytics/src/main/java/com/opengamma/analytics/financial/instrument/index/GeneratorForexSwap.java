@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -57,7 +56,8 @@ public class GeneratorForexSwap extends GeneratorInstrument<GeneratorAttributeFX
    * @param businessDayConvention The business day convention.
    * @param endOfMonth The flag indicating if the end-of-month rule is used.
    */
-  public GeneratorForexSwap(String name, Currency currency1, Currency currency2, Calendar calendar, int spotLag, BusinessDayConvention businessDayConvention, boolean endOfMonth) {
+  public GeneratorForexSwap(final String name, final Currency currency1, final Currency currency2, final Calendar calendar, final int spotLag,
+      final BusinessDayConvention businessDayConvention, final boolean endOfMonth) {
     super(name);
     Validate.notNull(currency1, "Currency 1");
     Validate.notNull(currency2, "Currency 2");
@@ -146,7 +146,7 @@ public class GeneratorForexSwap extends GeneratorInstrument<GeneratorAttributeFX
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -156,7 +156,7 @@ public class GeneratorForexSwap extends GeneratorInstrument<GeneratorAttributeFX
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorForexSwap other = (GeneratorForexSwap) obj;
+    final GeneratorForexSwap other = (GeneratorForexSwap) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }

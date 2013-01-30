@@ -10,11 +10,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.time.Instant;
-import javax.time.calendar.Clock;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.UniqueId;

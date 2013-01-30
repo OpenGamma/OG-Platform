@@ -7,6 +7,8 @@ package com.opengamma.web.analytics.blotter;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.MetaBean;
 import org.testng.annotations.Test;
 
@@ -22,6 +24,7 @@ import com.opengamma.master.security.ManageableSecurity;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public class BeanBuildingVisitorTest {
 
   private static final MetaBeanFactory META_BEAN_FACTORY = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(
@@ -40,10 +43,13 @@ public class BeanBuildingVisitorTest {
    */
   @Test
   public void buildFXForwardSecurity() {
-    BeanVisitor<ManageableSecurity> visitor = new BeanBuildingVisitor<ManageableSecurity>(BlotterTestUtils.FX_FORWARD_DATA_SOURCE,
-                                                                                          META_BEAN_FACTORY);
+    BeanVisitor<BeanBuilder<Bean>> visitor = new BeanBuildingVisitor<>(BlotterTestUtils.FX_FORWARD_DATA_SOURCE,
+                                                                       META_BEAN_FACTORY,
+                                                                       BlotterResource.getStringConvert());
     MetaBean metaBean = META_BEAN_FACTORY.beanFor(BlotterTestUtils.FX_FORWARD_DATA_SOURCE);
-    ManageableSecurity security = (ManageableSecurity) new BeanTraverser().traverse(metaBean, visitor);
+    BeanBuilder<ManageableSecurity> beanBuilder =
+        (BeanBuilder<ManageableSecurity>) new BeanTraverser().traverse(metaBean, visitor);
+    ManageableSecurity security = beanBuilder.build();
     assertEquals(BlotterTestUtils.FX_FORWARD, security);
   }
 
@@ -52,10 +58,13 @@ public class BeanBuildingVisitorTest {
    */
   @Test
   public void buildSwapSecurity() {
-    BeanVisitor<ManageableSecurity> visitor = new BeanBuildingVisitor<ManageableSecurity>(BlotterTestUtils.SWAP_DATA_SOURCE,
-                                                                                          META_BEAN_FACTORY);
+    BeanVisitor<BeanBuilder<Bean>> visitor = new BeanBuildingVisitor<>(BlotterTestUtils.SWAP_DATA_SOURCE,
+                                                                       META_BEAN_FACTORY,
+                                                                       BlotterResource.getStringConvert());
     MetaBean metaBean = META_BEAN_FACTORY.beanFor(BlotterTestUtils.SWAP_DATA_SOURCE);
-    ManageableSecurity security = (ManageableSecurity) new BeanTraverser().traverse(metaBean, visitor);
+    BeanBuilder<ManageableSecurity> beanBuilder =
+        (BeanBuilder<ManageableSecurity>) new BeanTraverser().traverse(metaBean, visitor);
+    ManageableSecurity security = beanBuilder.build();
     assertEquals(BlotterTestUtils.SWAP, security);
   }
 }

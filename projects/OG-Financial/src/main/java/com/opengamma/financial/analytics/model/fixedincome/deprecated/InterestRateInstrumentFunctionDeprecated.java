@@ -9,12 +9,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -25,11 +24,11 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -122,14 +121,11 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
+    return InterestRateInstrumentType.FIXED_INCOME_INSTRUMENT_TARGET_TYPE;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
-      return false;
-    }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     //TODO remove this when we've checked that removing IR futures from the fixed income instrument types
     // doesn't break curves
@@ -145,7 +141,7 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
         return false;
       }
     }
-    return InterestRateInstrumentType.isFixedIncomeInstrumentType(security);
+    return true;
   }
 
   @Override
@@ -202,7 +198,7 @@ public abstract class InterestRateInstrumentFunctionDeprecated extends AbstractF
       final Set<ValueRequirement> desiredValues) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);

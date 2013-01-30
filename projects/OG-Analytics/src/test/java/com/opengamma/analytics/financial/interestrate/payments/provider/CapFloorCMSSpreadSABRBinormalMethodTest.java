@@ -8,12 +8,12 @@ package com.opengamma.analytics.financial.interestrate.payments.provider;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -86,18 +86,18 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
 
   //Swaps
-  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
+  private static final Period FIXED_PAYMENT_PERIOD = DateUtils.periodOfMonths(6);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final boolean FIXED_IS_PAYER = true; // Irrelevant for the underlying
   private static final double RATE = 0.0; // Irrelevant for the underlying
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2010, 12, 30);
   private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, EURIBOR6M.getSpotLag(), CALENDAR);
   // Swap 10Y
-  private static final Period ANNUITY_TENOR_1 = Period.ofYears(10);
+  private static final Period ANNUITY_TENOR_1 = DateUtils.periodOfYears(10);
   private static final IndexSwap CMS_INDEX_1 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR6M, ANNUITY_TENOR_1);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_1 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX_1, 1.0, RATE, FIXED_IS_PAYER);
   // Swap 2Y
-  private static final Period ANNUITY_TENOR_2 = Period.ofYears(2);
+  private static final Period ANNUITY_TENOR_2 = DateUtils.periodOfYears(2);
   private static final IndexSwap CMS_INDEX_2 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, EURIBOR6M, ANNUITY_TENOR_2);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_2 = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX_2, 1.0, RATE, FIXED_IS_PAYER);
   // CMS spread coupon
@@ -113,7 +113,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final SwapFixedCoupon<? extends Payment> SWAP_1 = SWAP_DEFINITION_1.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final SwapFixedCoupon<? extends Payment> SWAP_2 = SWAP_DEFINITION_2.toDerivative(REFERENCE_DATE, NOT_USED_A);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.ofMidnight(REFERENCE_DATE), TimeZone.UTC);
+  private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.getDate(), LocalTime.of(0, 0)), ZoneOffset.UTC);
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, PAYMENT_DATE);
   private static final double FIXING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_DATE);
   private static final double SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SWAP_DEFINITION_1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
@@ -175,7 +175,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   @Test
   /**
-   * Tests the present value against the price explicitly computed for constant correlation. 
+   * Tests the present value against the price explicitly computed for constant correlation.
    */
   public void presentValue() {
     final double correlation = 0.80;
@@ -216,7 +216,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   @Test
   /**
-   * Tests the present value with default method and with method without extrapolation. 
+   * Tests the present value with default method and with method without extrapolation.
    */
   public void presentValueConstructor() {
     final CapFloorCMSSpreadSABRBinormalMethod methodDefault = new CapFloorCMSSpreadSABRBinormalMethod(CORRELATION_FUNCTION, METHOD_CMS_CAP, METHOD_CMS_COUPON);
@@ -286,7 +286,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   @Test
   /**
-   * Tests the present value. Method vs Calculator. 
+   * Tests the present value. Method vs Calculator.
    */
   public void presentValueMethodVsCalculator() {
     final MultipleCurrencyAmount pvMethod = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, SABR_MULTICURVES);
@@ -347,7 +347,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   @Test
   /**
-   * Tests the present value against the price explicitly computed for constant correlation. 
+   * Tests the present value against the price explicitly computed for constant correlation.
    */
   public void presentValueCurveSensitivityMethodVsCalculator() {
     final MultipleCurrencyMulticurveSensitivity pvcsMethod = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, SABR_MULTICURVES);
@@ -505,7 +505,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   @Test
   /**
-   * Tests the present value against the price explicitly computed for constant correlation. 
+   * Tests the present value against the price explicitly computed for constant correlation.
    */
   public void presentValueSABRSensitivityMethodVsCalculator() {
     final PresentValueSABRSensitivityDataBundle pvcsMethod = METHOD_CMS_SPREAD.presentValueSABRSensitivity(CMS_CAP_SPREAD, SABR_MULTICURVES);

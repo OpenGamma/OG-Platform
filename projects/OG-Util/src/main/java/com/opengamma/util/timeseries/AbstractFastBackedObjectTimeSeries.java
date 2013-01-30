@@ -7,6 +7,8 @@ package com.opengamma.util.timeseries;
 
 import java.util.TimeZone;
 
+import org.threeten.bp.ZoneId;
+
 import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.BinaryOperator;
 import com.opengamma.util.timeseries.ObjectTimeSeriesOperators.UnaryOperator;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
@@ -98,7 +100,7 @@ public abstract class AbstractFastBackedObjectTimeSeries<DATE_TYPE, T> implement
     }
   }
   
-  public javax.time.calendar.TimeZone getTimeZone310() {
+  public ZoneId getTimeZone310() {
     return getConverter().getTimeZone310();
   }
   
@@ -128,7 +130,7 @@ public abstract class AbstractFastBackedObjectTimeSeries<DATE_TYPE, T> implement
 //  }
 //
 //  @Override
-//  public LocalDateObjectTimeSeries<T> toLocalDateObjectTimeSeries(javax.time.calendar.TimeZone timeZone) {
+//  public LocalDateObjectTimeSeries<T> toLocalDateObjectTimeSeries(ZoneId timeZone) {
 //    return new ArrayLocalDateObjectTimeSeries(timeZone, toFastIntDaysOTS());
 //  }    
 //  
@@ -138,7 +140,7 @@ public abstract class AbstractFastBackedObjectTimeSeries<DATE_TYPE, T> implement
 //  }
 //
 //  @Override
-//  public MutableLocalDateObjectTimeSeries<T> toMutableLocalDateObjectTimeSeries(javax.time.calendar.TimeZone timeZone) {
+//  public MutableLocalDateObjectTimeSeries<T> toMutableLocalDateObjectTimeSeries(ZoneId timeZone) {
 //    return new ListLocalDateObjectTimeSeries(timeZone, toFastMutableIntDaysOTS());
 //  }
 //  
@@ -209,7 +211,7 @@ public abstract class AbstractFastBackedObjectTimeSeries<DATE_TYPE, T> implement
 //  }
 //  
 //  @Override
-//  public ZonedDateTimeObjectTimeSeries<T> toZonedDateTimeObjectTimeSeries(javax.time.calendar.TimeZone timeZone) {
+//  public ZonedDateTimeObjectTimeSeries<T> toZonedDateTimeObjectTimeSeries(ZoneId timeZone) {
 //    return new ArrayZonedDateTimeObjectTimeSeries(timeZone, toFastLongMillisOTS());
 //  }
 //
@@ -219,7 +221,7 @@ public abstract class AbstractFastBackedObjectTimeSeries<DATE_TYPE, T> implement
 //  }
 //  
 //  @Override
-//  public MutableZonedDateTimeObjectTimeSeries<T> toMutableZonedDateTimeObjectTimeSeries(javax.time.calendar.TimeZone timeZone) {
+//  public MutableZonedDateTimeObjectTimeSeries<T> toMutableZonedDateTimeObjectTimeSeries(ZoneId timeZone) {
 //    return new ListZonedDateTimeObjectTimeSeries(timeZone, toFastMutableLongMillisOTS());
 //  }
 //  

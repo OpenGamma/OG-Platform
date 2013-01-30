@@ -79,7 +79,8 @@ static void BasicOperations () {
 	ASSERT (poCaller->Run (poRun2));
 	ASSERT (poCaller->Run (poRun3));
 	CThread::Sleep (TIMEOUT_COMPLETE);
-	CAsynchronous::Release (poCaller);
+	CAsynchronous::PoisonAndRelease (poCaller);
+	CThread::Sleep (TIMEOUT_COMPLETE / 6);
 	ASSERT (nRun1 == 1);
 	ASSERT (nRun2 == 3);
 	ASSERT (nRun3 == 0);
@@ -132,7 +133,8 @@ static void ThreadIdleTimeout () {
 	} else {
 		LOGWARN (TEXT ("ThreadIdleTimeout test might have failed - no thread identity"));
 	}
-	CAsynchronous::Release (poCaller);
+	CAsynchronous::PoisonAndRelease (poCaller);
+	CThread::Sleep (TIMEOUT_COMPLETE / 6);
 }
 
 static void ThreadRecycling () {
@@ -151,7 +153,8 @@ static void ThreadRecycling () {
 	} else {
 		LOGWARN (TEXT ("ThreadRecycling test might have failed - no thread identity"));
 	}
-	CAsynchronous::Release (poCaller);
+	CAsynchronous::PoisonAndRelease (poCaller);
+	CThread::Sleep (TIMEOUT_COMPLETE / 6);
 }
 
 /// Tests the functions and objects in Util/Asynchronous.cpp

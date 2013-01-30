@@ -7,14 +7,12 @@ package com.opengamma.id;
 
 import java.io.Serializable;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Year;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
@@ -147,8 +145,8 @@ public final class ExternalIdWithDates
     if (date == null) {
       return true;
     }
-    LocalDate from = Objects.firstNonNull(getValidFrom(), LocalDate.of(Year.MIN_YEAR, 1, 1));  // TODO: JSR-310 far past/future
-    LocalDate to = Objects.firstNonNull(getValidTo(), LocalDate.of(Year.MAX_YEAR, 12, 31));
+    LocalDate from = Objects.firstNonNull(getValidFrom(), LocalDate.MIN);
+    LocalDate to = Objects.firstNonNull(getValidTo(), LocalDate.MAX);
     return date.isBefore(from) == false && date.isAfter(to) == false;
   }
 

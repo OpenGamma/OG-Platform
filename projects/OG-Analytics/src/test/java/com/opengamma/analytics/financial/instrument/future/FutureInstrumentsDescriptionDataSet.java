@@ -5,8 +5,11 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
+
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -32,7 +35,7 @@ public class FutureInstrumentsDescriptionDataSet {
   //EURIBOR 3M Index
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final Currency CUR = Currency.EUR;
-  private static final Period TENOR = Period.ofMonths(3);
+  private static final Period TENOR = Period.of(3, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -73,7 +76,8 @@ public class FutureInstrumentsDescriptionDataSet {
 
   public static InterestRateFutureOptionMarginTransactionDefinition createInterestRateFutureOptionMarginTransactionDefinition() {
     final InterestRateFutureDefinition underlying = createInterestRateFutureSecurityDefinition();
-    final InterestRateFutureOptionMarginSecurityDefinition option = new InterestRateFutureOptionMarginSecurityDefinition(underlying, OPTION_EXPIRY, OPTION_STRIKE, IS_CALL);
+    final InterestRateFutureOptionMarginSecurityDefinition option = new InterestRateFutureOptionMarginSecurityDefinition(underlying, OPTION_EXPIRY, OPTION_STRIKE,
+        IS_CALL);
     return new InterestRateFutureOptionMarginTransactionDefinition(option, 1, TRADE_DATE, .99);
   }
 
@@ -84,23 +88,26 @@ public class FutureInstrumentsDescriptionDataSet {
 
   public static InterestRateFutureOptionPremiumTransactionDefinition createInterestRateFutureOptionPremiumTransactionDefinition() {
     final InterestRateFutureDefinition underlying = createInterestRateFutureSecurityDefinition();
-    final InterestRateFutureOptionPremiumSecurityDefinition option = new InterestRateFutureOptionPremiumSecurityDefinition(underlying, OPTION_EXPIRY, OPTION_STRIKE, IS_CALL);
+    final InterestRateFutureOptionPremiumSecurityDefinition option = new InterestRateFutureOptionPremiumSecurityDefinition(underlying, OPTION_EXPIRY, OPTION_STRIKE,
+        IS_CALL);
     return new InterestRateFutureOptionPremiumTransactionDefinition(option, 1, TRADE_DATE, .99);
   }
 
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency BNDFUT_CUR = Currency.EUR;
   private static final String ISSUER_NAME = "Issuer";
-  private static final Period BNDFUT_PAYMENT_TENOR = Period.ofMonths(6);
+  private static final Period BNDFUT_PAYMENT_TENOR = Period.of(6, MONTHS);
   private static final DayCount BNDFUT_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final BusinessDayConvention BNDFUT_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final boolean BNDFUT_IS_EOM = false;
   private static final int BNDFUT_SETTLEMENT_DAYS = 1;
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("STREET CONVENTION");
   private static final int NB_BOND = 7;
-  private static final Period[] BOND_TENOR = new Period[] {Period.ofYears(5), Period.ofYears(5), Period.ofYears(5), Period.ofYears(8), Period.ofYears(5), Period.ofYears(5), Period.ofYears(5)};
-  private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31), DateUtils.getUTCDate(2011, 1, 31),
-    DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30), DateUtils.getUTCDate(2011, 5, 31)};
+  private static final Period[] BOND_TENOR = new Period[] {Period.of(5, YEARS), Period.of(5, YEARS), Period.of(5, YEARS), Period.of(8, YEARS), Period.of(5, YEARS),
+      Period.of(5, YEARS), Period.of(5, YEARS)};
+  private static final ZonedDateTime[] START_ACCRUAL_DATE = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2010, 12, 31),
+      DateUtils.getUTCDate(2011, 1, 31), DateUtils.getUTCDate(2008, 2, 29), DateUtils.getUTCDate(2011, 3, 31), DateUtils.getUTCDate(2011, 4, 30),
+      DateUtils.getUTCDate(2011, 5, 31)};
   private static final double[] RATE = new double[] {0.01375, 0.02125, 0.0200, 0.02125, 0.0225, 0.0200, 0.0175};
   private static final double[] CONVERSION_FACTOR = new double[] {.8317, .8565, .8493, .8516, .8540, .8417, .8292};
   private static final ZonedDateTime[] MATURITY_DATE = new ZonedDateTime[NB_BOND];
@@ -108,8 +115,8 @@ public class FutureInstrumentsDescriptionDataSet {
   static {
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
       MATURITY_DATE[loopbasket] = START_ACCRUAL_DATE[loopbasket].plus(BOND_TENOR[loopbasket]);
-      BASKET_DEFINITION[loopbasket] = BondFixedSecurityDefinition.from(BNDFUT_CUR, MATURITY_DATE[loopbasket], START_ACCRUAL_DATE[loopbasket], BNDFUT_PAYMENT_TENOR, RATE[loopbasket],
-          BNDFUT_SETTLEMENT_DAYS, CALENDAR, BNDFUT_DAY_COUNT, BNDFUT_BUSINESS_DAY, YIELD_CONVENTION, BNDFUT_IS_EOM, ISSUER_NAME);
+      BASKET_DEFINITION[loopbasket] = BondFixedSecurityDefinition.from(BNDFUT_CUR, MATURITY_DATE[loopbasket], START_ACCRUAL_DATE[loopbasket], BNDFUT_PAYMENT_TENOR,
+          RATE[loopbasket], BNDFUT_SETTLEMENT_DAYS, CALENDAR, BNDFUT_DAY_COUNT, BNDFUT_BUSINESS_DAY, YIELD_CONVENTION, BNDFUT_IS_EOM, ISSUER_NAME);
     }
   }
   private static final ZonedDateTime BNDFUT_LAST_TRADING_DATE = DateUtils.getUTCDate(2011, 9, 21);

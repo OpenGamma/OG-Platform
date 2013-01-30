@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.interestrate.payments.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCapFloorIborDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -68,16 +67,16 @@ public class CapFloorHullWhiteCalibrationObjectiveTest {
    * Tests the correctness of Hull-White one factor calibration to swaptions with SABR price.
    */
   public void calibration() {
-    double meanReversion = 0.01;
-    HullWhiteOneFactorPiecewiseConstantParameters hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, new double[] {0.01}, new double[0]);
-    SuccessiveRootFinderHullWhiteCalibrationObjective objective = new SuccessiveRootFinderHullWhiteCalibrationObjective(hwParameters, EUR);
-    SuccessiveRootFinderHullWhiteCalibrationEngine<SABRCapProviderInterface> calibrationEngine = new SuccessiveRootFinderHullWhiteCalibrationEngine<SABRCapProviderInterface>(objective);
+    final double meanReversion = 0.01;
+    final HullWhiteOneFactorPiecewiseConstantParameters hwParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, new double[] {0.01}, new double[0]);
+    final SuccessiveRootFinderHullWhiteCalibrationObjective objective = new SuccessiveRootFinderHullWhiteCalibrationObjective(hwParameters, EUR);
+    final SuccessiveRootFinderHullWhiteCalibrationEngine<SABRCapProviderInterface> calibrationEngine = new SuccessiveRootFinderHullWhiteCalibrationEngine<SABRCapProviderInterface>(objective);
     for (int loopexp = 0; loopexp < CAP.getNumberOfPayments(); loopexp++) {
       calibrationEngine.addInstrument(CAP.getNthPayment(loopexp), PVSCC);
     }
     calibrationEngine.calibrate(SABR_MULTICURVES);
-    MultipleCurrencyAmount[] pvSabr = new MultipleCurrencyAmount[CAP.getNumberOfPayments()];
-    MultipleCurrencyAmount[] pvHw = new MultipleCurrencyAmount[CAP.getNumberOfPayments()];
+    final MultipleCurrencyAmount[] pvSabr = new MultipleCurrencyAmount[CAP.getNumberOfPayments()];
+    final MultipleCurrencyAmount[] pvHw = new MultipleCurrencyAmount[CAP.getNumberOfPayments()];
     for (int loopexp = 0; loopexp < CAP.getNumberOfPayments(); loopexp++) {
       pvSabr[loopexp] = CAP.getNthPayment(loopexp).accept(PVSCC, SABR_MULTICURVES);
       pvHw[loopexp] = METHOD_CAP_HW.presentValue((CapFloorIbor) CAP.getNthPayment(loopexp), objective.getHwProvider());

@@ -13,12 +13,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -34,11 +34,12 @@ import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -80,7 +81,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
     final Position position = target.getPosition();
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+    final LocalDate now = ZonedDateTime.now(snapshotClock).getDate();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -125,9 +126,6 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.POSITION) {
-      return false;
-    }
     final Security security = target.getPosition().getSecurity();
     return security instanceof SwaptionSecurity;
   }
@@ -159,8 +157,8 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
     }
-    if (!currency.equals(curveCalculationConfig.getUniqueId())) {
-      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getUniqueId());
+    if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
+      s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
     }
     final String surfaceName = getPropertyName(surfaceNames);
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
@@ -310,7 +308,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
   private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName).get();
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), properties);
   }
 
   private ValueRequirement getYCNSRequirement(final String currencyString, final String curveCalculationConfig, final String curveName, final String surfaceName,

@@ -9,11 +9,9 @@ import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -27,11 +25,11 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -52,6 +50,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * @param <T> The type of the data returned from the calculator
@@ -111,7 +110,7 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
       throw new OpenGammaRuntimeException("Time series for " + security.getExternalIdBundle() + " was empty");
     }
     // Build the analytic's version of the security - the derivative
-    final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
     final InstrumentDefinitionWithData<?, Double> definition = security.accept(_converter);
     final InstrumentDerivative derivative = definition.toDerivative(valuationTime, lastMarginPrice, new String[] {"", ""});
     // Build the DataBundle it requires
@@ -130,9 +129,6 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
-      return false;
-    }
     final Security security = target.getTrade().getSecurity();
     return security instanceof FutureSecurity;
   }
@@ -178,12 +174,17 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
    * @return The spot asset value requirement if the future has a spot asset id, null otherwise
    */
   protected ValueRequirement getSpotAssetRequirement(final FutureSecurity security) {
-    final ExternalId spotAssetId = getSpotAssetId(security);
-    if (spotAssetId == null) {
+    try {
+      final ExternalId spotAssetId = getSpotAssetId(security);
+      if (spotAssetId == null) {
+        return null;
+      }
+      final ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, spotAssetId);
+      return req;
+    } catch (final UnsupportedOperationException e) {
+      s_logger.info(e.getMessage());
       return null;
     }
-    final ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotAssetId);
-    return req;
   }
 
   /**
@@ -229,7 +230,7 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
       return null;
     }
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
+        DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(7)), true, DateConstraint.VALUATION_TIME, true);
   }
 
 }

@@ -6,14 +6,14 @@
 package com.opengamma.analytics.financial.interestrate.future.method;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -48,7 +48,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   //EURIBOR 3M Index
-  private static final Period TENOR = Period.ofMonths(3);
+  private static final Period TENOR = Period.of(3, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");

@@ -53,12 +53,15 @@ public final class DealAttributeEncoder {
       for (Map.Entry<String, String> entry : tradeAttributes.entrySet()) {
         String key = entry.getKey();
         if (key.startsWith(DEAL_PREFIX) && !key.equals(DEAL_CLASSNAME) && !key.equals(DEAL_TYPE)) {
-          MetaProperty<?> mp = metaBean.metaProperty(StringUtils.substringAfter(key, DEAL_PREFIX));
-          String value = entry.getValue();
-          if (s_logger.isDebugEnabled()) {
-            s_logger.debug("Setting property {}({}) with value {}", new Object[]{mp, mp.propertyType(), value});
+          String propertyName = StringUtils.substringAfter(key, DEAL_PREFIX);
+          if (metaBean.metaPropertyExists(propertyName)) {
+            MetaProperty<?> mp = metaBean.metaProperty(propertyName);
+            String value = entry.getValue();
+            if (s_logger.isDebugEnabled()) {
+              s_logger.debug("Setting property {}({}) with value {}", new Object[]{mp, mp.propertyType(), value});
+            }
+            mp.setString(deal, value);
           }
-          mp.setString(deal, value);
         }
       }
     }

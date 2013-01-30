@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.inflation;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -24,7 +24,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * The index for a given month is given in the yield curve and in the time series on the first of the month.
  * The pay-off is (Index_End / Index_Start - X) with X=0 for notional payment and X=1 for no notional payment.
  */
-public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
+public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationDefinition implements
+    InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The reference date for the index at the coupon start. May not be relevant as the index value is known.
@@ -64,8 +65,7 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
    */
   public CouponInflationZeroCouponMonthlyDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
       final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final int monthLag,
-      final ZonedDateTime referenceStartDate, final double indexStartValue, final ZonedDateTime referenceEndDate,
-      final boolean payNotional) {
+      final ZonedDateTime referenceStartDate, final double indexStartValue, final ZonedDateTime referenceEndDate, final boolean payNotional) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
     ArgumentChecker.notNull(referenceStartDate, "Reference start date");
     ArgumentChecker.notNull(referenceEndDate, "Reference end date");
@@ -91,8 +91,8 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
   public static CouponInflationZeroCouponMonthlyDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
       final IndexPrice priceIndex, final int monthLag, final double indexStartValue, final ZonedDateTime referenceEndDate) {
     ArgumentChecker.notNull(priceIndex, "Price index");
-    return new CouponInflationZeroCouponMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, monthLag, accrualStartDate, indexStartValue,
-        referenceEndDate, false);
+    return new CouponInflationZeroCouponMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, monthLag,
+        accrualStartDate, indexStartValue, referenceEndDate, false);
   }
 
   /**
@@ -106,15 +106,15 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @return The inflation zero-coupon.
    */
-  public static CouponInflationZeroCouponMonthlyDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional, final IndexPrice priceIndex,
-      final double indexStartValue, final int monthLag, final boolean payNotional) {
+  public static CouponInflationZeroCouponMonthlyDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
+      final IndexPrice priceIndex, final double indexStartValue, final int monthLag, final boolean payNotional) {
     ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
     ZonedDateTime referenceEndDate = paymentDate.minusMonths(monthLag);
     referenceStartDate = referenceStartDate.withDayOfMonth(1);
     referenceEndDate = referenceEndDate.withDayOfMonth(1);
 
-    return new CouponInflationZeroCouponMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, monthLag, referenceStartDate,
-        indexStartValue, referenceEndDate, payNotional);
+    return new CouponInflationZeroCouponMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, monthLag,
+        referenceStartDate, indexStartValue, referenceEndDate, payNotional);
   }
 
   /**
@@ -161,8 +161,8 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
   public CouponInflationDefinition with(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional) {
     final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_monthLag);
     final ZonedDateTime referenceEndDate = refInterpolatedDate.withDayOfMonth(1);
-    return new CouponInflationZeroCouponMonthlyDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(), getPriceIndex(), _monthLag,
-        getReferenceStartDate(), getIndexStartValue(), referenceEndDate, payNotional());
+    return new CouponInflationZeroCouponMonthlyDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
+        getPriceIndex(), _monthLag, getReferenceStartDate(), getIndexStartValue(), referenceEndDate, payNotional());
   }
 
   @Override
@@ -176,8 +176,8 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
     final double referenceEndTime = TimeCalculator.getTimeBetween(date, getReferenceEndDate());
 
     final String discountingCurveName = yieldCurveNames[0];
-    return new CouponInflationZeroCouponMonthly(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime,
-        _payNotional);
+    return new CouponInflationZeroCouponMonthly(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(),
+        _indexStartValue, referenceEndTime, _payNotional);
   }
 
   @Override
@@ -190,8 +190,8 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
     final String discountingCurveName = yieldCurveNames[0];
     double referenceEndTime = 0.0;
     referenceEndTime = TimeCalculator.getTimeBetween(date, _referenceEndDate);
-    return new CouponInflationZeroCouponMonthly(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime,
-        _payNotional);
+    return new CouponInflationZeroCouponMonthly(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(),
+        _indexStartValue, referenceEndTime, _payNotional);
   }
 
   @Override
@@ -219,7 +219,7 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -229,7 +229,7 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponInflationZeroCouponMonthlyDefinition other = (CouponInflationZeroCouponMonthlyDefinition) obj;
+    final CouponInflationZeroCouponMonthlyDefinition other = (CouponInflationZeroCouponMonthlyDefinition) obj;
     if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
       return false;
     }

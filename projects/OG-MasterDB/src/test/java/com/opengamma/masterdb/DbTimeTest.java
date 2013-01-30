@@ -13,15 +13,15 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Map;
 
-import javax.time.Instant;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.ZoneOffset;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatters;
-
 import org.springframework.jdbc.core.RowMapper;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.util.db.DbDateUtils;
@@ -44,11 +44,11 @@ public class DbTimeTest extends DbTest {
   // with DST, the spring 'Gap' will cause it to go wrong
 
 //  private static final TimeZone  ORIGINAL_ZONE = TimeZone.getDefault();
-//  private static final javax.time.calendar.TimeZone TZ_LONDON = javax.time.calendar.TimeZone.of("Europe/London");
-  private static final Instant INSTANT1 = OffsetDateTime.of(2011, 1, 1, 12, 30, 40, 567123000, ZoneOffset.UTC).toInstant();  // winter
-  private static final Instant INSTANT2 = OffsetDateTime.of(2011, 7, 1, 12, 30, 40, 567123000, ZoneOffset.UTC).toInstant();  // summer
-  private static final Instant INSTANT3 = OffsetDateTime.of(2011, 3, 27, 1, 30, 40, 567123000, ZoneOffset.UTC).toInstant();  // Europe spring gap
-  private static final DateTimeFormatter FORMAT = DateTimeFormatters.pattern("yyyy-MM-dd HH:mm:ssfnnnnnn");
+//  private static final org.threeten.bp.ZoneId TZ_LONDON = org.threeten.bp.ZoneId.of("Europe/London");
+  private static final Instant INSTANT1 = LocalDateTime.of(2011, 1, 1, 12, 30, 40, 567123000).toInstant(ZoneOffset.UTC);  // winter
+  private static final Instant INSTANT2 = LocalDateTime.of(2011, 7, 1, 12, 30, 40, 567123000).toInstant(ZoneOffset.UTC);  // summer
+  private static final Instant INSTANT3 = LocalDateTime.of(2011, 3, 27, 1, 30, 40, 567123000).toInstant(ZoneOffset.UTC);  // Europe spring gap
+  private static final DateTimeFormatter FORMAT = DateTimeFormatters.pattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
   private ElSqlBundle _elSqlBundle;
   
@@ -200,22 +200,22 @@ public class DbTimeTest extends DbTest {
 //      }
 //    });
 //    Calendar cal1 = new GregorianCalendar(TimeZone.getTimeZone("GMT-06:00"));
-//    cal1.setTimeInMillis(INSTANT1.toEpochMillisLong());
+//    cal1.setTimeInMillis(INSTANT1.toEpochMilli());
 //    getDbConnector().getJdbcTemplate().update(insert, 10, cal1, cal1);
 //    Calendar cal11 = new GregorianCalendar(TimeZone.getTimeZone("GMT-06:00"));
-//    cal11.setTimeInMillis(INSTANT2.toEpochMillisLong());
+//    cal11.setTimeInMillis(INSTANT2.toEpochMilli());
 //    getDbConnector().getJdbcTemplate().update(insert, 11, cal11, cal11);
 //    Calendar cal2 = new GregorianCalendar(TimeZone.getTimeZone("GMT+06:00"));
-//    cal2.setTimeInMillis(INSTANT1.toEpochMillisLong());
+//    cal2.setTimeInMillis(INSTANT1.toEpochMilli());
 //    getDbConnector().getJdbcTemplate().update(insert, 12, cal2, cal2);
 //    Calendar cal21 = new GregorianCalendar(TimeZone.getTimeZone("GMT+06:00"));
-//    cal21.setTimeInMillis(INSTANT2.toEpochMillisLong());
+//    cal21.setTimeInMillis(INSTANT2.toEpochMilli());
 //    getDbConnector().getJdbcTemplate().update(insert, 13, cal21, cal21);
 //    Calendar cal3 = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-//    cal3.setTimeInMillis(INSTANT1.toEpochMillisLong());
+//    cal3.setTimeInMillis(INSTANT1.toEpochMilli());
 //    getDbConnector().getJdbcTemplate().update(insert, 14, cal3, cal3);
 //    Calendar cal31 = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
-//    cal31.setTimeInMillis(INSTANT2.toEpochMillisLong());
+//    cal31.setTimeInMillis(INSTANT2.toEpochMilli());
 //    getDbConnector().getJdbcTemplate().update(insert, 15, cal31, cal31);
 //    
 //    

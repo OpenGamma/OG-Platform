@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.Period;
+import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 

@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -103,7 +102,7 @@ public class GeneratorDepositON extends GeneratorInstrument<GeneratorAttributeIR
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -113,7 +112,7 @@ public class GeneratorDepositON extends GeneratorInstrument<GeneratorAttributeIR
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorDepositON other = (GeneratorDepositON) obj;
+    final GeneratorDepositON other = (GeneratorDepositON) obj;
     if (!ObjectUtils.equals(_calendar, other._calendar)) {
       return false;
     }

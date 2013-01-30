@@ -7,10 +7,9 @@ package com.opengamma.analytics.financial.interestrate.payments.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import cern.jet.random.engine.MersenneTwister;
 
@@ -59,7 +58,7 @@ public class CapFloorIborLMMDDMethodTest {
   // Swaption 5Yx5Y
 
   private static final int SWAP_TENOR_YEAR = 4;
-  private static final Period SWAP_TENOR = Period.ofYears(SWAP_TENOR_YEAR);
+  private static final Period SWAP_TENOR = DateUtils.periodOfYears(SWAP_TENOR_YEAR);
 
   private static final GeneratorSwapFixedIbor EUR3MEURIBOR3M = new GeneratorSwapFixedIbor(NOT_USED, EURIBOR3M.getTenor(), EURIBOR3M.getDayCount(), EURIBOR3M);
   private static final IndexSwap SWAP_INDEX = new IndexSwap(EUR3MEURIBOR3M, SWAP_TENOR);
@@ -122,8 +121,8 @@ public class CapFloorIborLMMDDMethodTest {
     final double timeDependentFactor = Math.sqrt((Math.exp(2 * PARAMETERS_LMM.getMeanReversion() * CAP_LAST.getFixingTime()) - 1.0) / (2.0 * PARAMETERS_LMM.getMeanReversion()));
     volatility *= timeDependentFactor;
     final double displacement = PARAMETERS_LMM.getDisplacement()[index];
-    double forward = MULTICURVES.getForwardRate(CAP_LAST.getIndex(), CAP_LAST.getFixingPeriodStartTime(), CAP_LAST.getFixingPeriodEndTime(), CAP_LAST.getFixingAccrualFactor());
-    double beta = (1.0 + CAP_LAST.getFixingAccrualFactor() * forward) * MULTICURVES.getDiscountFactor(EUR, CAP_LAST.getFixingPeriodEndTime())
+    final double forward = MULTICURVES.getForwardRate(CAP_LAST.getIndex(), CAP_LAST.getFixingPeriodStartTime(), CAP_LAST.getFixingPeriodEndTime(), CAP_LAST.getFixingAccrualFactor());
+    final double beta = (1.0 + CAP_LAST.getFixingAccrualFactor() * forward) * MULTICURVES.getDiscountFactor(EUR, CAP_LAST.getFixingPeriodEndTime())
         / MULTICURVES.getDiscountFactor(EUR, CAP_LAST.getFixingPeriodStartTime());
     final double strikeAdjusted = (STRIKE - (beta - 1) / CAP_LAST.getFixingAccrualFactor()) / beta;
     // Strike adjusted from Forward on forward curve and Forward on discount curve.

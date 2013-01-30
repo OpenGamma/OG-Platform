@@ -9,9 +9,8 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.fudgemsg.FudgeMsg;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
