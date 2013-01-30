@@ -226,6 +226,7 @@
 .OG-analytics-form .og-optional .og-aggregation,
 .OG-analytics-form .og-optional .og-filters {
     display: inline-block;
+    position: relative;
 }
 
 .OG-analytics-form .og-optional .og-icon-Temporal,

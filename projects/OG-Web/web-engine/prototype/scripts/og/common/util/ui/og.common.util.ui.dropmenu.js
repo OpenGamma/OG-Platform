@@ -46,8 +46,14 @@ $.register_module({
             return this.opened = true, this.state = 'focused', this.fire(events.focused), this;
         };
         DropMenu.prototype.open = function () {
-            var menu = this;
+            var menu = this, innerwidth = $(document.body).innerWidth(), totalwidth = 0, menuwidth = 0;
             if (menu.$dom.menu) {
+                menu.$dom.menu.parents().each(function (idx, elem) {
+                    totalwidth += $(elem).position().left;
+                });
+                menuwidth = menu.$dom.menu.width() + totalwidth;
+                if (menuwidth > innerwidth) menu.$dom.menu.css('left', (innerwidth-menuwidth) - 20 + 'px');
+                else menu.$dom.menu.css('left', '0');
                 setTimeout(function () {
                     if (menu.init_blurkill) return;
                     menu.init_blurkill = true;
