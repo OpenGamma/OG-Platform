@@ -26,7 +26,6 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -48,6 +47,7 @@ import com.opengamma.financial.analytics.conversion.EquityIndexOptionConverter;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePropertyNames;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -55,6 +55,7 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -236,9 +237,9 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     }
     final String forwardCurveName = Iterables.getOnlyElement(forwardCurveNames);
     final String forwardCurveCalculationMethod = Iterables.getOnlyElement(forwardCurveCalculationMethods);
-    final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
     final HistoricalTimeSeriesSource tsSource = OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final ExternalId underlyingId = getWeakUnderlyingId(FinancialSecurityUtils.getUnderlyingId(security), tsSource, securitySource, volSurfaceName);
     final ValueRequirement volReq = getVolatilitySurfaceRequirement(tsSource, securitySource, desiredValue, security, volSurfaceName, forwardCurveName,
         surfaceCalculationMethod, underlyingId);
     if (volReq == null) {
@@ -312,6 +313,19 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     return results;
   }
 
+  protected Set<ValueSpecification> getResultsWithoutCurrency(final Set<ValueSpecification> resultsWithCurrency) {
+    final Set<ValueSpecification> resultsWithoutCurrency = Sets.newHashSetWithExpectedSize(resultsWithCurrency.size());
+    for (final ValueSpecification spec : resultsWithCurrency) {
+      final String name = spec.getValueName();
+      final ComputationTargetSpecification targetSpec = spec.getTargetSpecification();
+      final ValueProperties properties = spec.getProperties().copy()
+          .withoutAny(ValuePropertyNames.CURRENCY)
+          .get();
+      resultsWithoutCurrency.add(new ValueSpecification(name, targetSpec, properties));
+    }
+    return resultsWithoutCurrency;
+  }
+  
   private ValueRequirement getDiscountCurveRequirement(final String fundingCurveName, final String curveCalculationConfigName, final Security security) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, fundingCurveName)
@@ -327,7 +341,7 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
         .with(ForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
         .get();
     // REVIEW Andrew 2012-01-17 -- Why can't we just use the underlyingBuid external identifier directly here, with a target type of SECURITY, and shift the logic into the reference resolver?
-    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, getWeakUnderlyingId(underlyingBuid, tsSource, securitySource), properties);
+    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, underlyingBuid, properties);
   }
 
   private ValueRequirement getVolatilitySurfaceRequirement(final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource,
@@ -335,31 +349,38 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
       final String surfaceCalculationMethod, final ExternalId underlyingBuid) {
     // REVIEW Andrew 2012-01-17 -- Could we pass a CTRef to the getSurfaceRequirement and use the underlyingBuid external identifier directly with a target type of SECURITY
     return BlackVolatilitySurfacePropertyUtils.getSurfaceRequirement(desiredValue, surfaceName, forwardCurveName, InstrumentTypeProperties.EQUITY_OPTION,
-        ComputationTargetType.PRIMITIVE, getWeakUnderlyingId(underlyingBuid, tsSource, securitySource));
+        ComputationTargetType.PRIMITIVE, underlyingBuid);
   }
 
-  private ExternalId getWeakUnderlyingId(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource) {
-    if (ExternalSchemes.BLOOMBERG_BUID.equals(underlyingId.getScheme())) {
-      // this is a hack so it doesn't hammer the db.
-      final Instant futureHour = Instant.ofEpochMilli(((System.currentTimeMillis() / 3600_000) * 3600_000) + 3600_000);
-      final Security underlyingSecurity = securitySource.getSingle(ExternalIdBundle.of(underlyingId), VersionCorrection.of(futureHour, futureHour));
-      if (underlyingSecurity == null) {
-        final HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(underlyingId), null, null, true, null, true, 1);
-        if (historicalTimeSeries == null) {
-          s_logger.error("Require a time series for " + underlyingId);
-          return null;
-        }
-        final ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
-        return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, idBundle.getExternalId(ExternalSchemes.BLOOMBERG_TICKER).getValue());
+  private ExternalId getWeakUnderlyingId(final ExternalId underlyingId, final HistoricalTimeSeriesSource tsSource, final SecuritySource securitySource, final String surfaceName) {
+    /** scheme we return i.e. BBG_WEAK */
+    ExternalScheme desiredScheme = EquitySecurityUtils.getTargetType(surfaceName);
+    /** scheme we look for i.e. BBG */
+    ExternalScheme sourceScheme = EquitySecurityUtils.getRemappedScheme(desiredScheme);
+    if (desiredScheme == null) { // surface name is unknown
+      return null;
+    }
+    if (underlyingId.isScheme(desiredScheme)) {
+      return underlyingId;
+    }
+    if (underlyingId.isScheme(sourceScheme)) {
+      return ExternalId.of(desiredScheme, underlyingId.getValue());
+    }
+    // load underlying and search its ids for the right one
+    // this is a hack so it doesn't hammer the db.
+    final Instant futureHour = Instant.ofEpochMilli(((System.currentTimeMillis() / 3600_000) * 3600_000) + 3600_000);
+    final Security underlyingSecurity = securitySource.getSingle(ExternalIdBundle.of(underlyingId), VersionCorrection.of(futureHour, futureHour));
+    if (underlyingSecurity == null || underlyingSecurity.getExternalIdBundle().getExternalId(desiredScheme) == null) {
+      // no underlying in db (or lacks desired scheme) - get from timeseries
+      final HistoricalTimeSeries historicalTimeSeries = tsSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(underlyingId), null, null, true, null, true, 1);
+      if (historicalTimeSeries == null) {
+        s_logger.error("Require a time series for " + underlyingId);
+        return null;
       }
-      // REVIEW Andrew -- Is this line correct; the use of the unique id will give BLOOMBERG_TICKER_WEAK~12345 since the unique Id from the
-      // sec master might be an arbitrary long from the database?
-      return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, underlyingSecurity.getUniqueId().getValue());
+      final ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
+      return ExternalId.of(desiredScheme, idBundle.getExternalId(sourceScheme).getValue());
     }
-    if (ExternalSchemes.BLOOMBERG_TICKER.equals(underlyingId.getScheme())) {
-      return ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER_WEAK, underlyingId.getValue());
-    }
-    return underlyingId;
+    return ExternalId.of(desiredScheme, underlyingSecurity.getExternalIdBundle().getValue(sourceScheme));
   }
 
   /**

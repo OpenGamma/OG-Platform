@@ -141,7 +141,7 @@ public class ExpirationManager implements SubscriptionListener {
     if (distributor != null) {
       distributor.extendExpiry(getTimeoutExtension());
     } else {
-      s_logger.warn("Failed to find distributor for heartbeat on {} from {}", fullyQualifiedSpec, _dataServer);
+      s_logger.debug("Failed to find distributor for heartbeat on {} from {}", fullyQualifiedSpec, _dataServer);
     }
   }
 

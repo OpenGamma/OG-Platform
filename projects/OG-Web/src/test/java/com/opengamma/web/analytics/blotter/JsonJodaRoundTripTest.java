@@ -43,7 +43,7 @@ public class JsonJodaRoundTripTest {
 
   @Test
   public void fxForwardRoundTrip() throws JSONException {
-    ZonedDateTime forwardDate = zdt(2012, 12, 21, 10, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime forwardDate = zdt(2012, 12, 21, 11, 0, 0, 0, ZoneOffset.UTC);
     ExternalId regionId = ExternalId.of("Reg", "123");
     FXForwardSecurity fxForward = new FXForwardSecurity(Currency.USD, 150, Currency.GBP, 100, forwardDate, regionId);
     fxForward.setName("GBP/USD forward");
@@ -67,9 +67,9 @@ public class JsonJodaRoundTripTest {
 
   @Test
   public void swapRoundTrip() throws JSONException {
-    ZonedDateTime tradeDate = zdt(2012, 12, 21, 10, 0, 0, 0, ZoneOffset.UTC);
-    ZonedDateTime effectiveDate = zdt(2013, 1, 21, 10, 0, 0, 0, ZoneOffset.UTC);
-    ZonedDateTime maturityDate = zdt(2013, 12, 21, 10, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime tradeDate = zdt(2012, 12, 21, 11, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime effectiveDate = zdt(2013, 1, 21, 11, 0, 0, 0, ZoneOffset.UTC);
+    ZonedDateTime maturityDate = zdt(2013, 12, 21, 11, 0, 0, 0, ZoneOffset.UTC);
     SwapLeg payLeg = new FixedInterestRateLeg(
         DayCountFactory.INSTANCE.getDayCount("Act/360"),
         SimpleFrequency.MONTHLY,

@@ -382,6 +382,7 @@ public class BlotterResource {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   public Response createTrade(@Context UriInfo uriInfo, @FormParam("trade") String jsonStr) {
+    // TODO need to make sure this can't be used for updating existing trades, only for creating new ones
     try {
       JSONObject json = new JSONObject(jsonStr);
       JSONObject tradeJson = json.getJSONObject("trade");

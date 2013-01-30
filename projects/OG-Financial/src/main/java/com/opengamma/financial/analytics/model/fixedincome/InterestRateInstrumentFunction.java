@@ -181,14 +181,19 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
     }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
-    final Set<ValueRequirement> timeSeriesRequirements = getDerivativeTimeSeriesRequirements(security, security.accept(_visitor), _definitionConverter);
-    if (timeSeriesRequirements == null) {
+    try {
+      final Set<ValueRequirement> timeSeriesRequirements = getDerivativeTimeSeriesRequirements(security, security.accept(_visitor), _definitionConverter);
+      if (timeSeriesRequirements == null) {
+        return null;
+      }
+      requirements.addAll(timeSeriesRequirements);
+      return requirements;
+    } catch (final Exception e) {
+      s_logger.error(e.getMessage());
       return null;
     }
-    requirements.addAll(timeSeriesRequirements);
-    return requirements;
   }
 
   protected FinancialSecurityVisitor<InstrumentDefinition<?>> getVisitor() {

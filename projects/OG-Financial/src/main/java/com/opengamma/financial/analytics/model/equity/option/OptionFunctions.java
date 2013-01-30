@@ -10,6 +10,7 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -116,7 +117,12 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(EquityVanillaBarrierOptionVegaMatrixFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionVegaFunction.class));
     functions.add(functionConfiguration(EquityVanillaBarrierOptionVommaFunction.class));
-    functions.add(functionConfiguration(WeightedVegaFunction.class));
+    functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_DELTA, ValueRequirementNames.DELTA));
+    functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_GAMMA, ValueRequirementNames.GAMMA));
+    functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_RHO, ValueRequirementNames.RHO));
+    functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_THETA, ValueRequirementNames.THETA));
+    functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_VEGA, ValueRequirementNames.VEGA));
+    functions.add(functionConfiguration(WeightedVegaFunction.class)); 
   }
 
 }

@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.equity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +27,20 @@ import com.opengamma.util.ArgumentChecker;
 public final class EquitySecurityUtils {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(EquitySecurityUtils.class);
+  /** mapping between surface names and data schemes */
+  private static final Map<String, ExternalScheme> SCHEME_MAPPING = new HashMap<String, ExternalScheme>();
+  /** mapping between source external schemes and destination schemes i.e. BBG_TICKER_WEAK -> BBG_TICKER */
+  private static final HashMap<ExternalScheme, ExternalScheme> SCHEME_REMAPPING = new HashMap<ExternalScheme, ExternalScheme>();
+  static {
+    SCHEME_MAPPING.put("DEFAULT", ExternalSchemes.BLOOMBERG_TICKER_WEAK);
+    SCHEME_MAPPING.put("ACTIV", ExternalSchemes.ACTIVFEED_TICKER);
+    SCHEME_MAPPING.put("BBG", ExternalSchemes.BLOOMBERG_TICKER_WEAK);
+    SCHEME_MAPPING.put("ICAP", ExternalSchemes.ICAP);
+    SCHEME_MAPPING.put("TULLET", ExternalSchemes.SURF);
+
+    SCHEME_REMAPPING.put(ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.BLOOMBERG_TICKER);
+  }
+
   private EquitySecurityUtils() {
   }
 
@@ -98,9 +115,8 @@ public final class EquitySecurityUtils {
       return value.substring(0, lastSpace);
     }
     if (scheme.equals(ExternalSchemes.ACTIVFEED_TICKER.getName())) {
-//      final int firstDot = value.indexOf(".", 0);
-//      return value.substring(0, firstDot);
-      return value;
+      final int firstDot = value.indexOf(".", 0);
+      return value.substring(0, firstDot + 1); // e.g. "IBM."
     }
     s_logger.info("Cannot handle scheme of type {}", scheme);
     return null;
@@ -177,5 +193,33 @@ public final class EquitySecurityUtils {
 //      return null;
 //    }
 //    return FinancialSecurityUtils.getCurrency(security).getCode();
+  }
+
+  /**
+   * Determine the data scheme from the surface name e.g. BBG -> Bloomberg ticker
+   * @param surfaceName the surface or curve name
+   * @return the scheme
+   */
+  //TODO: This should be moved somewhere non equity specific
+  public static ExternalScheme getTargetType(final String surfaceName) {
+    ExternalScheme target = SCHEME_MAPPING.get(surfaceName);
+    if (target == null) {
+      s_logger.warn("Can't determine data scheme from surface/curve name: " + surfaceName);
+      return null;
+    }
+    return target;
+  }
+
+  /**
+   * Get scheme which maps onto this one
+   * @param scheme the destination scheme
+   * @return the source scheme
+   */
+  public static ExternalScheme getRemappedScheme(final ExternalScheme scheme) {
+    ExternalScheme remappedScheme = SCHEME_REMAPPING.get(scheme);
+    if (remappedScheme == null) {
+      return scheme; //no remapping
+    }
+    return remappedScheme;
   }
 }
