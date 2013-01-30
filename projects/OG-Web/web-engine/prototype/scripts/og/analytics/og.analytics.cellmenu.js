@@ -113,11 +113,11 @@ $.register_module({
             og.analytics.resize({
                 selector: unique,
                 tmpl: '<div class="OG-analytics-resize og-resizer og-inplace-resizer" title="Drag to resize me" />',
-                handler: function (right, bottom) {
+                mouseup_handler: function (right, bottom) {
                     var newWidth = Math.max(480,($(document).outerWidth() - right) - inner.offset().left),
-                        newHeight = ($(window).height() - bottom) - inner.offset().top;
-                    inner.css({width: newWidth}); 
-                    inner.css({height: newHeight});
+                        newHeight = ($(document).outerHeight() - bottom) - inner.offset().top;
+                    inner.css({width: newWidth, height: newHeight}); 
+                    cellmenu.container.resize();
                 }
             });
         };

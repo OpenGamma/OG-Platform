@@ -20,7 +20,7 @@ $.register_module({
                 og.analytics.resize({
                     selector: '.OG-layout-analytics-center',
                     tmpl: '<div class="OG-analytics-resize og-resizer" title="Drag (resize) / Right click (menu)" />',
-                    handler: function (right, bottom) {
+                    mouseup_handler: function (right, bottom) {
                         layout.inner.sizePane('south', bottom);
                         layout.main.sizePane('east', right);
                     },
