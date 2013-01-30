@@ -64,7 +64,7 @@ $.register_module({
                 temporal: data.temporal
             };
             callback(query);
-            $(event.srcElement || event.target).focus(0);
+            $('.'+selectors.load_btn).focus(0);
         };
 
         var keydown_handler = function (event) {

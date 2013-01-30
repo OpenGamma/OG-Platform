@@ -306,7 +306,6 @@ $.register_module({
 
             form.Block.call(block, {
                 data: { providers: [] },
-                selector: '.og-datasources',
                 module: 'og.analytics.form_datasources_tash',
                 children: datasources.map(add_row_handler),
                 processor: function (data) {

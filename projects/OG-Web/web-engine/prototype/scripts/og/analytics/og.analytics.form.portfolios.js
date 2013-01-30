@@ -44,7 +44,6 @@ $.register_module({
             var block = this, menu, form = config.form;
 
             form.Block.call(block, {
-                selector: '.og-portfolios.og-autocombo',
                 processor: function (data) {
                     var port = portfolio_store.filter(function (entry) {
                         return entry.split('|')[2] === menu.$input.val();

@@ -43,7 +43,6 @@ $.register_module({
             var block = this, menu, form = config.form;
 
             form.Block.call(block, {
-                selector: '.og-view.og-autocombo',
                 content: tmpl_header,
                 processor: function (data) {
                     var vd = viewdefs_store.filter(function (entry) {

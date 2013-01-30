@@ -37,7 +37,6 @@ $.register_module({
             };
 
             form.Block.call(block, {
-                selector: '.og-temporal',
                 module: 'og.analytics.form_temporal_tash',
                 processor: function (data) {
                     delete data['portfolio-correction'];

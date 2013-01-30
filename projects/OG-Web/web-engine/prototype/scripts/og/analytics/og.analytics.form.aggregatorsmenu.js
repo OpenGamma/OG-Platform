@@ -125,7 +125,6 @@ $.register_module({
 
             form.Block.call(block, {
                 data: { aggregators:[] },
-                selector: '.og-aggregation',
                 module: 'og.analytics.form_aggregation_tash',
                 children: aggregators.map(add_row_handler),
                 processor: function (data) {
