@@ -114,13 +114,10 @@ $.register_module({
                 selector: unique,
                 tmpl: '<div class="OG-analytics-resize og-resizer og-inplace-resizer" title="Drag to resize me" />',
                 handler: function (right, bottom) {
-                    var newWidth = ($(window).width() - right) - offset.left,
-                        newHeight = ($(window).height() - bottom) - offset.top;
+                    var newWidth = Math.max(480,($(document).outerWidth() - right) - inner.offset().left),
+                        newHeight = ($(window).height() - bottom) - inner.offset().top;
                     inner.css({width: newWidth}); 
                     inner.css({height: newHeight});
-                },
-                context:  function (preset) {
-                    console.log(preset);
                 }
             });
         };
