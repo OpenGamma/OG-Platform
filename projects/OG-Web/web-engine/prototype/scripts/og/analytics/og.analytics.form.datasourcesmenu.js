@@ -51,6 +51,7 @@ $.register_module({
             };
 
             var add_row_handler = function (obj) {
+                // console.log(obj);
                 return new form.Block({
                     module: 'og.analytics.form_datasources_row_tash',
                     extras: {
@@ -181,6 +182,7 @@ $.register_module({
                     og.common.events.on('datasources:dropmenu:focus', function() {menu.fire('dropmenu:focus', this);});
                     menu.fire('initialized', [initialized = true]);
                 }
+                console.log(query);
             };
 
             var menu_handler = function (event) {
@@ -269,11 +271,13 @@ $.register_module({
                     source_select = $(source_s, menu.opts[entry]),
                     source_val = source_select.val(),
                     source_txt = source_select.find("option:selected").text();
-                    idx = query.pluck('pos').indexOf(sel_pos);
+                    idx = query.pluck('pos').indexOf(sel_pos),
+                    date = $('.extra-opts .custom', menu.opts[entry]).val();
+                    date = date !== 'Custom' ? date : null;
                 if (source_val === default_sel_txt) {
                     return remove_entry(idx), display_query(), enable_extra_options(entry, false);
-                } else if (~idx) query[idx] = {pos:sel_pos, type:type_val, src:source_val, txt: source_txt};
-                else query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:source_val, txt: source_txt});
+                } else if (~idx) query[idx] = {pos:sel_pos, type:type_val, src:source_val, txt: source_txt, date: date};
+                else query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:source_val, txt: source_txt, date: date});
                 enable_extra_options(entry, true, preload);
                 display_query();
             };

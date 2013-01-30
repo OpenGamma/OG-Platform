@@ -64,11 +64,9 @@ $.register_module({
             var init = function () {
                 menu = new og.analytics.form.DropMenu({cntr: $('.OG-analytics-form .og-aggregation')});
                 if (menu.$dom) {
-                    menu.$dom.toggle_prefix.append('<span>Aggregated by</span>');
+                    $query = $('.aggregation-selection', menu.$dom.toggle);
                     if (menu.$dom.menu) {
-                        $query = $('.aggregation-selection', menu.$dom.toggle);
-                        menu.$dom.menu
-                            .on('mousedown', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
+                        menu.$dom.menu.on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                             .on('change', 'select', menu_handler);
                     }
                     og.common.events.on('aggregators:dropmenu:open', function() {menu.fire('dropmenu:open', this);});
