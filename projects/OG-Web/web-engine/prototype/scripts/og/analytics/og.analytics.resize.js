@@ -8,11 +8,11 @@ $.register_module({
     obj: function () {
         return function (config) {
             var $main = $(config.selector), $menu, block_menu = false, $resizer = $(config.tmpl),
-                icon_size = 16, offset = $main.offset(), right_handler = config.right_handler || $.noop;
+                icon_size = 16, offset = $main.offset(), right_handler = config.right_handler || $.noop,
+                $bars = $('<div class="OG-analytics-resize og-bars"></div>'),
+                $overlay = $('<div class="OG-analytics-resize og-overlay"></div>');
             var left_handler = function () {
-                var $bars = $('<div class="OG-analytics-resize og-bars"></div>'),
-                    $overlay = $('<div class="OG-analytics-resize og-overlay"></div>'),
-                    offset = $main.offset(), right, bottom;
+                var offset = $main.offset(), right, bottom;
                 if ($menu) $menu.remove();
                 $bars.css({width: $main.width(), height: $main.outerHeight(true) + 1, 
                     top: offset.top, left: offset.left + 1});
@@ -27,11 +27,17 @@ $.register_module({
                     config.handler(right, bottom);
                     $bars.remove(), $overlay.remove();
                     resize();
+                     $(window).off('mouseout');
                 });
                 $([$bars, $overlay]).appendTo('body');
                 return false;
             };
             var mousedown_handler = function (event) {
+                $(window).on('mouseout',  function(event) {
+                    event = event ? event : window.event;
+                    var from = event.relatedTarget || event.toElement;
+                    if (!from || from.nodeName == "HTML") reset();
+                });
                 return event.which !== 3 || event.button !== 2 ? left_handler()
                     : (event.stopPropagation(), (block_menu = true), right_handler($resizer));
             };
@@ -40,6 +46,11 @@ $.register_module({
                     left: offset.left + $main.width() - icon_size, 
                     top: offset.top + $main.outerHeight(true) - icon_size
                 });
+            };
+            var reset = function () {
+                $bars.remove(); 
+                $overlay.remove();
+                $(window).off('mouseout');
             };
             og.common.gadgets.manager.register({alive: function () {return true;}, resize: resize});
             resize();
