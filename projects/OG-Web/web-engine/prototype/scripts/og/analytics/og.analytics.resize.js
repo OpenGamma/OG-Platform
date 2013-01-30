@@ -24,7 +24,7 @@ $.register_module({
                     });
                 }).on('mouseup', function () {
                     if (!bottom || !right) return;
-                    config.handler(right, bottom);
+                    config.mouseup_handler(right, bottom);
                     $bars.remove(), $overlay.remove();
                     resize();
                      $(window).off('mouseout');
@@ -44,7 +44,7 @@ $.register_module({
             var resize = function () {
                 $resizer.css({
                     left: offset.left + $main.width() - icon_size, 
-                    top: offset.top + $main.outerHeight(true) - icon_size
+                    top: offset.top + $main.height() - icon_size
                 });
             };
             var reset = function () {
