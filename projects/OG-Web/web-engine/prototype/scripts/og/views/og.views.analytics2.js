@@ -26,8 +26,8 @@ $.register_module({
                         layout.inner.sizePane('south', bottom);
                         layout.main.sizePane('east', right);
                     },
-                    right_handler:  function () {
-                        var inner = layout.inner.sizePane, right = layout.right.sizePane, main = layout.main.sizePane;
+                    right_handler:  function (resizer) {
+                        var inner = layout.inner.sizePane, $resizer = resizer, right = layout.right.sizePane, main = layout.main.sizePane;
                         $.when(og.api.text({module: 'og.analytics.resize_menu_tash'})).then(function (template) {
                         $menu = $(template).position({my: 'left top', at: 'right bottom', of: $resizer})
                             .on('mousedown', 'div', function () {

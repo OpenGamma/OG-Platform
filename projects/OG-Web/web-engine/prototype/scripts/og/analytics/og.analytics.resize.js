@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         return function (config) {
             var $main = $(config.selector), $menu, block_menu = false, $resizer = $(config.tmpl),
-                icon_size = 16, offset = $main.offset();
+                icon_size = 16, offset = $main.offset(), right_handler = config.right_handler || $.noop;
             var left_handler = function () {
                 var $bars = $('<div class="OG-analytics-resize og-bars"></div>'),
                     $overlay = $('<div class="OG-analytics-resize og-overlay"></div>'),
@@ -33,11 +33,12 @@ $.register_module({
             };
             var mousedown_handler = function (event) {
                 return event.which !== 3 || event.button !== 2 ? left_handler()
-                    : (event.stopPropagation(), (block_menu = true), config.right_handler());
+                    : (event.stopPropagation(), (block_menu = true), right_handler($resizer));
             };
             var resize = function () {
                 $resizer.css({
-                    left: offset.left + $main.width() - icon_size, top: offset.top + $main.outerHeight(true) - icon_size
+                    left: offset.left + $main.width() - icon_size, 
+                    top: offset.top + $main.outerHeight(true) - icon_size
                 });
             };
             og.common.gadgets.manager.register({alive: function () {return true;}, resize: resize});
