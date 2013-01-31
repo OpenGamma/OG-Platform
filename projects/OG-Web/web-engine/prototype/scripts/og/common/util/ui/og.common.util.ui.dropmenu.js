@@ -53,7 +53,7 @@ $.register_module({
                 });
                 menuwidth = menu.$dom.menu.width() + totalwidth;
                 if (menuwidth > innerwidth) menu.$dom.menu.css('left', (innerwidth-menuwidth) - 20 + 'px');
-                else menu.$dom.menu.css('left', '0');
+                else menu.$dom.menu.css('left', '');
                 setTimeout(function () {
                     if (menu.init_blurkill) return;
                     menu.init_blurkill = true;

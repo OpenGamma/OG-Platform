@@ -27,6 +27,8 @@ import com.opengamma.master.security.ManageableSecurity;
 @SuppressWarnings("unchecked")
 public class BeanBuildingVisitorTest {
 
+  private static final BeanVisitorDecorator s_securityTypeFilter = new PropertyFilter(ManageableSecurity.meta().securityType());
+
   private static final MetaBeanFactory META_BEAN_FACTORY = new MapMetaBeanFactory(ImmutableSet.<MetaBean>of(
       FXForwardSecurity.meta(),
       SwapSecurity.meta(),
@@ -48,7 +50,7 @@ public class BeanBuildingVisitorTest {
                                                                        BlotterResource.getStringConvert());
     MetaBean metaBean = META_BEAN_FACTORY.beanFor(BlotterTestUtils.FX_FORWARD_DATA_SOURCE);
     BeanBuilder<ManageableSecurity> beanBuilder =
-        (BeanBuilder<ManageableSecurity>) new BeanTraverser().traverse(metaBean, visitor);
+        (BeanBuilder<ManageableSecurity>) new BeanTraverser(s_securityTypeFilter).traverse(metaBean, visitor);
     ManageableSecurity security = beanBuilder.build();
     assertEquals(BlotterTestUtils.FX_FORWARD, security);
   }
@@ -63,7 +65,7 @@ public class BeanBuildingVisitorTest {
                                                                        BlotterResource.getStringConvert());
     MetaBean metaBean = META_BEAN_FACTORY.beanFor(BlotterTestUtils.SWAP_DATA_SOURCE);
     BeanBuilder<ManageableSecurity> beanBuilder =
-        (BeanBuilder<ManageableSecurity>) new BeanTraverser().traverse(metaBean, visitor);
+        (BeanBuilder<ManageableSecurity>) new BeanTraverser(s_securityTypeFilter).traverse(metaBean, visitor);
     ManageableSecurity security = beanBuilder.build();
     assertEquals(BlotterTestUtils.SWAP, security);
   }

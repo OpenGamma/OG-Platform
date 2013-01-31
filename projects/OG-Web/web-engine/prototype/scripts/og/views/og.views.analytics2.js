@@ -6,14 +6,14 @@ $.register_module({
     name: 'og.views.analytics2',
     dependencies: [],
     obj: function () {
-        var routes = og.common.routes, module = this, view,
+        var routes = og.common.routes, module = this, view, 
             main_selector = '.OG-layout-analytics-center', form;
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
             check_state: og.views.common.state.check.partial('/'),
             load: function (args) {
                 $('.OG-masthead .og-analytics-beta').addClass('og-active');
-                var new_page = false;
+                var new_page = false, layout = og.views.common.layout;
                 view.check_state({args: args, conditions: [
                     {new_page: function () {new_page = true; og.analytics.containers.initialize();}}
                 ]});
@@ -21,11 +21,13 @@ $.register_module({
                     selector: '.OG-layout-analytics-center',
                     tmpl: '<div class="OG-analytics-resize og-resizer" title="Drag (resize) / Right click (menu)" />',
                     mouseup_handler: function (right, bottom) {
+                        console.log(right, bottom);
                         layout.inner.sizePane('south', bottom);
                         layout.main.sizePane('east', right);
                     },
                     right_handler:  function (resizer) {
-                        var inner = layout.inner.sizePane, $resizer = resizer, right = layout.right.sizePane, main = layout.main.sizePane;
+                        var inner = layout.inner.sizePane, $resizer = resizer, 
+                        right = layout.right.sizePane, main = layout.main.sizePane;
                         $.when(og.api.text({module: 'og.analytics.resize_menu_tash'})).then(function (template) {
                         $menu = $(template).position({my: 'left top', at: 'right bottom', of: $resizer})
                             .on('mousedown', 'div', function () {

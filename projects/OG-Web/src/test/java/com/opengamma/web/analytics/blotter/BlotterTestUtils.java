@@ -191,28 +191,23 @@ import com.opengamma.util.money.Currency;
     }
 
     @Override
-    public String getValue(String propertyName) {
-      return (String) _map.get(propertyName);
+    public Object getValue(String propertyName) {
+      return _map.get(propertyName);
     }
 
     @Override
-    public List<String> getCollectionValues(String propertyName) {
-      return (List<String>) _map.get(propertyName);
+    public List<Object> getCollectionValues(String propertyName) {
+      return (List<Object>) _map.get(propertyName);
     }
 
     @Override
-    public Map<String, String> getMapValues(String propertyName) {
-      return (Map<String, String>) _map.get(propertyName);
-    }
-
-    @Override
-    public BeanDataSource getBeanData(String propertyName) {
-      return (BeanDataSource) _map.get(propertyName);
+    public Map<?, ?> getMapValues(String propertyName) {
+      return (Map<?, ?>) _map.get(propertyName);
     }
 
     @Override
     public String getBeanTypeName() {
-      String type = getValue("type");
+      String type = (String) getValue("type");
       if (type == null) {
         throw new OpenGammaRuntimeException("No type found in " + _map);
       }
