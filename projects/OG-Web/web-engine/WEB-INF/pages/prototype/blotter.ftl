@@ -32,6 +32,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
         <strong>Fungible Trades</strong><br/>
         <ul class="temp-ul">
           <li class="fungibleb">Bond - DbPos~164540</li>
+          <li class="fungiblebf">Bond Future - DbPos~164562</li>
           <li class="fungibleet">Exchange Traded - DbPos~164554</li>
         </ul>
   </div>

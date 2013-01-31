@@ -25,6 +25,20 @@
         </td>
       </tr>
     {{/each}}
+    {{#if basket}}
+      <tr>
+        <td>
+          <label>
+            <span>Basket</span>
+          </label>
+        </td>
+        <td>
+          {{#each basket}}
+            <span>{{identifiers}} - {{conversionFactor}}</span></br>
+           {{/each}}
+        </td>
+      </tr>
+    {{/if}}
   </tbody>
 </table>
 </section>

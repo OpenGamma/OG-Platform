@@ -37,7 +37,7 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function () {get_security();});
-                form.on('form:submit', function (result) {og.api.rest.blotter.trades.put(result.data);});
+                form.on('form:submit', function (result) {og.api.rest.blotter.trades.put(result.data).pipe(console.log);});
                 form.on('keyup', security.input_id(), function (event) {get_security();});
                 form.on('change', security.select_id(), function (event) {get_security();});
             }; 
@@ -47,17 +47,19 @@ $.register_module({
                 );
             };
             populate = function (config){
-                var details_block, ids_block, details;
+                var details_block, ids_block, details, basket;
                 if(config.error) {clear_info(); return;}
                 ids_block = new form.Block({module: 'og.blotter.forms.blocks.fungible_security_ids_tash', 
                     extras: {security: security_ids(config.data.externalIdBundle)}
                 });
+                basket = config.data.basket;
+                delete config.data.basket;
                 delete config.data.externalIdBundle;
                 delete config.data.attributes;
                 details = Object.keys(config.data).map(function(key) {
                     return {key: gentrify(key), value:config.data[key]};});
                 details_block = new form.Block({module: 'og.blotter.forms.blocks.fungible_details_tash',
-                    extras:{detail: details}
+                    extras:{detail: details, basket: basket}
                 });
                 ids_block.html(function (html){
                     $('.' + ids_selector).replaceWith(html);
