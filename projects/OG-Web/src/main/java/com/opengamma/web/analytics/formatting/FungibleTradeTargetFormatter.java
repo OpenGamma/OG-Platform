@@ -7,24 +7,24 @@ package com.opengamma.web.analytics.formatting;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.web.analytics.PositionTarget;
+import com.opengamma.web.analytics.FungibleTradeTarget;
 
-/* package */ class PositionTargetFormatter extends AbstractFormatter<PositionTarget> {
+/* package */ class FungibleTradeTargetFormatter extends AbstractFormatter<FungibleTradeTarget> {
 
   private static final String NAME = "name";
   private static final String ID = "id";
 
-  /* package */  PositionTargetFormatter() {
-    super(PositionTarget.class);
+  /* package */  FungibleTradeTargetFormatter() {
+    super(FungibleTradeTarget.class);
   }
 
   @Override
-  public Object formatCell(PositionTarget value, ValueSpecification valueSpec) {
-    return ImmutableMap.of(NAME, value.getName(), ID, value.getId().getObjectId());
+  public Object formatCell(FungibleTradeTarget trade, ValueSpecification valueSpec) {
+    return ImmutableMap.of(NAME, trade.getName(), ID, trade.getId().getObjectId());
   }
 
   @Override
   public DataType getDataType() {
-    return DataType.POSITION;
+    return DataType.FUNGIBLE_TRADE;
   }
 }

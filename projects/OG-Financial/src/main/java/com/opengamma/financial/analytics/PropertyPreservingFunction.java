@@ -22,7 +22,7 @@ import com.opengamma.engine.value.ValueSpecification;
  * A base class for functions which need to preserve a set of properties from their inputs to their outputs, and also therefore need to request the appropriate inputs.
  *
  * @deprecated This is not a good way to translate constraints from the desired result to the requirements and properties from the satisfied requirements to the final results. Refer to
- *             {@link PositionScalingFunction} or {@link SummingFunction} for a simpler method
+ *             {@link PositionOrTradeScalingFunction} or {@link SummingFunction} for a simpler method
  */
 @Deprecated
 public abstract class PropertyPreservingFunction extends AbstractFunction.NonCompiledInvoker {

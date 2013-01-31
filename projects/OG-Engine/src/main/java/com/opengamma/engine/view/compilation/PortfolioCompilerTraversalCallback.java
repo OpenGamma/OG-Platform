@@ -183,7 +183,7 @@ import com.opengamma.util.tuple.Pair;
     final Collection<Trade> trades = position.getTrades();
     if (!trades.isEmpty()) {
       if (_resultModelDefinition.getTradeOutputMode() != ResultOutputMode.NONE) {
-        requiredOutputs = _calculationConfiguration.getTradeRequirementsBySecurityType().get(securityType);
+        requiredOutputs = _calculationConfiguration.getPortfolioRequirementsBySecurityType().get(securityType);
 
         // Check that there's at least one required output to deal with
         if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {

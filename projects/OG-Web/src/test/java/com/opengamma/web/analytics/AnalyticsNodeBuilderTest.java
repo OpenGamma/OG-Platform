@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.position.impl.SimpleTrade;
 
 /**
  * Tests that {@link AnalyticsNode.PortfolioNodeBuilder} creates nodes that match a portfolio structure.
@@ -134,7 +135,6 @@ public class AnalyticsNodeBuilderTest {
     portfolioRoot.addChildNode(portfolioChild1);
     portfolioRoot.addChildNode(portfolioChild2);
 
-
     AnalyticsNode root = new AnalyticsNode.PortfolioNodeBuilder(portfolioRoot).getRoot();
     assertEquals(0, root.getStartRow());
     assertEquals(4, root.getEndRow());
@@ -147,5 +147,38 @@ public class AnalyticsNodeBuilderTest {
     assertEquals(3, child2.getStartRow());
     assertEquals(4, child2.getEndRow());
     assertTrue(child2.getChildren().isEmpty());
+  }
+
+  @Test
+  public void trades() {
+    /*
+    0 root
+    1  |_pos1
+    2  |  |_trade1
+    3  |  |_trade2
+    4  |_pos2
+    5     |_trade3
+    */
+    SimplePortfolioNode portfolioRoot = new SimplePortfolioNode();
+    SimplePosition position1 = new SimplePosition();
+    position1.addTrade(new SimpleTrade());
+    position1.addTrade(new SimpleTrade());
+    SimplePosition position2 = new SimplePosition();
+    position2.addTrade(new SimpleTrade());
+    portfolioRoot.addPosition(position1);
+    portfolioRoot.addPosition(position2);
+
+    AnalyticsNode root = new AnalyticsNode.PortfolioNodeBuilder(portfolioRoot).getRoot();
+    assertEquals(0, root.getStartRow());
+    assertEquals(5, root.getEndRow());
+    assertEquals(2, root.getChildren().size());
+    AnalyticsNode position1Node = root.getChildren().get(0);
+    assertEquals(1, position1Node.getStartRow());
+    assertEquals(3, position1Node.getEndRow());
+    assertTrue(position1Node.getChildren().isEmpty());
+    AnalyticsNode position2Node = root.getChildren().get(1);
+    assertEquals(4, position2Node.getStartRow());
+    assertEquals(5, position2Node.getEndRow());
+    assertTrue(position2Node.getChildren().isEmpty());
   }
 }

@@ -6,50 +6,54 @@
 package com.opengamma.web.analytics;
 
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Renders cells in the portfolio grid label column.
  */
 /* package */ class PortfolioLabelRenderer implements GridColumn.CellRenderer {
 
-  private static final Pattern POSITION_ID_PATTERN = Pattern.compile("DbPrt-DbPos~\\d+-(\\d+)~\\d+-(\\d+)");
+  /** The rows in the grid. */
+  private final List<PortfolioGridRow> _rows;
 
-  private final List<? extends MainGridStructure.Row> _rows;
-
-  /* package */ PortfolioLabelRenderer(List<? extends MainGridStructure.Row> rows) {
+  /* package */ PortfolioLabelRenderer(List<PortfolioGridRow> rows) {
     ArgumentChecker.notNull(rows, "rows");
     _rows = rows;
   }
 
   @Override
   public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
-    MainGridStructure.Row row = _rows.get(rowIndex);
+    PortfolioGridRow row = _rows.get(rowIndex);
     ComputationTargetSpecification target = row.getTarget();
-    UniqueId compoundId = target.getUniqueId();
-    // TODO this is a *temporary* hack
-    Matcher idMatcher = POSITION_ID_PATTERN.matcher(compoundId.toString());
-    UniqueId targetId;
-    if (idMatcher.matches()) {
-      String posId = idMatcher.group(1);
-      String version = idMatcher.group(2);
-      targetId = UniqueId.of("DbPos", posId, version);
-    } else {
-      targetId = compoundId;
-    }
-    // TODO end hack
     ComputationTargetType targetType = target.getType();
     if (targetType.isTargetType(ComputationTargetType.POSITION)) {
-      return ResultsCell.forStaticValue(new PositionTarget(row.getName(), targetId), columnType);
+      RowTarget rowTarget;
+      if (isOtc(row.getSecurity())) {
+        // TODO need the trade ID too
+        rowTarget = new OtcTradeTarget(row.getName(), UniqueId.of("ABC", "123"), target.getUniqueId());
+      } else {
+        rowTarget = new PositionTarget(row.getName(), target.getUniqueId());
+      }
+      return ResultsCell.forStaticValue(rowTarget, columnType);
     } else if (targetType.isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
-      return ResultsCell.forStaticValue(new NodeTarget(row.getName(), targetId), columnType);
+      return ResultsCell.forStaticValue(new NodeTarget(row.getName(), target.getUniqueId()), columnType);
+    } else if (targetType.isTargetType(ComputationTargetType.TRADE)) {
+      return ResultsCell.forStaticValue(new FungibleTradeTarget(row.getName(), target.getUniqueId()), columnType);
     }
     throw new IllegalArgumentException("Unexpected target type for row: " + targetType);
+  }
+
+  private static boolean isOtc(Security security) {
+    if (security instanceof FinancialSecurity) {
+      return !((FinancialSecurity) security).accept(new OtcSecurityVisitor());
+    } else {
+      return false;
+    }
   }
 }
