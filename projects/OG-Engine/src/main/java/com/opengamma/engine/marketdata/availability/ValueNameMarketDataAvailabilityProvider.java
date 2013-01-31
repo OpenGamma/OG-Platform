@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.marketdata.availability;
@@ -8,6 +8,7 @@ package com.opengamma.engine.marketdata.availability;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
@@ -15,7 +16,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A {@link MarketDataAvailabilityProvider} which 
+ * A {@link MarketDataAvailabilityProvider} which
  */
 public class ValueNameMarketDataAvailabilityProvider implements MarketDataAvailabilityProvider {
 
@@ -30,25 +31,25 @@ public class ValueNameMarketDataAvailabilityProvider implements MarketDataAvaila
 
   /**
    * Creates a provider.
-   * 
+   *
    * @param validMarketDataRequirementNames  the valid market data requirement names, not null
    */
-  public ValueNameMarketDataAvailabilityProvider(Set<String> validMarketDataRequirementNames) {
+  public ValueNameMarketDataAvailabilityProvider(final Set<String> validMarketDataRequirementNames) {
     this(validMarketDataRequirementNames, null);
   }
-  
+
   /**
    * Creates a provider.
-   * 
+   *
    * @param targetType  the computation target type, null for any
    * @param validMarketDataRequirementNames  the valid market data requirement names, not null
    */
-  public ValueNameMarketDataAvailabilityProvider(Set<String> validMarketDataRequirementNames, ComputationTargetType targetType) {
+  public ValueNameMarketDataAvailabilityProvider(final Set<String> validMarketDataRequirementNames, final ComputationTargetType targetType) {
     ArgumentChecker.notNull(validMarketDataRequirementNames, "validMarketDataRequirementNames");
     _targetType = targetType;
     _validMarketDataRequirementNames = ImmutableSet.copyOf(validMarketDataRequirementNames);
   }
-  
+
   //-------------------------------------------------------------------------
   private ComputationTargetType getTargetType() {
     return _targetType;
@@ -56,11 +57,12 @@ public class ValueNameMarketDataAvailabilityProvider implements MarketDataAvaila
 
   //-------------------------------------------------------------------------
   @Override
-  public ValueSpecification getAvailability(ValueRequirement requirement) {
-    if (getTargetType() != null && requirement.getTargetReference().getType().isTargetType(getTargetType())) {
+  public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
+    // [PLAT-3044] Do this properly
+    if (getTargetType() != null && desiredValue.getTargetReference().getType().isTargetType(getTargetType())) {
       return null;
     }
-    return _validMarketDataRequirementNames.contains(requirement.getValueName()) ? MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
+    return _validMarketDataRequirementNames.contains(desiredValue.getValueName()) ? MarketDataUtils.createMarketDataValue(desiredValue, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
   }
-  
+
 }

@@ -50,7 +50,7 @@ public class MarketDataUtils {
 
   /**
    * Returns the closest matching {@link MarketDataValueType} for a {@link ComputationTargetType}.
-   * 
+   *
    * @param type the type to look up, not null
    * @return the market data value type
    */
@@ -65,7 +65,7 @@ public class MarketDataUtils {
       final Map<ExternalScheme, Integer> rates = ordering.getRateMap();
       ExternalId preferred = null;
       int preferredScore = Integer.MIN_VALUE;
-      for (ExternalId id : bundle) {
+      for (final ExternalId id : bundle) {
         final int score = rates.get(id.getScheme());
         if (preferred == null) {
           preferred = id;
@@ -88,30 +88,33 @@ public class MarketDataUtils {
 
   /**
    * Tests whether the requirement can be satisfied by the availability provider.
-   * 
+   *
    * @param provider the provider to test, not null
    * @param requirement the requirement to test, not null
    * @return true if the requirement can be satisfied by the provider, false otherwise
    */
   public static boolean isAvailable(final MarketDataAvailabilityProvider provider, final ValueRequirement requirement) {
     try {
-      return provider.getAvailability(requirement) != null;
-    } catch (MarketDataNotSatisfiableException e) {
+      // [PLAT-3044] Pass in the target properly
+      return provider.getAvailability(ComputationTargetSpecification.NULL, null, requirement) != null;
+    } catch (final MarketDataNotSatisfiableException e) {
       return false;
     }
   }
 
   /**
    * Tests whether the requirement can be satisfied by the availability provider.
-   * 
+   *
    * @param provider the provider to test, not null
    * @param requirement the requirement to test, not null
    * @return one of the three availability states - see {@link MarketDataAvailability} for more details, not null
    */
   public static MarketDataAvailability getAvailability(final MarketDataAvailabilityProvider provider, final ValueRequirement requirement) {
+    // REVIEW 2013-01-31 Andrew -- do we need this ?
     try {
-      return (provider.getAvailability(requirement) != null) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
-    } catch (MarketDataNotSatisfiableException e) {
+      // [PLAT-3044] Pass in the target properly
+      return (provider.getAvailability(ComputationTargetSpecification.NULL, null, requirement) != null) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
+    } catch (final MarketDataNotSatisfiableException e) {
       return MarketDataAvailability.MISSING;
     }
   }
@@ -151,7 +154,7 @@ public class MarketDataUtils {
 
   /**
    * Creates a specification that can be returned as a result by a data provider that satisfies the given requirement.
-   * 
+   *
    * @param requirement the original requirement to be satisfied, not null
    * @param target the satisfying target identifier - to be used if the requirement did not include a unique identifier, not null
    * @return a satisfying value specification
@@ -162,7 +165,7 @@ public class MarketDataUtils {
 
   /**
    * Creates a specification that can be returned as a result by a data provider that satisfied the given requirement.
-   * 
+   *
    * @param requirement the original requirement to be satisfied, not null
    * @param target the satisfying target identifier - to be used if the requirement did not include a unique identifier, not null
    * @return a satisfying value specification
@@ -177,7 +180,7 @@ public class MarketDataUtils {
 
   /**
    * Creates a specification that can be returned as a result by a data provider that satisfies the given requirement.
-   * 
+   *
    * @param valueName the value name that is satisfied, not null
    * @param target the computation target, not null
    * @return a satisfying value specification
@@ -188,7 +191,7 @@ public class MarketDataUtils {
 
   /**
    * Creates a specification that can be returned as a result by a data provider that satisfies the given requirement.
-   * 
+   *
    * @param valueName the value name that is satisfied, not null
    * @param target the computation target, not null
    * @param properties the properties of the satisfying result, not null

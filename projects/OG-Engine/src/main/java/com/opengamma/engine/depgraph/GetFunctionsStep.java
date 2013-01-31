@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.depgraph;
@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
@@ -35,10 +36,11 @@ import com.opengamma.util.tuple.Triple;
     ValueSpecification marketDataSpec = null;
     BlockingOperation.off();
     try {
-      marketDataSpec = context.getMarketDataAvailabilityProvider().getAvailability(getValueRequirement());
-    } catch (BlockingOperation e) {
+      // [PLAT-3044] Invoke this properly
+      marketDataSpec = context.getMarketDataAvailabilityProvider().getAvailability(ComputationTargetSpecification.NULL, null, getValueRequirement());
+    } catch (final BlockingOperation e) {
       return false;
-    } catch (MarketDataNotSatisfiableException e) {
+    } catch (final MarketDataNotSatisfiableException e) {
       missing = true;
     } finally {
       BlockingOperation.on();

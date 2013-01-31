@@ -1,12 +1,13 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.marketdata.availability;
 
 import java.util.Collection;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.async.BlockingOperation;
@@ -22,26 +23,26 @@ public class UnionMarketDataAvailabilityProvider implements MarketDataAvailabili
   /**
    * @param underlyings The availability providers to union
    */
-  public UnionMarketDataAvailabilityProvider(Collection<? extends MarketDataAvailabilityProvider> underlyings) {
+  public UnionMarketDataAvailabilityProvider(final Collection<? extends MarketDataAvailabilityProvider> underlyings) {
     _underlyings = underlyings;
   }
 
   @Override
-  public ValueSpecification getAvailability(final ValueRequirement requirement) {
+  public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
     MarketDataNotSatisfiableException missing = null;
     boolean failed = false;
     try {
-      for (MarketDataAvailabilityProvider underlying : _underlyings) {
+      for (final MarketDataAvailabilityProvider underlying : _underlyings) {
         try {
-          final ValueSpecification result = underlying.getAvailability(requirement);
+          final ValueSpecification result = underlying.getAvailability(targetSpec, target, desiredValue);
           if (result != null) {
             return result;
           }
-        } catch (BlockingOperation e) {
+        } catch (final BlockingOperation e) {
           failed = true;
         }
       }
-    } catch (MarketDataNotSatisfiableException e) {
+    } catch (final MarketDataNotSatisfiableException e) {
       missing = e;
     }
     if (failed) {

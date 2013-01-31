@@ -75,8 +75,8 @@ public class ViewClientTest {
 
   @Test
   public void testListenerNotifications() throws InterruptedException {
-    ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    SynchronousInMemoryLKVSnapshotProvider marketDataProvider = new SynchronousInMemoryLKVSnapshotProvider();
+    final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    final SynchronousInMemoryLKVSnapshotProvider marketDataProvider = new SynchronousInMemoryLKVSnapshotProvider();
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 0);
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 0);
     env.setMarketDataProvider(marketDataProvider);
@@ -85,58 +85,58 @@ public class ViewClientTest {
     env.setViewResultListenerFactory(viewResultListenerFactoryStub);
     env.init();
 
-    ViewProcessorImpl vp = env.getViewProcessor();
+    final ViewProcessorImpl vp = env.getViewProcessor();
 
     vp.start();
 
-    ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
+    final ViewClient client = vp.createViewClient(ViewProcessorTestEnvironment.TEST_USER);
     client.setFragmentResultMode(ViewResultMode.FULL_ONLY);
 
 
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 1);
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 2);
 
-    ViewExecutionOptions executionOptions = ExecutionOptions.batch(null, MarketData.live(), null);
+    final ViewExecutionOptions executionOptions = ExecutionOptions.batch(null, MarketData.live(), null);
 
     client.attachToViewProcess(env.getViewDefinition().getUniqueId(), executionOptions);
 
-    ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
+    final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());
     assertTrue(viewProcess.getState() == ViewProcessState.RUNNING);
     client.waitForCompletion();
     //
-    ArgumentCaptor<ViewCycleMetadata> argument = ArgumentCaptor.forClass(ViewCycleMetadata.class);
+    final ArgumentCaptor<ViewCycleMetadata> argument = ArgumentCaptor.forClass(ViewCycleMetadata.class);
     verify(viewResultListenerMock).cycleStarted(argument.capture());
 
     assertEquals("boo~far", argument.getValue().getViewDefinitionId().toString());
     assertEquals(1, argument.getValue().getAllCalculationConfigurationNames().size());
     assertEquals("Test Calc Config", first(argument.getValue().getAllCalculationConfigurationNames()));
 
-    ArgumentCaptor<ViewComputationResultModel> fullFragment = ArgumentCaptor.forClass(ViewComputationResultModel.class);
-    ArgumentCaptor<ViewDeltaResultModel> deltaFragment = ArgumentCaptor.forClass(ViewDeltaResultModel.class);
+    final ArgumentCaptor<ViewComputationResultModel> fullFragment = ArgumentCaptor.forClass(ViewComputationResultModel.class);
+    final ArgumentCaptor<ViewDeltaResultModel> deltaFragment = ArgumentCaptor.forClass(ViewDeltaResultModel.class);
     verify(viewResultListenerMock).cycleFragmentCompleted(fullFragment.capture(), deltaFragment.capture());
 
     assertEquals(UniqueId.of("ViewProcess", client.getUniqueId().getValue()), fullFragment.getValue().getViewProcessId());
     assertEquals(UniqueId.of("ViewCycle", client.getUniqueId().getValue(), "0"), fullFragment.getValue().getViewCycleId());
 
     assertEquals(
-      newHashSet(
-        new ComputedValueResult(
-          new ValueSpecification(
-            "Value2",
+        newHashSet(
+            new ComputedValueResult(
+                new ValueSpecification(
+                    "Value2",
                     ComputationTargetSpecification.of(UniqueId.of("Scheme", "PrimitiveValue")),
-            ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
-          (byte) 2, AggregatedExecutionLog.EMPTY),
-        new ComputedValueResult(
-          new ValueSpecification(
-            "Value1",
-                    ComputationTargetSpecification.of(UniqueId.of("Scheme", "PrimitiveValue")),
-            ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
-          (byte) 1, AggregatedExecutionLog.EMPTY)
-      ),
-      fullFragment.getValue().getAllMarketData());
+                    ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
+                    (byte) 2, AggregatedExecutionLog.EMPTY),
+                    new ComputedValueResult(
+                        new ValueSpecification(
+                            "Value1",
+                            ComputationTargetSpecification.of(UniqueId.of("Scheme", "PrimitiveValue")),
+                            ValueProperties.with("Function", newHashSet("MarketDataSourcingFunction")).get()),
+                            (byte) 1, AggregatedExecutionLog.EMPTY)
+            ),
+            fullFragment.getValue().getAllMarketData());
 
-    assertEquals(newHashMap(), 
-      fullFragment.getValue().getRequirementToSpecificationMapping());
+    assertEquals(newHashMap(),
+        fullFragment.getValue().getRequirementToSpecificationMapping());
   }
 
 
@@ -144,31 +144,31 @@ public class ViewClientTest {
    * Avoids the ConcurrentHashMap-based implementation of InMemoryLKVSnapshotProvider, where the LKV map can appear to
    * lag behind if accessed from a different thread immediately after a change.
    */
-  private static class SynchronousInMemoryLKVSnapshotProvider extends AbstractMarketDataProvider implements MarketDataInjector, 
-      MarketDataAvailabilityProvider {
-    
+  private static class SynchronousInMemoryLKVSnapshotProvider extends AbstractMarketDataProvider implements MarketDataInjector,
+  MarketDataAvailabilityProvider {
+
     private static final Logger s_logger = LoggerFactory.getLogger(SynchronousInMemoryLKVSnapshotProvider.class);
-    
+
     private final Map<ValueRequirement, ComputedValue> _lastKnownValues = new HashMap<ValueRequirement, ComputedValue>();
     private final MarketDataPermissionProvider _permissionProvider = new PermissiveMarketDataPermissionProvider();
 
     @Override
-    public void subscribe(ValueRequirement valueRequirement) {
+    public void subscribe(final ValueRequirement valueRequirement) {
       subscribe( Collections.singleton(valueRequirement));
     }
 
     @Override
-    public void subscribe(Set<ValueRequirement> valueRequirements) {
+    public void subscribe(final Set<ValueRequirement> valueRequirements) {
       // No actual subscription to make, but we still need to acknowledge it.
       subscriptionSucceeded(valueRequirements);
     }
-    
+
     @Override
-    public void unsubscribe(ValueRequirement valueRequirement) {
+    public void unsubscribe(final ValueRequirement valueRequirement) {
     }
 
     @Override
-    public void unsubscribe(Set<ValueRequirement> valueRequirements) {
+    public void unsubscribe(final Set<ValueRequirement> valueRequirements) {
     }
 
     //-----------------------------------------------------------------------
@@ -184,34 +184,34 @@ public class ViewClientTest {
 
     //-----------------------------------------------------------------------
     @Override
-    public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+    public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
       return true;
     }
-    
+
     @Override
-    public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+    public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
       synchronized (_lastKnownValues) {
-        Map<ValueRequirement, ComputedValue> snapshotValues = new HashMap<ValueRequirement, ComputedValue>(_lastKnownValues);
+        final Map<ValueRequirement, ComputedValue> snapshotValues = new HashMap<ValueRequirement, ComputedValue>(_lastKnownValues);
         return new SynchronousInMemoryLKVSnapshot(snapshotValues);
       }
     }
 
     //-----------------------------------------------------------------------
     @Override
-    public void addValue(ValueRequirement requirement, Object value) {
+    public void addValue(final ValueRequirement requirement, final Object value) {
       s_logger.debug("Setting {} = {}", requirement, value);
       synchronized (_lastKnownValues) {
         _lastKnownValues.put(requirement, new ComputedValue(MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID), value));
       }
       // Don't notify listeners of the change - we'll kick off a computation cycle manually in the tests
     }
-    
+
     @Override
-    public void addValue(ExternalId identifier, String valueName, Object value) {
+    public void addValue(final ExternalId identifier, final String valueName, final Object value) {
     }
 
     @Override
-    public void removeValue(ValueRequirement valueRequirement) {
+    public void removeValue(final ValueRequirement valueRequirement) {
       synchronized(_lastKnownValues) {
         _lastKnownValues.remove(valueRequirement);
       }
@@ -219,25 +219,26 @@ public class ViewClientTest {
     }
 
     @Override
-    public void removeValue(ExternalId identifier, String valueName) {
+    public void removeValue(final ExternalId identifier, final String valueName) {
     }
 
     //-----------------------------------------------------------------------
     @Override
-    public ValueSpecification getAvailability(final ValueRequirement requirement) {
+    public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
+      // [PLAT-3044] Do this properly
       synchronized (_lastKnownValues) {
-        return _lastKnownValues.containsKey(requirement) ? MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
+        return _lastKnownValues.containsKey(desiredValue) ? MarketDataUtils.createMarketDataValue(desiredValue, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
       }
     }
 
   }
-  
+
   private static class SynchronousInMemoryLKVSnapshot extends AbstractMarketDataSnapshot {
 
     private final Map<ValueRequirement, ComputedValue> _snapshot;
     private final Instant _snapshotTime = Instant.now();
 
-    public SynchronousInMemoryLKVSnapshot(Map<ValueRequirement, ComputedValue> snapshot) {
+    public SynchronousInMemoryLKVSnapshot(final Map<ValueRequirement, ComputedValue> snapshot) {
       _snapshot = snapshot;
     }
 
@@ -257,7 +258,7 @@ public class ViewClientTest {
     }
 
     @Override
-    public ComputedValue query(ValueRequirement requirement) {
+    public ComputedValue query(final ValueRequirement requirement) {
       return _snapshot.get(requirement);
     }
 

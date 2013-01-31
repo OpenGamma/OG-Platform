@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.value.ValueRequirement;
@@ -40,7 +41,7 @@ public class DomainMarketDataAvailabilityProvider implements MarketDataAvailabil
 
   /**
    * Creates a provider.
-   * 
+   *
    * @param securitySource the security source, not null
    * @param acceptableSchemes the acceptable schemes, not null
    * @param validMarketDataRequirementNames the valid market data requirement names, not null
@@ -55,17 +56,18 @@ public class DomainMarketDataAvailabilityProvider implements MarketDataAvailabil
   }
 
   @Override
-  public ValueSpecification getAvailability(final ValueRequirement requirement) {
-    if (!_validMarketDataRequirementNames.contains(requirement.getValueName())) {
+  public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
+    // [PLAT-3044] Do this properly
+    if (!_validMarketDataRequirementNames.contains(desiredValue.getValueName())) {
       return null;
     }
-    final ExternalIdBundle bundle = _externalIdLookup.getExternalIds(requirement.getTargetReference());
+    final ExternalIdBundle bundle = _externalIdLookup.getExternalIds(desiredValue.getTargetReference());
     if (bundle == null) {
       return null;
     }
-    for (ExternalId identifier : bundle) {
+    for (final ExternalId identifier : bundle) {
       if (_acceptableSchemes.contains(identifier.getScheme())) {
-        return MarketDataUtils.createMarketDataValue(requirement, identifier);
+        return MarketDataUtils.createMarketDataValue(desiredValue, identifier);
       }
     }
     return null;

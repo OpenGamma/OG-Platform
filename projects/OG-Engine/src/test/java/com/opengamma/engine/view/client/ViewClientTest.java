@@ -708,7 +708,7 @@ public class ViewClientTest {
    * lag behind if accessed from a different thread immediately after a change.
    */
   private static class SynchronousInMemoryLKVSnapshotProvider extends AbstractMarketDataProvider implements MarketDataInjector,
-      MarketDataAvailabilityProvider {
+  MarketDataAvailabilityProvider {
 
     private static final Logger s_logger = LoggerFactory.getLogger(SynchronousInMemoryLKVSnapshotProvider.class);
 
@@ -787,9 +787,10 @@ public class ViewClientTest {
 
     //-----------------------------------------------------------------------
     @Override
-    public ValueSpecification getAvailability(final ValueRequirement requirement) {
+    public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
+      // [PLAT-3044] Do this properly
       synchronized (_lastKnownValues) {
-        return _lastKnownValues.containsKey(requirement) ? MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
+        return _lastKnownValues.containsKey(desiredValue) ? MarketDataUtils.createMarketDataValue(desiredValue, MarketDataUtils.DEFAULT_EXTERNAL_ID) : null;
       }
     }
 

@@ -22,6 +22,8 @@ import com.opengamma.util.functional.Function1;
  */
 /* package */abstract class AbstractExternalIdentifierLookup<T> implements ComputationTargetReferenceVisitor<T> {
 
+  // [PLAT-3044] Should we be needing this?
+
   private final ComputationTargetTypeMap<Function1<UniqueId, T>> _lookup = new ComputationTargetTypeMap<Function1<UniqueId, T>>();
 
   @SuppressWarnings("unchecked")
@@ -41,7 +43,7 @@ import com.opengamma.util.functional.Function1;
         public ExternalIdBundle execute(final UniqueId uid) {
           try {
             return securitySource.get(uid).getExternalIdBundle();
-          } catch (DataNotFoundException e) {
+          } catch (final DataNotFoundException e) {
             return null;
           }
         }

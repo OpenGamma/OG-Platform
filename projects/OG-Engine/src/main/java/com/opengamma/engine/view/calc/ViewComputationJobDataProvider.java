@@ -17,6 +17,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
@@ -58,19 +59,19 @@ import com.opengamma.util.ArgumentChecker;
    * @param resolver For resolving market data specifications into providers, not null
    * @throws IllegalArgumentException If any of the data providers in {@code specs} can't be resolved
    */
-  /* package */ ViewComputationJobDataProvider(UserPrincipal user,
-                                               List<MarketDataSpecification> specs,
-                                               MarketDataProviderResolver resolver) {
+  /* package */ ViewComputationJobDataProvider(final UserPrincipal user,
+      final List<MarketDataSpecification> specs,
+      final MarketDataProviderResolver resolver) {
     ArgumentChecker.notNull(user, "user");
     ArgumentChecker.notEmpty(specs, "specs");
     ArgumentChecker.notNull(resolver, "resolver");
     _specs = ImmutableList.copyOf(specs);
     _providers = Lists.newArrayListWithCapacity(specs.size());
     _subscriptions = Lists.newArrayListWithCapacity(specs.size());
-    Listener listener = new Listener();
+    final Listener listener = new Listener();
 
-    for (MarketDataSpecification spec : specs) {
-      MarketDataProvider provider = resolver.resolve(user, spec);
+    for (final MarketDataSpecification spec : specs) {
+      final MarketDataProvider provider = resolver.resolve(user, spec);
       if (provider == null) {
         throw new IllegalArgumentException("Unable to resolve market data spec " + spec);
       }
@@ -84,7 +85,7 @@ import com.opengamma.util.ArgumentChecker;
    * Adds a listener that will be notified of market data updates and subscription changes.
    * @param listener The listener, not null
    */
-  /* package */ void addListener(MarketDataListener listener) {
+  /* package */ void addListener(final MarketDataListener listener) {
     ArgumentChecker.notNull(listener, "listener");
     _listeners.add(listener);
   }
@@ -93,7 +94,7 @@ import com.opengamma.util.ArgumentChecker;
    * Removes a listener.
    * @param listener The listener, not null
    */
-  /* package */ void removeListener(MarketDataListener listener) {
+  /* package */ void removeListener(final MarketDataListener listener) {
     _listeners.remove(listener);
   }
 
@@ -102,15 +103,15 @@ import com.opengamma.util.ArgumentChecker;
    * @param requirements The market data requirements
    * @return A set of requirements for each underlying provider, in the same order as the providers
    */
-  private List<Set<ValueRequirement>> partitionRequirementsByProvider(Set<ValueRequirement> requirements) {
-    List<Set<ValueRequirement>> reqsByProvider = Lists.newArrayListWithCapacity(_providers.size());
-    for (@SuppressWarnings("unused") MarketDataProvider ignored : _providers) {
-      Set<ValueRequirement> reqs = Sets.newHashSet();
+  private List<Set<ValueRequirement>> partitionRequirementsByProvider(final Set<ValueRequirement> requirements) {
+    final List<Set<ValueRequirement>> reqsByProvider = Lists.newArrayListWithCapacity(_providers.size());
+    for (@SuppressWarnings("unused") final MarketDataProvider ignored : _providers) {
+      final Set<ValueRequirement> reqs = Sets.newHashSet();
       reqsByProvider.add(reqs);
     }
-    for (ValueRequirement valueRequirement : requirements) {
+    for (final ValueRequirement valueRequirement : requirements) {
       for (int i = 0; i < _providers.size(); i++) {
-        MarketDataProvider provider = _providers.get(i);
+        final MarketDataProvider provider = _providers.get(i);
         if (MarketDataUtils.isAvailable(provider.getAvailabilityProvider(), valueRequirement)) {
           reqsByProvider.get(i).add(valueRequirement);
         }
@@ -123,13 +124,13 @@ import com.opengamma.util.ArgumentChecker;
    * Sets up subscriptions for market data
    * @param requirements The market data requirements, not null
    */
-  /* package */ void subscribe(Set<ValueRequirement> requirements) {
+  /* package */ void subscribe(final Set<ValueRequirement> requirements) {
     ArgumentChecker.notNull(requirements, "requirements");
-    List<Set<ValueRequirement>> reqsByProvider = partitionRequirementsByProvider(requirements);
+    final List<Set<ValueRequirement>> reqsByProvider = partitionRequirementsByProvider(requirements);
     for (int i = 0; i < reqsByProvider.size(); i++) {
-      Set<ValueRequirement> newSubs = reqsByProvider.get(i);
+      final Set<ValueRequirement> newSubs = reqsByProvider.get(i);
       _providers.get(i).subscribe(newSubs);
-      Set<ValueRequirement> currentSubs = _subscriptions.get(i);
+      final Set<ValueRequirement> currentSubs = _subscriptions.get(i);
       currentSubs.addAll(newSubs);
     }
   }
@@ -138,12 +139,12 @@ import com.opengamma.util.ArgumentChecker;
    * Unsubscribes from market data.
    * @param requirements The subscriptions that should be removed, not null
    */
-  /* package */ void unsubscribe(Set<ValueRequirement> requirements) {
+  /* package */ void unsubscribe(final Set<ValueRequirement> requirements) {
     ArgumentChecker.notNull(requirements, "requirements");
-    Set<ValueRequirement> remainingReqs = Sets.newHashSet(requirements);
+    final Set<ValueRequirement> remainingReqs = Sets.newHashSet(requirements);
     for (int i = 0; i < _subscriptions.size(); i++) {
-      Set<ValueRequirement> providerSubscriptions = _subscriptions.get(i);
-      Set<ValueRequirement> subsToRemove = Sets.intersection(remainingReqs, providerSubscriptions);
+      final Set<ValueRequirement> providerSubscriptions = _subscriptions.get(i);
+      final Set<ValueRequirement> subsToRemove = Sets.intersection(remainingReqs, providerSubscriptions);
       if (!subsToRemove.isEmpty()) {
         _providers.get(i).unsubscribe(subsToRemove);
         providerSubscriptions.removeAll(subsToRemove);
@@ -170,15 +171,15 @@ import com.opengamma.util.ArgumentChecker;
    * @return A snapshot of market data backed by snapshots from the underlying providers.
    */
   /* package */ MarketDataSnapshot snapshot() {
-    List<MarketDataSnapshot> snapshots = Lists.newArrayListWithCapacity(_providers.size());
+    final List<MarketDataSnapshot> snapshots = Lists.newArrayListWithCapacity(_providers.size());
     for (int i = 0; i < _providers.size(); i++) {
-      MarketDataSnapshot snapshot = _providers.get(i).snapshot(_specs.get(i));
+      final MarketDataSnapshot snapshot = _providers.get(i).snapshot(_specs.get(i));
       snapshots.add(snapshot);
     }
     return new CompositeMarketDataSnapshot(snapshots, new SubscriptionSupplier());
   }
 
-  /* package */ Duration getRealTimeDuration(Instant fromInstant, Instant toInstant) {
+  /* package */ Duration getRealTimeDuration(final Instant fromInstant, final Instant toInstant) {
     return Duration.between(fromInstant, toInstant);
   }
 
@@ -194,29 +195,29 @@ import com.opengamma.util.ArgumentChecker;
   private class Listener implements MarketDataListener {
 
     @Override
-    public void subscriptionSucceeded(ValueRequirement requirement) {
-      for (MarketDataListener listener : _listeners) {
+    public void subscriptionSucceeded(final ValueRequirement requirement) {
+      for (final MarketDataListener listener : _listeners) {
         listener.subscriptionSucceeded(requirement);
       }
     }
 
     @Override
-    public void subscriptionFailed(ValueRequirement requirement, String msg) {
-      for (MarketDataListener listener : _listeners) {
+    public void subscriptionFailed(final ValueRequirement requirement, final String msg) {
+      for (final MarketDataListener listener : _listeners) {
         listener.subscriptionFailed(requirement, msg);
       }
     }
 
     @Override
-    public void subscriptionStopped(ValueRequirement requirement) {
-      for (MarketDataListener listener : _listeners) {
+    public void subscriptionStopped(final ValueRequirement requirement) {
+      for (final MarketDataListener listener : _listeners) {
         listener.subscriptionStopped(requirement);
       }
     }
 
     @Override
-    public void valuesChanged(Collection<ValueRequirement> requirements) {
-      for (MarketDataListener listener : _listeners) {
+    public void valuesChanged(final Collection<ValueRequirement> requirements) {
+      for (final MarketDataListener listener : _listeners) {
         listener.valuesChanged(requirements);
       }
     }
@@ -230,19 +231,19 @@ import com.opengamma.util.ArgumentChecker;
   private class AvailabilityProvider implements MarketDataAvailabilityProvider {
 
     /**
-     * @param requirement the market data requirement, not null
+     * @param desiredValue the market data requirement, not null
      * @return The satisfaction of the requirement from the underlying providers.
      */
     @Override
-    public ValueSpecification getAvailability(ValueRequirement requirement) {
+    public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
       MarketDataNotSatisfiableException missing = null;
-      for (MarketDataProvider provider : _providers) {
+      for (final MarketDataProvider provider : _providers) {
         try {
-          final ValueSpecification availability = provider.getAvailabilityProvider().getAvailability(requirement);
+          final ValueSpecification availability = provider.getAvailabilityProvider().getAvailability(targetSpec, target, desiredValue);
           if (availability != null) {
             return availability;
           }
-        } catch (MarketDataNotSatisfiableException e) {
+        } catch (final MarketDataNotSatisfiableException e) {
           missing = e;
         }
       }
@@ -276,12 +277,12 @@ import com.opengamma.util.ArgumentChecker;
      * @return Requirements for which the user has no permissions with any of the underlying providers
      */
     @Override
-    public Set<ValueRequirement> checkMarketDataPermissions(UserPrincipal user, Set<ValueRequirement> requirements) {
-      List<Set<ValueRequirement>> reqsByProvider = partitionRequirementsByProvider(requirements);
-      Set<ValueRequirement> missingRequirements = Sets.newHashSet();
+    public Set<ValueRequirement> checkMarketDataPermissions(final UserPrincipal user, final Set<ValueRequirement> requirements) {
+      final List<Set<ValueRequirement>> reqsByProvider = partitionRequirementsByProvider(requirements);
+      final Set<ValueRequirement> missingRequirements = Sets.newHashSet();
       for (int i = 0; i < _providers.size(); i++) {
-        MarketDataPermissionProvider permissionProvider = _providers.get(i).getPermissionProvider();
-        Set<ValueRequirement> reqsForProvider = reqsByProvider.get(i);
+        final MarketDataPermissionProvider permissionProvider = _providers.get(i).getPermissionProvider();
+        final Set<ValueRequirement> reqsForProvider = reqsByProvider.get(i);
         missingRequirements.addAll(permissionProvider.checkMarketDataPermissions(user, reqsForProvider));
       }
       return missingRequirements;

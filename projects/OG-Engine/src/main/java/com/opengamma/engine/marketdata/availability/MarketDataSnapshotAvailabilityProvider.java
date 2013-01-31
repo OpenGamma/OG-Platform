@@ -1,10 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.marketdata.availability;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
@@ -21,7 +22,7 @@ public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailab
 
   /**
    * Constructs an instance.
-   * 
+   *
    * @param snapshot the initialised snapshot, not null
    */
   public MarketDataSnapshotAvailabilityProvider(final MarketDataSnapshot snapshot) {
@@ -30,13 +31,14 @@ public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailab
   }
 
   @Override
-  public ValueSpecification getAvailability(final ValueRequirement requirement) {
-    if (requirement.getTargetReference().getType() == ComputationTargetType.PORTFOLIO_NODE ||
-        requirement.getTargetReference().getType() == ComputationTargetType.POSITION ||
-        requirement.getTargetReference().getType() == ComputationTargetType.TRADE) {
+  public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
+    // [PLAT-3044] Do this properly
+    if (desiredValue.getTargetReference().getType() == ComputationTargetType.PORTFOLIO_NODE ||
+        desiredValue.getTargetReference().getType() == ComputationTargetType.POSITION ||
+        desiredValue.getTargetReference().getType() == ComputationTargetType.TRADE) {
       return null;
     }
-    final ComputedValue snapshotValue = getSnapshot().query(requirement);
+    final ComputedValue snapshotValue = getSnapshot().query(desiredValue);
     if (snapshotValue != null) {
       return snapshotValue.getSpecification();
     }
