@@ -33,26 +33,20 @@ $.register_module({
                 return false;
             };
             var mousedown_handler = function (event) {
-                console.log('hi');
-              
                 var handler;
-                if (event.which !== 3 || event.button !== 2)
-                { 
+                if (event.which !== 3 || event.button !== 2){ 
                     $(window).on('mouseout',  function(event) {
                         event = event ? event : window.event;
                         var from = event.relatedTarget || event.toElement;
                         if (!from || from.nodeName == "HTML") reset();
                     });
                     handler = left_handler();
-                }
-                else{
+                }else{
                     event.stopPropagation();
                     block_menu = true; 
                     handler =  right_handler($resizer);
                 }
                 return handler;
-                    
-
             };
             var resize = function () {
                 $resizer.css({
@@ -70,9 +64,7 @@ $.register_module({
             $(document).on('contextmenu.og_analytics_resize', function (event) {
                 if (block_menu) return event.stopPropagation(), (block_menu = false);
             });
-            $resizer.on('mousedown', 
-
-                mousedown_handler).appendTo('body');
+            $resizer.on('mousedown', mousedown_handler).appendTo('body');
         };
     }
 });
