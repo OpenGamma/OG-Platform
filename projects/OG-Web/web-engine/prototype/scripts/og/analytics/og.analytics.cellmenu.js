@@ -108,7 +108,7 @@ $.register_module({
             options.fingerprint = fingerprint;
             cellmenu.container.add([options]);
             if ((offset.top + inner.height())> $(window).height())
-                inner.css({marginTop: -inner.outerHeight(true)});
+                inner.css({marginTop: -inner.outerHeight(true)-9});
             if ((offset.left + inner.width())> $(window).width())
                 inner.css({marginLeft: -inner.width() + width - cellmenu.menu.left} );
             new constructor(cellmenu.grid);
