@@ -41,6 +41,16 @@ import com.opengamma.util.OpenGammaClock;
   /** Type name for OTC trades used in the data sent to the client. */
   /* package */ static final String TRADE_TYPE_NAME = "OtcTrade";
 
+  /**
+   * For traversing trade and security {@link MetaBean}s and building instances from the data sent from the blotter.
+   * The security type name is filtered out because it is a read-only property. The external ID bundle is filtered
+   * out because it is always empty for trades and securities entered via the blotter but isn't nullable. Therefore
+   * it has to be explicitly set to an empty bundle after the client data is processed but before the object is built.
+   */
+  private static final BeanTraverser s_beanTraverser = new BeanTraverser(
+      new PropertyFilter(FinancialSecurity.meta().externalIdBundle()),
+      new PropertyFilter(ManageableSecurity.meta().securityType()));
+
   /* package */ OtcTradeBuilder(SecurityMaster securityMaster,
                                 PositionMaster positionMaster,
                                 Set<MetaBean> metaBeans,
@@ -69,7 +79,7 @@ import com.opengamma.util.OpenGammaClock;
     tradeBuilder.set(meta.attributes(), tradeData.getMapValues(meta.attributes().name()));
     tradeBuilder.set(meta.quantity(), BigDecimal.ONE);
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(securityId));
-    String counterparty = tradeData.getValue(COUNTERPARTY);
+    String counterparty = (String) tradeData.getValue(COUNTERPARTY);
     if (StringUtils.isEmpty(counterparty)) {
       throw new IllegalArgumentException("Trade counterparty is required");
     }
@@ -98,7 +108,7 @@ import com.opengamma.util.OpenGammaClock;
     extractPropertyData(trade.premiumCurrency(), sink);
     extractPropertyData(trade.premiumDate(), sink);
     extractPropertyData(trade.premiumTime(), sink);
-    sink.setMapValues(trade.attributes().name(), trade.getAttributes());
+    sink.setMap(trade.attributes().name(), trade.getAttributes());
     sink.setValue(COUNTERPARTY, trade.getCounterpartyExternalId().getValue());
   }
 
@@ -115,8 +125,7 @@ import com.opengamma.util.OpenGammaClock;
   private BeanBuilder<? extends ManageableTrade> tradeBuilder(BeanDataSource tradeData, MetaProperty<?>... properties) {
     BeanBuilder<? extends ManageableTrade> builder = ManageableTrade.meta().builder();
     for (MetaProperty<?> property : properties) {
-      // TODO custom converters needed for some properties? OffsetDate?
-      builder.setString(property, tradeData.getValue(property.name()));
+      builder.setString(property, (String) tradeData.getValue(property.name()));
     }
     return builder;
   }
@@ -168,10 +177,7 @@ import com.opengamma.util.OpenGammaClock;
     if (!(metaBean instanceof FinancialSecurity.Meta)) {
       throw new IllegalArgumentException("MetaBean " + metaBean + " isn't for a FinancialSecurity");
     }
-    // filter out the externalIdBundle property so the traverser doesn't set it to null (which will fail)
-    PropertyFilter externalIdFilter = new PropertyFilter(FinancialSecurity.meta().externalIdBundle());
-    BeanBuilder<FinancialSecurity> builder =
-        (BeanBuilder<FinancialSecurity>) new BeanTraverser(externalIdFilter).traverse(metaBean, visitor);
+    BeanBuilder<FinancialSecurity> builder = (BeanBuilder<FinancialSecurity>) s_beanTraverser.traverse(metaBean, visitor);
     // externalIdBundle needs to be specified or building fails because it's not nullable
     // TODO need to preserve the bundle when editing existing trades. pass to client or use previous version?
     // do in Existing* subclass, that looks up previous version, other subclass doesn't care, no bundle for new trades

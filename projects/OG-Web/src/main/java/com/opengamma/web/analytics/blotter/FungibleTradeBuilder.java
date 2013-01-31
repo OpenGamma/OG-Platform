@@ -63,7 +63,7 @@ import com.opengamma.util.OpenGammaClock;
     extractPropertyData(trade.premiumDate(), sink);
     extractPropertyData(trade.premiumTime(), sink);
     extractPropertyData(trade.quantity(), sink);
-    sink.setMapValues(trade.attributes().name(), trade.getAttributes());
+    sink.setMap(trade.attributes().name(), trade.getAttributes());
     sink.setValue(COUNTERPARTY, trade.getCounterpartyExternalId().getValue());
     ExternalIdBundle securityIdBundle = trade.getSecurityLink().getExternalId();
     StringConverter<ExternalIdBundle> converter = stringConvert.findConverter(ExternalIdBundle.class);
@@ -90,12 +90,12 @@ import com.opengamma.util.OpenGammaClock;
                      meta.quantity(),
                      meta.premiumTime());
     tradeBuilder.set(meta.attributes(), tradeData.getMapValues(meta.attributes().name()));
-    String idBundleStr = tradeData.getValue(SECURITY_ID_BUNDLE);
+    String idBundleStr = (String) tradeData.getValue(SECURITY_ID_BUNDLE);
     // TODO check the security exists and load it if not? and the underlying? what securities have fungible underlying securities?
     // TODO is a trade's security allowed to change? presumably not
-    ExternalIdBundle securityIdBundle = getStringConvert().convertFromString(ExternalIdBundle.class,idBundleStr);
+    ExternalIdBundle securityIdBundle = getStringConvert().convertFromString(ExternalIdBundle.class, idBundleStr);
     tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(securityIdBundle));
-    String counterparty = tradeData.getValue(COUNTERPARTY);
+    String counterparty = (String) tradeData.getValue(COUNTERPARTY);
     if (StringUtils.isEmpty(counterparty)) {
       throw new IllegalArgumentException("Trade counterparty is required");
     }
@@ -128,8 +128,7 @@ import com.opengamma.util.OpenGammaClock;
   private BeanBuilder<? extends ManageableTrade> tradeBuilder(BeanDataSource tradeData, MetaProperty<?>... properties) {
     BeanBuilder<? extends ManageableTrade> builder = ManageableTrade.meta().builder();
     for (MetaProperty<?> property : properties) {
-      // TODO custom converters needed for some properties? OffsetDate?
-      builder.setString(property, tradeData.getValue(property.name()));
+      builder.setString(property, (String) tradeData.getValue(property.name()));
     }
     return builder;
   }

@@ -22,7 +22,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
@@ -38,6 +41,8 @@ public class BloombergContractID extends DirectBean {
   
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergContractID.class);
   
+  private static final DateTimeFormatter MONTH_YEAR_FORMATTER = DateTimeFormatters.pattern("MM/yyyy");
+  
   /**
    * The prefix in classic bloomberg ticker
    */
@@ -51,7 +56,10 @@ public class BloombergContractID extends DirectBean {
   private String _marketSector;
   
   
-  public BloombergContractID() {
+  /*
+   * Constructor for builder
+   */
+  private BloombergContractID() {
   }
   
   public BloombergContractID(String contractCode, String marketSector) {
@@ -80,7 +88,7 @@ public class BloombergContractID extends DirectBean {
     return futureId;
   }
   
-  public ExternalId toOptionExternalId(Integer month, Integer year, Double strike, OptionType optionType) {
+  public ExternalId toFutureOptionExternalId(Integer month, Integer year, Double strike, OptionType optionType) {
     ArgumentChecker.notNull(month, "month");
     ArgumentChecker.notNull(year, "year");
     ArgumentChecker.notNull(strike, "strike");
@@ -101,7 +109,18 @@ public class BloombergContractID extends DirectBean {
     return optionId;
   }
   
-  private String getRoundedPrice(final Double doubleValue, final int scale) {
+  public ExternalId toOptionExternalId(Integer month, Integer year, Double strike, OptionType optionType) {
+    ArgumentChecker.notNull(month, "month");
+    ArgumentChecker.notNull(year, "year");
+    ArgumentChecker.notNull(strike, "strike");
+    ArgumentChecker.notNull(optionType, "optionType");
+    
+    LocalDate expiry = LocalDate.of(year, month, 1);
+    return ExternalSchemes.bloombergTickerSecurityId(String.format("%s %s %s%s %s", 
+        getContractCode(), expiry.toString(MONTH_YEAR_FORMATTER), optionType.name().charAt(0), getRoundedPrice(strike, 3), getMarketSector()).toUpperCase());
+  }
+  
+  protected String getRoundedPrice(final Double doubleValue, final int scale) {
     BigDecimal bigDecimal = BigDecimal.valueOf(doubleValue).setScale(scale, BigDecimal.ROUND_HALF_UP);
     return bigDecimal.toString();
   }

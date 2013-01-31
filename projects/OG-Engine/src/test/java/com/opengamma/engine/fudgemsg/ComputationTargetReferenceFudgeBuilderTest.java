@@ -44,9 +44,19 @@ public class ComputationTargetReferenceFudgeBuilderTest extends AbstractFudgeBui
   }
 
   public void testSpecification_nested() {
-    ComputationTargetSpecification req = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Foo", "Bar"));
-    req = req.containing(ComputationTargetType.SECURITY, UniqueId.of("Foo", "Underlying"));
+    ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Foo", "Bar"));
+    spec = spec.containing(ComputationTargetType.SECURITY, UniqueId.of("Foo", "Underlying"));
+    assertEncodeDecodeCycle(ComputationTargetReference.class, spec);
+  }
+
+  public void testRequirement_multiple() {
+    final ComputationTargetRequirement req = new ComputationTargetRequirement(ComputationTargetType.POSITION.or(ComputationTargetType.SECURITY), ExternalId.of("Foo", "Bar"));
     assertEncodeDecodeCycle(ComputationTargetReference.class, req);
+  }
+
+  public void testSpecification_multiple() {
+    final ComputationTargetSpecification spec = new ComputationTargetSpecification(ComputationTargetType.POSITION.or(ComputationTargetType.SECURITY), UniqueId.of("Foo", "Bar"));
+    assertEncodeDecodeCycle(ComputationTargetReference.class, spec);
   }
 
 }

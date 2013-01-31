@@ -35,7 +35,7 @@ $(function () {
     
     var d = [
     <#list timeseries.timeSeries.toZonedDateTimeDoubleTimeSeries().iterator() as item>
-      [${item.key.toInstant().toEpochMillisLong()?c}, ${item.value}],
+      [${item.key.toInstant().toEpochMilli()?c}, ${item.value}],
 	</#list>
     ];
     
