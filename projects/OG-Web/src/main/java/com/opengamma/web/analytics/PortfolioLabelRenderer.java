@@ -44,6 +44,7 @@ import com.opengamma.util.ArgumentChecker;
     } else if (targetType.isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
       return ResultsCell.forStaticValue(new NodeTarget(row.getName(), target.getUniqueId()), columnType);
     } else if (targetType.isTargetType(ComputationTargetType.TRADE)) {
+      // TODO use trade date as row name
       return ResultsCell.forStaticValue(new FungibleTradeTarget(row.getName(), target.getUniqueId()), columnType);
     }
     throw new IllegalArgumentException("Unexpected target type for row: " + targetType);
@@ -51,7 +52,7 @@ import com.opengamma.util.ArgumentChecker;
 
   private static boolean isOtc(Security security) {
     if (security instanceof FinancialSecurity) {
-      return !((FinancialSecurity) security).accept(new OtcSecurityVisitor());
+      return ((FinancialSecurity) security).accept(new OtcSecurityVisitor());
     } else {
       return false;
     }
