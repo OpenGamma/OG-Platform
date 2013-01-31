@@ -223,6 +223,7 @@
     <fragment>/scripts/lib/jquery/jquery-tablesorter.parsers.js</fragment>
     <fragment>/scripts/lib/jquery/jquery-blurkill.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.sparkline.2.0.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery.searchabledropdown.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.core.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.widget.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.mouse.js</fragment>

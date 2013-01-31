@@ -19,7 +19,12 @@ $.register_module({
                     if (meta) template_data.options = result.data.types // meta results
                         .map(function (datum) {return {value: datum, text: datum, selected: value === datum};});
                     else if ($.isArray(result.data)) template_data.options = result.data // simple results
-                        .map(function (datum) {return {value: datum, text: datum, selected: value === datum};});
+                        .map(function (datum) {
+                            var option, text;
+                            if (typeof datum === 'string') option = text = datum;
+                            else (option = datum[values]), (text = datum[texts]);
+                            return {value: option, text: text, selected: value === option};
+                        });
                     else template_data.options = result.data.data.map(function (datum) { // search results
                         var fields = datum.split('|');
                         return {value: fields[values], text: fields[texts], selected: value === fields[values]};
@@ -39,7 +44,10 @@ $.register_module({
             };
             form.Block.call(block, {
                 generator: generator, processor: processor ? processor.partial('#' + id) : null,
-                extras: {id: id, name: config.index, classes: config.classes, placeholder: config.placeholder}
+                extras: {
+                    id: id, name: config.index, classes: config.classes,
+                    style: config.style, placeholder: config.placeholder
+                }
             });
             block.id = id;
         };
@@ -54,6 +62,7 @@ $.register_module({
         };
         Dropdown.prototype.template = Handlebars.compile('\
             <select id="{{id}}" {{#classes}}class="{{../classes}}"{{/classes}} {{#name}}name="{{../name}}"{{/name}}\
+                {{#style}}style="{{../style}}"{{/style}}\
                 {{#if options}} {{else}}disabled="disabled"{{/if}}>\
                 {{#placeholder}}<option value="">{{{../placeholder}}}</option>{{/placeholder}}\
                 {{#each options}}\

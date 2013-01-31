@@ -4,74 +4,26 @@
  */
 $.register_module({
     name: 'og.analytics.form.Portfolios',
-    dependencies: ['og.common.util.ui.AutoCombo'],
+    dependencies: ['og.common.util.ui.Dropdown'],
     obj: function () {
-        var module = this, Block = og.common.util.ui.Block, portfolios, portfolio_store;
-
-        var ac_source = function (src, callback) {
-            return function (req, res) {
-                var escaped = $.ui.autocomplete.escapeRegex(req.term),
-                    matcher = new RegExp(escaped, 'i'),
-                    htmlize = function (str) {
-                        return !req.term ? str : str.replace(
-                            new RegExp(
-                                '(?![^&;]+;)(?!<[^<>]*)(' + escaped + ')(?![^<>]*>)(?![^&;]+;)', 'gi'
-                            ), '<strong>$1</strong>'
-                        );
-                    };
-                src.get({page: '*'}).pipe(function (resp){
-                    var data = callback(resp);
-                    if (data && data.length) {
-                        data.sort((function(){
-                            return function (a, b) {return (a === b ? 0 : (a < b ? -1 : 1));};
-                        })());
-                        res(data.reduce(function (acc, val) {
-                            if (!req.term || val && matcher.test(val)) acc.push({label: htmlize(val)});
-                            return acc;
-                        }, []));
-                    }
-                });
-            };
-        };
-
-        var store_porfolios = function (resp) {
-            return portfolios = (portfolio_store = resp.data.data).map(function (entry) {
-                return entry.split('|')[2];
-            });
-        };
-
+        var module = this, menu, Block = og.common.util.ui.Block;
         var Portfolios = function (config) {
-            var block = this, menu, form = config.form;
-
+            var block = this, form = config.form, index = 'portfolio', title = 'portfolio';
             form.Block.call(block, {
+                template: '<div class="og-option-title">' +
+                    '<header class="OG-background-05">' + title + ':</header>{{{children}}}</div>',
+                children: [new og.common.util.ui.Dropdown({
+                    form: form, resource: 'portfolios', index: index, value: config.val,
+                    rest_options: {page: '*'}, placeholder: 'Select...', fields: [0, 2]
+                })],
                 processor: function (data) {
-                    var port = portfolio_store.filter(function (entry) {
-                        return entry.split('|')[2] === menu.$input.val();
-                    });
-                    data.portfolio = port[0].split('|')[0];
+                    if (!data[index]) // hack to get the value of a searchable dropdown
+                        data[index] = $('#' + form.id + ' select[name=' + index + ']').siblings('select').val();
                 }
             });
-
-            form.on("form:load", function () {
-                menu = new og.common.util.ui.AutoCombo({
-                    selector:'.og-portfolios.og-autocombo',
-                    placeholder: 'Search Portfolios...',
-                    source: ac_source(og.api.rest.portfolios, store_porfolios)
-                });
-                if (config.val) {
-                    og.api.rest.portfolios.get().pipe(function (resp) {
-                        store_porfolios(resp);
-                        var val = portfolio_store.filter(function (entry) {
-                            return entry.split('|')[0] === config.val;
-                        });
-                        if (val.length && val[0] !== '') menu.$input.val(val[0].split('|')[2]);
-                    });
-                }
-            });
+            block.on('form:load', function () {$('#' + form.id + ' select[name=' + index + ']').searchable().focus();});
         };
-
         Portfolios.prototype = new Block;
-
         return Portfolios;
     }
 });
