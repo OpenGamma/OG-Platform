@@ -97,7 +97,8 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(EquityOptionBlackRhoFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackSpotDeltaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackThetaFunction.class));
-    functions.add(functionConfiguration(EquityOptionBlackScenarioFunction.class));
+    // functions.add(functionConfiguration(EquityOptionBlackScenarioFunction.class));
+    functions.add(functionConfiguration(CaseysTestFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackSpotGammaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackSpotVannaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackVegaFunction.class));
