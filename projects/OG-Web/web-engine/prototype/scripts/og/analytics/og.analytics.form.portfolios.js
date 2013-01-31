@@ -10,8 +10,7 @@ $.register_module({
         var Portfolios = function (config) {
             var block = this, form = config.form, index = 'portfolio', title = 'portfolio';
             form.Block.call(block, {
-                template: '<div class="og-option-title">' +
-                    '<header class="OG-background-05">' + title + ':</header>{{{children}}}</div>',
+                template: '{{{children}}}<div class="OG-icon og-icon-down"></div>',
                 children: [new og.common.util.ui.Dropdown({
                     form: form, resource: 'portfolios', index: index, value: config.val,
                     rest_options: {page: '*'}, placeholder: 'Select...', fields: [0, 2]
@@ -21,7 +20,10 @@ $.register_module({
                         data[index] = $('#' + form.id + ' select[name=' + index + ']').siblings('select').val();
                 }
             });
-            block.on('form:load', function () {$('#' + form.id + ' select[name=' + index + ']').searchable().focus();});
+            block.on('form:load', function () {
+                var select = $('#' + form.id + ' select[name=' + index + ']').searchable().focus()
+                select.hide().siblings('input').removeAttr('style').show();
+            });
         };
         Portfolios.prototype = new Block;
         return Portfolios;

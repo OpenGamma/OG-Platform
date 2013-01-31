@@ -18,6 +18,13 @@
     float: left;
 }
 
+.OG-analytics-form .og-view,
+.OG-analytics-form .og-datasources,
+.OG-analytics-form .og-optional,
+.OG-analytics-form .og-load {
+    display: none;
+ }
+
 .OG-analytics-form input {
     text-overflow: ellipsis;
 }
@@ -59,10 +66,10 @@
 }
 
 .OG-analytics-form .og-portfolios div:first-child {
-    /*position: relative;
+    position: relative;
     top: 4px;
     left: 2px;
-    right: 21px;*/
+    right: 21px;
 }
 
 .OG-analytics-form .og-portfolios input {
@@ -324,7 +331,7 @@
 .OG-analytics-form .og-portfolios,
 .OG-analytics-form .og-view,
 .OG-analytics-form .og-datasources,
-..OG-analytics-form .og-optional,
+.OG-analytics-form .og-optional,
 .OG-analytics-form .og-load,
 .OG-analytics-form .og-status{
     margin-right: 10px;
