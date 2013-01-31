@@ -60,7 +60,7 @@ $.register_module({
                         !cell.value.logLevel &&                                 // always show if log exists
                         ((cell.col === ((!primitives && !depgraph) && 1))       // Second column of portfolio
                         || ((depgraph || primitives) && cell.col < 1)           // 1st column of depgraph or primitives
-                        || (type === 'NODE_ID')                                 // Is node
+                        || (type === 'NODE')                                    // Is node
                         || (cell.right > parent.width())                        // End of the cell not visible
                         || (depgraph && ~mapping.depgraph_blacklist.indexOf(type)));    // Unsupported type on depgraph
                     if (hide) cellmenu.hide(); else cellmenu.show();
