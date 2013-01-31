@@ -8,7 +8,9 @@ $.register_module({
     obj: function () {
         var module = this, row_height = 21, title_height = 31, set_height = 24, logging = 'logLevel',
             templates = null, default_col_width = 175, HTML = 'innerHTML', scrollbar = og.common.util.scrollbar_size,
-            do_not_expand = {DOUBLE: null, NODE_ID: null, POSITION_ID: null, STRING: null};
+            do_not_expand = {
+                DOUBLE: null, FUNGIBLE_TRADE: null, NODE: null, OTC_TRADE: null, POSITION: null, STRING: null
+            };
         var available = (function () {
             var nodes;
             var all = function (total) {

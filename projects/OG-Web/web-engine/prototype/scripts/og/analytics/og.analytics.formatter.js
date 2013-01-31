@@ -30,8 +30,10 @@ $.register_module({
                             JSON.stringify(value.h.map(function (v, i) {return [i, v];})) + ']</span>' : '') +
                         (indicator ? '<span class="OG-icon og-icon-tick-'+ indicator +'"></span>' : '');
             };
-            formatter.NODE_ID = function (value) {return value.v.name;};
-            formatter.POSITION_ID = function (value) {return value.v.name;};
+            formatter.FUNGIBLE_TRADE = function (value) {return value.v.name;};
+            formatter.NODE = function (value) {return value.v.name;};
+            formatter.OTC_TRADE = function (value) {return value.v.name;};
+            formatter.POSITION = function (value) {return value.v.name;};
             formatter.transform = function (html) {
                 var node = $(html);
                 // only bother if the grid has some curve values in the last render
