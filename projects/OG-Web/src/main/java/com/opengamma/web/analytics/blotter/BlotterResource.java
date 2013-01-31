@@ -96,11 +96,10 @@ import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.web.FreemarkerOutputter;
+import com.opengamma.web.analytics.OtcSecurityVisitor;
 
 /**
  * REST resource for the trade blotter and trade entry forms.
- * TODO move some of this into subresources?
- * TODO date and time zone handling
  */
 @Path("blotter")
 public class BlotterResource {
@@ -346,10 +345,9 @@ public class BlotterResource {
   }
 
   private static boolean isOtc(ManageableSecurity security) {
-    try {
-      MetaBean metaBean = JodaBeanUtils.metaBean(security.getClass());
-      return s_metaBeans.contains(metaBean);
-    } catch (IllegalArgumentException e) {
+    if (security instanceof FinancialSecurity) {
+      return !((FinancialSecurity) security).accept(new OtcSecurityVisitor());
+    } else {
       return false;
     }
   }

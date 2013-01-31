@@ -116,9 +116,11 @@ import com.opengamma.util.tuple.Pair;
     // Can only use the specification if it is consumed by another node; i.e. it has been fully resolved
     // and is not just an advisory used to merge tentative results to give a single node producing multiple
     // outputs.
-    for (final DependencyNode dependent : node.getDependentNodes()) {
-      if (dependent.hasInputValue(specification)) {
-        return new ResolvedValue(specification, node.getFunction(), node.getInputValues(), node.getOutputValues());
+    synchronized (this) {
+      for (final DependencyNode dependent : node.getDependentNodes()) {
+        if (dependent.hasInputValue(specification)) {
+          return new ResolvedValue(specification, node.getFunction(), node.getInputValuesCopy(), node.getOutputValuesCopy());
+        }
       }
     }
     return null;

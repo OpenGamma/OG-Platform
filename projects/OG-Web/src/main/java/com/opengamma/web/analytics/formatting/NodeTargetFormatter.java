@@ -25,6 +25,6 @@ import com.opengamma.web.analytics.NodeTarget;
 
   @Override
   public DataType getDataType() {
-    return DataType.NODE_ID;
+    return DataType.NODE;
   }
 }
