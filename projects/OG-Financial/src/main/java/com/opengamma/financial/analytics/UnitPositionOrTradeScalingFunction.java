@@ -12,7 +12,6 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
-import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -29,11 +28,11 @@ import com.opengamma.engine.value.ValueSpecification;
 /**
  * 
  */
-public class UnitPositionScalingFunction extends AbstractFunction.NonCompiledInvoker {
+public class UnitPositionOrTradeScalingFunction extends AbstractFunction.NonCompiledInvoker {
 
   private final String _requirementName;
 
-  public UnitPositionScalingFunction(final String requirementName) {
+  public UnitPositionOrTradeScalingFunction(final String requirementName) {
     Validate.notNull(requirementName, "requirement name");
     _requirementName = requirementName;
   }
@@ -60,8 +59,7 @@ public class UnitPositionScalingFunction extends AbstractFunction.NonCompiledInv
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Position position = target.getPosition();
-    final Security security = position.getSecurity();
+    final Security security = target.getPositionOrTrade().getSecurity();
     final ValueProperties constraints = desiredValue.getConstraints().withoutAny(ValuePropertyNames.FUNCTION);
     final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueId(), constraints);
     return Collections.singleton(requirement);

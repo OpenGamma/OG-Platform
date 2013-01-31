@@ -71,7 +71,7 @@ $.register_module({
                     });
                 });
                 $('.fungiblebf').click(function (){
-                    og.api.rest.blotter.trades.get({id:"DbPos~"}).pipe(function(data){
+                    og.api.rest.blotter.trades.get({id:"DbPos~164562"}).pipe(function(data){
                         new og.blotter.Dialog(data);
                     });
                 });

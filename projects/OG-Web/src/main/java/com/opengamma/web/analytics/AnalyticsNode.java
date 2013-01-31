@@ -11,7 +11,10 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -94,19 +97,42 @@ import com.opengamma.util.ArgumentChecker;
     private int _lastRow;
 
     /* package */ PortfolioNodeBuilder(PortfolioNode root) {
-      _root = createNode(root);
+      _root = createPortfolioNode(root);
       _lastRow = 0;
     }
 
-    private AnalyticsNode createNode(PortfolioNode node) {
+    private AnalyticsNode createPortfolioNode(PortfolioNode node) {
       int nodeStart = _lastRow;
-      _lastRow += node.getPositions().size();
       List<AnalyticsNode> nodes = Lists.newArrayList();
+      for (Position position : node.getPositions()) {
+        ++_lastRow;
+        if (position.getTrades().size() > 0 && isFungible(position.getSecurity())) {
+          nodes.add(createPositionNode(position));
+        }
+      }
       for (PortfolioNode child : node.getChildNodes()) {
         ++_lastRow;
-        nodes.add(createNode(child));
+        nodes.add(createPortfolioNode(child));
       }
       return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes));
+    }
+
+    private AnalyticsNode createPositionNode(Position position) {
+      int nodeStart = _lastRow;
+      _lastRow += position.getTrades().size();
+      return new AnalyticsNode(nodeStart, _lastRow, Collections.<AnalyticsNode>emptyList());
+    }
+
+    /**
+     * @param security A security
+     * @return true if the security is fungible, false if OTC
+     */
+    private static boolean isFungible(Security security) {
+      if (security instanceof FinancialSecurity) {
+        return !((FinancialSecurity) security).accept(new OtcSecurityVisitor());
+      } else {
+        return false;
+      }
     }
 
     /* package */ AnalyticsNode getRoot() {

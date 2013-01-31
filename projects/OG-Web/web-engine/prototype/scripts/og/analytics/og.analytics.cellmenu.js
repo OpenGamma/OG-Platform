@@ -60,7 +60,7 @@ $.register_module({
                         !cell.value.logLevel &&                                 // always show if log exists
                         ((cell.col === ((!primitives && !depgraph) && 1))       // Second column of portfolio
                         || ((depgraph || primitives) && cell.col < 1)           // 1st column of depgraph or primitives
-                        || (type === 'NODE_ID')                                 // Is node
+                        || (type === 'NODE')                                    // Is node
                         || (cell.right > parent.width())                        // End of the cell not visible
                         || (depgraph && ~mapping.depgraph_blacklist.indexOf(type)));    // Unsupported type on depgraph
                     if (hide) cellmenu.hide(); else cellmenu.show();
@@ -78,7 +78,9 @@ $.register_module({
                     var unique = og.common.id('inplace');
                     inplace_config = {cntr: $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace, data: {name: unique}};
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
-                    cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-layout-analytics-', unique);
+                    temp = cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-layout-analytics-', unique);
+                    if(typeof thing == "undefined")
+                        thing = temp
                     cellmenu.inplace.$dom.toggle.on('click', function () {
                         if (cellmenu.inplace.toggle_handler()) {
                             cellmenu.create_inplace('.OG-layout-analytics-' + unique);
@@ -106,7 +108,7 @@ $.register_module({
             options.fingerprint = fingerprint;
             cellmenu.container.add([options]);
             if ((offset.top + inner.height())> $(window).height())
-                inner.css({marginTop: -inner.outerHeight(true)});
+                inner.css({marginTop: -inner.outerHeight(true)-9});
             if ((offset.left + inner.width())> $(window).width())
                 inner.css({marginLeft: -inner.width() + width - cellmenu.menu.left} );
             new constructor(cellmenu.grid);

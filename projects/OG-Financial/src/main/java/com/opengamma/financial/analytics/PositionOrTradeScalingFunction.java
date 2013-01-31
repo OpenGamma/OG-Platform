@@ -5,16 +5,15 @@
  */
 package com.opengamma.financial.analytics;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.position.Position;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -36,11 +35,11 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Able to scale values produced by the rest of the OG-Financial package.
  */
-public class PositionScalingFunction extends AbstractFunction.NonCompiledInvoker {
+public class PositionOrTradeScalingFunction extends AbstractFunction.NonCompiledInvoker {
 
   private final String _requirementName;
 
-  public PositionScalingFunction(final String requirementName) {
+  public PositionOrTradeScalingFunction(final String requirementName) {
     Validate.notNull(requirementName, "Requirement name");
     _requirementName = requirementName;
   }
@@ -52,12 +51,12 @@ public class PositionScalingFunction extends AbstractFunction.NonCompiledInvoker
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return ComputationTargetType.POSITION_OR_TRADE;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getPosition().getSecurity() != null;
+    return target.getPositionOrTrade().getSecurity() != null;
   }
 
   @Override
@@ -67,8 +66,7 @@ public class PositionScalingFunction extends AbstractFunction.NonCompiledInvoker
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Position position = target.getPosition();
-    final Security security = position.getSecurity();
+    final Security security = target.getPositionOrTrade().getSecurity();
     final ValueRequirement requirement = new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, security.getUniqueId(), desiredValue.getConstraints().withoutAny(
         ValuePropertyNames.FUNCTION));
     return Collections.singleton(requirement);
@@ -90,19 +88,17 @@ public class PositionScalingFunction extends AbstractFunction.NonCompiledInvoker
     final ComputedValue input = inputs.getAllValues().iterator().next();
     final Object value = input.getValue();
     final ValueSpecification specification = new ValueSpecification(_requirementName, target.toSpecification(), getResultProperties(input.getSpecification()));
-    ComputedValue scaledValue = null;
+    ComputedValue scaledValue;
+    final double quantity = target.getPositionOrTrade().getQuantity().doubleValue();
     if (value instanceof Double) {
       Double doubleValue = (Double) value;
-      final double quantity = target.getPosition().getQuantity().doubleValue();
       doubleValue *= quantity;
       scaledValue = new ComputedValue(specification, doubleValue);
     } else if (value instanceof MultipleCurrencyAmount) {
       final MultipleCurrencyAmount m = (MultipleCurrencyAmount) value;
-      final double quantity = target.getPosition().getQuantity().doubleValue();
       scaledValue = new ComputedValue(specification, m.multipliedBy(quantity));
     } else if (value instanceof YieldCurveNodeSensitivityDataBundle) {
       final YieldCurveNodeSensitivityDataBundle nodeSensitivities = (YieldCurveNodeSensitivityDataBundle) value;
-      final double quantity = target.getPosition().getQuantity().doubleValue();
       final Currency ccy = nodeSensitivities.getCurrency();
       final String name = nodeSensitivities.getYieldCurveName();
       final DoubleLabelledMatrix1D m = nodeSensitivities.getLabelledMatrix();
@@ -110,37 +106,32 @@ public class PositionScalingFunction extends AbstractFunction.NonCompiledInvoker
       scaledValue = new ComputedValue(specification, new YieldCurveNodeSensitivityDataBundle(ccy, new DoubleLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled), name));
     } else if (value instanceof DoubleLabelledMatrix1D) {
       final DoubleLabelledMatrix1D m = (DoubleLabelledMatrix1D) value;
-      final double quantity = target.getPosition().getQuantity().doubleValue();
       final double[] scaled = getScaledMatrix(m.getValues(), quantity);
       scaledValue = new ComputedValue(specification, new DoubleLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled));
     } else if (value instanceof LocalDateLabelledMatrix1D) {
       final LocalDateLabelledMatrix1D m = (LocalDateLabelledMatrix1D) value;
-      final double quantity = target.getPosition().getQuantity().doubleValue();
       final double[] scaled = getScaledMatrix(m.getValues(), quantity);
       scaledValue = new ComputedValue(specification, new LocalDateLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled));
     } else if (value instanceof ZonedDateTimeLabelledMatrix1D) {
       final ZonedDateTimeLabelledMatrix1D m = (ZonedDateTimeLabelledMatrix1D) value;
-      final double quantity = target.getPosition().getQuantity().doubleValue();
       final double[] scaled = getScaledMatrix(m.getValues(), quantity);
       scaledValue = new ComputedValue(specification, new ZonedDateTimeLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled));
     } else if (value instanceof CurrencyLabelledMatrix1D) {
       final CurrencyLabelledMatrix1D m = (CurrencyLabelledMatrix1D) value;
-      final double quantity = target.getPosition().getQuantity().doubleValue();
       final double[] scaled = getScaledMatrix(m.getValues(), quantity);
       scaledValue = new ComputedValue(specification, new CurrencyLabelledMatrix1D(m.getKeys(), m.getLabels(), scaled));
     } else if (value instanceof StringLabelledMatrix1D) {
       final StringLabelledMatrix1D m = (StringLabelledMatrix1D) value;
-      final double quantity = target.getPosition().getQuantity().doubleValue();
       final double[] scaled = getScaledMatrix(m.getValues(), quantity);
       scaledValue = new ComputedValue(specification, new StringLabelledMatrix1D(m.getKeys(), scaled));
     } else if (_requirementName.equals(ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY)) { //TODO this should probably not be done like this
       @SuppressWarnings("unchecked")
       final Map<String, List<DoublesPair>> map = (Map<String, List<DoublesPair>>) value;
-      final Map<String, List<DoublesPair>> scaled = new HashMap<String, List<DoublesPair>>();
+      final Map<String, List<DoublesPair>> scaled = Maps.newHashMap();
       for (final Map.Entry<String, List<DoublesPair>> entry : map.entrySet()) {
-        final List<DoublesPair> scaledList = new ArrayList<DoublesPair>();
+        final List<DoublesPair> scaledList = Lists.newArrayList();
         for (final DoublesPair pair : entry.getValue()) {
-          scaledList.add(DoublesPair.of(pair.first, pair.second * target.getPosition().getQuantity().doubleValue()));
+          scaledList.add(DoublesPair.of(pair.first, pair.second * quantity));
         }
         scaled.put(entry.getKey(), scaledList);
       }
@@ -158,7 +149,7 @@ public class PositionScalingFunction extends AbstractFunction.NonCompiledInvoker
       }
       final int m = values[0].length;
       final double[][] scaledValues = new double[n][m];
-      final double scale = target.getPosition().getQuantity().doubleValue();
+      final double scale = quantity;
       for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
           scaledValues[i][j] = values[i][j] * scale;
@@ -178,7 +169,7 @@ public class PositionScalingFunction extends AbstractFunction.NonCompiledInvoker
       final int m = values[0].length;
       final int l = values[0][0].length;
       final double[][][] scaledValues = new double[n][m][l];
-      final double scale = target.getPosition().getQuantity().doubleValue();
+      final double scale = quantity;
       for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
           for (int k = 0; k < l; k++) {

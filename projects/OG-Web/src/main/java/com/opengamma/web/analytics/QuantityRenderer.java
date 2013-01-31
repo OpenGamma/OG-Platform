@@ -10,20 +10,21 @@ import java.util.List;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Cell renderer for the quantity column in the portfolio grid.
  */
 /* package */ class QuantityRenderer implements GridColumn.CellRenderer {
 
-  private final List<? extends MainGridStructure.Row> _rows;
+  /** The rows in the grid. */
+  private final List<PortfolioGridRow> _rows;
 
-  /* package */ QuantityRenderer(List<? extends MainGridStructure.Row> rows) {
+  /* package */ QuantityRenderer(List<PortfolioGridRow> rows) {
     ArgumentChecker.notNull(rows, "rows");
     _rows = rows;
   }
 
   @Override
   public ResultsCell getResults(int rowIndex, ResultsCache cache, Class<?> columnType) {
-    MainGridStructure.Row row = _rows.get(rowIndex);
+    PortfolioGridRow row = _rows.get(rowIndex);
     return ResultsCell.forStaticValue(row.getQuantity(), columnType);
   }
 }

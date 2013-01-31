@@ -60,7 +60,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
    * @param requirementName the requirement name, not null
    */
   public static void addUnitScalingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
-    functions.add(functionConfiguration(UnitPositionScalingFunction.class, requirementName));
+    functions.add(functionConfiguration(UnitPositionOrTradeScalingFunction.class, requirementName));
     functions.add(functionConfiguration(UnitPositionTradeScalingFunction.class, requirementName));
   }
 
@@ -77,7 +77,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
    * @param requirementName the requirement name, not null
    */
   public static void addScalingFunction(final List<FunctionConfiguration> functions, final String requirementName) {
-    functions.add(functionConfiguration(PositionScalingFunction.class, requirementName));
+    functions.add(functionConfiguration(PositionOrTradeScalingFunction.class, requirementName));
     functions.add(functionConfiguration(PositionTradeScalingFunction.class, requirementName));
   }
 

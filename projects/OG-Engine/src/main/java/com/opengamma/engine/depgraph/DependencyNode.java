@@ -265,6 +265,10 @@ public class DependencyNode {
     return Collections.unmodifiableSet(_outputValues);
   }
 
+  /* package */Set<ValueSpecification> getOutputValuesCopy() {
+    return new HashSet<ValueSpecification>(_outputValues);
+  }
+
   /**
    * Returns the set of terminal output values produced by this node. This is a subset of {@link #getOutputValues}. After
    * graph construction any output values that are not consumed by other nodes will be pruned unless they are declared
@@ -283,6 +287,10 @@ public class DependencyNode {
    */
   public Set<ValueSpecification> getInputValues() {
     return Collections.unmodifiableSet(_inputValues);
+  }
+
+  /* package */Set<ValueSpecification> getInputValuesCopy() {
+    return new HashSet<ValueSpecification>(_inputValues);
   }
 
   /**
