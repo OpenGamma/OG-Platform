@@ -11,7 +11,6 @@ import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -35,16 +34,19 @@ import com.opengamma.util.ArgumentChecker;
     if (targetType.isTargetType(ComputationTargetType.POSITION)) {
       RowTarget rowTarget;
       if (isOtc(row.getSecurity())) {
-        // TODO need the trade ID too
-        rowTarget = new OtcTradeTarget(row.getName(), UniqueId.of("ABC", "123"), target.getUniqueId());
+        // OTC trades and positions are shown as a single row as there's always one trade per position
+        // TODO this is the trade ID, need the position ID?
+        rowTarget = new OtcTradeTarget(row.getName(), target.getUniqueId());
       } else {
+        // Positions in fungible trades can contain multiple trades so the position has its own row and child rows
+        // for each of its trades
         rowTarget = new PositionTarget(row.getName(), target.getUniqueId());
       }
       return ResultsCell.forStaticValue(rowTarget, columnType);
     } else if (targetType.isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
       return ResultsCell.forStaticValue(new NodeTarget(row.getName(), target.getUniqueId()), columnType);
     } else if (targetType.isTargetType(ComputationTargetType.TRADE)) {
-      // TODO use trade date as row name
+      // only fungible trades have their own row, OTC trades are shown on the same row as their parent position
       return ResultsCell.forStaticValue(new FungibleTradeTarget(row.getName(), target.getUniqueId()), columnType);
     }
     throw new IllegalArgumentException("Unexpected target type for row: " + targetType);
