@@ -14,7 +14,8 @@ $.register_module({
                     '<header class="OG-background-05">' + title + ':</header>{{{children}}}</div>',
                 children: [new og.common.util.ui.Dropdown({
                     form: form, index: index, resource: 'viewdefinitions', fields: ['id', 'name'],
-                    style: 'width: 100%', value: config.val, placeholder: 'Select...'
+                    style: 'width: 100%', value: config.val, placeholder: 'Select...',
+                    rest_options: {page: '*'}
                 })],
                 processor: function (data) {
                     if (!data[index]) // hack to get the value of a searchable dropdown

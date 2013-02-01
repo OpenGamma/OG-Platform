@@ -73,6 +73,11 @@
     position: absolute;
     top: -3px;
     width:100%;
+    min-width: 10px;
+}
+
+.OG-analytics-form .og-portfolios .dropdown-list option:hover{
+    background: #bed4e3;
 }
 
 .OG-analytics-form .og-portfolios div:first-child {

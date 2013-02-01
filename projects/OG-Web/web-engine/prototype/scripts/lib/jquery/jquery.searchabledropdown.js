@@ -174,10 +174,10 @@
         	suspendBlur = false;
         });
         input.click(function(e) {
-        	if(!enabled)
+        	/*if(!enabled)
     			enable(e, true);
     		else
-    			disable(e, true);
+    			disable(e, true);*/
         });
         input.blur(function(e) {
         	if(!suspendBlur && enabled)
@@ -216,7 +216,7 @@
         	if($.browser.opera)
         		fsdiff = 2.5;
         	if($.browser.safari || $.browser.chrome)
-        		fsdiff = 3;
+        		fsdiff = 3.5;
         	fs += Math.round(fs / fsdiff);
         	// set selectedIndex depends on mouse position and line height
         	selectorHelper.selectedIndex(Math.floor((e.pageY - selector.offset().top + this.scrollTop) / fs));
@@ -317,7 +317,7 @@
 
             // wrapper styles
             wrapper.css("position", "relative");
-            wrapper.css("width", self.outerWidth());
+            // wrapper.css("width", self.outerWidth());
             // relative div needs an z-index (related to IE z-index bug)
             if($.browser.msie)
             	wrapper.css("z-index", zindex);
@@ -330,7 +330,8 @@
                 "width":  self.outerWidth(),
                 "height": self.outerHeight(),
                 "background-color": "#FFFFFF",
-                "opacity": "0.01"
+                "opacity": "0.01",
+                "display": "none"
             });
 
             // overlay text field for searching capability
@@ -497,7 +498,7 @@
             input.select();
 
             // select empty option
-        	self.get(0).selectedIndex = 0;
+        	//self.get(0).selectedIndex = 0;
 
         	if(typeof e != "undefined")
         		e.stopPropagation();
