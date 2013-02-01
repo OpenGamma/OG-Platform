@@ -28,7 +28,6 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.blotter.BlotterColumn;
@@ -180,14 +179,13 @@ public final class PortfolioGridStructure extends MainGridStructure {
         ComputationTargetSpecification target = nodeSpec.containing(ComputationTargetType.POSITION,
                                                                     position.getUniqueId().toLatest());
         Security security = position.getSecurity();
-        // TODO check the cast
-        ManageableSecurity manageableSecurity = (ManageableSecurity) security;
         List<PortfolioGridRow> rows = Lists.newArrayList();
-        rows.add(new PortfolioGridRow(target, manageableSecurity, position.getQuantity()));
-        // TODO only add rows for trades in fungible securities
+        rows.add(new PortfolioGridRow(target, security.getName(), security, position.getQuantity()));
+        // only add rows for trades in fungible securities, OTC trades and positions are shown as a single row
         if (isFungible(position.getSecurity())) {
           for (Trade trade : position.getTrades()) {
-            rows.add(new PortfolioGridRow(ComputationTargetSpecification.of(trade), manageableSecurity, trade.getQuantity()));
+            String tradeDate = "on " + trade.getTradeDate();
+            rows.add(new PortfolioGridRow(ComputationTargetSpecification.of(trade), tradeDate, security, trade.getQuantity()));
           }
         }
         return rows;
@@ -238,17 +236,15 @@ public final class PortfolioGridStructure extends MainGridStructure {
    * @param security The position's security, not null
    * @param quantity The position's quantity, not null
    */
-  /* package */ PortfolioGridRow(ComputationTargetSpecification target, Security security, BigDecimal quantity) {
-    super(target, securityName(security));
+  /* package */ PortfolioGridRow(ComputationTargetSpecification target,
+                                 String name,
+                                 Security security,
+                                 BigDecimal quantity) {
+    super(target, name);
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(quantity, "quantity");
     _security = security;
     _quantity = quantity;
-  }
-
-  private static String securityName(Security security) {
-    ArgumentChecker.notNull(security, "security");
-    return security.getName();
   }
 
   /* package */ Security getSecurity() {
