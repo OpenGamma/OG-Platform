@@ -12,7 +12,7 @@ $.register_module({
             ids_selector = 'og-blocks-fungible-security-ids',
             blank_details = "<table class='" + details_selector + "'></table>",
             blank_ids = "<table class='" + ids_selector + "'></table>";
-            if(config) {data = config; data.id = config.trade.uniqueId;}
+            if(config.data) {data = config.data; data.id = config.data.trade.uniqueId;}
             else {data = {trade: og.blotter.util.fungible_trade};}
             constructor.load = function () {
                 constructor.title = 'Fungible Trade';

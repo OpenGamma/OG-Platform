@@ -10,7 +10,7 @@ $.register_module({
         var Portfolio = function (config) {
             var block = this, id = og.common.id('attributes'), form = config.form;
             form.Block.call(block, {module: 'og.blotter.forms.blocks.portfolio_tash', 
-                extras: {id: id, counterparty: config.counterparty}});
+                extras: {id: id, counterparty: config.counterparty, portfolio: config.portfolio}});
         };
         Portfolio.prototype = new Block(); // inherit Block prototype
         return Portfolio;

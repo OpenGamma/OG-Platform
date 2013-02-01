@@ -69,9 +69,9 @@ $.register_module({
                 type: "FungibleTrade"
             },
             swap_types : [
-                {text:'FLoating Interest Rate Leg', value:'FloatingInterestRateLeg'},
-                {text:'FLoating Gearing Interest Rate Leg', value:'FloatingGearingIRLeg'},
-                {text:'FLoating Spread Interest Rate Leg', value:'FloatingSpreadIRLeg'},
+                {text:'Floating Interest Rate Leg', value:'FloatingInterestRateLeg'},
+                {text:'Floating Gearing Interest Rate Leg', value:'FloatingGearingIRLeg'},
+                {text:'Floating Spread Interest Rate Leg', value:'FloatingSpreadIRLeg'},
                 {text:'Fixed Interest Rate Leg', value:'FixedInterestRateLeg'}
             ]
         };

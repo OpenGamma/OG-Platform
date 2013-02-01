@@ -14,70 +14,72 @@ $.register_module({
             load: function (args) {
                 og.analytics.blotter = true;
 //                masthead.menu.set_tab(page_name);
-                $('.new_trade').css({display: 'inline-block'}).click(function (){new og.blotter.Dialog();});
+                $('.new_trade').css({display: 'inline-block'}).click(function (){
+                    new og.blotter.Dialog({portfolio:{name:"My Portfolio", id:"XYZ"}});
+                });
                 $('.fxforward').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164134"}).pipe(function(data){
-                        new og.blotter.Dialog(data);
+                        new og.blotter.Dialog({details: data, portfolio:{name:"My Portfolio", id:"XYZ"}});
                     });
                 });
                 $('.capfloorcmsspread').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164152"}).pipe(function(data){
-                        new og.blotter.Dialog(data);
+                        new og.blotter.Dialog({details: data, portfolio:{name:"My Portfolio", id:"XYZ"}});
                     });
                 });
                 $('.capfloor').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164182"}).pipe(function(data){
-                        new og.blotter.Dialog(data);
+                        new og.blotter.Dialog({details: data, portfolio:{name:"My Portfolio", id:"XYZ"}});
                     });
                 });
                 $('.equityvar').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164208"}).pipe(function(data){
-                        new og.blotter.Dialog(data);
+                        new og.blotter.Dialog({details: data, portfolio:{name:"My Portfolio", id:"XYZ"}});
                     });
                 });
                 $('.fra').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164245"}).pipe(function(data){
-                        new og.blotter.Dialog(data);
+                        new og.blotter.Dialog({details: data, portfolio:{name:"My Portfolio", id:"XYZ"}});
                     });
                 });
                 $('.fxbarrier').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164255"}).pipe(function(data){
-                        new og.blotter.Dialog(data);
+                        new og.blotter.Dialog({details: data, portfolio:{name:"My Portfolio", id:"XYZ"}});
                     });
                 });
                 $('.fxoption').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164257"}).pipe(function(data){
-                        new og.blotter.Dialog(data);
+                        new og.blotter.Dialog({details: data, portfolio:{name:"My Portfolio", id:"XYZ"}});
                     });
                 });
                 $('.nondelfxoption').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164259"}).pipe(function(data){
-                        new og.blotter.Dialog(data);
+                        new og.blotter.Dialog({details: data, portfolio:{name:"My Portfolio", id:"XYZ"}});
                     });
                 });
                 $('.swap').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164306"}).pipe(function(data){
-                        new og.blotter.Dialog(data);
+                        new og.blotter.Dialog({details: data, portfolio:{name:"My Portfolio", id:"XYZ"}});
                     });
                 });
                 $('.swaption').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164328"}).pipe(function(data){
-                        new og.blotter.Dialog(data);
+                        new og.blotter.Dialog({details: data, portfolio:{name:"My Portfolio", id:"XYZ"}});
                     });
                 });
                 $('.fungibleb').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164540"}).pipe(function(data){
-                        new og.blotter.Dialog(data);
+                        new og.blotter.Dialog({details: data, portfolio:{name:"My Portfolio", id:"XYZ"}});
                     });
                 });
                 $('.fungiblebf').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164562"}).pipe(function(data){
-                        new og.blotter.Dialog(data);
+                        new og.blotter.Dialog({details: data, portfolio:{name:"My Portfolio", id:"XYZ"}});
                     });
                 });
                 $('.fungibleet').click(function (){
                     og.api.rest.blotter.trades.get({id:"DbPos~164554"}).pipe(function(data){
-                        new og.blotter.Dialog(data);
+                        new og.blotter.Dialog({details: data, portfolio:{name:"My Portfolio", id:"XYZ"}});
                     });
                 });
             },
