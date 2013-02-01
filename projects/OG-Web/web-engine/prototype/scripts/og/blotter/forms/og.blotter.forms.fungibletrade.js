@@ -39,7 +39,7 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function () {get_security();});
-                form.on('form:submit', function (result) {og.api.rest.blotter.trades.put(result.data).pipe(console.log);});
+                form.on('form:submit', function (result) {og.api.rest.blotter.trades.put(result.data);});
                 form.on('keyup', security.input_id(), function (event) {get_security();});
                 form.on('change', security.select_id(), function (event) {get_security();});
             }; 
