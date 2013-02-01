@@ -7,10 +7,11 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui;
-            if(config) {data = config; data.id = config.trade.uniqueId;}
+            var constructor = this, form, ui = og.common.util.ui, data;
+            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "FXBarrierOptionSecurity", name: "FXBarrierOptionSecurity ABC", 
                 regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};}
+            data.portfolio = config.portfolio;
             constructor.load = function () {
                 constructor.title = 'FX Barrier Option';
                 form = new og.common.util.ui.Form({
@@ -19,7 +20,8 @@ $.register_module({
                     data: data
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
+                        portfolio: data.portfolio.name}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.long_short_tash'
                     }), 

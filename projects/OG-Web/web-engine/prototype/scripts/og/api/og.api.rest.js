@@ -163,6 +163,7 @@ $.register_module({
                         };
                         delete outstanding_requests[promise.id];
                         if (error === 'abort') return; // do not call handler if request was cancelled
+                        if (config.meta.cache_for) cache_del(url);
                         config.meta.handler(result);
                         promise.deferred.resolve(result);
                     },

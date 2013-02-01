@@ -78,9 +78,7 @@ $.register_module({
                     var unique = og.common.id('inplace');
                     inplace_config = {cntr: $('.og-inplace', cellmenu.menu), tmpl: tmpl_inplace, data: {name: unique}};
                     cellmenu.inplace = new og.common.util.ui.DropMenu(inplace_config);
-                    temp = cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-layout-analytics-', unique);
-                    if(typeof thing == "undefined")
-                        thing = temp
+                    cellmenu.container = new og.common.gadgets.GadgetsContainer('.OG-layout-analytics-', unique);
                     cellmenu.inplace.$dom.toggle.on('click', function () {
                         if (cellmenu.inplace.toggle_handler()) {
                             cellmenu.create_inplace('.OG-layout-analytics-' + unique);

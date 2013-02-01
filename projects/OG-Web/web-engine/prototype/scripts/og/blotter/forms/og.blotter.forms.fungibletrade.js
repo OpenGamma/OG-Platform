@@ -12,8 +12,9 @@ $.register_module({
             ids_selector = 'og-blocks-fungible-security-ids',
             blank_details = "<table class='" + details_selector + "'></table>",
             blank_ids = "<table class='" + ids_selector + "'></table>";
-            if(config) {data = config; data.id = config.trade.uniqueId;}
+            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {trade: og.blotter.util.fungible_trade};}
+            data.portfolio = config.portfolio;
             constructor.load = function () {
                 constructor.title = 'Fungible Trade';
                 form = new og.common.util.ui.Form({
@@ -24,7 +25,8 @@ $.register_module({
                 security = new og.blotter.forms.blocks.Security({form: form, label: "Underlying ID", 
                     security: data.trade.securityIdBundle, index: "trade.securityIdBundle"});
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
+                        portfolio: data.portfolio.name}),
                     new form.Block({module: 'og.blotter.forms.blocks.fungible_tash', 
                         extras: {quantity: data.trade.quantity},
                         children: [security]
@@ -37,7 +39,7 @@ $.register_module({
                 );
                 form.dom();
                 form.on('form:load', function () {get_security();});
-                form.on('form:submit', function (result) {og.api.rest.blotter.trades.put(result.data).pipe(console.log);});
+                form.on('form:submit', function (result) {og.api.rest.blotter.trades.put(result.data);});
                 form.on('keyup', security.input_id(), function (event) {get_security();});
                 form.on('change', security.select_id(), function (event) {get_security();});
             }; 

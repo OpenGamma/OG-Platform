@@ -204,7 +204,7 @@ public class DefaultBlotterColumnMappings {
 
     // ------------------- Equity
     mapper.mapColumn(TYPE, EquitySecurity.class, "Equity");
-    mapper.mapColumn(PRODUCT, EquitySecurity.meta().shortName());
+    mapper.mapColumn(PRODUCT, EquitySecurity.meta().companyName());
 
     // ------------------- EquityOption
     mapper.mapColumn(TYPE, EquityOptionSecurity.class, "Equity Option");

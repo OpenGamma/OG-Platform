@@ -7,12 +7,13 @@ $.register_module({
     dependencies: [],
     obj: function () {   
         return function (config) {
-            var constructor = this, form, ui = og.common.util.ui, pay_block, receive_block, pay_select, receive_select,
+            var constructor = this, form, ui = og.common.util.ui, data, pay_block, receive_block, pay_select, receive_select,
                 pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), pay_leg = 'security.payLeg.', 
                 receive_leg = 'security.receiveLeg.', $pay_select, $receive_select;
-            if(config) {data = config; data.id = config.trade.uniqueId;}
+            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "SwapSecurity", name: "SwapSecurity ABC", 
-                regionId: 'ABC~123', externalIdBundle: ""}, trade: og.blotter.util.otc_trade};} 
+                regionId: 'ABC~123', externalIdBundle: ""}, trade: og.blotter.util.otc_trade};}
+            data.portfolio = config.portfolio;
             constructor.load = function () {
                 constructor.title = 'Swap';
                 form = new og.common.util.ui.Form({
@@ -31,7 +32,8 @@ $.register_module({
                     }
                 });
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
+                        portfolio: data.portfolio.name}),
                     new form.Block({
                         module: 'og.blotter.forms.blocks.swap_quick_entry_tash'
                     }),
