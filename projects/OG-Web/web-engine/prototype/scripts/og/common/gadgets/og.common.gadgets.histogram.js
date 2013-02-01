@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.common.gadgets.Timeseries',
+    name: 'og.common.gadgets.Histogram',
     dependencies: ['og.common.gadgets.manager'],
     obj: function () {
         return function (config) {

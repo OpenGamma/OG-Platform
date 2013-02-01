@@ -76,7 +76,7 @@ $.register_module({
                 SURFACE_DATA            : [2, 1, 0, 6],
                 UNPLOTTABLE_SURFACE_DATA: [1, 6],
                 TENOR                   : [0, 6],
-                TIME_SERIES             : [4, 1, 6],
+                TIME_SERIES             : [4, 1, 7, 6],
                 UNKNOWN                 : [0, 6],
                 VECTOR                  : [0, 1, 6],
                 HISTOGRAM               : [5, 1, 6]
