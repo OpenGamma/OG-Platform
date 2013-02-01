@@ -8,22 +8,16 @@ package com.opengamma.web.analytics;
 import com.opengamma.id.UniqueId;
 
 /**
- *
+ * {@link RowTarget} for a row that contains an OTC trade / position. There is one position for each OTC trade
+ * so they are displayed as a single row.
  */
 public class OtcTradeTarget extends RowTarget {
 
-  /** ID of the position that contains the trade. */
-  private final UniqueId _positiond;
-
-  /* package */ OtcTradeTarget(String name, UniqueId id, UniqueId positionId) {
-    super(name, id);
-    _positiond = positionId;
-  }
-
   /**
-   * @return ID of the position that contains the trade
+   * @param name The row name
+   * @param id The position ID
    */
-  public UniqueId getPositionId() {
-    return _positiond;
+  /* package */ OtcTradeTarget(String name, UniqueId id) {
+    super(name, id);
   }
 }

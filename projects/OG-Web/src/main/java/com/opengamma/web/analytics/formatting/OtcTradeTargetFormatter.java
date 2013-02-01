@@ -14,9 +14,10 @@ import com.opengamma.web.analytics.OtcTradeTarget;
  */
 /* package */ class OtcTradeTargetFormatter extends AbstractFormatter<OtcTradeTarget> {
 
+  /** Key for the name in the JSON. */
   private static final String NAME = "name";
+  /** Key for the ID in the JSON. */
   private static final String ID = "id";
-  private static final String POSITION_ID = "positionId";
 
   /* package */ OtcTradeTargetFormatter() {
     super(OtcTradeTarget.class);
@@ -25,8 +26,7 @@ import com.opengamma.web.analytics.OtcTradeTarget;
   @Override
   public Object formatCell(OtcTradeTarget trade, ValueSpecification valueSpec) {
     return ImmutableMap.of(NAME, trade.getName(),
-                           ID, trade.getId().getObjectId(),
-                           POSITION_ID, trade.getPositionId().getObjectId());
+                           ID, trade.getId().getObjectId());
   }
 
   @Override

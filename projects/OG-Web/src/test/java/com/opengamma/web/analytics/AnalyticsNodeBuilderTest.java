@@ -9,10 +9,17 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.position.impl.SimpleTrade;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
+import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
 
 /**
  * Tests that {@link AnalyticsNode.PortfolioNodeBuilder} creates nodes that match a portfolio structure.
@@ -150,7 +157,7 @@ public class AnalyticsNodeBuilderTest {
   }
 
   @Test
-  public void trades() {
+  public void fungibleTrades() {
     /*
     0 root
     1  |_pos1
@@ -159,11 +166,20 @@ public class AnalyticsNodeBuilderTest {
     4  |_pos2
     5     |_trade3
     */
+    /*FXForwardSecurity security = new FXForwardSecurity(Currency.GBP, 123,
+                                                       Currency.USD, 321,
+                                                       LocalDate.of(2012, 12, 21).atTime(11, 0).atZone(ZoneOffset.UTC),
+                                                       ExternalId.of("Reg", "ABC"));*/
+    EquitySecurity security = new EquitySecurity("exchange", "exchangeCode", "companyName", Currency.USD);
     SimplePortfolioNode portfolioRoot = new SimplePortfolioNode();
     SimplePosition position1 = new SimplePosition();
+    SimpleSecurityLink securityLink = new SimpleSecurityLink();
+    securityLink.setTarget(security);
+    position1.setSecurityLink(securityLink);
     position1.addTrade(new SimpleTrade());
     position1.addTrade(new SimpleTrade());
     SimplePosition position2 = new SimplePosition();
+    position2.setSecurityLink(securityLink);
     position2.addTrade(new SimpleTrade());
     portfolioRoot.addPosition(position1);
     portfolioRoot.addPosition(position2);
@@ -180,5 +196,34 @@ public class AnalyticsNodeBuilderTest {
     assertEquals(4, position2Node.getStartRow());
     assertEquals(5, position2Node.getEndRow());
     assertTrue(position2Node.getChildren().isEmpty());
+  }
+
+  @Test
+  public void otcTrades() {
+    /*
+    0 root
+    1  |_pos/trade1
+    2  |_pos/trade2
+    */
+    FXForwardSecurity security = new FXForwardSecurity(Currency.GBP, 123,
+                                                       Currency.USD, 321,
+                                                       LocalDate.of(2012, 12, 21).atTime(11, 0).atZone(ZoneOffset.UTC),
+                                                       ExternalId.of("Reg", "ABC"));
+    SimplePortfolioNode portfolioRoot = new SimplePortfolioNode();
+    SimplePosition position1 = new SimplePosition();
+    SimpleSecurityLink securityLink = new SimpleSecurityLink();
+    securityLink.setTarget(security);
+    position1.setSecurityLink(securityLink);
+    position1.addTrade(new SimpleTrade());
+    SimplePosition position2 = new SimplePosition();
+    position2.setSecurityLink(securityLink);
+    position2.addTrade(new SimpleTrade());
+    portfolioRoot.addPosition(position1);
+    portfolioRoot.addPosition(position2);
+
+    AnalyticsNode root = new AnalyticsNode.PortfolioNodeBuilder(portfolioRoot).getRoot();
+    assertEquals(0, root.getStartRow());
+    assertEquals(2, root.getEndRow());
+    assertEquals(0, root.getChildren().size());
   }
 }
