@@ -12,8 +12,9 @@ $.register_module({
             ids_selector = 'og-blocks-fungible-security-ids',
             blank_details = "<table class='" + details_selector + "'></table>",
             blank_ids = "<table class='" + ids_selector + "'></table>";
-            if(config.data) {data = config.data; data.id = config.data.trade.uniqueId;}
+            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {trade: og.blotter.util.fungible_trade};}
+            data.portfolio = config.portfolio;
             constructor.load = function () {
                 constructor.title = 'Fungible Trade';
                 form = new og.common.util.ui.Form({
@@ -24,7 +25,8 @@ $.register_module({
                 security = new og.blotter.forms.blocks.Security({form: form, label: "Underlying ID", 
                     security: data.trade.securityIdBundle, index: "trade.securityIdBundle"});
                 form.children.push(
-                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty}),
+                    new og.blotter.forms.blocks.Portfolio({form: form, counterparty: data.trade.counterparty, 
+                        portfolio: data.portfolio.name}),
                     new form.Block({module: 'og.blotter.forms.blocks.fungible_tash', 
                         extras: {quantity: data.trade.quantity},
                         children: [security]

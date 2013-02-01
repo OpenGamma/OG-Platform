@@ -7,8 +7,7 @@ $.register_module({
     dependencies: [],
     obj: function () {
         return function (config) {
-            console.log(config);
-            var constructor = this, form, ui = og.common.util.ui;
+            var constructor = this, form, ui = og.common.util.ui, data;
             if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
             else {data = {security: {type: "CapFloorCMSSpreadSecurity", name: "CapFloorCMSSpreadSecurity ABC", 
                 regionId: "ABC~123", externalIdBundle: ""}, trade: og.blotter.util.otc_trade};}
