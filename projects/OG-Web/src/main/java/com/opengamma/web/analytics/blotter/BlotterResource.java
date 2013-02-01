@@ -346,7 +346,7 @@ public class BlotterResource {
 
   private static boolean isOtc(ManageableSecurity security) {
     if (security instanceof FinancialSecurity) {
-      return !((FinancialSecurity) security).accept(new OtcSecurityVisitor());
+      return ((FinancialSecurity) security).accept(new OtcSecurityVisitor());
     } else {
       return false;
     }
