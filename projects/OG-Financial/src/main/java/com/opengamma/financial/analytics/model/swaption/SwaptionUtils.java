@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.swaption;
 
-import javax.time.calendar.Period;
+import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;

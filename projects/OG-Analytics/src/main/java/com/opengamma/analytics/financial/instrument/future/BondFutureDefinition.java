@@ -7,9 +7,8 @@ package com.opengamma.analytics.financial.instrument.future;
 
 import java.util.Arrays;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -120,7 +119,7 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
 
   /**
    * Gets the first delivery date. It is the first notice date plus the settlement days.
-   * @return The first delivery date. 
+   * @return The first delivery date.
    */
   public ZonedDateTime getDeliveryFirstDate() {
     return _deliveryFirstDate;
@@ -205,11 +204,13 @@ public class BondFutureDefinition implements InstrumentDefinitionWithData<BondFu
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFutureSecurityDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFutureSecurityDefinition(this);
   }
 

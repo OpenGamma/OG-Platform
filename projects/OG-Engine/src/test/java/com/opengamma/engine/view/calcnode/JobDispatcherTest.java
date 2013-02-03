@@ -20,15 +20,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.test.Timeout;
 
@@ -54,7 +54,7 @@ public class JobDispatcherTest {
   }
 
   protected static CalculationJob createTestJob() {
-    return new CalculationJob(createTestJobSpec(), 0L, null, createTestJobItems(), CacheSelectHint.allPrivate());
+    return new CalculationJob(createTestJobSpec(), 0L, VersionCorrection.LATEST, null, createTestJobItems(), CacheSelectHint.allPrivate());
   }
 
   protected static CalculationJobResult createTestJobResult(final CalculationJobSpecification jobSpec, final long time, final String nodeId) {

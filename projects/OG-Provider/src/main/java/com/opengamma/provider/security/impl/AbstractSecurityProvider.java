@@ -5,6 +5,7 @@
  */
 package com.opengamma.provider.security.impl;
 
+import java.util.Collection;
 import java.util.Map;
 
 import com.opengamma.core.security.Security;
@@ -46,7 +47,7 @@ public abstract class AbstractSecurityProvider implements SecurityProvider {
   }
 
   @Override
-  public Map<ExternalIdBundle, Security> getSecurities(Iterable<ExternalIdBundle> externalIdBundles) {
+  public Map<ExternalIdBundle, Security> getSecurities(Collection<ExternalIdBundle> externalIdBundles) {
     SecurityProviderGetRequest request = SecurityProviderGetRequest.createGetBulk(externalIdBundles, null);
     SecurityProviderGetResult result = getSecurities(request);
     return result.getResultMap();

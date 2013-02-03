@@ -162,4 +162,26 @@ public final class EHCacheUtils {
     cache.put(new Element(key, e));
     throw e;
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Shuts down the cache manager, only really useful in tests.
+   * <p>
+   * The cache manager that is shutdown should be started with
+   * {@code new CacheManager()} or similar.
+   * 
+   * @param cacheManager  the cache manager, null ignored
+   * @return null
+   */
+  public static CacheManager shutdownQuiet(CacheManager cacheManager) {
+    if (cacheManager != null) {
+      try {
+        cacheManager.shutdown();
+      } catch (RuntimeException ex) {
+        // ignore
+      }
+    }
+    return null;
+  }
+
 }

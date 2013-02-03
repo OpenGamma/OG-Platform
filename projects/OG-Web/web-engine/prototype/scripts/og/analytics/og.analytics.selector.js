@@ -7,7 +7,7 @@ $.register_module({
     dependencies: ['og.analytics.Grid', 'og.analytics.Clipboard', 'og.common.events'],
     obj: function () {
         var module = this, namespace = '.og_analytics_selector', overlay = '.OG-g-sel', cell = '.OG-g-cell';
-        var constructor = function (grid) {
+        var Selector = function (grid) {
             var selector = this, grid_offset, grid_width, grid_height, fixed_width, max_scroll_top;
             var auto_scroll = function (event, scroll_top, scroll_left, start) {
                 var x = event.pageX - grid_offset.left, y = event.pageY - grid_offset.top, increment = 35,
@@ -104,15 +104,15 @@ $.register_module({
             selector.rectangle = selector.regions = null;
             grid.on('mousedown', mousedown).on('render', selector.render, selector); // initialize
         };
-        constructor.prototype.clear = function () {
+        Selector.prototype.clear = function () {
             var selector = this, grid = selector.grid;
             $(selector.grid.id + ' ' + overlay).remove();
             selector.regions = selector.rectangle = null;
         };
-        constructor.prototype.fire = og.common.events.fire;
-        constructor.prototype.off = og.common.events.off;
-        constructor.prototype.on = og.common.events.on;
-        constructor.prototype.render = function (regions, rectangle) {
+        Selector.prototype.fire = og.common.events.fire;
+        Selector.prototype.off = og.common.events.off;
+        Selector.prototype.on = og.common.events.on;
+        Selector.prototype.render = function (regions, rectangle) {
             var selector = this, grid = selector.grid, data, copyable;
             if (!selector.regions && !regions) return grid.clipboard.clear();
             if (regions) (selector.regions = regions), (selector.rectangle = rectangle);
@@ -125,7 +125,7 @@ $.register_module({
             });
             if (selector.copyable) grid.clipboard.select();
         };
-        constructor.prototype.selection = function (rectangle) {
+        Selector.prototype.selection = function (rectangle) {
             if (!this.rectangle && !rectangle) return null;
             var selector = this, grid = selector.grid, meta = grid.meta,
                 bottom_right = (rectangle = rectangle || selector.rectangle).bottom_right,
@@ -140,6 +140,6 @@ $.register_module({
             for (lcv = row_start; lcv < row_end; lcv += 1) rows.push(meta.available[lcv]);
             return {cols: cols, rows: rows, type: cols.map(function (col) {return meta.columns.types[col];})};
         };
-        return constructor;
+        return Selector;
     }
 });

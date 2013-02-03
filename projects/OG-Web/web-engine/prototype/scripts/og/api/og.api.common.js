@@ -77,12 +77,20 @@ $.register_module({
                     /** @ignore */
                     exists = function (val) {return !!str(bundle.config[val]);}; // makes sure values are not empty
                     ($.isArray(params) ? params : [params]).forEach(function (obj) {
-                        var one_of = obj.one_of, all_of = obj.all_of,
+                        var one_of = obj.one_of, all_of = obj.all_of, either = obj.either, or = obj.or,
                             condition = 'condition' in obj ? obj.condition : true;
                         if (condition && one_of && !one_of.some(exists))
                             throw new TypeError(method + ': one of {' + one_of.join(' | ') + '} must be defined');
                         if (condition && all_of && !all_of.every(exists))
                             throw new TypeError(method + ': {' + all_of.join(' & ') + '} must be defined');
+                        if (condition && either && or) {
+                            if (either.some(exists) && or.some(exists))
+                                throw new TypeError(method + ': only one of {' + either.join(' & ') + '} and {' +
+                                    obj.or.join(' & ') + '} can exist');
+                            if (!(either.every(exists) || or.every(exists)))
+                                throw new TypeError(method + ': either {' + either.join(' & ') + '} or {' +
+                                    obj.or.join(' & ') + '} must exist');
+                        }
                     });
                 };
                 return function (params) {

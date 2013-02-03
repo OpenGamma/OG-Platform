@@ -5,16 +5,13 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -25,26 +22,23 @@ import com.opengamma.util.money.Currency;
 /**
  * Definition of a Legacy forward starting CDS i.e. with the features of CDS contracts prior to the Big Bang in 2009 - WIP 
  */
-public class LegacyForwardStartingCreditDefaultSwapDefinition extends CreditDefaultSwapDefinition {
+public class LegacyForwardStartingCreditDefaultSwapDefinition extends LegacyCreditDefaultSwapDefinition {
 
-  // ----------------------------------------------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Check hashCode and equals methods
-  // TODO : Need to add the test file for this object
+  // TODO : Check hashCode and equals methods (fix these)
+
+  // TODO : Add the checks for the temporal order of the forward start date
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Member variables specific to the legacy forward starting CDS contract
 
-  // The date in the future at which the CDS is to start
   private final ZonedDateTime _forwardStartDate;
-
-  // The par spread is the coupon rate to apply to the premium leg to give a PV of zero
-  private final double _parSpread;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Ctor for the Legacy forward starting CDS
+  // Ctor for the Legacy forward starting  CDS
 
   public LegacyForwardStartingCreditDefaultSwapDefinition(
       final BuySellProtection buySellProtection,
@@ -69,12 +63,12 @@ public class LegacyForwardStartingCreditDefaultSwapDefinition extends CreditDefa
       final double recoveryRate,
       final boolean includeAccruedPremium,
       final boolean protectionStart,
-      final ZonedDateTime forwardStartDate,
-      final double parSpread) {
+      final double parSpread,
+      final ZonedDateTime forwardStartDate) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Call the ctor for the superclass (corresponding to the CDS characteristics common to all types of CDS)
+    // Call the ctor for the LegacyCreditDefaultSwapDefinition superclass (corresponding to the CDS characteristics common to all types of CDS)
 
     super(buySellProtection,
         protectionBuyer,
@@ -97,22 +91,14 @@ public class LegacyForwardStartingCreditDefaultSwapDefinition extends CreditDefa
         notional,
         recoveryRate,
         includeAccruedPremium,
-        protectionStart);
+        protectionStart,
+        parSpread);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Check the validity of the input forward start date
     ArgumentChecker.notNull(forwardStartDate, "Forward start date");
-    ArgumentChecker.isTrue(!startDate.isAfter(forwardStartDate), "Start date {} must be on or before forward start date {}", startDate, forwardStartDate);
-    ArgumentChecker.isTrue(!effectiveDate.isAfter(forwardStartDate), "Effective date {} must be on or before forward start date {}", effectiveDate, forwardStartDate);
-    ArgumentChecker.isTrue(!forwardStartDate.isAfter(maturityDate), "Forward start date {} must be on or before maturity date {}", forwardStartDate, maturityDate);
 
-    // Check the validity of the input par spread
-    ArgumentChecker.notNegative(parSpread, "Par spread");
-
-    // Assign the member variables for the features specific to a legacy CDS
     _forwardStartDate = forwardStartDate;
-    _parSpread = parSpread;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
@@ -123,64 +109,14 @@ public class LegacyForwardStartingCreditDefaultSwapDefinition extends CreditDefa
     return _forwardStartDate;
   }
 
-  public double getParSpread() {
-    return _parSpread;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the maturity of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public LegacyForwardStartingCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
-
-    ArgumentChecker.notNull(maturityDate, "maturity date");
-    ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
-
-    final LegacyForwardStartingCreditDefaultSwapDefinition modifiedCDS = new LegacyForwardStartingCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
-        getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), maturityDate, getStubType(), getCouponFrequency(),
-        getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), _forwardStartDate, _parSpread);
-
-    return modifiedCDS;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the premium leg coupon of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public LegacyForwardStartingCreditDefaultSwapDefinition withSpread(final double parSpread) {
-
-    final LegacyForwardStartingCreditDefaultSwapDefinition modifiedCDS = new LegacyForwardStartingCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
-        getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getStubType(), getCouponFrequency(),
-        getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), _forwardStartDate, parSpread);
-
-    return modifiedCDS;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the recovery rate of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public LegacyForwardStartingCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
-
-    final LegacyForwardStartingCreditDefaultSwapDefinition modifiedCDS = new LegacyForwardStartingCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
-        getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getStubType(), getCouponFrequency(),
-        getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        recoveryRate, getIncludeAccruedPremium(), getProtectionStart(), _forwardStartDate, _parSpread);
-
-    return modifiedCDS;
-  }
-
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + _forwardStartDate.hashCode();
     long temp;
-    temp = Double.doubleToLongBits(_parSpread);
+    temp = 0; //Double.doubleToLongBits(_parSpread);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -197,18 +133,7 @@ public class LegacyForwardStartingCreditDefaultSwapDefinition extends CreditDefa
     if (!super.equals(obj)) {
       return false;
     }
-
     if (!(obj instanceof LegacyForwardStartingCreditDefaultSwapDefinition)) {
-      return false;
-    }
-
-    final LegacyForwardStartingCreditDefaultSwapDefinition other = (LegacyForwardStartingCreditDefaultSwapDefinition) obj;
-
-    if (Double.compare(_parSpread, other._parSpread) != 0) {
-      return false;
-    }
-
-    if (!ObjectUtils.equals(_forwardStartDate, other._forwardStartDate)) {
       return false;
     }
 

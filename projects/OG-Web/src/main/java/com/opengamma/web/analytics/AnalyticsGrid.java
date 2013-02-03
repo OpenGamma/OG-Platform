@@ -9,34 +9,56 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Base class for grids that display analytics data calculated by the engine.
  * @param <V> The type of viewport created and used by this grid.
  */
-/* package */ abstract class AnalyticsGrid<V extends AnalyticsViewport> {
+/* package */ abstract class AnalyticsGrid<V extends Viewport> {
 
   /** Viewports keyed by ID. */
   protected final Map<Integer, V> _viewports = Maps.newHashMap();
+
+  private final ViewportListener _viewportListener;
 
   /** ID that's passed to listeners when this grid's row and column structure changes. */
   private final String _callbackId;
 
   /**
+   * @param viewportListener Listener for changes to this grid's viewports
    * @param callbackId The ID that is passed to listeners when the grid structure changes. This can be any unique value,
-   * the grid doesn't use it and makes no assumptions about its form.
    */
-  protected AnalyticsGrid(String callbackId) {
+  /* package */ AnalyticsGrid(ViewportListener viewportListener, String callbackId) {
+    ArgumentChecker.notNull(viewportListener, "viewportListener");
     ArgumentChecker.notNull(callbackId, "callbackId");
+    _viewportListener = viewportListener;
     _callbackId = callbackId;
   }
 
   /**
    * @return The row and column structure of the grid
    */
-  public abstract GridStructure getGridStructure();
+  /* package */ abstract GridStructure getGridStructure();
+
+  /* package */ abstract ViewCycle getViewCycle();
+
+  /* package */ abstract ResultsCache getResultsCache();
+
+  /* package */ String updateViewport(int viewportId, ViewportDefinition viewportDefinition) {
+    V viewport = getViewport(viewportId);
+    ViewportDefinition currentViewportDefinition = viewport.getDefinition();
+    viewport.update(viewportDefinition, getViewCycle(), getResultsCache());
+    _viewportListener.viewportUpdated(currentViewportDefinition, viewportDefinition, getGridStructure());
+    String callbackId;
+    if (viewport.getState() != Viewport.State.EMPTY) {
+      callbackId = viewport.getCallbackId();
+    } else {
+      callbackId = null;
+    }
+    return callbackId;
+  }
 
   /**
    * Returns a viewport that represents part of the grid that a user is viewing.
@@ -44,7 +66,7 @@ import com.opengamma.util.tuple.Pair;
    * @return The viewort
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
-  protected V getViewport(int viewportId) {
+  /* package */ V getViewport(int viewportId) {
     V viewport = _viewports.get(viewportId);
     if (viewport == null) {
       throw new DataNotFoundException("No viewport found with ID " + viewportId);
@@ -65,9 +87,9 @@ import com.opengamma.util.tuple.Pair;
     if (_viewports.containsKey(viewportId)) {
       throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
     }
-    Pair<V, Boolean> pair = createViewport(viewportDefinition, callbackId);
-    V viewport = pair.getFirst();
-    boolean hasData = pair.getSecond();
+    V viewport = createViewport(viewportDefinition, callbackId);
+    _viewportListener.viewportCreated(viewportDefinition, getGridStructure());
+    boolean hasData = (viewport.getState() != Viewport.State.EMPTY);
     _viewports.put(viewportId, viewport);
     return hasData;
   }
@@ -79,7 +101,7 @@ import com.opengamma.util.tuple.Pair;
    * @param callbackId ID that will be passed to listeners when the grid's data changes
    * @return The new viewport and a flag indicating whether there is data available for it
    */
-  protected abstract Pair<V, Boolean> createViewport(ViewportDefinition viewportDefinition, String callbackId);
+  /* package */ abstract V createViewport(ViewportDefinition viewportDefinition, String callbackId);
 
   /**
    * Deletes a viewport.
@@ -87,10 +109,11 @@ import com.opengamma.util.tuple.Pair;
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
   /* package */ void deleteViewport(int viewportId) {
-    AnalyticsViewport viewport = _viewports.remove(viewportId);
+    Viewport viewport = _viewports.remove(viewportId);
     if (viewport == null) {
       throw new DataNotFoundException("No viewport found with ID " + viewportId);
     }
+    _viewportListener.viewportDeleted(viewport.getDefinition(), getGridStructure());
   }
 
   /**

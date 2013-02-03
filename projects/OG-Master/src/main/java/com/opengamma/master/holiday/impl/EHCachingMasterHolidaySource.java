@@ -5,14 +5,13 @@
  */
 package com.opengamma.master.holiday.impl;
 
-import javax.time.calendar.LocalDate;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
@@ -33,10 +32,6 @@ public class EHCachingMasterHolidaySource extends MasterHolidaySource {
   /*pacakge*/ static final String HOLIDAY_CACHE = "holiday";
 
   /**
-   * The cache manager.
-   */
-  private final CacheManager _cacheManager;
-  /**
    * The result cache.
    */
   private final Cache _holidayCache;
@@ -53,19 +48,8 @@ public class EHCachingMasterHolidaySource extends MasterHolidaySource {
     s_logger.warn("EHCache doesn't perform well here (see PLAT-1015)");
     
     ArgumentChecker.notNull(cacheManager, "cacheManager");
-    _cacheManager = cacheManager;
     EHCacheUtils.addCache(cacheManager, HOLIDAY_CACHE);
     _holidayCache = EHCacheUtils.getCacheFromManager(cacheManager, HOLIDAY_CACHE);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the cache manager.
-   * 
-   * @return the cache manager, not null
-   */
-  public CacheManager getCacheManager() {
-    return _cacheManager;
   }
 
   //-------------------------------------------------------------------------

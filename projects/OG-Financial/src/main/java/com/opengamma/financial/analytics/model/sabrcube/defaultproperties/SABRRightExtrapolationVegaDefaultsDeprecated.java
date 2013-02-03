@@ -10,7 +10,6 @@ import java.util.Set;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -21,11 +20,10 @@ import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.sabrcube.SABRRightExtrapolationFunctionDeprecated;
-import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.capfloor.CapFloorSecurity;
-import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ArgumentChecker;
 
@@ -53,7 +51,7 @@ public class SABRRightExtrapolationVegaDefaultsDeprecated extends DefaultPropert
   public SABRRightExtrapolationVegaDefaultsDeprecated(final String forwardCurveName, final String fundingCurveName, final String cubeName, final String fittingMethod,
       final String curveCalculationMethod, final String cutoff, final String mu, final String xInterpolator, final String xLeftExtrapolator, final String xRightExtrapolator,
       final String yInterpolator, final String yLeftExtrapolator, final String yRightExtrapolator, final String... applicableCurrencies) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.SWAPTION_SECURITY.or(FinancialSecurityTypes.SWAP_SECURITY).or(FinancialSecurityTypes.CAP_FLOOR_SECURITY), true);
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
     ArgumentChecker.notNull(fundingCurveName, "funding curve name");
     ArgumentChecker.notNull(cubeName, "cube name");
@@ -85,16 +83,12 @@ public class SABRRightExtrapolationVegaDefaultsDeprecated extends DefaultPropert
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     final Security security = target.getSecurity();
-    if (!(security instanceof SwaptionSecurity
-        || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
-        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
-        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
-        || security instanceof CapFloorSecurity)) {
-      return false;
+    if (security instanceof SwapSecurity) {
+      final InterestRateInstrumentType type = SwapSecurityUtils.getSwapType((SwapSecurity) security);
+      if ((type != InterestRateInstrumentType.SWAP_FIXED_CMS) && (type != InterestRateInstrumentType.SWAP_CMS_CMS) && (type != InterestRateInstrumentType.SWAP_IBOR_CMS)) {
+        return false;
+      }
     }
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     for (final String ccy : _applicableCurrencies) {
@@ -110,7 +104,7 @@ public class SABRRightExtrapolationVegaDefaultsDeprecated extends DefaultPropert
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, ValuePropertyNames.CUBE);
-    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD);
+    defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, SmileFittingProperties.PROPERTY_FITTING_METHOD);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, SABRRightExtrapolationFunctionDeprecated.PROPERTY_CUTOFF_STRIKE);
     defaults.addValuePropertyName(ValueRequirementNames.VEGA_QUOTE_CUBE, SABRRightExtrapolationFunctionDeprecated.PROPERTY_TAIL_THICKNESS_PARAMETER);
@@ -133,7 +127,7 @@ public class SABRRightExtrapolationVegaDefaultsDeprecated extends DefaultPropert
     if (ValuePropertyNames.CUBE.equals(propertyName)) {
       return Collections.singleton(_cubeName);
     }
-    if (VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD.equals(propertyName)) {
+    if (SmileFittingProperties.PROPERTY_FITTING_METHOD.equals(propertyName)) {
       return Collections.singleton(_fittingMethod);
     }
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
@@ -171,8 +165,4 @@ public class SABRRightExtrapolationVegaDefaultsDeprecated extends DefaultPropert
     return OpenGammaFunctionExclusions.SABR_FITTING_DEFAULTS;
   }
 
-  @Override
-  public PriorityClass getPriority() {
-    return PriorityClass.NORMAL;
-  }
 }

@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.opengamma</groupId>
   <artifactId>og-parent</artifactId>
   <packaging>pom</packaging>
   <name>OG-Parent</name>
-  <version>1.2.0-SNAPSHOT</version>
+  <version>2.0.0-SNAPSHOT</version>
   <description>OpenGamma maven parent project</description>
   <url>http://developers.opengamma.com/</url>
 
@@ -61,22 +63,25 @@
   <!-- standard build setup -->
   <build>
     <resources>
-      <resource>
-        <targetPath>.</targetPath>
-        <directory>${project.build.sourceDirectory}</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.csv</include>
-          <include>**/*.dat</include>
-          <include>**/*.elsql</include>
-          <include>**/*.ftl</include>
-          <include>**/*.proto</include>
-          <include>**/*.txt</include>
-          <include>**/*.version</include>
-          <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
+		<resource>
+		<targetPath>.</targetPath>
+		<directory>${project.build.sourceDirectory}</directory>
+		<includes>
+		  <include>**/*.properties</include>
+		  <include>**/*.csv</include>
+		  <include>**/*.dat</include>
+		  <include>**/*.elsql</include>
+		  <include>**/*.ftl</include>
+		  <include>**/*.proto</include>
+		  <include>**/*.txt</include>
+		  <include>**/*.version</include>
+		  <include>**/*.xml</include>
+		</includes>
+	  </resource>
+  <resource>
+    <directory>src/main/resources</directory>
+  </resource>
+</resources>  
     <testResources>
       <testResource>
         <targetPath>.</targetPath>
@@ -92,6 +97,9 @@
           <include>**/*.version</include>
           <include>**/*.xml</include>
         </includes>
+      </testResource>
+      <testResource>
+        <directory>src/test/resources</directory>
       </testResource>
     </testResources>
     <plugins>
@@ -120,15 +128,15 @@
         <configuration>
           <verbose>true</verbose>
           <fork>true</fork>
-          <compilerVersion>1.6</compilerVersion>
-          <source>1.6</source>
-          <target>1.6</target>
+          <compilerVersion>1.7</compilerVersion>
+          <source>1.7</source>
+          <target>1.7</target>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.5</version>
+        <version>2.13</version>
         <configuration>
           <includes>
             <include>**/*Test.java</include>
@@ -141,8 +149,28 @@
           <parallel>${tests.testng.parallel}</parallel>
           <threadCount>${tests.testng.threads}</threadCount>
           <groups>${tests.testng.includedgroups}</groups>
-          <excludedGroups>${tests.testng.exludedgroups}</excludedGroups>
+          <!--<excludedGroups>${tests.testng.exludedgroups}</excludedGroups>-->
+          <excludedGroups>integration</excludedGroups>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.13</version>
+        <configuration>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
+          <groups>integration</groups>
+      </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -220,47 +248,6 @@
         <artifactId>maven-repository-plugin</artifactId>
         <version>2.3.1</version>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <configuration>
-          <configLocation>${basedir}/../../common/checkstyle.xml</configLocation>
-          <headerLocation>${basedir}/../../common/checkstyle-header.txt</headerLocation>
-          <suppressionsLocation>${basedir}/../../common/checkstyle-suppressions.xml</suppressionsLocation>
-          <propertiesLocation>${basedir}/../../common/checkstyle.properties</propertiesLocation>
-          <consoleOutput>true</consoleOutput>
-          <failsOnError>true</failsOnError>
-          <includeTestSourceDirectory>false</includeTestSourceDirectory>
-        </configuration>
-        <executions>
-          <execution>
-            <id>validate</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>checkstyle</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-eclipse-plugin</artifactId>
-        <version>2.8</version>
-        <configuration>
-          <additionalBuildcommands>
-            <buildcommand>net.sf.eclipsecs.core.CheckstyleBuilder</buildcommand>
-          </additionalBuildcommands>
-          <additionalProjectnatures>
-            <projectnature>net.sf.eclipsecs.core.CheckstyleNature</projectnature>
-          </additionalProjectnatures>
-          <additionalConfig>
-            <file>
-              <name>.checkstyle</name>
-              <location>../../common/eclipse-checkstyle.xml</location>
-            </file>
-          </additionalConfig>
-        </configuration>
-      </plugin>
       <!-- use enforcer to apply build rules -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -274,8 +261,7 @@
             </goals>
             <configuration>
               <rules>
-                <!-- no commons-logging or good/evil licensed json, junit 
-                  only in test/provided -->
+                <!-- no commons-logging or good/evil licensed json, junit only in test/provided -->
                 <bannedDependencies>
                   <excludes>
                     <exclude>commons-logging:*</exclude>
@@ -288,10 +274,10 @@
                   </includes>
                 </bannedDependencies>
                 <!-- ensure dependencies resolve to latest version -->
-                <requireUpperBoundDeps />
-                <!-- need Java 6 or greater -->
+                <requireUpperBoundDeps/>
+                <!-- need Java 7 or greater -->
                 <requireJavaVersion>
-                  <version>[1.6,)</version>
+                  <version>[1.7,)</version>
                 </requireJavaVersion>
               </rules>
               <fail>true</fail>
@@ -321,11 +307,6 @@
           <groupId>com.opengamma</groupId>
           <artifactId>og-maven-plugin</artifactId>
           <version>${project.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>2.9.1</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -394,7 +375,7 @@
       <dependency>
         <groupId>org.fudgemsg</groupId>
         <artifactId>fudge-java</artifactId>
-        <version>0.3.9.4</version>
+        <version>0.3.9.6</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -405,12 +386,12 @@
       <dependency>
         <groupId>org.fudgemsg</groupId>
         <artifactId>fudge-proto</artifactId>
-        <version>0.3.9.2</version>
+        <version>0.3.9.4</version>
       </dependency>
       <dependency>
-        <groupId>com.opengamma.external.threeten</groupId>
-        <artifactId>threeten-core</artifactId>
-        <version>0.6.4</version>
+        <groupId>org.threeten</groupId>
+        <artifactId>threetenbp</artifactId>
+        <version>0.7</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma.external.json</groupId>
@@ -420,12 +401,12 @@
       <dependency>
         <groupId>org.joda</groupId>
         <artifactId>joda-convert</artifactId>
-        <version>1.2</version>
+        <version>1.3</version>
       </dependency>
       <dependency>
         <groupId>org.joda</groupId>
         <artifactId>joda-beans</artifactId>
-        <version>0.6</version>
+        <version>0.6.2</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma</groupId>
@@ -873,8 +854,11 @@
         <version>10.6.1.0</version>
         <optional>true</optional>
       </dependency>
-      <!--dependency> <groupId>com.microsoft</groupId> <artifactId>sqljdbc</artifactId> 
-        <version>3.0</version> </dependency -->
+      <!--dependency>
+        <groupId>com.microsoft</groupId>
+        <artifactId>sqljdbc</artifactId>
+        <version>4.0</version>
+      </dependency-->
       <dependency>
         <groupId>org.mongodb</groupId>
         <artifactId>mongo-java-driver</artifactId>
@@ -999,7 +983,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.12</version>
+        <version>2.13</version>
         <configuration>
           <showSuccess>true</showSuccess>
         </configuration>
@@ -1032,7 +1016,7 @@
     <tests.testng.parallel>classes</tests.testng.parallel>
     <tests.testng.threads>4</tests.testng.threads>
     <tests.testng.includedgroups></tests.testng.includedgroups>
-    <tests.testng.excludedgroups></tests.testng.excludedgroups>
+    <tests.testng.excludedgroups>integration</tests.testng.excludedgroups>
   </properties>
 
 </project>

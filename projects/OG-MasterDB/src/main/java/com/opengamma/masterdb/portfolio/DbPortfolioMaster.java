@@ -8,6 +8,7 @@ package com.opengamma.masterdb.portfolio;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -18,14 +19,13 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.time.Instant;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.threeten.bp.Instant;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
@@ -285,8 +285,8 @@ public class DbPortfolioMaster
       .addValue("node_oid", nodeOid)
       .addValue("portfolio_id", portfolioId)
       .addValue("portfolio_oid", portfolioOid)
-      .addValue("parent_node_id", parentNodeId)
-      .addValue("parent_node_oid", parentNodeOid)
+      .addValue("parent_node_id", parentNodeId, Types.BIGINT)
+      .addValue("parent_node_oid", parentNodeOid, Types.BIGINT)
       .addValue("depth", depth)
       .addValue("name", StringUtils.defaultString(node.getName()));
     argsList.add(treeArgs);

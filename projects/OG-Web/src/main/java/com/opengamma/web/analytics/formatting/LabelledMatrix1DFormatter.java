@@ -6,18 +6,22 @@
 package com.opengamma.web.analytics.formatting;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
-/**
- *
- */
 /* package */ class LabelledMatrix1DFormatter extends AbstractFormatter<LabelledMatrix1D> {
+
+  private static final String DATA = "data";
+  private static final String LABELS = "labels";
+  private static final String LABEL = "Label";
+  private static final String VALUE = "Value";
 
   private final DoubleFormatter _doubleFormatter;
 
@@ -38,7 +42,8 @@ import com.opengamma.util.ArgumentChecker;
     return "Vector (" + value.getKeys().length + ")";
   }
 
-  private List<List<String>> formatExpanded(LabelledMatrix1D value, ValueSpecification valueSpec) {
+  private Map<String, Object> formatExpanded(LabelledMatrix1D value, ValueSpecification valueSpec) {
+    Map<String, Object> resultsMap = Maps.newHashMap();
     int length = value.getKeys().length;
     List<List<String>> results = Lists.newArrayListWithCapacity(length);
     for (int i = 0; i < length; i++) {
@@ -48,7 +53,11 @@ import com.opengamma.util.ArgumentChecker;
       List<String> rowResults = ImmutableList.of(label, formattedValue);
       results.add(rowResults);
     }
-    return results;
+    resultsMap.put(DATA, results);
+    String labelsTitle = value.getLabelsTitle() != null ? value.getLabelsTitle() : LABEL;
+    String valuesTitle = value.getValuesTitle() != null ? value.getValuesTitle() : VALUE;
+    resultsMap.put(LABELS, ImmutableList.of(labelsTitle, valuesTitle));
+    return resultsMap;
   }
 
   @Override

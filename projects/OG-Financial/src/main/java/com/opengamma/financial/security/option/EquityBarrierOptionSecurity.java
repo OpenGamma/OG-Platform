@@ -104,7 +104,7 @@ public class EquityBarrierOptionSecurity extends FinancialSecurity {
   private double _barrierLevel;
   
   EquityBarrierOptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public EquityBarrierOptionSecurity(OptionType optionType, double strike, Currency currency, ExternalId underlyingId,

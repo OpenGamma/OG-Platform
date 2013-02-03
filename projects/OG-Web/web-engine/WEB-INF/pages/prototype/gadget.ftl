@@ -11,6 +11,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
       <#include "modules/common/og.common.gadget_container.ftl">
     </div>
   </div>
+  ${ogScript.print('og_common.js',false)}
   <!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
   ${ogScript.print('og_gadget.js',false)}
 </body>

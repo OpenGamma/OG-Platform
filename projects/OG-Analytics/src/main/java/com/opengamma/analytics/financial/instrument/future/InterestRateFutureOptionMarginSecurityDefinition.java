@@ -5,17 +5,16 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.ZonedDateTime;
+
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.util.time.TimeCalculator;
-
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Description of an interest rate future option security with daily margining process (LIFFE and Eurex type). The option is of American type.
@@ -47,8 +46,8 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
    * @param isCall The cap (true) / floor (false) flag.
    */
   public InterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
-    Validate.notNull(underlyingFuture, "underlying future");
-    Validate.notNull(expirationDate, "expiration");
+    ArgumentChecker.notNull(underlyingFuture, "underlying future");
+    ArgumentChecker.notNull(expirationDate, "expiration");
     this._underlyingFuture = underlyingFuture;
     this._expirationDate = expirationDate;
     this._strike = strike;
@@ -88,24 +87,26 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
   }
 
   @Override
-  public InterestRateFutureOptionMarginSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
+  public InterestRateFutureOptionMarginSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
+    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
     final Double referencePrice = 0.0;
     final InterestRateFuture underlyingFuture = _underlyingFuture.toDerivative(date, referencePrice, yieldCurveNames);
-    InterestRateFutureOptionMarginSecurity option = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, _strike, _isCall);
+    final InterestRateFutureOptionMarginSecurity option = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, _strike, _isCall);
     return option;
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionMarginSecurityDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionMarginSecurityDefinition(this);
   }
 
@@ -123,7 +124,7 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -133,7 +134,7 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateFutureOptionMarginSecurityDefinition other = (InterestRateFutureOptionMarginSecurityDefinition) obj;
+    final InterestRateFutureOptionMarginSecurityDefinition other = (InterestRateFutureOptionMarginSecurityDefinition) obj;
     if (!ObjectUtils.equals(_expirationDate, other._expirationDate)) {
       return false;
     }

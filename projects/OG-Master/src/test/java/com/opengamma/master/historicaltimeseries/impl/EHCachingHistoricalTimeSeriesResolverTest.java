@@ -11,12 +11,12 @@ import static org.testng.Assert.assertNull;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.time.calendar.LocalDate;
-
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -28,9 +28,9 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesI
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
- * Tests the {@link EHCachingHistoricalTimeSeriesResolver} class.
+ * Test.
  */
-@Test(singleThreaded = true)
+@Test
 public class EHCachingHistoricalTimeSeriesResolverTest {
 
   private final LocalDate _date1 = LocalDate.now();
@@ -67,9 +67,15 @@ public class EHCachingHistoricalTimeSeriesResolverTest {
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager = EHCacheUtils.createCacheManager();
+    _cacheManager = new CacheManager();
   }
 
+  @AfterMethod
+  public void tearDown() {
+    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   private HistoricalTimeSeriesResolver createUnderlying(final AtomicInteger hits) {
     return new HistoricalTimeSeriesResolver() {
 

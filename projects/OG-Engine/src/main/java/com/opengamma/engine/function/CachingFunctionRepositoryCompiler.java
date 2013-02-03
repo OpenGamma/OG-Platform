@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
@@ -18,11 +18,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.tuple.Pair;
@@ -93,7 +91,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
           compiled.addFunction(compiledFunction);
           return true;
         } else {
-          final Instant validUntil = Instant.of(compiledFunction.getLatestInvocationTime());
+          final Instant validUntil = compiledFunction.getLatestInvocationTime();
           if (!validUntil.isBefore(atInstant)) {
             // previous one still valid
             compiled.addFunction(compiledFunction);
@@ -110,7 +108,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
           compiled.addFunction(compiledFunction);
           return true;
         } else {
-          final Instant validFrom = Instant.of(compiledFunction.getEarliestInvocationTime());
+          final Instant validFrom = compiledFunction.getEarliestInvocationTime();
           if (!validFrom.isAfter(atInstant)) {
             // next one already valid
             compiled.addFunction(compiledFunction);
@@ -137,7 +135,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
           try {
             s_logger.debug("Compiling {}", function);
             return function.compile(context, atInstant);
-          } catch (Exception e) {
+          } catch (final Exception e) {
             s_logger.warn("Compiling {} threw {}", function.getShortName(), e);
             throw e;
           }
@@ -150,14 +148,15 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
       Future<CompiledFunctionDefinition> future;
       try {
         future = completionService.take();
-      } catch (InterruptedException e1) {
+      } catch (final InterruptedException e1) {
         Thread.interrupted();
         throw new OpenGammaRuntimeException("Interrupted while compiling function definitions.");
       }
       try {
-        CompiledFunctionDefinition compiledFunction = future.get();
+        final CompiledFunctionDefinition compiledFunction = future.get();
         compiled.addFunction(compiledFunction);
-      } catch (Exception e) {
+      } catch (final Exception e) {
+        e.printStackTrace();
         // Don't propagate the error outwards; it just won't be in the compiled repository
         s_logger.debug("Error compiling function definition", e);
         failures.incrementAndGet();
@@ -199,9 +198,8 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
   }
 
   @Override
-  public CompiledFunctionRepository compile(final FunctionRepository repository, final FunctionCompilationContext context, final ExecutorService executor, final InstantProvider atInstantProvider) {
+  public CompiledFunctionRepository compile(final FunctionRepository repository, final FunctionCompilationContext context, final ExecutorService executor, final Instant atInstant) {
     clearInvalidCache(context.getFunctionInitId());
-    final Instant atInstant = Instant.of(atInstantProvider);
     final Pair<FunctionRepository, Instant> key = Pair.of(repository, atInstant);
     // Try a previous compilation
     final InMemoryCompiledFunctionRepository previous = getPreviousCompilation(key);
@@ -251,7 +249,7 @@ public class CachingFunctionRepositoryCompiler implements FunctionRepositoryComp
       try {
         s_logger.info("Using concurrent call to compile {}", atInstant);
         return existing.call();
-      } catch (Exception e) {
+      } catch (final Exception e) {
         throw new OpenGammaRuntimeException("Exception from concurrent call", e);
       }
     }

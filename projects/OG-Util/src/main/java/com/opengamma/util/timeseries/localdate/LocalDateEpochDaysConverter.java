@@ -19,7 +19,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -41,32 +43,32 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
   /**
    * The time zone.
    */
-  private final javax.time.calendar.TimeZone _timeZone;
+  private final ZoneId _timeZone;
 
-  public LocalDateEpochDaysConverter(final javax.time.calendar.TimeZone timeZone) {
+  public LocalDateEpochDaysConverter(final ZoneId timeZone) {
     _timeZone = timeZone;
   }
 
   public LocalDateEpochDaysConverter(TimeZone timeZone) {
-    _timeZone = javax.time.calendar.TimeZone.of(timeZone.getID());
+    _timeZone = ZoneId.of(timeZone.getID());
   }
 
   public LocalDateEpochDaysConverter() {
-    _timeZone = javax.time.calendar.TimeZone.UTC; // TODO: clean this up
+    _timeZone = ZoneOffset.UTC; // TODO: clean this up
   }
 
   //-------------------------------------------------------------------------
   public TimeZone getTimeZone() {
-    return TimeZone.getTimeZone(_timeZone.getID());
+    return TimeZone.getTimeZone(_timeZone.getId());
   }
   
-  public javax.time.calendar.TimeZone getTimeZone310() {
+  public ZoneId getTimeZone310() {
     return _timeZone;
   }
 
   @Override
   public LocalDate convertFromInt(final int dateTime) {
-    return LocalDate.ofEpochDays(dateTime);
+    return LocalDate.ofEpochDay(dateTime);
   }
 
   @Override
@@ -74,7 +76,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     final List<LocalDate> dates = new ArrayList<LocalDate>(dateTimes.size());
     final IntIterator iterator = dateTimes.iterator();
     while (iterator.hasNext()) {
-      dates.add(LocalDate.ofEpochDays(iterator.next()));
+      dates.add(LocalDate.ofEpochDay(iterator.next()));
     }
     return dates;
   }
@@ -83,7 +85,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
   public LocalDate[] convertFromInt(final int[] dateTimes) {
     final LocalDate[] dates = new LocalDate[dateTimes.length];
     for (int i = 0; i < dateTimes.length; i++) {
-      dates[i] = LocalDate.ofEpochDays(dateTimes[i]);
+      dates[i] = LocalDate.ofEpochDay(dateTimes[i]);
     }
     return dates;
   }
@@ -96,7 +98,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     int i = 0;
     while (iterator.hasNext()) {
       final Entry<Integer, Double> entry = iterator.next();
-      dates[i] = LocalDate.ofEpochDays(entry.getKey());
+      dates[i] = LocalDate.ofEpochDay(entry.getKey());
       values[i] = entry.getValue();
       i++;
     }
@@ -112,7 +114,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     int i = 0;
     while (iterator.hasNext()) {
       final Entry<Integer, T> entry = iterator.next();
-      dates[i] = LocalDate.ofEpochDays(entry.getKey());
+      dates[i] = LocalDate.ofEpochDay(entry.getKey());
       values[i] = entry.getValue();
       i++;
     }
@@ -127,7 +129,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     int i = 0;
     while (iterator.hasNext()) {
       final Entry<LocalDate, Double> entry = iterator.next();
-      dates[i] = (int) (entry.getKey().toEpochDays());
+      dates[i] = (int) (entry.getKey().toEpochDay());
       values[i] = entry.getValue();
       i++;
     }
@@ -144,7 +146,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     int i = 0;
     while (iterator.hasNext()) {
       final Entry<LocalDate, T> entry = iterator.next();
-      dates[i] = (int) (entry.getKey().toEpochDays());
+      dates[i] = (int) (entry.getKey().toEpochDay());
       values[i] = entry.getValue();
       i++;
     }
@@ -153,14 +155,14 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
   
   @Override
   public int convertToInt(final LocalDate dateTime) {
-    return (int) dateTime.toEpochDays();
+    return (int) dateTime.toEpochDay();
   }
 
   @Override
   public IntList convertToInt(final List<LocalDate> dateTimes) {
     final IntList result = new IntArrayList(dateTimes.size());
     for (final LocalDate date : dateTimes) {
-      result.add((int) (date.toEpochDays()));
+      result.add((int) (date.toEpochDay()));
     }
     return result;
   }
@@ -169,14 +171,14 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
   public int[] convertToInt(final LocalDate[] dates) {
     final int[] results = new int[dates.length];
     for (int i = 0; i < dates.length; i++) {
-      results[i] = (int) (dates[i].toEpochDays());
+      results[i] = (int) (dates[i].toEpochDay());
     }
     return results;
   }
 
   @Override
   public LocalDate convertFromLong(final long date) {
-    return LocalDate.ofEpochDays(date);
+    return LocalDate.ofEpochDay(date);
   }
 
   @Override
@@ -184,7 +186,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     final List<LocalDate> dates = new ArrayList<LocalDate>(dateTimes.size());
     final LongIterator iterator = dateTimes.iterator();
     while (iterator.hasNext()) {
-      dates.add(LocalDate.ofEpochDays(iterator.nextLong()));
+      dates.add(LocalDate.ofEpochDay(iterator.nextLong()));
     }
     return dates;
   }
@@ -193,21 +195,21 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
   public LocalDate[] convertFromLong(final long[] dateTimes) {
     final LocalDate[] dates = new LocalDate[dateTimes.length];
     for (int i = 0; i < dateTimes.length; i++) {
-      dates[i] = LocalDate.ofEpochDays(dateTimes[i]);
+      dates[i] = LocalDate.ofEpochDay(dateTimes[i]);
     }
     return dates;
   }
 
   @Override
   public long convertToLong(final LocalDate dateTime) {
-    return dateTime.toEpochDays();
+    return dateTime.toEpochDay();
   }
 
   @Override
   public LongList convertToLong(final List<LocalDate> dateTimes) {
     final LongList result = new LongArrayList(dateTimes.size());
     for (final LocalDate date : dateTimes) {
-      result.add(date.toEpochDays());
+      result.add(date.toEpochDay());
     }
     return result;
   }
@@ -216,14 +218,9 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
   public long[] convertToLong(final LocalDate[] dateTimes) {
     final long[] results = new long[dateTimes.length];
     for (int i = 0; i < dateTimes.length; i++) {
-      results[i] = dateTimes[i].toEpochDays();
+      results[i] = dateTimes[i].toEpochDay();
     }
     return results;
-  }
-
-  @Override
-  public Pair<LocalDate, Double> makePair(final LocalDate dateTime, final Double value) {
-    return Pair.of(dateTime, value);
   }
 
   @Override
@@ -234,7 +231,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     final Iterator<Entry<Long, Double>> iterator = pldts.iterator();
     while (iterator.hasNext()) {
       final Entry<Long, Double> entry = iterator.next();
-      dateTimes[i] = LocalDate.ofEpochDays(entry.getKey());
+      dateTimes[i] = LocalDate.ofEpochDay(entry.getKey());
       values[i] = entry.getValue();
       i++;
     }
@@ -250,7 +247,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     final Iterator<Entry<Long, T>> iterator = pldts.iterator();
     while (iterator.hasNext()) {
       final Entry<Long, T> entry = iterator.next();
-      dateTimes[i] = LocalDate.ofEpochDays(entry.getKey());
+      dateTimes[i] = LocalDate.ofEpochDay(entry.getKey());
       values[i] = entry.getValue();
       i++;
     }
@@ -265,7 +262,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     int i = 0;
     while (iterator.hasNext()) {
       final Entry<LocalDate, Double> entry = iterator.next(); 
-      dateTimes[i] = entry.getKey().toEpochDays();
+      dateTimes[i] = entry.getKey().toEpochDay();
       values[i] = entry.getValue();
       i++;
     }
@@ -282,7 +279,7 @@ public class LocalDateEpochDaysConverter implements DateTimeConverter<LocalDate>
     int i = 0;
     while (iterator.hasNext()) {
       final Entry<LocalDate, T> entry = iterator.next(); 
-      dateTimes[i] = entry.getKey().toEpochDays();
+      dateTimes[i] = entry.getKey().toEpochDay();
       values[i] = entry.getValue();
       i++;
     }

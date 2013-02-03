@@ -10,26 +10,49 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.transport.DirectFudgeConnection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.money.Currency;
 
+/**
+ * Test.
+ */
 @Test
 public class ReleaseCacheMessageTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ReleaseCacheMessageTest.class);
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
+  private CacheManager _cacheManager;
+
+  @BeforeMethod
+  public void setUp() {
+    _cacheManager = new CacheManager();
+  }
+
+  @AfterMethod
+  public void tearDown() {
+    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+  }
+
+  //-------------------------------------------------------------------------
   private static class ReportingBinaryDataStoreFactory implements BinaryDataStoreFactory {
 
     private final Set<ViewComputationCacheKey> _cachesCreated = new HashSet<ViewComputationCacheKey>();
@@ -56,14 +79,16 @@ public class ReleaseCacheMessageTest {
 
       };
     }
-
   }
 
+  //-------------------------------------------------------------------------
   private void putStuffIntoCache(final ViewComputationCache cache) {
-    cache.putPrivateValue(new ComputedValue(new ValueSpecification(new ValueRequirement("Value", "Foo"), "function ID"), "Bar"));
-    cache.putSharedValue(new ComputedValue(new ValueSpecification(new ValueRequirement("Value", "Foo"), "function ID"), "Bar"));
+    final ComputationTargetSpecification target = ComputationTargetSpecification.of(Currency.USD);
+    final ValueSpecification valueSpec = new ValueSpecification("Value", target, ValueProperties.with(ValuePropertyNames.FUNCTION, "function ID").get());
+    cache.putPrivateValue(new ComputedValue(valueSpec, "Bar"));
+    cache.putSharedValue(new ComputedValue(valueSpec, "Bar"));
   }
-  
+
   private void pause () {
     try {
       Thread.sleep(100);
@@ -119,8 +144,7 @@ public class ReleaseCacheMessageTest {
     final DirectFudgeConnection conduit = new DirectFudgeConnection(cacheSource.getFudgeContext());
     conduit.connectEnd1(server);
     final RemoteViewComputationCacheSource remoteSource = new RemoteViewComputationCacheSource(new RemoteCacheClient(
-        conduit.getEnd2()), new DefaultFudgeMessageStoreFactory(privateClientStore, s_fudgeContext), EHCacheUtils
-        .createCacheManager());
+        conduit.getEnd2()), new DefaultFudgeMessageStoreFactory(privateClientStore, s_fudgeContext), _cacheManager);
     s_logger.info("Using server cache at remote client");
     putStuffIntoCache(remoteSource.getCache(viewCycle2Id, "Config 1"));
     assertEquals(8, privateServerStore._cachesCreated.size());

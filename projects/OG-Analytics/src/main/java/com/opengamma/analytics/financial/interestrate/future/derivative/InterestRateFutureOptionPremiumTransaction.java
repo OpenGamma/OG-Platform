@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Description of transaction on an interest rate future option with up-front margin security.
@@ -42,12 +43,12 @@ public class InterestRateFutureOptionPremiumTransaction implements InstrumentDer
   * @param premiumTime The transaction date.
   * @param tradePrice The transaction price.
   */
-  public InterestRateFutureOptionPremiumTransaction(InterestRateFutureOptionPremiumSecurity underlyingOption, int quantity, double premiumTime, double tradePrice) {
+  public InterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumSecurity underlyingOption, final int quantity, final double premiumTime, final double tradePrice) {
     Validate.notNull(underlyingOption, "underlying option");
     this._underlyingOption = underlyingOption;
     this._quantity = quantity;
     this._tradePrice = tradePrice;
-    double premiumAmount = -_tradePrice * _quantity * _underlyingOption.getUnderlyingFuture().getNotional() * _underlyingOption.getUnderlyingFuture().getPaymentAccrualFactor();
+    final double premiumAmount = -_tradePrice * _quantity * _underlyingOption.getUnderlyingFuture().getNotional() * _underlyingOption.getUnderlyingFuture().getPaymentAccrualFactor();
     _premium = new PaymentFixed(underlyingOption.getCurrency(), premiumTime, premiumAmount, underlyingOption.getDiscountingCurveName());
   }
 
@@ -97,7 +98,7 @@ public class InterestRateFutureOptionPremiumTransaction implements InstrumentDer
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -107,7 +108,7 @@ public class InterestRateFutureOptionPremiumTransaction implements InstrumentDer
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateFutureOptionPremiumTransaction other = (InterestRateFutureOptionPremiumTransaction) obj;
+    final InterestRateFutureOptionPremiumTransaction other = (InterestRateFutureOptionPremiumTransaction) obj;
     if (!ObjectUtils.equals(_premium, other._premium)) {
       return false;
     }
@@ -124,12 +125,14 @@ public class InterestRateFutureOptionPremiumTransaction implements InstrumentDer
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionPremiumTransaction(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionPremiumTransaction(this);
   }
 

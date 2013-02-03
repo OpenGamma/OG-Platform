@@ -14,12 +14,13 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.currency.AbstractCurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixValue;
 import com.opengamma.financial.currency.SimpleCurrencyMatrix;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 public class CurrencyMatrixTest extends FinancialTestBase {
@@ -53,7 +54,8 @@ public class CurrencyMatrixTest extends FinancialTestBase {
   @Test
   public void testSymmetricalMatrix() {
     final SimpleCurrencyMatrix simple = new SimpleCurrencyMatrix();
-    simple.setLiveData(Currency.USD, Currency.GBP, new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.getName(), "GBP Curncy")));
+    simple.setLiveData(Currency.USD, Currency.GBP,
+        new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER.getName(), "GBP Curncy")));
     simple.setFixedConversion(Currency.GBP, Currency.EUR, 0.9);
     simple.setCrossConversion(Currency.USD, Currency.EUR, Currency.GBP);
     simple.setFixedConversion(Currency.EUR, Currency.CHF, 10.0);
@@ -69,7 +71,7 @@ public class CurrencyMatrixTest extends FinancialTestBase {
         case 2:
           return CurrencyMatrixValue.of(Currency.of("AA" + (char) ('A' + r.nextInt(('Z' - 'A') + 1))));
         case 3:
-          return CurrencyMatrixValue.of(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, UniqueId.of("Test", "" + r.nextLong())));
+          return CurrencyMatrixValue.of(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, ExternalId.of("Test", "" + r.nextLong())));
       }
       return null;
     }

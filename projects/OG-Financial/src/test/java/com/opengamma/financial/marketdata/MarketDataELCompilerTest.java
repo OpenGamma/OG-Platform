@@ -8,11 +8,12 @@ package com.opengamma.financial.marketdata;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.InMemorySecuritySource;
@@ -68,7 +69,7 @@ public class MarketDataELCompilerTest {
     final MarketDataELCompiler compiler = new MarketDataELCompiler(new InMemorySecuritySource());
     final OverrideOperation operation = compiler.compile("x * 0.9");
     assertNotNull(operation);
-    final ValueRequirement req = new ValueRequirement("Foo", new ComputationTargetSpecification(UniqueId.of("Test", "Bar")));
+    final ValueRequirement req = new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "Bar")));
     final Object result = operation.apply(req, 42d);
     assertEquals(result, 42d * 0.9);
   }
@@ -77,7 +78,7 @@ public class MarketDataELCompilerTest {
     final MarketDataELCompiler compiler = new MarketDataELCompiler(new InMemorySecuritySource());
     final OverrideOperation operation = compiler.compile("x + 0.42");
     assertNotNull(operation);
-    final ValueRequirement req = new ValueRequirement("Foo", new ComputationTargetSpecification(UniqueId.of("Test", "Bar")));
+    final ValueRequirement req = new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "Bar")));
     final Object result = operation.apply(req, 0.9d);
     assertEquals(result, 0.9 + 0.42);
   }
@@ -89,9 +90,9 @@ public class MarketDataELCompilerTest {
     final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
     final OverrideOperation operation = compiler.compile("if (security.type == \"EQUITY\") x * 0.9");
     assertNotNull(operation);
-    Object result = operation.apply(new ValueRequirement("Foo", new ComputationTargetSpecification(_fooEquity)), 42d);
+    Object result = operation.apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(_fooEquity)), 42d);
     assertEquals (result, 42d * 0.9);
-    result = operation.apply(new ValueRequirement("Foo", new ComputationTargetSpecification(_swap)), 42d);
+    result = operation.apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(_swap)), 42d);
     assertEquals (result, 42d);
   }
 
@@ -105,34 +106,40 @@ public class MarketDataELCompilerTest {
         .compile("if (security.type == \"EQUITY\" && security.name == \"Foo\") x * 0.9; if (security.type == \"EQUITY\") x * 1.1; if (security.cow == 42) x * 0");
     assertNotNull(operation);
     // First rule should match
-    Object result = operation.apply(new ValueRequirement("Foo", new ComputationTargetSpecification(_fooEquity)), 42d);
+    Object result = operation.apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(_fooEquity)), 42d);
     assertEquals (result, 42d * 0.9);
     // Second rule should match
-    result = operation.apply(new ValueRequirement("Foo", new ComputationTargetSpecification(_barEquity)), 42d);
+    result = operation.apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(_barEquity)), 42d);
     assertEquals(result, 42d * 1.1);
     // Third rule won't match but won't throw an error
-    result = operation.apply(new ValueRequirement("Foo", new ComputationTargetSpecification(_swap)), 42d);
+    result = operation.apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(_swap)), 42d);
     assertEquals(result, 42d);
   }
 
   public void testValueExpression() {
     final InMemorySecuritySource securities = new InMemorySecuritySource();
     final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
-    final Object result = compiler.compile("value").apply(new ValueRequirement("Foo", new ComputationTargetSpecification(Currency.USD)), null);
+    final Object result = compiler.compile("value").apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(Currency.USD)), null);
     assertEquals(result, "Foo");
   }
 
   public void testUnderlyingExpression () {
     final InMemorySecuritySource securities = new InMemorySecuritySource();
     securities.addSecurity(_fooEquity);
-    final EquityOptionSecurity fooOption = new EquityOptionSecurity (OptionType.PUT, 10d, Currency.USD, ExternalId.of("Test", "FooEquity"), new AmericanExerciseType(), new Expiry(ZonedDateTime.of(2020, 11, 25, 12, 0, 0, 0, TimeZone.UTC)), 42d, "EXCH");
+    final EquityOptionSecurity fooOption = new EquityOptionSecurity (OptionType.PUT, 10d, Currency.USD, ExternalId.of("Test", "FooEquity"),
+        new AmericanExerciseType(), new Expiry(zdt(2020, 11, 25, 12, 0, 0, 0, ZoneOffset.UTC)), 42d, "EXCH");
     fooOption.addExternalId(ExternalId.of("Test", "FooOption"));
     securities.addSecurity(fooOption);
     final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
-    Object result = compiler.compile("security.underlyingId").apply(new ValueRequirement("Foo", new ComputationTargetSpecification(fooOption)), null);
+    Object result = compiler.compile("security.underlyingId").apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(fooOption)), null);
     assertEquals(result, ExternalId.of("Test", "FooEquity"));
-    result = compiler.compile("Security:get(security.underlyingId)").apply(new ValueRequirement("Foo", new ComputationTargetSpecification(fooOption)), null);
+    result = compiler.compile("Security:get(security.underlyingId)").apply(new ValueRequirement("Foo", ComputationTargetSpecification.of(fooOption)), null);
     assertEquals(result, _fooEquity);
+  }
+
+  //-------------------------------------------------------------------------
+  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+    return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
   }
 
 }

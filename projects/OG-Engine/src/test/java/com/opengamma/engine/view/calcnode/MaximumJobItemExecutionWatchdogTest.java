@@ -31,7 +31,7 @@ import com.opengamma.util.test.Timeout;
 @Test
 public class MaximumJobItemExecutionWatchdogTest {
 
-  private final CalculationJobItem JOB = new CalculationJobItem("", new EmptyFunctionParameters(), new ComputationTargetSpecification(""),
+  private final CalculationJobItem JOB = new CalculationJobItem("", new EmptyFunctionParameters(), ComputationTargetSpecification.NULL,
       Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification>emptySet(), ExecutionLogMode.INDICATORS);
 
   public void testNoAlert() throws Exception {
@@ -52,7 +52,7 @@ public class MaximumJobItemExecutionWatchdogTest {
             barrier.await(Timeout.standardTimeoutMillis() * 2, TimeUnit.MILLISECONDS);
             watchdog.jobExecutionStarted(JOB);
             watchdog.jobExecutionStopped();
-          } catch (Exception e) {
+          } catch (final Exception e) {
             throw new OpenGammaRuntimeException("exception", e);
           }
         }
@@ -85,9 +85,9 @@ public class MaximumJobItemExecutionWatchdogTest {
             watchdog.jobExecutionStarted(JOB);
             barrier.await(Timeout.standardTimeoutMillis(), TimeUnit.MILLISECONDS);
             Thread.sleep(Timeout.standardTimeoutMillis() * 3);
-          } catch (InterruptedException e) {
+          } catch (final InterruptedException e) {
             caught.set(e);
-          } catch (Exception e) {
+          } catch (final Exception e) {
             throw new OpenGammaRuntimeException("exception", e);
           }
         }

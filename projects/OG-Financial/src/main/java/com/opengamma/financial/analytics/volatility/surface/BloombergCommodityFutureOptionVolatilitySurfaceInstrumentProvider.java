@@ -5,12 +5,14 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.calendar.LocalDate;
+import java.util.Map;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import org.threeten.bp.LocalDate;
+
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.GoldFutureOptionExpiryCalculator;
 import com.opengamma.financial.convention.SoybeanFutureOptionExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -20,10 +22,12 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider extends BloombergFutureOptionVolatilitySurfaceInstrumentProvider {
 
-  private static final BiMap<String, ExchangeTradedInstrumentExpiryCalculator> EXPIRY_RULES;
+  private static final Map<String, ExchangeTradedInstrumentExpiryCalculator> EXPIRY_RULES;
   static {
-    EXPIRY_RULES = HashBiMap.create();
-    EXPIRY_RULES.put("S ", SoybeanFutureOptionExpiryCalculator.getInstance());
+    EXPIRY_RULES = Maps.newHashMap();
+    EXPIRY_RULES.put("BO", SoybeanFutureOptionExpiryCalculator.getInstance()); // Soy oil
+    EXPIRY_RULES.put("GC", GoldFutureOptionExpiryCalculator.getInstance()); // Gold
+    EXPIRY_RULES.put("S ", SoybeanFutureOptionExpiryCalculator.getInstance()); // Soy
   }
 
   /**
@@ -55,11 +59,11 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
   /**
    * Provides an ExternalID for Bloomberg ticker,
    * given a reference date and an integer offset, the n'th subsequent option <p>
-   * The format is prefix + date + callPutFlag + strike + postfix <p>
-   * e.g. DJX 12/21/13 C145.0 Index
+   * The format is prefix + expiry code + callPutFlag + strike + postfix <p>
+   * e.g. S U3P 45 Comdty
    * <p>
    * @param futureOptionNumber n'th future following curve date, not null
-   * @param strike option's strike, expressed as price in %, e.g. 98.750, not null
+   * @param strike option's strike, not null
    * @param surfaceDate date of curve validity; valuation date, not null
    * @return the id of the Bloomberg ticker
    */
@@ -84,6 +88,22 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
     ticker.append(" ");
     ticker.append(getPostfix());
     return ExternalId.of(getScheme(), ticker.toString());
+  }
+
+  /**
+   * Gets the expiryRules.
+   * @return the expiryRules
+   */
+  public static Map<String, ExchangeTradedInstrumentExpiryCalculator> getExpiryRules() {
+    return EXPIRY_RULES;
+  }
+
+  ExchangeTradedInstrumentExpiryCalculator getExpiryCalculator() {
+    final ExchangeTradedInstrumentExpiryCalculator expiryRule = EXPIRY_RULES.get(getFutureOptionPrefix());
+    if (expiryRule == null) {
+      throw new OpenGammaRuntimeException("No expiry rule has been setup for " + getFutureOptionPrefix());
+    }
+    return expiryRule;
   }
 
 }

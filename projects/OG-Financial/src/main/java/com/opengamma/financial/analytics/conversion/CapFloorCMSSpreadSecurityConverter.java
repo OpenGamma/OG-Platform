@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -25,6 +24,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * 
@@ -85,13 +85,13 @@ public class CapFloorCMSSpreadSecurityConverter extends FinancialSecurityVisitor
   private Period getTenor(final Frequency freq) {
     Period tenor;
     if (Frequency.ANNUAL_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(12);
+      tenor = DateUtils.periodOfMonths(12);
     } else if (Frequency.SEMI_ANNUAL_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(6);
+      tenor = DateUtils.periodOfMonths(6);
     } else if (Frequency.QUARTERLY_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(3);
+      tenor = DateUtils.periodOfMonths(3);
     } else if (Frequency.MONTHLY_NAME.equals(freq.getConventionName())) {
-      tenor = Period.ofMonths(1);
+      tenor = DateUtils.periodOfMonths(1);
     } else {
       throw new OpenGammaRuntimeException("Can only handle annual, semi-annual, quarterly and monthly frequencies for cap/floor CMS spreads");
     }

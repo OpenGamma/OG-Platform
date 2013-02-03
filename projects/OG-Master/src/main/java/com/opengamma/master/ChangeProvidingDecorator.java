@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.Instant;
-import javax.time.TimeSource;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -21,15 +21,14 @@ import com.opengamma.id.VersionCorrection;
 
 /**
  * Turns any master into change providing master
- *
  */
 public class ChangeProvidingDecorator {
 
   public static <D extends AbstractDocument> AbstractChangeProvidingMaster<D> wrap(final AbstractMaster<D> underlying) {
-    return wrap(underlying, TimeSource.system());
+    return wrap(underlying, Clock.systemUTC());
   }
 
-  public static <D extends AbstractDocument> AbstractChangeProvidingMaster<D> wrap(final AbstractMaster<D> underlying, final TimeSource timeSource) {
+  public static <D extends AbstractDocument> AbstractChangeProvidingMaster<D> wrap(final AbstractMaster<D> underlying, final Clock clock) {
     return new AbstractChangeProvidingMaster<D>() {
       private final BasicChangeManager _changeManager = new BasicChangeManager();
 
@@ -41,21 +40,21 @@ public class ChangeProvidingDecorator {
       @Override
       public D add(D document) {
         D doc = underlying.add(document);
-        _changeManager.entityChanged(ChangeType.CHANGED, doc.getObjectId(), doc.getVersionFromInstant(), doc.getVersionToInstant(), Instant.now(timeSource));
+        _changeManager.entityChanged(ChangeType.CHANGED, doc.getObjectId(), doc.getVersionFromInstant(), doc.getVersionToInstant(), Instant.now(clock));
         return doc;
       }
 
       @Override
       public UniqueId addVersion(ObjectIdentifiable objectId, D documentToAdd) {
         UniqueId uid = underlying.addVersion(objectId, documentToAdd);
-        _changeManager.entityChanged(ChangeType.ADDED, uid.getObjectId(), null, null, Instant.now(timeSource));
+        _changeManager.entityChanged(ChangeType.ADDED, uid.getObjectId(), null, null, Instant.now(clock));
         return uid;
       }
 
       @Override
       public D correct(D document) {
         D doc = underlying.correct(document);
-        _changeManager.entityChanged(ChangeType.CHANGED, doc.getObjectId(), doc.getVersionFromInstant(), doc.getVersionToInstant(), Instant.now(timeSource));
+        _changeManager.entityChanged(ChangeType.CHANGED, doc.getObjectId(), doc.getVersionFromInstant(), doc.getVersionToInstant(), Instant.now(clock));
         return doc;
       }
 
@@ -77,47 +76,47 @@ public class ChangeProvidingDecorator {
       @Override
       public void remove(ObjectIdentifiable objectIdentifiable) {
         underlying.remove(objectIdentifiable);
-        _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now(timeSource));
+        _changeManager.entityChanged(ChangeType.REMOVED, objectIdentifiable.getObjectId(), null, null, Instant.now(clock));
       }
 
       @Override
       public void removeVersion(UniqueId uniqueId) {
         underlying.removeVersion(uniqueId);
-        _changeManager.entityChanged(ChangeType.REMOVED, uniqueId.getObjectId(), null, null, Instant.now(timeSource));
+        _changeManager.entityChanged(ChangeType.REMOVED, uniqueId.getObjectId(), null, null, Instant.now(clock));
       }
 
       @Override
       public List<UniqueId> replaceAllVersions(ObjectIdentifiable objectId, List<D> replacementDocuments) {
         List<UniqueId> removed = underlying.replaceAllVersions(objectId, replacementDocuments);
-        _changeManager.entityChanged(ChangeType.REMOVED, objectId.getObjectId(), null, null, Instant.now(timeSource));
+        _changeManager.entityChanged(ChangeType.REMOVED, objectId.getObjectId(), null, null, Instant.now(clock));
         return removed;
       }
 
       @Override
       public UniqueId replaceVersion(D replacementDocument) {
         UniqueId uid = underlying.replaceVersion(replacementDocument);
-        _changeManager.entityChanged(ChangeType.CHANGED, uid.getObjectId(), null, null, Instant.now(timeSource));
+        _changeManager.entityChanged(ChangeType.CHANGED, uid.getObjectId(), null, null, Instant.now(clock));
         return uid;
       }
 
       @Override
       public List<UniqueId> replaceVersion(UniqueId uniqueId, List<D> replacementDocuments) {
         List<UniqueId> replaced = underlying.replaceVersion(uniqueId, replacementDocuments);
-        _changeManager.entityChanged(ChangeType.CHANGED, uniqueId.getObjectId(), null, null, Instant.now(timeSource));
+        _changeManager.entityChanged(ChangeType.CHANGED, uniqueId.getObjectId(), null, null, Instant.now(clock));
         return replaced;
       }
 
       @Override
       public List<UniqueId> replaceVersions(ObjectIdentifiable objectId, List<D> replacementDocuments) {
         List<UniqueId> replaced = underlying.replaceVersions(objectId, replacementDocuments);
-        _changeManager.entityChanged(ChangeType.CHANGED, objectId.getObjectId(), null, null, Instant.now(timeSource));
+        _changeManager.entityChanged(ChangeType.CHANGED, objectId.getObjectId(), null, null, Instant.now(clock));
         return replaced;
       }
 
       @Override
       public D update(D document) {
         D doc = underlying.update(document);
-        _changeManager.entityChanged(ChangeType.CHANGED, doc.getObjectId(), doc.getVersionFromInstant(), doc.getVersionToInstant(), Instant.now(timeSource));
+        _changeManager.entityChanged(ChangeType.CHANGED, doc.getObjectId(), doc.getVersionFromInstant(), doc.getVersionToInstant(), Instant.now(clock));
         return doc;
       }
     };

@@ -1,0 +1,274 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.security.hibernate.cds">
+  <class name="CreditDefaultSwapSecurityBean" table="sec_credit_default_swap">
+    <id name="id" column="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+        <param name="sequence_name">sec_hibernate_sequence</param>
+      </generator>
+    </id>
+
+    <discriminator column="cds_type" type="string"
+      not-null="true" />
+
+    <property name="securityId" type="long" column="security_id" />
+
+    <property name="buy" column="buy" type="boolean" not-null="true" />
+
+    <component name="protectionBuyer"
+      class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="buyer_scheme" type="string"
+        not-null="true" />
+      <property name="identifier" column="buyer_identifier"
+        type="string" not-null="true" />
+    </component>
+
+    <component name="protectionSeller"
+      class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="seller_scheme" type="string"
+        not-null="true" />
+      <property name="identifier" column="seller_identifier"
+        type="string" not-null="true" />
+    </component>
+
+    <component name="referenceEntity"
+      class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="entity_scheme" type="string"
+        not-null="true" />
+      <property name="identifier" column="entity_identifier"
+        type="string" not-null="true" />
+    </component>
+
+    <many-to-one name="debtSeniority" column="debt_seniority_id"
+      class="com.opengamma.masterdb.security.hibernate.DebtSeniorityBean"
+      not-null="true" />
+
+    <many-to-one name="restructuringClause" column="restructuring_clause_id"
+      class="com.opengamma.masterdb.security.hibernate.RestructuringClauseBean"
+      not-null="true" />
+
+    <component name="regionId"
+      class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+      <property name="scheme" column="region_scheme" type="string"
+        not-null="true" />
+      <property name="identifier" column="region_identifier"
+        type="string" not-null="true" />
+    </component>
+
+    <component name="startDate"
+      class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="start_date" type="timestamp"
+        not-null="true" />
+      <property name="zone" column="start_date_zone" type="string"
+        not-null="true" />
+    </component>
+
+    <component name="effectiveDate"
+      class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="effective_date" type="timestamp"
+        not-null="true" />
+      <property name="zone" column="effective_date_zone" type="string"
+        not-null="true" />
+    </component>
+
+    <component name="maturityDate"
+      class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+      <property name="date" column="maturity_date" type="timestamp"
+        not-null="true" />
+      <property name="zone" column="maturity_date_zone" type="string"
+        not-null="true" />
+    </component>
+
+    <many-to-one name="stubType" column="stub_type_id"
+      class="com.opengamma.masterdb.security.hibernate.StubTypeBean"
+      not-null="true" />
+
+    <many-to-one name="couponFrequency" column="frequency_id"
+      class="com.opengamma.masterdb.security.hibernate.FrequencyBean"
+      not-null="true" />
+
+    <many-to-one name="dayCount" column="daycount_convention_id"
+      class="com.opengamma.masterdb.security.hibernate.DayCountBean"
+      not-null="true" />
+
+    <many-to-one name="businessDayConvention"
+      class="com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean"
+      column="businessday_convention_id" not-null="true" />
+
+    <property name="immAdjustMaturityDate" column="imm_adjust_maturity_date"
+      type="boolean" not-null="true" />
+
+    <property name="adjustEffectiveDate" column="adjust_effective_date"
+      type="boolean" not-null="true" />
+
+    <property name="adjustMaturityDate" column="adjust_maturity_date"
+      type="boolean" not-null="true" />
+
+    <component name="notional"
+      class="com.opengamma.masterdb.security.hibernate.swap.NotionalBean">
+      <property name="notionalType"
+        type="com.opengamma.masterdb.security.hibernate.swap.NotionalTypeUserType"
+        column="notional_type" not-null="true" />
+      <many-to-one name="currency"
+        class="com.opengamma.masterdb.security.hibernate.CurrencyBean"
+        column="notional_currency_id" not-null="true" />
+      <property name="amount" type="double" column="notional_amount" />
+      <component name="identifier"
+        class="com.opengamma.masterdb.security.hibernate.UniqueIdBean">
+        <property name="scheme" type="string" column="notional_scheme" />
+        <property name="identifier" type="string" column="notional_id" />
+      </component>
+    </component>
+
+    <property name="recoveryRate" type="double" column="recovery_rate"
+      not-null="true" />
+
+    <property name="includeAccruedPremium" column="include_accrued_premium"
+      type="boolean" not-null="true" />
+
+    <property name="protectionStart" column="protection_start"
+      type="boolean" not-null="true" />
+
+    <subclass name="LegacyFixedRecoveryCDSSecurityBean"
+      discriminator-value="LEGACY_FIXED_RECOVERY_CDS">
+      <property name="parSpread" type="double" column="legacy_par_spread" />
+    </subclass>
+
+    <subclass name="LegacyRecoveryLockCDSSecurityBean"
+      discriminator-value="LEGACY_RECOVERY_LOCK_CDS">
+      <property name="parSpread" type="double" column="legacy_par_spread" />
+    </subclass>
+
+    <subclass name="LegacyVanillaCDSSecurityBean"
+      discriminator-value="LEGACY_VANILLA_CDS">
+      <property name="parSpread" type="double" column="legacy_par_spread" />
+    </subclass>
+
+    <subclass name="StandardCDSSecurityBean">
+      <property name="quotedSpread" type="double" column="std_quoted_spread" />
+      <component name="upfrontAmount"
+        class="com.opengamma.masterdb.security.hibernate.swap.NotionalBean">
+        <property name="notionalType"
+          type="com.opengamma.masterdb.security.hibernate.swap.NotionalTypeUserType"
+          column="std_upfrontamt_notional_type" />
+        <many-to-one name="currency"
+          class="com.opengamma.masterdb.security.hibernate.CurrencyBean"
+          column="std_upfrontamt_notional_currency_id" />
+        <property name="amount" type="double"
+          column="std_upfrontamt_notional_amount" />
+        <component name="identifier"
+          class="com.opengamma.masterdb.security.hibernate.UniqueIdBean">
+          <property name="scheme" type="string"
+            column="std_upfrontamt_notional_scheme" />
+          <property name="identifier" type="string"
+            column="std_upfrontamt_notional_id" />
+        </component>
+      </component>
+
+      <subclass name="StandardFixedRecoveryCDSSecurityBean"
+        discriminator-value="STANDARD_FIXED_RECOVERY_CDS">
+      </subclass>
+
+      <subclass name="StandardRecoveryLockCDSSecurityBean"
+        discriminator-value="STANDARD_RECOVERY_LOCK_CDS">
+      </subclass>
+
+      <subclass name="StandardVanillaCDSSecurityBean"
+        discriminator-value="STANDARD_VANILLA_CDS">
+        <property name="coupon" type="double" column="stdvanilla_coupon" />
+        <component name="cashSettlementDate"
+          class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+          <property name="date" column="stdvanilla_cashsettlement_date"
+            type="timestamp" />
+          <property name="zone" column="stdvanilla_ashsettlement_date_zone"
+            type="string" />
+        </component>
+        <property name="adjustCashSettlementDate" type="boolean"
+          column="stdvanilla_adjust_cashsettlement_date" />
+      </subclass>
+
+    </subclass>
+
+  </class>
+
+  <query name="StandardFixedRecoveryCDSSecurityBean.one.bySecurityId">
+    <![CDATA[
+    from 
+      StandardFixedRecoveryCDSSecurityBean as s
+    where
+      s.securityId = :securityId
+    ]]>
+  </query>
+
+  <query name="StandardFixedRecoveryCDSSecurityBean.all">
+    from StandardFixedRecoveryCDSSecurityBean
+  </query>
+
+  <query name="StandardRecoveryLockCDSSecurityBean.one.bySecurityId">
+    <![CDATA[
+    from 
+      StandardRecoveryLockCDSSecurityBean as s
+    where
+      s.securityId = :securityId
+    ]]>
+  </query>
+
+  <query name="StandardRecoveryLockCDSSecurityBean.all">
+    from StandardRecoveryLockCDSSecurityBean
+  </query>
+
+  <query name="StandardVanillaCDSSecurityBean.one.bySecurityId">
+    <![CDATA[
+    from 
+      StandardVanillaCDSSecurityBean as s
+    where
+      s.securityId = :securityId
+    ]]>
+  </query>
+
+  <query name="StandardVanillaCDSSecurityBean.all">
+    from StandardVanillaCDSSecurityBean
+  </query>
+
+  <query name="LegacyFixedRecoveryCDSSecurityBean.one.bySecurityId">
+    <![CDATA[
+    from 
+      LegacyFixedRecoveryCDSSecurityBean as s
+    where
+      s.securityId = :securityId
+    ]]>
+  </query>
+
+  <query name="LegacyFixedRecoveryCDSSecurityBean.all">
+    from LegacyFixedRecoveryCDSSecurityBean
+  </query>
+
+  <query name="LegacyRecoveryLockCDSSecurityBean.one.bySecurityId">
+    <![CDATA[
+    from 
+      LegacyRecoveryLockCDSSecurityBean as s
+    where
+      s.securityId = :securityId
+    ]]>
+  </query>
+
+  <query name="LegacyRecoveryLockCDSSecurityBean.all">
+    from LegacyRecoveryLockCDSSecurityBean
+  </query>
+
+  <query name="LegacyVanillaCDSSecurityBean.one.bySecurityId">
+    <![CDATA[
+    from 
+      LegacyVanillaCDSSecurityBean as s
+    where
+      s.securityId = :securityId
+    ]]>
+  </query>
+
+  <query name="LegacyVanillaCDSSecurityBean.all">
+    from LegacyVanillaCDSSecurityBean
+  </query>
+
+</hibernate-mapping>

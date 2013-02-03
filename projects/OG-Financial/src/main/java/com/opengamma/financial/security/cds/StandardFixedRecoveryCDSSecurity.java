@@ -7,14 +7,13 @@ package com.opengamma.financial.security.cds;
 
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
@@ -40,7 +39,7 @@ public class StandardFixedRecoveryCDSSecurity  extends StandardCDSSecurity {
    */
   public static final String SECURITY_TYPE = "STANDARD_FIXED_RECOVERY_CDS";
   StandardFixedRecoveryCDSSecurity() { // for fudge
-    super();
+    super(SECURITY_TYPE);
   }
 
   public StandardFixedRecoveryCDSSecurity(final boolean isBuy, final ExternalId protectionSeller, final ExternalId protectionBuyer, final ExternalId referenceEntity, //CSIGNORE
@@ -48,8 +47,7 @@ public class StandardFixedRecoveryCDSSecurity  extends StandardCDSSecurity {
       final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final Frequency couponFrequency, final DayCount dayCount,
       final BusinessDayConvention businessDayConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate,
       final boolean adjustMaturityDate, final InterestRateNotional notional, final double recoveryRate, final boolean includeAccruedPremium,
-      final boolean protectionStart, final double quotedSpread, final InterestRateNotional upfrontAmount, final double coupon,
-      final ZonedDateTime settlementDate) {
+      final boolean protectionStart, final double quotedSpread, final InterestRateNotional upfrontAmount) {
     super(isBuy, protectionSeller, protectionBuyer, referenceEntity, debtSeniority, restructuringClause, regionId, startDate, effectiveDate, maturityDate, stubType,
         couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate, includeAccruedPremium,
         protectionStart, quotedSpread, upfrontAmount, SECURITY_TYPE);

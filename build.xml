@@ -356,6 +356,7 @@
 
   <target name="junit-report" depends="test-batch">
     <mkdir dir="${tests.junit.dir}/html" />
+    <mkdir dir="${tests.junit.dir}/xml" />
     <junitreport todir="${tests.junit.dir}/xml">
       <fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
       <!-- this defaults to noframes because frames uses TONS more memory due to console logging, if you -->
@@ -530,7 +531,7 @@
       classpathref="lib.path.id" author="false" windowtitle="${javadoc-all.windowtitle}"
       doctitle="${javadoc-all.doctitle}" bottom="${javadoc-all.bottom}"
       header="${javadoc-all.header}" failonerror="Yes"
-      maxmemory="2G">
+      maxmemory="4G">
       <link href="http://download.oracle.com/javase/6/docs/api/" />
       <link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
       <link href="http://threeten.sourceforge.net/apidocs/" />
@@ -545,6 +546,7 @@
         failonerror="Yes"
         doclet="it.dexy.doclet.DexyDoclet"
         docletpathref="lib.path.id"
+        maxmemory="4G"
     >
     </javadoc>
     <delete dir="${docs.dir}/temp-src"/>

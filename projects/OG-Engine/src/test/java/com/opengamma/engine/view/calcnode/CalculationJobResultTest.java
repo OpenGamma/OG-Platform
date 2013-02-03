@@ -10,14 +10,13 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.Instant;
-
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.view.ExecutionLogMode;
@@ -26,6 +25,7 @@ import com.opengamma.engine.view.cache.IdentifierMap;
 import com.opengamma.engine.view.cache.InMemoryIdentifierMap;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.log.LogLevel;
 
 /**
  * 
@@ -65,7 +65,7 @@ public class CalculationJobResultTest {
     CalculationJobResultItem outputItem1 = outputJob.getResultItems().get(0);
     assertNotNull(outputItem1);
     assertEquals(InvocationResult.SUCCESS, outputItem1.getResult());
-    assertFalse(outputItem1.getExecutionLog().hasError());
+    assertFalse(outputItem1.getExecutionLog().getLogLevels().contains(LogLevel.ERROR));
     assertTrue(outputItem1.getMissingInputs().isEmpty());
     
     CalculationJobResultItem outputItem2 = outputJob.getResultItems().get(1);

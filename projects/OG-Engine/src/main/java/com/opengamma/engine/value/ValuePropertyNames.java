@@ -130,6 +130,11 @@ public final class ValuePropertyNames {
   public static final String SURFACE_CALCULATION_METHOD = "SurfaceCalculationMethod";
 
   /**
+   * A general name for a property describing how a surface was calculated
+   */
+  public static final String CUBE_CALCULATION_METHOD = "CubeCalculationMethod";
+
+  /**
    * A general name for a property describing how volatility smiles were modelled (e.g. Heston, SABR)
    */
   public static final String SMILE_FITTING_METHOD = "SmileFittingMethod";
@@ -225,12 +230,12 @@ public final class ValuePropertyNames {
 
   // REVIEW 2012-08-29 andrew -- The Javadoc for SHIFT above is bad; it's a common name that will be used for things other than DV01.
   // REVIEW 2012-10-13 casey -- One doesn't even shift DV01. The shift in DV01 is in its name - Delta Value of One Basis Point..
-
+  // REVIEW 2013-01-02 emcleod -- In the case of DV01, "Shift" refers to the scale factor applied (1 or -1). It was added to allow comparisons of results
+  // from other libraries. The general point about the javadoc is valid.
   /**
    *
    */
   public static final String VALUE_AGGREGATION = "ValueAggregation";
-
 
   /**
    * The underlying ticker is used in Equity Options to tie results to the vol surface used,

@@ -11,11 +11,11 @@ import java.util.Map;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreePath;
-import javax.time.Instant;
 
 import org.jdesktop.swingx.treetable.AbstractTreeTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.LinkUtils;
@@ -195,7 +195,7 @@ class PortfolioTreeTableModel extends AbstractTreeTableModel implements ViewResu
       return getNodeTitle(node);
     }
     if (node instanceof UniqueIdentifiable) {
-      ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(node);
+      ComputationTargetSpecification targetSpec = ComputationTargetSpecification.of(((UniqueIdentifiable) node).getUniqueId());
       return renderForColumn(targetSpec, column);
     }
     return "Unknown object: " + node;

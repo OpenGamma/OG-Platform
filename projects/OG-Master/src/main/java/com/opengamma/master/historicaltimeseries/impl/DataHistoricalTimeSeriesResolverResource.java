@@ -8,7 +8,6 @@ package com.opengamma.master.historicaltimeseries.impl;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -19,6 +18,7 @@ import javax.ws.rs.core.Response;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.MapMaker;
 import com.opengamma.id.ExternalId;

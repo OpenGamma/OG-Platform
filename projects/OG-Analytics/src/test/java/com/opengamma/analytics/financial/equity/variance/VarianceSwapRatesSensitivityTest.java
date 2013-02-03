@@ -9,10 +9,10 @@ import static com.opengamma.analytics.math.interpolation.CombinedInterpolatorExt
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
@@ -35,7 +35,7 @@ import com.opengamma.util.money.Currency;
  */
 public class VarianceSwapRatesSensitivityTest {
 
-  private static final VarianceSwapSensitivityCalculator DELTA_CAL = VarianceSwapSensitivityCalculator.getInstance();
+  private static final EquityDerivativeSensitivityCalculator DELTA_CAL = new EquityDerivativeSensitivityCalculator(VarianceSwapPresentValueCalculator.getInstance());
   // Tests ------------------------------------------
 
   /*

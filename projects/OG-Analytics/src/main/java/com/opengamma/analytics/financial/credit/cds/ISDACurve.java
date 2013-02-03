@@ -95,6 +95,14 @@ public class ISDACurve {
     return _curve.getYValue(t - _offset);
   }
 
+  public double getTimenode(final int m) {
+    return _curve.getXData()[m];
+  }
+
+  public double getInterestRate(final int m) {
+    return _curve.getYData()[m];
+  }
+
   public double getDiscountFactor(final double t) {
     return Math.exp((_offset - t) * getInterestRate(t)) / _zeroDiscountFactor;
   }
@@ -113,5 +121,9 @@ public class ISDACurve {
 
   public double getZeroDiscountFactor() {
     return _zeroDiscountFactor;
+  }
+
+  public int getNumberOfCurvePoints() {
+    return _shiftedTimePoints.length;
   }
 }

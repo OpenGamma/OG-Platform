@@ -95,7 +95,6 @@ public class SecurityHistoryResult extends AbstractHistoryResult<SecurityDocumen
    * The meta-bean for {@code SecurityHistoryResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static SecurityHistoryResult.Meta meta() {
     return SecurityHistoryResult.Meta.INSTANCE;
   }

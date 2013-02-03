@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.calcnode.stats;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -69,6 +71,15 @@ public final class FunctionCostsPerConfiguration {
       stats = _functionCosts.loadStatistics(this, functionId);
     }
     return stats;
+  }
+
+  /**
+   * Gets the set of known functions.
+   * 
+   * @return the functions, not null
+   */
+  public Set<String> getFunctions() {
+    return Collections.unmodifiableSet(_data.keySet());
   }
 
   //-------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calc;
@@ -19,7 +19,6 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
-import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGatherer;
 import com.opengamma.engine.view.calcnode.CalculationJob;
@@ -109,18 +108,17 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     final CalculationJobSpecification jobSpec = context.getExecutor().createJobSpecification(context.getGraph());
     final List<DependencyNode> nodes = getNodes();
     final List<CalculationJobItem> items = new ArrayList<CalculationJobItem>(nodes.size());
-    for (DependencyNode node : nodes) {
+    for (final DependencyNode node : nodes) {
       final Set<ValueSpecification> inputs = node.getInputValues();
-      final ExecutionLogMode logMode = context.getLogModeSource().getLogMode(node.getOutputValues());
-      CalculationJobItem jobItem = new CalculationJobItem(
+      final ExecutionLogMode logMode = context.getLogModeSource().getLogMode(node);
+      final CalculationJobItem jobItem = new CalculationJobItem(
           node.getFunction().getFunction().getFunctionDefinition().getUniqueId(), node.getFunction().getParameters(),
           node.getComputationTarget(), inputs, node.getOutputValues(), logMode);
       items.add(jobItem);
     }
-    context.getExecutor().addJobToViewProcessorQuery(jobSpec, context.getGraph());
-    final CalculationJob job = new CalculationJob(jobSpec, context.getFunctionInitId(), _requiredJobs, items, getCacheSelectHint());
+    final CalculationJob job = new CalculationJob(jobSpec, context.getFunctionInitId(), context.getResolverVersionCorrection(), _requiredJobs, items, getCacheSelectHint());
     if (getTail() != null) {
-      for (GraphFragment<F> tail : getTail()) {
+      for (final GraphFragment<F> tail : getTail()) {
         tail._blockCount = null;
         final int size = tail.getInputFragments().size();
         if (tail._requiredJobs == null) {
@@ -157,12 +155,12 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
     if (required != null) {
       out.println(indent + "\trequires " + toString(required));
     }
-    for (CalculationJobItem item : job.getJobItems()) {
+    for (final CalculationJobItem item : job.getJobItems()) {
       out.println(indent + "\t" + item.getFunctionUniqueIdentifier() + " on " + item.getComputationTargetSpecification());
     }
-    Collection<CalculationJob> tailJobs = job.getTail();
+    final Collection<CalculationJob> tailJobs = job.getTail();
     if (tailJobs != null) {
-      for (CalculationJob tailJob : tailJobs) {
+      for (final CalculationJob tailJob : tailJobs) {
         printJob(out, indent + "  ", tailJob);
       }
     }
@@ -190,14 +188,14 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
   public void resultReceived(final GraphFragmentContext context, final CalculationJobResult result) {
     // Release tree fragments up the tree
     context.addExecutionTime(result.getDuration());
-    for (GraphFragment<F> dependent : getOutputFragments()) {
+    for (final GraphFragment<F> dependent : getOutputFragments()) {
       dependent.inputCompleted(context);
     }
   }
 
   /**
    * Returns an identifier that is unique within the fragments associated with a given context.
-   * 
+   *
    * @return the identifier
    */
   public int getIdentifier() {

@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.marketdata.historical;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;

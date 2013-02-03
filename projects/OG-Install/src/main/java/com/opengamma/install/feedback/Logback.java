@@ -13,12 +13,14 @@ import ch.qos.logback.core.UnsynchronizedAppenderBase;
  */
 public class Logback<E> extends UnsynchronizedAppenderBase<E> {
 
+  private final Feedback _feedback = new Feedback();
+
   @Override
   protected void append(final E eventObject) {
     if (isStarted()) {
       final String text = getLayout().doLayout(eventObject);
       synchronized (this) {
-        Feedback.status(text);
+        _feedback.report(text);
       }
     }
   }

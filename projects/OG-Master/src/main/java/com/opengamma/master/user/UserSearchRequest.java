@@ -56,7 +56,7 @@ public class UserSearchRequest extends AbstractSearchRequest {
   @PropertyDefinition
   private ExternalIdSearch _externalIdSearch;
   /**
-   * The external user identifier value, matching against the <b>value</b> of the identifiers,
+   * The external identifier value, matching against the <b>value</b> of the identifiers,
    * null to not match by identifier value.
    * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
@@ -65,6 +65,12 @@ public class UserSearchRequest extends AbstractSearchRequest {
    */
   @PropertyDefinition
   private String _externalIdValue;
+  /**
+   * The external identifier scheme, matching against the <b>scheme</b> of the identifiers,
+   * null not to match by identifier scheme. Wildcards are allowed.
+   */
+  @PropertyDefinition
+  private String _externalIdScheme;
   /**
    * The user id to search for, wildcards allowed, null to not match on name.
    */
@@ -75,6 +81,16 @@ public class UserSearchRequest extends AbstractSearchRequest {
    */
   @PropertyDefinition
   private String _name;
+  /**
+   * The time zone to search for, wildcards allowed, null to not match on time-zone.
+   */
+  @PropertyDefinition
+  private String _timeZone;
+  /**
+   * The primary email address to search for, wildcards allowed, null to not match on email.
+   */
+  @PropertyDefinition
+  private String _emailAddress;
   /**
    * The sort order to use.
    */
@@ -201,9 +217,22 @@ public class UserSearchRequest extends AbstractSearchRequest {
     if (getName() != null && RegexUtils.wildcardMatch(getName(), user.getName()) == false) {
       return false;
     }
+    if (getTimeZone() != null && RegexUtils.wildcardMatch(getTimeZone(), (user.getTimeZone() != null ? user.getTimeZone().getId() : null)) == false) {
+      return false;
+    }
+    if (getEmailAddress() != null && RegexUtils.wildcardMatch(getEmailAddress(), user.getEmailAddress()) == false) {
+      return false;
+    }
     if (getExternalIdValue() != null) {
       for (ExternalId identifier : user.getExternalIdBundle()) {
         if (RegexUtils.wildcardMatch(getExternalIdValue(), identifier.getValue()) == false) {
+          return false;
+        }
+      }
+    }
+    if (getExternalIdScheme() != null) {
+      for (ExternalId identifier : user.getExternalIdBundle()) {
+        if (RegexUtils.wildcardMatch(getExternalIdScheme(), identifier.getScheme().getName()) == false) {
           return false;
         }
       }
@@ -238,10 +267,16 @@ public class UserSearchRequest extends AbstractSearchRequest {
         return getExternalIdSearch();
       case 2072311499:  // externalIdValue
         return getExternalIdValue();
+      case -267027573:  // externalIdScheme
+        return getExternalIdScheme();
       case -836030906:  // userId
         return getUserId();
       case 3373707:  // name
         return getName();
+      case -2077180903:  // timeZone
+        return getTimeZone();
+      case -1070931784:  // emailAddress
+        return getEmailAddress();
       case -26774448:  // sortOrder
         return getSortOrder();
     }
@@ -261,11 +296,20 @@ public class UserSearchRequest extends AbstractSearchRequest {
       case 2072311499:  // externalIdValue
         setExternalIdValue((String) newValue);
         return;
+      case -267027573:  // externalIdScheme
+        setExternalIdScheme((String) newValue);
+        return;
       case -836030906:  // userId
         setUserId((String) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
+        return;
+      case -2077180903:  // timeZone
+        setTimeZone((String) newValue);
+        return;
+      case -1070931784:  // emailAddress
+        setEmailAddress((String) newValue);
         return;
       case -26774448:  // sortOrder
         setSortOrder((UserSearchSortOrder) newValue);
@@ -290,8 +334,11 @@ public class UserSearchRequest extends AbstractSearchRequest {
       return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
           JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
           JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
+          JodaBeanUtils.equal(getExternalIdScheme(), other.getExternalIdScheme()) &&
           JodaBeanUtils.equal(getUserId(), other.getUserId()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getTimeZone(), other.getTimeZone()) &&
+          JodaBeanUtils.equal(getEmailAddress(), other.getEmailAddress()) &&
           JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
           super.equals(obj);
     }
@@ -304,8 +351,11 @@ public class UserSearchRequest extends AbstractSearchRequest {
     hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdScheme());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     return hash ^ super.hashCode();
   }
@@ -356,7 +406,7 @@ public class UserSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the external user identifier value, matching against the <b>value</b> of the identifiers,
+   * Gets the external identifier value, matching against the <b>value</b> of the identifiers,
    * null to not match by identifier value.
    * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
@@ -369,7 +419,7 @@ public class UserSearchRequest extends AbstractSearchRequest {
   }
 
   /**
-   * Sets the external user identifier value, matching against the <b>value</b> of the identifiers,
+   * Sets the external identifier value, matching against the <b>value</b> of the identifiers,
    * null to not match by identifier value.
    * This matches against the {@link ExternalId#getValue() value} of the identifier
    * and does not match against the key. Wildcards are allowed.
@@ -392,6 +442,34 @@ public class UserSearchRequest extends AbstractSearchRequest {
    */
   public final Property<String> externalIdValue() {
     return metaBean().externalIdValue().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the external identifier scheme, matching against the <b>scheme</b> of the identifiers,
+   * null not to match by identifier scheme. Wildcards are allowed.
+   * @return the value of the property
+   */
+  public String getExternalIdScheme() {
+    return _externalIdScheme;
+  }
+
+  /**
+   * Sets the external identifier scheme, matching against the <b>scheme</b> of the identifiers,
+   * null not to match by identifier scheme. Wildcards are allowed.
+   * @param externalIdScheme  the new value of the property
+   */
+  public void setExternalIdScheme(String externalIdScheme) {
+    this._externalIdScheme = externalIdScheme;
+  }
+
+  /**
+   * Gets the the {@code externalIdScheme} property.
+   * null not to match by identifier scheme. Wildcards are allowed.
+   * @return the property, not null
+   */
+  public final Property<String> externalIdScheme() {
+    return metaBean().externalIdScheme().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -442,6 +520,56 @@ public class UserSearchRequest extends AbstractSearchRequest {
    */
   public final Property<String> name() {
     return metaBean().name().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the time zone to search for, wildcards allowed, null to not match on time-zone.
+   * @return the value of the property
+   */
+  public String getTimeZone() {
+    return _timeZone;
+  }
+
+  /**
+   * Sets the time zone to search for, wildcards allowed, null to not match on time-zone.
+   * @param timeZone  the new value of the property
+   */
+  public void setTimeZone(String timeZone) {
+    this._timeZone = timeZone;
+  }
+
+  /**
+   * Gets the the {@code timeZone} property.
+   * @return the property, not null
+   */
+  public final Property<String> timeZone() {
+    return metaBean().timeZone().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the primary email address to search for, wildcards allowed, null to not match on email.
+   * @return the value of the property
+   */
+  public String getEmailAddress() {
+    return _emailAddress;
+  }
+
+  /**
+   * Sets the primary email address to search for, wildcards allowed, null to not match on email.
+   * @param emailAddress  the new value of the property
+   */
+  public void setEmailAddress(String emailAddress) {
+    this._emailAddress = emailAddress;
+  }
+
+  /**
+   * Gets the the {@code emailAddress} property.
+   * @return the property, not null
+   */
+  public final Property<String> emailAddress() {
+    return metaBean().emailAddress().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -497,6 +625,11 @@ public class UserSearchRequest extends AbstractSearchRequest {
     private final MetaProperty<String> _externalIdValue = DirectMetaProperty.ofReadWrite(
         this, "externalIdValue", UserSearchRequest.class, String.class);
     /**
+     * The meta-property for the {@code externalIdScheme} property.
+     */
+    private final MetaProperty<String> _externalIdScheme = DirectMetaProperty.ofReadWrite(
+        this, "externalIdScheme", UserSearchRequest.class, String.class);
+    /**
      * The meta-property for the {@code userId} property.
      */
     private final MetaProperty<String> _userId = DirectMetaProperty.ofReadWrite(
@@ -506,6 +639,16 @@ public class UserSearchRequest extends AbstractSearchRequest {
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
         this, "name", UserSearchRequest.class, String.class);
+    /**
+     * The meta-property for the {@code timeZone} property.
+     */
+    private final MetaProperty<String> _timeZone = DirectMetaProperty.ofReadWrite(
+        this, "timeZone", UserSearchRequest.class, String.class);
+    /**
+     * The meta-property for the {@code emailAddress} property.
+     */
+    private final MetaProperty<String> _emailAddress = DirectMetaProperty.ofReadWrite(
+        this, "emailAddress", UserSearchRequest.class, String.class);
     /**
      * The meta-property for the {@code sortOrder} property.
      */
@@ -519,8 +662,11 @@ public class UserSearchRequest extends AbstractSearchRequest {
         "objectIds",
         "externalIdSearch",
         "externalIdValue",
+        "externalIdScheme",
         "userId",
         "name",
+        "timeZone",
+        "emailAddress",
         "sortOrder");
 
     /**
@@ -538,10 +684,16 @@ public class UserSearchRequest extends AbstractSearchRequest {
           return _externalIdSearch;
         case 2072311499:  // externalIdValue
           return _externalIdValue;
+        case -267027573:  // externalIdScheme
+          return _externalIdScheme;
         case -836030906:  // userId
           return _userId;
         case 3373707:  // name
           return _name;
+        case -2077180903:  // timeZone
+          return _timeZone;
+        case -1070931784:  // emailAddress
+          return _emailAddress;
         case -26774448:  // sortOrder
           return _sortOrder;
       }
@@ -589,6 +741,14 @@ public class UserSearchRequest extends AbstractSearchRequest {
     }
 
     /**
+     * The meta-property for the {@code externalIdScheme} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> externalIdScheme() {
+      return _externalIdScheme;
+    }
+
+    /**
      * The meta-property for the {@code userId} property.
      * @return the meta-property, not null
      */
@@ -602,6 +762,22 @@ public class UserSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    /**
+     * The meta-property for the {@code timeZone} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> timeZone() {
+      return _timeZone;
+    }
+
+    /**
+     * The meta-property for the {@code emailAddress} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> emailAddress() {
+      return _emailAddress;
     }
 
     /**

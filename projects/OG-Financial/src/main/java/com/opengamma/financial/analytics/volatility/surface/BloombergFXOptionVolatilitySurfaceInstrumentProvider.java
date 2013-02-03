@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
@@ -17,9 +17,9 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Autogenerates Bloomberg FX option volatility surface codes given a tenor, quote type (ATM, butterfly, risk reversal) and distance from
+ * ATM.
  */
-//TODO Pair<Number, FXVolQuoteType> needs to be replaced with a richer data structure that has methods getATM(), getDeltas(), getRiskReversal(int delta), getButterfly(int delta)
 public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> {
   /** Type of the volatility quote */
   public enum FXVolQuoteType {
@@ -30,14 +30,32 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
     /** Butterfly */
     BUTTERFLY;
   }
-
+  /** The FX prefix */
   private final String _fxPrefix; //expecting something like USDJPY
+  /** The postfix */
   private final String _postfix; //expecting Curncy
+  /** The data field name */
   private final String _dataFieldName; //expecting MarketDataRequirementNames.MARKET_VALUE
+  /** The Bloomberg scheme name */
   private final ExternalScheme _scheme; // e.g. BLOOMBERG_TICKER_WEAK
+
+  /**
+   * Sets the scheme to weak tickers.
+   * @param fxPrefix The FX prefix, not null
+   * @param postfix The postfix, not null
+   * @param dataFieldName The data field name, not null
+   */
   public BloombergFXOptionVolatilitySurfaceInstrumentProvider(final String fxPrefix, final String postfix, final String dataFieldName) {
     this(fxPrefix, postfix, dataFieldName, ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName());
   }
+
+  /**
+   * @param fxPrefix The FX prefix, not null
+   * @param postfix The code postfix, not null
+   * @param dataFieldName The data field name, not null
+   * @param schemeName The scheme name, not null. Must be one of {@link ExternalSchemes#BLOOMBERG_BUID}, {@link ExternalSchemes#BLOOMBERG_BUID_WEAK},
+   * {@link ExternalSchemes#BLOOMBERG_TCM}, {@link ExternalSchemes#BLOOMBERG_TICKER} or {@link ExternalSchemes#BLOOMBERG_TICKER_WEAK}
+   */
   public BloombergFXOptionVolatilitySurfaceInstrumentProvider(final String fxPrefix, final String postfix, final String dataFieldName,
       final String schemeName) {
     ArgumentChecker.notNull(fxPrefix, "fx prefix");
@@ -56,10 +74,18 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
     _scheme = ExternalScheme.of(schemeName);
   }
 
+  /**
+   * Gets the FX prefix.
+   * @return The FX prefix
+   */
   public String getFXPrefix() {
     return _fxPrefix;
   }
 
+  /**
+   * Gets the code postfix.
+   * @return The code postfix
+   */
   public String getPostfix() {
     return _postfix;
   }
@@ -69,6 +95,10 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
     return _dataFieldName;
   }
 
+  /**
+   * Gets the scheme name.
+   * @return The scheme name
+   */
   public String getSchemeName() {
     return _scheme.getName();
   }

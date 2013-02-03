@@ -11,6 +11,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -21,11 +24,13 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(ParallelPortfolioNodeTraverser.class);
+
   private final ExecutorService _executorService;
 
   /**
    * Creates a traverser.
-   * 
+   *
    * @param callback the callback to invoke, not null
    * @param executorService the executor service for parallel resolutions
    */
@@ -67,14 +72,14 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
             @Override
             public void run() {
               try {
-                getCallback().preOrderOperation(position);
+                getCallback().preOrderOperation(_node, position);
               } finally {
                 childDone();
               }
             }
           });
         }
-        for (PortfolioNode node : childNodes) {
+        for (final PortfolioNode node : childNodes) {
           submit(new NodeTraverser(node, this));
         }
       }
@@ -107,7 +112,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
                   @Override
                   public void run() {
                     try {
-                      getCallback().postOrderOperation(position);
+                      getCallback().postOrderOperation(_node, position);
                     } finally {
                       childDone();
                     }
@@ -143,11 +148,17 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
           // The original thread might have raced ahead so there might not be work for us in the queue
           final Runnable underlying = _work.poll();
           if (underlying != null) {
-            underlying.run();
-            if (_count.decrementAndGet() == 0) {
-              // This was the last piece of work
-              synchronized (Context.this) {
-                Context.this.notify();
+            try {
+              underlying.run();
+            } catch (final Throwable t) {
+              s_logger.error("Error running work item {}", t.getMessage());
+              s_logger.warn("Caught exception", t);
+            } finally {
+              if (_count.decrementAndGet() == 0) {
+                // This was the last piece of work
+                synchronized (Context.this) {
+                  Context.this.notify();
+                }
               }
             }
           }
@@ -160,7 +171,12 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
         do {
           Runnable work = _work.poll();
           while (work != null) {
-            work.run();
+            try {
+              work.run();
+            } catch (final Throwable t) {
+              s_logger.error("Error running work item {}", t.getMessage());
+              s_logger.warn("Caught exception", t);
+            }
             if (_count.decrementAndGet() == 0) {
               // This was the last piece of work - we're done
               return;
@@ -178,7 +194,8 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
             }
           }
         } while (true);
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
+        s_logger.info("Interrupted waiting for completion");
         throw new OpenGammaRuntimeException("interrupted", e);
       }
     }
@@ -187,10 +204,11 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
 
   /**
    * Traverse the nodes notifying using the callback.
-   * 
+   *
    * @param portfolioNode the node to start from, null does nothing
    */
-  public void traverse(PortfolioNode portfolioNode) {
+  @Override
+  public void traverse(final PortfolioNode portfolioNode) {
     if (portfolioNode == null) {
       return;
     }

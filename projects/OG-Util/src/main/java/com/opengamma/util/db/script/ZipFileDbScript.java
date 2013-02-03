@@ -23,21 +23,21 @@ public class ZipFileDbScript implements DbScript {
 
   private final File _zipFile;
   private final String _entryName;
-  
+
   public ZipFileDbScript(File zipFile, String entryName) {
     _zipFile = zipFile;
     _entryName = entryName;
   }
-  
+
   //-------------------------------------------------------------------------
   private File getZipFile() {
     return _zipFile;
   }
-  
+
   private String getEntryName() {
     return _entryName;
   }
-  
+
   //-------------------------------------------------------------------------  
   @Override
   public String getName() {
@@ -46,9 +46,7 @@ public class ZipFileDbScript implements DbScript {
 
   @Override
   public String getScript() throws IOException {
-    ZipInputStream zippedIn = null;
-    try {
-      zippedIn = new ZipInputStream(new FileInputStream(getZipFile()));
+    try (ZipInputStream zippedIn = new ZipInputStream(new FileInputStream(getZipFile()))) {
       ZipEntry entry;
       while ((entry = zippedIn.getNextEntry()) != null) {
         if (entry.getName().equals(getEntryName())) {
@@ -59,17 +57,10 @@ public class ZipFileDbScript implements DbScript {
         throw new OpenGammaRuntimeException("No entry found in zip file " + getZipFile() + " with name " + getEntryName());
       }
       return IOUtils.toString(zippedIn);
-    } catch (FileNotFoundException e) {
+    } catch (FileNotFoundException ex) {
       throw new OpenGammaRuntimeException("Zip file not found: " + getZipFile());
-    } catch (IOException e) {
+    } catch (IOException ex) {
       throw new OpenGammaRuntimeException("Error reading from zip file: " + getZipFile());
-    } finally {
-      if (zippedIn != null) {
-        try {
-          zippedIn.close();
-        } catch (IOException e) {
-        }        
-      }
     }
   }
 
@@ -77,5 +68,5 @@ public class ZipFileDbScript implements DbScript {
   public String toString() {
     return getZipFile() + "!/" + getEntryName();
   }
-  
+
 }

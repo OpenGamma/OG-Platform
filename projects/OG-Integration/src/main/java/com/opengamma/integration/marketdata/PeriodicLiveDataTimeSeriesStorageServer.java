@@ -5,6 +5,9 @@
  */
 package com.opengamma.integration.marketdata;
 
+import static org.threeten.bp.temporal.ChronoUnit.HOURS;
+import static org.threeten.bp.temporal.ChronoUnit.MINUTES;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,21 +26,18 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.time.Duration;
-import javax.time.calendar.Clock;
-import javax.time.calendar.ISOChronology;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.OffsetDate;
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZoneOffset;
-
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Duration;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.OffsetDate;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
 
 import au.com.bytecode.opencsv.CSVParser;
 
@@ -219,12 +219,12 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
     @Override
     public void run() {
       for (Map.Entry<LiveDataSpecification, FudgeMsg> entry : _allValues.entrySet()) {
-        OffsetDateTime atTheHour = OffsetDateTime.now(Clock.system(TimeZone.UTC)).withSecondOfMinute(0).withNanoOfSecond(0);
-        if (atTheHour.getMinuteOfHour() >= 55) {
+        OffsetDateTime atTheHour = OffsetDateTime.now(Clock.systemUTC()).truncatedTo(MINUTES);
+        if (atTheHour.getMinute() >= 55) {
           // Assume we got triggered early.
-          atTheHour = atTheHour.withMinuteOfHour(0).plusHours(1);
+          atTheHour = atTheHour.withMinute(0).plusHours(1);
         } else {
-          atTheHour = atTheHour.withMinuteOfHour(0);
+          atTheHour = atTheHour.withMinute(0);
         }
         String observationTimeName = atTheHour.toOffsetTime().toString();
         try {
@@ -268,12 +268,12 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
               field.getName(),
               _observationTimeName,
               _liveDataSpecification.getIdentifiers(),
-              _date.toLocalDate(),
+              _date.getDate(),
               (Double) field.getValue());
         } else {
           s_logger.error("Would write {} {} {} {} {} {} {} {}",
               new Object[] {description, getDataSource(), getDataProvider(), field.getName(), _observationTimeName,
-                            _liveDataSpecification.getIdentifiers().toString(), _date.toLocalDate(), field.getValue()});
+                            _liveDataSpecification.getIdentifiers().toString(), _date.getDate(), field.getValue()});
         }
       }
     }
@@ -283,11 +283,11 @@ public class PeriodicLiveDataTimeSeriesStorageServer implements Lifecycle {
   @Override
   public void start() {
     LocalDateTime now = LocalDateTime.now();
-    LocalDateTime nextHour = now.withMinuteOfHour(0).withSecondOfMinute(0).withNanoOfSecond(0).plusHours(1);
+    LocalDateTime nextHour = now.truncatedTo(HOURS).plusHours(1);
     Duration delay = Duration.between(now.atOffset(ZoneOffset.UTC), nextHour.atOffset(ZoneOffset.UTC));
-    Period oneHour = Period.of(1, ISOChronology.periodHours());
-    s_logger.warn("Now {} Next {} Delay {} {}", new Object[] {now, nextHour, delay, delay.toMillisLong() });
-    _timerExecutor.scheduleAtFixedRate(new SnapshotTask(), delay.toMillisLong(), oneHour.toDuration().toMillisLong(), TimeUnit.MILLISECONDS);
+    Period oneHour = Period.of(1, HOURS);
+    s_logger.warn("Now {} Next {} Delay {} {}", new Object[] {now, nextHour, delay, delay.toMillis() });
+    _timerExecutor.scheduleAtFixedRate(new SnapshotTask(), delay.toMillis(), oneHour.toDuration().toMillis(), TimeUnit.MILLISECONDS);
     if (getInitializationFileName() != null) {
       initializeFromFile(getInitializationFileName());
     }

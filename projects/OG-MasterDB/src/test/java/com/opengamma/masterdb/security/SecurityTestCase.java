@@ -18,24 +18,22 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.DateProvider;
-import javax.time.calendar.DateTimeProvider;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeProvider;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.RandomStringUtils;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.PropertyReadWrite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.Region;
@@ -54,7 +52,14 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
+import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
+import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
+import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
+import com.opengamma.financial.security.cds.StandardVanillaCDSSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.equity.GICSCode;
@@ -113,6 +118,7 @@ import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SecurityNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.test.AbstractSecurityTestCaseAdapter;
 import com.opengamma.financial.security.test.SecurityTestCaseMethods;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -133,7 +139,7 @@ import com.opengamma.util.tuple.Pair;
  * Creates random securities.
  */
 @SuppressWarnings("unchecked")
-public abstract class SecurityTestCase implements SecurityTestCaseMethods {
+public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter implements SecurityTestCaseMethods {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SecurityTestCase.class);
 
@@ -338,40 +344,40 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
     });
     s_dataProviders.put(Expiry.class, DefaultObjectPermute.of(Expiry.class));
     s_dataProviders.put(ZonedDateTime.class, new TestDataProvider<ZonedDateTime>() {
-      private final TimeZone[] _timezones = new TimeZone[] {TimeZone.UTC, TimeZone.of("UTC-01:00"), TimeZone.of("UTC+01:00")};
+      private final ZoneId[] _timezones = new ZoneId[] {ZoneOffset.UTC, ZoneId.of("UTC-01:00"), ZoneId.of("UTC+01:00")};
 
       @Override
       public void getValues(final Collection<ZonedDateTime> values) {
-        for (final TimeZone timezone : _timezones) {
-          values.add(ZonedDateTime.now(Clock.system(timezone)).withNanoOfSecond(0));
+        for (final ZoneId timezone : _timezones) {
+          values.add(ZonedDateTime.now(Clock.system(timezone)).withNano(0));
           // TODO: random date in the past
           // TODO: random date in the future
         }
       }
     });
-    s_dataProviders.put(DateProvider.class, new TestDataProvider<DateProvider>() {
+    s_dataProviders.put(LocalDate.class, new TestDataProvider<LocalDate>() {
       @Override
-      public void getValues(final Collection<DateProvider> values) {
+      public void getValues(final Collection<LocalDate> values) {
         values.add(LocalDate.now());
         // TODO: random date in the past
         // TODO: random date in the future
       }
     });
-    s_dataProviders.put(TimeProvider.class, new TestDataProvider<TimeProvider>() {
+    s_dataProviders.put(LocalTime.class, new TestDataProvider<LocalTime>() {
       @Override
-      public void getValues(final Collection<TimeProvider> values) {
-        values.add(LocalTime.now().withNanoOfSecond(0));
+      public void getValues(final Collection<LocalTime> values) {
+        values.add(LocalTime.now().withNano(0));
         // TODO: random time in the past
         // TODO: random time in the future
       }
     });
-    s_dataProviders.put(DateTimeProvider.class, new TestDataProvider<DateTimeProvider>() {
+    s_dataProviders.put(LocalDateTime.class, new TestDataProvider<LocalDateTime>() {
       @Override
-      public void getValues(final Collection<DateTimeProvider> values) {
-        final Collection<DateProvider> dates = getTestObjects(DateProvider.class, null);
-        final Collection<TimeProvider> times = getTestObjects(TimeProvider.class, null);
-        for (final DateProvider date : dates) {
-          for (final TimeProvider time : times) {
+      public void getValues(final Collection<LocalDateTime> values) {
+        final Collection<LocalDate> dates = getTestObjects(LocalDate.class, null);
+        final Collection<LocalTime> times = getTestObjects(LocalTime.class, null);
+        for (final LocalDate date : dates) {
+          for (final LocalTime time : times) {
             values.add(LocalDateTime.of(date, time));
           }
         }
@@ -434,8 +440,8 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         values.add(new PoweredPayoffStyle(s_random.nextDouble()));
         values.add(new SupersharePayoffStyle(s_random.nextDouble(), s_random.nextDouble()));
         values.add(new VanillaPayoffStyle());
-        values.add(new ExtremeSpreadPayoffStyle(ZonedDateTime.now().withNanoOfSecond(0), s_random.nextBoolean()));
-        values.add(new SimpleChooserPayoffStyle(ZonedDateTime.now().withNanoOfSecond(0), s_random.nextDouble(),
+        values.add(new ExtremeSpreadPayoffStyle(ZonedDateTime.now().withNano(0), s_random.nextBoolean()));
+        values.add(new SimpleChooserPayoffStyle(ZonedDateTime.now().withNano(0), s_random.nextDouble(),
             new Expiry(ZonedDateTime.now(Clock.systemDefaultZone()), ExpiryAccuracy.MONTH_YEAR)));
       }
     });
@@ -471,6 +477,12 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         values.add(new CommodityNotional());
         values.addAll(permuteTestObjects(InterestRateNotional.class));
         values.addAll(permuteTestObjects(SecurityNotional.class));
+      }
+    });
+    s_dataProviders.put(InterestRateNotional.class, new TestDataProvider<Notional>() {
+      @Override
+      public void getValues(final Collection<Notional> values) {
+        values.addAll(permuteTestObjects(InterestRateNotional.class));
       }
     });
     s_dataProviders.put(byte[].class, new TestDataProvider<byte[]>() {
@@ -612,7 +624,10 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         for (int j = 0; j < mps.size(); j++) {
           Object value = parameterValues[j].get(parameterIndex[j]);
           parameterIndex[j] = (parameterIndex[j] + 1) % parameterValues[j].size();
-          builder.set(mps.get(j).name(), value);
+          MetaProperty<?> metaProperty = mps.get(j);
+          if (metaProperty.readWrite() != PropertyReadWrite.READ_ONLY) {
+            builder.set(metaProperty.name(), value);
+          }
         }
         objects.add((T) builder.build());
       } catch (final Throwable t) {
@@ -674,10 +689,6 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
       assertNotNull(securityType);
     }
     for (final T security : securities) {
-      // Force the security type to be a valid string; they're random nonsense otherwise
-      if (securityClass != RawSecurity.class) {
-        security.setSecurityType(securityType);
-      }
       assertSecurity(securityClass, security);
     }
   }
@@ -893,25 +904,49 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   
   @Override
   @Test
-  public void testSimpleZeroDepositSecurity() {
-	  return;
-  }
-  
-  @Override
-  @Test
-  public void testPeriodicZeroDepositSecurity() {
-    return;
-  }
-  
-  @Override 
-  @Test
-  public void testContinuousZeroDepositSecurity() {
-    return;
-  }
-  
-  @Override
-  @Test
   public void testCDSSecurity() {
     assertSecurities(CDSSecurity.class);
+  }
+
+  @Override
+  @Test
+  public void testStandardFixedRecoveryCDSSecurity() {
+    assertSecurities(StandardFixedRecoveryCDSSecurity.class);
+  }
+  
+  @Override
+  @Test
+  public void testStandardRecoveryLockCDSSecurity() {
+    assertSecurities(StandardRecoveryLockCDSSecurity.class);
+  }
+
+  @Override
+  @Test
+  public void testStandardVanillaCDSSecurity() {
+    assertSecurities(StandardVanillaCDSSecurity.class);
+  }
+
+  @Override
+  @Test
+  public void testLegacyFixedRecoveryCDSSecurity() {
+    assertSecurities(LegacyFixedRecoveryCDSSecurity.class);
+  }
+
+  @Override
+  @Test
+  public void testLegacyRecoveryLockCDSSecurity() {
+    assertSecurities(LegacyRecoveryLockCDSSecurity.class);
+  }
+
+  @Override
+  @Test
+  public void testLegacyVanillaCDSSecurity() {
+    assertSecurities(LegacyVanillaCDSSecurity.class);
+  }
+
+  @Override
+  @Test
+  public void testCashFlowSecurity() {
+    assertSecurities(CashFlowSecurity.class);
   }
 }

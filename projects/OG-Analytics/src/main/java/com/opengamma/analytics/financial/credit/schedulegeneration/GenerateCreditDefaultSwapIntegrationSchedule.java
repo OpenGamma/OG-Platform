@@ -9,12 +9,11 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -38,8 +37,12 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to calculate the time nodes used to approximate the integral in the accrued leg calculation
-  public double[] constructCreditDefaultSwapAccruedLegIntegrationSchedule(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve, final HazardRateCurve hazardRateCurve) {
+
+  public double[] constructCreditDefaultSwapAccruedLegIntegrationSchedule(
+      final ZonedDateTime valuationDate,
+      final CreditDefaultSwapDefinition cds,
+      final ISDACurve yieldCurve,
+      final HazardRateCurve hazardRateCurve) {
 
     // Check input objects are not null
     ArgumentChecker.notNull(cds, "CDS");
@@ -64,8 +67,12 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to calculate the time nodes used to approximate the integral in the contingent leg calculation
-  public double[] constructCreditDefaultSwapContingentLegIntegrationSchedule(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve, final HazardRateCurve hazardRateCurve) {
+
+  public double[] constructCreditDefaultSwapContingentLegIntegrationSchedule(
+      final ZonedDateTime valuationDate,
+      final CreditDefaultSwapDefinition cds,
+      final ISDACurve yieldCurve,
+      final HazardRateCurve hazardRateCurve) {
 
     // Check input objects are not null
     ArgumentChecker.notNull(cds, "CDS");
@@ -90,8 +97,15 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to construct a set of timenodes compliant with the ISDA model (adapted from the RiskCare implementation)
-  private double[] constructISDACompliantIntegrationSchedule(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDACurve yieldCurve,
-      final HazardRateCurve hazardRateCurve, final double startTime, final double endTime, final boolean includeSchedule) {
+
+  private double[] constructISDACompliantIntegrationSchedule(
+      final ZonedDateTime valuationDate,
+      final CreditDefaultSwapDefinition cds,
+      final ISDACurve yieldCurve,
+      final HazardRateCurve hazardRateCurve,
+      final double startTime,
+      final double endTime,
+      final boolean includeSchedule) {
 
     // ------------------------------------------------
 
@@ -182,7 +196,10 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
 
   // -------------------------------------------------------------------------------------------
 
-  public double calculateCreditDefaultSwapStartTime(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final DayCount dayCount) {
+  public double calculateCreditDefaultSwapStartTime(
+      final ZonedDateTime valuationDate,
+      final CreditDefaultSwapDefinition cds,
+      final DayCount dayCount) {
 
     final double startTime = TimeCalculator.getTimeBetween(valuationDate, cds.getStartDate(), dayCount);
 
@@ -192,7 +209,9 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
   // -------------------------------------------------------------------------------------------------
 
   // Calculate the step in time for the CDS (the point at which protection coverage starts)
-  public double calculateCreditDefaultSwapStepinTime(final ZonedDateTime valuationDate, final DayCount dayCount) {
+  public double calculateCreditDefaultSwapStepinTime(
+      final ZonedDateTime valuationDate,
+      final DayCount dayCount) {
 
     final double stepInTime = TimeCalculator.getTimeBetween(valuationDate, valuationDate.plusDays(1), dayCount);
 
@@ -202,7 +221,10 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
   // -------------------------------------------------------------------------------------------------
 
   // Calculate the offset step in time for the CDS
-  public double calculateCreditDefaultSwapOffsetStepinTime(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final DayCount dayCount) {
+  public double calculateCreditDefaultSwapOffsetStepinTime(
+      final ZonedDateTime valuationDate,
+      final CreditDefaultSwapDefinition cds,
+      final DayCount dayCount) {
 
     double offset = 0.0;
     final double stepinTime = calculateCreditDefaultSwapStepinTime(valuationDate, dayCount);
@@ -219,7 +241,10 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
   // -------------------------------------------------------------------------------------------------
 
   // Calculate the start time of the CDS contract with respect to the valuation date (can be negative obviously)
-  public double calculateProtectionStartTime(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final DayCount dayCount) {
+  public double calculateProtectionStartTime(
+      final ZonedDateTime valuationDate,
+      final CreditDefaultSwapDefinition cds,
+      final DayCount dayCount) {
 
     final double startTime = calculateCreditDefaultSwapStartTime(valuationDate, cds, dayCount);
     final double stepInTime = calculateCreditDefaultSwapStepinTime(valuationDate, dayCount);
@@ -235,7 +260,10 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
   // -------------------------------------------------------------------------------------------------
 
   // Calculate the maturity of the CDS with respect to the valuation date
-  public double calculateCreditDefaultSwapMaturity(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final DayCount dayCount) {
+  public double calculateCreditDefaultSwapMaturity(
+      final ZonedDateTime valuationDate,
+      final CreditDefaultSwapDefinition cds,
+      final DayCount dayCount) {
 
     final double maturity = TimeCalculator.getTimeBetween(valuationDate, cds.getMaturityDate(), dayCount);
 
@@ -245,7 +273,10 @@ public class GenerateCreditDefaultSwapIntegrationSchedule {
   // -------------------------------------------------------------------------------------------------
 
   // Calculate the offset maturity for the CDS contract
-  public double calculateCreditDefaultSwapOffsetMaturity(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final DayCount dayCount) {
+  public double calculateCreditDefaultSwapOffsetMaturity(
+      final ZonedDateTime valuationDate,
+      final CreditDefaultSwapDefinition cds,
+      final DayCount dayCount) {
 
     double offset = 0.0;
 

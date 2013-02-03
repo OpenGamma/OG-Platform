@@ -7,8 +7,6 @@ package com.opengamma.financial.security.option;
 
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -18,6 +16,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -78,7 +77,7 @@ public class SwaptionSecurity extends FinancialSecurity {
   /**
    * The exercise type.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private ExerciseType _exerciseType;
   /**
    * The settlement date.
@@ -87,7 +86,7 @@ public class SwaptionSecurity extends FinancialSecurity {
   private ZonedDateTime _settlementDate;
 
   SwaptionSecurity() { //For builder
-    super();
+    super(SECURITY_TYPE);
   }
 
   public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong, Expiry expiry, boolean cashSettled, Currency currency) {
@@ -216,6 +215,7 @@ public class SwaptionSecurity extends FinancialSecurity {
     JodaBeanUtils.notNull(_longShort, "longShort");
     JodaBeanUtils.notNull(_expiry, "expiry");
     JodaBeanUtils.notNull(_currency, "currency");
+    JodaBeanUtils.notNull(_exerciseType, "exerciseType");
     super.validate();
   }
 
@@ -437,7 +437,7 @@ public class SwaptionSecurity extends FinancialSecurity {
   //-----------------------------------------------------------------------
   /**
    * Gets the exercise type.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ExerciseType getExerciseType() {
     return _exerciseType;
@@ -445,9 +445,10 @@ public class SwaptionSecurity extends FinancialSecurity {
 
   /**
    * Sets the exercise type.
-   * @param exerciseType  the new value of the property
+   * @param exerciseType  the new value of the property, not null
    */
   public void setExerciseType(ExerciseType exerciseType) {
+    JodaBeanUtils.notNull(exerciseType, "exerciseType");
     this._exerciseType = exerciseType;
   }
 

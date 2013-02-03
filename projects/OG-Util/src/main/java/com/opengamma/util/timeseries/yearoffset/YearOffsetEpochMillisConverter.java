@@ -17,12 +17,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.time.Instant;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -44,36 +43,36 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
   /** Number of milliseconds in a year (assuming 365.25 days per year) */
   public static final long MILLIS_PER_YEAR = (long) (MILLIS_PER_DAY * 365.25);
 
-  private final TimeZone _timeZone;
+  private final ZoneId _timeZone;
   private final long _offset;
 
   public YearOffsetEpochMillisConverter(final ZonedDateTime zonedDateTime) {
     _timeZone = zonedDateTime.getZone();
-    _offset = zonedDateTime.toInstant().toEpochMillisLong();
+    _offset = zonedDateTime.toInstant().toEpochMilli();
   }
   
   public YearOffsetEpochMillisConverter(final java.util.TimeZone timeZone, final Date date) {
-    _timeZone = TimeZone.of(timeZone.getID());
+    _timeZone = ZoneId.of(timeZone.getID());
     Calendar cal = Calendar.getInstance(timeZone);
     cal.setTime(date);
     _offset = cal.getTimeInMillis(); // does this do anything over date.getTime()?  Specifically does it factor in the timeZone?
   }
 
   public YearOffsetEpochMillisConverter(Date date) {
-    _timeZone = TimeZone.of(java.util.TimeZone.getDefault().getID());
+    _timeZone = ZoneId.of(java.util.TimeZone.getDefault().getID());
     _offset = date.getTime();
   }
 
   public java.util.TimeZone getTimeZone() {
-    return java.util.TimeZone.getTimeZone(_timeZone.getID());
+    return java.util.TimeZone.getTimeZone(_timeZone.getId());
   }
   
-  public TimeZone getTimeZone310() {
+  public ZoneId getTimeZone310() {
     return _timeZone;
   }
   
   public ZonedDateTime getZonedOffset() {
-    return ZonedDateTime.ofInstant(Instant.ofEpochMillis(_offset), _timeZone);
+    return ZonedDateTime.ofInstant(Instant.ofEpochMilli(_offset), _timeZone);
   }
 
   @Override
@@ -187,11 +186,6 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
   }
 
   @Override
-  public Pair<Double, Double> makePair(final Double dateTime, final Double value) {
-    return Pair.of(dateTime, value);
-  }
-
-  @Override
   public DoubleTimeSeries<Double> convertFromLong(final DoubleTimeSeries<Double> templateTS, final FastLongDoubleTimeSeries pldts) {
     final Double[] dateTimes = new Double[pldts.size()];
     final Double[] values = new Double[pldts.size()];
@@ -269,4 +263,5 @@ public class YearOffsetEpochMillisConverter implements DateTimeConverter<Double>
   public <T> Pair<Double, T> makePair(Double dateTime, T value) {
     return Pair.of(dateTime, value);
   }
+
 }

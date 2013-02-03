@@ -7,12 +7,13 @@ package com.opengamma.financial.view.rest;
 
 import java.net.URI;
 
-import javax.time.Duration;
 import javax.ws.rs.core.UriBuilder;
 
+import org.threeten.bp.Duration;
+
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calc.ComputationCycleQuery;
 import com.opengamma.engine.view.calc.ComputationCacheResponse;
+import com.opengamma.engine.view.calc.ComputationCycleQuery;
 import com.opengamma.engine.view.calc.ComputationResultsResponse;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.calc.ViewCycleState;

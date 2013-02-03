@@ -8,8 +8,6 @@ package com.opengamma.financial.view;
 import java.util.Set;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Interface to allow an alternate set of unique identifiers to be watched for changes in addition to those
@@ -24,6 +22,6 @@ public interface WatchSetProvider {
    * @param watchSet explicitly requested watch set, not null
    * @return the additional identifiers to watch, null if there are no additional ones
    */
-  Set<Pair<ObjectId, VersionCorrection>> getAdditionalWatchSet(Set<Pair<ObjectId, VersionCorrection>> watchSet);
+  Set<ObjectId> getAdditionalWatchSet(Set<ObjectId> watchSet);
 
 }

@@ -11,10 +11,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -105,7 +104,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
     Expiry expiry;
     for (int i = 0; i < TEST_EXPIRY.length; i++) {
       expiry = TEST_EXPIRY[i];
-      result = sigma[i] + 4 * diff * DateUtils.getDifferenceInYears(EXPIRY[i], expiry);
+      result = sigma[i] + 4 * diff * DateUtils.getDifferenceInYears(EXPIRY[i].getExpiry(), expiry.getExpiry());
       for (final double strike : TEST_STRIKE) {
         assertEquals(surface.getVolatility(DoublesPair.of(DateUtils.getDifferenceInYears(DATE, expiry.getExpiry()), strike)), result, EPS);
       }

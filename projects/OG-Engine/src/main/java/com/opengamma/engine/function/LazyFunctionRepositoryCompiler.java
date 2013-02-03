@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 /**
  * Defers the compilation of any functions until the definitions are requested. This may be useful for

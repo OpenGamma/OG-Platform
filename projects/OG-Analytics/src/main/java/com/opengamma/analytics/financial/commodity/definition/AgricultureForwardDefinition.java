@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.commodity.definition;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.commodity.derivative.AgricultureForward;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -117,6 +117,7 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
    *
    * @param date  fixing time
    * @param referencePrice reference price
+   * @param yieldCurveNames not used
    * @return the fixed derivative
    */
   @Override
@@ -130,11 +131,13 @@ public class AgricultureForwardDefinition extends CommodityForwardDefinition<Agr
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitAgricultureForwardDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitAgricultureForwardDefinition(this);
   }
 

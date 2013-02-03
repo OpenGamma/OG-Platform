@@ -95,7 +95,6 @@ public class ExchangeHistoryResult extends AbstractHistoryResult<ExchangeDocumen
    * The meta-bean for {@code ExchangeHistoryResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static ExchangeHistoryResult.Meta meta() {
     return ExchangeHistoryResult.Meta.INSTANCE;
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.masterdb.user;
@@ -9,22 +9,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
-import org.fudgemsg.FudgeContext;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -32,34 +34,57 @@ import com.opengamma.master.AbstractHistoryRequest;
 import com.opengamma.master.AbstractHistoryResult;
 import com.opengamma.master.user.ManageableOGUser;
 import com.opengamma.master.user.UserDocument;
+import com.opengamma.master.user.UserHistoryRequest;
+import com.opengamma.master.user.UserHistoryResult;
 import com.opengamma.master.user.UserMaster;
 import com.opengamma.master.user.UserSearchRequest;
 import com.opengamma.master.user.UserSearchResult;
+import com.opengamma.master.user.UserSearchSortOrder;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.paging.Paging;
 
 /**
- * 
+ * A user master implementation using a database for persistence.
+ * <p>
+ * This is a full implementation of the user master using an SQL database.
+ * Full details of the API are in {@link UserMaster}.
+ * <p>
+ * The SQL is stored externally in {@code DbUserMaster.elsql}.
+ * Alternate databases or specific SQL requirements can be handled using database
+ * specific overrides, such as {@code DbUserMaster-MySpecialDB.elsql}.
+ * <p>
+ * This class is mutable but must be treated as immutable after configuration.
  */
 public class DbUserMaster
     extends AbstractDocumentDbMaster<UserDocument>
     implements UserMaster {
 
   /** Logger. */
-  @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(DbUserMaster.class);
+
   /**
    * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbUsr";
+
   /**
-   * The Fudge context.
+   * SQL order by.
    */
-  protected static final FudgeContext FUDGE_CONTEXT = OpenGammaFudgeContext.getInstance();
+  protected static final EnumMap<UserSearchSortOrder, String> ORDER_BY_MAP = new EnumMap<UserSearchSortOrder, String>(UserSearchSortOrder.class);
+  static {
+    ORDER_BY_MAP.put(UserSearchSortOrder.OBJECT_ID_ASC, "oid ASC");
+    ORDER_BY_MAP.put(UserSearchSortOrder.OBJECT_ID_DESC, "oid DESC");
+    ORDER_BY_MAP.put(UserSearchSortOrder.VERSION_FROM_INSTANT_ASC, "ver_from_instant ASC");
+    ORDER_BY_MAP.put(UserSearchSortOrder.VERSION_FROM_INSTANT_DESC, "ver_from_instant DESC");
+    ORDER_BY_MAP.put(UserSearchSortOrder.NAME_ASC, "name ASC");
+    ORDER_BY_MAP.put(UserSearchSortOrder.NAME_DESC, "name DESC");
+    ORDER_BY_MAP.put(UserSearchSortOrder.EMAIL_ASC, "email_address ASC");
+    ORDER_BY_MAP.put(UserSearchSortOrder.EMAIL_DESC, "email_address DESC");
+  }
 
   /**
    * Creates an instance.
@@ -71,26 +96,118 @@ public class DbUserMaster
     setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbUserMaster.class));
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public UserSearchResult search(UserSearchRequest request) {
+    ArgumentChecker.notNull(request, "request");
+    ArgumentChecker.notNull(request.getPagingRequest(), "request.pagingRequest");
+    ArgumentChecker.notNull(request.getVersionCorrection(), "request.versionCorrection");
+    s_logger.debug("search {}", request);
+    
+    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
+    final UserSearchResult result = new UserSearchResult(vc);
+    
+    final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
+    final List<ObjectId> objectIds = request.getObjectIds();
+    if ((objectIds != null && objectIds.size() == 0) ||
+        (ExternalIdSearch.canMatch(externalIdSearch) == false)) {
+      result.setPaging(Paging.of(request.getPagingRequest(), 0));
+      return result;
+    }
+    
+    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
+      .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
+      .addValueNullIgnored("userid", getDialect().sqlWildcardAdjustValue(request.getUserId()))
+      .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
+      .addValueNullIgnored("time_zone", getDialect().sqlWildcardAdjustValue(request.getTimeZone()))
+      .addValueNullIgnored("email_address", getDialect().sqlWildcardAdjustValue(request.getEmailAddress()))
+      .addValueNullIgnored("external_id_scheme", getDialect().sqlWildcardAdjustValue(request.getExternalIdScheme()))
+      .addValueNullIgnored("external_id_value", getDialect().sqlWildcardAdjustValue(request.getExternalIdValue()));
+    if (externalIdSearch != null && externalIdSearch.alwaysMatches() == false) {
+      int i = 0;
+      for (ExternalId id : externalIdSearch) {
+        args.addValue("key_scheme" + i, id.getScheme().getName());
+        args.addValue("key_value" + i, id.getValue());
+        i++;
+      }
+      args.addValue("sql_search_external_ids_type", externalIdSearch.getSearchType());
+      args.addValue("sql_search_external_ids", sqlSelectIdKeys(externalIdSearch));
+      args.addValue("id_search_size", externalIdSearch.getExternalIds().size());
+    }
+    if (objectIds != null) {
+      StringBuilder buf = new StringBuilder(objectIds.size() * 10);
+      for (ObjectId objectId : objectIds) {
+        checkScheme(objectId);
+        buf.append(extractOid(objectId)).append(", ");
+      }
+      buf.setLength(buf.length() - 2);
+      args.addValue("sql_search_object_ids", buf.toString());
+    }
+    args.addValue("sort_order", ORDER_BY_MAP.get(request.getSortOrder()));
+    args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
+    args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
+    
+    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
+    searchWithPaging(request.getPagingRequest(), sql, args, new UserDocumentExtractor(), result);
+    return result;
+  }
+
+  /**
+   * Gets the SQL to find all the ids for a single bundle.
+   * <p>
+   * This is too complex for the elsql mechanism.
+   * 
+   * @param idSearch  the identifier search, not null
+   * @return the SQL, not null
+   */
+  protected String sqlSelectIdKeys(final ExternalIdSearch idSearch) {
+    List<String> list = new ArrayList<String>();
+    for (int i = 0; i < idSearch.size(); i++) {
+      list.add("(key_scheme = :key_scheme" + i + " AND key_value = :key_value" + i + ") ");
+    }
+    return StringUtils.join(list, "OR ");
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public UserDocument get(UniqueId uniqueId) {
     return doGet(uniqueId, new UserDocumentExtractor(), "User");
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public UserDocument get(ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
     return doGetByOidInstants(objectId, versionCorrection, new UserDocumentExtractor(), "User");
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public UserHistoryResult history(UserHistoryRequest request) {
+    return doHistory(request, new UserHistoryResult(), new UserDocumentExtractor());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Inserts a new document.
+   * 
+   * @param document  the document, not null
+   * @return the new document, not null
+   */
   @Override
   protected UserDocument insert(UserDocument document) {
     ArgumentChecker.notNull(document.getUser(), "document.user");
-    
-    final ManageableOGUser user = document.getUser();
+    ArgumentChecker.notNull(document.getUser().getUserId(), "document.user.userid");
+    ArgumentChecker.notNull(document.getUser().getTimeZone(), "document.user.timezone");
+
     final long docId = nextId("usr_oguser_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     final UniqueId uniqueId = createUniqueId(docOid, docId);
+    final ManageableOGUser user = document.getUser();
     user.setUniqueId(uniqueId);
     document.setUniqueId(uniqueId);
+    
+    // the arguments for inserting into the user table
     final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
       .addValue("doc_id", docId)
       .addValue("doc_oid", docOid)
@@ -101,7 +218,7 @@ public class DbUserMaster
       .addValue("userid", user.getUserId())
       .addValue("password", user.getPasswordHash())
       .addValue("name", user.getName())
-      .addValue("time_zone", user.getTimeZone().getID())
+      .addValue("time_zone", user.getTimeZone().getId())
       .addValue("email_address", user.getEmailAddress());
     
     // the arguments for inserting into the idkey tables
@@ -146,53 +263,69 @@ public class DbUserMaster
     return document;
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public AbstractHistoryResult<UserDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
+    UserHistoryRequest historyRequest = new UserHistoryRequest();
+    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
+    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
+    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
+    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
+    historyRequest.setObjectId(request.getObjectId());
+    return doHistory(request, new UserHistoryResult(), new UserDocumentExtractor());
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Mapper from SQL rows to a UserDocument.
    */
   protected final class UserDocumentExtractor implements ResultSetExtractor<List<UserDocument>> {
     private long _previousDocId = -1L;
-    private long _previousKeyId = -1L;
-    private boolean _processEntitlements = true;
     private ManageableOGUser _currUser;
+    private Set<ExternalId> _currExternalIds = new HashSet<ExternalId>();
+    private Set<String> _currEntitlements = new HashSet<String>();
     private List<UserDocument> _documents = new ArrayList<UserDocument>();
 
     @Override
     public List<UserDocument> extractData(final ResultSet rs) throws SQLException, DataAccessException {
       while (rs.next()) {
+        System.out.println("===================");
+        System.out.println(rs.getObject("DOC_ID"));
+        System.out.println(rs.getObject("IDKEY_ID"));
+        System.out.println(rs.getObject("KEY_SCHEME"));
+        System.out.println(rs.getObject("KEY_VALUE"));
+        System.out.println(rs.getObject("ENTITLEMENT_PATTERN"));
+        
         final long docId = rs.getLong("DOC_ID");
         // DOC_ID tells us when we're on a new document.
         if (docId != _previousDocId) {
+          if (_previousDocId >= 0) {
+            _currUser.setExternalIdBundle(ExternalIdBundle.of(_currExternalIds));
+            _currUser.setEntitlements(_currEntitlements);
+          }
           _previousDocId = docId;
           buildUser(rs, docId);
-          _previousKeyId = -1L;
-          _processEntitlements = true;
+          _currExternalIds.clear();
+          _currEntitlements.clear();
         }
         
-        // IDKEY_ID tells us when we're on a new external ID
-        // This tells us to both process the ID and NOT to process the entitlement
-        // patterns.
-        final long keyId = rs.getLong("IDKEY_ID");
-        if (rs.wasNull()) {
-          // No external IDs. Have to process entitlements.
-          _processEntitlements = true;
-        } else if (keyId != _previousKeyId) {
-          // We've rolled. Don't process entitlements this pass.
-          if (_previousKeyId != -1L) {
-            _processEntitlements = false;
-          }
-          
-          _previousKeyId = keyId;
-          String idKey = rs.getString("KEY_SCHEME");
-          String idValue = rs.getString("KEY_VALUE");
-          ExternalIdBundle idBundle = _currUser.getExternalIdBundle().withExternalId(
-              ExternalId.of(idKey, idValue));
-          _currUser.setExternalIdBundle(idBundle);
+        // always read sub-tables and use set to deduplicate
+        // note that there is an effective CROSS JOIN between entitlements
+        // and externalIds, which may be a problem
+        String idKey = rs.getString("KEY_SCHEME");
+        String idValue = rs.getString("KEY_VALUE");
+        if (idKey != null && idValue != null) {
+          _currExternalIds.add(ExternalId.of(idKey, idValue));
         }
-        
         String entitlementPattern = rs.getString("ENTITLEMENT_PATTERN");
-        if (_processEntitlements && !rs.wasNull()) {
-          _currUser.getEntitlements().add(entitlementPattern);
+        if (entitlementPattern != null) {
+          _currEntitlements.add(entitlementPattern);
         }
+      }
+      // patch up last document read
+      if (_previousDocId >= 0) {
+        _currUser.setExternalIdBundle(ExternalIdBundle.of(_currExternalIds));
+        _currUser.setEntitlements(_currEntitlements);
       }
       return _documents;
     }
@@ -209,7 +342,7 @@ public class DbUserMaster
       ManageableOGUser user = new ManageableOGUser(rs.getString("USERID"));
       user.setPasswordHash(rs.getString("PASSWORD"));
       user.setName(rs.getString("NAME"));
-      user.setTimeZone(TimeZone.of(rs.getString("TIME_ZONE")));
+      user.setTimeZone(ZoneId.of(rs.getString("TIME_ZONE")));
       user.setEmailAddress(rs.getString("EMAIL_ADDRESS"));
       user.setUniqueId(uniqueId);
       _currUser = user;
@@ -225,36 +358,4 @@ public class DbUserMaster
     }
   }
 
-  @Override
-  public UserSearchResult search(UserSearchRequest request) {
-    // TODO kirk 2012-08-20 -- Yep, this is exactly what it looks like. Yes, it needs
-    // replacing.
-    List<UserDocument> docs = new LinkedList<UserDocument>();
-    
-    final String sql = getElSqlBundle().getSql("GetAll");
-    final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    @SuppressWarnings("unchecked")
-    final List<UserDocument> queryResult = namedJdbc.query(sql, Collections.EMPTY_MAP, new UserDocumentExtractor());
-    for (UserDocument doc : queryResult) {
-      if (request.matches(doc)) {
-        docs.add(doc);
-      }
-    }
-    
-    final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(now());
-    UserSearchResult result = new UserSearchResult(vc);
-    result.getDocuments().addAll(docs);
-    return result;
-  }
-
-  @Override
-  public AbstractHistoryResult<UserDocument> historyByVersionsCorrections(AbstractHistoryRequest request) {
-    UserHistoryRequest historyRequest = new UserHistoryRequest();
-    historyRequest.setCorrectionsFromInstant(request.getCorrectionsFromInstant());
-    historyRequest.setCorrectionsToInstant(request.getCorrectionsToInstant());
-    historyRequest.setVersionsFromInstant(request.getVersionsFromInstant());
-    historyRequest.setVersionsToInstant(request.getVersionsToInstant());
-    historyRequest.setObjectId(request.getObjectId());
-    return doHistory(request, new UserHistoryResult(), new UserDocumentExtractor());
-  }
 }

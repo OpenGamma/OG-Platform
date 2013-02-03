@@ -5,10 +5,12 @@
  */
 package com.opengamma.engine.view.calcnode;
 
+import java.util.EnumSet;
 import java.util.List;
 
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.util.log.LogEvent;
+import com.opengamma.util.log.LogLevel;
 
 /**
  * Represents an empty execution log, mainly for testing.
@@ -19,26 +21,18 @@ public final class EmptyExecutionLog implements ExecutionLog {
    * An instance of an empty execution log.
    */
   public static final ExecutionLog INSTANCE = new EmptyExecutionLog();
-  
+
+  private final EnumSet<LogLevel> _levels = EnumSet.noneOf(LogLevel.class);
+
   /**
    * Hidden constructor.
    */
   private EmptyExecutionLog() {
   }
-  
-  @Override
-  public boolean hasError() {
-    return false;
-  }
 
   @Override
-  public boolean hasWarn() {
-    return false;
-  }
-
-  @Override
-  public boolean hasInfo() {
-    return false;
+  public EnumSet<LogLevel> getLogLevels() {
+    return _levels;
   }
 
   @Override
@@ -64,6 +58,12 @@ public final class EmptyExecutionLog implements ExecutionLog {
   @Override
   public String getExceptionStackTrace() {
     return null;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean isEmpty() {
+    return true;
   }
   
   //-------------------------------------------------------------------------

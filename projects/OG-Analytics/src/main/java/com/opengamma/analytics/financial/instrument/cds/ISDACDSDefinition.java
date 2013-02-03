@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.cds;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.instrument.Convention;
@@ -15,8 +15,8 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.daycount.AccruedInterestCalculator;
-import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.util.ArgumentChecker;
 
@@ -25,31 +25,42 @@ import com.opengamma.util.ArgumentChecker;
  * 
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  * 
- * @see CDSSecurity
  * @see ISDACDSDerivative
  * @see InstrumentDefinition
  */
 public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative> {
-  
-  private static final DayCount ACT_365F = new ActualThreeSixtyFive();
-  
+  /** The day count used by ISDA */
+  private static final DayCount ACT_365F = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+
+  /** The start date of the CDS */
   private final ZonedDateTime _startDate;
+  /** The maturity of the CDS */
   private final ZonedDateTime _maturity;
-  
+
+  /** The premium */
   private final ISDACDSPremiumDefinition _premium;
-  
+
+  /** The notional */
   private final double _notional;
+  /** The spread */
   private final double _spread;
+  /** The recovery rate */
   private final double _recoveryRate;
-  
+
+  /** Should accrued interest be paid in the event of a default */
   private final boolean _accrualOnDefault;
+  /** Is the protection payment made on default or at maturity */ 
   private final boolean _payOnDefault;
+  /** Is the start date protected */
   private final boolean _protectStart;
-  
+
+  /** The coupon frequency */
   private final Frequency _couponFrequency;
+  /** The convention */
   private final Convention _convention;
+  /** The stub type */
   private final StubType _stubType;
-  
+
   /**
    * Create an (immutable) CDS definition
    * @param startDate Protection start date of the CDS contract (may be in the past, not null)
@@ -66,15 +77,15 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
    * @param stubType The premium stub type
    */
   public ISDACDSDefinition(final ZonedDateTime startDate, final ZonedDateTime maturity, final ISDACDSPremiumDefinition premium,
-    final double notional, final double spread, final double recoveryRate,
-    final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart,
-    final Frequency couponFrequency, final Convention convention, final StubType stubType) {
-    
+      final double notional, final double spread, final double recoveryRate,
+      final boolean accrualOnDefault, final boolean payOnDefault, final boolean protectStart,
+      final Frequency couponFrequency, final Convention convention, final StubType stubType) {
+
     ArgumentChecker.notNull(startDate, "start date");
     ArgumentChecker.notNull(maturity, "maturity");
     ArgumentChecker.notNull(premium, "premium");
     ArgumentChecker.notNull(convention, "convention");
-    
+
     _startDate = startDate;
     _maturity = maturity;
     _premium = premium;
@@ -90,70 +101,80 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
   }
 
   /**
-   * Create a {@link ISDACDSDerivative} object for pricing relative to the given pricing date 
+   * Create a {@link ISDACDSDerivative} object for pricing relative to the given pricing date
    * 
    * @param pricingDate Pricing point for offsetting t values
    * @param yieldCurveNames Curve names: 0 = discount, 1 = credit spread (optional)
    * @return CDS derivative object ready for pricing
    */
   @Override
-  public ISDACDSDerivative toDerivative(ZonedDateTime pricingDate, String... yieldCurveNames) {
-    
+  public ISDACDSDerivative toDerivative(final ZonedDateTime pricingDate, final String... yieldCurveNames) {
+
     final ZonedDateTime stepinDate = pricingDate.isAfter(_startDate) ? pricingDate.plusDays(1) : _startDate;
     final ZonedDateTime settlementDate = findSettlementDate(pricingDate, _convention);
-    
+
     return toDerivative(pricingDate, stepinDate, settlementDate, yieldCurveNames);
   }
-  
-  public ISDACDSDerivative toDerivative(ZonedDateTime pricingDate, ZonedDateTime stepinDate, ZonedDateTime settlementDate, String... yieldCurveNames) {
-    
+
+  /**
+   * @param pricingDate The pricing date
+   * @param stepinDate The step-in date
+   * @param settlementDate The settlement date
+   * @param yieldCurveNames The yield curve names, not null
+   * @return The derivative form of a CDS
+   */
+  public ISDACDSDerivative toDerivative(final ZonedDateTime pricingDate, final ZonedDateTime stepinDate, final ZonedDateTime settlementDate, final String... yieldCurveNames) {
+
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length >= 1, "At least one curve required (discount, credit spread is optional)");
-    
+
     final String discountCurveName = yieldCurveNames[0];
     final String spreadCurveName =  yieldCurveNames.length > 1 ? yieldCurveNames[1] : null;
-    
+
     return new ISDACDSDerivative(
-      discountCurveName, spreadCurveName,
-      _premium.toDerivative(pricingDate, discountCurveName),
-      getTimeBetween(pricingDate, _startDate),
-      getTimeBetween(pricingDate, _maturity),
-      getTimeBetween(pricingDate, stepinDate),
-      getTimeBetween(pricingDate, settlementDate),
-      _notional, _spread, _recoveryRate, accruedInterest(stepinDate),
-      _accrualOnDefault, _payOnDefault, _protectStart,
-      _couponFrequency, _convention, _stubType
-    );
+        discountCurveName, spreadCurveName,
+        _premium.toDerivative(pricingDate, discountCurveName),
+        getTimeBetween(pricingDate, _startDate),
+        getTimeBetween(pricingDate, _maturity),
+        getTimeBetween(pricingDate, stepinDate),
+        getTimeBetween(pricingDate, settlementDate),
+        _notional, _spread, _recoveryRate, accruedInterest(stepinDate),
+        _accrualOnDefault, _payOnDefault, _protectStart,
+        _couponFrequency, _convention, _stubType);
   }
-  
+
   private ZonedDateTime findSettlementDate(final ZonedDateTime startDate, final Convention convention) {
-    
-    final DateAdjuster adjuster = convention.getBusinessDayConvention().getDateAdjuster(convention.getWorkingDayCalendar());
-    
+
+    final TemporalAdjuster adjuster = convention.getBusinessDayConvention().getTemporalAdjuster(convention.getWorkingDayCalendar());
+
     ZonedDateTime result = startDate;
-    
+
     for (int i = 0, n = convention.getSettlementDays(); i < n; ++i) {
       result = result.plusDays(1).with(adjuster);
     }
-    
+
     return result;
   }
-  
+
   private static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
-    
+
     final ZonedDateTime rebasedDate2 = date2.withZoneSameInstant(date1.getZone());
-    
+
     return rebasedDate2.isBefore(date1)
-      ? -ACT_365F.getDayCountFraction(rebasedDate2, date1)
-      :  ACT_365F.getDayCountFraction(date1, rebasedDate2);
+        ? -ACT_365F.getDayCountFraction(rebasedDate2, date1)
+            :  ACT_365F.getDayCountFraction(date1, rebasedDate2);
   }
-  
+
+  /**
+   * @param stepinDate The step-in date
+   * @return The accrued interest at this date
+   */
   public double accruedInterest(final ZonedDateTime stepinDate) {
-    
+
     final int nCoupons = _premium.getNumberOfPayments();
     int couponIndex = 0;
     boolean found = false;
-    
+
     for (int i = nCoupons - 1; i >= 0; --i) {
       if (!_premium.getNthPayment(i).getAccrualStartDate().isAfter(stepinDate)) {
         couponIndex = i;
@@ -161,74 +182,124 @@ public class ISDACDSDefinition implements InstrumentDefinition<ISDACDSDerivative
         break;
       }
     }
-    
+
     if (!found) {
       return 0.0;
     }
-    
+
     final CouponFixedDefinition currentPeriod = _premium.getNthPayment(couponIndex);
     final ZonedDateTime previousAccrualDate = currentPeriod.getAccrualStartDate();
     final ZonedDateTime nextAccrualDate = currentPeriod.getAccrualEndDate();
-    
+
     return currentPeriod.getNotional() * AccruedInterestCalculator.getAccruedInterest(
-      _convention.getDayCount(), couponIndex, nCoupons, previousAccrualDate, stepinDate, nextAccrualDate,
-      currentPeriod.getRate(), Math.round(1.0 / currentPeriod.getPaymentYearFraction()), /* isEOM */ false);
+        _convention.getDayCount(), couponIndex, nCoupons, previousAccrualDate, stepinDate, nextAccrualDate,
+        currentPeriod.getRate(), Math.round(1.0 / currentPeriod.getPaymentYearFraction()), /* isEOM */ false);
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCDSDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCDSDefinition(this);
   }
 
+  /**
+   * Gets the start date.
+   * @return The start date
+   */
   public ZonedDateTime getStartDate() {
     return _startDate;
   }
 
+  /**
+   * Gets the maturity date.
+   * @return The maturity date
+   */
   public ZonedDateTime getMaturity() {
     return _maturity;
   }
 
+  /**
+   * Gets the premium.
+   * @return The premium
+   */
   public ISDACDSPremiumDefinition getPremium() {
     return _premium;
   }
 
+  /**
+   * Gets the notional.
+   * @return The notional
+   */
   public double getNotional() {
     return _notional;
   }
 
+  /**
+   * Gets the spread.
+   * @return The spread
+   */
   public double getSpread() {
     return _spread;
   }
 
+  /**
+   * Gets the recovery rate.
+   * @return The recovery rate
+   */
   public double getRecoveryRate() {
     return _recoveryRate;
   }
 
+  /**
+   * Is accrued interest paid on default.
+   * @return true if the accrued interest should be paid on default
+   */
   public boolean isAccrualOnDefault() {
     return _accrualOnDefault;
   }
 
+  /**
+   * Is the payment made on the default or at maturity.
+   * @return true if the payment is made on the default date
+   */
   public boolean isPayOnDefault() {
     return _payOnDefault;
   }
 
+  /**
+   * Is the start date protected.
+   * @return true if the start date is protected.
+   */
   public boolean isProtectStart() {
     return _protectStart;
   }
 
+  /**
+   * Gets the coupon frequency.
+   * @return The coupon frequency
+   */
   public Frequency getCouponFrequency() {
     return _couponFrequency;
   }
 
+  /**
+   * Gets the convention
+   * @return The convention
+   */
   public Convention getConvention() {
     return _convention;
   }
 
+  /**
+   * Gets the stub type
+   * @return The stub type
+   */
   public StubType getStubType() {
     return _stubType;
   }

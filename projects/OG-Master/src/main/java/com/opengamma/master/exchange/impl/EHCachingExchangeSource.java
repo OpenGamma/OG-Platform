@@ -35,10 +35,6 @@ public class EHCachingExchangeSource implements ExchangeSource {
   private static final String EXCHANGE_EXTERNAL_ID_CACHE = "exchange.externalId";
 
   /**
-   * The cache manager.
-   */
-  private final CacheManager _cacheManager;
-  /**
    * The result cache.
    */
   private final Cache _exchangeExternalIdCache;
@@ -60,7 +56,6 @@ public class EHCachingExchangeSource implements ExchangeSource {
   public EHCachingExchangeSource(final ExchangeSource underlying, final CacheManager cacheManager) {
     _underlying = underlying;
     ArgumentChecker.notNull(cacheManager, "cacheManager");
-    _cacheManager = cacheManager;
     EHCacheUtils.addCache(cacheManager, EXCHANGE_EXTERNAL_ID_CACHE);
     _exchangeExternalIdCache = EHCacheUtils.getCacheFromManager(cacheManager, EXCHANGE_EXTERNAL_ID_CACHE);
   }
@@ -73,15 +68,6 @@ public class EHCachingExchangeSource implements ExchangeSource {
    */
   public void setTTL(final Integer ttl) {
     _ttl = ttl;
-  }
-
-  /**
-   * Gets the cache manager.
-   * 
-   * @return the cache manager, not null
-   */
-  public CacheManager getCacheManager() {
-    return _cacheManager;
   }
 
   //-------------------------------------------------------------------------

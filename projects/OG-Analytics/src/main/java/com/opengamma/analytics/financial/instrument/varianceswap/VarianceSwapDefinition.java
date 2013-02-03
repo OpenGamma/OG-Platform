@@ -5,12 +5,13 @@
  */
 package com.opengamma.analytics.financial.instrument.varianceswap;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -24,7 +25,7 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
  * A variance swap is a forward contract on the realized variance of an underlying security.
  * The floating leg of a variance swap is the realized variance.
  */
-public class VarianceSwapDefinition {
+public class VarianceSwapDefinition implements InstrumentDefinitionWithData<VarianceSwap, DoubleTimeSeries<LocalDate>> {
   private final Currency _currency;
 
   private final double _volStrike; // _varStrike := _volStrike^2 until we need something more elaborate
@@ -70,7 +71,7 @@ public class VarianceSwapDefinition {
     // TODO CASE Extend to periods longer than daily.
     _currency = currency;
     _calendar = calendar;
-    _nObsExpected = countExpectedGoodDays(obsStartDate.toLocalDate(), obsEndDate.toLocalDate(), calendar, obsFreq);
+    _nObsExpected = countExpectedGoodDays(obsStartDate.getDate(), obsEndDate.getDate(), calendar, obsFreq);
     _annualizationFactor = annualizationFactor;
     _volStrike = volStrike;
     _volNotional = volNotional;
@@ -97,7 +98,7 @@ public class VarianceSwapDefinition {
   }
 
   /**
-   * Static constructor of a variance swap using a vega parameterisation of the contract.
+   * Static constructor of a variance swap using a variance parameterisation of the contract.
    * @param obsStartDate Date of the first observation, not null
    * @param obsEndDate Date of the last observation, not null
    * @param settlementDate The settlement date, not null
@@ -117,6 +118,13 @@ public class VarianceSwapDefinition {
     return new VarianceSwapDefinition(obsStartDate, obsEndDate, settlementDate, obsFreq, currency, calendar, annualizationFactor, volStrike, volNotional);
   }
 
+  /**
+   * @param obsStartDate The observation start date
+   * @param obsEndDate The observation end date
+   * @param calendar The holiday calendar
+   * @param obsFreq The observation frequency
+   * @return The number of expected business days between the start and end dates
+   */
   protected static int countExpectedGoodDays(final LocalDate obsStartDate, final LocalDate obsEndDate, final Calendar calendar, final PeriodFrequency obsFreq) {
     int nGood = 0;
     final Period period = obsFreq.getPeriod();
@@ -130,6 +138,11 @@ public class VarianceSwapDefinition {
     return nGood;
   }
 
+  @Override
+  public VarianceSwap toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date, ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES, yieldCurveNames);
+  }
+
   /**
    * The definition is responsible for constructing a view of the variance swap as of a particular date.
    * In particular,  it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
@@ -137,9 +150,11 @@ public class VarianceSwapDefinition {
    * ( For an example of a market disruption event, see http://cfe.cboe.com/Products/Spec_VT.aspx )
    * @param valueDate Date at which valuation will occur, not null
    * @param underlyingTimeSeries Time series of underlying observations, not null
+   * @param yieldCurveNames Not used
    * @return VarianceSwap derivative as of date
    */
-  public VarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries) {
+  @Override
+  public VarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries, final String... yieldCurveNames) {
     ArgumentChecker.notNull(valueDate, "date");
     ArgumentChecker.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
     final double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, _obsStartDate);
@@ -149,11 +164,11 @@ public class VarianceSwapDefinition {
     if (timeToObsStart > 0) {
       realizedTS = ArrayLocalDateDoubleTimeSeries.EMPTY_SERIES;
     } else {
-      realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.toLocalDate(), true, valueDate.toLocalDate(), false);
+      realizedTS = underlyingTimeSeries.subSeries(_obsStartDate.getDate(), true, valueDate.getDate(), false);
     }
     final double[] observations = realizedTS.toFastIntDoubleTimeSeries().valuesArrayFast();
     final double[] observationWeights = {}; // TODO Case 2011-06-29 Calendar Add functionality for non-trivial weighting of observations
-    final int nGoodBusinessDays = countExpectedGoodDays(_obsStartDate.toLocalDate(), valueDate.toLocalDate(), _calendar, _obsFreq);
+    final int nGoodBusinessDays = countExpectedGoodDays(_obsStartDate.getDate(), valueDate.getDate(), _calendar, _obsFreq);
     final int nObsDisrupted = nGoodBusinessDays - observations.length;
     ArgumentChecker.isTrue(nObsDisrupted >= 0, "Have more observations {} than good business days {}", observations.length, nGoodBusinessDays);
     return new VarianceSwap(timeToObsStart, timeToObsEnd, timeToSettlement, _varStrike, _varNotional, _currency, _annualizationFactor, _nObsExpected, nObsDisrupted,
@@ -310,6 +325,18 @@ public class VarianceSwapDefinition {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitVarianceSwapDefinition(this, data);
+  }
+
+  @Override
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
+    return visitor.visitVarianceSwapDefinition(this);
   }
 
 }

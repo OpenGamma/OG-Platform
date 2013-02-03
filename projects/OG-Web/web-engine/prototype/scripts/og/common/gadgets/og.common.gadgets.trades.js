@@ -10,22 +10,18 @@ $.register_module({
             template_data,
             dependencies = ['id', 'node', 'version'],
             html = {}, action = {}, $add_trades,
-            load, reload, attach_trades_link, format_trades,
+            load, attach_trades_link, format_trades,
             form_save, generate_form_function, form_handler;
         /*
          * Helper functions
          */
         generate_form_function = function (load_handler) {
             return function (css_class) {
-                $(css_class).html('Loading form...');
                 var form = new og.common.util.ui.Form({
-                    selector: css_class, data: {}, module: 'og.views.forms.add-trades',
-                    handlers: [{type: 'form:load', handler: function () {load_handler();}}]
-                });
-                form.children = [new form.Field({
-                    module: 'og.views.forms.currency',
-                    generator: function (handler, template) {handler(template);}
-                })];
+                    selector: css_class, data: {}, module: 'og.views.forms.add-trades_tash'
+                }).on('form:load', load_handler);
+                form.children.push(new form.Block({module: 'og.views.forms.currency_tash'}));
+                $(css_class).html('Loading form...');
                 form.dom();
             };
         };
@@ -181,7 +177,7 @@ $.register_module({
           <table class="OG-table og-tablesorter">\
             <thead>\
               <tr>\
-                <th colspan="6"><span><em>{TITLE}</em></span></th>\
+                <th colspan="6">{TITLE}</th>\
               </tr>\
               <tr>\
                 <th><div><em>ID<em/></div></th>\
@@ -309,7 +305,7 @@ $.register_module({
                 if (!trades.length) return $(selector).html(
                     html.og_table
                         .replace('{TBODY}', '<tr><td colspan="6">No Trades</td></tr>')
-                        .replace('{TITLE}', config.child ? '' : 'Trades')
+                        .replace('{TITLE}', config.child ? '' : '<span><em>Trades</em></span>')
                 ), attach_trades_link(selector, editable);
                 tbody = trades.reduce(function (acc, trade) {
                     acc.push('<tr class="og-row"><td>', fields.map(function (field, i) {
@@ -339,7 +335,8 @@ $.register_module({
                     }());
                     return acc;
                 }, []).join('');
-                $(selector).html(html.og_table.replace('{TBODY}', tbody).replace('{TITLE}', config.child ? '' : 'Trades'));
+                $(selector).html(html.og_table.replace('{TBODY}', tbody).
+                    replace('{TITLE}', config.child ? '' : '<span><em>Trades</em></span>'));
                 /*
                  * Remove expand links when no trade attributes are available
                  */

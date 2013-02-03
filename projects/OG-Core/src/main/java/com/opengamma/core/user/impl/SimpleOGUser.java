@@ -6,10 +6,8 @@
 package com.opengamma.core.user.impl;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
-
-import javax.time.calendar.TimeZone;
+import java.util.Set;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -22,8 +20,9 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.ZoneId;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.opengamma.core.user.OGUser;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
@@ -67,10 +66,10 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
   private String _passwordHash;
   /**
    * The entitlements for the user.
-   * This is a list of entitlements that the user has, which enables access restriction.
+   * This is a set of entitlements that the user has, which enables access restriction.
    */
   @PropertyDefinition(validate = "notNull")
-  private final List<String> _entitlements = Lists.newArrayList();
+  private final Set<String> _entitlements = Sets.newHashSet();
   /**
    * The display user name, used to identify the user in a GUI.
    */
@@ -80,7 +79,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
    * The time-zone used to display local times.
    */
   @PropertyDefinition(validate = "notNull")
-  private TimeZone _timeZone = OpenGammaClock.getZone();
+  private ZoneId _timeZone = OpenGammaClock.getZone();
   /**
    * The primary email address associated with the account.
    */
@@ -160,13 +159,13 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
         setPasswordHash((String) newValue);
         return;
       case -1704576794:  // entitlements
-        setEntitlements((List<String>) newValue);
+        setEntitlements((Set<String>) newValue);
         return;
       case 3373707:  // name
         setName((String) newValue);
         return;
       case -2077180903:  // timeZone
-        setTimeZone((TimeZone) newValue);
+        setTimeZone((ZoneId) newValue);
         return;
       case -1070931784:  // emailAddress
         setEmailAddress((String) newValue);
@@ -325,29 +324,29 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
   //-----------------------------------------------------------------------
   /**
    * Gets the entitlements for the user.
-   * This is a list of entitlements that the user has, which enables access restriction.
+   * This is a set of entitlements that the user has, which enables access restriction.
    * @return the value of the property, not null
    */
-  public List<String> getEntitlements() {
+  public Set<String> getEntitlements() {
     return _entitlements;
   }
 
   /**
    * Sets the entitlements for the user.
-   * This is a list of entitlements that the user has, which enables access restriction.
+   * This is a set of entitlements that the user has, which enables access restriction.
    * @param entitlements  the new value of the property
    */
-  public void setEntitlements(List<String> entitlements) {
+  public void setEntitlements(Set<String> entitlements) {
     this._entitlements.clear();
     this._entitlements.addAll(entitlements);
   }
 
   /**
    * Gets the the {@code entitlements} property.
-   * This is a list of entitlements that the user has, which enables access restriction.
+   * This is a set of entitlements that the user has, which enables access restriction.
    * @return the property, not null
    */
-  public final Property<List<String>> entitlements() {
+  public final Property<Set<String>> entitlements() {
     return metaBean().entitlements().createProperty(this);
   }
 
@@ -381,7 +380,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
    * Gets the time-zone used to display local times.
    * @return the value of the property, not null
    */
-  public TimeZone getTimeZone() {
+  public ZoneId getTimeZone() {
     return _timeZone;
   }
 
@@ -389,7 +388,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
    * Sets the time-zone used to display local times.
    * @param timeZone  the new value of the property, not null
    */
-  public void setTimeZone(TimeZone timeZone) {
+  public void setTimeZone(ZoneId timeZone) {
     JodaBeanUtils.notNull(timeZone, "timeZone");
     this._timeZone = timeZone;
   }
@@ -398,7 +397,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
    * Gets the the {@code timeZone} property.
    * @return the property, not null
    */
-  public final Property<TimeZone> timeZone() {
+  public final Property<ZoneId> timeZone() {
     return metaBean().timeZone().createProperty(this);
   }
 
@@ -461,8 +460,8 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
      * The meta-property for the {@code entitlements} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<String>> _entitlements = DirectMetaProperty.ofReadWrite(
-        this, "entitlements", SimpleOGUser.class, (Class) List.class);
+    private final MetaProperty<Set<String>> _entitlements = DirectMetaProperty.ofReadWrite(
+        this, "entitlements", SimpleOGUser.class, (Class) Set.class);
     /**
      * The meta-property for the {@code name} property.
      */
@@ -471,8 +470,8 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
     /**
      * The meta-property for the {@code timeZone} property.
      */
-    private final MetaProperty<TimeZone> _timeZone = DirectMetaProperty.ofReadWrite(
-        this, "timeZone", SimpleOGUser.class, TimeZone.class);
+    private final MetaProperty<ZoneId> _timeZone = DirectMetaProperty.ofReadWrite(
+        this, "timeZone", SimpleOGUser.class, ZoneId.class);
     /**
      * The meta-property for the {@code emailAddress} property.
      */
@@ -573,7 +572,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
      * The meta-property for the {@code entitlements} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<String>> entitlements() {
+    public final MetaProperty<Set<String>> entitlements() {
       return _entitlements;
     }
 
@@ -589,7 +588,7 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
      * The meta-property for the {@code timeZone} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<TimeZone> timeZone() {
+    public final MetaProperty<ZoneId> timeZone() {
       return _timeZone;
     }
 

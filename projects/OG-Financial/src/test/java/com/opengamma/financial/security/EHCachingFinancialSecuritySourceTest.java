@@ -45,7 +45,7 @@ public class EHCachingFinancialSecuritySourceTest {
 
   @BeforeMethod
   public void setUp() throws Exception {    
-    _cacheManager = EHCacheUtils.createCacheManager(); 
+    _cacheManager = new CacheManager(); 
     _underlyingSecuritySource = new MockFinancialSecuritySource();
     _cachingSecuritySource = new EHCachingFinancialSecuritySource(_underlyingSecuritySource, _cacheManager);
     
@@ -56,11 +56,11 @@ public class EHCachingFinancialSecuritySourceTest {
 
   @AfterMethod
   public void tearDown() throws Exception {
-    _cacheManager.clearAll();
-    _underlyingSecuritySource = null;
     if (_cachingSecuritySource != null) {
       _cachingSecuritySource.shutdown();
     }
+    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
+    _underlyingSecuritySource = null;
     _cachingSecuritySource = null;
   }
 

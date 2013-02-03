@@ -58,7 +58,6 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   public static final String PATH_LATEST_RESULT = "latestResult";
   public static final String PATH_VIEW_DEFINITION = "viewDefinition";
   public static final String PATH_LATEST_COMPILED_VIEW_DEFINITION = "latestCompiledViewDefinition";
-  public static final String PATH_PROCESS_VERSION_CORRECTION = "processVersionCorrection";
   public static final String PATH_VIEW_CYCLE_ACCESS_SUPPORTED = "viewCycleAccessSupported";
   public static final String PATH_CREATE_LATEST_CYCLE_REFERENCE = "createLatestCycleReference";
   public static final String PATH_CREATE_CYCLE_REFERENCE = "createCycleReference";
@@ -265,14 +264,6 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   }
   
   @GET
-  @Path(PATH_PROCESS_VERSION_CORRECTION) 
-  public Response getProcessVersionCorrection() {
-    updateLastAccessed();
-    return responseOkFudge(getViewClient().getProcessVersionCorrection());
-  }
-  
-  //-------------------------------------------------------------------------
-  @GET
   @Path(PATH_VIEW_CYCLE_ACCESS_SUPPORTED)
   public Response isViewCycleAccessSupported() {
     updateLastAccessed();
@@ -321,8 +312,8 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   public Response setMinimumLogMode(SetMinimumLogModeRequest request) {
     updateLastAccessed();
     ArgumentChecker.notNull(request.getMinimumLogMode(), "minimumLogMode");
-    ArgumentChecker.notNull(request.getResultSpecifications(), "resultSpecifications");
-    getViewClient().setMinimumLogMode(request.getMinimumLogMode(), request.getResultSpecifications());
+    ArgumentChecker.notNull(request.getTargets(), "targets");
+    getViewClient().setMinimumLogMode(request.getMinimumLogMode(), request.getTargets());
     return responseOk();
   }
   

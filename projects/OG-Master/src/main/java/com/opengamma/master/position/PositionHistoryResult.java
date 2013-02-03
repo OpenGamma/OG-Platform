@@ -95,7 +95,6 @@ public class PositionHistoryResult extends AbstractHistoryResult<PositionDocumen
    * The meta-bean for {@code PositionHistoryResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static PositionHistoryResult.Meta meta() {
     return PositionHistoryResult.Meta.INSTANCE;
   }

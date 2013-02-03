@@ -7,12 +7,11 @@ package com.opengamma.masterdb.exchange;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalIdBundle;
@@ -81,7 +80,7 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
 
   @Test
   public void test_correct_getUpdateGet() {
-    Instant now = Instant.now(_exgMaster.getTimeSource());
+    Instant now = Instant.now(_exgMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbExg", "101", "0");
     ExchangeDocument base = _exgMaster.get(uniqueId);

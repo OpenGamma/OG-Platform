@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
  * @param <T> The type of the tolerance
  */
 //TODO need to test for uniqueness of keys and labels
-public abstract class LabelledMatrix1D<S extends Comparable<S>, T> {
+public abstract class LabelledMatrix1D<S extends Comparable<? super S>, T> {
   private final String _labelsTitle;
   private final String _valuesTitle;
   private final S[] _keys;

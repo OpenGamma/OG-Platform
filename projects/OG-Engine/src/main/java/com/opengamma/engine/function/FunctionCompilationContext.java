@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.function;
@@ -24,25 +24,13 @@ import com.opengamma.util.PublicAPI;
 public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
-   * The name under which the {@link ComputationTargetResolver} instance should be bound.
+   * The name under which the {@link ComputationTargetResolver.AtVersionCorrection} instance should be bound.
    */
   public static final String COMPUTATION_TARGET_RESOLVER = "computationTargetResolver";
   /**
    * The name under which the {@link ComputationTargetResults} instance should be bound.
    */
   public static final String COMPUTATION_TARGET_RESULTS_NAME = "computationTargetResults";
-  /**
-   * The name under which an instance of {@link SecuritySource} should be bound.
-   */
-  public static final String SECURITY_SOURCE_NAME = "securitySource";
-  /**
-   * The name under which an instance of {@link PortfolioStructure} should be bound.
-   */
-  public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
-  /**
-   * The name under which the view calculation configuration should be bound.
-   */
-  public static final String VIEW_CALCULATION_CONFIGURATION_NAME = "viewCalculationConfiguration";
   /**
    * The name under which the initialization reference of the functions should be bound.
    */
@@ -54,13 +42,27 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   /**
    * The name under which the graph building blacklist should be bound.
    */
-  public static final String GRAPH_BUILDING_BLACKLIST = "graphBuildingBlacklist";
+  public static final String GRAPH_BUILDING_BLACKLIST = "graphBuildingBlacklist"; // TODO: [PLAT-2638] The blacklists should not really be here.
   /**
    * The name under which the graph execution blacklist should be bound.
    */
-  public static final String GRAPH_EXECUTION_BLACKLIST = "graphExecutionBlacklist";
-
-  // TODO: [PLAT-2638] The blacklists should not really be here. 
+  public static final String GRAPH_EXECUTION_BLACKLIST = "graphExecutionBlacklist"; // TODO: [PLAT-2638] The blacklists should not really be here.
+  /**
+   * The name under which an instance of {@link PortfolioStructure} should be bound.
+   */
+  public static final String PORTFOLIO_STRUCTURE_NAME = "portfolioStructure";
+  /**
+   * The name under which the {@link ComputationTargetResolver} instance should be bound.
+   */
+  public static final String RAW_COMPUTATION_TARGET_RESOLVER = "rawComputationTargetResolver";
+  /**
+   * The name under which an instance of {@link SecuritySource} should be bound.
+   */
+  public static final String SECURITY_SOURCE_NAME = "securitySource";
+  /**
+   * The name under which the view calculation configuration should be bound.
+   */
+  public static final String VIEW_CALCULATION_CONFIGURATION_NAME = "viewCalculationConfiguration";
 
   /**
    * Creates an empty function compilation context.
@@ -72,7 +74,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Creates a function compilation context as a copy of another.
-   * 
+   *
    * @param copyFrom  the context to copy elements from, not null
    */
   protected FunctionCompilationContext(final FunctionCompilationContext copyFrom) {
@@ -80,27 +82,45 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   }
 
   /**
-   * Gets the computation target resolver. Functions should not need to access this directly - their computation target will always be resolved when they are invoked. It may be used to access the full
-   * target object referenced by a "desiredValue".
-   * 
+   * Gets the computation target resolver configured for the correct version/correction. Functions shouldn't need to access this directly as their target will always be resolved when they are invoked.
+   *
    * @return the computation target resolver, null if not in the context
    */
-  public ComputationTargetResolver getComputationTargetResolver() {
-    return (ComputationTargetResolver) get(COMPUTATION_TARGET_RESOLVER);
+  public ComputationTargetResolver.AtVersionCorrection getComputationTargetResolver() {
+    return (ComputationTargetResolver.AtVersionCorrection) get(COMPUTATION_TARGET_RESOLVER);
   }
 
   /**
    * Sets the computation target resolver.
-   * 
+   *
    * @param computationTargetResolver the target resolver
    */
-  public void setComputationTargetResolver(final ComputationTargetResolver computationTargetResolver) {
+  public void setComputationTargetResolver(final ComputationTargetResolver.AtVersionCorrection computationTargetResolver) {
     put(COMPUTATION_TARGET_RESOLVER, computationTargetResolver);
   }
 
   /**
+   * Gets the raw computation target resolver. Functions should not need to access this directly - the resolver returned by {@link #getComputationTargetResolver} is correctly configured for the
+   * version/correction time the owning view process needs.
+   *
+   * @return the computation target resolver, null if not in the context
+   */
+  public ComputationTargetResolver getRawComputationTargetResolver() {
+    return (ComputationTargetResolver) get(RAW_COMPUTATION_TARGET_RESOLVER);
+  }
+
+  /**
+   * Sets the computation target resolver.
+   *
+   * @param computationTargetResolver the target resolver
+   */
+  public void setRawComputationTargetResolver(final ComputationTargetResolver computationTargetResolver) {
+    put(RAW_COMPUTATION_TARGET_RESOLVER, computationTargetResolver);
+  }
+
+  /**
    * Gets the source of result information on a target.
-   * 
+   *
    * @return the source of target results, null if none is available
    */
   public ComputationTargetResults getComputationTargetResults() {
@@ -109,8 +129,8 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Sets the source of result information on a target.
-   * 
-   * @param computationTargetResults the source of target results
+   *
+   * @param computationTargetResults the source of target results, null to remove it from the context
    */
   public void setComputationTargetResults(final ComputationTargetResults computationTargetResults) {
     if (computationTargetResults == null) {
@@ -122,7 +142,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Gets the source of securities.
-   * 
+   *
    * @return the source of securities, null if not in the context
    */
   public SecuritySource getSecuritySource() {
@@ -131,16 +151,16 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Sets the source of securities.
-   * 
+   *
    * @param securitySource  the source of securities to bind
    */
-  public void setSecuritySource(SecuritySource securitySource) {
+  public void setSecuritySource(final SecuritySource securitySource) {
     put(SECURITY_SOURCE_NAME, securitySource);
   }
-  
+
   /**
    * Gets the source of portfolio structure information.
-   * 
+   *
    * @return the portfolio structure, null if not in the context
    */
   public PortfolioStructure getPortfolioStructure() {
@@ -149,7 +169,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Sets the source of portfolio structure information.
-   * 
+   *
    * @param portfolioStructure  the portfolio structure to bind
    */
   public void setPortfolioStructure(final PortfolioStructure portfolioStructure) {
@@ -160,7 +180,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
    * Gets the view calculation configuration information.
    * This may only be valid during dependency graph construction and not during
    * function initialization or compilation.
-   * 
+   *
    * @return the view configuration, null if not in the context
    */
   public ViewCalculationConfiguration getViewCalculationConfiguration() {
@@ -177,7 +197,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Gets the function initialization identifier.
-   * 
+   *
    * @return the identifier, null if not in the context
    */
   public Long getFunctionInitId() {
@@ -186,7 +206,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Sets the function initialization identifier.
-   * 
+   *
    * @param id  the identifier to bind
    */
   public void setFunctionInitId(final long id) {
@@ -195,7 +215,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Gets the function re-initialization hook.
-   * 
+   *
    * @return the re-initialization hook, null if not in the context
    */
   public FunctionReinitializer getFunctionReinitializer() {
@@ -204,7 +224,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Sets the function re-initialization hook.
-   * 
+   *
    * @param reinitializer  the re-initialization hook to bind
    */
   public void setFunctionReinitializer(final FunctionReinitializer reinitializer) {
@@ -217,7 +237,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Returns the function blacklist to be used during graph building. Graphs should not be built containing any items that are currently on the blacklist.
-   * 
+   *
    * @return the query interface to the blacklist, not null
    */
   public FunctionBlacklistQuery getGraphBuildingBlacklist() {
@@ -226,7 +246,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Sets the function blacklist to be used during graph building. Graphs should not be built containing any items that are currently on the blacklist.
-   * 
+   *
    * @param graphBuildingBlacklist interface to the blacklist to use, not null
    */
   public void setGraphBuildingBlacklist(final FunctionBlacklistQuery graphBuildingBlacklist) {
@@ -236,7 +256,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   /**
    * Returns the function blacklist to use when executing a graph. This is part of the compilation context because the blacklist applies immediately before the graph is submitted for execution, before
    * an execution context is valid.
-   * 
+   *
    * @return the execution blacklist, not null
    */
   public FunctionBlacklistQuery getGraphExecutionBlacklist() {
@@ -246,7 +266,7 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
   /**
    * Sets the function blacklist to use when executing a graph. This is part of the compilation context because the blacklist applies immediately before the graph is submitted for execution, before an
    * execution context is valid.
-   * 
+   *
    * @param blacklist the execution blacklist, not null
    */
   public void setGraphExecutionBlacklist(final FunctionBlacklistQuery blacklist) {
@@ -255,14 +275,25 @@ public class FunctionCompilationContext extends AbstractFunctionContext {
 
   /**
    * Gets the source of securities cast to a specific type.
-   * 
+   *
    * @param <T> the security source type
    * @param clazz the security source type
    * @return the security source
    * @throws ClassCastException if the security source is of a different type
    */
-  public <T extends SecuritySource> T getSecuritySource(Class<T> clazz) {
+  public <T extends SecuritySource> T getSecuritySource(final Class<T> clazz) {
     return clazz.cast(get(SECURITY_SOURCE_NAME));
+  }
+
+  /**
+   * Initialises the context. Any members that implement {@link FunctionCompilationContextAware} will receive appropriate callbacks.
+   */
+  public void init() {
+    for (final Object member : getAllElements()) {
+      if (member instanceof FunctionCompilationContextAware) {
+        ((FunctionCompilationContextAware) member).setFunctionCompilationContext(this);
+      }
+    }
   }
 
   /**

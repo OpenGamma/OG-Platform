@@ -5,29 +5,27 @@
  */
 package com.opengamma.engine.view.calc;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.any;
 import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.ExecutionLogModeSource;
 import com.opengamma.engine.view.cache.CacheSelectHint;
@@ -41,6 +39,7 @@ import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.test.Timeout;
 
@@ -61,13 +60,13 @@ public class ExecutionPlanTest {
       }
 
       @Override
-      protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
-        return new CalculationJobSpecification(UniqueId.of("Test", "ViewProcess"), graph.getCalculationConfigurationName(), Instant.now(), JobIdSource.getId());
+      protected VersionCorrection getResolverVersionCorrection() {
+        return VersionCorrection.LATEST;
       }
 
       @Override
-      protected void addJobToViewProcessorQuery(final CalculationJobSpecification jobSpec, final DependencyGraph graph) {
-        // Nothing
+      protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
+        return new CalculationJobSpecification(UniqueId.of("Test", "ViewProcess"), graph.getCalculationConfigurationName(), Instant.now(), JobIdSource.getId());
       }
 
       @Override
@@ -79,14 +78,14 @@ public class ExecutionPlanTest {
       protected Cancelable dispatchJob(final CalculationJob job, final JobResultReceiver jobResultReceiver) {
         s_logger.info("Dispatch job {}", job);
         final List<CalculationJobResultItem> resultItems = new ArrayList<CalculationJobResultItem>(job.getJobItems().size());
-        for (CalculationJobItem jobItem : job.getJobItems()) {
+        for (final CalculationJobItem jobItem : job.getJobItems()) {
           s_logger.debug("Job item {}", jobItem);
           resultItems.add(CalculationJobResultItem.success());
         }
         final CalculationJobResult result = new CalculationJobResult(job.getSpecification(), 0, resultItems, "");
         jobResultReceiver.resultReceived(result);
         if (job.getTail() != null) {
-          for (CalculationJob tail : job.getTail()) {
+          for (final CalculationJob tail : job.getTail()) {
             dispatchJob(tail, jobResultReceiver);
           }
         }
@@ -110,16 +109,16 @@ public class ExecutionPlanTest {
    */
   private DependencyGraph createDependencyGraph() {
     final DependencyGraph graph = new DependencyGraph("Default");
-    final ComputationTarget target1 = new ComputationTarget(UniqueId.of("Test", "1"));
+    final ComputationTarget target1 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "1"));
     final DependencyNode node1 = new DependencyNode(target1);
     node1.setFunction(new MockFunction("1", target1));
-    final ComputationTarget target2 = new ComputationTarget(UniqueId.of("Test", "2"));
+    final ComputationTarget target2 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "2"));
     final DependencyNode node2 = new DependencyNode(target2);
     node2.setFunction(new MockFunction("2", target2));
-    final ComputationTarget target3 = new ComputationTarget(UniqueId.of("Test", "3"));
+    final ComputationTarget target3 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "3"));
     final DependencyNode node3 = new DependencyNode(target3);
     node3.setFunction(new MockFunction("3", target3));
-    final ComputationTarget target4 = new ComputationTarget(UniqueId.of("Test", "4"));
+    final ComputationTarget target4 = new ComputationTarget(ComputationTargetType.PRIMITIVE, UniqueId.of("Test", "4"));
     final DependencyNode node4 = new DependencyNode(target4);
     node4.setFunction(new MockFunction("4", target4));
     node3.addInputNode(node1);
@@ -132,11 +131,9 @@ public class ExecutionPlanTest {
     return graph;
   }
 
-  @SuppressWarnings("unchecked")
   private ExecutionLogModeSource createLogModeSource() {
-    ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
-    when(logModeSource.getLogMode(any(Set.class))).thenReturn(ExecutionLogMode.INDICATORS);
-    when(logModeSource.getLogMode(any(ValueSpecification.class))).thenReturn(ExecutionLogMode.INDICATORS);
+    final ExecutionLogModeSource logModeSource = mock(ExecutionLogModeSource.class);
+    when(logModeSource.getLogMode(any(DependencyNode.class))).thenReturn(ExecutionLogMode.INDICATORS);
     return logModeSource;
   }
   
@@ -168,7 +165,7 @@ public class ExecutionPlanTest {
     final MutableGraphFragmentContext mContext = createMutableGraphFragmentContext();
     final MutableGraphFragment.Root root = new MutableGraphFragment.Root(mContext, createStatisticsGatherer());
     final MutableGraphFragment[] fragment = new MutableGraphFragment[4];
-    for (DependencyNode node : mContext.getGraph().getDependencyNodes()) {
+    for (final DependencyNode node : mContext.getGraph().getDependencyNodes()) {
       final MutableGraphFragment f = new MutableGraphFragment(mContext, node);
       fragment[Integer.parseInt(node.getComputationTarget().getUniqueId().getValue()) - 1] = f;
       f.setCacheSelectHint(CacheSelectHint.allShared());

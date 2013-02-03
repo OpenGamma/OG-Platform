@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing a Bermuda swaption on vanilla swaps with physical delivery.
@@ -44,7 +45,7 @@ public class SwaptionBermudaFixedIbor implements InstrumentDerivative {
    * @param expiryTime The swaption expiration times.
    * @param settlementTime The times (in year) to the swaps settlement.
    */
-  public SwaptionBermudaFixedIbor(SwapFixedCoupon<? extends Coupon>[] underlyingSwap, boolean isLong, double[] expiryTime, double[] settlementTime) {
+  public SwaptionBermudaFixedIbor(final SwapFixedCoupon<? extends Coupon>[] underlyingSwap, final boolean isLong, final double[] expiryTime, final double[] settlementTime) {
     Validate.notNull(expiryTime, "Expiry time");
     Validate.notNull(underlyingSwap, "Underlying swap");
     Validate.notNull(settlementTime, "Settlement time");
@@ -89,12 +90,14 @@ public class SwaptionBermudaFixedIbor implements InstrumentDerivative {
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwaptionBermudaFixedIbor(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwaptionBermudaFixedIbor(this);
   }
 
@@ -110,7 +113,7 @@ public class SwaptionBermudaFixedIbor implements InstrumentDerivative {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -120,7 +123,7 @@ public class SwaptionBermudaFixedIbor implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SwaptionBermudaFixedIbor other = (SwaptionBermudaFixedIbor) obj;
+    final SwaptionBermudaFixedIbor other = (SwaptionBermudaFixedIbor) obj;
     if (!Arrays.equals(_expiryTime, other._expiryTime)) {
       return false;
     }

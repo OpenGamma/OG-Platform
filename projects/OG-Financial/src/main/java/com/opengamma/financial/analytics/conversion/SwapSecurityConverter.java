@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -137,14 +137,13 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final SwapLeg receiveLeg = swapSecurity.getReceiveLeg();
     final FixedInterestRateLeg fixedLeg = (FixedInterestRateLeg) (payFixed ? payLeg : receiveLeg);
     final FloatingInterestRateLeg floatLeg = (FloatingInterestRateLeg) (payFixed ? receiveLeg : payLeg);
-    final ExternalId regionId = _conventionSource.getConventionBundle(floatLeg.getFloatingReferenceRateId()).getRegion();
-    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
-    final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
-    final String currencyString = currency.getCode();
     final ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatLeg.getFloatingReferenceRateId());
+    final Currency currency = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Could not get OIS index convention for " + currency + " using " + floatLeg.getFloatingReferenceRateId());
     }
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegion());
+    final String currencyString = currency.getCode();
     Integer publicationLag = indexConvention.getOvernightIndexSwapPublicationLag();
     if (publicationLag == null) {
       publicationLag = 0;

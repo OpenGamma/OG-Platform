@@ -13,10 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
-import javax.time.calendar.Period;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -32,23 +31,23 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWit
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.marketdatasnapshot.VolatilityCubeData;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.PrimitiveComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.volatility.VolatilityDataFittingDefaults;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
 import com.opengamma.financial.analytics.model.volatility.cube.fitted.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
@@ -72,20 +71,16 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final String currency = target.getValue(PrimitiveComputationTargetType.CURRENCY).getCode();
     String cubeName = null;
-    String currency = null;
     for (final ValueRequirement desiredValue : desiredValues) {
       if (desiredValue.getValueName().equals(ValueRequirementNames.SABR_SURFACES)) {
         cubeName = desiredValue.getConstraint(ValuePropertyNames.CUBE);
-        currency = Currency.of(((UniqueId) target.getValue()).getValue()).getCode();
         break;
       }
     }
     if (cubeName == null) {
       throw new OpenGammaRuntimeException("Could not get cube name");
-    }
-    if (currency == null) {
-      throw new OpenGammaRuntimeException("Could not get currency");
     }
     final Object objectCubeData = inputs.getValue(getCubeDataRequirement(target, cubeName));
     if (objectCubeData == null) {
@@ -176,19 +171,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    if (target.getUniqueId() == null) {
-      s_logger.error("Had a target with null unique id: {}", target);
-      return false;
-    }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
@@ -216,7 +199,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
 
   private double getTime(final Tenor tenor) {
     final Period period = tenor.getPeriod();
-    final double months = period.totalMonths();
+    final double months = DateUtils.totalMonths(period);
     return months / 12.;
   }
 
@@ -229,15 +212,15 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
     return createValueProperties()
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.CUBE)
-        .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
-        .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES).get();
+        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, SmileFittingProperties.NON_LINEAR_LEAST_SQUARES).get();
   }
 
   private ValueProperties getResultProperties(final String currency, final String cubeName) {
     return createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.CUBE, cubeName)
-        .with(VolatilityDataFittingDefaults.PROPERTY_VOLATILITY_MODEL, VolatilityDataFittingDefaults.SABR_FITTING)
-        .with(VolatilityDataFittingDefaults.PROPERTY_FITTING_METHOD, VolatilityDataFittingDefaults.NON_LINEAR_LEAST_SQUARES).get();
+        .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
+        .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, SmileFittingProperties.NON_LINEAR_LEAST_SQUARES).get();
   }
 }

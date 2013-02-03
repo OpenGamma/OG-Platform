@@ -68,7 +68,7 @@ public final class Functional<S> implements Iterable<S> {
    * @return submap of the original map, not null
    */
   public static <K, V> Map<K, V> submapByValueSet(final Map<K, V> map, final Set<V> values) {
-    Map<K, V> submap = new HashMap<K, V>();
+    Map<K, V> submap = new HashMap<>();
     for (K key : map.keySet()) {
       V value = map.get(key);
       if (values.contains(value)) {
@@ -88,7 +88,7 @@ public final class Functional<S> implements Iterable<S> {
    * @return submap of the original map, not null
    */
   public static <K, V> Map<K, V> submapByKeySet(final Map<K, V> map, final Set<K> keys) {
-    Map<K, V> submap = new HashMap<K, V>();
+    Map<K, V> submap = new HashMap<>();
     for (K key : keys) {
       if (map.containsKey(key)) {
         submap.put(key, map.get(key));
@@ -106,7 +106,7 @@ public final class Functional<S> implements Iterable<S> {
    * @return the reversed map, not null
    */
   public static <K, V> Map<V, Collection<K>> reverseMap(final Map<K, V> map) {
-    Map<V, Collection<K>> reversed = new HashMap<V, Collection<K>>();
+    Map<V, Collection<K>> reversed = new HashMap<>();
     for (K key : map.keySet()) {
       V value = map.get(key);
       Collection<K> keys = reversed.get(value);
@@ -181,7 +181,7 @@ public final class Functional<S> implements Iterable<S> {
   }
 
   public static <T, S> Map<T, Collection<S>> groupBy(final Iterable<? extends S> c, final Function1<S, T> mapper) {
-    Map<T, Collection<S>> grouping = new HashMap<T, Collection<S>>();
+    Map<T, Collection<S>> grouping = new HashMap<>();
     final Iterator<? extends S> iter = c.iterator();
     return reduce(grouping, iter, new Function2<Map<T, Collection<S>>, S, Map<T, Collection<S>>>() {
       @Override

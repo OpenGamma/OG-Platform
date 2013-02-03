@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -25,14 +27,15 @@ public abstract class EquityDupireLocalVolatilitySurfaceFunction extends DupireL
   private static final Logger s_logger = LoggerFactory.getLogger(EquityDupireLocalVolatilitySurfaceFunction.class);
 
   @Override
-  protected boolean isCorrectIdType(final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null; {}", target);
-      return false;
-    }
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final String targetScheme = target.getUniqueId().getScheme();
     return (targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER.getName()) ||
         targetScheme.equalsIgnoreCase(ExternalSchemes.BLOOMBERG_TICKER_WEAK.getName()));
+  }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.PRIMITIVE; // Bloomberg ticker or weak ticker
   }
 
   @Override
@@ -93,7 +96,7 @@ public abstract class EquityDupireLocalVolatilitySurfaceFunction extends DupireL
   @Override
   protected ValueProperties getResultProperties(final String parameterizationType) {
     final ValueProperties equityProperties = getCurrencyProperties();
-    return LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(equityProperties,
+    return LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(equityProperties,
         getInstrumentType(), getBlackSmileInterpolatorName(), parameterizationType).get();
   }
 
@@ -101,7 +104,7 @@ public abstract class EquityDupireLocalVolatilitySurfaceFunction extends DupireL
   @Override
   protected ValueProperties getResultProperties(final ValueRequirement desiredValue, final String parameterizationType) {
     final ValueProperties equityProperties = getCurrencyProperties(desiredValue);
-    return LocalVolatilitySurfaceUtils.addDupireLocalVolatilitySurfaceProperties(equityProperties,
+    return LocalVolatilitySurfaceUtils.addAllDupireLocalVolatilitySurfaceProperties(equityProperties,
         getInstrumentType(), getBlackSmileInterpolatorName(), parameterizationType, desiredValue).get();
   }
 

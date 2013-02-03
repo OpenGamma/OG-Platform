@@ -4,25 +4,17 @@
  */
 $.register_module({
     name: 'og.common.gadgets.Depgraph',
-    dependencies: ['og.common.gadgets.manager'],
+    dependencies: ['og.analytics.Grid'],
     obj: function () {
-        var module = this, prefix = 'og_depgraph_gadget_', counter = 1, menu;
-        return function (config) {
-            var gadget = this, alive = prefix + counter++,
-                css_position = {position: 'absolute', top: '0', left: 0, right: 0, bottom: 0}, grid;
-            gadget.alive = function () {return grid.alive();};
-            gadget.load = function () {
-                $(config.selector).addClass(alive).css(css_position);
-                menu = (config.selector.indexOf('inplace') >= 0) ? false : true;
-                grid = new og.analytics.Grid({
-                    selector: config.selector, source: config.source, cellmenu: menu, child: config.child
-                });
-            };
-            gadget.load();
-            gadget.resize = function () {
-                if (grid) grid.resize(); else throw new Error(module.name + ': no grid to resize');
-            };
-            if (!config.child) og.common.gadgets.manager.register(gadget);
+        var Depgraph = function (config) {
+            og.analytics.Grid.call(this, {
+                selector: config.selector, child: config.child, cellmenu: !~config.selector.indexOf('inplace'),
+                show_sets: false, show_views: false, start_expanded: false,
+                source: $.extend({depgraph: true, row: config.row, col: config.col}, config.source)
+            });
         };
+        Depgraph.prototype = new og.analytics.Grid;
+        Depgraph.prototype.label = 'depgraph';
+        return Depgraph;
     }
 });

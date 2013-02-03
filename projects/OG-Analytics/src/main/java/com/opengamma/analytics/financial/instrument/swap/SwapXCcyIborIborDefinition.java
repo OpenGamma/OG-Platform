@@ -5,10 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.swap;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
@@ -79,11 +77,13 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwapXCcyIborIborDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwapXCcyIborIborDefinition(this);
   }
 
@@ -99,8 +99,8 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
 
   @Override
   public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] indexDataTS, final String... yieldCurveNames) {
-    Validate.notNull(indexDataTS, "index data time series array");
-    Validate.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
+    ArgumentChecker.notNull(indexDataTS, "index data time series array");
+    ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
     final String[] firstLegCurveNames = new String[] {yieldCurveNames[0], yieldCurveNames[1]};
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3]};

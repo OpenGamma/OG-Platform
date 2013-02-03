@@ -68,7 +68,7 @@ public class CSVPositionSource implements PositionSource {
   /**
    * The positions by identifier.
    */
-  private final Map<UniqueId, Position> _positions = new TreeMap<UniqueId, Position>();
+  private final Map<ObjectId, Position> _positions = new TreeMap<ObjectId, Position>();
   /**
    * The trades by identifier.
    */
@@ -130,6 +130,14 @@ public class CSVPositionSource implements PositionSource {
     return fileName;
   }
 
+  private Position getPosition(final ObjectId positionId) {
+    Position position = _positions.get(positionId);
+    if (position == null) {
+      throw new DataNotFoundException("Unable to find position: " + positionId);
+    }
+    return position;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the base directory.
@@ -145,7 +153,8 @@ public class CSVPositionSource implements PositionSource {
   }
 
   @Override
-  public Portfolio getPortfolio(UniqueId portfolioId) {
+  public Portfolio getPortfolio(UniqueId portfolioId, final VersionCorrection versionCorrection) {
+    // Ignore the version
     return getPortfolio(portfolioId.getObjectId(), VersionCorrection.LATEST);
   }
 
@@ -164,7 +173,7 @@ public class CSVPositionSource implements PositionSource {
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(UniqueId nodeId) {
+  public PortfolioNode getPortfolioNode(UniqueId nodeId, final VersionCorrection versionCorrection) {
     PortfolioNode node = _nodes.get(nodeId);
     if (node == null) {
       throw new DataNotFoundException("Unable to find node: " + nodeId);
@@ -174,13 +183,16 @@ public class CSVPositionSource implements PositionSource {
 
   @Override
   public Position getPosition(UniqueId positionId) {
-    Position position = _positions.get(positionId);
-    if (position == null) {
-      throw new DataNotFoundException("Unable to find position: " + positionId);
-    }
-    return position;
+    // Ignore the version
+    return getPosition(positionId.getObjectId());
   }
   
+  @Override
+  public Position getPosition(ObjectId positionId, VersionCorrection versionCorrection) {
+    // Ignore the version
+    return getPosition(positionId);
+  }
+
   @Override
   public Trade getTrade(UniqueId tradeId) {
     Trade trade = _trades.get(tradeId);
@@ -222,9 +234,8 @@ public class CSVPositionSource implements PositionSource {
     while ((tokens = csvReader.readNext()) != null) {
       SimplePosition position = parseLine(tokens, positionId);
       if (position != null) {
-        position.setParentNodeId(rootNodeId);
         ((SimplePortfolioNode) portfolio.getRootNode()).addPosition(position);
-        _positions.put(position.getUniqueId(), position);
+        _positions.put(position.getUniqueId().getObjectId(), position);
         positionId = UniqueId.of(portfolioId.getScheme(), Integer.toString(++curIndex));
       }
     }

@@ -20,7 +20,8 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Connects over a TCP/IP socket.
+ * Connects over a TCP/IP socket, reading records of type T and calling back methods in the supplied callback class
+ * on network events.
  * 
  * @param <T> the record type
  */
@@ -45,9 +46,21 @@ public class NetworkConnectorJob<T> extends AbstractConnectorJob<T> {
     private InetAddress _host;
     private int _port;
 
+    /**
+     * Create a new instance of a network connector job
+     * @param callback          the class containing callbacks for events such as receive
+     * @param streamFactory     the factory for the stream of records to relay
+     * @param pipeLineExecutor  the thread executor (IMPORTANT: if this is null, no additional threads are created
+     *                          for pipelining, leading to constipated TCP buffers and potential overflows.
+
+     * @return  the newly created network connector job
+     */
     @Override
-    public AbstractConnectorJob<T> newInstance(final AbstractConnectorJob.Callback<T> callback, final RecordStream.Factory<T> streamFactory, final ExecutorService pipeLineExecutor) {
-      return new NetworkConnectorJob<T>(callback, streamFactory, getHost(), getPort());
+    public AbstractConnectorJob<T> newInstance(final AbstractConnectorJob.Callback<T> callback,
+                                               final RecordStream.Factory<T> streamFactory,
+                                               final ExecutorService pipeLineExecutor) {
+      return new NetworkConnectorJob<T>(callback, streamFactory,
+          getHost(), getPort(), pipeLineExecutor);
     }
 
     public void setHost(final InetAddress host) {
@@ -79,8 +92,34 @@ public class NetworkConnectorJob<T> extends AbstractConnectorJob<T> {
 
   }
 
-  public NetworkConnectorJob(final AbstractConnectorJob.Callback<T> callback, final RecordStream.Factory<T> streamFactory, final InetAddress host, final int port) {
-    super(callback, streamFactory, null);
+  /**
+   * Creates a new network connector job that is single-threaded. Using this constructor is not recommended as it
+   * might cause constipated TCP buffers.
+   *
+   * @param callback  the class containing callbacks for events such as receive
+   * @param streamFactory   the factory for the stream of records to relay
+   * @param host  the host to connect to
+   * @param port  the TCP port to connect to
+   */
+  @Deprecated
+  public NetworkConnectorJob(final AbstractConnectorJob.Callback<T> callback, final RecordStream.Factory<T> streamFactory,
+                             final InetAddress host, final int port) {
+    this(callback, streamFactory, host, port, null);
+  }
+
+  /**
+   * Creates a new network connector job.
+   *
+   * @param callback  the class containing network event callback methods
+   * @param streamFactory   the factory for the stream of records to relay
+   * @param host  the host to connect to
+   * @param port  the TCP port to connect to
+   * @param pipeLineExecutor  the thread executor (Note: if this is null, no additional threads are created for
+   *                          pipelining, leading to constipated TCP buffers
+   */
+  public NetworkConnectorJob(final AbstractConnectorJob.Callback<T> callback, final RecordStream.Factory<T> streamFactory,
+                             final InetAddress host, final int port, final ExecutorService pipeLineExecutor) {
+    super(callback, streamFactory, pipeLineExecutor);
     ArgumentChecker.notNull(host, "host");
     _host = host;
     _port = port;

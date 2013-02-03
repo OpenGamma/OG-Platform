@@ -33,7 +33,7 @@ public class ConfigureViewClientProcedureTest {
 
   private Set<ConfigurationItem> createLesserConfiguration() {
     final Set<ConfigurationItem> config = new HashSet<ConfigurationItem>();
-    config.add(new MarketDataOverride(new ValueRequirement("Foo", new ComputationTargetSpecification(UniqueId.of("Test", "1"))), null, null, 1, null));
+    config.add(new MarketDataOverride(new ValueRequirement("Foo", ComputationTargetSpecification.of(UniqueId.of("Test", "1"))), null, null, 1, null));
     config.add(new MarketDataOverride(null, "Foo", ExternalId.of("UID", "Test~2"), 2, Operation.ADD));
     config.add(new ValueProperty("Ignored", false));
     return config;
@@ -41,7 +41,7 @@ public class ConfigureViewClientProcedureTest {
 
   private Set<ConfigurationItem> createExtraConfiguration() {
     final Set<ConfigurationItem> config = createLesserConfiguration();
-    config.add(new MarketDataOverride(new ValueRequirement("Bar", new ComputationTargetSpecification(UniqueId.of("Test", "1"))), null, null, 1, Operation.MULTIPLY));
+    config.add(new MarketDataOverride(new ValueRequirement("Bar", ComputationTargetSpecification.of(UniqueId.of("Test", "1"))), null, null, 1, Operation.MULTIPLY));
     config.add(new MarketDataOverride(null, "Bar", ExternalId.of("UID", "Test~2"), 2, null));
     return config;
   }

@@ -193,7 +193,7 @@ public class ManageablePosition extends DirectBean
     ArgumentChecker.notNull(tradeObjectId, "tradeObjectId");
     ObjectId objectId = tradeObjectId.getObjectId();
     for (ManageableTrade trade : getTrades()) {
-      if (getUniqueId().equalObjectId(objectId)) {
+      if (trade.getUniqueId().equalObjectId(objectId)) {
         return trade;
       }
     }
@@ -261,13 +261,11 @@ public class ManageablePosition extends DirectBean
    * <p>
    * The interface contains different data to this class due to database design.
    * 
-   * @param parentNodeId  the parent node id, may be null
    * @return the security from the link, null if not resolve
    */
-  public SimplePosition toPosition(UniqueId parentNodeId) {
+  public SimplePosition toPosition() {
     SimplePosition sp = new SimplePosition();
     sp.setUniqueId(this.getUniqueId());
-    sp.setParentNodeId(parentNodeId);
     sp.setQuantity(this.getQuantity());
     sp.setSecurityLink(this.getSecurityLink());
     sp.getTrades().addAll(getTrades());

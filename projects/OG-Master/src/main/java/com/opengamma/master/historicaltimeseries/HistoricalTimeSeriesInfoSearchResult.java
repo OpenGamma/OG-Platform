@@ -106,7 +106,6 @@ public class HistoricalTimeSeriesInfoSearchResult extends AbstractSearchResult<H
    * The meta-bean for {@code HistoricalTimeSeriesInfoSearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static HistoricalTimeSeriesInfoSearchResult.Meta meta() {
     return HistoricalTimeSeriesInfoSearchResult.Meta.INSTANCE;
   }

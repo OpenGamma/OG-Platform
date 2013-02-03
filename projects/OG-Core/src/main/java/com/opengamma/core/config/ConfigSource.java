@@ -47,7 +47,7 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
    * <p>
    * In combination, the object identifier and version-correction exactly specify
    * a single configuration at a single version-correction.
-   *     
+   *
    * @param objectId  the object identifier to find, not null
    * @param versionCorrection  the version-correction, not null
    * @return the matched configuration, not null
@@ -59,21 +59,20 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
   ConfigItem<?> get(ObjectId objectId, VersionCorrection versionCorrection);
 
   /**
-   * Gets a configuration element by name and version-correction.
+   * Gets configuration elements by name and version-correction.
    * <p>
-   * Each configuration element has a name and this method allows lookup by name.
-   * A name lookup does not guarantee to match a single configuration element but it normally will.
-   * This method returns all configurations that may match for {@link ConfigResolver} to choose from.
-   *
-   * @param <R>  the type of configuration element
-   * @param clazz  the configuration element type, not null
-   * @param configName  the configuration name, not null
-   * @param versionCorrection  the version-correction, not null
-   * @return all configuration elements matching the name, empty if no matches, not null
+   * Each configuration element has a name and this method allows lookup by name. A name lookup does not guarantee to match a single configuration element but it normally will. This method returns all
+   * configurations that may match for {@link ConfigResolver} to choose from.
+   * 
+   * @param <R> the type of configuration element
+   * @param clazz the configuration element type, not null
+   * @param configName the configuration name, not null
+   * @param versionCorrection the version-correction, not null
+   * @return the elements matching the name, empty if no matches, not null
    * @throws IllegalArgumentException if the name or version-correction is invalid
    * @throws RuntimeException if an error occurs
    */
-  <R> ConfigItem<R> get(Class<R> clazz, String configName, VersionCorrection versionCorrection);  
+  <R> Collection<ConfigItem<R>> get(Class<R> clazz, String configName, VersionCorrection versionCorrection);
 
   //-------------------------------------------------------------------------
   // TODO: remove below here
@@ -89,13 +88,13 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
    * @return the versioned configuration elements, null if not found
    * @throws RuntimeException if an error occurs
    */
-  <R> Collection<ConfigItem<R>> getAll(Class<R> clazz, VersionCorrection versionCorrection);  
+  <R> Collection<ConfigItem<R>> getAll(Class<R> clazz, VersionCorrection versionCorrection);
 
   /**
    * Gets a configuration element by unique identifier.
    * <p>
    * A unique identifier exactly specifies a single configuration at a single version-correction.
-   * 
+   *
    * @param <R>  the type of configuration element
    * @param clazz  the configuration element type, not null
    * @param uniqueId  the unique identifier to find, not null
@@ -111,7 +110,7 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
    * <p>
    * In combination, the object identifier and version-correction exactly specify
    * a single configuration at a single version-correction.
-   * 
+   *
    * @param <R>  the type of configuration element
    * @param clazz  the configuration element type, not null
    * @param objectId  the object identifier to find, not null
@@ -124,28 +123,27 @@ public interface ConfigSource extends Source<ConfigItem<?>>, ChangeProvider {
   <R> R getConfig(Class<R> clazz, ObjectId objectId, VersionCorrection versionCorrection);
 
   /**
-   * Gets a configuration element by name and version-correction.
+   * Gets a single best-fit configuration element by name.
    * <p>
-   * Each configuration element has a name and this method allows lookup by name.
-   * A name lookup does not guarantee to match a single configuration element but it normally will.
-   * This method returns all configurations that may match for {@link ConfigResolver} to choose from.
-   * 
-   * @param <R>  the type of configuration element
-   * @param clazz  the configuration element type, not null
-   * @param configName  the configuration name, not null
-   * @param versionCorrection  the version-correction, not null
+   * A name lookup does not guarantee to match a single configuration element but it normally will. In the case where it does not an implementation will need some mechanism to decide what the best-fit
+   * match is.
+   *
+   * @param <R> the type of configuration element
+   * @param clazz the configuration element type, not null
+   * @param configName the configuration name, not null
+   * @param versionCorrection the version-correction, not null
    * @return the configuration element matching the name, null if not found
    * @throws IllegalArgumentException if the name or version-correction is invalid
    * @throws RuntimeException if an error occurs
-   */  
-  <R> R getConfig(Class<R> clazz, String configName, VersionCorrection versionCorrection);
+   */
+  <R> R getSingle(Class<R> clazz, String configName, VersionCorrection versionCorrection);
 
   /**
    * Searches for the latest version of a configuration element matching the specified name.
    * <p>
    * This will always return the latest version, ignoring any other version constraints
    * of the implementation.
-   * 
+   *
    * @param <R>  the type of configuration element
    * @param clazz  the configuration element type, not null
    * @param name  the element name to search for, wildcards allowed, not null

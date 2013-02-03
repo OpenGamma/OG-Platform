@@ -5,9 +5,9 @@
  */
 package com.opengamma.analytics.util.time;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -97,22 +97,22 @@ public final class TimeCalculator {
   public static double getTimeBetween(final LocalDate date1, final LocalDate date2) {
     ArgumentChecker.notNull(date1, "date1");
     ArgumentChecker.notNull(date2, "date2");
-    return getTimeBetween(date1.atStartOfDayInZone(TimeZone.UTC), date2.atStartOfDayInZone(TimeZone.UTC));
+    return getTimeBetween(date1.atStartOfDay(ZoneOffset.UTC), date2.atStartOfDay(ZoneOffset.UTC));
   }
 
   public static double getTimeBetween(final ZonedDateTime zdt1, final LocalDate date2) {
     ArgumentChecker.notNull(zdt1, "date1");
     ArgumentChecker.notNull(date2, "date2");
-    ZonedDateTime zdt2 = date2.atStartOfDayInZone(TimeZone.UTC);
-    ZonedDateTime rebasedZdt1 = zdt1.withZoneSameInstant(TimeZone.UTC);
+    ZonedDateTime zdt2 = date2.atStartOfDay(ZoneOffset.UTC);
+    ZonedDateTime rebasedZdt1 = zdt1.withZoneSameInstant(ZoneOffset.UTC);
     return getTimeBetween(rebasedZdt1, zdt2);
   }
 
   public static double getTimeBetween(final LocalDate date1, final ZonedDateTime zdt2) {
     ArgumentChecker.notNull(date1, "date1");
     ArgumentChecker.notNull(zdt2, "date2");
-    ZonedDateTime zdt1 = date1.atStartOfDayInZone(TimeZone.UTC);
-    ZonedDateTime rebasedZdt2 = zdt2.withZoneSameInstant(TimeZone.UTC);
+    ZonedDateTime zdt1 = date1.atStartOfDay(ZoneOffset.UTC);
+    ZonedDateTime rebasedZdt2 = zdt2.withZoneSameInstant(ZoneOffset.UTC);
     return getTimeBetween(zdt1, rebasedZdt2);
   }
 }

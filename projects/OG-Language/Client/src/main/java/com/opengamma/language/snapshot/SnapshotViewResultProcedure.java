@@ -56,7 +56,8 @@ public class SnapshotViewResultProcedure extends AbstractProcedureInvoker.Single
 
   public static StructuredMarketDataSnapshot invoke(final SessionContext sessionContext, final ViewClientHandle viewClientHandle) {
     try {
-      final MarketDataSnapshotter snapshotter = new MarketDataSnapshotterImpl(sessionContext.getGlobalContext().getVolatilityCubeDefinitionSource());
+      final MarketDataSnapshotter snapshotter = new MarketDataSnapshotterImpl(sessionContext.getGlobalContext().getExternalIdBundleLookup(), sessionContext.getGlobalContext()
+          .getVolatilityCubeDefinitionSource());
       final ViewClient viewClient = viewClientHandle.get().getViewClient();
       final EngineResourceReference<? extends ViewCycle> viewCycleRef = viewClient.createLatestCycleReference();
       try {

@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -16,18 +17,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Combines a function repository and compiler to give access to compiled functions.
@@ -41,20 +38,20 @@ public class CompiledFunctionService {
   private final FunctionRepositoryCompiler _functionRepositoryCompiler;
   private final FunctionCompilationContext _functionCompilationContext;
   private Set<FunctionDefinition> _reinitializingFunctionDefinitions;
-  private Set<Pair<ObjectId, VersionCorrection>> _reinitializingFunctionRequirements;
+  private Set<ObjectId> _reinitializingFunctionRequirements;
   private boolean _localExecutorService;
   private ExecutorService _executorService;
   private final FunctionReinitializer _reinitializer = new FunctionReinitializer() {
 
     @Override
-    public synchronized void reinitializeFunction(FunctionDefinition function, Pair<ObjectId, VersionCorrection> identifier) {
+    public synchronized void reinitializeFunction(final FunctionDefinition function, final ObjectId identifier) {
       s_logger.debug("Re-initialize function {} on change to {}", function, identifier);
       _reinitializingFunctionDefinitions.add(function);
       _reinitializingFunctionRequirements.add(identifier);
     }
 
     @Override
-    public synchronized void reinitializeFunction(FunctionDefinition function, Collection<Pair<ObjectId, VersionCorrection>> identifiers) {
+    public synchronized void reinitializeFunction(final FunctionDefinition function, final Collection<ObjectId> identifiers) {
       s_logger.debug("Re-initialize function {} on changes to {}", function, identifiers);
       _reinitializingFunctionDefinitions.add(function);
       _reinitializingFunctionRequirements.addAll(identifiers);
@@ -118,37 +115,45 @@ public class CompiledFunctionService {
   }
 
   protected void initializeImpl(final long initId, final Collection<FunctionDefinition> functions) {
-    OperationTimer timer = new OperationTimer(s_logger, "Initializing {} function definitions", functions.size());
+    final OperationTimer timer = new OperationTimer(s_logger, "Initializing {} function definitions", functions.size());
     final ExecutorCompletionService<FunctionDefinition> completionService = new ExecutorCompletionService<FunctionDefinition>(getExecutorService());
-    int nFunctions = functions.size();
+    final int nFunctions = functions.size();
     getFunctionCompilationContext().setFunctionReinitializer(_reinitializer);
     final StaticFunctionRepository initialized = new StaticFunctionRepository(_initializedFunctionRepository);
     for (final FunctionDefinition definition : functions) {
-      completionService.submit(new Runnable() {
+      completionService.submit(new Callable<FunctionDefinition>() {
         @Override
-        public void run() {
+        public FunctionDefinition call() {
           try {
             definition.init(getFunctionCompilationContext());
-          } catch (Exception e) {
-            s_logger.error("Couldn't initialize function {} id={}", definition.getShortName(), definition.getUniqueId());
-            throw new OpenGammaRuntimeException("Couldn't initialize function", e);
+            return definition;
+          } catch (final UnsupportedOperationException e) {
+            s_logger.warn("Function {}, is not supported in this configuration - {}", definition.getUniqueId(), e.getMessage());
+            s_logger.info("Caught exception", e);
+            return null;
+          } catch (final Exception e) {
+            s_logger.error("Couldn't initialize function {}", definition.getUniqueId());
+            throw new OpenGammaRuntimeException("Couldn't initialize " + definition.getShortName(), e);
           }
         }
-      }, definition);
+      });
       initialized.remove(definition);
     }
     for (int i = 0; i < nFunctions; i++) {
       Future<FunctionDefinition> future = null;
       try {
         future = completionService.take();
-      } catch (InterruptedException e1) {
+      } catch (final InterruptedException e1) {
         Thread.interrupted();
         s_logger.warn("Interrupted while initializing function definitions.");
         throw new OpenGammaRuntimeException("Interrupted while initializing function definitions. ViewProcessor not safe to use.");
       }
       try {
-        initialized.add(future.get());
-      } catch (Exception e) {
+        final FunctionDefinition function = future.get();
+        if (function != null) {
+          initialized.add(function);
+        }
+      } catch (final Exception e) {
         s_logger.warn("Couldn't initialize function", e);
         // Don't take any further action - the error has been logged and the function is not in the "initialized" set
       }
@@ -164,7 +169,7 @@ public class CompiledFunctionService {
    *
    * @return the set of object identifiers that should trigger re-initialization
    */
-  public Set<Pair<ObjectId, VersionCorrection>> initialize() {
+  public Set<ObjectId> initialize() {
     // If the view processor node has restarted, remote nodes might have old values knocking around. We need a value
     // that won't "accidentally" be the same as theirs. As we increment the ID by 1 each time, the clock is possibly
     // a good choice unless we're clocking config changes at sub-millisecond speeds.
@@ -181,10 +186,10 @@ public class CompiledFunctionService {
    * @param initId the initialization identifier
    * @return the set of object identifiers that should trigger re-initialization
    */
-  public synchronized Set<Pair<ObjectId, VersionCorrection>> initialize(final long initId) {
+  public synchronized Set<ObjectId> initialize(final long initId) {
     s_logger.info("Initializing all function definitions to {}", initId);
     _reinitializingFunctionDefinitions = new HashSet<FunctionDefinition>();
-    _reinitializingFunctionRequirements = new HashSet<Pair<ObjectId, VersionCorrection>>();
+    _reinitializingFunctionRequirements = new HashSet<ObjectId>();
     initializeImpl(initId, getFunctionRepository().getAllFunctions());
     return _reinitializingFunctionRequirements;
   }
@@ -198,7 +203,7 @@ public class CompiledFunctionService {
         getFunctionCompilationContext().setFunctionInitId(initId);
       } else {
         _reinitializingFunctionDefinitions = new HashSet<FunctionDefinition>();
-        _reinitializingFunctionRequirements = new HashSet<Pair<ObjectId, VersionCorrection>>();
+        _reinitializingFunctionRequirements = new HashSet<ObjectId>();
         initializeImpl(initId, reinitialize);
       }
     }
@@ -209,8 +214,8 @@ public class CompiledFunctionService {
    *
    * @return the set of unique identifiers requested by any initialized functions that should trigger re-initialization
    */
-  public synchronized Set<Pair<ObjectId, VersionCorrection>> reinitialize() {
-    long initId = getFunctionCompilationContext().getFunctionInitId() + 1;
+  public synchronized Set<ObjectId> reinitialize() {
+    final long initId = getFunctionCompilationContext().getFunctionInitId() + 1;
     s_logger.info("Re-initializing all function definitions to {}", initId);
     final Set<FunctionDefinition> reinitialize = _reinitializingFunctionDefinitions;
     if (reinitialize.isEmpty()) {
@@ -218,7 +223,7 @@ public class CompiledFunctionService {
       getFunctionCompilationContext().setFunctionInitId(initId);
     } else {
       _reinitializingFunctionDefinitions = new HashSet<FunctionDefinition>();
-      _reinitializingFunctionRequirements = new HashSet<Pair<ObjectId, VersionCorrection>>();
+      _reinitializingFunctionRequirements = new HashSet<ObjectId>();
       initializeImpl(initId, reinitialize);
     }
     return _reinitializingFunctionRequirements;
@@ -253,10 +258,10 @@ public class CompiledFunctionService {
   }
 
   public CompiledFunctionRepository compileFunctionRepository(final long timestamp) {
-    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), Instant.ofEpochMillis(timestamp));
+    return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), Instant.ofEpochMilli(timestamp));
   }
 
-  public CompiledFunctionRepository compileFunctionRepository(final InstantProvider timestamp) {
+  public CompiledFunctionRepository compileFunctionRepository(final Instant timestamp) {
     return getFunctionRepositoryCompiler().compile(getInitializedFunctionRepository(), getFunctionCompilationContext(), getExecutorService(), timestamp);
   }
 
@@ -264,6 +269,7 @@ public class CompiledFunctionService {
     return _executorService;
   }
 
+  @Override
   public CompiledFunctionService clone() {
     return new CompiledFunctionService(getFunctionRepository(), getFunctionRepositoryCompiler(), getFunctionCompilationContext().clone());
   }

@@ -10,9 +10,8 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import java.util.List;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.EuropeanVanillaOptionDefinition;

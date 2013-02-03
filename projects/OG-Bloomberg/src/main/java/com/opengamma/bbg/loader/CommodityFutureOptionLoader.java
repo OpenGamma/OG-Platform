@@ -11,6 +11,7 @@ import static com.opengamma.bbg.BloombergConstants.BBG_CRUDE_OIL;
 import static com.opengamma.bbg.BloombergConstants.BBG_ELECTRICITY;
 import static com.opengamma.bbg.BloombergConstants.BBG_PRECIOUS_METAL_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BBG_REFINED_PRODUCTS;
+import static com.opengamma.bbg.BloombergConstants.BBG_SOY;
 import static com.opengamma.bbg.BloombergConstants.BBG_WHEAT;
 import static com.opengamma.bbg.BloombergConstants.FIELD_EXCH_CODE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_VAL_PT;
@@ -28,11 +29,10 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_UNDL_ID_BB_UNIQUE;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
@@ -74,16 +74,17 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
     FIELD_UNDL_ID_BB_UNIQUE);
 
   /**
-   * The valid Bloomberg security types for Interest Rate Future Option
+   * The valid Bloomberg security types for Commodity Future Option
    */
   public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(
-    BBG_PRECIOUS_METAL_TYPE,
-    BBG_BASE_METAL_TYPE,
-    BBG_REFINED_PRODUCTS,
-    BBG_ELECTRICITY,
-    BBG_COAL,
-    BBG_CRUDE_OIL,
-    BBG_WHEAT);
+      BBG_PRECIOUS_METAL_TYPE,
+      BBG_BASE_METAL_TYPE,
+      BBG_REFINED_PRODUCTS,
+      BBG_ELECTRICITY,
+      BBG_COAL,
+      BBG_CRUDE_OIL,
+      BBG_WHEAT,
+      BBG_SOY);
 
   /**
    * Creates an instance.
@@ -154,7 +155,7 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
       throw new OpenGammaRuntimeException(expiryDate + " returned from bloomberg not in format yyyy-mm-dd", e);
     }
     int year = expiryLocalDate.getYear();
-    int month = expiryLocalDate.getMonthOfYear().getValue();
+    int month = expiryLocalDate.getMonthValue();
     int day = expiryLocalDate.getDayOfMonth();
     Expiry expiry = new Expiry(DateUtils.getUTCDate(year, month, day));
 

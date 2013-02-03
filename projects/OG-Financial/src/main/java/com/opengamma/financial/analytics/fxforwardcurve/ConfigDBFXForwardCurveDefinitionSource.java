@@ -40,13 +40,13 @@ public class ConfigDBFXForwardCurveDefinitionSource implements FXForwardCurveDef
   public FXForwardCurveDefinition getDefinition(final String name, final String currencyPair, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(currencyPair, "currency pair");
-    final FXForwardCurveDefinition definition = _configSource.getConfig(FXForwardCurveDefinition.class, name + "_" + currencyPair + "_FX_FORWARD", versionCorrection);
+    final FXForwardCurveDefinition definition = _configSource.getSingle(FXForwardCurveDefinition.class, name + "_" + currencyPair + "_FX_FORWARD", versionCorrection);
     if (definition == null) {
       if (currencyPair.length() == 6) {
         final String firstCcy = currencyPair.substring(0, 3);
         final String secondCcy = currencyPair.substring(3, 6);
         final String reversedCcys = secondCcy + firstCcy;
-        return _configSource.getConfig(FXForwardCurveDefinition.class, name + "_" + reversedCcys + "_FX_FORWARD", versionCorrection);
+        return _configSource.getSingle(FXForwardCurveDefinition.class, name + "_" + reversedCcys + "_FX_FORWARD", versionCorrection);
       }
     }
     return definition;

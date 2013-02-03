@@ -5,10 +5,9 @@
  */
 package com.opengamma.engine.view.calcnode;
 
-import javax.time.Instant;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.UniqueId;
 

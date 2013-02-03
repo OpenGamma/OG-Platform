@@ -5,15 +5,14 @@
  */
 package com.opengamma.util.timeseries.fudge;
 
-import javax.time.calendar.OffsetDateTime;
-import javax.time.calendar.TimeZone;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.util.timeseries.yearoffset.YearOffsetEpochMillisConverter;
 
@@ -34,7 +33,7 @@ public class YearOffsetEpochMillisConverterFudgeBuilder implements FudgeBuilder<
 
   @Override
   public YearOffsetEpochMillisConverter buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
-    TimeZone tz = message.getFieldValue(TimeZone.class, message.getByOrdinal(1));
+    ZoneId tz = message.getFieldValue(ZoneId.class, message.getByOrdinal(1));
     OffsetDateTime odt = message.getFieldValue(OffsetDateTime.class, message.getByOrdinal(2));
     return new YearOffsetEpochMillisConverter(odt.atZoneSameInstant(tz));
   }

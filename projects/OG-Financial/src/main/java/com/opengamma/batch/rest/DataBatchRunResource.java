@@ -8,8 +8,10 @@ package com.opengamma.batch.rest;
 import java.net.URI;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -18,6 +20,7 @@ import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.id.ObjectId;
+import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
@@ -75,8 +78,9 @@ public class DataBatchRunResource extends AbstractDataResource {
     return responseOkFudge(result);
   }
 
-  @GET
+  @POST
   @Path("values")
+  @Consumes(FudgeRest.MEDIA)
   public Response getBatchValues(PagingRequest pagingRequest) {
     Pair<List<ViewResultEntry>, Paging> result = getMaster().getBatchValues(_batchRunId, pagingRequest);
     return responseOkFudge(result);
@@ -90,7 +94,7 @@ public class DataBatchRunResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearch(URI baseUri) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("batchRun/search");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("run/search");
     return bld.build();
   }
 
@@ -102,7 +106,7 @@ public class DataBatchRunResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, ObjectId batchRunId) {
-    return UriBuilder.fromUri(baseUri).path("/batchRun/{uid}").build(batchRunId);
+    return UriBuilder.fromUri(baseUri).path("/run/{uid}").build(batchRunId);
   }
 
   /**
@@ -113,7 +117,7 @@ public class DataBatchRunResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriBatchValues(URI baseUri, ObjectId batchRunId) {
-    return UriBuilder.fromUri(baseUri).path("/batchRun/{uid}/values").build(batchRunId);
+    return UriBuilder.fromUri(baseUri).path("/run/{uid}/values").build(batchRunId);
   }
 
 }

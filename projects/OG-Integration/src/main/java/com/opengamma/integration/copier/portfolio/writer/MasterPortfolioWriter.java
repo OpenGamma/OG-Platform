@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ObjectId;
@@ -30,6 +30,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
@@ -40,6 +41,7 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
+import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.beancompare.BeanCompare;
 import com.opengamma.util.beancompare.BeanDifference;
@@ -55,7 +57,8 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   private final PortfolioMaster _portfolioMaster;
   private final PositionMaster _positionMaster;
   private final SecurityMaster _securityMaster;
-  
+  private final SecuritySource _securitySource;
+
   private PortfolioDocument _portfolioDocument;
   private ManageablePortfolioNode _currentNode;
   private ManageablePortfolioNode _originalNode;
@@ -72,10 +75,29 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
   private boolean _keepCurrentPositions;
 
+  private boolean _discardIncompleteOptions;
 
+
+  /**
+   * Create a master portfolio writer
+   * @param portfolioName             The name of the portfolio to create/write to
+   * @param portfolioMaster           The portfolio master to which to write the portfolio
+   * @param positionMaster            The position master to which to write positions
+   * @param securityMaster            The security master to which to write securities
+   * @param overwrite                 If true, delete any matching securities/positions before writing new ones;
+   *                                  if false, update any matching securities/positions with a new version
+   * @param mergePositions            If true, attempt to roll multiple positions in the same security into one position,
+   *                                  for all positions in the same portfolio node;
+   *                                  if false, each position is loaded separately
+   * @param keepCurrentPositions      If true, keep the existing portfolio node tree and add new entries;
+   *                                  if false, delete the entire existing portfolio node tree before loading the new
+   *                                  portfolio
+   * @param discardIncompleteOptions  If true, when an underlying cannot be loaded, the position/trade will be discarded;
+   *                                  if false, the option will be created with a dangling reference to the underlying
+   */
   public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
       PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite,
-      boolean mergePositions, boolean keepCurrentPositions)  {
+      boolean mergePositions, boolean keepCurrentPositions, boolean discardIncompleteOptions)  {
 
     ArgumentChecker.notEmpty(portfolioName, "portfolioName");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
@@ -85,26 +107,35 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     _overwrite = overwrite;
     _mergePositions = mergePositions;
     _keepCurrentPositions = keepCurrentPositions;
+    _discardIncompleteOptions = discardIncompleteOptions;
 
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
     _securityMaster = securityMaster;
 
-    _currentPath = new String[0];
+    _securitySource = new MasterSecuritySource(_securityMaster);
 
     _beanCompare = new BeanCompare();
 
-    _securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
+    //_currentPath = new String[0];
+    //_securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
 
     createPortfolio(portfolioName);
+
+    setPath(new String[0]);
   }
 
+  @Override
+  public void addAttribute(String key, String value) {
+    _portfolioDocument.getPortfolio().addAttribute(key, value);
+  }
+  
   /**
    * WritePosition checks if the position exists in the previous version of the portfolio.
    * If so, the existing position is reused.
    * @param position    the position to be written
    * @param securities  the security(ies) related to the above position, also to be written; index 1 onwards are underlyings
-   * @return            the positions/securities in the masters after writing
+   * @return            the positions/securities in the masters after writing, null on failure
    */
   @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> writePosition(ManageablePosition position, ManageableSecurity[] securities) {
@@ -115,21 +146,36 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     // Write securities
     List<ManageableSecurity> writtenSecurities = new ArrayList<ManageableSecurity>();
     for (ManageableSecurity security : securities) {
-      ManageableSecurity writtenSecurity = writeSecurity(security);
-      if (writtenSecurity != null) {
-        writtenSecurities.add(writtenSecurity);
+      if (security != null || !_discardIncompleteOptions) { // latter term preserves old behaviour
+        ManageableSecurity writtenSecurity = writeSecurity(security);
+        if (writtenSecurity != null) {
+          writtenSecurities.add(writtenSecurity);
+        }        
       }
+    }
+
+    // If no securities were actually written successfully, just skip writing this position entirely
+    if (writtenSecurities.size() != securities.length && _discardIncompleteOptions) {
+      // this does persist the securities that it is given so that we don't keep hitting Bloomberg when there are missing underlyings.
+      return null;
+    } else if (writtenSecurities.isEmpty()) { // preserve old behaviour if _discardIncompleteOptions is false
+      return null;
     }
 
     // If merging positions, check if any of the positions in the current node reference the same security id
     // and if so, just update the existing position
     if (_mergePositions && _securityIdToPosition.containsKey(writtenSecurities.get(0).getUniqueId().getObjectId())) {
 
-      // Just add new quantity to existing position
+      // Add new quantity to existing position's quantity
       ManageablePosition existingPosition = _securityIdToPosition.get(writtenSecurities.get(0).getUniqueId().getObjectId());
       existingPosition.setQuantity(existingPosition.getQuantity().add(position.getQuantity()));
 
-      // Save the updated position to the position master
+      // Add new trades to existing position's trades
+      for (ManageableTrade trade : position.getTrades()) {
+        existingPosition.addTrade(trade);
+      }
+
+      // Save the updated existing position to the position master
       PositionDocument addedDoc = _positionMaster.update(new PositionDocument(existingPosition));
 
       // update position map (huh?)
@@ -219,7 +265,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     
     SecuritySearchRequest searchReq = new SecuritySearchRequest();
     ExternalIdSearch idSearch = new ExternalIdSearch(security.getExternalIdBundle());  // match any one of the IDs
-    searchReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(ZonedDateTime.now())); // valid now
+    searchReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now())); // valid now
     searchReq.setExternalIdSearch(idSearch);
     searchReq.setFullDetail(true);
     searchReq.setSortOrder(SecuritySearchSortOrder.VERSION_FROM_INSTANT_DESC);
@@ -244,9 +290,13 @@ public class MasterPortfolioWriter implements PortfolioWriter {
           return foundSecurity;
         } else {
           SecurityDocument updateDoc = new SecurityDocument(security);
-          updateDoc.setUniqueId(foundSecurity.getUniqueId());
+          updateDoc.setVersionFromInstant(Instant.now());
           try {
-            return _securityMaster.update(updateDoc).getSecurity();
+            //updateDoc.setUniqueId(foundSecurity.getUniqueId());
+            //return _securityMaster.update(updateDoc).getSecurity();
+            UniqueId newId = _securityMaster.addVersion(foundSecurity.getUniqueId().getObjectId(), updateDoc);
+            security.setUniqueId(newId);
+            return security;
           } catch (Throwable t) {
             s_logger.error("Unable to update security " + security.getUniqueId() + ": " + t.getMessage());
             return null;
@@ -292,6 +342,19 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
       // Reset position map
       _securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
+
+      // If keeping original portfolio nodes and merging positions, populate position map with existing positions in node
+      if (_keepCurrentPositions && _mergePositions && _originalNode != null) {
+        for (ObjectId positionId : _originalNode.getPositionIds()) {
+          ManageablePosition position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
+          if (position != null) {
+            position.getSecurityLink().resolve(_securitySource);
+            if (position.getSecurity() != null) {
+              _securityIdToPosition.put(position.getSecurity().getUniqueId().getObjectId(), position);
+            }
+          }
+        }
+      }
 
       _currentPath = newPath;
     }
@@ -352,7 +415,6 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   }
   
   protected void createPortfolio(String portfolioName) {
-
 
     // Check to see whether the portfolio already exists
     PortfolioSearchRequest portSearchRequest = new PortfolioSearchRequest();
@@ -423,4 +485,5 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   public SecurityMaster getSecurityMaster() {
     return _securityMaster;
   }
+
 }

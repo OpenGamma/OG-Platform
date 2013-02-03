@@ -5,10 +5,10 @@
  */
 package com.opengamma.analytics.financial.equity.variance;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
+import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -42,7 +42,7 @@ public class VarianceSwapDefinitionTest {
     // Construct a forward starting swap, Definition
     final VarianceSwapDefinition varSwapDefn = new VarianceSwapDefinition(tPlus2, plus5y, plus5y, obsFreq, ccy, WEEKENDCAL, obsPerYear, volStrike, volNotional);
     // Construct a forward starting swap, Derivative 
-    varSwapDefn.toDerivative(now, emptyTimeSeries);
+    varSwapDefn.toDerivative(now, emptyTimeSeries, ArrayUtils.EMPTY_STRING_ARRAY);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -8,10 +8,10 @@ package com.opengamma.analytics.financial.instrument.index;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.calendar.Period;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -23,7 +23,7 @@ import com.opengamma.util.money.Currency;
 
 public class GeneratorSwapFixedIborTest {
   //Libor3m
-  private static final Period IBOR_TENOR = Period.ofMonths(3);
+  private static final Period IBOR_TENOR = Period.of(3, MONTHS);
   private static final int SPOT_LAG = 2;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final DayCount DAY_COUNT_IBOR = DayCountFactory.INSTANCE.getDayCount("Actual/360");
@@ -31,7 +31,7 @@ public class GeneratorSwapFixedIborTest {
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.USD;
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SPOT_LAG, CALENDAR, DAY_COUNT_IBOR, BUSINESS_DAY, IS_EOM);
-  private static final Period FIXED_LEG_PERIOD = Period.ofMonths(6);
+  private static final Period FIXED_LEG_PERIOD = Period.of(6, MONTHS);
   private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final GeneratorSwapFixedIbor GENERATOR_FROM_INDEX = new GeneratorSwapFixedIbor("Swap Generator", FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX);
 
@@ -63,7 +63,7 @@ public class GeneratorSwapFixedIborTest {
     assertEquals(GENERATOR_FROM_INDEX, generatorDuplicate);
     assertEquals(GENERATOR_FROM_INDEX.hashCode(), generatorDuplicate.hashCode());
     GeneratorSwapFixedIbor generatorModified;
-    Period otherPeriod = Period.ofMonths(12);
+    Period otherPeriod = Period.of(12, MONTHS);
     generatorModified = new GeneratorSwapFixedIbor("Swap Generator", otherPeriod, DAY_COUNT_FIXED, IBOR_INDEX);
     assertFalse(GENERATOR_FROM_INDEX.equals(generatorModified));
     generatorModified = new GeneratorSwapFixedIbor("Swap Generator", FIXED_LEG_PERIOD, DAY_COUNT_IBOR, IBOR_INDEX);

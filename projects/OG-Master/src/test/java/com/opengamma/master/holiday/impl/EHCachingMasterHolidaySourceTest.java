@@ -14,12 +14,12 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
 
-import javax.time.calendar.LocalDate;
-
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
@@ -33,14 +33,11 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
 
 /**
- * Test {@link EHCachingMasterHolidaySource}.
+ * Test.
  */
 @Test
 public class EHCachingMasterHolidaySourceTest {
 
-  private HolidayMaster _underlyingHolidayMaster = null;
-  private EHCachingMasterHolidaySource _cachingHolidaySource = null;
-  
   private static final LocalDate DATE_MONDAY = LocalDate.of(2010, 10, 25);
   private static final LocalDate DATE_TUESDAY = LocalDate.of(2010, 10, 26);
   private static final LocalDate DATE_SUNDAY = LocalDate.of(2010, 10, 24);
@@ -48,12 +45,21 @@ public class EHCachingMasterHolidaySourceTest {
   private static final ExternalId ID = ExternalId.of("C", "D");
   private static final ExternalIdBundle BUNDLE = ExternalIdBundle.of(ID);
 
+  private HolidayMaster _underlyingHolidayMaster = null;
+  private EHCachingMasterHolidaySource _cachingHolidaySource = null;
+  private CacheManager _cacheManager;
+
   @BeforeMethod
-  public void setUp() throws Exception {
+  public void setUp() {
+    _cacheManager = new CacheManager();
     _underlyingHolidayMaster = mock(HolidayMaster.class);
-    CacheManager cm = EHCacheUtils.createCacheManager();
-    EHCacheUtils.clear(cm, EHCachingMasterHolidaySource.HOLIDAY_CACHE);
-    _cachingHolidaySource = new EHCachingMasterHolidaySource(_underlyingHolidayMaster, cm);
+    EHCacheUtils.clear(_cacheManager, EHCachingMasterHolidaySource.HOLIDAY_CACHE);
+    _cachingHolidaySource = new EHCachingMasterHolidaySource(_underlyingHolidayMaster, _cacheManager);
+  }
+
+  @AfterMethod
+  public void tearDown() {
+    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
   }
 
   //-------------------------------------------------------------------------
@@ -90,7 +96,7 @@ public class EHCachingMasterHolidaySourceTest {
     
     verify(_underlyingHolidayMaster, times(1)).search(request);
   }
-  
+
   public void isHoliday_dateTypeAndExternalId() {
     HolidaySearchRequest request = new HolidaySearchRequest(HolidayType.BANK, ExternalIdBundle.of(ID));
     
@@ -107,5 +113,5 @@ public class EHCachingMasterHolidaySourceTest {
     
     verify(_underlyingHolidayMaster, times(1)).search(request);
   }
-  
+
 }

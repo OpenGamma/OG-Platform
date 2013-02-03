@@ -5,16 +5,15 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -47,8 +46,8 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
    * @param isCall The call (true) / put (false) flag.
    */
   public BondFutureOptionPremiumSecurityDefinition(final BondFutureDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
-    Validate.notNull(underlyingFuture, "underlying future");
-    Validate.notNull(expirationDate, "expiration");
+    ArgumentChecker.notNull(underlyingFuture, "underlying future");
+    ArgumentChecker.notNull(expirationDate, "expiration");
     this._underlyingFuture = underlyingFuture;
     this._expirationDate = expirationDate;
     this._strike = strike;
@@ -105,7 +104,7 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
 
   @Override
   public BondFutureOptionPremiumSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
+    ArgumentChecker.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
     final Double referencePrice = 0.0; // FIXME Bond future should have a "Security" version, without transaction price.
     final BondFuture underlyingFuture = _underlyingFuture.toDerivative(date, referencePrice, yieldCurveNames);
     final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
@@ -114,11 +113,13 @@ public class BondFutureOptionPremiumSecurityDefinition implements InstrumentDefi
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFutureOptionPremiumSecurityDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitBondFutureOptionPremiumSecurityDefinition(this);
   }
 

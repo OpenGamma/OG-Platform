@@ -21,6 +21,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
@@ -39,6 +40,7 @@ import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
@@ -53,11 +55,13 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
@@ -125,6 +129,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
         }
 
         @Override
+        public String visitCashFlowSecurity(final CashFlowSecurity security) {
+          return security.getAmount() * position.getQuantity().longValue() < 0 ? SHORT : LONG;
+        }
+
+        @Override
         public String visitEquitySecurity(final EquitySecurity security) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
@@ -180,6 +189,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
         }
 
         @Override
+        public String visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
+          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
+        }
+
+        @Override
         public String visitBondFutureOptionSecurity(final BondFutureOptionSecurity bondFutureOptionSecurity) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
@@ -187,6 +201,12 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
         @Override
         public String visitEquityIndexDividendFutureOptionSecurity(
           final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
+        }
+
+        @Override
+        public String visitEquityIndexFutureOptionSecurity(
+          final EquityIndexFutureOptionSecurity equityIndexFutureOptionSecurity) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
 
@@ -348,6 +368,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
         @Override
         public String visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
           return null; //TODO
+        }
+
+        @Override
+        public String visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
       };
       if (position.getSecurity() instanceof FinancialSecurity) {

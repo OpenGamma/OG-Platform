@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
@@ -70,10 +70,10 @@ public final class NettedProjectedCashFlowFromDateCalculator {
       final List<ZonedDateTime> receiveDates) {
     final TreeMap<LocalDate, MultipleCurrencyAmount> result = new TreeMap<LocalDate, MultipleCurrencyAmount>();
     for (int i = 0; i < payAmounts.size(); i++) {
-      result.put(payDates.get(i).toLocalDate(), payAmounts.get(i).multipliedBy(-1));
+      result.put(payDates.get(i).getDate(), payAmounts.get(i).multipliedBy(-1));
     }
     for (int i = 0; i < receiveAmounts.size(); i++) {
-      final LocalDate date = receiveDates.get(i).toLocalDate();
+      final LocalDate date = receiveDates.get(i).getDate();
       if (result.containsKey(date)) {
         result.put(date, result.get(date).plus(receiveAmounts.get(i)));
       } else {

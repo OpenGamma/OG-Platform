@@ -9,13 +9,19 @@ package com.opengamma.web.analytics.formatting;
  *
  */
 public enum DataType {
-  PRIMITIVE,
+  POSITION,
+  NODE,
+  FUNGIBLE_TRADE,
+  OTC_TRADE,
+  STRING,
   DOUBLE,
   CURVE,
   SURFACE_DATA,
-  LABELLED_MATRIX_1D,
+  VECTOR, // a single column of values without labels on the rows
+  LABELLED_MATRIX_1D, // a single column of values with a label for each row
   LABELLED_MATRIX_2D,
   LABELLED_MATRIX_3D,
+  MATRIX_2D,
   TIME_SERIES,
   TENOR,
   UNKNOWN

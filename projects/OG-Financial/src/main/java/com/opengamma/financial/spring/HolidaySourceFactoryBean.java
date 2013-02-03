@@ -54,7 +54,6 @@ public class HolidaySourceFactoryBean extends SpringFactoryBean<HolidaySource> {
    * The meta-bean for {@code HolidaySourceFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static HolidaySourceFactoryBean.Meta meta() {
     return HolidaySourceFactoryBean.Meta.INSTANCE;
   }

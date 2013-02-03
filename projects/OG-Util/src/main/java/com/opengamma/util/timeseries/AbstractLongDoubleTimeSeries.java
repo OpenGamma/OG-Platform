@@ -21,6 +21,9 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  */
 public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends AbstractFastBackedDoubleTimeSeries<DATE_TYPE> {
 
+  /** Serialization ID. */
+  private static final long serialVersionUID = 7323950125239911855L;
+
   private final DateTimeConverter<DATE_TYPE> _converter;
   private final FastLongDoubleTimeSeries _timeSeries;
 
@@ -112,7 +115,7 @@ public abstract class AbstractLongDoubleTimeSeries<DATE_TYPE> extends AbstractFa
     @Override
     public Entry<DATE_TYPE, Double> next() {
       final Entry<Long, Double> next = _iterator.next();
-      return _converter.<Double>makePair(_converter.convertFromLong(next.getKey()), next.getValue());
+      return _converter.makePair(_converter.convertFromLong(next.getKey()), next.getValue());
     }
 
     @Override

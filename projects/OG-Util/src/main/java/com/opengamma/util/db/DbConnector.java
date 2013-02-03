@@ -10,10 +10,10 @@ import static com.opengamma.util.db.HibernateDbUtils.fixSQLExceptionCause;
 import java.sql.Timestamp;
 
 import javax.sql.DataSource;
-import javax.time.Instant;
-import javax.time.TimeSource;
 
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -24,9 +24,13 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.Connector;
+import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.time.DateUtils;
 
@@ -41,6 +45,7 @@ import com.opengamma.util.time.DateUtils;
 public class DbConnector implements Connector {
 
   private static final long NOW_CACHE_TTL = 500000000;
+  private static final Logger s_logger = LoggerFactory.getLogger(DbConnector.class);
 
   static {
     DateUtils.initTimeZone();
@@ -245,15 +250,45 @@ public class DbConnector implements Connector {
   /**
    * Returns a time-source based on the current database clock.
    * <p>
-   * This can be used to obtain the current instant by calling {@link Instant#now(TimeSource)}.
+   * This can be used to obtain the current instant by calling {@link Instant#now(Clock)}.
    * 
    * @return the database time-source, may be null
    */
-  public TimeSource timeSource() {
-    return new TimeSource() {
+  public Clock timeSource() {
+    return new Clock() {
       @Override
       public Instant instant() {
         return now();
+      }
+
+      @Override
+      public ZoneId getZone() {
+        return OpenGammaClock.getZone();
+      }
+
+      @Override
+      public Clock withZone(ZoneId zone) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public long millis() {
+        return instant().toEpochMilli();
+      }
+
+      @Override
+      public boolean equals(Object obj) {
+        return (obj == this);
+      }
+
+      @Override
+      public int hashCode() {
+        return System.identityHashCode(this);
+      }
+
+      @Override
+      public String toString() {
+        return "DbClock";
       }
     };
   }
@@ -308,6 +343,7 @@ public class DbConnector implements Connector {
           if (retry == _retries) {
             throw ex;
           }
+          s_logger.warn("Execution failure on attempt " + retry + " of " + _retries, ex);
         } catch (DataAccessException ex) {
           throw fixSQLExceptionCause(ex);
         }

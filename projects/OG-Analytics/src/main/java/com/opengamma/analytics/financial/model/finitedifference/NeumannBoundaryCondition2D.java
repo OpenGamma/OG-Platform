@@ -30,13 +30,13 @@ public class NeumannBoundaryCondition2D implements BoundaryCondition2D {
   }
 
   @Override
-  public double getConstant(ZZPDEDataBundle data, double t, double boundaryPosition, double gridSpacing) {
+  public double getConstant(double t, double boundaryPosition, double gridSpacing) {
     return _f.getZValue(t, boundaryPosition) * gridSpacing;
   }
 
   @Override
-  public double[] getLeftMatrixCondition(ZZPDEDataBundle data, double t, double boundaryPosition) {
-    return new double[] {-1, 1};
+  public double[] getLeftMatrixCondition(double t, double boundaryPosition) {
+    return new double[] {-1, 1 };
   }
 
   @Override
@@ -45,7 +45,7 @@ public class NeumannBoundaryCondition2D implements BoundaryCondition2D {
   }
 
   @Override
-  public double[] getRightMatrixCondition(ZZPDEDataBundle data, double t, double boundaryPosition) {
+  public double[] getRightMatrixCondition(double t, double boundaryPosition) {
     return new double[0];
   }
 

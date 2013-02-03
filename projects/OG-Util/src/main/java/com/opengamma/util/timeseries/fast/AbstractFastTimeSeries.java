@@ -25,7 +25,8 @@ import static com.opengamma.util.timeseries.DoubleTimeSeriesOperators.SUBTRACT_O
 import java.util.Date;
 import java.util.TimeZone;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -626,7 +627,7 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
 
   @Override
-  public LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(javax.time.calendar.TimeZone timeZone) {
+  public LocalDateDoubleTimeSeries toLocalDateDoubleTimeSeries(ZoneId timeZone) {
     return new ArrayLocalDateDoubleTimeSeries(timeZone, toFastIntDaysDTS());
   }
 
@@ -636,7 +637,7 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
 
   @Override
-  public MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(javax.time.calendar.TimeZone timeZone) {
+  public MutableLocalDateDoubleTimeSeries toMutableLocalDateDoubleTimeSeries(ZoneId timeZone) {
     return new ListLocalDateDoubleTimeSeries(timeZone, toFastMutableIntDaysDTS());
   }
 
@@ -698,7 +699,7 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
   }
 
   @Override
-  public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries(javax.time.calendar.TimeZone timeZone) {
+  public ZonedDateTimeDoubleTimeSeries toZonedDateTimeDoubleTimeSeries(ZoneId timeZone) {
     return new ArrayZonedDateTimeDoubleTimeSeries(timeZone, toFastLongMillisDTS());
   }
 
@@ -709,7 +710,7 @@ public abstract class AbstractFastTimeSeries<T> implements DoubleTimeSeries<T>, 
 
   @Override
   public MutableZonedDateTimeDoubleTimeSeries toMutableZonedDateTimeDoubleTimeSeries(
-      javax.time.calendar.TimeZone timeZone) {
+      ZoneId timeZone) {
     return new ListZonedDateTimeDoubleTimeSeries(timeZone, toFastMutableLongMillisDTS());
   }
 

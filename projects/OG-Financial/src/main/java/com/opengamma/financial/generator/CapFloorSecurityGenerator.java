@@ -5,11 +5,10 @@
  */
 package com.opengamma.financial.generator;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -74,12 +73,12 @@ public class CapFloorSecurityGenerator extends SecurityGenerator<CapFloorSecurit
     ExternalId underlyingIdentifier = null;
     Tenor tenor = ibor ? getRandom(IBOR_TENORS) : getRandom(TENORS);
     try {
-      underlyingIdentifier = getUnderlying(currency, startDate.toLocalDate(), tenor, ibor);
+      underlyingIdentifier = getUnderlying(currency, startDate.getDate(), tenor, ibor);
       if (underlyingIdentifier == null) {
         return null;
       }
     } catch (Exception ex) {
-      s_logger.warn("Unable to obtain underlying id for " + currency + " " + startDate.toLocalDate() + " " + tenor, ex);
+      s_logger.warn("Unable to obtain underlying id for " + currency + " " + startDate.getDate() + " " + tenor, ex);
       return null;
     }
     final double strike = 0.01 + (double) getRandom(6) / 200;

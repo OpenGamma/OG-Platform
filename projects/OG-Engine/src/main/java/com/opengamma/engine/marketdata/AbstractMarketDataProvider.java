@@ -9,8 +9,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import javax.time.Duration;
-import javax.time.Instant;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.value.ValueRequirement;
 

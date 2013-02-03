@@ -8,7 +8,7 @@ package com.opengamma.web.analytics.push;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;

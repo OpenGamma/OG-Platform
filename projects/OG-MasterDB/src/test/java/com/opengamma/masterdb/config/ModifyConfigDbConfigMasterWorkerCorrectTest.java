@@ -7,12 +7,11 @@ package com.opengamma.masterdb.config;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.config.impl.ConfigItem;
@@ -61,7 +60,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
 
   @Test
   public void test_correct_getUpdateGet() {
-    Instant now = Instant.now(_cfgMaster.getTimeSource());
+    Instant now = Instant.now(_cfgMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     ConfigDocument base = _cfgMaster.get(uniqueId);
@@ -97,7 +96,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
 
   @Test
   public void test_correct_nameChangeNullValue() {
-    Instant now = Instant.now(_cfgMaster.getTimeSource());
+    Instant now = Instant.now(_cfgMaster.getClock());
     
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     ConfigDocument base = _cfgMaster.get(uniqueId);

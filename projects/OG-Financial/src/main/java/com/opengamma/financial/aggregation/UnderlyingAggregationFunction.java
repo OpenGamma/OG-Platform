@@ -17,6 +17,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
@@ -110,6 +111,14 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
     }
   };
   
+  private FinancialSecurityVisitor<String> _equitySecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
+    @Override
+    public String visitEquitySecurity(EquitySecurity equitySecurity) {
+      String ticker = equitySecurity.getExternalIdBundle().getValue(_preferredScheme);
+      return ticker != null ? ticker : NOT_APPLICABLE;
+    }
+  };
+  
   private FinancialSecurityVisitor<String> _ndfFxOptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     @Override
     public String visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity fxOptionSecurity) {
@@ -173,7 +182,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   
   private FinancialSecurityVisitor<String> _swaptionSecurityVisitor = new FinancialSecurityVisitorAdapter<String>() {
     public String visitSwaptionSecurity(SwaptionSecurity security) {
-      SwapSecurity underlying = (SwapSecurity) _secSource.get(ExternalIdBundle.of(security.getUnderlyingId()));
+      SwapSecurity underlying = (SwapSecurity) _secSource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
       String name = underlying.getName();
       return (name != null && name.length() > 0) ? name : NOT_APPLICABLE;
     }    
@@ -190,6 +199,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
       } 
     } else {
       FinancialSecurityVisitor<String> visitorAdapter = FinancialSecurityVisitorAdapter.<String>builder()
+                                                                                              .equitySecurityVisitor(_equitySecurityVisitor)
                                                                                               .equityIndexOptionVisitor(_equityIndexOptionSecurityVisitor)
                                                                                               .equityOptionVisitor(_equityOptionSecurityVisitor)
                                                                                               .equityBarrierOptionVisitor(_equityBarrierOptionSecurityVisitor)

@@ -7,7 +7,7 @@ package com.opengamma.engine.view.execution;
 
 import java.util.List;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 
@@ -36,7 +36,7 @@ public abstract class MergingViewCycleExecutionSequence implements ViewCycleExec
         valuationTime = defaults.getValuationTime();
       }
     }
-    return new ViewCycleExecutionOptions(valuationTime, marketDataSpecifications);
+    return ViewCycleExecutionOptions.builder().setValuationTime(valuationTime).setMarketDataSpecifications(marketDataSpecifications).create();
   }
 
 }

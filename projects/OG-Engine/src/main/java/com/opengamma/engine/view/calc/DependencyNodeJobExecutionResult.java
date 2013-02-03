@@ -7,6 +7,7 @@ package com.opengamma.engine.view.calc;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.calcnode.CalculationJobResultItem;
 import com.opengamma.util.ArgumentChecker;
 
@@ -19,18 +20,22 @@ public class DependencyNodeJobExecutionResult {
 
   private final String _computeNodeId;
   private final CalculationJobResultItem _jobResultItem;
+  private final AggregatedExecutionLog _aggregatedExecutionLog;
   
   /**
    * Constructs an instance.
    * 
    * @param computeNodeId  the identifier of the compute node on which the dependency node was executed, not null
    * @param jobResultItem  the calculation job result item, not null
+   * @param aggregatedExecutionLog  the aggregated execution log for the job and its inputs, not null
    */
-  public DependencyNodeJobExecutionResult(String computeNodeId, CalculationJobResultItem jobResultItem) {
+  public DependencyNodeJobExecutionResult(String computeNodeId, CalculationJobResultItem jobResultItem, AggregatedExecutionLog aggregatedExecutionLog) {
     ArgumentChecker.notNull(computeNodeId, "computeNodeId");
     ArgumentChecker.notNull(jobResultItem, "jobResultItem");
+    ArgumentChecker.notNull(aggregatedExecutionLog, "aggregatedExecutionLog");
     _computeNodeId = computeNodeId.intern();
     _jobResultItem = jobResultItem;
+    _aggregatedExecutionLog = aggregatedExecutionLog;
   }
 
   /**
@@ -50,6 +55,15 @@ public class DependencyNodeJobExecutionResult {
   public CalculationJobResultItem getJobResultItem() {
     return _jobResultItem;
   }
+  
+  /**
+   * Gets the aggregated execution log for the job and its inputs.
+   * 
+   * @return the aggregated execution log for the job and its inputs, not null
+   */
+  public AggregatedExecutionLog getAggregatedExecutionLog() {
+    return _aggregatedExecutionLog;
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -58,6 +72,7 @@ public class DependencyNodeJobExecutionResult {
     int result = 1;
     result = prime * result + ((_computeNodeId == null) ? 0 : _computeNodeId.hashCode());
     result = prime * result + ((_jobResultItem == null) ? 0 : _jobResultItem.hashCode());
+    result = prime * result + ((_aggregatedExecutionLog == null) ? 0 : _jobResultItem.hashCode());
     return result;
   }
 
@@ -74,7 +89,8 @@ public class DependencyNodeJobExecutionResult {
     }
     DependencyNodeJobExecutionResult other = (DependencyNodeJobExecutionResult) obj;
     return ObjectUtils.equals(_computeNodeId, other._computeNodeId)
-        && ObjectUtils.equals(_jobResultItem, other._jobResultItem);
+        && ObjectUtils.equals(_jobResultItem, other._jobResultItem)
+        && ObjectUtils.equals(_aggregatedExecutionLog, other._aggregatedExecutionLog);
   }
   
 }

@@ -5,7 +5,6 @@
  */
 package com.opengamma.examples.component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -18,10 +17,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.factory.source.RepositoryConfigurationSourceComponentFactory;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.examples.function.ExampleCubeFunctionConfiguration;
-import com.opengamma.examples.function.ExampleCurveFunctionConfiguration;
 import com.opengamma.examples.function.ExampleStandardFunctionConfiguration;
-import com.opengamma.examples.function.ExampleSurfaceFunctionConfiguration;
+import com.opengamma.examples.function.SyntheticVolatilityCubeFunctions;
+import com.opengamma.examples.tutorial.TutorialFunctions;
 
 /**
  * Component factory for the function configuration source.
@@ -30,29 +28,23 @@ import com.opengamma.examples.function.ExampleSurfaceFunctionConfiguration;
 public class ExampleRepositoryConfigurationSourceComponentFactory extends RepositoryConfigurationSourceComponentFactory {
 
   @Override
+  protected RepositoryConfigurationSource standardConfiguration() {
+    return ExampleStandardFunctionConfiguration.instance();
+  }
+
+  @Override
+  protected RepositoryConfigurationSource cubeConfigurations() {
+    return SyntheticVolatilityCubeFunctions.instance();
+  }
+
+  protected RepositoryConfigurationSource tutorialConfiguration() {
+    return TutorialFunctions.instance();
+  }
+
+  @Override
   protected List<RepositoryConfigurationSource> initSources() {
-    final List<RepositoryConfigurationSource> sources = new ArrayList<RepositoryConfigurationSource>();
-
-    final RepositoryConfigurationSource standardFunctionSource = ExampleStandardFunctionConfiguration.constructRepositoryConfigurationSource();
-    sources.add(standardFunctionSource);
-
-    final ExampleCurveFunctionConfiguration curveFunctionConfig = new ExampleCurveFunctionConfiguration();
-    curveFunctionConfig.setConfigMaster(getConfigMaster());
-    curveFunctionConfig.setConventionBundleSource(getConventionBundleSource());
-    final RepositoryConfigurationSource curveFunctionSource = curveFunctionConfig.constructRepositoryConfigurationSource();
-    sources.add(curveFunctionSource);
-
-    final ExampleSurfaceFunctionConfiguration surfaceFunctionConfig = new ExampleSurfaceFunctionConfiguration();
-    surfaceFunctionConfig.setConfigMaster(getConfigMaster());
-    final RepositoryConfigurationSource surfaceFunctionSource = surfaceFunctionConfig.constructRepositoryConfigurationSource();
-    sources.add(surfaceFunctionSource);
-
-    final ExampleCubeFunctionConfiguration cubeFunctionConfig = new ExampleCubeFunctionConfiguration();
-    final RepositoryConfigurationSource cubeFunctionSource = cubeFunctionConfig.constructRepositoryConfigurationSource();
-    sources.add(cubeFunctionSource);
-
-    //sources.add(new TutorialRepositoryConfiguration().getObjectCreating());
-
+    final List<RepositoryConfigurationSource> sources = super.initSources();
+    // sources.add(tutorialConfiguration());
     return sources;
   }
 
@@ -75,17 +67,17 @@ public class ExampleRepositoryConfigurationSourceComponentFactory extends Reposi
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
@@ -97,7 +89,7 @@ public class ExampleRepositoryConfigurationSourceComponentFactory extends Reposi
 
   @Override
   public int hashCode() {
-    final int hash = 7;
+    int hash = 7;
     return hash ^ super.hashCode();
   }
 

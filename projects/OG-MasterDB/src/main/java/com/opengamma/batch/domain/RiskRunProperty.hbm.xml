@@ -1,12 +1,15 @@
 <?xml version="1.0"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.batch">
 
   <class name="com.opengamma.batch.domain.RiskRunProperty" table="rsk_run_property">
     <id name="id">
       <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
-        <param name="optimizer">hilo</param>
-        <param name="increment_size">10000</param>
+        <param name="sequence_name">rsk_hibernate_sequence</param>
+      	<param name="optimizer">hilo</param>
+      	<param name="increment_size">10000</param>
       </generator>
     </id>
     <many-to-one name="riskRun" column="run_id" not-null="true"/>

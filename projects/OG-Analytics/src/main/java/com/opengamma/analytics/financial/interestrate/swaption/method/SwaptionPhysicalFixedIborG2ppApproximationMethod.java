@@ -24,7 +24,7 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method to computes the present value of physical delivery European swaptions with the G2++ model through efficient approximation.
- * Reference: Henrard, M. Swaptions in Libor Market Model with local volatility. Wilmott Journal, 2010, 2, 135-154. Preprint available at {@linktourl http://ssrn.com/abstract=1098420}
+ * Reference: Henrard, M. Swaptions in Libor Market Model with local volatility. Wilmott Journal, 2010, 2, 135-154. Preprint available at http://ssrn.com/abstract=1098420
  */
 public class SwaptionPhysicalFixedIborG2ppApproximationMethod implements PricingMethod {
 

@@ -15,13 +15,16 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.web"/>
+<listEntry value="com.opengamma.web.analytics"/>
+<listEntry value="com.opengamma.web.analytics.formatting"/>
+<listEntry value="com.opengamma.web.analytics.json"/>
+<listEntry value="com.opengamma.web.analytics.push"/>
+<listEntry value="com.opengamma.web.analytics.rest"/>
 <listEntry value="com.opengamma.web.bundle"/>
 <listEntry value="com.opengamma.web.json"/>
 <listEntry value="com.opengamma.web.position"/>
 <listEntry value="com.opengamma.web.security"/>
 <listEntry value="com.opengamma.web.server.conversion"/>
-<listEntry value="com.opengamma.web.server.push"/>
-<listEntry value="com.opengamma.web.server.push.rest"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <intAttribute key="org.testng.eclipse.TYPE" value="5"/>

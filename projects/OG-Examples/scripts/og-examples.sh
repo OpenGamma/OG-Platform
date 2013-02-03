@@ -24,15 +24,24 @@ BASEDIR="$(dirname "$(dirname "$(canonicalize "$0")")")"
 SCRIPTDIR=${BASEDIR}/scripts
 cd "${BASEDIR}" || exit 1
 
-. ${SCRIPTDIR}/project-utils.sh
+# . ${SCRIPTDIR}/project-utils.sh
+# hardcode the project name for now :(
+# the installer combines multiple projects in the same dir
+# so project-utils.sh gets overwritten
+PROJECT=og-examples
+PROJECTJAR=${PROJECT}.jar
 . ${SCRIPTDIR}/java-utils.sh
 . ${SCRIPTDIR}/componentserver-init-utils.sh
 
 if [ ! -f ${BASEDIR}/install/db/hsqldb/example-db.properties ]; then
-  echo The ${PROJECT} database could not be found.
-  echo Please run ${SCRIPTDIR}/init-${PROJECT}-db.sh to create and populate the database.
-  echo Exiting immediately...
-  exit 1
+  if [ -x ${SCRIPTDIR}/init-${PROJECT}-db.sh ]; then
+    ${SCRIPTDIR}/init-${PROJECT}-db.sh || exit 1
+  else
+    echo The ${PROJECT} database could not be found.
+    echo Please run ${SCRIPTDIR}/init-${PROJECT}-db.sh to create and populate the database.
+    echo Exiting immediately...
+    exit 1
+  fi
 fi
 
 # Read default configs

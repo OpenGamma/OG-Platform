@@ -17,6 +17,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
@@ -57,7 +58,12 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which the shared engine client is bound.
    */
   protected static final String CLIENT = "client";
-  
+
+  /**
+   * Name under which the default computation target resolver is bound.
+   */
+  protected static final String COMPUTATION_TARGET_RESOLVER = "computationTargetResolver";
+
   /**
    * Name under which the currency pairs source is bound.
    */
@@ -67,6 +73,11 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
    * Name under which the exchange source is bound.
    */
   protected static final String EXCHANGE_SOURCE = "exchangeSource";
+
+  /**
+   * Name under which the external identifier lookup service is bound.
+   */
+  protected static final String EXTERNAL_IDENTIFIER_LOOKUP = "externalIdLookup";
 
   /**
    * Name under which the function definition filter is bound.
@@ -144,11 +155,6 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
   protected static final String POSITION_SOURCE = "positionSource";
   
   /**
-   * Name under which the default computation target resolver is bound.
-   */
-  protected static final String COMPUTATION_TARGET_RESOLVER = "computationTargetResolver";
-
-  /**
    * Name under which the region source is bound.
    */
   protected static final String REGION_SOURCE = "regionSource";
@@ -193,6 +199,7 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
 
   /* package */GlobalContext() {
     super(null);
+    setValue(EXTERNAL_IDENTIFIER_LOOKUP, new ExternalIdBundleLookup(null));
     setValue(FUNCTION_DEFINITION_FILTER, new DefaultFunctionDefinitionFilter());
     setValue(FUNCTION_PROVIDER, AggregatingFunctionProvider.cachingInstance());
     setValue(LIVEDATA_DEFINITION_FILTER, new DefaultLiveDataDefinitionFilter());
@@ -293,12 +300,20 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
     return getValue(CLIENT);
   }
   
+  public ComputationTargetResolver getComputationTargetResolver() {
+    return getValue(COMPUTATION_TARGET_RESOLVER);
+  }
+
   public CurrencyPairsSource getCurrencyPairsSource() {
     return getValue(CURRENCY_PAIRS_SOURCE);
   }
 
   public ExchangeSource getExchangeSource() {
     return getValue(EXCHANGE_SOURCE);
+  }
+
+  public ExternalIdBundleLookup getExternalIdBundleLookup() {
+    return getValue(EXTERNAL_IDENTIFIER_LOOKUP);
   }
 
   public FunctionDefinitionFilter getFunctionDefinitionFilter() {
@@ -354,10 +369,6 @@ public abstract class GlobalContext extends AbstractContext<AbstractContext<?>> 
     return getValue(POSITION_SOURCE);
   }
   
-  public ComputationTargetResolver getComputationTargetResolver() {
-    return getValue(COMPUTATION_TARGET_RESOLVER);
-  }
-
   public ProcedureDefinitionFilter getProcedureDefinitionFilter() {
     return getValue(PROCEDURE_DEFINITION_FILTER);
   }

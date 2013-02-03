@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -17,6 +16,7 @@ import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
 /**
  * Default implementation of {@link AnalyticsView}. This class isn't meant to be thread safe. A thread calling any
@@ -32,6 +32,9 @@ import com.opengamma.util.ArgumentChecker;
   private final ResultsCache _cache = new ResultsCache();
   private final ComputationTargetResolver _targetResolver;
   private final String _viewId;
+  private final ViewportListener _viewportListener;
+  private final BlotterColumnMapper _blotterColumnMapper;
+  private final boolean _showBlotterColumns;
 
   private MainAnalyticsGrid _portfolioGrid;
   private MainAnalyticsGrid _primitivesGrid;
@@ -42,21 +45,32 @@ import com.opengamma.util.ArgumentChecker;
    * @param portoflioCallbackId ID that is passed to the listener when the structure of the portfolio grid changes.
    * This class makes no assumptions about its value
    * @param primitivesCallbackId ID that is passed to the listener when the structure of the primitives grid changes.
- * This class makes no assumptions about its value
+   * This class makes no assumptions about its value
    * @param targetResolver For looking up calculation targets by specification
+   * @param viewportListener Notified when any viewport is created, updated or deleted
+   * @param blotterColumnMapper For populating the blotter columns with details for each different security type
+   * @param showBlotterColumns Whether the blotter columns should be shown in the portfolio analytics grid
    */
   /* package */ SimpleAnalyticsView(String viewId,
                                     String portoflioCallbackId,
                                     String primitivesCallbackId,
-                                    ComputationTargetResolver targetResolver) {
-    _viewId = viewId;
+                                    ComputationTargetResolver targetResolver,
+                                    ViewportListener viewportListener,
+                                    BlotterColumnMapper blotterColumnMapper,
+                                    boolean showBlotterColumns) {
     ArgumentChecker.notEmpty(viewId, "viewId");
     ArgumentChecker.notEmpty(portoflioCallbackId, "portoflioGridId");
     ArgumentChecker.notEmpty(primitivesCallbackId, "primitivesGridId");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
+    ArgumentChecker.notNull(viewportListener, "viewportListener");
+    ArgumentChecker.notNull(blotterColumnMapper, "blotterColumnMappings");
+    _blotterColumnMapper = blotterColumnMapper;
+    _viewId = viewId;
     _targetResolver = targetResolver;
     _portfolioGrid = PortfolioAnalyticsGrid.empty(portoflioCallbackId);
     _primitivesGrid = PrimitivesAnalyticsGrid.empty(primitivesCallbackId);
+    _viewportListener = viewportListener;
+    _showBlotterColumns = showBlotterColumns;
   }
 
   @Override
@@ -64,9 +78,19 @@ import com.opengamma.util.ArgumentChecker;
     _compiledViewDefinition = compiledViewDefinition;
     // TODO this loses all dependency graphs. new grid needs to rebuild graphs from old grid. need stable row and col IDs to do that
     ValueMappings valueMappings = new ValueMappings(_compiledViewDefinition);
-    _portfolioGrid = new PortfolioAnalyticsGrid(_compiledViewDefinition, _portfolioGrid.getCallbackId(), _targetResolver, valueMappings);
-    _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition, _primitivesGrid.getCallbackId(), _targetResolver, valueMappings);
-    List<String> gridIds = new ArrayList<String>();
+    _portfolioGrid = new PortfolioAnalyticsGrid(_compiledViewDefinition,
+                                                _portfolioGrid.getCallbackId(),
+                                                _targetResolver,
+                                                valueMappings,
+                                                _viewportListener,
+                                                _blotterColumnMapper,
+                                                _showBlotterColumns);
+    _primitivesGrid = new PrimitivesAnalyticsGrid(_compiledViewDefinition,
+                                                  _primitivesGrid.getCallbackId(),
+                                                  _targetResolver,
+                                                  valueMappings,
+                                                  _viewportListener);
+    List<String> gridIds = Lists.newArrayList();
     gridIds.add(_portfolioGrid.getCallbackId());
     gridIds.add(_primitivesGrid.getCallbackId());
     gridIds.addAll(_portfolioGrid.getDependencyGraphCallbackIds());
@@ -132,7 +156,7 @@ import com.opengamma.util.ArgumentChecker;
   public void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, int row, int col) {
     s_logger.debug("View {} opening dependency graph {} for cell ({}, {}) of the {} grid",
                    new Object[]{_viewId, graphId, row, col, gridType});
-    getGrid(gridType).openDependencyGraph(graphId, callbackId, row, col, _compiledViewDefinition);
+    getGrid(gridType).openDependencyGraph(graphId, callbackId, row, col, _compiledViewDefinition, _viewportListener);
   }
 
   @Override
@@ -149,7 +173,6 @@ import com.opengamma.util.ArgumentChecker;
     return gridStructure;
   }
 
-  // TODO return a boolean indicating whether there's data available
   @Override
   public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
     boolean hasData = getGrid(gridType).createViewport(graphId, viewportId, callbackId, viewportDefinition);

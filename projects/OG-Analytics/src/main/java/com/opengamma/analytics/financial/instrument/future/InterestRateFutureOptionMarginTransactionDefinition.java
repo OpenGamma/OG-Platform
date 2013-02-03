@@ -5,11 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
@@ -48,8 +46,8 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
    */
   public InterestRateFutureOptionMarginTransactionDefinition(final InterestRateFutureOptionMarginSecurityDefinition underlyingOption, final int quantity, final ZonedDateTime tradeDate,
       final double tradePrice) {
-    Validate.notNull(underlyingOption, "underlying option");
-    Validate.notNull(tradeDate, "trade date");
+    ArgumentChecker.notNull(underlyingOption, "underlying option");
+    ArgumentChecker.notNull(tradeDate, "trade date");
     this._underlyingOption = underlyingOption;
     this._quantity = quantity;
     this._tradeDate = tradeDate;
@@ -66,7 +64,7 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
 
   /**
    * Gets the quantity of the transaction. Can be positive or negative.
-   * @return The quantity of the transaction. 
+   * @return The quantity of the transaction.
    */
   public int getQuantity() {
     return _quantity;
@@ -100,13 +98,13 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
   public InterestRateFutureOptionMarginTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final LocalDate date = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!date.isAfter(_underlyingOption.getUnderlyingFuture().getFixingPeriodStartDate().toLocalDate()), "Date is after last margin date");
-    final LocalDate tradeDateLocal = _tradeDate.toLocalDate();
+    final LocalDate date = dateTime.getDate();
+    ArgumentChecker.isTrue(!date.isAfter(_underlyingOption.getUnderlyingFuture().getFixingPeriodStartDate().getDate()), "Date is after last margin date");
+    final LocalDate tradeDateLocal = _tradeDate.getDate();
     ArgumentChecker.isTrue(!date.isBefore(tradeDateLocal), "Valuation date {} is before the trade date {} ", date, tradeDateLocal);
     final InterestRateFutureOptionMarginSecurity underlyingOption = _underlyingOption.toDerivative(dateTime, yieldCurveNames);
     double referencePrice;
-    if (tradeDateLocal.isBefore(dateTime.toLocalDate())) { // Transaction was before last margining.
+    if (tradeDateLocal.isBefore(dateTime.getDate())) { // Transaction was before last margining.
       referencePrice = lastMarginPrice;
     } else { // Transaction is today
       referencePrice = _tradePrice;
@@ -117,11 +115,13 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionMarginTransactionDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitInterestRateFutureOptionMarginTransactionDefinition(this);
   }
 

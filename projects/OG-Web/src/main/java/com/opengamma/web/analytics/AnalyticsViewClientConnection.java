@@ -33,8 +33,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
- * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient},
- * connecting it to a view process, handling events from the engine and forwarding data to the {@code ViewClient}.
+ * Connects the engine to an {@link AnalyticsView}. Contains the logic for setting up a {@link ViewClient}, connecting it to a view process, handling events from the engine and forwarding data to the
+ * {@code ViewClient}.
  */
 /* package */ class AnalyticsViewClientConnection {
 
@@ -72,23 +72,18 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
     _marketDataSpecRepo = marketDataSpecRepo;
     List<MarketDataSpecification> requestedMarketDataSpecs = viewRequest.getMarketDataSpecs();
     List<MarketDataSpecification> actualMarketDataSpecs = fixMarketDataSpecs(requestedMarketDataSpecs);
-    ViewCycleExecutionOptions defaultOptions =
-        new ViewCycleExecutionOptions(viewRequest.getValuationTime(), actualMarketDataSpecs);
-    _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(),
-                                            defaultOptions,
-                                            // this recalcs periodically or when market data changes. might need to give
-                                            // the user the option to specify the behaviour
-                                            ExecutionFlags.triggersEnabled().get(),
-                                            viewRequest.getPortfolioVersionCorrection());
+    ViewCycleExecutionOptions defaultOptions = ViewCycleExecutionOptions.builder().setValuationTime(viewRequest.getValuationTime()).setMarketDataSpecifications(actualMarketDataSpecs)
+        .setResolverVersionCorrection(viewRequest.getPortfolioVersionCorrection()).create();
+    _executionOptions = ExecutionOptions.of(new InfiniteViewCycleExecutionSequence(), defaultOptions, ExecutionFlags.triggersEnabled().get());
+    // this recalcs periodically or when market data changes. might need to give
+    // the user the option to specify the behaviour
   }
 
   /**
-   * This is a temporary hack to allow the old and new web interfaces to run side by side. The old UI shows a mixture
-   * of data sources including live sources, multiple live sources combined, live sources backed by historical data
-   * and pure historical data. The new UI only shows live sources, and the names of those sources don't match the
-   * names in the old UI (which include something to tell the user it's a live source). The real data sources
-   * are looked up using the old names so this method rebuilds the list of data sources and replaces the new source
-   * specs with the old ones.
+   * This is a temporary hack to allow the old and new web interfaces to run side by side. The old UI shows a mixture of data sources including live sources, multiple live sources combined, live
+   * sources backed by historical data and pure historical data. The new UI only shows live sources, and the names of those sources don't match the names in the old UI (which include something to tell
+   * the user it's a live source). The real data sources are looked up using the old names so this method rebuilds the list of data sources and replaces the new source specs with the old ones.
+   * 
    * @param requestedMarketDataSpecs The market data sources requested by the user
    * @return The specs needed to look up the sources the user requested
    */
@@ -144,8 +139,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
   }
 
   /**
-   * Listener for view results. This is an inner class to avoid polluting the interface of the parent class with
-   * public callback methods.
+   * Listener for view results. This is an inner class to avoid polluting the interface of the parent class with public callback methods.
    */
   private class Listener extends AbstractViewResultListener {
 

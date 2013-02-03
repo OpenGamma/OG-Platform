@@ -10,10 +10,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
@@ -69,6 +68,8 @@ public abstract class AnalyticOptionModelTest {
     greekTypes.remove(Greek.DRIFTLESS_THETA);
     greekTypes.remove(Greek.STRIKE_DELTA);
     greekTypes.remove(Greek.STRIKE_GAMMA);
+    greekTypes.remove(Greek.DUAL_DELTA);
+    greekTypes.remove(Greek.DUAL_GAMMA);
     greekTypes.remove(Greek.ZETA);
     greekTypes.remove(Greek.ZETA_BLEED);
     GreekResultCollection bsm = BSM.getGreeks(PUT, DATA, greekTypes);

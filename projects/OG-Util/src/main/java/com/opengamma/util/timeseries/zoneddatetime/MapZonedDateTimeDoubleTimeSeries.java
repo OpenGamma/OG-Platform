@@ -7,8 +7,8 @@ package com.opengamma.util.timeseries.zoneddatetime;
 
 import java.util.List;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -26,7 +26,7 @@ public class MapZonedDateTimeDoubleTimeSeries extends MutableZonedDateTimeDouble
     super(new ZonedDateTimeEpochMillisConverter(), new FastMapLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
   }
   
-  public MapZonedDateTimeDoubleTimeSeries(TimeZone timeZone) {
+  public MapZonedDateTimeDoubleTimeSeries(ZoneId timeZone) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), new FastMapLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS));
   }
 
@@ -34,7 +34,7 @@ public class MapZonedDateTimeDoubleTimeSeries extends MutableZonedDateTimeDouble
     super(s_converter, new FastMapLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, s_converter.convertToLong(dates), values));
   }
 
-  public MapZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final ZonedDateTime[] dates, final double[] values) {
+  public MapZonedDateTimeDoubleTimeSeries(final ZoneId timeZone, final ZonedDateTime[] dates, final double[] values) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), new FastMapLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new ZonedDateTimeEpochMillisConverter(timeZone)
         .convertToLong(dates), values));
   }
@@ -43,7 +43,7 @@ public class MapZonedDateTimeDoubleTimeSeries extends MutableZonedDateTimeDouble
     super(s_converter, new FastMapLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, s_converter.convertToLong(dates), values));
   }
 
-  public MapZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final List<ZonedDateTime> dates, final List<Double> values) {
+  public MapZonedDateTimeDoubleTimeSeries(final ZoneId timeZone, final List<ZonedDateTime> dates, final List<Double> values) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), new FastMapLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new ZonedDateTimeEpochMillisConverter(timeZone)
         .convertToLong(dates), values));
   }
@@ -52,7 +52,7 @@ public class MapZonedDateTimeDoubleTimeSeries extends MutableZonedDateTimeDouble
     super(s_converter, (FastMutableLongDoubleTimeSeries) s_converter.convertToLong(new FastMapLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
   
-  public MapZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final DoubleTimeSeries<ZonedDateTime> dts) {
+  public MapZonedDateTimeDoubleTimeSeries(final ZoneId timeZone, final DoubleTimeSeries<ZonedDateTime> dts) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), (FastMutableLongDoubleTimeSeries) new ZonedDateTimeEpochMillisConverter(timeZone).convertToLong(new FastMapLongDoubleTimeSeries(
         DateTimeNumericEncoding.TIME_EPOCH_MILLIS), dts));
   }
@@ -65,7 +65,7 @@ public class MapZonedDateTimeDoubleTimeSeries extends MutableZonedDateTimeDouble
     super(converter, pmidts);
   }
 
-  public MapZonedDateTimeDoubleTimeSeries(final TimeZone timeZone, final FastMutableLongDoubleTimeSeries pmidts) {
+  public MapZonedDateTimeDoubleTimeSeries(final ZoneId timeZone, final FastMutableLongDoubleTimeSeries pmidts) {
     super(new ZonedDateTimeEpochMillisConverter(timeZone), pmidts);
   }
 

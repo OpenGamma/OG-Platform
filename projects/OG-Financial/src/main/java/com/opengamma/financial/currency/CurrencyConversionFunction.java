@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.currency;
@@ -17,18 +17,18 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -36,56 +36,21 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvoker {
 
-  /**
-   * Default value for {@code _rateLookupValueName}.
-   */
-  public static final String DEFAULT_LOOKUP_VALUE_NAME = "CurrencyConversion";
-
-  /**
-   * Default value for {@code _rateLookupIdentifierScheme}.
-   */
-  public static final String DEFAULT_LOOKUP_IDENTIFIER_SCHEME = "CurrencyPair";
-
   private static final String DEFAULT_CURRENCY_INJECTION = ValuePropertyNames.OUTPUT_RESERVED_PREFIX + "Currency";
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyConversionFunction.class);
 
-  private final ComputationTargetType _targetType;
   private final Set<String> _valueNames;
   private boolean _allowViewDefaultCurrency; // = false;
-  private String _rateLookupValueName = DEFAULT_LOOKUP_VALUE_NAME;
-  private String _rateLookupIdentifierScheme = DEFAULT_LOOKUP_IDENTIFIER_SCHEME;
 
-  public CurrencyConversionFunction(final ComputationTargetType targetType, final String valueName) {
-    ArgumentChecker.notNull(targetType, "targetType");
+  public CurrencyConversionFunction(final String valueName) {
     ArgumentChecker.notNull(valueName, "valueName");
-    _targetType = targetType;
     _valueNames = Collections.singleton(valueName);
   }
 
-  public CurrencyConversionFunction(final ComputationTargetType targetType, final String... valueNames) {
-    ArgumentChecker.notNull(targetType, "targetType");
+  public CurrencyConversionFunction(final String... valueNames) {
     ArgumentChecker.notEmpty(valueNames, "valueNames");
-    _targetType = targetType;
     _valueNames = new HashSet<String>(Arrays.asList(valueNames));
-  }
-
-  public void setRateLookupValueName(final String rateLookupValueName) {
-    ArgumentChecker.notNull(rateLookupValueName, "rateLookupValueName");
-    _rateLookupValueName = rateLookupValueName;
-  }
-
-  public String getRateLookupValueName() {
-    return _rateLookupValueName;
-  }
-
-  public void setRateLookupIdentifierScheme(final String rateLookupIdentifierScheme) {
-    ArgumentChecker.notNull(rateLookupIdentifierScheme, "rateLookupIdentifierScheme");
-    _rateLookupIdentifierScheme = rateLookupIdentifierScheme;
-  }
-
-  public String getRateLookupIdentifierScheme() {
-    return _rateLookupIdentifierScheme;
   }
 
   protected Set<String> getValueNames() {
@@ -100,20 +65,20 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     return _allowViewDefaultCurrency;
   }
 
-  private ValueRequirement getInputValueRequirement(final ValueRequirement desiredValue) {
-    return new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints().copy().withoutAny(DEFAULT_CURRENCY_INJECTION)
+  private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue) {
+    return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(DEFAULT_CURRENCY_INJECTION)
         .withAny(ValuePropertyNames.CURRENCY).get());
   }
 
-  private ValueRequirement getInputValueRequirement(final ValueRequirement desiredValue, final String forceCurrency) {
-    return new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints().copy().withoutAny(ValuePropertyNames.CURRENCY).with(
+  private ValueRequirement getInputValueRequirement(final ComputationTargetSpecification targetSpec, final ValueRequirement desiredValue, final String forceCurrency) {
+    return new ValueRequirement(desiredValue.getValueName(), targetSpec, desiredValue.getConstraints().copy().withoutAny(ValuePropertyNames.CURRENCY).with(
         ValuePropertyNames.CURRENCY, forceCurrency).withOptional(DEFAULT_CURRENCY_INJECTION).get());
   }
 
   /**
    * Divides the value by the conversion rate. Override this in a subclass for anything more elaborate - e.g. if
    * the value is in "somethings per currency unit foo" so needs multiplying by the rate instead.
-   * 
+   *
    * @param value input value to convert
    * @param conversionRate conversion rate to use
    * @return the converted value
@@ -136,7 +101,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   /**
    * Delegates off to the other convert methods depending on the type of value.
-   * 
+   *
    * @param inputValue input value to convert
    * @param desiredValue requested value requirement
    * @param conversionRate conversion rate to use
@@ -159,7 +124,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     ComputedValue inputValue = null;
     double exchangeRate = 0;
     for (final ComputedValue input : inputs.getAllValues()) {
-      if (getRateLookupValueName().equals(input.getSpecification().getValueName())) {
+      if (ValueRequirementNames.SPOT_RATE.equals(input.getSpecification().getValueName())) {
         if (input.getValue() instanceof Double) {
           exchangeRate = (Double) input.getValue();
         } else {
@@ -178,18 +143,15 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     if (outputCurrency.equals(inputCurrency)) {
       // Don't think this should happen
       return Collections.singleton(inputValue);
+    } else {
+      s_logger.debug("Converting from {} to {}", inputCurrency, outputCurrency);
+      final Object converted = convertValue(inputValue, desiredValue, exchangeRate);
+      if (converted != null) {
+        return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), converted));
+      } else {
+        return null;
+      }
     }
-    s_logger.debug("Converting from {} to {}", inputCurrency, outputCurrency);
-    final Object converted = convertValue(inputValue, desiredValue, exchangeRate);
-    if (converted != null) {
-      return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue, desiredValue.getConstraints()), converted));
-    }
-    return null;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return true;
   }
 
   @Override
@@ -207,13 +169,14 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
           return null;
         }
         s_logger.debug("Injecting view default currency {}", defaultCurrencyISO);
-        return Collections.singleton(getInputValueRequirement(desiredValue, defaultCurrencyISO));
+        return Collections.singleton(getInputValueRequirement(target.toSpecification(), desiredValue, defaultCurrencyISO));
+      } else {
+        s_logger.debug("Cannot satisfy a wildcard currency constraint");
+        return null;
       }
-      s_logger.debug("Cannot satisfy a wildcard currency constraint");
-      return null;
     } else {
       // Actual input requirement is desired requirement with the currency wild-carded
-      return Collections.singleton(getInputValueRequirement(desiredValue));
+      return Collections.singleton(getInputValueRequirement(target.toSpecification(), desiredValue));
     }
   }
 
@@ -254,8 +217,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   }
 
   private ValueRequirement getCurrencyConversion(final String fromCurrency, final String toCurrency) {
-    return new ValueRequirement(getRateLookupValueName(), new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of(getRateLookupIdentifierScheme(), fromCurrency + "_"
-        + toCurrency)));
+    return CurrencyMatrixSourcingFunction.getConversionRequirement(fromCurrency, toCurrency);
   }
 
   @Override
@@ -278,7 +240,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   @Override
   public ComputationTargetType getTargetType() {
-    return _targetType;
+    return ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION).or(ComputationTargetType.SECURITY).or(ComputationTargetType.TRADE);
   }
 
 }

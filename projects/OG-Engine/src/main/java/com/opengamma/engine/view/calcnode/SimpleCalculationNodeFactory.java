@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view.calcnode;
@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutorService;
 
 import org.springframework.beans.factory.InitializingBean;
 
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistMaintainer;
@@ -29,8 +28,6 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
   private ViewComputationCacheSource _viewComputationCache;
   private CompiledFunctionService _functionCompilationService;
   private FunctionExecutionContext _functionExecutionContext;
-  private ComputationTargetResolver _computationTargetResolver;
-  private ViewProcessorQuerySender _viewProcessorQuery;
   private ExecutorService _executorService;
   private FunctionInvocationStatisticsGatherer _statisticsGatherer = new DiscardingInvocationStatisticsGatherer();
   private String _nodeIdentifier;
@@ -41,7 +38,7 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
   private FunctionBlacklistMaintainer _blacklistUpdate;
   private MaximumJobItemExecutionWatchdog _maxJobItemExecution;
   private final ThreadLocalLogEventListener _threadLocalLogListener;
-  
+
   public SimpleCalculationNodeFactory() {
     _threadLocalLogListener = new ThreadLocalLogEventListener();
     LogBridge.getInstance().addListener(_threadLocalLogListener);
@@ -53,7 +50,7 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     return _viewComputationCache;
   }
 
-  public void setViewComputationCache(ViewComputationCacheSource viewComputationCache) {
+  public void setViewComputationCache(final ViewComputationCacheSource viewComputationCache) {
     ArgumentChecker.notNull(viewComputationCache, "viewComputationCache");
     _viewComputationCache = viewComputationCache;
   }
@@ -62,7 +59,7 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     return _functionCompilationService;
   }
 
-  public void setFunctionCompilationService(CompiledFunctionService functionCompilationService) {
+  public void setFunctionCompilationService(final CompiledFunctionService functionCompilationService) {
     ArgumentChecker.notNull(functionCompilationService, "functionCompilationService");
     _functionCompilationService = functionCompilationService;
   }
@@ -71,34 +68,16 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     return _functionExecutionContext;
   }
 
-  public void setFunctionExecutionContext(FunctionExecutionContext functionExecutionContext) {
+  public void setFunctionExecutionContext(final FunctionExecutionContext functionExecutionContext) {
     ArgumentChecker.notNull(functionExecutionContext, "functionExecutionContext");
     _functionExecutionContext = functionExecutionContext;
-  }
-
-  public ComputationTargetResolver getComputationTargetResolver() {
-    return _computationTargetResolver;
-  }
-
-  public void setComputationTargetResolver(ComputationTargetResolver computationTargetResolver) {
-    ArgumentChecker.notNull(computationTargetResolver, "computationTargetResolver");
-    _computationTargetResolver = computationTargetResolver;
-  }
-
-  public ViewProcessorQuerySender getViewProcessorQuery() {
-    return _viewProcessorQuery;
-  }
-
-  public void setViewProcessorQuery(ViewProcessorQuerySender viewProcessorQuery) {
-    ArgumentChecker.notNull(viewProcessorQuery, "viewProcessorQuery");
-    _viewProcessorQuery = viewProcessorQuery;
   }
 
   public ExecutorService getExecutorService() {
     return _executorService;
   }
 
-  public void setExecutorService(ExecutorService executorService) {
+  public void setExecutorService(final ExecutorService executorService) {
     _executorService = executorService;
   }
 
@@ -175,8 +154,8 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
       identifier = SimpleCalculationNode.createNodeId();
     }
     final CalculationNodeLogEventListener logListener = new CalculationNodeLogEventListener(_threadLocalLogListener);
-    final SimpleCalculationNode node = new SimpleCalculationNode(getViewComputationCache(), getFunctionCompilationService(), getFunctionExecutionContext(), getComputationTargetResolver(),
-          getViewProcessorQuery(), identifier, getExecutorService(), getStatisticsGatherer(), logListener);
+    final SimpleCalculationNode node = new SimpleCalculationNode(getViewComputationCache(), getFunctionCompilationService(), getFunctionExecutionContext(), identifier, getExecutorService(),
+        getStatisticsGatherer(), logListener);
     node.setUseWriteBehindSharedCache(isUseWriteBehindSharedCache());
     node.setUseWriteBehindPrivateCache(isUseWriteBehindPrivateCache());
     node.setUseAsynchronousTargetResolve(isUseAsynchronousTargetResolve());
@@ -197,8 +176,6 @@ public class SimpleCalculationNodeFactory implements InitializingBean {
     ArgumentChecker.notNull(getViewComputationCache(), "viewComputationCache");
     ArgumentChecker.notNull(getFunctionCompilationService(), "functionCompilationService");
     ArgumentChecker.notNull(getFunctionExecutionContext(), "functionExecutionContext");
-    ArgumentChecker.notNull(getComputationTargetResolver(), "computationTargetResolver");
-    ArgumentChecker.notNull(getViewProcessorQuery(), "viewProcessorQuery");
   }
 
 }

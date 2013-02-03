@@ -14,12 +14,12 @@ import static org.testng.AssertJUnit.assertSame;
 import java.net.URI;
 import java.util.Collection;
 
-import javax.time.Instant;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.core.security.Security;

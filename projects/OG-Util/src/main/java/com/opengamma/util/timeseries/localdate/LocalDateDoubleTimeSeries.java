@@ -5,9 +5,8 @@
  */
 package com.opengamma.util.timeseries.localdate;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.ArrayUtils;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.util.PublicAPI;
 import com.opengamma.util.timeseries.AbstractIntDoubleTimeSeries;

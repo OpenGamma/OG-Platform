@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.Smi
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneynessFcnBackedByGrid;
 import com.opengamma.engine.value.ValueSpecification;
 
-public class BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter 
+/* package */ class BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter
     extends AbstractFormatter<BlackVolatilitySurfaceMoneynessFcnBackedByGrid> {
 
   /* package */ BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter() {
@@ -43,14 +43,14 @@ public class BlackVolatilitySurfaceMoneynessFcnBackedByGridFormatter
       }
     }
     List<Double> vol = Lists.newArrayList();
-    // x values expiries
-    // y values strikes
+    // x values (outer loop of vol) strikes
+    // y values (inner loop of vol) expiries
     List<Double> expiries = Lists.newArrayListWithCapacity(gridData.getExpiries().length);
     for (double expiry : gridData.getExpiries()) {
       expiries.add(expiry);
     }
-    for (Double expiry : expiries) {
-      for (Double strike : strikes) {
+    for (Double strike : strikes) {
+      for (Double expiry : expiries) {
         vol.add(value.getVolatility(expiry, strike));
       }
     }

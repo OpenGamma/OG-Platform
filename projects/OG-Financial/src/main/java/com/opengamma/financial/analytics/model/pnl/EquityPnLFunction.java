@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.pnl;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,11 +17,11 @@ import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalc
 import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -39,13 +40,12 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
-    final ComputedValue fairValueCV = inputs.getComputedValue(new ValueRequirement(ValueRequirementNames.FAIR_VALUE,
-        ComputationTargetType.SECURITY, position.getSecurity().getUniqueId(), ValueProperties.withAny(ValuePropertyNames.CURRENCY).get()));
+    final ComputedValue fairValueCV = inputs.getComputedValue(ValueRequirementNames.FAIR_VALUE);
     final Object fairValueObj = fairValueCV.getValue();
     if (fairValueObj == null) {
       throw new OpenGammaRuntimeException("Asset fair value was null");
     }
-    final Object priceSeriesObj = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, ComputationTargetType.SECURITY, position.getSecurity().getUniqueId()));
+    final Object priceSeriesObj = inputs.getValue(ValueRequirementNames.PRICE_SERIES);
     if (priceSeriesObj == null) {
       throw new OpenGammaRuntimeException("Asset price series was null");
     }
@@ -64,7 +64,7 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
         .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName)
         .with(ValuePropertyNames.RETURN_CALCULATOR, returnCalculatorNames.iterator().next())
         .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
-    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, properties), getUniqueId());
+    final ValueSpecification valueSpecification = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties);
     //TODO how do we get dividend data for an equity?
     final ComputedValue result = new ComputedValue(valueSpecification, returnSeries.multiply(fairValue).multiply(position.getQuantity().doubleValue()));
     return Sets.newHashSet(result);
@@ -133,8 +133,7 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.RETURN_CALCULATOR)
         .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
-    return Sets.newHashSet(new ValueSpecification(
-        new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), properties), getUniqueId()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
   @Override
@@ -147,8 +146,7 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.RETURN_CALCULATOR)
         .with(YieldCurveNodePnLFunction.PROPERTY_PNL_CONTRIBUTIONS, "Delta").get();
-    ValueRequirement valueReq = new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.getPosition(), properties);
-    return Sets.newHashSet(new ValueSpecification(valueReq, getUniqueId()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), properties));
   }
 
   @Override

@@ -5,11 +5,11 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.JulianFields;
 
 /**
  * The 'Actual/365L' day count.
@@ -29,7 +29,7 @@ public class ActualThreeSixtyFiveLong extends ActualTypeDayCount {
     Validate.notNull(previousCouponDate);
     Validate.notNull(date);
     Validate.notNull(nextCouponDate);
-    return getAccruedInterest(previousCouponDate.toLocalDate(), date.toLocalDate(), nextCouponDate.toLocalDate(), coupon, paymentsPerYear);
+    return getAccruedInterest(previousCouponDate.getDate(), date.getDate(), nextCouponDate.getDate(), coupon, paymentsPerYear);
   }
 
   @Override
@@ -57,8 +57,8 @@ public class ActualThreeSixtyFiveLong extends ActualTypeDayCount {
     } else {
       daysPerYear = nextCouponDate.isLeapYear() ? 366 : 365;
     }
-    final long firstJulianDate = previousCouponDate.toModifiedJulianDays();
-    final long secondJulianDate = date.toLocalDate().toModifiedJulianDays();
+    final long firstJulianDate = previousCouponDate.getLong(JulianFields.MODIFIED_JULIAN_DAY);
+    final long secondJulianDate = date.getLong(JulianFields.MODIFIED_JULIAN_DAY);
     return coupon * (secondJulianDate - firstJulianDate) / daysPerYear;
   }
 

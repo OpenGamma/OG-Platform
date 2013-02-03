@@ -5,8 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.swap;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
@@ -156,7 +156,7 @@ public class SwapFixedIborSpreadDefinition extends SwapDefinition {
   }
 
   /**
-   * Return the currency of the swap. 
+   * Return the currency of the swap.
    * @return The currency.
    */
   public Currency getCurrency() {
@@ -183,11 +183,13 @@ public class SwapFixedIborSpreadDefinition extends SwapDefinition {
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwapFixedIborSpreadDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitSwapFixedIborSpreadDefinition(this);
   }
 }

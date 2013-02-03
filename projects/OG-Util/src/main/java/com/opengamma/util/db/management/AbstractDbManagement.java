@@ -482,34 +482,55 @@ public abstract class AbstractDbManagement implements DbManagement {
   @Override
   public void executeSql(String catalog, String schema, String sql) {
     ArrayList<String> sqlStatements = new ArrayList<String>();
-
-    for (String statement : sql.split(";")) {
-      String[] lines = statement.split("\r\n|\r|\n");
-      StringBuffer fixedSql = new StringBuffer();
-      for (String line : lines) {
-        String strippedLine = line;
-
-        int commentIndex1 = line.indexOf("//");
-        int commentIndex2 = line.indexOf("--");
-        int firstCommentIndex = Integer.MAX_VALUE;
-        if (commentIndex1 != -1) {
-          firstCommentIndex = Math.min(firstCommentIndex, commentIndex1);
+    boolean inDollarQuote = false;
+    boolean inComment = false;
+    StringBuilder stmtBuilder = new StringBuilder();
+    for (int currentIdx = 0; currentIdx < sql.length(); currentIdx++) {
+      char currentChar = sql.charAt(currentIdx);
+      char nextChar = currentIdx + 1 < sql.length() ? sql.charAt(currentIdx + 1) : 0;
+      if (inDollarQuote) {
+        // Add everything verbatim until the end-of-quote $$
+        if (currentChar == '$' && nextChar == '$') {
+          inDollarQuote = false;
         }
-        if (commentIndex2 != -1) {
-          firstCommentIndex = Math.min(firstCommentIndex, commentIndex2);
-        }
-        if (firstCommentIndex != Integer.MAX_VALUE) {
-          strippedLine = line.substring(0, firstCommentIndex);
-        }
-
-        fixedSql.append(strippedLine + " ");
+        stmtBuilder.append(currentChar);
+        continue;
       }
-
-      String fixedSqlStr = fixedSql.toString().trim();
-
-      if (!fixedSqlStr.isEmpty()) {
-        sqlStatements.add(fixedSqlStr);
+      boolean isLineEnd = currentChar == '\r' || currentChar == '\n';
+      if (currentChar == '\r' && nextChar == '\n') {
+        currentIdx++;
       }
+      if (inComment) {
+        // Ignore everything until the next new line
+        if (isLineEnd) {
+          inComment = false;
+        }
+        continue;
+      }
+      if (isLineEnd) {
+        stmtBuilder.append(" ");
+        continue;
+      }
+      if (currentChar == ';') {
+        String currentStmt = stmtBuilder.toString().trim();
+        if (!currentStmt.isEmpty()) {
+          sqlStatements.add(currentStmt);
+        }
+        stmtBuilder = new StringBuilder();
+        continue;
+      }
+      if (currentChar == '-' && nextChar == '-') {
+        inComment = true;
+        continue;
+      }
+      if (currentChar == '$' && nextChar == '$') {
+        inDollarQuote = true;
+      }
+      stmtBuilder.append(currentChar);
+    }
+    String currentStmt = stmtBuilder.toString().trim();
+    if (!currentStmt.isEmpty()) {
+      sqlStatements.add(currentStmt);
     }
 
     Connection conn = null;

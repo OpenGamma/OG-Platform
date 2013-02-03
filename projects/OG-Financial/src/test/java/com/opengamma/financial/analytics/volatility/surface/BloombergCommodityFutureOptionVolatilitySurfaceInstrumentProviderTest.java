@@ -7,26 +7,29 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.convention.SoybeanFutureOptionExpiryCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.fudgemsg.FinancialTestBase;
 import com.opengamma.id.ExternalId;
 
 /**
  *
  */
-public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProviderTest {
-
-
+public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProviderTest extends FinancialTestBase {
+  private static final Double CALL_ABOVE_STRIKE = 150.0;
+  private static final String DATA_FIELD_NAME = MarketDataRequirementNames.IMPLIED_VOLATILITY;
+  private static final String FUTURE_OPTION_PREFIX = "S ";
+  private static final String POSTFIX = "Comdty";
+  private static final String EXCHANGE = "CBT";
+  private static final String SCHEME = ExternalSchemes.BLOOMBERG_BUID_WEAK.getName();
   private static final SoybeanFutureOptionExpiryCalculator EXPIRY_CALC = SoybeanFutureOptionExpiryCalculator.getInstance();
   private static final String PREFIX = "S ";
-  private static final String POSTFIX = "Comdty";
-  private static final String DATA_FIELD_NAME = "OPT_IMPLIED_VOLATILITY_MID";
   private static final double CENTRE_STRIKE = 1400.0;
   private static final String EXCHANGE_ID = "CBT";
   private static final BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider PROVIDER =
@@ -81,4 +84,15 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProviderTe
       }
     }
   }
+
+  @Test
+  public void testCycle() {
+    BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider provider = new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(FUTURE_OPTION_PREFIX, POSTFIX,
+        DATA_FIELD_NAME, CALL_ABOVE_STRIKE, EXCHANGE);
+    assertEquals(provider, cycleObject(BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider.class, provider));
+    provider = new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(FUTURE_OPTION_PREFIX, POSTFIX,
+        DATA_FIELD_NAME, CALL_ABOVE_STRIKE, EXCHANGE, SCHEME);
+    assertEquals(provider, cycleObject(BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider.class, provider));
+  }
+
 }

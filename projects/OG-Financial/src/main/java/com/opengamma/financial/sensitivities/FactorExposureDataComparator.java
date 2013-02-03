@@ -7,7 +7,7 @@ package com.opengamma.financial.sensitivities;
 
 import java.util.Comparator;
 
-import javax.time.calendar.Period;
+import org.threeten.bp.Period;
 
 /**
  * Comparator for FactorExposureData.  
@@ -28,7 +28,7 @@ public class FactorExposureDataComparator implements Comparator<FactorExposureDa
       Period p0 = Period.parse("P" + arg0.getNode());
       if (arg1.getNode() != null && arg1.getNode().length() > 0) {
         Period p1 = Period.parse("P" + arg1.getNode());
-        final long node = p0.totalDaysWith24HourDays() - p1.totalDaysWith24HourDays();
+        final long node = p0.normalizedDaysToHours().getTimeNanos() - p1.normalizedDaysToHours().getTimeNanos();
         if (node != 0) {
           return (int) node;
         }

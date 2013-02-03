@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.property;
@@ -17,11 +17,10 @@ import java.util.Set;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -40,7 +39,6 @@ import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
@@ -61,13 +59,14 @@ import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.financial.analytics.PositionScalingFunction;
+import com.opengamma.financial.analytics.PositionOrTradeScalingFunction;
 import com.opengamma.financial.analytics.PropertyPreservingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -81,6 +80,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -106,11 +106,6 @@ public class DefaultPropertyFunctionsTest {
     public TradeScalingFunction(final String requirementName) {
       Validate.notNull(requirementName, "Requirement name");
       _requirementName = requirementName;
-    }
-
-    @Override
-    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-      return target.getType() == ComputationTargetType.TRADE;
     }
 
     @Override
@@ -195,11 +190,6 @@ public class DefaultPropertyFunctionsTest {
     }
 
     @Override
-    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-      return true;
-    }
-
-    @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
       final Set<String> forwardCurves = desiredValue.getConstraints().getValues("ForwardCurve");
       if (forwardCurves == null || forwardCurves.isEmpty()) {
@@ -226,22 +216,14 @@ public class DefaultPropertyFunctionsTest {
   private FunctionRepository createFunctionRepository() {
     final InMemoryFunctionRepository functions = new InMemoryFunctionRepository();
     // Default property functions
-    functions.addFunction(new PortfolioNodeCalcConfigDefaultPropertyFunction.Generic());
-    functions.addFunction(new PortfolioNodeCalcConfigDefaultPropertyFunction.Specific());
-    functions.addFunction(new PositionCalcConfigDefaultPropertyFunction.Generic());
-    functions.addFunction(new PositionCalcConfigDefaultPropertyFunction.Specific());
+    functions.addFunction(new CalcConfigDefaultPropertyFunction.Generic());
+    functions.addFunction(new CalcConfigDefaultPropertyFunction.Specific());
     functions.addFunction(new PositionDefaultPropertyFunction());
-    functions.addFunction(new PrimitiveCalcConfigDefaultPropertyFunction.Generic());
-    functions.addFunction(new PrimitiveCalcConfigDefaultPropertyFunction.Specific());
-    functions.addFunction(new SecurityCalcConfigDefaultPropertyFunction.Generic());
-    functions.addFunction(new SecurityCalcConfigDefaultPropertyFunction.Specific());
-    functions.addFunction(new TradeCalcConfigDefaultPropertyFunction.Generic());
-    functions.addFunction(new TradeCalcConfigDefaultPropertyFunction.Specific());
-    functions.addFunction(new TradeDefaultPropertyFunction());
+    functions.addFunction(new AttributableDefaultPropertyFunction());
     functions.addFunction(new AggregationDefaultPropertyFunction("Present Value", SummingFunction.AGGREGATION_STYLE_FULL));
     // Basic scaling and aggregation
     functions.addFunction(new SummingFunction("Present Value"));
-    functions.addFunction(new PositionScalingFunction("Present Value"));
+    functions.addFunction(new PositionOrTradeScalingFunction("Present Value"));
     functions.addFunction(new TradeScalingFunction("Present Value"));
     // Mock PV function
     functions.addFunction(new MockPVFunction());
@@ -319,7 +301,7 @@ public class DefaultPropertyFunctionsTest {
   }
 
   private PortfolioNode getPortfolioNode(final PositionSource positions, final String name) {
-    final Portfolio portfolio = positions.getPortfolio(UniqueId.of("Portfolio", "Test"));
+    final Portfolio portfolio = positions.getPortfolio(UniqueId.of("Portfolio", "Test"), VersionCorrection.LATEST);
     for (final PortfolioNode node : portfolio.getRootNode().getChildNodes()) {
       if (name.equals(node.getName())) {
         return node;
@@ -344,7 +326,8 @@ public class DefaultPropertyFunctionsTest {
     final PositionSource positions = createPositionSource(securities);
     context.setPortfolioStructure(new PortfolioStructure(positions));
     context.setSecuritySource(securities);
-    context.setComputationTargetResolver(new DefaultComputationTargetResolver(securities, positions));
+    context.setRawComputationTargetResolver(new DefaultComputationTargetResolver(securities, positions));
+    context.setComputationTargetResolver(context.getRawComputationTargetResolver().atVersionCorrection(VersionCorrection.LATEST));
     return context;
   }
 
@@ -413,21 +396,22 @@ public class DefaultPropertyFunctionsTest {
     ctx.setViewCalculationConfiguration(new ViewCalculationConfiguration(new ViewDefinition("Name", "User"), "Default"));
     builder.setCompilationContext(ctx);
     final CompiledFunctionResolver cfr = createFunctionResolver(ctx);
-    ctx.setComputationTargetResults(new ComputationTargetResults(cfr.getAllResolutionRules(), ctx));
+    ctx.setComputationTargetResults(new ComputationTargetResults(cfr.getAllResolutionRules()));
+    ctx.init();
     builder.setFunctionResolver(cfr);
     builder.setMarketDataAvailabilityProvider(new DomainMarketDataAvailabilityProvider(ctx.getSecuritySource(), Arrays.asList(ExternalScheme.of("Foo")), Arrays
         .asList(MarketDataRequirementNames.MARKET_VALUE)));
     return builder;
   }
 
-  private ValueRequirement createValueRequirement(final Object target, final ValueProperties constraints) {
-    return new ValueRequirement("Present Value", new ComputationTargetSpecification(target), constraints);
+  private ValueRequirement createValueRequirement(final ComputationTargetSpecification target, final ValueProperties constraints) {
+    return new ValueRequirement("Present Value", target, constraints);
   }
 
   public void testPortfolioNodeDefault() {
     final DependencyGraphBuilder builder = createBuilder();
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(getPortfolioNode(positions, "Position"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")), ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();
     final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
@@ -439,8 +423,10 @@ public class DefaultPropertyFunctionsTest {
   public void testPortfolioNodeOverride() {
     final DependencyGraphBuilder builder = createBuilder();
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(getPortfolioNode(positions, "Position"), ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
-    final ValueRequirement req2 = createValueRequirement(getPortfolioNode(positions, "PositionAttr"), ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")),
+        ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
+    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "PositionAttr")),
+        ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
     builder.addTarget(req1);
     builder.addTarget(req2);
     builder.getDependencyGraph();
@@ -457,7 +443,7 @@ public class DefaultPropertyFunctionsTest {
   public void testPositionDefault() {
     final DependencyGraphBuilder builder = createBuilder();
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(getPosition(positions, "Position"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")), ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();
     final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
@@ -469,8 +455,10 @@ public class DefaultPropertyFunctionsTest {
   public void testPositionOverride() {
     final DependencyGraphBuilder builder = createBuilder();
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(getPosition(positions, "Position"), ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
-    final ValueRequirement req2 = createValueRequirement(getPosition(positions, "PositionAttr"), ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")),
+        ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
+    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "PositionAttr")),
+        ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
     builder.addTarget(req1);
     builder.addTarget(req2);
     builder.getDependencyGraph();
@@ -487,7 +475,7 @@ public class DefaultPropertyFunctionsTest {
   public void testTradeDefault() {
     final DependencyGraphBuilder builder = createBuilder();
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(getTrade(positions, "Trade"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")), ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();
     final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
@@ -499,8 +487,10 @@ public class DefaultPropertyFunctionsTest {
   public void testTradeOverride() {
     final DependencyGraphBuilder builder = createBuilder();
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(getTrade(positions, "Trade"), ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
-    final ValueRequirement req2 = createValueRequirement(getTrade(positions, "TradeAttr"), ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")),
+        ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
+    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "TradeAttr")),
+        ValueProperties.with("ForwardCurve", "BarForward").with("FundingCurve", "BarFunding").get());
     builder.addTarget(req1);
     builder.addTarget(req2);
     builder.getDependencyGraph();
@@ -519,8 +509,8 @@ public class DefaultPropertyFunctionsTest {
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     config.setDefaultProperties(ValueProperties.with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve", "BarForward").with("PORTFOLIO_NODE.*.DEFAULT_FundingCurve", "BarFunding").get());
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(getPortfolioNode(positions, "Position"), ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(getPortfolioNode(positions, "PositionAttr"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")), ValueProperties.none());
+    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "PositionAttr")), ValueProperties.none());
     builder.addTarget(req1);
     builder.addTarget(req2);
     builder.getDependencyGraph();
@@ -541,8 +531,8 @@ public class DefaultPropertyFunctionsTest {
     final PortfolioNode node1 = getPortfolioNode(positions, "PositionAttr");
     config.setDefaultProperties(ValueProperties.with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve." + node1.getUniqueId(), "BarForward")
         .with("PORTFOLIO_NODE.*.DEFAULT_FundingCurve." + node1.getUniqueId(), "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(node1, ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(getPortfolioNode(positions, "Position"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(node1), ValueProperties.none());
+    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")), ValueProperties.none());
     builder.addTarget(req1);
     builder.addTarget(req2);
     builder.getDependencyGraph();
@@ -564,8 +554,8 @@ public class DefaultPropertyFunctionsTest {
     config.setDefaultProperties(ValueProperties.with("PORTFOLIO_NODE.Present Value.DEFAULT_ForwardCurve." + node1.getUniqueId(), "BarForward")
         .with("PORTFOLIO_NODE.Present Value.DEFAULT_FundingCurve." + node1.getUniqueId(), "BarFunding").with("PORTFOLIO_NODE.*.DEFAULT_ForwardCurve", "GenericForward")
         .with("PORTFOLIO_NODE.*.DEFAULT_FundingCurve", "GenericFunding").get());
-    final ValueRequirement req1 = createValueRequirement(node1, ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(getPortfolioNode(positions, "Position"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(node1), ValueProperties.none());
+    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPortfolioNode(positions, "Position")), ValueProperties.none());
     builder.addTarget(req1);
     builder.addTarget(req2);
     builder.getDependencyGraph();
@@ -584,8 +574,8 @@ public class DefaultPropertyFunctionsTest {
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     config.setDefaultProperties(ValueProperties.with("POSITION.*.DEFAULT_ForwardCurve", "BarForward").with("POSITION.Present Value.DEFAULT_FundingCurve", "BarFunding").get());
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(getPosition(positions, "Position"), ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(getPosition(positions, "PositionAttr"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")), ValueProperties.none());
+    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "PositionAttr")), ValueProperties.none());
     builder.addTarget(req1);
     builder.addTarget(req2);
     builder.getDependencyGraph();
@@ -606,8 +596,8 @@ public class DefaultPropertyFunctionsTest {
     final Position position1 = getPosition(positions, "PositionAttr");
     config.setDefaultProperties(ValueProperties.with("POSITION.Present Value.DEFAULT_ForwardCurve." + position1.getUniqueId(), "BarForward")
         .with("POSITION.*.DEFAULT_FundingCurve." + position1.getUniqueId(), "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(position1, ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(getPosition(positions, "Position"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(position1), ValueProperties.none());
+    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")), ValueProperties.none());
     builder.addTarget(req1);
     builder.addTarget(req2);
     builder.getDependencyGraph();
@@ -629,8 +619,8 @@ public class DefaultPropertyFunctionsTest {
     config.setDefaultProperties(ValueProperties.with("POSITION.Present Value.DEFAULT_ForwardCurve." + position1.getUniqueId(), "BarForward")
         .with("POSITION.*.DEFAULT_FundingCurve." + position1.getUniqueId(), "BarFunding").with("POSITION.*.DEFAULT_ForwardCurve", "GenericForward")
         .with("POSITION.Present Value.DEFAULT_FundingCurve", "GenericFunding").get());
-    final ValueRequirement req1 = createValueRequirement(position1, ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(getPosition(positions, "Position"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(position1), ValueProperties.none());
+    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "Position")), ValueProperties.none());
     builder.addTarget(req1);
     builder.addTarget(req2);
     builder.getDependencyGraph();
@@ -647,7 +637,7 @@ public class DefaultPropertyFunctionsTest {
   public void testPositionAttribute() {
     final DependencyGraphBuilder builder = createBuilder();
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(getPosition(positions, "PositionAttr"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getPosition(positions, "PositionAttr")), ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();
     final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
@@ -660,8 +650,8 @@ public class DefaultPropertyFunctionsTest {
     final DependencyGraphBuilder builder = createBuilder();
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve", "BarForward").with("SECURITY.*.DEFAULT_FundingCurve", "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
-        ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(
+        ComputationTargetSpecification.of(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap")))), ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();
     final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
@@ -675,8 +665,8 @@ public class DefaultPropertyFunctionsTest {
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     config.setDefaultProperties(ValueProperties.with("SECURITY.Present Value.DEFAULT_ForwardCurve.Security~Swap", "BarForward")
         .with("SECURITY.*.DEFAULT_FundingCurve.Security~Swap", "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
-        ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(
+        ComputationTargetSpecification.of(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap")))), ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();
     final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
@@ -690,8 +680,8 @@ public class DefaultPropertyFunctionsTest {
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     config.setDefaultProperties(ValueProperties.with("SECURITY.*.DEFAULT_ForwardCurve", "GenericForward").with("SECURITY.*.DEFAULT_FundingCurve", "GenericFunding")
         .with("SECURITY.Present Value.DEFAULT_ForwardCurve.Security~Swap", "BarForward").with("SECURITY.Present Value.DEFAULT_FundingCurve.Security~Swap", "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap"))),
-        ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(
+        ComputationTargetSpecification.of(builder.getCompilationContext().getSecuritySource().getSingle(ExternalIdBundle.of(ExternalId.of("Security", "Swap")))), ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();
     final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);
@@ -705,8 +695,8 @@ public class DefaultPropertyFunctionsTest {
     final ViewCalculationConfiguration config = builder.getCompilationContext().getViewCalculationConfiguration();
     config.setDefaultProperties(ValueProperties.with("TRADE.Present Value.DEFAULT_ForwardCurve", "BarForward").with("TRADE.*.DEFAULT_FundingCurve", "BarFunding").get());
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(getTrade(positions, "Trade"), ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(getTrade(positions, "TradeAttr"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")), ValueProperties.none());
+    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "TradeAttr")), ValueProperties.none());
     builder.addTarget(req1);
     builder.addTarget(req2);
     builder.getDependencyGraph();
@@ -727,8 +717,8 @@ public class DefaultPropertyFunctionsTest {
     final Trade trade1 = getTrade(positions, "TradeAttr");
     config.setDefaultProperties(ValueProperties.with("TRADE.*.DEFAULT_ForwardCurve." + trade1.getUniqueId(), "BarForward")
         .with("TRADE.Present Value.DEFAULT_FundingCurve." + trade1.getUniqueId(), "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(trade1, ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(getTrade(positions, "Trade"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(trade1), ValueProperties.none());
+    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")), ValueProperties.none());
     builder.addTarget(req1);
     builder.addTarget(req2);
     builder.getDependencyGraph();
@@ -749,8 +739,8 @@ public class DefaultPropertyFunctionsTest {
     final Trade trade1 = getTrade(positions, "TradeAttr");
     config.setDefaultProperties(ValueProperties.with("TRADE.Present Value.DEFAULT_ForwardCurve", "GenericForward").with("TRADE.*.DEFAULT_FundingCurve", "GenericFunding")
         .with("TRADE.*.DEFAULT_ForwardCurve." + trade1.getUniqueId(), "BarForward").with("TRADE.Present Value.DEFAULT_FundingCurve." + trade1.getUniqueId(), "BarFunding").get());
-    final ValueRequirement req1 = createValueRequirement(trade1, ValueProperties.none());
-    final ValueRequirement req2 = createValueRequirement(getTrade(positions, "Trade"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(trade1), ValueProperties.none());
+    final ValueRequirement req2 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "Trade")), ValueProperties.none());
     builder.addTarget(req1);
     builder.addTarget(req2);
     builder.getDependencyGraph();
@@ -767,7 +757,7 @@ public class DefaultPropertyFunctionsTest {
   public void testTradeAttribute() {
     final DependencyGraphBuilder builder = createBuilder();
     final PositionSource positions = builder.getCompilationContext().getPortfolioStructure().getPositionSource();
-    final ValueRequirement req1 = createValueRequirement(getTrade(positions, "TradeAttr"), ValueProperties.none());
+    final ValueRequirement req1 = createValueRequirement(ComputationTargetSpecification.of(getTrade(positions, "TradeAttr")), ValueProperties.none());
     builder.addTarget(req1);
     builder.getDependencyGraph();
     final ValueSpecification res1 = builder.getValueRequirementMapping().get(req1);

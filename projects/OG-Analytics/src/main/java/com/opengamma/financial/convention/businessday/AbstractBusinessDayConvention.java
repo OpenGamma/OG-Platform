@@ -7,9 +7,9 @@ package com.opengamma.financial.convention.businessday;
 
 import java.io.Serializable;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 
@@ -23,12 +23,12 @@ public abstract class AbstractBusinessDayConvention implements BusinessDayConven
 
   @Override
   public ZonedDateTime adjustDate(final Calendar workingDayCalendar, final ZonedDateTime dateTime) {
-    LocalDate adjusted = adjustDate(workingDayCalendar, dateTime.toLocalDate());
-    return ZonedDateTime.of(adjusted, dateTime.toLocalTime(), dateTime.getZone());
+    LocalDate adjusted = adjustDate(workingDayCalendar, dateTime.getDate());
+    return adjusted.atTime(dateTime.getTime()).atZone(dateTime.getZone());
   }
 
   @Override
-  public DateAdjuster getDateAdjuster(final Calendar workingDayCalendar) {
+  public TemporalAdjuster getTemporalAdjuster(final Calendar workingDayCalendar) {
     return new BusinessDayConventionWithCalendar(this, workingDayCalendar);
   }
 

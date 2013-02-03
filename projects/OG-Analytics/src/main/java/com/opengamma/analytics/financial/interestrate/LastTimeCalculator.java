@@ -5,6 +5,11 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.opengamma.analytics.financial.commodity.derivative.AgricultureFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.EnergyFutureOption;
+import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.equity.option.EquityOption;
 import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
@@ -19,7 +24,13 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCou
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -37,8 +48,12 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
  * Get the last time (in years from now) referenced in the instrument description.
  */
 public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Object, Double> {
+  /** Static instance of this class */
   private static final LastTimeCalculator CALCULATOR = new LastTimeCalculator();
 
+  /**
+   * @return A static instance of this class
+   */
   public static LastTimeCalculator getInstance() {
     return CALCULATOR;
   }
@@ -186,4 +201,58 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
     return fx.getFarLeg().getPaymentTime();
   }
 
+  @Override
+  public Double visitAgricultureFutureOption(final AgricultureFutureOption option) {
+    return option.getExpiry();
+  }
+
+  @Override
+  public Double visitEnergyFutureOption(final EnergyFutureOption option) {
+    return option.getExpiry();
+  }
+
+  @Override
+  public Double visitMetalFutureOption(final MetalFutureOption option) {
+    return option.getExpiry();
+  }
+
+  @Override
+  public Double visitBondFutureOptionPremiumSecurity(final BondFutureOptionPremiumSecurity option) {
+    return option.getExpirationTime();
+  }
+
+  @Override
+  public Double visitBondFutureOptionPremiumTransaction(final BondFutureOptionPremiumTransaction option) {
+    return option.getUnderlyingOption().getExpirationTime();
+  }
+
+  @Override
+  public Double visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option) {
+    return option.getExpirationTime();
+  }
+
+  @Override
+  public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option) {
+    return option.getUnderlyingOption().getExpirationTime();
+  }
+
+  @Override
+  public Double visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity option) {
+    return option.getExpirationTime();
+  }
+
+  @Override
+  public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction option) {
+    return option.getUnderlyingOption().getExpirationTime();
+  }
+
+  @Override
+  public Double visitEquityIndexOption(final EquityIndexOption option) {
+    return option.getTimeToExpiry();
+  }
+
+  @Override
+  public Double visitEquityOption(final EquityOption option) {
+    return option.getTimeToExpiry();
+  }
 }

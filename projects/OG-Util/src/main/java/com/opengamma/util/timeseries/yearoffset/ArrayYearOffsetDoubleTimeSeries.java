@@ -8,7 +8,7 @@ package com.opengamma.util.timeseries.yearoffset;
 import java.util.Date;
 import java.util.List;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;

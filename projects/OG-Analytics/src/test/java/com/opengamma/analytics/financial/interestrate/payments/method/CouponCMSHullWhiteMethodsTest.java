@@ -6,11 +6,12 @@
 package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -38,14 +39,14 @@ public class CouponCMSHullWhiteMethodsTest {
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor GENERATOR_EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", TARGET);
-  private static final Period TENOR_SWAP = Period.ofYears(10);
+  private static final Period TENOR_SWAP = Period.of(10, YEARS);
   private static final IndexSwap SWAP_EUR10Y = new IndexSwap(GENERATOR_EUR1YEURIBOR6M, TENOR_SWAP);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 17);
 
   // Coupon CMS: 6m fixing in advance (payment in arrears); ACT/360
-  private static final Period TENOR_COUPON = Period.ofMonths(6);
-  private static final Period TENOR_FIXING = Period.ofMonths(60);
+  private static final Period TENOR_COUPON = Period.of(6, MONTHS);
+  private static final Period TENOR_FIXING = Period.of(60, MONTHS);
   private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, TENOR_FIXING, GENERATOR_EUR1YEURIBOR6M.getBusinessDayConvention(), TARGET,
       GENERATOR_EUR1YEURIBOR6M.isEndOfMonth());

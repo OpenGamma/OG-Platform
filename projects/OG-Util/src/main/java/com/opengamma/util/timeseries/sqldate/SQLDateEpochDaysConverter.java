@@ -22,6 +22,7 @@ import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.util.timeseries.DateTimeConverter;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -60,8 +61,8 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
     return _timeZone;
   }
   
-  public javax.time.calendar.TimeZone getTimeZone310() {
-    return javax.time.calendar.TimeZone.of(_timeZone.getID());
+  public ZoneId getTimeZone310() {
+    return ZoneId.of(_timeZone.getID());
   }
 
   @Override
@@ -289,11 +290,6 @@ public class SQLDateEpochDaysConverter implements DateTimeConverter<Date> {
       results[i] = dateTimes[i].getTime() / MILLIS_PER_DAY;
     }
     return results;
-  }
-
-  @Override
-  public Pair<Date, Double> makePair(final Date dateTime, final Double value) {
-    return Pair.of(dateTime, value);
   }
 
   @Override

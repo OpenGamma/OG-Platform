@@ -5,10 +5,9 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
@@ -20,19 +19,34 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Autogenerates ICAP FX option volatility surface codes given a tenor, quote type (ATM, butterfly, risk reversal) and distance from
+ * ATM.
  */
 public class ICAPFXOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> {
+  /** Butterfly */
   private static final String BF_STRING = "BF";
+  /** Risk reversal */
   private static final String RR_STRING = "RR";
+  /** String representing years */
   private static final String YR_STRING = "YR";
+  /** String representing months */
   private static final String M_STRING = "M";
+  /** String representing weeks */
   private static final String WK_STRING = "WK";
+  /** The ICAP scheme */
   private static final ExternalScheme SCHEME = ExternalSchemes.ICAP;
+  /** The prefix */
   private final String _fxPrefix;
+  /** The currency pair */
   private final String _ccyPair;
+  /** The data field name */
   private final String _dataFieldName;
 
+  /**
+   * @param fxPrefix The code prefix, not null
+   * @param ccyPair The currency pair, not null
+   * @param dataFieldName The data field name, not null
+   */
   public ICAPFXOptionVolatilitySurfaceInstrumentProvider(final String fxPrefix, final String ccyPair, final String dataFieldName) {
     ArgumentChecker.notNull(fxPrefix, "fx prefix");
     ArgumentChecker.notNull(ccyPair, "curreny pair");
@@ -42,10 +56,18 @@ public class ICAPFXOptionVolatilitySurfaceInstrumentProvider implements SurfaceI
     _dataFieldName = dataFieldName;
   }
 
+  /**
+   * Gets the code prefix.
+   * @return The code prefix
+   */
   public String getFXPrefix() {
     return _fxPrefix;
   }
 
+  /**
+   * Gets the currency pair.
+   * @return The currency pair
+   */
   public String getCurrencyPair() {
     return _ccyPair;
   }

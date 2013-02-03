@@ -9,16 +9,24 @@ $.register_module({
         var module = this, view, common = og.common, routes = common.routes,
             gadgets = common.gadgets, content = '.OG-gadget-container', $content = $(content);
         return view = {
-            init: function () {for (var rule in view.rules) routes.add(view.rules[rule]);},
-            root: function () {$content.html('No gadget was specified.');},
-            grid: function (args) {
-                og.api.rest.compressor.get({content: args.data}).pipe(function (result) {
-                    new og.analytics.Grid({selector: content, sparklines: false, source: result.data.data});
-                });
+            init: function () {
+                for (var rule in view.rules) 
+                    routes.add(view.rules[rule]);
+            },
+            block: function (args) {
+                var block = args.block.split('.').reduce(function (acc, val) {return acc[val];}, window), form;
+                form = new og.common.util.ui.Form({selector: content});
+                form.children.push(new block({form: form}));
+                form.dom();
             },
             gadgetscontainer: function (args) {
                 og.api.rest.compressor.get({content: args.data}).pipe(function (result) {
                     new og.common.gadgets.GadgetsContainer('.OG-gadgets-container-', 'center').add(result.data.data);
+                });
+            },
+            grid: function (args) {
+                og.api.rest.compressor.get({content: args.data}).pipe(function (result) {
+                    new og.analytics.Grid({selector: content, sparklines: false, source: result.data.data});
                 });
             },
             positions: function (args) {
@@ -32,6 +40,7 @@ $.register_module({
                 if (args.trades === 'true')
                     gadgets.trades({id: args.id, selector: '.og-js-trades', editable: false, height: 150});
             },
+            root: function () {$content.html('No gadget was specified.');},
             securities: function (args) {
                 $content.html('<section></section>');
                 new gadgets.SecuritiesIdentifiers({id: args.id, selector: '#gadget_content section'});
@@ -46,8 +55,9 @@ $.register_module({
             },
             rules: {
                 root: {route: '/', method: module.name + '.root'},
-                grid: {route: '/grid/:data', method: module.name + '.grid'},
+                block: {route: '/block/:block', method: module.name + '.block'},
                 gadgetscontainer: {route: '/gadgetscontainer/:data', method: module.name + '.gadgetscontainer'},
+                grid: {route: '/grid/:data', method: module.name + '.grid'},
                 positions: {route: '/positions/:id/trades:?', method: module.name + '.positions'},
                 securities: {route: '/securities/:id', method: module.name + '.securities'},
                 timeseries: {route: '/timeseries/id:?/key:?', method: module.name + '.timeseries'}

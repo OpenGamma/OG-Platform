@@ -570,7 +570,7 @@ public class SwaptionCashFixedIborHullWhiteApproximationMethod implements Pricin
    * @param nbFixedPeriod The total number of payments.
    * @param derivatives Array used to return the derivatives of the annuity with respect to the swap rate. The array is changed by the method. 
    * The values are [0] the first order derivative, [1] the second order derivative and [2] the third order derivative.
-   * @return
+   * @return The cash annuity
    */
   private double annuityCash(final double swapRate, final int nbFixedPaymentYear, final int nbFixedPeriod, final double[] derivatives) {
     final double invfact = 1 + swapRate / nbFixedPaymentYear;

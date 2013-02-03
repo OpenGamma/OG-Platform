@@ -40,22 +40,6 @@
   <bean id="mainComputationCacheSource" class="com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource">
     <constructor-arg ref="standardFudgeContext" />
   </bean>
-  <bean id="mainViewProcessorQueryReceiver" class="com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver" />
-  <bean id="mainViewProcessorQuerySender" class="com.opengamma.engine.view.calcnode.ViewProcessorQuerySender">
-    <constructor-arg>
-      <bean class="com.opengamma.transport.ByteArrayFudgeRequestSender">
-        <constructor-arg>
-          <bean class="com.opengamma.transport.InMemoryByteArrayRequestConduit">
-            <constructor-arg>
-              <bean class="com.opengamma.transport.FudgeRequestDispatcher">
-                <constructor-arg ref="mainViewProcessorQueryReceiver" />
-              </bean>
-            </constructor-arg>
-          </bean>
-        </constructor-arg> 
-      </bean>
-    </constructor-arg>
-  </bean>
   <bean id="jobDispatchStatistics" class="com.opengamma.engine.view.calcnode.stats.TotallingNodeStatisticsGatherer" />
   <bean id="functionCosts" class="com.opengamma.engine.view.calcnode.stats.FunctionCosts">
     <constructor-arg ref="centralFunctionCostsMaster" />
@@ -64,8 +48,6 @@
     <property name="viewComputationCache" ref="mainComputationCacheSource" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />
-    <property name="computationTargetResolver" ref="combinedComputationTargetResolver" />
-    <property name="viewProcessorQuery" ref="mainViewProcessorQuerySender" />
     <property name="nodeIdentifier" value="local" />
     <property name="statisticsGatherer" ref="functionCosts" />
   </bean>
@@ -92,10 +74,7 @@
       </bean>
     </constructor-arg>
     <constructor-arg ref="standardFudgeContext" />
-  </bean>
-  <bean id="calcNodeQueryServer" class="com.opengamma.transport.socket.ServerSocketFudgeRequestDispatcher" init-method="start" destroy-method="stop">
-    <constructor-arg ref="mainViewProcessorQueryReceiver" />
-    <constructor-arg ref="standardFudgeContext" />
+    <property name="portNumber" value="${vp.main.cache.port}" />
   </bean>
   <bean id="calcNodeJobServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver" init-method="start" destroy-method="stop">
     <constructor-arg ref="standardFudgeContext" />
@@ -109,10 +88,10 @@
         <constructor-arg ref="mainFunctionCompilationContext" />
       </bean>
     </constructor-arg>
+    <property name="portNumber" value="${vp.main.job.port}" />
   </bean>
   <bean id="mainCalcNodeSocketConfiguration" class="com.opengamma.engine.view.calcnode.CalcNodeSocketConfiguration">
     <property name="cacheServer" ref="calcNodeCacheServer" />
-    <property name="queryServer" ref="calcNodeQueryServer" />
     <property name="jobServer" ref="calcNodeJobServer" />
   </bean>
   
@@ -143,14 +122,13 @@
   <bean id="mainViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
     <property name="name" value="main" />
     <property name="configSource" ref="combinedConfigSource" />
-    <property name="namedMarketDataSpecificationRepository" ref="bbgNamedMarketDataSpecificationRepository" />
+    <property name="namedMarketDataSpecificationRepository" ref="bloombergNamedMarketDataSpecificationRepository" />
     <property name="computationTargetResolver" ref="combinedComputationTargetResolver" />
     <property name="functionCompilationService" ref="mainCompiledFunctionService" />
     <property name="functionResolver" ref="mainFunctionResolver" />
     <property name="marketDataProviderResolver" ref="standardMarketDataProviderResolver" />
     <property name="computationCacheSource" ref="mainComputationCacheSource" />
     <property name="computationJobDispatcher" ref="mainComputationJobDispatcher" />
-    <property name="viewProcessorQueryReceiver" ref="mainViewProcessorQueryReceiver" />
     <property name="dependencyGraphBuilderFactory">
       <bean class="com.opengamma.engine.depgraph.DependencyGraphBuilderFactory">
         <property name="runQueueFactory">

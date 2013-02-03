@@ -9,9 +9,8 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;

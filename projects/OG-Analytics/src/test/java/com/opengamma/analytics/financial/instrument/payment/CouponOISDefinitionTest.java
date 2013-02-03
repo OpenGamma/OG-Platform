@@ -7,12 +7,13 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedONMaster;
@@ -55,7 +56,7 @@ public class CouponOISDefinitionTest {
   // Coupon EONIA 3m
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 9, 7);
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, EUR_SETTLEMENT_DAYS, EUR_CALENDAR);
-  private static final Period CPN_TENOR = Period.ofDays(7); // 1 week
+  private static final Period CPN_TENOR = Period.of(7, DAYS); // 1 week
   private static final ZonedDateTime START_ACCRUAL_DATE = SPOT_DATE;
   private static final ZonedDateTime EUR_END_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(START_ACCRUAL_DATE, CPN_TENOR, EUR_BUSINESS_DAY, EUR_CALENDAR, EUR_IS_EOM);
   private static final ZonedDateTime EUR_LAST_FIXING_DATE = ScheduleCalculator.getAdjustedDate(EUR_END_ACCRUAL_DATE, -1, EUR_CALENDAR); // Overnight
@@ -99,8 +100,8 @@ public class CouponOISDefinitionTest {
     ZonedDateTime lastFixingPeriodEndDate = FixingDateArray[FixingDateArray.length - 1];
     assertEquals("CouponOISSimplified definition: getter", START_ACCRUAL_DATE, firstFixingPeriod);
     assertEquals("CouponOISSimplified definition: getter", lastFixingPeriodEndDate, EUR_END_ACCRUAL_DATE);
-    assertEquals("CouponOISSimplified definition: getter", EUR_LAST_FIXING_DATE, ZonedDateTime.of(2011, 9, 15, 0, 0, 0, 0, TimeZone.UTC));
-    assertEquals("CouponOISSimplified definition: getter", lastFixingPeriodEndDate, ZonedDateTime.of(2011, 9, 16, 0, 0, 0, 0, TimeZone.UTC));
+    assertEquals("CouponOISSimplified definition: getter", EUR_LAST_FIXING_DATE, LocalDateTime.of(2011, 9, 15, 0, 0, 0, 0).atZone(ZoneOffset.UTC));
+    assertEquals("CouponOISSimplified definition: getter", lastFixingPeriodEndDate, LocalDateTime.of(2011, 9, 16, 0, 0, 0, 0).atZone(ZoneOffset.UTC));
     double aftot = 0.0;
     for (int loopperiod = 0; loopperiod < EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor().length; loopperiod++) {
       aftot += EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor()[loopperiod];

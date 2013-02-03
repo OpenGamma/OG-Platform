@@ -5,42 +5,35 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.obligormodel.definition.Obligor;
+import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * Definition of a Legacy Quanto CDS i.e. with the features of CDS contracts prior to the Big Bang in 2009 - WIP
  */
-public class LegacyQuantoCreditDefaultSwapDefinition extends CreditDefaultSwapDefinition {
+public class LegacyQuantoCreditDefaultSwapDefinition extends LegacyCreditDefaultSwapDefinition {
+
+  //----------------------------------------------------------------------------------------------------------------------------------------
+
+  // TODO : Check hashCode and equals methods (fix these)
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // TODO : Check hashCode and equals methods
-  // TODO : Need to add the test file for this object
-  // TODO : Need to add the correct member variables for a quanto CDS
+  // Member variables specific to the legacy quanto CDS contract
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Member variables specific to the legacy Quanto CDS contract
-
-  // The par spread is the coupon rate to apply to the premium leg to give a PV of zero
-  private final double _parSpread;
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Ctor for the Legacy Quanto CDS
+  // Ctor for the Legacy quanto CDS
 
   public LegacyQuantoCreditDefaultSwapDefinition(
       final BuySellProtection buySellProtection,
@@ -69,7 +62,7 @@ public class LegacyQuantoCreditDefaultSwapDefinition extends CreditDefaultSwapDe
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    // Call the ctor for the superclass (corresponding to the CDS characteristics common to all types of CDS)
+    // Call the ctor for the LegacyCreditDefaultSwapDefinition superclass (corresponding to the CDS characteristics common to all types of CDS)
 
     super(buySellProtection,
         protectionBuyer,
@@ -92,65 +85,10 @@ public class LegacyQuantoCreditDefaultSwapDefinition extends CreditDefaultSwapDe
         notional,
         recoveryRate,
         includeAccruedPremium,
-        protectionStart);
+        protectionStart,
+        parSpread);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
-
-    // Assign the member variables for the features specific to a legacy Quanto CDS
-    _parSpread = parSpread;
-
-    // ----------------------------------------------------------------------------------------------------------------------------------------
-  }
-
-  // -----------------------------------------------------------------------------------------------
-
-  public double getParSpread() {
-    return _parSpread;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the maturity of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public LegacyQuantoCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
-
-    ArgumentChecker.notNull(maturityDate, "maturity date");
-    ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
-
-    final LegacyQuantoCreditDefaultSwapDefinition modifiedCDS = new LegacyQuantoCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
-        getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), maturityDate, getStubType(), getCouponFrequency(),
-        getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), _parSpread);
-
-    return modifiedCDS;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the premium leg coupon of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public LegacyQuantoCreditDefaultSwapDefinition withSpread(final double parSpread) {
-
-    final LegacyQuantoCreditDefaultSwapDefinition modifiedCDS = new LegacyQuantoCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
-        getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(),
-        getStubType(), getCouponFrequency(), getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(),
-        getAdjustMaturityDate(), getNotional(), getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), parSpread);
-
-    return modifiedCDS;
-  }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  // Builder method to allow the recovery rate of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public LegacyQuantoCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
-
-    final LegacyQuantoCreditDefaultSwapDefinition modifiedCDS = new LegacyQuantoCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
-        getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getStubType(), getCouponFrequency(),
-        getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        recoveryRate, getIncludeAccruedPremium(), getProtectionStart(), _parSpread);
-
-    return modifiedCDS;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -160,7 +98,7 @@ public class LegacyQuantoCreditDefaultSwapDefinition extends CreditDefaultSwapDe
     final int prime = 31;
     int result = super.hashCode();
     long temp;
-    temp = Double.doubleToLongBits(_parSpread);
+    temp = 0; //Double.doubleToLongBits(_parSpread);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -177,14 +115,7 @@ public class LegacyQuantoCreditDefaultSwapDefinition extends CreditDefaultSwapDe
     if (!super.equals(obj)) {
       return false;
     }
-
     if (!(obj instanceof LegacyQuantoCreditDefaultSwapDefinition)) {
-      return false;
-    }
-
-    final LegacyQuantoCreditDefaultSwapDefinition other = (LegacyQuantoCreditDefaultSwapDefinition) obj;
-
-    if (Double.compare(_parSpread, other._parSpread) != 0) {
       return false;
     }
 

@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -26,7 +25,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
  * Builds the row and column structure of a dependency graph grid given the compiled view definition and the
  * target at the root of the graph.
  */
-/* package */ class DependencyGraphStructureBuilder {
+/* package */ class  DependencyGraphStructureBuilder {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DependencyGraphStructureBuilder.class);
 
@@ -49,7 +48,8 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
   /* package */ DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
                                                 ValueSpecification root,
                                                 String calcConfigName,
-                                                ComputationTargetResolver targetResolver) {
+                                                ComputationTargetResolver targetResolver,
+                                                ResultsCache cache) {
     // TODO see [PLAT-2478] this is a bit nasty but will work as long as the engine and web are running in the same VM
     // with this hack in place the user can open a dependency graph before the first set of results arrives
     // and see the graph structure with no values. without this hack the graph would be completely empty.
@@ -61,6 +61,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
       s_logger.warn("Compiled view definition is not an instance of CompiledViewDefinitionWithGraphs, class={}." +
                         " Dependency graphs not supported");
       _structure = new DependencyGraphGridStructure(AnalyticsNode.emptyRoot(),
+                                                    null,
                                                     Collections.<ValueSpecification>emptyList(),
                                                     Collections.<String>emptyList(),
                                                     targetResolver);
@@ -69,7 +70,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
       DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
       DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(root);
       AnalyticsNode node = createNode(root, depGraph);
-      _structure = new DependencyGraphGridStructure(node, _valueSpecs, _fnNames, targetResolver);
+      _structure = new DependencyGraphGridStructure(node, calcConfigName, _valueSpecs, _fnNames, targetResolver);
     }
   }
 
@@ -86,7 +87,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
     _valueSpecs.add(valueSpec);
     _fnNames.add(fnName);
     int nodeStart = _lastRow;
-    List<AnalyticsNode> nodes = new ArrayList<AnalyticsNode>();
+    List<AnalyticsNode> nodes = Lists.newArrayList();
     Set<ValueSpecification> inputValues = targetNode.getInputValues();
     if (inputValues.isEmpty()) {
       // don't create a node unless it has children

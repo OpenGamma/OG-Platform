@@ -5,12 +5,12 @@
  */
 package com.opengamma.core.change;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
+import com.google.common.collect.Lists;
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
@@ -75,7 +75,7 @@ public class BasicChangeManager implements ChangeManager {
    * @return the list of listeners, not null
    */
   protected List<ChangeListener> getListeners() {
-    return new ArrayList<ChangeListener>(_listeners);
+    return Lists.newArrayList(_listeners);
   }
 
   //-------------------------------------------------------------------------

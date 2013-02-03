@@ -10,13 +10,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.LocalDate;
-
 import net.sf.ehcache.CacheManager;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -29,23 +28,28 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
- * Test {@link EHCachingHistoricalTimeSeriesSource}.
+ * Test.
  */
 @Test
 public class EHCachingHistoricalTimeSeriesSourceTest {
 
-  private HistoricalTimeSeriesSource _underlyingSource;
-  private EHCachingHistoricalTimeSeriesSource _cachingSource;
-
   private static final UniqueId UID = UniqueId.of("A", "B");
 
+  private HistoricalTimeSeriesSource _underlyingSource;
+  private EHCachingHistoricalTimeSeriesSource _cachingSource;
+  private CacheManager _cacheManager;
+
   @BeforeMethod
-  public void setUp() throws Exception {
+  public void setUp() {
+    _cacheManager = new CacheManager();
     _underlyingSource = mock(HistoricalTimeSeriesSource.class);
     when(_underlyingSource.changeManager()).thenReturn(new BasicChangeManager());
-    CacheManager cm = EHCacheUtils.createCacheManager();
-    cm.clearAllStartingWith(EHCachingHistoricalTimeSeriesSource.CACHE_PREFIX);
-    _cachingSource = new EHCachingHistoricalTimeSeriesSource(_underlyingSource, cm);
+    _cachingSource = new EHCachingHistoricalTimeSeriesSource(_underlyingSource, _cacheManager);
+  }
+
+  @AfterMethod
+  public void tearDown() {
+    _cacheManager = EHCacheUtils.shutdownQuiet(_cacheManager);
   }
 
   //-------------------------------------------------------------------------
@@ -85,6 +89,5 @@ public class EHCachingHistoricalTimeSeriesSourceTest {
     // underlying source should only have been called once if cache worked as expected
     verify(_underlyingSource, times(1)).getExternalIdBundle(UID);
   }
-
 
 }

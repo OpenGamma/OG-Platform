@@ -5,14 +5,13 @@
  */
 package com.opengamma.engine.fudgemsg;
 
-import javax.time.Instant;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
 

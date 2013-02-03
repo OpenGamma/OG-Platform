@@ -104,7 +104,6 @@ public class ExchangeSearchResult extends AbstractSearchResult<ExchangeDocument>
    * The meta-bean for {@code ExchangeSearchResult}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static ExchangeSearchResult.Meta meta() {
     return ExchangeSearchResult.Meta.INSTANCE;
   }

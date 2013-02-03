@@ -8,12 +8,11 @@ package com.opengamma.engine.function;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -35,7 +34,7 @@ public final class NoOpFunction implements FunctionDefinition, CompiledFunctionD
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     return this;
   }
 
@@ -58,7 +57,7 @@ public final class NoOpFunction implements FunctionDefinition, CompiledFunctionD
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Set<ComputedValue> result = Sets.newHashSetWithExpectedSize(desiredValues.size());
     for (ValueRequirement desiredValue : desiredValues) {
-      result.add(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints()), NotCalculatedSentinel.SUPPRESSED));
+      result.add(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), NotCalculatedSentinel.SUPPRESSED));
     }
     return result;
   }
@@ -75,7 +74,7 @@ public final class NoOpFunction implements FunctionDefinition, CompiledFunctionD
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
+    return ComputationTargetType.NULL;
   }
 
   @Override

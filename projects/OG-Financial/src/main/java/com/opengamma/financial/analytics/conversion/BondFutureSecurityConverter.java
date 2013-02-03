@@ -1,31 +1,38 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
 
 import java.util.List;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * FIXME CASE - BondFutureDefinition needs a reference price. Without a trade, where will it come from?
+ * Converts bond future securities into the form that is used by the analytics library
  */
-public class BondFutureSecurityConverter extends AbstractFutureSecurityVisitor<InstrumentDefinition<?>> {
+public class BondFutureSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
+  /** The security source */
   private final SecuritySource _securitySource;
+  /** Converter for the bonds in the deliverable basket */
   private final BondSecurityConverter _bondConverter;
 
+  /**
+   * @param securitySource The security source, not null
+   * @param bondConverter The bond converter, not null
+   */
   public BondFutureSecurityConverter(final SecuritySource securitySource, final BondSecurityConverter bondConverter) {
     ArgumentChecker.notNull(securitySource, "security source");
     ArgumentChecker.notNull(bondConverter, "bond converter");
@@ -33,6 +40,7 @@ public class BondFutureSecurityConverter extends AbstractFutureSecurityVisitor<I
     _bondConverter = bondConverter;
   }
 
+  //FIXME CASE - BondFutureDefinition needs a reference price. Without a trade, where will it come from?
   @Override
   public BondFutureDefinition visitBondFutureSecurity(final BondFutureSecurity bondFuture) {
     ArgumentChecker.notNull(bondFuture, "security");
@@ -48,7 +56,7 @@ public class BondFutureSecurityConverter extends AbstractFutureSecurityVisitor<I
       final BondFutureDeliverable deliverable = basket.get(i);
       final BondSecurity bondSecurity = (BondSecurity) _securitySource.getSingle(deliverable.getIdentifiers());
       if (bondSecurity == null) {
-        throw new OpenGammaRuntimeException("No security found with identifiers " + deliverable.getIdentifiers());
+        throw new OpenGammaRuntimeException("No security found with identifiers " + deliverable.getIdentifiers() + " in bond future deliverable basket");
       }
       deliverables[i] = (BondFixedSecurityDefinition) bondSecurity.accept(_bondConverter); //TODO check type
       conversionFactor[i] = deliverable.getConversionFactor();

@@ -21,24 +21,24 @@ import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPro
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.hazardratemodel.HazardRateCurve;
+import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -47,6 +47,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityConverter;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -83,7 +84,7 @@ public abstract class LegacyVanillaCDSFunction extends AbstractFunction.NonCompi
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
-    final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
     final Object yieldCurveObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (yieldCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get yield curve");
@@ -98,9 +99,9 @@ public abstract class LegacyVanillaCDSFunction extends AbstractFunction.NonCompi
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final String nPointsProperty = desiredValue.getConstraint(PROPERTY_N_INTEGRATION_POINTS);
     final int nIntegrationPoints = Integer.parseInt(nPointsProperty);
-    final PresentValueLegacyCreditDefaultSwap calculator = new PresentValueLegacyCreditDefaultSwap(nIntegrationPoints);
-    final LegacyCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
-    final double price = calculator.getPresentValueCreditDefaultSwap(now, cds, yieldCurve, hazardRateCurve, _priceType);
+    final PresentValueLegacyCreditDefaultSwap calculator = new PresentValueLegacyCreditDefaultSwap();
+    final LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
+    final double price = calculator.getPresentValueLegacyCreditDefaultSwap(now, cds, yieldCurve, hazardRateCurve, _priceType);
     final ValueProperties properties = getProperties(desiredValue);
     final ValueSpecification spec = new ValueSpecification(_valueRequirement, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, price));
@@ -108,15 +109,7 @@ public abstract class LegacyVanillaCDSFunction extends AbstractFunction.NonCompi
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    return target.getSecurity() instanceof LegacyVanillaCDSSecurity;
+    return FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY;
   }
 
   @Override
