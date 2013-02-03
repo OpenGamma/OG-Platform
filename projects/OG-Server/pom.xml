@@ -20,7 +20,7 @@
     <plugins>
       <plugin>
         <groupId>com.opengamma</groupId>
-        <artifactId>og-maven-plugin</artifactId>
+        <artifactId>og-deploy-maven-plugin</artifactId>
         <executions>
           <execution>
             <phase>package</phase>
@@ -136,8 +136,8 @@
 
     <dependency>
       <groupId>com.opengamma</groupId>
-      <artifactId>og-maven-plugin</artifactId>
-      <version>${project.version}</version>
+      <artifactId>og-deploy-maven-plugin</artifactId>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
 

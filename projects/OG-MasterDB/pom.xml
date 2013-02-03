@@ -24,13 +24,13 @@
     <plugins>
       <plugin>
         <groupId>com.opengamma</groupId>
-        <artifactId>og-maven-plugin</artifactId>
+        <artifactId>og-dbversion-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>db-schema-versions</id>
+            <id>og-dbversion</id>
             <phase>generate-sources</phase>
             <goals>
-              <goal>db-schema-versions</goal>
+              <goal>generate</goal>
             </goals>
                 <configuration>
                   <scriptsPath>${basedir}/install/db</scriptsPath>
@@ -70,10 +70,10 @@
                 <pluginExecution>
                   <pluginExecutionFilter>
                     <groupId>com.opengamma</groupId>
-                    <artifactId>og-maven-plugin</artifactId>
+                    <artifactId>og-dbversion-maven-plugin</artifactId>
                     <versionRange>[1.0,)</versionRange>
                     <goals>
-                      <goal>db-schema-versions</goal>
+                      <goal>generate</goal>
                     </goals>
                   </pluginExecutionFilter>
                   <action>

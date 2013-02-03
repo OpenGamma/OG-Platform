@@ -50,7 +50,6 @@
     <module>projects/OG-Master</module>
     <module>projects/OG-MasterDB</module>
     <module>projects/OG-Maths</module>
-    <module>projects/OG-MavenPlugin</module>
     <module>projects/OG-Provider</module>
     <module>projects/OG-Security</module>
     <module>projects/OG-Server</module>
