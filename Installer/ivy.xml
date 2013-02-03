@@ -1,5 +1,0 @@
-<ivy-module version="2.0">
-  <dependencies>
-    <dependency name="og-install" rev="latest.integration" />
-  </dependencies>
-</ivy-module>
