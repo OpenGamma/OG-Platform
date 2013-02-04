@@ -107,22 +107,22 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   /**
    * The yield curve definition source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition()
   private InterpolatedYieldCurveDefinitionSource _interpolatedYieldCurveDefinitionSource;
   /**
    * The yield curve specification source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition()
   private InterpolatedYieldCurveSpecificationBuilder _interpolatedYieldCurveSpecificationBuilder;
   /**
    * The volitility cube source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition()
   private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
   /**
    * The currency matrix source.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition()
   private CurrencyMatrixSource _currencyMatrixSource;
   /**
    * The holiday source.
