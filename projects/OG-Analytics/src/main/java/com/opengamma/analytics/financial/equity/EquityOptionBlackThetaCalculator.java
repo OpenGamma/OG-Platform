@@ -1,7 +1,3 @@
-
-
-
-
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
@@ -38,7 +34,7 @@ public final class EquityOptionBlackThetaCalculator extends InstrumentDerivative
   public Double visitEquityIndexOption(final EquityIndexOption option, final StaticReplicationDataBundle data) {
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(data, "data");
-    
+
     final Double rhoBlack =  EquityIndexOptionBlackMethod.getInstance().spotTheta(option, data);
     return rhoBlack;
   }

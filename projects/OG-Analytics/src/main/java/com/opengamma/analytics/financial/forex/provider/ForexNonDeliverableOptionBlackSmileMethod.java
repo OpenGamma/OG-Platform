@@ -76,7 +76,7 @@ public final class ForexNonDeliverableOptionBlackSmileMethod {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double paymentTime = optionForex.getUnderlyingNDF().getPaymentTime();
     final double expiryTime = optionForex.getExpiryTime();
     final double strike = 1.0 / optionForex.getStrike(); // The strike is 1 ccy2=X ccy1; we want the price in ccy2 => we need 1 ccy1 = 1/X ccy2.
@@ -103,7 +103,7 @@ public final class ForexNonDeliverableOptionBlackSmileMethod {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double paymentTime = optionForex.getUnderlyingNDF().getPaymentTime();
     final double expiryTime = optionForex.getExpiryTime();
     final double strike = 1.0 / optionForex.getStrike(); // The strike is 1 ccy2=X ccy1; we want the price in ccy2 => we need 1 ccy1 = 1/X ccy2.
@@ -146,7 +146,7 @@ public final class ForexNonDeliverableOptionBlackSmileMethod {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double paymentTime = optionForex.getUnderlyingNDF().getPaymentTime();
     final double expiryTime = optionForex.getExpiryTime();
     final double strike = 1.0 / optionForex.getStrike(); // The strike is 1 ccy2=X ccy1; we want the price in ccy2 => we need 1 ccy1 = 1/X ccy2.
@@ -168,14 +168,14 @@ public final class ForexNonDeliverableOptionBlackSmileMethod {
     final double rNonDeliveryBar = -paymentTime * dfNonDelivery * dfNonDeliveryBar;
     final double rDeliveryBar = -paymentTime * dfDelivery * dfDeliveryBar;
     // Sensitivity object
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listNonDelivery = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listNonDelivery = new ArrayList<>();
     listNonDelivery.add(new DoublesPair(paymentTime, rNonDeliveryBar * Math.abs(optionForex.getUnderlyingNDF().getNotionalCurrency1())));
     resultMap.put(multicurves.getName(optionForex.getCurrency1()), listNonDelivery);
-    final List<DoublesPair> listDelivery = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDelivery = new ArrayList<>();
     listDelivery.add(new DoublesPair(paymentTime, rDeliveryBar * Math.abs(optionForex.getUnderlyingNDF().getNotionalCurrency1())));
     resultMap.put(multicurves.getName(optionForex.getCurrency2()), listDelivery);
-    MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
+    final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     return MultipleCurrencyMulticurveSensitivity.of(optionForex.getCurrency2(), result);
   }
 
@@ -189,7 +189,7 @@ public final class ForexNonDeliverableOptionBlackSmileMethod {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double paymentTime = optionForex.getUnderlyingNDF().getPaymentTime();
     final double expiryTime = optionForex.getExpiryTime();
     final double strike = 1.0 / optionForex.getStrike(); // The strike is 1 ccy2=X ccy1; we want the price in ccy2 => we need 1 ccy1 = 1/X ccy2.
@@ -221,7 +221,7 @@ public final class ForexNonDeliverableOptionBlackSmileMethod {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(smileMulticurves, "Smile");
     Validate.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double paymentTime = optionForex.getUnderlyingNDF().getPaymentTime();
     final double expiryTime = optionForex.getExpiryTime();
     final double strike = 1.0 / optionForex.getStrike(); // The strike is 1 ccy2=X ccy1; we want the price in ccy2 => we need 1 ccy1 = 1/X ccy2.

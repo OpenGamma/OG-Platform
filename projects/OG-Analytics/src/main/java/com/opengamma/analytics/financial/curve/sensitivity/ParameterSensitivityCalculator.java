@@ -18,8 +18,8 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 /**
  * For an instrument, computes the sensitivity of a value (often the present value or a par spread) to the parameters used in the curve.
  * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.).
- * The return format is a vector (DoubleMatrix1D) with length equal to the total number of parameters in all the curves, 
- * and ordered as the parameters to the different curves themselves in increasing order. 
+ * The return format is a vector (DoubleMatrix1D) with length equal to the total number of parameters in all the curves,
+ * and ordered as the parameters to the different curves themselves in increasing order.
  */
 public class ParameterSensitivityCalculator extends AbstractParameterSensitivityCalculator {
 
@@ -27,7 +27,7 @@ public class ParameterSensitivityCalculator extends AbstractParameterSensitivity
    * Constructor
    * @param curveSensitivityCalculator The curve sensitivity calculator.
    */
-  public ParameterSensitivityCalculator(InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityCalculator(final InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> curveSensitivityCalculator) {
     super(curveSensitivityCalculator);
   }
 
@@ -41,11 +41,11 @@ public class ParameterSensitivityCalculator extends AbstractParameterSensitivity
    */
   @Override
   public DoubleMatrix1D pointToParameterSensitivity(final InterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, final YieldCurveBundle bundle) {
-    final List<Double> result = new ArrayList<Double>();
+    final List<Double> result = new ArrayList<>();
     for (final String curveName : bundle.getAllNames()) {
       if (!fixedCurves.contains(curveName)) {
         final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
-        List<Double> oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivities().get(curveName), curve);
+        final List<Double> oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivities().get(curveName), curve);
         result.addAll(oneCurveSensitivity);
       }
     }

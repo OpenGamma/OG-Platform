@@ -36,7 +36,7 @@ public class ParameterUnderlyingSensitivityBlockCalculator extends AbstractParam
    * Constructor
    * @param curveSensitivityCalculator The curve sensitivity calculator.
    */
-  public ParameterUnderlyingSensitivityBlockCalculator(InstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> curveSensitivityCalculator) {
+  public ParameterUnderlyingSensitivityBlockCalculator(final InstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> curveSensitivityCalculator) {
     super(curveSensitivityCalculator);
   }
 
@@ -49,7 +49,7 @@ public class ParameterUnderlyingSensitivityBlockCalculator extends AbstractParam
    * @return The sensitivity.
    */
   @Override
-  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, 
+  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves,
       final YieldCurveBundle bundle) {
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
     ArgumentChecker.notNull(fixedCurves, "Fixed Curves");
@@ -61,29 +61,29 @@ public class ParameterUnderlyingSensitivityBlockCalculator extends AbstractParam
     return result;
   }
 
-  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final Currency ccy, final InterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, 
+  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final Currency ccy, final InterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves,
       final YieldCurveBundle bundle) {
-    Set<String> curveNamesSet = bundle.getAllNames();
-    int nbCurve = curveNamesSet.size();
-    String[] curveNamesArray = new String[nbCurve];
+    final Set<String> curveNamesSet = bundle.getAllNames();
+    final int nbCurve = curveNamesSet.size();
+    final String[] curveNamesArray = new String[nbCurve];
     int loopname = 0;
-    LinkedHashMap<String, Integer> curveNum = new LinkedHashMap<String, Integer>();
+    final LinkedHashMap<String, Integer> curveNum = new LinkedHashMap<>();
     for (final String name : curveNamesSet) { // loop over all curves (by name)
       curveNamesArray[loopname] = name;
       curveNum.put(name, loopname++);
     }
-    int[] nbNewParameters = new int[nbCurve];
+    final int[] nbNewParameters = new int[nbCurve];
     // Implementation note: nbNewParameters - number of new parameters in the curve, parameters not from an underlying curve which is another curve of the bundle.
-    int[][] indexOther = new int[nbCurve][];
+    final int[][] indexOther = new int[nbCurve][];
     // Implementation note: indexOther - the index of the underlying curves, if any.
     loopname = 0;
     for (final String name : curveNamesSet) { // loop over all curves (by name)
       final YieldAndDiscountCurve curve = bundle.getCurve(name);
-      List<String> underlyingCurveNames = curve.getUnderlyingCurvesNames();
+      final List<String> underlyingCurveNames = curve.getUnderlyingCurvesNames();
       nbNewParameters[loopname] = curve.getNumberOfParameters();
-      List<Integer> indexOtherList = new ArrayList<Integer>();
-      for (String u : underlyingCurveNames) {
-        Integer i = curveNum.get(u);
+      final List<Integer> indexOtherList = new ArrayList<>();
+      for (final String u : underlyingCurveNames) {
+        final Integer i = curveNum.get(u);
         if (i != null) {
           indexOtherList.add(i);
           nbNewParameters[loopname] -= nbNewParameters[i];
@@ -98,26 +98,26 @@ public class ParameterUnderlyingSensitivityBlockCalculator extends AbstractParam
         loopname++;
       }
     }
-    int nbSensitivityCurve = loopname;
-    int[] nbNewParamSensiCurve = new int[nbSensitivityCurve];
+    final int nbSensitivityCurve = loopname;
+    final int[] nbNewParamSensiCurve = new int[nbSensitivityCurve];
     // Implementation note: nbNewParamSensiCurve
-    int[][] indexOtherSensiCurve = new int[nbSensitivityCurve][];
-    // Implementation note: indexOtherSensiCurve - 
+    final int[][] indexOtherSensiCurve = new int[nbSensitivityCurve][];
+    // Implementation note: indexOtherSensiCurve -
     // int[] startCleanParameter = new int[nbSensitivityCurve];
     // Implementation note: startCleanParameter - for each curve for which the sensitivity should be computed, the index in the total sensitivity vector at which that curve start.
-    int[][] startDirtyParameter = new int[nbSensitivityCurve][];
+    final int[][] startDirtyParameter = new int[nbSensitivityCurve][];
     // Implementation note: startDirtyParameter - for each curve for which the sensitivity should be computed, the indexes of the underlying curves.
-    int nbCleanParameters = 0;
+    //int nbCleanParameters = 0;
     int currentDirtyStart = 0;
     loopname = 0;
     for (final String name : curveNamesSet) { // loop over all curves (by name)
       if (!fixedCurves.contains(name)) {
-        int num = curveNum.get(name);
+        final int num = curveNum.get(name);
         final YieldAndDiscountCurve curve = bundle.getCurve(name);
-        List<Integer> startDirtyParameterList = new ArrayList<Integer>();
-        List<String> underlyingCurveNames = curve.getUnderlyingCurvesNames();
-        for (String u : underlyingCurveNames) {
-          Integer i = curveNum.get(u);
+        final List<Integer> startDirtyParameterList = new ArrayList<>();
+        final List<String> underlyingCurveNames = curve.getUnderlyingCurvesNames();
+        for (final String u : underlyingCurveNames) {
+          final Integer i = curveNum.get(u);
           if (i != null) {
             startDirtyParameterList.add(currentDirtyStart);
             currentDirtyStart += nbNewParameters[i];
@@ -129,20 +129,20 @@ public class ParameterUnderlyingSensitivityBlockCalculator extends AbstractParam
         nbNewParamSensiCurve[loopname] = nbNewParameters[num];
         indexOtherSensiCurve[loopname] = indexOther[num];
         // startCleanParameter[loopname] = nbCleanParameters;
-        nbCleanParameters += nbNewParamSensiCurve[loopname];
+        //nbCleanParameters += nbNewParamSensiCurve[loopname];
         loopname++;
       }
     }
-    final List<Double> sensiDirtyList = new ArrayList<Double>();
+    final List<Double> sensiDirtyList = new ArrayList<>();
     for (final String name : curveNamesSet) { // loop over all curves (by name)
       if (!fixedCurves.contains(name)) {
         final YieldAndDiscountCurve curve = bundle.getCurve(name);
-        Double[] oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivities().get(name), curve);
+        final Double[] oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivities().get(name), curve);
         sensiDirtyList.addAll(Arrays.asList(oneCurveSensitivity));
       }
     }
-    double[] sensiDirty = ArrayUtils.toPrimitive(sensiDirtyList.toArray(new Double[0]));
-    double[][] sensiClean = new double[nbSensitivityCurve][];
+    final double[] sensiDirty = ArrayUtils.toPrimitive(sensiDirtyList.toArray(new Double[0]));
+    final double[][] sensiClean = new double[nbSensitivityCurve][];
     for (int loopcurve = 0; loopcurve < nbSensitivityCurve; loopcurve++) {
       sensiClean[loopcurve] = new double[nbNewParamSensiCurve[loopcurve]];
     }
@@ -158,9 +158,9 @@ public class ParameterUnderlyingSensitivityBlockCalculator extends AbstractParam
         sensiClean[loopcurve][loops] += sensiDirty[startDirtyParameter[loopcurve][indexOtherSensiCurve[loopcurve].length] + loops];
       }
     }
-    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<>();
     for (int loopcurve = 0; loopcurve < nbSensitivityCurve; loopcurve++) {
-      result.put(new ObjectsPair<String, Currency>(curveNamesArray[loopcurve], ccy), new DoubleMatrix1D(sensiClean[loopcurve]));
+      result.put(new ObjectsPair<>(curveNamesArray[loopcurve], ccy), new DoubleMatrix1D(sensiClean[loopcurve]));
     }
     return new MultipleCurrencyParameterSensitivity(result);
   }

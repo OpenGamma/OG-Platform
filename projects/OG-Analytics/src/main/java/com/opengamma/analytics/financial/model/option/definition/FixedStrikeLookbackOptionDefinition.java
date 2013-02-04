@@ -27,7 +27,7 @@ public class FixedStrikeLookbackOptionDefinition extends OptionDefinition {
       return isCall() ? Math.max(0, ts.maxValue() - getStrike()) : Math.max(0, getStrike() - ts.minValue());
     }
   };
-  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle>();
+  private final OptionExerciseFunction<StandardOptionWithSpotTimeSeriesDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
 
   public FixedStrikeLookbackOptionDefinition(final double strike, final Expiry expiry, final boolean isCall) {
     super(strike, expiry, isCall);

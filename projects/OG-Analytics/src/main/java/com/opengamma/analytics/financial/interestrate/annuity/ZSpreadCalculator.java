@@ -96,10 +96,10 @@ public final class ZSpreadCalculator {
     if (Double.doubleToLongBits(zSpread) == 0) {
       return temp;
     }
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : result.entrySet()) {
       final List<DoublesPair> unadjusted = entry.getValue();
-      final ArrayList<DoublesPair> adjusted = new ArrayList<DoublesPair>(unadjusted.size());
+      final ArrayList<DoublesPair> adjusted = new ArrayList<>(unadjusted.size());
       for (final DoublesPair pair : unadjusted) {
         final DoublesPair newPair = new DoublesPair(pair.first, pair.second * Math.exp(-zSpread * pair.first));
         adjusted.add(newPair);
@@ -116,10 +116,10 @@ public final class ZSpreadCalculator {
     final double dPricedZ = calculatePriceSensitivityToZSpread(annuity, curves, zSpread);
     Validate.isTrue(Double.doubleToLongBits(dPricedZ) != 0, "Price Sensitivity To ZSpread is zero");
 
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : result.entrySet()) {
       final List<DoublesPair> unadjusted = entry.getValue();
-      final ArrayList<DoublesPair> adjusted = new ArrayList<DoublesPair>(unadjusted.size());
+      final ArrayList<DoublesPair> adjusted = new ArrayList<>(unadjusted.size());
       for (final DoublesPair pair : unadjusted) {
         final DoublesPair newPair = new DoublesPair(pair.first, -pair.second * Math.exp(-zSpread * pair.first) / dPricedZ);
         adjusted.add(newPair);

@@ -152,7 +152,7 @@ public class BillSecurity implements InstrumentDerivative {
    * @return The name/currency.
    */
   public Pair<String, Currency> getIssuerCcy() {
-    return new ObjectsPair<String, Currency>(_issuer, _currency);
+    return new ObjectsPair<>(_issuer, _currency);
   }
 
   /**

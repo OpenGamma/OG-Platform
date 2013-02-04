@@ -27,9 +27,9 @@ public class DecisionScheduleDerivative extends DecisionSchedule {
    * @param impactTime The time impacting the value at each decision date.
    * @param impactAmount The reference amounts at each impact times.
    */
-  public DecisionScheduleDerivative(double[] decisionTime, double[][] impactTime, double[][] impactAmount) {
+  public DecisionScheduleDerivative(final double[] decisionTime, final double[][] impactTime, final double[][] impactAmount) {
     super(decisionTime, impactTime, impactAmount);
-    _impactAmountDerivative = new ArrayList<Map<Double, InterestRateCurveSensitivity>>();
+    _impactAmountDerivative = new ArrayList<>();
   }
 
   /**
@@ -39,7 +39,8 @@ public class DecisionScheduleDerivative extends DecisionSchedule {
    * @param impactAmount The reference amounts at each impact times.
    * @param impactAmountDerivative Derivative of the cash flow equivalent for each decision time.
    */
-  public DecisionScheduleDerivative(double[] decisionTime, double[][] impactTime, double[][] impactAmount, List<Map<Double, InterestRateCurveSensitivity>> impactAmountDerivative) {
+  public DecisionScheduleDerivative(final double[] decisionTime, final double[][] impactTime, final double[][] impactAmount,
+      final List<Map<Double, InterestRateCurveSensitivity>> impactAmountDerivative) {
     super(decisionTime, impactTime, impactAmount);
     _impactAmountDerivative = impactAmountDerivative;
   }

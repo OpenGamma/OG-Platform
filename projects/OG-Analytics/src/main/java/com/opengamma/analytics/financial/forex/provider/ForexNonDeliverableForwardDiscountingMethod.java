@@ -109,11 +109,11 @@ public final class ForexNonDeliverableForwardDiscountingMethod {
     final double pvBar = 1.0;
     final double df1Bar = -ndf.getNotionalCurrency2() * ndf.getExchangeRate() / spot * pvBar;
     final double df2Bar = ndf.getNotionalCurrency2() * pvBar;
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting1 = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listDiscounting1 = new ArrayList<>();
     listDiscounting1.add(new DoublesPair(ndf.getPaymentTime(), -ndf.getPaymentTime() * df1 * df1Bar));
     resultMap.put(multicurves.getName(ndf.getCurrency1()), listDiscounting1);
-    final List<DoublesPair> listDiscounting2 = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDiscounting2 = new ArrayList<>();
     listDiscounting2.add(new DoublesPair(ndf.getPaymentTime(), -ndf.getPaymentTime() * df2 * df2Bar));
     resultMap.put(multicurves.getName(ndf.getCurrency2()), listDiscounting2);
     final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);

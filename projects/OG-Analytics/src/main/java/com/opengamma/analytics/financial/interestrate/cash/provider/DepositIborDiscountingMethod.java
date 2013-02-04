@@ -52,8 +52,9 @@ public final class DepositIborDiscountingMethod {
   public MultipleCurrencyAmount presentValue(final DepositIbor deposit, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(multicurves, "Multicurves");
-    double dfEnd = multicurves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
-    double pv = deposit.getAccrualFactor() * (deposit.getRate() - multicurves.getForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor())) * dfEnd;
+    final double dfEnd = multicurves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
+    final double pv = deposit.getAccrualFactor() * (deposit.getRate() - multicurves.getForwardRate(deposit.getIndex(), deposit.getStartTime(),
+        deposit.getEndTime(), deposit.getAccrualFactor())) * dfEnd;
     return MultipleCurrencyAmount.of(deposit.getCurrency(), pv);
   }
 
@@ -66,17 +67,17 @@ public final class DepositIborDiscountingMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final DepositIbor deposit, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(multicurves, "Multicurves");
-    double dfEnd = multicurves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
-    double forward = multicurves.getForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
+    final double dfEnd = multicurves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
+    final double forward = multicurves.getForwardRate(deposit.getIndex(), deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor());
     // Backward sweep
-    double forwardBar = deposit.getAccrualFactor() * dfEnd;
-    double dfEndBar = deposit.getAccrualFactor() * (deposit.getRate() - forward);
-    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    final double forwardBar = deposit.getAccrualFactor() * dfEnd;
+    final double dfEndBar = deposit.getAccrualFactor() * (deposit.getRate() - forward);
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     listForward.add(new ForwardSensitivity(deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor(), forwardBar));
     mapFwd.put(multicurves.getName(deposit.getIndex()), listForward);
-    final Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
     mapDsc.put(multicurves.getName(deposit.getCurrency()), listDiscounting);
     MultipleCurrencyMulticurveSensitivity result = new MultipleCurrencyMulticurveSensitivity();
@@ -105,8 +106,8 @@ public final class DepositIborDiscountingMethod {
   public MulticurveSensitivity parSpreadCurveSensitivity(final DepositIbor deposit, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(multicurve, "Multicurves");
-    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     listForward.add(new ForwardSensitivity(deposit.getStartTime(), deposit.getEndTime(), deposit.getAccrualFactor(), 1.0));
     mapFwd.put(multicurve.getName(deposit.getIndex()), listForward);
     return MulticurveSensitivity.ofForward(mapFwd);

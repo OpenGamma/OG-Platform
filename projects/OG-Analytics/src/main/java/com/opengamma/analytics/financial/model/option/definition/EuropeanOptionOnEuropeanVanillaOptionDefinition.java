@@ -16,7 +16,7 @@ import com.opengamma.util.time.Expiry;
  */
 public class EuropeanOptionOnEuropeanVanillaOptionDefinition extends OptionDefinition {
   private static final BlackScholesMertonModel UNDERLYING_MODEL = new BlackScholesMertonModel();
-  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();
+  private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<>();
   private final OptionPayoffFunction<StandardOptionDataBundle> _payoffFunction = new OptionPayoffFunction<StandardOptionDataBundle>() {
 
     @SuppressWarnings("synthetic-access")

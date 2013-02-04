@@ -49,7 +49,7 @@ public class DecisionScheduleDerivativeCalculator extends InstrumentDerivativeVi
   }
 
   @Override
-  public DecisionScheduleDerivative visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, MulticurveProviderInterface multicurves) {
+  public DecisionScheduleDerivative visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final MulticurveProviderInterface multicurves) {
     final double[] decisionTime = new double[] {swaption.getTimeToExpiry()};
     final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, multicurves);
     final double[][] impactTime = new double[1][cfe.getNumberOfPayments()];
@@ -58,14 +58,14 @@ public class DecisionScheduleDerivativeCalculator extends InstrumentDerivativeVi
       impactTime[0][loopcf] = cfe.getNthPayment(loopcf).getPaymentTime();
       impactAmount[0][loopcf] = cfe.getNthPayment(loopcf).getAmount();
     }
-    final ArrayList<Map<Double, MulticurveSensitivity>> impactAmountDerivative = new ArrayList<Map<Double, MulticurveSensitivity>>();
+    final ArrayList<Map<Double, MulticurveSensitivity>> impactAmountDerivative = new ArrayList<>();
     impactAmountDerivative.add(swaption.getUnderlyingSwap().accept(CFECSC, multicurves));
     final DecisionScheduleDerivative decision = new DecisionScheduleDerivative(decisionTime, impactTime, impactAmount, impactAmountDerivative);
     return decision;
   }
 
   @Override
-  public DecisionScheduleDerivative visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity, MulticurveProviderInterface multicurves) {
+  public DecisionScheduleDerivative visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity, final MulticurveProviderInterface multicurves) {
     final int nbCpn = annuity.getNumberOfPayments();
     final double[] decisionTime = new double[nbCpn];
     final double[][] impactTime = new double[nbCpn][];
@@ -80,7 +80,7 @@ public class DecisionScheduleDerivativeCalculator extends InstrumentDerivativeVi
         impactAmount[loopcpn][loopcf] = cfe.getNthPayment(loopcf).getAmount();
       }
     }
-    final ArrayList<Map<Double, MulticurveSensitivity>> impactAmountDerivative = new ArrayList<Map<Double, MulticurveSensitivity>>();
+    final ArrayList<Map<Double, MulticurveSensitivity>> impactAmountDerivative = new ArrayList<>();
     for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
       impactAmountDerivative.add(annuity.getNthPayment(loopcpn).accept(CFECSC, multicurves));
     }

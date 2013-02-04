@@ -115,14 +115,14 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
    */
   @SuppressWarnings("unchecked")
   public Annuity<P> trimBefore(final double trimTime) {
-    final List<P> list = new ArrayList<P>();
+    final List<P> list = new ArrayList<>();
     list.clear();
     for (final P payment : _payments) {
       if (payment.getPaymentTime() > trimTime) {
         list.add(payment);
       }
     }
-    return new Annuity<P>(list.toArray((P[]) new Payment[0]));
+    return new Annuity<>(list.toArray((P[]) new Payment[0]));
   }
 
   /**
@@ -132,13 +132,13 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
    */
   @SuppressWarnings("unchecked")
   public Annuity<P> trimAfter(final double trimTime) {
-    final List<P> list = new ArrayList<P>();
+    final List<P> list = new ArrayList<>();
     for (final P payment : _payments) {
       if (payment.getPaymentTime() <= trimTime) {
         list.add(payment);
       }
     }
-    return new Annuity<P>(list.toArray((P[]) new Payment[0]));
+    return new Annuity<>(list.toArray((P[]) new Payment[0]));
   }
 
   @Override

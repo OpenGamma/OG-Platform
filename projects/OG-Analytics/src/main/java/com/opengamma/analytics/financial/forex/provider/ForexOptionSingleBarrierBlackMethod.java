@@ -72,7 +72,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), payTime);
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), payTime);
@@ -102,7 +102,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), payTime);
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), payTime);
@@ -140,7 +140,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), payTime);
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), payTime);
@@ -155,7 +155,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
     final double volatility = smileMulticurves.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex
         .getUnderlyingOption().getStrike(), forward);
     // The Barrier pricing method parameterizes as a function of rate (r=rateDomestic), and costOfCarry (b=rateDomestic-rateForeign)
-    // We wish to compute derivatives wrt rateDomestic and rateForeign, not the costOfCarry paramter.
+    // We wish to compute derivatives wrt rateDomestic and rateForeign, not the costOfCarry parameter.
     final double[] priceDerivatives = new double[5];
     BARRIER_FUNCTION.getPriceAdjoint(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, rateDomestic - rateForeign, rateDomestic, volatility, priceDerivatives);
     // Backward sweep
@@ -164,14 +164,14 @@ public final class ForexOptionSingleBarrierBlackMethod {
     final double rDomesticBar = (priceDerivatives[2] + priceDerivatives[3]) * Math.abs(foreignAmount) * sign * priceBar;
     final double rForeignBar = -1 * rCostOfCarryBar;
     // Sensitivity object
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listForeign = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listForeign = new ArrayList<>();
     listForeign.add(new DoublesPair(payTime, rForeignBar));
     resultMap.put(multicurves.getName(optionForex.getCurrency1()), listForeign);
-    final List<DoublesPair> listDomestic = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDomestic = new ArrayList<>();
     listDomestic.add(new DoublesPair(payTime, rDomesticBar));
     resultMap.put(multicurves.getName(optionForex.getCurrency2()), listDomestic);
-    MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
+    final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     return MultipleCurrencyMulticurveSensitivity.of(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency2(), result);
   }
 
@@ -185,7 +185,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), payTime);
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), payTime);
@@ -222,7 +222,7 @@ public final class ForexOptionSingleBarrierBlackMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = presentValueBlackVolatilitySensitivity(optionForex, smileMulticurves);
     final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smileMulticurves.getVolatility();
     final double df = multicurves.getDiscountFactor(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency2(), optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime());
@@ -249,14 +249,14 @@ public final class ForexOptionSingleBarrierBlackMethod {
    * @param optionForex A single barrier Forex option.
    * @param smileMulticurves The curve and smile data.
    * @param relShift The shift to the black volatility expressed relative to the input vol level
-   * @return Gamma 
+   * @return Gamma
    */
   public CurrencyAmount gammaFd(final ForexOptionSingleBarrier optionForex, final BlackForexSmileProviderInterface smileMulticurves, final double relShift) {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
-    // repackage for calls to BARRIER_FUNCTION 
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    // repackage for calls to BARRIER_FUNCTION
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), payTime);
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), payTime);
@@ -306,8 +306,8 @@ public final class ForexOptionSingleBarrierBlackMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
-    // repackage for calls to BARRIER_FUNCTION 
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    // repackage for calls to BARRIER_FUNCTION
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), payTime);
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), payTime);
@@ -377,8 +377,8 @@ public final class ForexOptionSingleBarrierBlackMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
-    // repackage for calls to BARRIER_FUNCTION 
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    // repackage for calls to BARRIER_FUNCTION
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), payTime);
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), payTime);
@@ -417,8 +417,8 @@ public final class ForexOptionSingleBarrierBlackMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
-    // repackage for calls to BARRIER_FUNCTION 
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    // repackage for calls to BARRIER_FUNCTION
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), payTime);
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), payTime);
@@ -457,8 +457,8 @@ public final class ForexOptionSingleBarrierBlackMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
-    // repackage for calls to BARRIER_FUNCTION 
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    // repackage for calls to BARRIER_FUNCTION
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), payTime);
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), payTime);
@@ -498,8 +498,8 @@ public final class ForexOptionSingleBarrierBlackMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
-    // repackage for calls to BARRIER_FUNCTION 
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    // repackage for calls to BARRIER_FUNCTION
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), payTime);
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), payTime);

@@ -40,10 +40,10 @@ public class PortfolioHedgingCalculator {
    * @param order The ordered set of name.
    * @param fxMatrix The matrix with exchange rates.
    * @return The optimal hedging quantities. The quantities are in the same order as the reference instruments sensitivities.
-   * Note that the output is the optimal hedge quantity and not the portoflio equivalent. The hedge has the opposite sign of wrt the equivalent.
+   * Note that the output is the optimal hedge quantity and not the portfolio equivalent. The hedge has the opposite sign of wrt the equivalent.
    */
-  public static double[] hedgeQuantity(final MultipleCurrencyParameterSensitivity ps, final MultipleCurrencyParameterSensitivity[] rs, final DoubleMatrix2D w, final LinkedHashSet<Pair<String, Integer>> order, 
-      final FXMatrix fxMatrix) {
+  public static double[] hedgeQuantity(final MultipleCurrencyParameterSensitivity ps, final MultipleCurrencyParameterSensitivity[] rs, final DoubleMatrix2D w,
+      final LinkedHashSet<Pair<String, Integer>> order, final FXMatrix fxMatrix) {
     final Currency ccy = ps.getAllNamesCurrency().iterator().next().getSecond();
     // Implementation note: currency used for the conversion in a common currency. Any currency is fine.
     final int nbReference = rs.length;
@@ -53,25 +53,25 @@ public class PortfolioHedgingCalculator {
       rsConverted[loopref] = rs[loopref].converted(fxMatrix, ccy);
     }
     // Implementation note: converting the ParameterSensitivity into a matrix.
-    DoubleMatrix1D p = toMatrix(psConverted, order);
+    final DoubleMatrix1D p = toMatrix(psConverted, order);
     final double[][] rsArray = new double[nbReference][];
     for (int loopref = 0; loopref < nbReference; loopref++) {
       rsArray[loopref] = toMatrix(rsConverted[loopref], order).getData();
     }
-    DoubleMatrix2D r = new DoubleMatrix2D(rsArray);
-    DoubleMatrix2D wtW = (DoubleMatrix2D) MATRIX.multiply(MATRIX.getTranspose(w), w);
-    DoubleMatrix2D rWtW = (DoubleMatrix2D) MATRIX.multiply(r, wtW);
-    DoubleMatrix2D rWtWRt = (DoubleMatrix2D) MATRIX.multiply(rWtW, MATRIX.getTranspose(r));
-    DoubleMatrix1D rWtWP = ((DoubleMatrix2D) MATRIX.scale(MATRIX.multiply(rWtW, p), -1.0)).getColumnVector(0);
-    SVDecompositionResult dec = DECOMPOSITION.evaluate(rWtWRt);
-    DoubleMatrix1D q = dec.solve(rWtWP);
+    final DoubleMatrix2D r = new DoubleMatrix2D(rsArray);
+    final DoubleMatrix2D wtW = (DoubleMatrix2D) MATRIX.multiply(MATRIX.getTranspose(w), w);
+    final DoubleMatrix2D rWtW = (DoubleMatrix2D) MATRIX.multiply(r, wtW);
+    final DoubleMatrix2D rWtWRt = (DoubleMatrix2D) MATRIX.multiply(rWtW, MATRIX.getTranspose(r));
+    final DoubleMatrix1D rWtWP = ((DoubleMatrix2D) MATRIX.scale(MATRIX.multiply(rWtW, p), -1.0)).getColumnVector(0);
+    final SVDecompositionResult dec = DECOMPOSITION.evaluate(rWtWRt);
+    final DoubleMatrix1D q = dec.solve(rWtWP);
     return q.getData();
   }
 
   /**
    * Convert the parameter sensitivity into a matrix (DoubleMatrix1D). All the sensitivities should be in the same currency.
-   * The matrix is composed of the sensitivity vectors (currency is ignored) one after the other. 
-   * The matrix order is the one of the set. 
+   * The matrix is composed of the sensitivity vectors (currency is ignored) one after the other.
+   * The matrix order is the one of the set.
    * @param sensi The sensitivity.
    * @param order The ordered set of name.
    * @return The sensitivity matrix.
@@ -84,7 +84,7 @@ public class PortfolioHedgingCalculator {
     }
     // Implementation note: all the currencies are supposed to be the same, we choose any of them.
     for (final Pair<String, Integer> nameSize : order) {
-      if (sensi.getSensitivities().containsKey(new ObjectsPair<String, Currency>(nameSize.getFirst(), ccy))) {
+      if (sensi.getSensitivities().containsKey(new ObjectsPair<>(nameSize.getFirst(), ccy))) {
         psArray = ArrayUtils.addAll(psArray, sensi.getSensitivity(nameSize.getFirst(), ccy).getData());
       } else { // When curve is not in the sensitivity, add zeros.
         psArray = ArrayUtils.addAll(psArray, new double[nameSize.getSecond()]);

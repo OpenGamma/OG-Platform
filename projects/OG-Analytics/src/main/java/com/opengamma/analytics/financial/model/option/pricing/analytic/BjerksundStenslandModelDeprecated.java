@@ -5,15 +5,12 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.analytic;
 
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.model.option.definition.AmericanVanillaOptionDefinition;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.statistics.distribution.BivariateNormalDistribution;
-import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class defining an analytical approximation for American option prices as
@@ -87,12 +84,6 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 @Deprecated
 public class BjerksundStenslandModelDeprecated extends AnalyticOptionModel<AmericanVanillaOptionDefinition, StandardOptionDataBundle> {
 
-  private static final double RHO2 = 0.5 * (Math.sqrt(5) - 1);
-  private static final double RHO = Math.sqrt(RHO2);
-  private static final double RHO_STAR = Math.sqrt(1 - RHO2);
-  private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
-
   private static final BjerksundStenslandModel MODEL = new BjerksundStenslandModel();
 
   /**
@@ -100,12 +91,12 @@ public class BjerksundStenslandModelDeprecated extends AnalyticOptionModel<Ameri
    */
   @Override
   public Function1D<StandardOptionDataBundle, Double> getPricingFunction(final AmericanVanillaOptionDefinition definition) {
-    Validate.notNull(definition);
+    ArgumentChecker.notNull(definition, "definition");
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = new Function1D<StandardOptionDataBundle, Double>() {
 
       @Override
       public Double evaluate(final StandardOptionDataBundle data) {
-        Validate.notNull(data);
+        ArgumentChecker.notNull(data, "data");
         final ZonedDateTime date = data.getDate();
         final double s = data.getSpot();
         final double k = definition.getStrike();
@@ -265,7 +256,7 @@ public class BjerksundStenslandModelDeprecated extends AnalyticOptionModel<Ameri
 
   /**
    * get alpha and its sensitivity to k, x (I) and beta
-   * @param k The strike 
+   * @param k The strike
    * @param x x
    * @param beta beta
    * @return The adjoints of alpha
@@ -337,12 +328,12 @@ public class BjerksundStenslandModelDeprecated extends AnalyticOptionModel<Ameri
    * @param s The spot
    * @param t The time to expiry
    * @param gamma gamma
-   * @param h h 
+   * @param h h
    * @param x2 x2
    * @param x1 x1
    * @param r The interest rate
    * @param b The cost-of-carry
-   * @param sigma The volatility 
+   * @param sigma The volatility
    * @return array of length 10 of Psi and its sensitivity to s, t, gamma, h, x2, x1, r, b and sigma
    */
   protected double[] getPsiAdjoint(final double s, final double t, final double gamma, final double h, final double x2, final double x1,

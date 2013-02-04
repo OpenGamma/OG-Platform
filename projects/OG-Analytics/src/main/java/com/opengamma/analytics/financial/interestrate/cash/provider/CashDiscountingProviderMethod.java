@@ -51,9 +51,9 @@ public final class CashDiscountingProviderMethod {
   public MultipleCurrencyAmount presentValue(final Cash deposit, final MulticurveProviderInterface curves) {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(curves, "Multicurves");
-    double dfStart = curves.getDiscountFactor(deposit.getCurrency(), deposit.getStartTime());
-    double dfEnd = curves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
-    double pv = (deposit.getNotional() + deposit.getInterestAmount()) * dfEnd - deposit.getInitialAmount() * dfStart;
+    final double dfStart = curves.getDiscountFactor(deposit.getCurrency(), deposit.getStartTime());
+    final double dfEnd = curves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
+    final double pv = (deposit.getNotional() + deposit.getInterestAmount()) * dfEnd - deposit.getInitialAmount() * dfStart;
     return MultipleCurrencyAmount.of(deposit.getCurrency(), pv);
   }
 
@@ -66,14 +66,14 @@ public final class CashDiscountingProviderMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final Cash deposit, final MulticurveProviderInterface curves) {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(curves, "Multicurves");
-    double dfStart = curves.getDiscountFactor(deposit.getCurrency(), deposit.getStartTime());
-    double dfEnd = curves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
+    final double dfStart = curves.getDiscountFactor(deposit.getCurrency(), deposit.getStartTime());
+    final double dfEnd = curves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
     // Backward sweep
-    double pvBar = 1.0;
-    double dfEndBar = deposit.getNotional() + deposit.getInterestAmount() * pvBar;
-    double dfStartBar = -deposit.getInitialAmount() * pvBar;
-    final Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final double pvBar = 1.0;
+    final double dfEndBar = deposit.getNotional() + deposit.getInterestAmount() * pvBar;
+    final double dfStartBar = -deposit.getInitialAmount() * pvBar;
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
     listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
     mapDsc.put(curves.getName(deposit.getCurrency()), listDiscounting);
@@ -83,7 +83,7 @@ public final class CashDiscountingProviderMethod {
   }
 
   /**
-   * Computes the deposit fair rate given the start and end time and the accrual factor. 
+   * Computes the deposit fair rate given the start and end time and the accrual factor.
    * When deposit has already start the number may not be meaning full as the remaining period is not in line with the accrual factor.
    * @param deposit The deposit.
    * @param curves The curves.
@@ -105,8 +105,8 @@ public final class CashDiscountingProviderMethod {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(curves, "Multicurves");
     ArgumentChecker.isTrue(deposit.getNotional() != 0.0, "Notional is 0");
-    double dfStart = curves.getDiscountFactor(deposit.getCurrency(), deposit.getStartTime());
-    double dfEnd = curves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
+    final double dfStart = curves.getDiscountFactor(deposit.getCurrency(), deposit.getStartTime());
+    final double dfEnd = curves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
     return (deposit.getInitialAmount() * dfStart - (deposit.getNotional() + deposit.getInterestAmount()) * dfEnd) / (deposit.getNotional() * deposit.getAccrualFactor() * dfEnd);
   }
 
@@ -121,14 +121,14 @@ public final class CashDiscountingProviderMethod {
     ArgumentChecker.notNull(deposit, "Deposit");
     ArgumentChecker.notNull(curves, "Multicurves");
     ArgumentChecker.isTrue(deposit.getNotional() != 0.0, "Notional is 0");
-    double dfStart = curves.getDiscountFactor(deposit.getCurrency(), deposit.getStartTime());
-    double dfEnd = curves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
+    final double dfStart = curves.getDiscountFactor(deposit.getCurrency(), deposit.getStartTime());
+    final double dfEnd = curves.getDiscountFactor(deposit.getCurrency(), deposit.getEndTime());
     // Backward sweep
-    double parSpreadBar = 1.0;
-    double dfEndBar = -(deposit.getInitialAmount() * dfStart / (dfEnd * dfEnd)) / (deposit.getNotional() * deposit.getAccrualFactor()) * parSpreadBar;
-    double dfStartBar = (deposit.getInitialAmount() / dfEnd) / (deposit.getNotional() * deposit.getAccrualFactor()) * parSpreadBar;
-    final Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final double parSpreadBar = 1.0;
+    final double dfEndBar = -(deposit.getInitialAmount() * dfStart / (dfEnd * dfEnd)) / (deposit.getNotional() * deposit.getAccrualFactor()) * parSpreadBar;
+    final double dfStartBar = (deposit.getInitialAmount() / dfEnd) / (deposit.getNotional() * deposit.getAccrualFactor()) * parSpreadBar;
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
     listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
     mapDsc.put(curves.getName(deposit.getCurrency()), listDiscounting);

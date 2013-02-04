@@ -71,7 +71,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
   public MultipleCurrencyAmount presentValue(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
-    MulticurveProviderInterface multicurves = black.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = black.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
@@ -106,7 +106,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
   public MultipleCurrencyAmount currencyExposure(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
-    MulticurveProviderInterface multicurves = black.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = black.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
@@ -136,7 +136,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
   public double deltaRelative(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
-    MulticurveProviderInterface multicurves = black.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = black.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
@@ -163,7 +163,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
   public double deltaRelativeSpot(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
-    MulticurveProviderInterface multicurves = black.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = black.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
@@ -190,7 +190,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
   public double gammaRelative(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
-    MulticurveProviderInterface multicurves = black.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = black.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
@@ -218,7 +218,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
   public double gammaRelativeSpot(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black, final boolean directQuote) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
-    MulticurveProviderInterface multicurves = black.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = black.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
@@ -269,7 +269,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
   public CurrencyAmount thetaTheoretical(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
-    MulticurveProviderInterface multicurves = black.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = black.getMulticurveProvider();
     final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
@@ -301,7 +301,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
-    MulticurveProviderInterface multicurves = black.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = black.getMulticurveProvider();
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
     // Forward sweep
@@ -320,14 +320,14 @@ public final class ForexOptionVanillaBlackFlatMethod {
     final double rDomesticBar = -payTime * dfDomestic * dfDomesticBar;
     // Sensitivity object
     final double factor = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listForeign = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listForeign = new ArrayList<>();
     listForeign.add(new DoublesPair(payTime, rForeignBar * factor));
     resultMap.put(multicurves.getName(optionForex.getCurrency1()), listForeign);
-    final List<DoublesPair> listDomestic = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDomestic = new ArrayList<>();
     listDomestic.add(new DoublesPair(payTime, rDomesticBar * factor));
     resultMap.put(multicurves.getName(optionForex.getCurrency2()), listDomestic);
-    MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
+    final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     return MultipleCurrencyMulticurveSensitivity.of(optionForex.getUnderlyingForex().getCurrency2(), result);
   }
 
@@ -341,7 +341,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
   public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
-    MulticurveProviderInterface multicurves = black.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = black.getMulticurveProvider();
     final double df = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime()) / df;
@@ -367,7 +367,7 @@ public final class ForexOptionVanillaBlackFlatMethod {
   public double[] presentValueBlackVolatilityNodeSensitivity(final ForexOptionVanilla optionForex, final BlackForexFlatProviderInterface black) {
     Validate.notNull(optionForex, "Forex option");
     Validate.notNull(black, "Smile");
-    MulticurveProviderInterface multicurves = black.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = black.getMulticurveProvider();
     final int nbParameters = black.getVolatility().getVolatilityCurve().size();
     final double df = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());

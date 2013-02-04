@@ -7,7 +7,7 @@ package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpo
 
 
 import org.apache.commons.lang.ObjectUtils;
-import com.opengamma.analytics.math.differentiation.ScalarFirstOrderDifferentiator;
+
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -21,9 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  * the end point.
  */
 public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
-  //  private static final Logger LOG = LoggerFactory.getLogger(ShiftedLogNormalTailExtrapolationFitter.class);
   private static final Interpolator1D DEFAULT_INTERPOLATOR = new DoubleQuadraticInterpolator1D();
-  private static final ScalarFirstOrderDifferentiator DIFFERENTIATOR = new ScalarFirstOrderDifferentiator();
   private static final ShiftedLogNormalTailExtrapolationFitter TAIL_FITTER = new ShiftedLogNormalTailExtrapolationFitter();
 
   private final Interpolator1D _interpolator;
@@ -39,7 +37,7 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
     _extrapolatorFailureBehaviour = "Exception"; // This follows pattern of OG-Financial's BlackVolatilitySurfacePropertyNamesAndValues.EXCEPTION_SPLINE_EXTRAPOLATOR_FAILURE
   }
 
-  public SmileInterpolatorSpline(final Interpolator1D interpolator, String extrapolatorFailureBehaviour) {
+  public SmileInterpolatorSpline(final Interpolator1D interpolator, final String extrapolatorFailureBehaviour) {
     ArgumentChecker.notNull(interpolator, "null interpolator");
     _interpolator = interpolator;
     _extrapolatorFailureBehaviour = extrapolatorFailureBehaviour;
@@ -83,21 +81,14 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
       }
     };
 
-    final Function1D<Double, Boolean> domain = new Function1D<Double, Boolean>() {
-      @Override
-      public Boolean evaluate(final Double k) {
-        return k >= kL && k <= kH;
-      }
-    };
-
     // Extrapolation of High and Low Strikes by ShiftedLogNormalTailExtrapolationFitter
-    
+
     // Solutions contain two parameters: [0] = mu = ln(shiftedForward / originalForward), [1] = theta = new ln volatility to use
-    final double[] shiftLnVolHighTail; 
+    final double[] shiftLnVolHighTail;
     final double[] shiftLnVolLowTail;
-    
+
     // Volatility gradient (dVol/dStrike) of interpolator
-    
+
     // FIXME - Remove this hard-coded behaviour, and set up as a Property which can be set
     // By simply passing in a target gradient of zero, we will produce a 'FLAT EXTRAPOLATION'
     final Function1D<Double, Double> returnZero = new Function1D<Double, Double>() {
@@ -107,23 +98,23 @@ public class SmileInterpolatorSpline implements GeneralSmileInterpolator {
       }
     };
     final Function1D<Double, Double> dSigmaDx = returnZero;
-    
+
     // !!! The line below, instead, computes the derivative using the interpolator
     //final Function1D<Double, Double> dSigmaDx = DIFFERENTIATOR.differentiate(interpFunc, domain);
-    
+
     if (_extrapolatorFailureBehaviour.equalsIgnoreCase("Quiet")) {
-      
+
       // The current *hard-coded* method reduces smile if the volatility gradient is either out of bounds of ShiftedLognormal model, or if root-finder fails to find solution
       shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, strikes[n - 1], impliedVols[n - 1], dSigmaDx.evaluate(kH), expiry);
       shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGradRecursivelyByReducingSmile(forward, kL, impliedVols[0], dSigmaDx.evaluate(kL), expiry);
-      
+
     } else {
       shiftLnVolHighTail = TAIL_FITTER.fitVolatilityAndGrad(forward, kH, impliedVols[n - 1], dSigmaDx.evaluate(kH), expiry);
       shiftLnVolLowTail = TAIL_FITTER.fitVolatilityAndGrad(forward, kL, impliedVols[0], dSigmaDx.evaluate(kL), expiry);
     }
 
     // Resulting Functional Vol Surface
-    Function1D<Double, Double> volSmileFunction = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> volSmileFunction = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double k) {
         if (k < kL) {

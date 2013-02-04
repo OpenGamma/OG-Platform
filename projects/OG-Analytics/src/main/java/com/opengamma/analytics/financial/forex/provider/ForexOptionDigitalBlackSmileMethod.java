@@ -69,7 +69,7 @@ public final class ForexOptionDigitalBlackSmileMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double expiry = optionForex.getExpirationTime();
     final Currency domesticCcy;
     final Currency foreignCcy;
@@ -115,7 +115,7 @@ public final class ForexOptionDigitalBlackSmileMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double expiry = optionForex.getExpirationTime();
     final Currency domesticCcy;
     final Currency foreignCcy;
@@ -167,7 +167,7 @@ public final class ForexOptionDigitalBlackSmileMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
     final double expiry = optionForex.getExpirationTime();
     // Forward sweep
@@ -206,14 +206,14 @@ public final class ForexOptionDigitalBlackSmileMethod {
     final double rForeignBar = -payTime * dfForeign * dfForeignBar;
     final double rDomesticBar = -payTime * dfDomestic * dfDomesticBar;
     // Sensitivity object
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listForeign = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listForeign = new ArrayList<>();
     listForeign.add(new DoublesPair(payTime, rForeignBar));
     resultMap.put(multicurves.getName(foreignCcy), listForeign);
-    final List<DoublesPair> listDomestic = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDomestic = new ArrayList<>();
     listDomestic.add(new DoublesPair(payTime, rDomesticBar));
     resultMap.put(multicurves.getName(domesticCcy), listDomestic);
-    MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
+    final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     return MultipleCurrencyMulticurveSensitivity.of(domesticCcy, result);
   }
 
@@ -228,7 +228,7 @@ public final class ForexOptionDigitalBlackSmileMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
     final double expiry = optionForex.getExpirationTime();
     // Forward sweep
@@ -281,7 +281,7 @@ public final class ForexOptionDigitalBlackSmileMethod {
     ArgumentChecker.notNull(optionForex, "Forex option");
     ArgumentChecker.notNull(smileMulticurves, "Smile");
     ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
-    MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = presentValueBlackVolatilitySensitivity(optionForex, smileMulticurves); // In dom ccy
     final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smileMulticurves.getVolatility();
     final double payTime = optionForex.getUnderlyingForex().getPaymentTime();

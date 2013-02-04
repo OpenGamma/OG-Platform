@@ -30,7 +30,7 @@ public class ParameterSensitivityBlockCalculator extends AbstractParameterSensit
    * Constructor
    * @param curveSensitivityCalculator The curve sensitivity calculator.
    */
-  public ParameterSensitivityBlockCalculator(InstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> curveSensitivityCalculator) {
+  public ParameterSensitivityBlockCalculator(final InstrumentDerivativeVisitor<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> curveSensitivityCalculator) {
     super(curveSensitivityCalculator);
   }
 
@@ -43,18 +43,18 @@ public class ParameterSensitivityBlockCalculator extends AbstractParameterSensit
    * @return The sensitivity.
    */
   @Override
-  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves, 
+  public MultipleCurrencyParameterSensitivity pointToParameterSensitivity(final MultipleCurrencyInterestRateCurveSensitivity sensitivity, final Set<String> fixedCurves,
       final YieldCurveBundle bundle) {
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
     ArgumentChecker.notNull(fixedCurves, "Fixed Curves");
     ArgumentChecker.notNull(bundle, "Curve bundle");
-    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> result = new LinkedHashMap<>();
     for (final Currency ccy : sensitivity.getCurrencies()) {
       for (final String curveName : sensitivity.getSensitivity(ccy).getSensitivities().keySet()) {
         if (!fixedCurves.contains(curveName)) {
           final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
-          Double[] oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivity(ccy).getSensitivities().get(curveName), curve);
-          result.put(new ObjectsPair<String, Currency>(curveName, ccy), new DoubleMatrix1D(oneCurveSensitivity));
+          final Double[] oneCurveSensitivity = pointToParameterSensitivity(sensitivity.getSensitivity(ccy).getSensitivities().get(curveName), curve);
+          result.put(new ObjectsPair<>(curveName, ccy), new DoubleMatrix1D(oneCurveSensitivity));
         }
       }
     }

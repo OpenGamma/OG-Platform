@@ -89,7 +89,7 @@ public class CurveBuildingFunction {
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderGeneratorJacobian(new ParameterUnderlyingSensitivityCalculator(sensitivityCalculator), data);
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final YieldCurveBundle newCurves = data.getBuildingFunction().evaluate(new DoubleMatrix1D(parameters));
-    return new ObjectsPair<YieldCurveBundle, Double[]>(newCurves, ArrayUtils.toObject(parameters));
+    return new ObjectsPair<>(newCurves, ArrayUtils.toObject(parameters));
   }
 
   /**
@@ -101,7 +101,7 @@ public class CurveBuildingFunction {
    * @param parameters The parameters used to build each curve in the block.
    * @param knownData The known data (FX rates, other curves, model parameters, ...) for the block calibration.
    * @param sensitivityCalculator The parameter sensitivity calculator for the value on which the calibration is done (usually ParSpreadMarketQuoteCalculator (recommended) or converted present value).
-   * @return The part of the inverse Jacobian matrix associated to each curve. 
+   * @return The part of the inverse Jacobian matrix associated to each curve.
    * The Jacobian matrix is the transition matrix between the curve parameters and the par spread.
    * TODO: Currently only for the ParSpreadMarketQuoteCalculator.
    */
@@ -143,16 +143,16 @@ public class CurveBuildingFunction {
       final InstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> sensitivityCalculator) {
     final int nbUnits = curveGenerators.length;
     final YieldCurveBundle knownSoFarData = knownData.copy();
-    final List<InstrumentDerivative> instrumentsSoFar = new ArrayList<InstrumentDerivative>();
-    final LinkedHashMap<String, GeneratorYDCurve> generatorsSoFar = new LinkedHashMap<String, GeneratorYDCurve>();
-    final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundleSoFar = new LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>>();
-    final List<Double> parametersSoFar = new ArrayList<Double>();
-    final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<String, Pair<Integer, Integer>>();
+    final List<InstrumentDerivative> instrumentsSoFar = new ArrayList<>();
+    final LinkedHashMap<String, GeneratorYDCurve> generatorsSoFar = new LinkedHashMap<>();
+    final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundleSoFar = new LinkedHashMap<>();
+    final List<Double> parametersSoFar = new ArrayList<>();
+    final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
     int startUnit = 0;
     for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
       final int nbCurve = curveGenerators[loopunit].length;
-      final int[] startCurve = new int[nbCurve]; // First parameter index of the curve in the unit. 
-      final LinkedHashMap<String, GeneratorYDCurve> gen = new LinkedHashMap<String, GeneratorYDCurve>();
+      final int[] startCurve = new int[nbCurve]; // First parameter index of the curve in the unit.
+      final LinkedHashMap<String, GeneratorYDCurve> gen = new LinkedHashMap<>();
       final int[] nbIns = new int[curveGenerators[loopunit].length];
       int nbInsUnit = 0; // Number of instruments in the unit.
       for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
@@ -170,18 +170,18 @@ public class CurveBuildingFunction {
         final GeneratorYDCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
         gen.put(curveNames[loopunit][loopcurve], tmp);
         generatorsSoFar.put(curveNames[loopunit][loopcurve], tmp);
-        unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<Integer, Integer>(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
+        unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<>(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
       }
       final Pair<YieldCurveBundle, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], gen, knownSoFarData, calculator, sensitivityCalculator);
       parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));
       final DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, generatorsSoFar, startUnit, nbIns, parametersSoFar.toArray(new Double[0]), knownData, sensitivityCalculator);
       for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<CurveBuildingBlock, DoubleMatrix2D>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
+        unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
       }
       knownSoFarData.addAll(unitCal.getFirst());
       startUnit = startUnit + nbInsUnit;
     }
-    return new ObjectsPair<YieldCurveBundle, CurveBuildingBlockBundle>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
+    return new ObjectsPair<>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
   }
 
 }

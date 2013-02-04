@@ -20,7 +20,6 @@ import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.RealSingleRootFinder;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.ObjectsPair;
 
@@ -52,7 +51,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod {
    */
   public MultipleCurrencyAmount presentValue(final BondCapitalIndexedSecurity<?> bond, final InflationIssuerProviderInterface provider) {
     ArgumentChecker.notNull(bond, "Bond");
-    final InflationProviderInterface creditDiscounting = provider.withDiscountFactor(bond.getCurrency(), new ObjectsPair<String, Currency>(bond.getIssuer(), bond.getCurrency()));
+    final InflationProviderInterface creditDiscounting = provider.withDiscountFactor(bond.getCurrency(), new ObjectsPair<>(bond.getIssuer(), bond.getCurrency()));
     final MultipleCurrencyAmount pvNominal = bond.getNominal().accept(PVIC, creditDiscounting);
     final MultipleCurrencyAmount pvCoupon = bond.getCoupon().accept(PVIC, creditDiscounting);
     return pvNominal.plus(pvCoupon);

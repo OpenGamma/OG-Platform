@@ -56,12 +56,12 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
   public CurrencyAmount presentValue(final BillSecurity bill, final YieldCurveBundle curves) {
     Validate.notNull(bill, "Bill");
     Validate.notNull(curves, "Curves");
-    double pvBill = bill.getNotional() * curves.getCurve(bill.getCreditCurveName()).getDiscountFactor(bill.getEndTime());
+    final double pvBill = bill.getNotional() * curves.getCurve(bill.getCreditCurveName()).getDiscountFactor(bill.getEndTime());
     return CurrencyAmount.of(bill.getCurrency(), pvBill);
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof BillSecurity, "Bill Security");
     return presentValue((BillSecurity) instrument, curves);
   }
@@ -135,7 +135,7 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
   public CurrencyAmount presentValueFromYield(final BillSecurity bill, final double yield, final YieldCurveBundle curves) {
     Validate.notNull(bill, "Bill");
     Validate.notNull(curves, "Curves");
-    double price = priceFromYield(bill, yield);
+    final double price = priceFromYield(bill, yield);
     return presentValueFromPrice(bill, price, curves);
   }
 
@@ -149,7 +149,7 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
   public CurrencyAmount presentValueFromPrice(final BillSecurity bill, final double price, final YieldCurveBundle curves) {
     Validate.notNull(bill, "Bill");
     Validate.notNull(curves, "Curves");
-    double pvBill = bill.getNotional() * price * curves.getCurve(bill.getDiscountingCurveName()).getDiscountFactor(bill.getSettlementTime());
+    final double pvBill = bill.getNotional() * price * curves.getCurve(bill.getDiscountingCurveName()).getDiscountFactor(bill.getSettlementTime());
     return CurrencyAmount.of(bill.getCurrency(), pvBill);
   }
 
@@ -162,8 +162,8 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
   public double priceFromCurves(final BillSecurity bill, final YieldCurveBundle curves) {
     Validate.notNull(bill, "Bill");
     Validate.notNull(curves, "Curves");
-    double pvBill = bill.getNotional() * curves.getCurve(bill.getCreditCurveName()).getDiscountFactor(bill.getEndTime());
-    double price = pvBill / (bill.getNotional() * curves.getCurve(bill.getDiscountingCurveName()).getDiscountFactor(bill.getSettlementTime()));
+    final double pvBill = bill.getNotional() * curves.getCurve(bill.getCreditCurveName()).getDiscountFactor(bill.getEndTime());
+    final double price = pvBill / (bill.getNotional() * curves.getCurve(bill.getDiscountingCurveName()).getDiscountFactor(bill.getSettlementTime()));
     return price;
   }
 
@@ -176,8 +176,8 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
   public double yieldFromCurves(final BillSecurity bill, final YieldCurveBundle curves) {
     Validate.notNull(bill, "Bill");
     Validate.notNull(curves, "Curves");
-    double pvBill = bill.getNotional() * curves.getCurve(bill.getCreditCurveName()).getDiscountFactor(bill.getEndTime());
-    double price = pvBill / (bill.getNotional() * curves.getCurve(bill.getDiscountingCurveName()).getDiscountFactor(bill.getSettlementTime()));
+    final double pvBill = bill.getNotional() * curves.getCurve(bill.getCreditCurveName()).getDiscountFactor(bill.getEndTime());
+    final double price = pvBill / (bill.getNotional() * curves.getCurve(bill.getDiscountingCurveName()).getDiscountFactor(bill.getSettlementTime()));
     return yieldFromPrice(bill, price);
   }
 
@@ -190,12 +190,12 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final BillSecurity bill, final YieldCurveBundle curves) {
     Validate.notNull(bill, "Bill");
     Validate.notNull(curves, "Curves");
-    double dfEnd = curves.getCurve(bill.getCreditCurveName()).getDiscountFactor(bill.getEndTime());
+    final double dfEnd = curves.getCurve(bill.getCreditCurveName()).getDiscountFactor(bill.getEndTime());
     // Backward sweep
-    double pvBar = 1.0;
-    double dfEndBar = bill.getNotional() * pvBar;
-    final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final double pvBar = 1.0;
+    final double dfEndBar = bill.getNotional() * pvBar;
+    final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(bill.getEndTime(), -bill.getEndTime() * dfEnd * dfEndBar));
     resultMapCredit.put(bill.getCreditCurveName(), listDiscounting);
     return new InterestRateCurveSensitivity(resultMapCredit);

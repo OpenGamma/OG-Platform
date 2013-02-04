@@ -28,16 +28,16 @@ public final class WeightingFunctionFactory {
   private static final Map<Class<?>, String> s_instanceNames;
 
   static {
-    final Map<String, WeightingFunction> staticInstances = new HashMap<String, WeightingFunction>();
-    final Map<Class<?>, String> instanceNames = new HashMap<Class<?>, String>();
+    final Map<String, WeightingFunction> staticInstances = new HashMap<>();
+    final Map<Class<?>, String> instanceNames = new HashMap<>();
     staticInstances.put(COSINE_WEIGHTING_FUNCTION_NAME, COSINE_WEIGHTING_FUNCTION);
     instanceNames.put(CosineWeightingFunction.class, COSINE_WEIGHTING_FUNCTION_NAME);
     staticInstances.put(LINEAR_WEIGHTING_FUNCTION_NAME, LINEAR_WEIGHTING_FUNCTION);
     instanceNames.put(LinearWeightingFunction.class, LINEAR_WEIGHTING_FUNCTION_NAME);
     staticInstances.put(SINE_WEIGHTING_FUNCTION_NAME, SINE_WEIGHTING_FUNCTION);
     instanceNames.put(SineWeightingFunction.class, SINE_WEIGHTING_FUNCTION_NAME);
-    s_staticInstances = new HashMap<String, WeightingFunction>(staticInstances);
-    s_instanceNames = new HashMap<Class<?>, String>(instanceNames);
+    s_staticInstances = new HashMap<>(staticInstances);
+    s_instanceNames = new HashMap<>(instanceNames);
   }
 
   private WeightingFunctionFactory() {

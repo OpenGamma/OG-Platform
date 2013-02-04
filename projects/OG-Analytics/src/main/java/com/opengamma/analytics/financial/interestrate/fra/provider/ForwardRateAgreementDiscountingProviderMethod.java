@@ -89,12 +89,12 @@ public final class ForwardRateAgreementDiscountingProviderMethod {
     final double forwardBar = df * fra.getPaymentYearFraction() * fra.getNotional() * (1 - (forward - fra.getRate()) / (1 + fra.getPaymentYearFraction() * forward) * fra.getPaymentYearFraction())
         / (1 + fra.getPaymentYearFraction() * forward);
     final double dfBar = fra.getPaymentYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward) * pvBar;
-    final Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(fra.getPaymentTime(), -fra.getPaymentTime() * df * dfBar));
     mapDsc.put(fra.getFundingCurveName(), listDiscounting);
-    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     listForward.add(new ForwardSensitivity(fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), forwardBar));
     mapFwd.put(multicurve.getName(fra.getIndex()), listForward);
     final MultipleCurrencyMulticurveSensitivity result = MultipleCurrencyMulticurveSensitivity.of(fra.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
@@ -135,8 +135,8 @@ public final class ForwardRateAgreementDiscountingProviderMethod {
   public MulticurveSensitivity parSpreadCurveSensitivity(final ForwardRateAgreement fra, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(fra, "FRA");
     ArgumentChecker.notNull(multicurve, "Multiurves");
-    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     listForward.add(new ForwardSensitivity(fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), 1.0));
     mapFwd.put(multicurve.getName(fra.getIndex()), listForward);
     return MulticurveSensitivity.ofForward(mapFwd);

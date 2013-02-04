@@ -23,7 +23,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * For an instrument, computes the sensitivity of a value (often the present value or a par spread) to the parameters used in the curve.
- * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.) and also on the way 
+ * The meaning of "parameters" will depend of the way the curve is stored (interpolated yield, function parameters, etc.) and also on the way
  * the parameters sensitivities are aggregated (the same parameter can be used in several curves).
  */
 public abstract class AbstractParameterSensitivityCalculator {
@@ -47,7 +47,7 @@ public abstract class AbstractParameterSensitivityCalculator {
    * @param instrument The instrument. Not null.
    * @param fixedCurves The fixed curves names (for which the parameter sensitivity are not computed even if they are necessary for the instrument pricing).
    * The curve in the list may or may not be in the bundle. Not null.
-   * @param bundle The curve bundle with all curves and data required to price the instrument. 
+   * @param bundle The curve bundle with all curves and data required to price the instrument.
    * The sensitivity with respect to the curves in the fixedCurves list will not be part of the output total sensitivity. Not null.
    * @return The sensitivity (as a DoubleMatrix1D).
    */
@@ -77,7 +77,7 @@ public abstract class AbstractParameterSensitivityCalculator {
    * @return The sensitivity (as a list of doubles).
    */
   public List<Double> pointToParameterSensitivity(final List<DoublesPair> sensitivity, final YieldAndDiscountCurve curve) {
-    final List<Double> result = new ArrayList<Double>();
+    final List<Double> result = new ArrayList<>();
     if (sensitivity != null && sensitivity.size() > 0) {
       final double[][] sensitivityYP = new double[sensitivity.size()][];
       // Implementation note: Sensitivity of the interpolated yield to the parameters

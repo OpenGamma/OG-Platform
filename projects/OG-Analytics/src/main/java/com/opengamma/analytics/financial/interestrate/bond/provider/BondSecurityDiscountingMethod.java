@@ -207,8 +207,8 @@ public final class BondSecurityDiscountingMethod {
     final MultipleCurrencyAmount pv = presentValue(bond, issuerMulticurves);
     final MultipleCurrencyMulticurveSensitivity sensiPv = presentValueCurveSensitivity(bond, issuerMulticurves);
     final double df = multicurves.getDiscountFactor(ccy, bond.getSettlementTime());
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDf = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listDf = new ArrayList<>();
     listDf.add(new DoublesPair(bond.getSettlementTime(), bond.getSettlementTime() / df));
     resultMap.put(multicurves.getName(ccy), listDf);
     MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);

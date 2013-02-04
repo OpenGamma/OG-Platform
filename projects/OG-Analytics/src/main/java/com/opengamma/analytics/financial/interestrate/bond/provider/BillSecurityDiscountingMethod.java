@@ -55,7 +55,7 @@ public final class BillSecurityDiscountingMethod {
   public MultipleCurrencyAmount presentValue(final BillSecurity bill, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    double pvBill = bill.getNotional() * issuer.getDiscountFactor(bill.getIssuerCcy(), bill.getEndTime());
+    final double pvBill = bill.getNotional() * issuer.getDiscountFactor(bill.getIssuerCcy(), bill.getEndTime());
     return MultipleCurrencyAmount.of(bill.getCurrency(), pvBill);
   }
 
@@ -128,7 +128,7 @@ public final class BillSecurityDiscountingMethod {
   public CurrencyAmount presentValueFromYield(final BillSecurity bill, final double yield, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    double price = priceFromYield(bill, yield);
+    final double price = priceFromYield(bill, yield);
     return presentValueFromPrice(bill, price, issuer);
   }
 
@@ -142,7 +142,7 @@ public final class BillSecurityDiscountingMethod {
   public CurrencyAmount presentValueFromPrice(final BillSecurity bill, final double price, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    double pvBill = bill.getNotional() * price * issuer.getMulticurveProvider().getDiscountFactor(bill.getCurrency(), bill.getSettlementTime());
+    final double pvBill = bill.getNotional() * price * issuer.getMulticurveProvider().getDiscountFactor(bill.getCurrency(), bill.getSettlementTime());
     return CurrencyAmount.of(bill.getCurrency(), pvBill);
   }
 
@@ -155,8 +155,8 @@ public final class BillSecurityDiscountingMethod {
   public double priceFromCurves(final BillSecurity bill, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    double pvBill = bill.getNotional() * issuer.getDiscountFactor(bill.getIssuerCcy(), bill.getEndTime());
-    double price = pvBill / (bill.getNotional() * issuer.getMulticurveProvider().getDiscountFactor(bill.getCurrency(), bill.getSettlementTime()));
+    final double pvBill = bill.getNotional() * issuer.getDiscountFactor(bill.getIssuerCcy(), bill.getEndTime());
+    final double price = pvBill / (bill.getNotional() * issuer.getMulticurveProvider().getDiscountFactor(bill.getCurrency(), bill.getSettlementTime()));
     return price;
   }
 
@@ -169,8 +169,8 @@ public final class BillSecurityDiscountingMethod {
   public double yieldFromCurves(final BillSecurity bill, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    double pvBill = bill.getNotional() * issuer.getDiscountFactor(bill.getIssuerCcy(), bill.getEndTime());
-    double price = pvBill / (bill.getNotional() * issuer.getMulticurveProvider().getDiscountFactor(bill.getCurrency(), bill.getSettlementTime()));
+    final double pvBill = bill.getNotional() * issuer.getDiscountFactor(bill.getIssuerCcy(), bill.getEndTime());
+    final double price = pvBill / (bill.getNotional() * issuer.getMulticurveProvider().getDiscountFactor(bill.getCurrency(), bill.getSettlementTime()));
     return yieldFromPrice(bill, price);
   }
 
@@ -183,15 +183,15 @@ public final class BillSecurityDiscountingMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final BillSecurity bill, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    double dfEnd = issuer.getDiscountFactor(bill.getIssuerCcy(), bill.getEndTime());
+    final double dfEnd = issuer.getDiscountFactor(bill.getIssuerCcy(), bill.getEndTime());
     // Backward sweep
-    double pvBar = 1.0;
-    double dfEndBar = bill.getNotional() * pvBar;
-    final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final double pvBar = 1.0;
+    final double dfEndBar = bill.getNotional() * pvBar;
+    final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(bill.getEndTime(), -bill.getEndTime() * dfEnd * dfEndBar));
     resultMapCredit.put(issuer.getName(bill.getIssuerCcy()), listDiscounting);
-    MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMapCredit);
+    final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMapCredit);
     return MultipleCurrencyMulticurveSensitivity.of(bill.getCurrency(), result);
   }
 

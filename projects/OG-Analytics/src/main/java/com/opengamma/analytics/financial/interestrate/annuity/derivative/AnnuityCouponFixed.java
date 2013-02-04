@@ -37,7 +37,7 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
   }
 
   /**
-   * Constructor from payment times and year fractions and unique notional and rate. 
+   * Constructor from payment times and year fractions and unique notional and rate.
    * @param currency The payment currency.
    * @param paymentTimes The times (in year) of payment.
    * @param notional The common notional.
@@ -117,7 +117,7 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
    */
   @Override
   public AnnuityCouponFixed trimBefore(final double trimTime) {
-    final List<CouponFixed> list = new ArrayList<CouponFixed>();
+    final List<CouponFixed> list = new ArrayList<>();
     for (final CouponFixed payment : getPayments()) {
       if (payment.getPaymentTime() > trimTime) {
         list.add(payment);
@@ -133,7 +133,7 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
    */
   @Override
   public AnnuityCouponFixed trimAfter(final double trimTime) {
-    final List<CouponFixed> list = new ArrayList<CouponFixed>();
+    final List<CouponFixed> list = new ArrayList<>();
     for (final CouponFixed payment : getPayments()) {
       if (payment.getPaymentTime() <= trimTime) {
         list.add(payment);
@@ -143,7 +143,7 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
   }
 
   /**
-   * A list of fixed coupon from payment times and year fractions and unique notional and rate. 
+   * A list of fixed coupon from payment times and year fractions and unique notional and rate.
    * @param currency The payment currency.
    * @param paymentTimes The times (in year) of payment.
    * @param notional The common notional.

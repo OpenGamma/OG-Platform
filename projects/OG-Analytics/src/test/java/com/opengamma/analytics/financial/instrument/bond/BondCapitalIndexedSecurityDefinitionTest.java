@@ -56,7 +56,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   private static final ZonedDateTime MATURITY_DATE_GILT_1 = DateUtils.getUTCDate(2035, 1, 26);
   private static final YieldConvention YIELD_CONVENTION_GILT_1 = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD"); // To check
   private static final int MONTH_LAG_GILT_1 = 8;
-  private static final double INDEX_START_GILT_1 = 173.60; // November 2001 
+  private static final double INDEX_START_GILT_1 = 173.60; // November 2001
   private static final double NOTIONAL_GILT_1 = 1.00;
   private static final double REAL_RATE_GILT_1 = 0.02;
   private static final Period COUPON_PERIOD_GILT_1 = Period.of(6, MONTHS);
@@ -195,7 +195,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   private static final ZonedDateTime MATURITY_DATE_TIPS_1 = DateUtils.getUTCDate(2016, 1, 15);
   private static final YieldConvention YIELD_CONVENTION_TIPS_1 = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD"); // To check
   private static final int MONTH_LAG_TIPS_1 = 3;
-  private static final double INDEX_START_TIPS_1 = 198.47742; // Date: 
+  private static final double INDEX_START_TIPS_1 = 198.47742; // Date:
   private static final double NOTIONAL_TIPS_1 = 100.00;
   private static final double REAL_RATE_TIPS_1 = 0.02;
   private static final Period COUPON_PERIOD_TIPS_1 = Period.of(6, MONTHS);

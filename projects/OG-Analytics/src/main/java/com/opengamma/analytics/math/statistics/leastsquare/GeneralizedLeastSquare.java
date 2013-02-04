@@ -10,7 +10,6 @@ import static org.apache.commons.math.util.MathUtils.binomialCoefficient;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Lists;
 import com.opengamma.analytics.math.FunctionUtils;
@@ -23,6 +22,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.DoubleMatrixUtils;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -64,17 +64,17 @@ public class GeneralizedLeastSquare {
    */
   public <T> GeneralizedLeastSquareResults<T> solve(final T[] x, final double[] y, final double[] sigma, final List<Function1D<T, Double>> basisFunctions, final double lambda,
       final int differenceOrder) {
-    Validate.notNull(x, "x null");
-    Validate.notNull(y, "y null");
-    Validate.notNull(sigma, "sigma null");
-    Validate.notEmpty(basisFunctions, "empty basisFunctions");
+    ArgumentChecker.notNull(x, "x null");
+    ArgumentChecker.notNull(y, "y null");
+    ArgumentChecker.notNull(sigma, "sigma null");
+    ArgumentChecker.notEmpty(basisFunctions, "empty basisFunctions");
     final int n = x.length;
-    Validate.isTrue(n > 0, "no data");
-    Validate.isTrue(y.length == n, "y wrong length");
-    Validate.isTrue(sigma.length == n, "sigma wrong length");
+    ArgumentChecker.isTrue(n > 0, "no data");
+    ArgumentChecker.isTrue(y.length == n, "y wrong length");
+    ArgumentChecker.isTrue(sigma.length == n, "sigma wrong length");
 
-    Validate.isTrue(lambda >= 0.0, "negative lambda");
-    Validate.isTrue(differenceOrder >= 0, "difference order");
+    ArgumentChecker.isTrue(lambda >= 0.0, "negative lambda");
+    ArgumentChecker.isTrue(differenceOrder >= 0, "difference order");
 
     final List<T> lx = Lists.newArrayList(x);
     final List<Double> ly = Lists.newArrayList(ArrayUtils.toObject(y));
@@ -114,17 +114,17 @@ public class GeneralizedLeastSquare {
    */
   public <T> GeneralizedLeastSquareResults<T> solve(final List<T> x, final List<Double> y, final List<Double> sigma, final List<Function1D<T, Double>> basisFunctions, final double lambda,
       final int differenceOrder) {
-    Validate.notEmpty(x, "empty measurement points");
-    Validate.notEmpty(y, "empty measurement values");
-    Validate.notEmpty(sigma, "empty measurement errors");
-    Validate.notEmpty(basisFunctions, "empty basisFunctions");
+    ArgumentChecker.notEmpty(x, "empty measurement points");
+    ArgumentChecker.notEmpty(y, "empty measurement values");
+    ArgumentChecker.notEmpty(sigma, "empty measurement errors");
+    ArgumentChecker.notEmpty(basisFunctions, "empty basisFunctions");
     final int n = x.size();
-    Validate.isTrue(n > 0, "no data");
-    Validate.isTrue(y.size() == n, "y wrong length");
-    Validate.isTrue(sigma.size() == n, "sigma wrong length");
+    ArgumentChecker.isTrue(n > 0, "no data");
+    ArgumentChecker.isTrue(y.size() == n, "y wrong length");
+    ArgumentChecker.isTrue(sigma.size() == n, "sigma wrong length");
 
-    Validate.isTrue(lambda >= 0.0, "negative lambda");
-    Validate.isTrue(differenceOrder >= 0, "difference order");
+    ArgumentChecker.isTrue(lambda >= 0.0, "negative lambda");
+    ArgumentChecker.isTrue(differenceOrder >= 0, "difference order");
 
     return solveImp(x, y, sigma, basisFunctions, lambda, differenceOrder);
   }
@@ -144,23 +144,23 @@ public class GeneralizedLeastSquare {
    */
   public <T> GeneralizedLeastSquareResults<T> solve(final List<T> x, final List<Double> y, final List<Double> sigma, final List<Function1D<T, Double>> basisFunctions, final int[] sizes,
       final double[] lambda, final int[] differenceOrder) {
-    Validate.notEmpty(x, "empty measurement points");
-    Validate.notEmpty(y, "empty measurement values");
-    Validate.notEmpty(sigma, "empty measurement errors");
-    Validate.notEmpty(basisFunctions, "empty basisFunctions");
+    ArgumentChecker.notEmpty(x, "empty measurement points");
+    ArgumentChecker.notEmpty(y, "empty measurement values");
+    ArgumentChecker.notEmpty(sigma, "empty measurement errors");
+    ArgumentChecker.notEmpty(basisFunctions, "empty basisFunctions");
     final int n = x.size();
-    Validate.isTrue(n > 0, "no data");
-    Validate.isTrue(y.size() == n, "y wrong length");
-    Validate.isTrue(sigma.size() == n, "sigma wrong length");
+    ArgumentChecker.isTrue(n > 0, "no data");
+    ArgumentChecker.isTrue(y.size() == n, "y wrong length");
+    ArgumentChecker.isTrue(sigma.size() == n, "sigma wrong length");
 
     final int dim = sizes.length;
-    Validate.isTrue(dim == lambda.length);
-    Validate.isTrue(dim == differenceOrder.length);
+    ArgumentChecker.isTrue(dim == lambda.length, "number of penalty functions {} must be equal to number of directions {}", lambda.length, dim);
+    ArgumentChecker.isTrue(dim == differenceOrder.length, "number of difference order {} must be equal to number of directions {}", differenceOrder.length, dim);
 
     for (int i = 0; i < dim; i++) {
-      Validate.isTrue(sizes[i] > 0, "sizes must be >= 1");
-      Validate.isTrue(lambda[i] >= 0.0, "negative lambda");
-      Validate.isTrue(differenceOrder[i] >= 0, "difference order");
+      ArgumentChecker.isTrue(sizes[i] > 0, "sizes must be >= 1");
+      ArgumentChecker.isTrue(lambda[i] >= 0.0, "negative lambda");
+      ArgumentChecker.isTrue(differenceOrder[i] >= 0, "difference order");
     }
     return solveImp(x, y, sigma, basisFunctions, sizes, lambda, differenceOrder);
   }
@@ -180,7 +180,7 @@ public class GeneralizedLeastSquare {
 
     for (i = 0; i < n; i++) {
       final double temp = sigma.get(i);
-      Validate.isTrue(temp > 0, "sigma must be greater than zero");
+      ArgumentChecker.isTrue(temp > 0, "sigma must be greater than zero");
       invSigmaSqr[i] = 1.0 / temp / temp;
     }
 
@@ -221,15 +221,13 @@ public class GeneralizedLeastSquare {
       chiSq += FunctionUtils.square(y.get(i) - temp) * invSigmaSqr[i];
     }
 
-    return new GeneralizedLeastSquareResults<T>(basisFunctions, chiSq, w, covar);
+    return new GeneralizedLeastSquareResults<>(basisFunctions, chiSq, w, covar);
   }
 
   private <T> GeneralizedLeastSquareResults<T> solveImp(final List<T> x, final List<Double> y, final List<Double> sigma, final List<Function1D<T, Double>> basisFunctions, final int[] sizes,
       final double[] lambda, final int[] differenceOrder) {
 
     final int dim = sizes.length;
-    Validate.isTrue(dim == lambda.length);
-    Validate.isTrue(dim == differenceOrder.length);
 
     final int n = x.size();
 
@@ -243,7 +241,7 @@ public class GeneralizedLeastSquare {
 
     for (i = 0; i < n; i++) {
       final double temp = sigma.get(i);
-      Validate.isTrue(temp > 0, "sigma must be great than zero");
+      ArgumentChecker.isTrue(temp > 0, "sigma must be great than zero");
       invSigmaSqr[i] = 1.0 / temp / temp;
     }
 
@@ -286,13 +284,12 @@ public class GeneralizedLeastSquare {
       chiSq += FunctionUtils.square(y.get(i) - temp) * invSigmaSqr[i];
     }
 
-    return new GeneralizedLeastSquareResults<T>(basisFunctions, chiSq, w, covar);
+    return new GeneralizedLeastSquareResults<>(basisFunctions, chiSq, w, covar);
   }
 
   private DoubleMatrix2D getAMatrix(final double[][] funcMatrix, final double[] invSigmaSqr) {
     final int m = funcMatrix.length;
     final int n = funcMatrix[0].length;
-    Validate.isTrue(n == invSigmaSqr.length);
     final double[][] a = new double[m][m];
     for (int i = 0; i < m; i++) {
       double sum = 0;
@@ -314,7 +311,7 @@ public class GeneralizedLeastSquare {
   }
 
   private DoubleMatrix2D getDiffMatrix(final int m, final int k) {
-    Validate.isTrue(k < m, "differce order too high");
+    ArgumentChecker.isTrue(k < m, "difference order too high");
 
     final double[][] data = new double[m][m];
     if (m == 0) {

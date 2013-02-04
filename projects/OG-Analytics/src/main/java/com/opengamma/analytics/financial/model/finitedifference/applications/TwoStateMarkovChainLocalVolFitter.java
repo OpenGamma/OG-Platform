@@ -366,7 +366,7 @@ public class TwoStateMarkovChainLocalVolFitter {
   }
 
   private Map<DoublesPair, Double> convertFormatt(final List<Pair<double[], Double>> from) {
-    final Map<DoublesPair, Double> res = new HashMap<DoublesPair, Double>(from.size());
+    final Map<DoublesPair, Double> res = new HashMap<>(from.size());
     final Iterator<Pair<double[], Double>> iter = from.iterator();
     while (iter.hasNext()) {
       final Pair<double[], Double> temp = iter.next();

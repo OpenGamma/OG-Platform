@@ -78,10 +78,10 @@ public class TimeSeriesReturnCalculatorFactory {
   private static final Map<Class<?>, String> s_instanceLenientNames;
 
   static {
-    s_staticStrictInstances = new HashMap<String, TimeSeriesReturnCalculator>();
-    s_instanceStrictNames = new HashMap<Class<?>, String>();
-    s_staticLenientInstances = new HashMap<String, TimeSeriesReturnCalculator>();
-    s_instanceLenientNames = new HashMap<Class<?>, String>();
+    s_staticStrictInstances = new HashMap<>();
+    s_instanceStrictNames = new HashMap<>();
+    s_staticLenientInstances = new HashMap<>();
+    s_instanceLenientNames = new HashMap<>();
     s_staticLenientInstances.put(CONTINUOUS_LENIENT, CONTINUOUS_LENIENT_CALCULATOR);
     s_instanceLenientNames.put(CONTINUOUS_LENIENT_CALCULATOR.getClass(), CONTINUOUS_LENIENT);
     s_staticLenientInstances.put(CONTINUOUS_RELATIVE_LENIENT, CONTINUOUS_RELATIVE_LENIENT_CALCULATOR);

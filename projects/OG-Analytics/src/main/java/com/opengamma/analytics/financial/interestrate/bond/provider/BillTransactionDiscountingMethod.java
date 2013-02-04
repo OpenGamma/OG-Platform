@@ -59,9 +59,9 @@ public final class BillTransactionDiscountingMethod {
   public MultipleCurrencyAmount presentValue(final BillTransaction bill, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    Currency ccy = bill.getCurrency();
-    MultipleCurrencyAmount pvBill = METHOD_SECURITY.presentValue(bill.getBillPurchased(), issuer);
-    double pvSettle = bill.getSettlementAmount() * issuer.getMulticurveProvider().getDiscountFactor(ccy, bill.getBillPurchased().getSettlementTime());
+    final Currency ccy = bill.getCurrency();
+    final MultipleCurrencyAmount pvBill = METHOD_SECURITY.presentValue(bill.getBillPurchased(), issuer);
+    final double pvSettle = bill.getSettlementAmount() * issuer.getMulticurveProvider().getDiscountFactor(ccy, bill.getBillPurchased().getSettlementTime());
     return pvBill.multipliedBy(bill.getQuantity()).plus(MultipleCurrencyAmount.of(ccy, pvSettle));
   }
 
@@ -74,21 +74,21 @@ public final class BillTransactionDiscountingMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final BillTransaction bill, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    Currency ccy = bill.getCurrency();
-    Pair<String, Currency> issuerCcy = bill.getBillPurchased().getIssuerCcy();
-    double dfCreditEnd = issuer.getDiscountFactor(issuerCcy, bill.getBillPurchased().getEndTime());
-    double dfDscSettle = issuer.getMulticurveProvider().getDiscountFactor(ccy, bill.getBillPurchased().getSettlementTime());
+    final Currency ccy = bill.getCurrency();
+    final Pair<String, Currency> issuerCcy = bill.getBillPurchased().getIssuerCcy();
+    final double dfCreditEnd = issuer.getDiscountFactor(issuerCcy, bill.getBillPurchased().getEndTime());
+    final double dfDscSettle = issuer.getMulticurveProvider().getDiscountFactor(ccy, bill.getBillPurchased().getSettlementTime());
     // Backward sweep
-    double pvBar = 1.0;
-    double dfCreditEndBar = bill.getQuantity() * bill.getBillPurchased().getNotional() * pvBar;
-    double dfDscSettleBar = bill.getSettlementAmount() * pvBar;
-    final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listCredit = new ArrayList<DoublesPair>();
+    final double pvBar = 1.0;
+    final double dfCreditEndBar = bill.getQuantity() * bill.getBillPurchased().getNotional() * pvBar;
+    final double dfDscSettleBar = bill.getSettlementAmount() * pvBar;
+    final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<>();
+    final List<DoublesPair> listCredit = new ArrayList<>();
     listCredit.add(new DoublesPair(bill.getBillPurchased().getEndTime(), -bill.getBillPurchased().getEndTime() * dfCreditEnd * dfCreditEndBar));
     resultMapCredit.put(issuer.getName(issuerCcy), listCredit);
-    MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMapCredit);
-    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDsc = new ArrayList<DoublesPair>();
+    final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMapCredit);
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
+    final List<DoublesPair> listDsc = new ArrayList<>();
     listDsc.add(new DoublesPair(bill.getBillPurchased().getSettlementTime(), -bill.getBillPurchased().getSettlementTime() * dfDscSettle * dfDscSettleBar));
     resultMapDsc.put(issuer.getMulticurveProvider().getName(ccy), listDsc);
     return MultipleCurrencyMulticurveSensitivity.of(ccy, result.plus(MulticurveSensitivity.ofYieldDiscounting(resultMapDsc)));
@@ -103,10 +103,10 @@ public final class BillTransactionDiscountingMethod {
   public double parSpread(final BillTransaction bill, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    Currency ccy = bill.getCurrency();
-    double dfCreditEnd = issuer.getDiscountFactor(bill.getBillPurchased().getIssuerCcy(), bill.getBillPurchased().getEndTime());
-    double dfDscSettle = issuer.getMulticurveProvider().getDiscountFactor(ccy, bill.getBillPurchased().getSettlementTime());
-    double pricePar = dfCreditEnd / dfDscSettle;
+    final Currency ccy = bill.getCurrency();
+    final double dfCreditEnd = issuer.getDiscountFactor(bill.getBillPurchased().getIssuerCcy(), bill.getBillPurchased().getEndTime());
+    final double dfDscSettle = issuer.getMulticurveProvider().getDiscountFactor(ccy, bill.getBillPurchased().getSettlementTime());
+    final double pricePar = dfCreditEnd / dfDscSettle;
     return METHOD_SECURITY.yieldFromPrice(bill.getBillPurchased(), pricePar)
         - METHOD_SECURITY.yieldFromPrice(bill.getBillPurchased(), -bill.getSettlementAmount() / (bill.getQuantity() * bill.getBillPurchased().getNotional()));
   }
@@ -120,23 +120,23 @@ public final class BillTransactionDiscountingMethod {
   public MulticurveSensitivity parSpreadCurveSensitivity(final BillTransaction bill, final IssuerProviderInterface issuer) {
     ArgumentChecker.notNull(bill, "Bill");
     ArgumentChecker.notNull(issuer, "Issuer and multi-curves provider");
-    Currency ccy = bill.getCurrency();
-    Pair<String, Currency> issuerCcy = bill.getBillPurchased().getIssuerCcy();
-    double dfCreditEnd = issuer.getDiscountFactor(issuerCcy, bill.getBillPurchased().getEndTime());
-    double dfDscSettle = issuer.getMulticurveProvider().getDiscountFactor(ccy, bill.getBillPurchased().getSettlementTime());
-    double pricePar = dfCreditEnd / dfDscSettle;
+    final Currency ccy = bill.getCurrency();
+    final Pair<String, Currency> issuerCcy = bill.getBillPurchased().getIssuerCcy();
+    final double dfCreditEnd = issuer.getDiscountFactor(issuerCcy, bill.getBillPurchased().getEndTime());
+    final double dfDscSettle = issuer.getMulticurveProvider().getDiscountFactor(ccy, bill.getBillPurchased().getSettlementTime());
+    final double pricePar = dfCreditEnd / dfDscSettle;
     // Backward sweep
-    double spreadBar = 1.0;
-    double priceParBar = METHOD_SECURITY.yieldFromPriceDerivative(bill.getBillPurchased(), pricePar) * spreadBar;
-    double dfDscSettleBar = -dfCreditEnd / (dfDscSettle * dfDscSettle) * priceParBar;
-    double dfCreditEndBar = priceParBar / dfDscSettle;
-    final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listCredit = new ArrayList<DoublesPair>();
+    final double spreadBar = 1.0;
+    final double priceParBar = METHOD_SECURITY.yieldFromPriceDerivative(bill.getBillPurchased(), pricePar) * spreadBar;
+    final double dfDscSettleBar = -dfCreditEnd / (dfDscSettle * dfDscSettle) * priceParBar;
+    final double dfCreditEndBar = priceParBar / dfDscSettle;
+    final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<>();
+    final List<DoublesPair> listCredit = new ArrayList<>();
     listCredit.add(new DoublesPair(bill.getBillPurchased().getEndTime(), -bill.getBillPurchased().getEndTime() * dfCreditEnd * dfCreditEndBar));
     resultMapCredit.put(issuer.getName(issuerCcy), listCredit);
-    MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMapCredit);
-    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDsc = new ArrayList<DoublesPair>();
+    final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMapCredit);
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
+    final List<DoublesPair> listDsc = new ArrayList<>();
     listDsc.add(new DoublesPair(bill.getBillPurchased().getSettlementTime(), -bill.getBillPurchased().getSettlementTime() * dfDscSettle * dfDscSettleBar));
     resultMapDsc.put(issuer.getMulticurveProvider().getName(ccy), listDsc);
     return result.plus(MulticurveSensitivity.ofYieldDiscounting(resultMapDsc));
