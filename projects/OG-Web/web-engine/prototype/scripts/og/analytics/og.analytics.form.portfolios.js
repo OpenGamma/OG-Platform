@@ -21,36 +21,44 @@ $.register_module({
                 }
             });
             block.on('form:load', function () {
-                var select = $('#' + form.id + ' select[name=' + index + ']').searchable().focus().hide(),selectedIndex,
+                var select = $('#' + form.id + ' select[name=' + index + ']')
+                        .searchable({wildcards:true}).focus().hide(),
+                    selectedIndex ,
                     list = select.siblings('select').addClass('dropdown-list'),
                     input = select.siblings('input').attr('placeholder', 'Select portfolio'),
                     toggle = select.parent().siblings('.og-icon-down');
+
+                if (select.val() !== '') {
+                    selectedIndex = select.prop('selectedIndex');
+                    var option = $('option', select).eq(selectedIndex);
+                    input.val(option.text());
+                }
 
                 input.removeAttr('style').show().blur(function () {
                     $(this).show();
                     list.hide();
                 }).keydown(function (event) {
-                    if (event.keyCode === 38 || event.keyCode === 40) list.show();
+                    if (event.keyCode === $.ui.keyCode.ESCAPE) list.hide();
+                    if (event.keyCode === $.ui.keyCode.UP || event.keyCode === $.ui.keyCode.DOWN) list.show();
                     $(this).show();
                 }).click(function (event) {
-                    if (input.val() !== '') {
-                        list.show().prop('selectedIndex', selectedIndex);
-                        select.prop('selectedIndex', selectedIndex);
-                    }
+                    list.show().prop('selectedIndex', selectedIndex);
+                    select.prop('selectedIndex', selectedIndex);
                     $(this).show();
                 });
 
                 toggle.click(function (event) {
-                    if (input.val() !== '') {
+                    selectedIndex = list.prop('selectedIndex');
+                    if (!selectedIndex) {
                         select.prop('selectedIndex', selectedIndex);
                         list.show().prop('selectedIndex', selectedIndex);
                     }
-                    input.focus(0).trigger('keydown');
+                    input.show().focus(0).click();
                 });
 
                 list.on('mousedown', function (event) {
                     var text = $(event.target).text(),
-                        selectedIndex = $(this).prop('selectedIndex');
+                        selectedIndex = list.prop('selectedIndex');
                     select.prop('selectedIndex', selectedIndex);
                     list.prop('selectedIndex', selectedIndex);
                     input.show().val(text).focus(0);

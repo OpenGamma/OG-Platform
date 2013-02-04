@@ -133,7 +133,7 @@
 	        	var idx = self.get(0).selectedIndex;
 	        	var len = self.get(0).length;
 	            var mc = Math.floor(settings.maxMultiMatch / 2);
-	            var begin = Math.max(1, (idx - mc));
+                var begin = Math.max(1, (idx - mc));
 	            var end = Math.min(len, Math.max(settings.maxMultiMatch, (idx + mc)));
 	            var si = idx - begin;
 
@@ -150,7 +150,7 @@
 	            	selector.append(topMatchItem);
 
 	            // set selectedIndex of selector
-	            selector.get(0).selectedIndex = si;
+	            //selector.get(0).selectedIndex = si;
 	        }
         };
 
@@ -174,10 +174,9 @@
         	suspendBlur = false;
         });
         input.click(function(e) {
-        	/*if(!enabled)
-    			enable(e, true);
-    		else
-    			disable(e, true);*/
+            selectorHelper.reset();
+            //if(!enabled) enable(e, true);
+    		//else disable(e, true);
         });
         input.blur(function(e) {
         	if(!suspendBlur && enabled)
@@ -263,7 +262,7 @@
                 	self.focus();
                     break;
                 case 27: // escape
-					disable(e, true);
+					//disable(e, true);
 					self.focus();
                 	break;
                 case 33: // pgup
@@ -527,7 +526,7 @@
 
 			// restore last results
 			if(typeof rs != "undefined")
-				restore();
+                restore();
 
 			// populate changes
 			populate();
@@ -587,11 +586,13 @@
          * Restores last results of selector previously stored by store function
          */
         function restore() {
-        	selector.empty();
-        	for(var i=0;i<storage.options.length;i++)
-				selector.append(storage.options[i]);
-        	selectorHelper.selectedIndex(storage.index);
-        	selectorHelper.size(storage.options.length);
+            if (storage && storage.options && storage.options.length) {
+                selector.empty();
+        	   for (var i=0;i<storage.options.length;i++) selector.append(storage.options[i]);
+
+               selectorHelper.selectedIndex(storage.index);
+        	   selectorHelper.size(storage.options.length);
+            }
         };
 
         /**
