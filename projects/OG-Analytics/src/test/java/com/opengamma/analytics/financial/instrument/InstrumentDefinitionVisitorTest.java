@@ -76,6 +76,7 @@ import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinitio
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
@@ -1065,6 +1066,16 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitCouponInflationYearOnYearInterpolationDefinition(CouponInflationYearOnYearInterpolationDefinition coupon) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponFixedCompoundingDefinition(CouponFixedCompoundingDefinition payment, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponFixedCompoundingDefinition(CouponFixedCompoundingDefinition payment) {
       return null;
     }
   }

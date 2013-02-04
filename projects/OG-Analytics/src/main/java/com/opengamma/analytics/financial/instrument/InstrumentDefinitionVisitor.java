@@ -63,6 +63,7 @@ import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSDefinitio
 import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
@@ -201,6 +202,10 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitCouponFixedDefinition(CouponFixedDefinition payment, DATA_TYPE data);
 
   RESULT_TYPE visitCouponFixedDefinition(CouponFixedDefinition payment);
+
+  RESULT_TYPE visitCouponFixedCompoundingDefinition(CouponFixedCompoundingDefinition payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponFixedCompoundingDefinition(CouponFixedCompoundingDefinition payment);
 
   RESULT_TYPE visitCouponIborDefinition(CouponIborDefinition payment, DATA_TYPE data);
 
@@ -433,4 +438,5 @@ public interface InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitEquityVarianceSwapDefinition(EquityVarianceSwapDefinition varianceSwap);
 
   RESULT_TYPE visitEquityVarianceSwapDefinition(EquityVarianceSwapDefinition varianceSwap, DATA_TYPE data);
+
 }
