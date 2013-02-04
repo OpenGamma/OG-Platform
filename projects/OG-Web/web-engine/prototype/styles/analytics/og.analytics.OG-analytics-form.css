@@ -99,8 +99,18 @@
 /**
  * View
  */
-.OG-analytics-form .og-view {
+.OG-analytics-form div.og-view {
     width: 20%;
+    margin-right: 31px;
+}
+
+.OG-analytics-form .og-view select[name=viewdefinition] {
+    height: 22px;
+    line-height: 22px;
+    position: absolute;
+    top: -4px;
+    width:100%;
+    min-width: 10px;
 }
 
 .OG-analytics-form .og-view:hover input {
@@ -114,18 +124,24 @@
     top: 15px;
 }
 
+.OG-analytics-form .og-view .og-option-title header + div{
+    position: relative;
+}
+
 .OG-analytics-form .og-view input {
     border: none;
     font-family: 'Open Sans', arial, serif;
     font-size: 18px;
     height: 22px;
+    position: absolute;
+    top:-4px;
     width: 100%;
 }
 
 .OG-analytics-form .og-view .og-icon-down{
     height: 22px;
-    right:7px;
-    top:16px;
+    right:-19px;
+    top:15px;
 }
 
 
