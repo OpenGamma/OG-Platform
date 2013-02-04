@@ -28,11 +28,15 @@ public class ISDAYieldCurveTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
+  // Daycount conventions
+
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final DayCount ACT_365F = DayCountFactory.INSTANCE.getDayCount("ACT/365F");
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  private static final int spotDays = 2;
 
   // This is the valuation date
   final ZonedDateTime baseDate = zdt(2012, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC);
@@ -40,12 +44,17 @@ public class ISDAYieldCurveTest {
   // This is the anchor date for the curve - Z(basedate) = 1
   final ZonedDateTime spotDate = zdt(2012, 11, 19, 0, 0, 0, 0, ZoneOffset.UTC);
 
+  // This is the anchor date for the curve - Z(basedate) = 1, valuationDate + spotDays (bda)
+  // final ZonedDateTime spotDate = ZonedDateTime.of(2012, 11, 19, 0, 0, 0, 0, TimeZone.UTC);
+
+  // The MM dates
+  // TODO : Need to calc these automatically
   ZonedDateTime[] dates = {
-      zdt(2012, 12, 17, 0, 0, 0, 0, ZoneOffset.UTC),   // MM
-      zdt(2013, 1, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // MM
-      zdt(2013, 2, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // MM
-      zdt(2013, 5, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // MM
-      zdt(2013, 8, 15, 0, 0, 0, 0, ZoneOffset.UTC)     // MM
+      zdt(2012, 12, 17, 0, 0, 0, 0, ZoneOffset.UTC),   // 1M, MM
+      zdt(2013, 1, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // 2M, MM
+      zdt(2013, 2, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // 3M, MM
+      zdt(2013, 5, 15, 0, 0, 0, 0, ZoneOffset.UTC),    // 6M, MM
+      zdt(2013, 8, 15, 0, 0, 0, 0, ZoneOffset.UTC)     // 9M, MM
   };
 
   /*  
@@ -69,11 +78,11 @@ public class ISDAYieldCurveTest {
    */
 
   double[] rates = {
-      0.002075,
-      0.0025699999999999998,
-      0.00310999999999,
-      0.0052300000000000003,
-      0.0069649999999999998
+      0.002075,                 // MM
+      0.0025699999999999998,    // MM
+      0.00310999999999,         // MM
+      0.0052300000000000003,    // MM
+      0.0069649999999999998     // MM
   };
 
   /*  ,
@@ -95,6 +104,7 @@ public class ISDAYieldCurveTest {
 
    */
 
+  // The instrument types
   ISDAInstrumentTypes[] rateTypes = {
       ISDAInstrumentTypes.MoneyMarket,
       ISDAInstrumentTypes.MoneyMarket,
@@ -123,8 +133,6 @@ public class ISDAYieldCurveTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private static final int spotDays = 2;
-
   private static final Calendar calendar = new MondayToFridayCalendar("TestCalendar");    // Holidays (None)
 
   private static final PeriodFrequency swapFixedLegCouponFrequency = PeriodFrequency.SEMI_ANNUAL;
@@ -139,7 +147,9 @@ public class ISDAYieldCurveTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private static int getNumberOfInstruments(ISDAInstrumentTypes[] rateTypes, ISDAInstrumentTypes rateType) {
+  private static int getNumberOfInstruments(
+      ISDAInstrumentTypes[] rateTypes,
+      ISDAInstrumentTypes rateType) {
 
     int nInstruments = 0;
 
@@ -156,7 +166,11 @@ public class ISDAYieldCurveTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private static ZonedDateTime[] getInstrumentDates(ZonedDateTime[] instrumentMaturities, ISDAInstrumentTypes[] rateTypes, ISDAInstrumentTypes rateType, final int nInstruments) {
+  private static ZonedDateTime[] getInstrumentDates(
+      ZonedDateTime[] instrumentMaturities,
+      ISDAInstrumentTypes[] rateTypes,
+      ISDAInstrumentTypes rateType,
+      final int nInstruments) {
 
     int index = 0;
 
@@ -176,7 +190,11 @@ public class ISDAYieldCurveTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private static double[] getInstrumentRates(double[] instrumentRates, ISDAInstrumentTypes[] rateTypes, ISDAInstrumentTypes rateType, final int nInstruments) {
+  private static double[] getInstrumentRates(
+      double[] instrumentRates,
+      ISDAInstrumentTypes[] rateTypes,
+      ISDAInstrumentTypes rateType,
+      final int nInstruments) {
 
     int index = 0;
 
@@ -196,7 +214,10 @@ public class ISDAYieldCurveTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private static int getNumberOfActiveSwaps(ZonedDateTime lastStubDate, ZonedDateTime[] swapDates, final int nSwap) {
+  private static int getNumberOfActiveSwaps(
+      ZonedDateTime lastStubDate,
+      ZonedDateTime[] swapDates,
+      final int nSwap) {
 
     int offset = 0;
 
@@ -212,7 +233,10 @@ public class ISDAYieldCurveTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  boolean calculateOnCycle(ZonedDateTime valueDate, ZonedDateTime unadjustedSwapDate, PeriodFrequency swapFixedLegCouponFrequency) {
+  boolean calculateOnCycle(
+      ZonedDateTime valueDate,
+      ZonedDateTime unadjustedSwapDate,
+      PeriodFrequency swapFixedLegCouponFrequency) {
 
     boolean onCycle = false;
 
@@ -507,7 +531,12 @@ public class ISDAYieldCurveTest {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private final double getInterpolatedRate(final double t, final double t1, final double t2, final double z1, final double z2) {
+  private final double getInterpolatedRate(
+      final double t,
+      final double t1,
+      final double t2,
+      final double z1,
+      final double z2) {
 
     final double z1t1 = z1 * t1;
     final double z2t2 = z2 * t2;
@@ -546,6 +575,8 @@ public class ISDAYieldCurveTest {
     ZonedDateTime valueDate = baseDate;
 
     DayCount mmDCC = depositDaycountFractionConvention;
+
+    // TODO : Calculate these automatically
 
     // Fixed swap interval is 6M (2 payments per year)
     double fixedSwapFreq = 2.0;
@@ -591,10 +622,16 @@ public class ISDAYieldCurveTest {
       //System.out.println("i = " + i + "\t" + baseDate + "\t" + cashDates[i] + "\t" + cashRates[i] + "\t" + dcf + "\t" + discount);
     }
 
-    for (long i = 1; i < 1000; i++)
+    // ----------------------------------------------------------------------------------------------
+
+    // Interpolation/extrapolation part
+
+    for (long i = 1; i < 1500; i++)
     {
 
-      ZonedDateTime testDate = zdt(2012, 12, 17, 0, 0, 0, 0, ZoneOffset.UTC).plusDays(i);
+      ZonedDateTime testDate = zdt(2012, 11, 14, 0, 0, 0, 0, ZoneOffset.UTC).plusDays(i);
+
+      //ZonedDateTime testDate = zdt(2013, 8, 19, 0, 0, 0, 0, ZoneOffset.UTC);
 
       ZonedDateTime loDate;
       ZonedDateTime hiDate;
@@ -611,14 +648,58 @@ public class ISDAYieldCurveTest {
       double Z = 0.0;
       double rate = 0.0;
 
-      if (!testDate.isBefore(zCurveDates[0]) || !testDate.isAfter(zCurveDates[nInstr - 1]))
+      // Extrapolation
+      if (testDate.isBefore(zCurveDates[0])) {
+        loRate = zCurveCCRates[0];
+        z1 = Math.log(1.0 + loRate);
+        t = TimeCalculator.getTimeBetween(valueDate, testDate, ACT_365);
+        rate = z1;
+        Z = Math.exp(-rate * t);
+      }
+
+      // Extrapolation
+      if (testDate.isAfter(zCurveDates[nInstr - 1])) {
+
+        int lo = nInstr - 2;
+        int hi = nInstr - 1;
+
+        t1 = TimeCalculator.getTimeBetween(valueDate, zCurveDates[lo], ACT_360);
+        t2 = TimeCalculator.getTimeBetween(valueDate, zCurveDates[hi], ACT_360);
+        t = TimeCalculator.getTimeBetween(valueDate, testDate, ACT_360);
+
+        loRate = zCurveCCRates[lo];
+        hiRate = zCurveCCRates[hi];
+
+        z1 = Math.log(1.0 + loRate);
+        z2 = Math.log(1.0 + hiRate);
+
+        // TODO : DoubleToBits this
+        if (t == 0.0)
+        {
+
+          // TODO : Check for t2 == 0 as well
+          t = 1.0 / 365.0;
+        }
+
+        final double zt = getInterpolatedRate(t, t1, t2, z1, z2);
+        rate = zt / t;
+
+        t = TimeCalculator.getTimeBetween(valueDate, testDate, ACT_365);
+
+        Z = Math.exp(-rate * t);
+      }
+
+      // Interpolation
+      if (!testDate.isBefore(zCurveDates[0]) && testDate.isBefore(zCurveDates[nInstr - 1]))
       {
+        // ... testDate is within the window spanned by the input dates
 
         int lo = 0;
 
+        // Start at the first date
         ZonedDateTime rollingDate = zCurveDates[0];
 
-        while (rollingDate.isBefore(testDate))
+        while (!rollingDate.isAfter(testDate))
         {
           lo++;
           rollingDate = zCurveDates[lo];
@@ -653,34 +734,12 @@ public class ISDAYieldCurveTest {
         t = TimeCalculator.getTimeBetween(valueDate, testDate, ACT_365);
 
         Z = Math.exp(-rate * t);
-
-        //System.out.println(testDate + "\t" + Z);
       }
-      else
-      {
 
-        // Extrapolate
-        if (testDate.isBefore(zCurveDates[0]))
-        {
-
-          loRate = zCurveRates[0];
-          z1 = Math.log(1.0 + loRate);
-          t = TimeCalculator.getTimeBetween(valueDate, testDate, ACT_365);
-          rate = z1;
-          Z = Math.exp(-rate * t);
-
-        }
-        else
-        {
-
-          // Extrapolate
-          if (testDate.isAfter(zCurveDates[nInstr - 1]))
-          {
-
-          }
-        }
-      }
+      //System.out.println(testDate + "\t" + Z);
     }
+
+    // ------------------------------------------------------------------------------------------------------------
 
     /*
     jpmCDSZCSwaps(
