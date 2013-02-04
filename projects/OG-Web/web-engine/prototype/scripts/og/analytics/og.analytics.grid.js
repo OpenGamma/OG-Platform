@@ -55,6 +55,39 @@ $.register_module({
                 return (partial_width += val.width), css;
             });
         };
+        var col_resize = (function () {
+            var namespace = '.og_analytics_resizer', resizer = 'OG-g-h-resizer',
+                index, start_left, start_width, min_size = 50;
+            var clean_up = function () {
+                $('.' + resizer).remove();
+                $(document).off(namespace);
+            };
+            var mousemove = function (grid, event) {
+                $('.' + resizer).css({left: Math.max(event.pageX - 3, (start_left - start_width) + min_size)});
+            };
+            var mouseup = function (grid, event) {
+                clean_up();
+                grid.col_override[index] = Math.max(min_size, start_width + (event.pageX - start_left));
+                grid.resize();
+            };
+            return function (event, $target) {
+                var grid = this, offset_left;
+                clean_up();
+                if (event.which === 3 || event.button === 2) return; // ignore right clicks
+                index = $target.attr('data-index');
+                offset_left = grid.offset.left -
+                    (index < grid.meta.fixed_length ? 0 : grid.elements.scroll_body.scrollLeft());
+                start_width = grid.meta.columns.widths[index];
+                $(document)
+                    .on('mousemove' + namespace, mousemove.partial(grid))
+                    .on('mouseup' + namespace, mouseup.partial(grid));
+                $('<div class="' + resizer + '" />').css({
+                    top: grid.offset.top,
+                    left: start_left = offset_left + grid.meta.columns.scan.all[index] - 3,
+                    height: grid.elements.parent.height()
+                }).appendTo(document.body);
+            };
+        })();
         var compile_templates = function (handler) {
             var grid = this, css = og.api.text({url: module.html_root + 'analytics/grid/og.analytics.grid_tash.css'}),
                 header = og.api.text({module: 'og.analytics.grid.header_tash'}),
@@ -77,6 +110,7 @@ $.register_module({
             grid.formatter = new og.analytics.Formatter(grid);
             grid.id = '#' + og.common.id('grid');
             grid.meta = null;
+            grid.col_override = [];
             grid.source = config.source;
             grid.updated = (function (last, delta) {
                 return function (time) {
@@ -148,6 +182,7 @@ $.register_module({
                 .on('mousedown', function (event) {
                     var $target = $(event.target), row;
                     event.preventDefault();
+                    if ($target.is('.resize')) return col_resize.call(grid, event, $target), void 0;
                     if (!$target.is('.node')) return grid.fire('mousedown', event), void 0;
                     grid.meta.nodes[row = +$target.attr('data-row')] = !grid.meta.nodes[row];
                     grid.resize().selector.clear();
@@ -218,7 +253,7 @@ $.register_module({
         };
         var init_grid = function (meta) {
             var grid = this, columns = meta.columns, config = grid.config,
-                col_fields = ['description', 'header', 'type', 'width'];
+                col_fields = ['description', 'header', 'type'];
             var populate = function (col) {col_fields.forEach(function (key) {columns[key + 's'].push(col[key]);});};
             grid.meta = meta;
             ['show_sets', 'show_views', 'start_expanded']
@@ -426,12 +461,24 @@ $.register_module({
                 scroll_width, last_set, remainder, parent_width = grid.elements.parent.width();
             meta.fixed_length = meta.columns.fixed[0].columns.length;
             meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
-            fixed_width = meta.columns.fixed[0].columns
-                .reduce(function (acc, col, idx) {return acc + (col.width = col.width || (idx ? 150 : 250));}, 0);
+            if (grid.col_override.length !== meta.fixed_length + meta.scroll_length) // if length has changed (in meta)
+                grid.col_override = new Array(meta.fixed_length + meta.scroll_length);
+            (function (idx) {
+                meta.columns.fixed.concat(meta.columns.scroll).forEach(function (set) {
+                    set.columns.forEach(function (col) {col.width = grid.col_override[idx++] || col.width;})
+                });
+            })(0);
+            meta.columns.widths = [];
+            fixed_width = meta.columns.fixed[0].columns.reduce(function (acc, col, idx) {
+                meta.columns.widths.push(col.width = col.width || (idx ? 150 : 250));
+                return acc + col.width;
+            }, 0);
             remainder = (scroll_width = parent_width - fixed_width - scrollbar) -
                 ((avg_col_width = Math.floor(scroll_width / meta.scroll_length)) * meta.scroll_length);
             scroll_cols.forEach(function (set) {
-                set.columns.forEach(function (col) {col.width = Math.max(default_col_width, avg_col_width);});
+                set.columns.forEach(function (col) {
+                    meta.columns.widths.push(col.width = col.width || Math.max(default_col_width, avg_col_width));
+                });
             });
             (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
@@ -477,7 +524,7 @@ $.register_module({
             grid.col_widths();
             columns.width = {
                 fixed: columns.fixed.reduce(function (acc, set) {
-                    return acc + set.columns.reduce(function (acc, col) {return acc + col.width;}, 0);
+                    return acc + set.columns.reduce(function (acc, col, idx) {return acc + col.width;}, 0);
                 }, 0),
                 scroll: columns.scroll.reduce(function (acc, set) {
                     return acc + set.columns.reduce(function (acc, col) {return acc + col.width;}, 0);
