@@ -22,6 +22,7 @@ $.register_module({
          * @param {Object} config.data Spoffed Data - temporary solution
          */
         return function (config) {
+            console.log(config);
             var timeseries = this, handler, x_max, alive = og.common.id('gadget_timeseries_plot'),
                 selector = config.selector, load_plots, initial_preset,
                 meta = {}, // object that stores the structure and data of the plots
