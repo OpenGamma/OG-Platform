@@ -734,6 +734,9 @@ public class ISDAYieldCurveTest {
         t = TimeCalculator.getTimeBetween(valueDate, testDate, ACT_365);
 
         Z = Math.exp(-rate * t);
+
+        //System.out.println(testDate + "\t" + Z);
+
       }
 
       //System.out.println(testDate + "\t" + Z);
