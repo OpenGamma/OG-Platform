@@ -18,13 +18,6 @@
     float: left;
 }
 
-.OG-analytics-form .og-view,
-.OG-analytics-form .og-datasources,
-.OG-analytics-form .og-optional,
-.OG-analytics-form .og-load {
-    display: none;
- }
-
 .OG-analytics-form input {
     text-overflow: ellipsis;
 }
@@ -62,6 +55,7 @@
 .OG-analytics-form div.og-portfolios{
     margin-right: 31px;
     width: 20%;
+    height: 40px;
     left: 2px;
     top: 5px;
 }
