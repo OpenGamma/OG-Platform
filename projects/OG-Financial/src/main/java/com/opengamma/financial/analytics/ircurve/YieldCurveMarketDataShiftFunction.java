@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -95,10 +95,11 @@ public class YieldCurveMarketDataShiftFunction extends AbstractFunction.NonCompi
       throw new IllegalStateException("No override operation compiler for " + shift + " in execution context");
     }
     s_logger.debug("Applying {} to {}", shift, marketData);
-    final OverrideOperation operation = compiler.compile(shift);
+    final OverrideOperation operation = compiler.compile(shift, executionContext.getComputationTargetResolver());
     for (final Map.Entry<ExternalId, Double> dataPoint : marketData.getDataPoints().entrySet()) {
       s_logger.debug("Applying to {}", dataPoint);
-      final Object result = operation.apply(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, dataPoint.getKey()), dataPoint.getValue());
+      final Object result = operation.apply(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, dataPoint.getKey()),
+          dataPoint.getValue());
       s_logger.debug("Got result {}", result);
       if (result instanceof Number) {
         dataPoint.setValue(((Number) result).doubleValue());

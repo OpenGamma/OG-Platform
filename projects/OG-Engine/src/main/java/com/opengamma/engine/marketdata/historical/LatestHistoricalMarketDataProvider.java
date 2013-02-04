@@ -10,7 +10,6 @@ import org.threeten.bp.Instant;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 
@@ -26,9 +25,9 @@ public class LatestHistoricalMarketDataProvider extends AbstractHistoricalMarket
    * @param securitySource  the source of securities, not null
    * @param timeSeriesResolverKey  the source resolver key, or null to use the source default
    */
-  protected LatestHistoricalMarketDataProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource,
-                                               SecuritySource securitySource,
-                                               String timeSeriesResolverKey) {
+  protected LatestHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource,
+                                               final SecuritySource securitySource,
+                                               final String timeSeriesResolverKey) {
     super(historicalTimeSeriesSource, securitySource, timeSeriesResolverKey);
   }
   
@@ -38,13 +37,13 @@ public class LatestHistoricalMarketDataProvider extends AbstractHistoricalMarket
    * @param historicalTimeSeriesSource  the underlying source of historical data, not null
    * @param securitySource  the source of securities, not null
    */
-  public LatestHistoricalMarketDataProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource, SecuritySource securitySource) {
+  public LatestHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final SecuritySource securitySource) {
     super(historicalTimeSeriesSource, securitySource);
   }
   
   //-------------------------------------------------------------------------
   @Override
-  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+  public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
     if (!(marketDataSpec instanceof LatestHistoricalMarketDataSpecification)) {
       return false;
     }
@@ -52,10 +51,8 @@ public class LatestHistoricalMarketDataProvider extends AbstractHistoricalMarket
   }  
   
   @Override
-  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
-    HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), Instant.now(), null,
-                                            historicalSpec.getTimeSeriesResolverKey(), this);
+  public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
+    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), Instant.now(), null);
   }
 
 }

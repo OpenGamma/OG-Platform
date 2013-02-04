@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.marketdata.historical;
@@ -22,20 +22,20 @@ public class HistoricalMarketDataProvider extends AbstractHistoricalMarketDataPr
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param historicalTimeSeriesSource  the underlying source of historical data, not null
    * @param securitySource  the source of securities, not null
    * @param timeSeriesResolverKey  the source resolver key, or null to use the source default
    */
-  public HistoricalMarketDataProvider(HistoricalTimeSeriesSource historicalTimeSeriesSource,
-                                      SecuritySource securitySource,
-                                      String timeSeriesResolverKey) {
+  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource,
+                                      final SecuritySource securitySource,
+                                      final String timeSeriesResolverKey) {
     super(historicalTimeSeriesSource, securitySource, timeSeriesResolverKey);
   }
-  
+
   /**
    * Creates an instance.
-   * 
+   *
    * @param historicalTimeSeriesSource  the underlying source of historical data, not null
    * @param securitySource  the source of securities, not null
    */
@@ -45,22 +45,21 @@ public class HistoricalMarketDataProvider extends AbstractHistoricalMarketDataPr
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+  public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
     if (!(marketDataSpec instanceof FixedHistoricalMarketDataSpecification)) {
       return false;
     }
     return super.isCompatible(marketDataSpec);
   }
-  
+
   @Override
-  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
-    FixedHistoricalMarketDataSpecification historicalSpec = (FixedHistoricalMarketDataSpecification) marketDataSpec;
+  public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
+    final FixedHistoricalMarketDataSpecification historicalSpec = (FixedHistoricalMarketDataSpecification) marketDataSpec;
     // TODO something better thought-out here
     //Instant snapshotInstant = historicalSpec.getSnapshotDate().atMidnight().atZone(ZoneOffset.UTC).toInstant();
-    Instant snapshotInstant = historicalSpec.getSnapshotDate().atTime(16, 0).atZone(ZoneOffset.UTC).toInstant();
-    LocalDate snapshotDate = historicalSpec.getSnapshotDate();
-    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), snapshotInstant, snapshotDate,
-                                            historicalSpec.getTimeSeriesResolverKey(), this);
+    final Instant snapshotInstant = historicalSpec.getSnapshotDate().atTime(16, 0).atZone(ZoneOffset.UTC).toInstant();
+    final LocalDate snapshotDate = historicalSpec.getSnapshotDate();
+    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), snapshotInstant, snapshotDate);
   }
-  
+
 }

@@ -6,9 +6,12 @@
 package com.opengamma.engine.marketdata.availability;
 
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalBundleIdentifiable;
+import com.opengamma.id.ExternalIdentifiable;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -25,10 +28,13 @@ public interface MarketDataAvailabilityProvider {
    * requirement, must be returned. If the value requirement cannot be satisfied by this provider then a return value of null will cause the dependency graph builder to continue its construction. If
    * the requirement must not be satisfied then the method may throw an exception to abort the graph construction.
    * <p>
-   * The target described by the requirement is resolved and described formally as the {@code targetSpec} parameter. This specification should normally be used to construct the returned
-   * {@code ValueSpecification}. The resolved form, if the object exists within the system, may be passed as the {@code target} parameter. If the object cannot be resolved to an item of the type
-   * indicated by the target specification, a minimum of {@link ExternalBundleIdentifiable} will be passed.
-   * 
+   * The target described by the requirement is resolved and described formally as the {@code targetSpec} parameter. This may be null if the target reference could not be resolved. If provided, this
+   * specification can be used to construct the returned {@code ValueSpecification}. The resolved form, if the object exists within the system, may be passed as the {@code target} parameter. If the
+   * object cannot be resolved to an item of the type indicated by the target specification, a minimum of {@link ExternalBundleIdentifiable}, {@link ExternalIdentifiable} or {@link UniqueIdentifiable}
+   * will be passed.
+   * <p>
+   * The {@code ValueSpecification} returned from this method will be the one used to establish the subscription from a relevant {@link MarketDataProvider} instance.
+   *
    * @param targetSpec the resolved target specification from the data requirement, not null
    * @param target the resolved target the requirement corresponds to, not null
    * @param desiredValue the market data requirement to test, not null

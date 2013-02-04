@@ -5,56 +5,33 @@ package com.opengamma.language.config;
 public class MarketDataOverride extends com.opengamma.language.config.ConfigurationItem implements java.io.Serializable {
           @Override
         public <T> T accept (ConfigurationItemVisitor<T> visitor) { return visitor.visitMarketDataOverride (this); }
-  private static final long serialVersionUID = 6585821937380815577l;
+  private static final long serialVersionUID = -20420490360656398l;
   public enum Operation {
     ADD,
     MULTIPLY;
   }
   private com.opengamma.engine.value.ValueRequirement _valueRequirement;
   public static final String VALUE_REQUIREMENT_KEY = "valueRequirement";
-  private String _valueName;
-  public static final String VALUE_NAME_KEY = "valueName";
-  private com.opengamma.id.ExternalId _identifier;
-  public static final String IDENTIFIER_KEY = "identifier";
   private Object _value;
   public static final String VALUE_KEY = "value";
   private com.opengamma.language.config.MarketDataOverride.Operation _operation;
   public static final String OPERATION_KEY = "operation";
-  public MarketDataOverride () {
+  public MarketDataOverride (com.opengamma.engine.value.ValueRequirement valueRequirement) {
+    if (valueRequirement == null) throw new NullPointerException ("'valueRequirement' cannot be null");
+    else {
+      _valueRequirement = valueRequirement;
+    }
   }
   protected MarketDataOverride (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (deserializer, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
     fudgeField = fudgeMsg.getByName (VALUE_REQUIREMENT_KEY);
-    if (fudgeField != null)  {
-      try {
-        final com.opengamma.engine.value.ValueRequirement fudge1;
-        fudge1 = deserializer.fieldValueToObject (com.opengamma.engine.value.ValueRequirement.class, fudgeField);
-        setValueRequirement (fudge1);
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a MarketDataOverride - field 'valueRequirement' is not ValueRequirement message", e);
-      }
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a MarketDataOverride - field 'valueRequirement' is not present");
+    try {
+      _valueRequirement = deserializer.fieldValueToObject (com.opengamma.engine.value.ValueRequirement.class, fudgeField);
     }
-    fudgeField = fudgeMsg.getByName (VALUE_NAME_KEY);
-    if (fudgeField != null)  {
-      try {
-        setValueName ((fudgeField.getValue () != null) ? fudgeField.getValue ().toString () : null);
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a MarketDataOverride - field 'valueName' is not string", e);
-      }
-    }
-    fudgeField = fudgeMsg.getByName (IDENTIFIER_KEY);
-    if (fudgeField != null)  {
-      try {
-        final com.opengamma.id.ExternalId fudge1;
-        fudge1 = com.opengamma.id.ExternalId.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
-        setIdentifier (fudge1);
-      }
-      catch (IllegalArgumentException e) {
-        throw new IllegalArgumentException ("Fudge message is not a MarketDataOverride - field 'identifier' is not ExternalId message", e);
-      }
+    catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException ("Fudge message is not a MarketDataOverride - field 'valueRequirement' is not ValueRequirement message", e);
     }
     fudgeField = fudgeMsg.getByName (VALUE_KEY);
     if (fudgeField != null)  {
@@ -77,15 +54,10 @@ public class MarketDataOverride extends com.opengamma.language.config.Configurat
       }
     }
   }
-  public MarketDataOverride (com.opengamma.engine.value.ValueRequirement valueRequirement, String valueName, com.opengamma.id.ExternalId identifier, Object value, com.opengamma.language.config.MarketDataOverride.Operation operation) {
-    if (valueRequirement == null) _valueRequirement = null;
+  public MarketDataOverride (com.opengamma.engine.value.ValueRequirement valueRequirement, Object value, com.opengamma.language.config.MarketDataOverride.Operation operation) {
+    if (valueRequirement == null) throw new NullPointerException ("'valueRequirement' cannot be null");
     else {
       _valueRequirement = valueRequirement;
-    }
-    _valueName = valueName;
-    if (identifier == null) _identifier = null;
-    else {
-      _identifier = identifier;
     }
     if (value == null) _value = null;
     else {
@@ -99,11 +71,6 @@ public class MarketDataOverride extends com.opengamma.language.config.Configurat
     if (source._valueRequirement == null) _valueRequirement = null;
     else {
       _valueRequirement = source._valueRequirement;
-    }
-    _valueName = source._valueName;
-    if (source._identifier == null) _identifier = null;
-    else {
-      _identifier = source._identifier;
     }
     if (source._value == null) _value = null;
     else {
@@ -124,14 +91,6 @@ public class MarketDataOverride extends com.opengamma.language.config.Configurat
     super.toFudgeMsg (serializer, msg);
     if (_valueRequirement != null)  {
       serializer.addToMessageWithClassHeaders (msg, VALUE_REQUIREMENT_KEY, null, _valueRequirement, com.opengamma.engine.value.ValueRequirement.class);
-    }
-    if (_valueName != null)  {
-      msg.add (VALUE_NAME_KEY, null, _valueName);
-    }
-    if (_identifier != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _identifier.getClass (), com.opengamma.id.ExternalId.class);
-      _identifier.toFudgeMsg (serializer, fudge1);
-      msg.add (IDENTIFIER_KEY, null, fudge1);
     }
     if (_value != null)  {
       serializer.addToMessageWithClassHeaders (msg, VALUE_KEY, null, _value, Object.class);
@@ -158,24 +117,9 @@ public class MarketDataOverride extends com.opengamma.language.config.Configurat
     return _valueRequirement;
   }
   public void setValueRequirement (com.opengamma.engine.value.ValueRequirement valueRequirement) {
-    if (valueRequirement == null) _valueRequirement = null;
+    if (valueRequirement == null) throw new NullPointerException ("'valueRequirement' cannot be null");
     else {
       _valueRequirement = valueRequirement;
-    }
-  }
-  public String getValueName () {
-    return _valueName;
-  }
-  public void setValueName (String valueName) {
-    _valueName = valueName;
-  }
-  public com.opengamma.id.ExternalId getIdentifier () {
-    return _identifier;
-  }
-  public void setIdentifier (com.opengamma.id.ExternalId identifier) {
-    if (identifier == null) _identifier = null;
-    else {
-      _identifier = identifier;
     }
   }
   public Object getValue () {
@@ -204,20 +148,6 @@ public class MarketDataOverride extends com.opengamma.language.config.Configurat
       else return false;
     }
     else if (msg._valueRequirement != null) return false;
-    if (_valueName != null) {
-      if (msg._valueName != null) {
-        if (!_valueName.equals (msg._valueName)) return false;
-      }
-      else return false;
-    }
-    else if (msg._valueName != null) return false;
-    if (_identifier != null) {
-      if (msg._identifier != null) {
-        if (!_identifier.equals (msg._identifier)) return false;
-      }
-      else return false;
-    }
-    else if (msg._identifier != null) return false;
     if (_value != null) {
       if (msg._value != null) {
         if (!_value.equals (msg._value)) return false;
@@ -238,10 +168,6 @@ public class MarketDataOverride extends com.opengamma.language.config.Configurat
     int hc = super.hashCode ();
     hc *= 31;
     if (_valueRequirement != null) hc += _valueRequirement.hashCode ();
-    hc *= 31;
-    if (_valueName != null) hc += _valueName.hashCode ();
-    hc *= 31;
-    if (_identifier != null) hc += _identifier.hashCode ();
     hc *= 31;
     if (_value != null) hc += _value.hashCode ();
     hc *= 31;

@@ -17,6 +17,9 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
+import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
+import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.lazy.LazyComputationTargetResolver;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.async.BlockingOperation;
@@ -30,14 +33,42 @@ import com.opengamma.util.tuple.Triple;
     super(task);
   }
 
+  private static final ComputationTargetReferenceVisitor<Object> s_getTargetValue = new ComputationTargetReferenceVisitor<Object>() {
+
+    @Override
+    public Object visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
+      return requirement.getIdentifiers();
+    }
+
+    @Override
+    public Object visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
+      // If the object couldn't be resolved, then the rogue UID is the best we can present
+      return specification.getUniqueId();
+    }
+
+  };
+
   @Override
   protected boolean run(final GraphBuildingContext context) {
     boolean missing = false;
     ValueSpecification marketDataSpec = null;
+    ComputationTargetSpecification targetSpec = null;
+    ComputationTarget target = null;
+    Object targetValue = null;
     BlockingOperation.off();
     try {
-      // [PLAT-3044] Invoke this properly
-      marketDataSpec = context.getMarketDataAvailabilityProvider().getAvailability(ComputationTargetSpecification.NULL, null, getValueRequirement());
+      targetSpec = getTargetSpecification(context);
+      if (targetSpec != null) {
+        target = LazyComputationTargetResolver.resolve(context.getCompilationContext().getComputationTargetResolver(), targetSpec);
+        if (target != null) {
+          targetValue = target.getValue();
+        } else {
+          targetValue = getValueRequirement().getTargetReference().accept(s_getTargetValue);
+        }
+      } else {
+        targetValue = getValueRequirement().getTargetReference().accept(s_getTargetValue);
+      }
+      marketDataSpec = context.getMarketDataAvailabilityProvider().getAvailability(targetSpec, targetValue, getValueRequirement());
     } catch (final BlockingOperation e) {
       return false;
     } catch (final MarketDataNotSatisfiableException e) {
@@ -98,7 +129,6 @@ import com.opengamma.util.tuple.Triple;
         storeFailure(context.marketDataMissing(getValueRequirement()));
         setTaskStateFinished(context);
       } else {
-        final ComputationTarget target = getComputationTarget(context);
         if (target != null) {
           final Iterator<Triple<ParameterizedFunction, ValueSpecification, Collection<ValueSpecification>>> itr = context.getFunctionResolver().resolveFunction(
               getValueRequirement().getValueName(), target, getValueRequirement().getConstraints());

@@ -1096,23 +1096,23 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   //-------------------------------------------------------------------------
   @Override
-  public void subscriptionSucceeded(final ValueRequirement requirement) {
-    s_logger.debug("Subscription succeeded: {}", requirement);
+  public void subscriptionSucceeded(final ValueSpecification valueSpecification) {
+    s_logger.debug("Subscription succeeded: {}", valueSpecification);
     removePendingSubscription(requirement);
   }
 
   @Override
-  public void subscriptionFailed(final ValueRequirement requirement, final String msg) {
-    s_logger.debug("Market data subscription to {} failed. This market data may be missing from computation cycles.", requirement);
+  public void subscriptionFailed(final ValueSpecification valueSpecification, final String msg) {
+    s_logger.debug("Market data subscription to {} failed. This market data may be missing from computation cycles.", valueSpecification);
     removePendingSubscription(requirement);
   }
 
   @Override
-  public void subscriptionStopped(final ValueRequirement requirement) {
+  public void subscriptionStopped(final ValueSpecification valueSpecification) {
   }
 
   @Override
-  public void valuesChanged(final Collection<ValueRequirement> values) {
+  public void valuesChanged(final Collection<ValueSpecification> valueSpecifications) {
     if (!getExecutionOptions().getFlags().contains(ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED)) {
       return;
     }

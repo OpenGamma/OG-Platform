@@ -16,7 +16,6 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -25,8 +24,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
-import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -34,7 +31,8 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
@@ -42,13 +40,17 @@ import com.opengamma.id.UniqueId;
 public class CompositeMarketDataSnapshotTest {
 
   private static final ComputationTargetSpecification TARGET = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("scheme", "value"));
-  private static final ValueRequirement REQUIREMENT1 = requirement("r1");
-  private static final ValueRequirement REQUIREMENT2 = requirement("r2");
+  private static final ValueRequirement REQUIREMENT1 = new ValueRequirement("r1", TARGET);
+  private static final ValueRequirement REQUIREMENT2 = new ValueRequirement("r2", TARGET);
   private static final ValueSpecification SPECIFICATION1 = MarketDataUtils.createMarketDataValue(REQUIREMENT1.getValueName(), TARGET);
+  private static final ValueSpecification SPECIFICATION1_EXT = MarketDataUtils.createMarketDataValue(REQUIREMENT1.getValueName(), TARGET, ValueProperties.with(ValuePropertyNames.DATA_PROVIDER, "0")
+      .get());
   private static final ValueSpecification SPECIFICATION2 = MarketDataUtils.createMarketDataValue(REQUIREMENT2.getValueName(), TARGET);
-  private static final ComputedValue VALUE1 = new ComputedValue(SPECIFICATION1, new Object());
-  private static final ComputedValue VALUE2 = new ComputedValue(SPECIFICATION2, new Object());
-  private static final ValueRequirement UNKNOWN_REQUIREMENT = requirement("u");
+  private static final ValueSpecification SPECIFICATION2_EXT = MarketDataUtils.createMarketDataValue(REQUIREMENT2.getValueName(), TARGET, ValueProperties.with(ValuePropertyNames.DATA_PROVIDER, "1")
+      .get());
+  private static final Object VALUE1 = "V1";
+  private static final Object VALUE2 = "V2";
+  private static final ValueSpecification UNKNOWN_SPECIFICATION = MarketDataUtils.createMarketDataValue("u", TARGET);
 
   private MarketDataSnapshot _delegate1;
   private MarketDataSnapshot _delegate2;
@@ -58,21 +60,11 @@ public class CompositeMarketDataSnapshotTest {
   public void setUp() throws Exception {
     _delegate1 = mock(MarketDataSnapshot.class);
     _delegate2 = mock(MarketDataSnapshot.class);
-    final List<Set<ValueRequirement>> requirements =
-        ImmutableList.<Set<ValueRequirement>>of(
-            Sets.newHashSet(REQUIREMENT1),
-            Sets.newHashSet(REQUIREMENT2));
-    Supplier<List<Set<ValueRequirement>>> subscriptionSupplier = new Supplier<List<Set<ValueRequirement>>>() {
-      @Override
-      public List<Set<ValueRequirement>> get() {
-        return requirements;
-      }
-    };
-    _snapshot = new CompositeMarketDataSnapshot(Lists.newArrayList(_delegate1, _delegate2), subscriptionSupplier);
-    stub(_delegate1.query(REQUIREMENT1)).toReturn(VALUE1);
-    stub(_delegate2.query(REQUIREMENT2)).toReturn(VALUE2);
-    stub(_delegate1.query(Sets.newHashSet(REQUIREMENT1))).toReturn(ImmutableMap.of(REQUIREMENT1, VALUE1));
-    stub(_delegate2.query(Sets.newHashSet(REQUIREMENT2))).toReturn(ImmutableMap.of(REQUIREMENT2, VALUE2));
+    _snapshot = new CompositeMarketDataSnapshot(Lists.newArrayList(_delegate1, _delegate2), new ViewComputationJobDataProvider.ValueSpecificationProvider(2));
+    stub(_delegate1.query(SPECIFICATION1)).toReturn(VALUE1);
+    stub(_delegate2.query(SPECIFICATION2)).toReturn(VALUE2);
+    stub(_delegate1.query(Sets.newHashSet(SPECIFICATION1))).toReturn(ImmutableMap.of(SPECIFICATION1, VALUE1));
+    stub(_delegate2.query(Sets.newHashSet(SPECIFICATION2))).toReturn(ImmutableMap.of(SPECIFICATION2, VALUE2));
     stub(_delegate1.getSnapshotTime()).toReturn(null);
     stub(_delegate2.getSnapshotTime()).toReturn(Instant.now());
     stub(_delegate1.getSnapshotTimeIndication()).toReturn(null);
@@ -94,9 +86,9 @@ public class CompositeMarketDataSnapshotTest {
   @Test
   public void initMultiSubset() {
     // check all delegates are initialized with the appropriate subset of requirements
-    Set<ValueRequirement> reqs = Sets.newHashSet(REQUIREMENT1, UNKNOWN_REQUIREMENT);
-    _snapshot.init(reqs, 0, TimeUnit.MILLISECONDS);
-    verify(_delegate1).init(Sets.newHashSet(REQUIREMENT1), 0, TimeUnit.MILLISECONDS);
+    final Set<ValueSpecification> specs = Sets.newHashSet(SPECIFICATION1_EXT, UNKNOWN_SPECIFICATION);
+    _snapshot.init(specs, 0, TimeUnit.MILLISECONDS);
+    verify(_delegate1).init(Sets.newHashSet(SPECIFICATION1), 0, TimeUnit.MILLISECONDS);
     verify(_delegate1, never()).init();
     verify(_delegate2).init();
     verify(_delegate2, never()).init(anySet(), anyLong(), (TimeUnit) anyObject());
@@ -108,10 +100,10 @@ public class CompositeMarketDataSnapshotTest {
   @Test
   public void initMultiAll() {
     // check all delegates are initialized with the appropriate subset of requirements
-    Set<ValueRequirement> reqs = Sets.newHashSet(REQUIREMENT1, REQUIREMENT2, UNKNOWN_REQUIREMENT);
-    _snapshot.init(reqs, 0, TimeUnit.MILLISECONDS);
-    verify(_delegate1).init(Sets.newHashSet(REQUIREMENT1), 0, TimeUnit.MILLISECONDS);
-    verify(_delegate2).init(Sets.newHashSet(REQUIREMENT2), 0, TimeUnit.MILLISECONDS);
+    final Set<ValueSpecification> specs = Sets.newHashSet(SPECIFICATION1_EXT, SPECIFICATION2_EXT, UNKNOWN_SPECIFICATION);
+    _snapshot.init(specs, 0, TimeUnit.MILLISECONDS);
+    verify(_delegate1).init(Sets.newHashSet(SPECIFICATION1), 0, TimeUnit.MILLISECONDS);
+    verify(_delegate2).init(Sets.newHashSet(SPECIFICATION2), 0, TimeUnit.MILLISECONDS);
   }
 
   @Test
@@ -120,9 +112,9 @@ public class CompositeMarketDataSnapshotTest {
     // * the first delegate
     // * another delegate
     // check null is returned for an unknown requirement
-    assertEquals(VALUE1, _snapshot.query(REQUIREMENT1));
-    assertEquals(VALUE2, _snapshot.query(REQUIREMENT2));
-    assertNull(_snapshot.query(UNKNOWN_REQUIREMENT));
+    assertEquals(VALUE1, _snapshot.query(SPECIFICATION1_EXT));
+    assertEquals(VALUE2, _snapshot.query(SPECIFICATION2_EXT));
+    assertNull(_snapshot.query(UNKNOWN_SPECIFICATION));
   }
 
   /**
@@ -130,11 +122,11 @@ public class CompositeMarketDataSnapshotTest {
    */
   @Test
   public void queryMultiSubset() {
-    Set<ValueRequirement> reqs = Sets.newHashSet(REQUIREMENT1, UNKNOWN_REQUIREMENT);
-    Map<ValueRequirement, ComputedValue> result = _snapshot.query(reqs);
-    assertEquals(VALUE1, result.get(REQUIREMENT1));
-    assertNull(result.get(REQUIREMENT2));
-    assertNull(result.get(UNKNOWN_REQUIREMENT));
+    final Set<ValueSpecification> specs = Sets.newHashSet(SPECIFICATION1_EXT, UNKNOWN_SPECIFICATION);
+    final Map<ValueSpecification, Object> result = _snapshot.query(specs);
+    assertEquals(VALUE1, result.get(SPECIFICATION1_EXT));
+    assertNull(result.get(SPECIFICATION2_EXT));
+    assertNull(result.get(UNKNOWN_SPECIFICATION));
   }
 
   /**
@@ -142,11 +134,11 @@ public class CompositeMarketDataSnapshotTest {
    */
   @Test
   public void queryMultiAll() {
-    Set<ValueRequirement> reqs = Sets.newHashSet(REQUIREMENT1, REQUIREMENT2, UNKNOWN_REQUIREMENT);
-    Map<ValueRequirement, ComputedValue> result = _snapshot.query(reqs);
-    assertEquals(VALUE1, result.get(REQUIREMENT1));
-    assertEquals(VALUE2, result.get(REQUIREMENT2));
-    assertNull(result.get(UNKNOWN_REQUIREMENT));
+    final Set<ValueSpecification> specs = Sets.newHashSet(SPECIFICATION1_EXT, SPECIFICATION2_EXT, UNKNOWN_SPECIFICATION);
+    final Map<ValueSpecification, Object> result = _snapshot.query(specs);
+    assertEquals(VALUE1, result.get(SPECIFICATION1_EXT));
+    assertEquals(VALUE2, result.get(SPECIFICATION2_EXT));
+    assertNull(result.get(UNKNOWN_SPECIFICATION));
   }
 
   /**
@@ -163,10 +155,6 @@ public class CompositeMarketDataSnapshotTest {
   @Test
   public void snapshotTimeIndication() {
     assertNotNull(_snapshot.getSnapshotTimeIndication());
-  }
-
-  private static ValueRequirement requirement(String valueName) {
-    return new ValueRequirement(valueName, TARGET);
   }
 
 }

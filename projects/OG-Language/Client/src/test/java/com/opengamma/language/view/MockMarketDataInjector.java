@@ -1,71 +1,63 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.language.view;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.ExternalId;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Triple;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Mock of the MarketDataInjector for testing.
  */
 /* package */class MockMarketDataInjector implements MarketDataInjector {
 
-  private final Collection<Pair<ValueRequirement, Object>> _addByValueRequirement = new ArrayList<Pair<ValueRequirement, Object>>();
-  private final Collection<Triple<ExternalId, String, Object>> _addByValueName = new ArrayList<Triple<ExternalId, String, Object>>();
-  private final Collection<ValueRequirement> _removeByValueRequirement = new ArrayList<ValueRequirement>();
-  private final Collection<Pair<ExternalId, String>> _removeByValueName = new ArrayList<Pair<ExternalId, String>>();
+  private final Map<ValueSpecification, Object> _addByValueSpecification = new HashMap<ValueSpecification, Object>();
+  private final Map<ValueRequirement, Object> _addByValueRequirement = new HashMap<ValueRequirement, Object>();
+  private final Set<ValueSpecification> _removeByValueSpecification = new HashSet<ValueSpecification>();
+  private final Set<ValueRequirement> _removeByValueRequirement = new HashSet<ValueRequirement>();
 
   @Override
-  public void addValue(ValueRequirement valueRequirement, Object value) {
-    _addByValueRequirement.add(Pair.of(valueRequirement, value));
+  public void addValue(final ValueSpecification valueSpecification, final Object value) {
+    _addByValueSpecification.put(valueSpecification, value);
   }
 
   @Override
-  public void addValue(ExternalId identifier, String valueName, Object value) {
-    _addByValueName.add(Triple.of(identifier, valueName, value));
+  public void addValue(final ValueRequirement valueRequirement, final Object value) {
+    _addByValueRequirement.put(valueRequirement, value);
   }
 
   @Override
-  public void removeValue(ValueRequirement valueRequirement) {
+  public void removeValue(final ValueSpecification valueSpecification) {
+    _removeByValueSpecification.add(valueSpecification);
+  }
+
+  @Override
+  public void removeValue(final ValueRequirement valueRequirement) {
     _removeByValueRequirement.add(valueRequirement);
   }
 
-  @Override
-  public void removeValue(ExternalId identifier, String valueName) {
-    _removeByValueName.add(Pair.of(identifier, valueName));
+  public Map<ValueSpecification, Object> getAddByValueSpecification() {
+    return _addByValueSpecification;
   }
 
-  public Collection<Pair<ValueRequirement, Object>> getAddByValueRequirement() {
-    final Collection<Pair<ValueRequirement, Object>> value = new ArrayList<Pair<ValueRequirement, Object>>(_addByValueRequirement);
-    _addByValueRequirement.clear();
-    return value;
+  public Map<ValueRequirement, Object> getAddByValueRequirement() {
+    return _addByValueRequirement;
   }
 
-  public Collection<Triple<ExternalId, String, Object>> getAddByValueName() {
-    final Collection<Triple<ExternalId, String, Object>> value = new ArrayList<Triple<ExternalId, String, Object>>(_addByValueName);
-    _addByValueName.clear();
-    return value;
+  public Set<ValueSpecification> getRemoveByValueSpecification() {
+    return _removeByValueSpecification;
   }
 
-  public Collection<ValueRequirement> getRemoveByValueRequirement() {
-    final Collection<ValueRequirement> value = new ArrayList<ValueRequirement>(_removeByValueRequirement);
-    _removeByValueRequirement.clear();
-    return value;
-  }
-
-  public Collection<Pair<ExternalId, String>> getRemoveByValueName() {
-    final Collection<Pair<ExternalId, String>> value = new ArrayList<Pair<ExternalId, String>>(_removeByValueName);
-    _removeByValueName.clear();
-    return value;
+  public Set<ValueRequirement> getRemoveByValueRequirement() {
+    return _removeByValueRequirement;
   }
 
 }

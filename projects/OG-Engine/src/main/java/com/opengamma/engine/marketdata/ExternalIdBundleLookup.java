@@ -47,6 +47,9 @@ public class ExternalIdBundleLookup extends AbstractExternalIdentifierLookup<Ext
     return requirement.getIdentifiers();
   }
 
+  // [PLAT-3044] This is probably wrong; shouldn't be converting between external identifiers and unique identifiers
+
+  @Override
   protected ExternalIdBundle fromUniqueId(final UniqueId uid) {
     return ExternalId.of(uid.getScheme(), uid.getValue()).toBundle();
   }

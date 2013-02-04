@@ -7,8 +7,6 @@ package com.opengamma.engine.marketdata.availability;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -33,7 +31,7 @@ public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailab
   @Override
   public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
     // [PLAT-3044] Do this properly
-    if (desiredValue.getTargetReference().getType() == ComputationTargetType.PORTFOLIO_NODE ||
+    /*if (desiredValue.getTargetReference().getType() == ComputationTargetType.PORTFOLIO_NODE ||
         desiredValue.getTargetReference().getType() == ComputationTargetType.POSITION ||
         desiredValue.getTargetReference().getType() == ComputationTargetType.TRADE) {
       return null;
@@ -47,7 +45,8 @@ public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailab
     //if (UserMarketDataSnapshot.getStructuredKey(requirement) != null) {
     //throw new MarketDataNotSatisfiableException(requirement);
     //}
-    return null;
+    return null;*/
+    throw new UnsupportedOperationException("[PLAT-3044] MarketDataSnapshot doesn't have enough info. Can we construct from a more thorough type for this case?");
   }
 
   //-------------------------------------------------------------------------

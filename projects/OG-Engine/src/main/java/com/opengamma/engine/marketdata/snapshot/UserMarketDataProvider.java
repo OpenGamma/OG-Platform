@@ -24,7 +24,7 @@ import com.opengamma.engine.marketdata.availability.MarketDataSnapshotAvailabili
 import com.opengamma.engine.marketdata.availability.UnionMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -36,16 +36,16 @@ import com.opengamma.util.ArgumentChecker;
 public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
   private final UniqueId _snapshotId;
-  private final CopyOnWriteArraySet<ValueRequirement> _listeningValueRequirements = new CopyOnWriteArraySet<ValueRequirement>();
+  private final CopyOnWriteArraySet<ValueSpecification> _listeningValueSpecifications = new CopyOnWriteArraySet<ValueSpecification>();
   private final MarketDataSnapshotSource _snapshotSource;
   private final MarketDataPermissionProvider _permissionProvider;
   private final MarketDataSnapshotChangeListener _snapshotSourceChangeListener;
   private final ExternalIdBundleLookup _identifierLookup;
   private final Object _listenerLock = new Object();
-  
+
   private MarketDataAvailabilityProvider _baseMarketDataAvailabilityProvider;
 
-  public UserMarketDataProvider(MarketDataSnapshotSource snapshotSource, UniqueId snapshotId, ExternalIdBundleLookup identifierLookup) {
+  public UserMarketDataProvider(final MarketDataSnapshotSource snapshotSource, final UniqueId snapshotId, final ExternalIdBundleLookup identifierLookup) {
     ArgumentChecker.notNull(snapshotSource, "snapshotSource");
     ArgumentChecker.notNull(snapshotId, "snapshotId");
     ArgumentChecker.notNull(identifierLookup, "identifierLookup");
@@ -55,16 +55,16 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
     _snapshotSourceChangeListener = new MarketDataSnapshotChangeListener() {
       @Override
-      public void objectChanged(ObjectId oid) {
-        valuesChanged(_listeningValueRequirements);
+      public void objectChanged(final ObjectId oid) {
+        valuesChanged(_listeningValueSpecifications);
       }
     };
     _identifierLookup = identifierLookup;
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
-  public void addListener(MarketDataListener listener) {
+  public void addListener(final MarketDataListener listener) {
     synchronized (_listenerLock) {
       if (getListeners().size() == 0) {
         _snapshotSource.addChangeListener(_snapshotId, _snapshotSourceChangeListener);
@@ -74,7 +74,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   }
 
   @Override
-  public void removeListener(MarketDataListener listener) {
+  public void removeListener(final MarketDataListener listener) {
     synchronized (_listenerLock) {
       super.removeListener(listener);
       if (getListeners().size() == 0) {
@@ -85,40 +85,40 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public void subscribe(ValueRequirement valueRequirement) {
-    subscribe(Collections.singleton(valueRequirement));
+  public void subscribe(final ValueSpecification valueSpecification) {
+    subscribe(Collections.singleton(valueSpecification));
   }
 
   @Override
-  public void subscribe(Set<ValueRequirement> valueRequirements) {
-    _listeningValueRequirements.addAll(valueRequirements);
-    subscriptionSucceeded(valueRequirements);
-  }
-  
-  @Override
-  public void unsubscribe(ValueRequirement valueRequirement) {
-    unsubscribe(Collections.singleton(valueRequirement));
+  public void subscribe(final Set<ValueSpecification> valueSpecifications) {
+    _listeningValueSpecifications.addAll(valueSpecifications);
+    subscriptionSucceeded(valueSpecifications);
   }
 
   @Override
-  public void unsubscribe(Set<ValueRequirement> valueRequirements) {
+  public void unsubscribe(final ValueSpecification valueSpecification) {
+    unsubscribe(Collections.singleton(valueSpecification));
+  }
+
+  @Override
+  public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
     // TODO
   }
 
   //-------------------------------------------------------------------------
   @Override
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
-    MarketDataSnapshot snapshot = snapshot();
+    final MarketDataSnapshot snapshot = snapshot();
     snapshot.init();
-    MarketDataSnapshotAvailabilityProvider snapshotAvailabilityProvider = new MarketDataSnapshotAvailabilityProvider(snapshot);
-    
+    final MarketDataSnapshotAvailabilityProvider snapshotAvailabilityProvider = new MarketDataSnapshotAvailabilityProvider(snapshot);
+
     if (getBaseMarketDataAvailabilityProvider() == null) {
       return snapshotAvailabilityProvider;
     } else {
       // [PLAT-1459] 2011-10-03 -- missing values in the snapshot will prevent the dep graph from building even though
       // it builds in the live case where the availability provider is more optimistic. Using a union of the two works
       // around this problem.
-      return new UnionMarketDataAvailabilityProvider(Arrays.asList(getBaseMarketDataAvailabilityProvider(), snapshotAvailabilityProvider));      
+      return new UnionMarketDataAvailabilityProvider(Arrays.asList(getBaseMarketDataAvailabilityProvider(), snapshotAvailabilityProvider));
     }
   }
 
@@ -129,16 +129,16 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
 
   //-------------------------------------------------------------------------
   @Override
-  public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+  public boolean isCompatible(final MarketDataSpecification marketDataSpec) {
     if (!(marketDataSpec instanceof UserMarketDataSpecification)) {
       return false;
     }
-    UserMarketDataSpecification userMarketDataSpec = (UserMarketDataSpecification) marketDataSpec;
+    final UserMarketDataSpecification userMarketDataSpec = (UserMarketDataSpecification) marketDataSpec;
     return getSnapshotId().equals(userMarketDataSpec.getUserSnapshotId());
   }
 
   @Override
-  public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+  public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
     return snapshot();
   }
 
@@ -146,11 +146,11 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   private MarketDataSnapshot snapshot() {
     return new UserMarketDataSnapshot(getSnapshotSource(), getSnapshotId(), _identifierLookup);
   }
-  
+
   private MarketDataSnapshotSource getSnapshotSource() {
     return _snapshotSource;
   }
-  
+
   private UniqueId getSnapshotId() {
     return _snapshotId;
   }
@@ -159,9 +159,9 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   public MarketDataAvailabilityProvider getBaseMarketDataAvailabilityProvider() {
     return _baseMarketDataAvailabilityProvider;
   }
-  
-  public void setBaseMarketDataAvailabilityProvider(MarketDataAvailabilityProvider baseMarketDataAvailabilityProvider) {
+
+  public void setBaseMarketDataAvailabilityProvider(final MarketDataAvailabilityProvider baseMarketDataAvailabilityProvider) {
     _baseMarketDataAvailabilityProvider = baseMarketDataAvailabilityProvider;
   }
-  
+
 }

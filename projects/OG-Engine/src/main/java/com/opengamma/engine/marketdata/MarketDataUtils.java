@@ -58,6 +58,8 @@ public class MarketDataUtils {
     return s_getMarketDataValueType.get(type);
   }
 
+  // [PLAT-3044] Most of the methods here should not be necessary. Arbitrary conversion from external id bundles to unique identifiers is unlikely to be a good idea. Review and deprecate/delete.
+
   public static ExternalId getPreferredIdentifier(final ExternalIdOrderConfig ordering, final ExternalIdBundle bundle) {
     if (bundle.size() == 1) {
       return bundle.iterator().next();

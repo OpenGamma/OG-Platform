@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.marketdata;
@@ -12,6 +12,7 @@ import com.opengamma.DataNotFoundException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.OverrideOperation;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
@@ -28,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Implements the hacks previously in {@link SingleComputationCycle} using the
  * {@link OverrideOperation} mechanism.
- * 
+ *
  * @deprecated Should not be used; the EL based compiler is more flexible
  */
 @Deprecated
@@ -64,7 +65,7 @@ public class MarketDataHackedExpressionCompiler implements OverrideOperationComp
         public ExternalIdBundle visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
           try {
             return getSecuritySource().get(specification.getUniqueId()).getExternalIdBundle();
-          } catch (DataNotFoundException ex) {
+          } catch (final DataNotFoundException ex) {
             return null;
           }
         }
@@ -91,10 +92,10 @@ public class MarketDataHackedExpressionCompiler implements OverrideOperationComp
   }
 
   @Override
-  public OverrideOperation compile(final String operation) {
+  public OverrideOperation compile(final String operation, final ComputationTargetResolver.AtVersionCorrection resolver) {
     try {
       return new Operation(Double.parseDouble(operation));
-    } catch (NumberFormatException e) {
+    } catch (final NumberFormatException e) {
       throw new IllegalArgumentException("Market data shift " + operation + " not valid");
     }
   }

@@ -400,23 +400,23 @@ public class ViewComputationJobTest {
     }
 
     @Override
-    public void subscribe(final ValueRequirement valueRequirement) {
-      _underlyingProvider.subscribe(valueRequirement);
+    public void subscribe(final ValueSpecification valueSpecification) {
+      _underlyingProvider.subscribe(valueSpecification);
     }
 
     @Override
-    public void subscribe(final Set<ValueRequirement> valueRequirements) {
-      _underlyingProvider.subscribe(valueRequirements);
+    public void subscribe(final Set<ValueSpecification> valueSpecifications) {
+      _underlyingProvider.subscribe(valueSpecifications);
     }
 
     @Override
-    public void unsubscribe(final ValueRequirement valueRequirement) {
-      _underlyingProvider.unsubscribe(valueRequirement);
+    public void unsubscribe(final ValueSpecification valueSpecification) {
+      _underlyingProvider.unsubscribe(valueSpecification);
     }
 
     @Override
-    public void unsubscribe(final Set<ValueRequirement> valueRequirements) {
-      _underlyingProvider.unsubscribe(valueRequirements);
+    public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
+      _underlyingProvider.unsubscribe(valueSpecifications);
     }
 
     @Override

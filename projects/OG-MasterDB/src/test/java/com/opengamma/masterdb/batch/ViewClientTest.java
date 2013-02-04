@@ -39,7 +39,6 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;
-import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -57,7 +56,6 @@ import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 
 public class ViewClientTest {
@@ -149,26 +147,26 @@ public class ViewClientTest {
 
     private static final Logger s_logger = LoggerFactory.getLogger(SynchronousInMemoryLKVSnapshotProvider.class);
 
-    private final Map<ValueRequirement, ComputedValue> _lastKnownValues = new HashMap<ValueRequirement, ComputedValue>();
+    private final Map<ValueSpecification, Object> _lastKnownValues = new HashMap<ValueSpecification, Object>();
     private final MarketDataPermissionProvider _permissionProvider = new PermissiveMarketDataPermissionProvider();
 
     @Override
-    public void subscribe(final ValueRequirement valueRequirement) {
-      subscribe( Collections.singleton(valueRequirement));
+    public void subscribe(final ValueSpecification valueSpecification) {
+      subscribe(Collections.singleton(valueSpecification));
     }
 
     @Override
-    public void subscribe(final Set<ValueRequirement> valueRequirements) {
+    public void subscribe(final Set<ValueSpecification> valueSpecifications) {
       // No actual subscription to make, but we still need to acknowledge it.
-      subscriptionSucceeded(valueRequirements);
+      subscriptionSucceeded(valueSpecifications);
     }
 
     @Override
-    public void unsubscribe(final ValueRequirement valueRequirement) {
+    public void unsubscribe(final ValueSpecification valueSpecification) {
     }
 
     @Override
-    public void unsubscribe(final Set<ValueRequirement> valueRequirements) {
+    public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
     }
 
     //-----------------------------------------------------------------------
@@ -191,35 +189,37 @@ public class ViewClientTest {
     @Override
     public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
       synchronized (_lastKnownValues) {
-        final Map<ValueRequirement, ComputedValue> snapshotValues = new HashMap<ValueRequirement, ComputedValue>(_lastKnownValues);
+        final Map<ValueSpecification, Object> snapshotValues = new HashMap<ValueSpecification, Object>(_lastKnownValues);
         return new SynchronousInMemoryLKVSnapshot(snapshotValues);
       }
     }
 
     //-----------------------------------------------------------------------
     @Override
-    public void addValue(final ValueRequirement requirement, final Object value) {
-      s_logger.debug("Setting {} = {}", requirement, value);
+    public void addValue(final ValueSpecification valueSpecification, final Object value) {
+      s_logger.debug("Setting {} = {}", valueSpecification, value);
       synchronized (_lastKnownValues) {
-        _lastKnownValues.put(requirement, new ComputedValue(MarketDataUtils.createMarketDataValue(requirement, MarketDataUtils.DEFAULT_EXTERNAL_ID), value));
+        _lastKnownValues.put(valueSpecification, value);
       }
       // Don't notify listeners of the change - we'll kick off a computation cycle manually in the tests
     }
 
     @Override
-    public void addValue(final ExternalId identifier, final String valueName, final Object value) {
+    public void addValue(final ValueRequirement valueRequirement, final Object value) {
+      addValue(MarketDataUtils.createMarketDataValue(valueRequirement, MarketDataUtils.DEFAULT_EXTERNAL_ID), value);
+    }
+
+    @Override
+    public void removeValue(final ValueSpecification valueSpecification) {
+      synchronized(_lastKnownValues) {
+        _lastKnownValues.remove(valueSpecification);
+      }
+      // Don't notify listeners of the change - we'll kick off a computation cycle manually in the tests
     }
 
     @Override
     public void removeValue(final ValueRequirement valueRequirement) {
-      synchronized(_lastKnownValues) {
-        _lastKnownValues.remove(valueRequirement);
-      }
-      // Don't notify listeners of the change - we'll kick off a computation cycle manually in the tests
-    }
-
-    @Override
-    public void removeValue(final ExternalId identifier, final String valueName) {
+      removeValue(MarketDataUtils.createMarketDataValue(valueRequirement, MarketDataUtils.DEFAULT_EXTERNAL_ID));
     }
 
     //-----------------------------------------------------------------------
@@ -235,10 +235,10 @@ public class ViewClientTest {
 
   private static class SynchronousInMemoryLKVSnapshot extends AbstractMarketDataSnapshot {
 
-    private final Map<ValueRequirement, ComputedValue> _snapshot;
+    private final Map<ValueSpecification, Object> _snapshot;
     private final Instant _snapshotTime = Instant.now();
 
-    public SynchronousInMemoryLKVSnapshot(final Map<ValueRequirement, ComputedValue> snapshot) {
+    public SynchronousInMemoryLKVSnapshot(final Map<ValueSpecification, Object> snapshot) {
       _snapshot = snapshot;
     }
 
@@ -258,8 +258,8 @@ public class ViewClientTest {
     }
 
     @Override
-    public ComputedValue query(final ValueRequirement requirement) {
-      return _snapshot.get(requirement);
+    public Object query(final ValueSpecification specification) {
+      return _snapshot.get(specification);
     }
 
   }

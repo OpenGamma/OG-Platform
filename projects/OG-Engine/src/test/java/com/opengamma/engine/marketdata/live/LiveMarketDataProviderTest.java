@@ -21,7 +21,9 @@ import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
 import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.LiveDataSpecification;
@@ -35,64 +37,64 @@ import com.opengamma.livedata.test.TestLiveDataClient;
 public class LiveMarketDataProviderTest {
 
   private static final String _marketDataRequirement = MarketDataRequirementNames.MARKET_VALUE;
-  
-  protected ValueRequirement constructRequirement(String ticker) {
-    return new ValueRequirement(_marketDataRequirement, ComputationTargetType.PRIMITIVE, UniqueId.of("testdomain", ticker));
+
+  protected ValueSpecification constructSpecification(final String ticker) {
+    return ValueSpecification.of(_marketDataRequirement, ComputationTargetType.PRIMITIVE, UniqueId.of("testdomain", ticker), ValueProperties.with(ValuePropertyNames.FUNCTION, "MarketData").get());
   }
-  
+
   public void snapshotting() {
-    ValueRequirement test1Requirement = constructRequirement("test1");
-    ValueRequirement test2Requirement = constructRequirement("test2");
-    ValueRequirement test3Requirement = constructRequirement("test3");
-    
-    TestLiveDataClient client = new TestLiveDataClient();
-    FixedMarketDataAvailabilityProvider availabilityProvider = new FixedMarketDataAvailabilityProvider();
-    availabilityProvider.addAvailableRequirement(test1Requirement);
-    availabilityProvider.addAvailableRequirement(test2Requirement);
-    availabilityProvider.addAvailableRequirement(test3Requirement);
-    LiveMarketDataProvider provider =
+    final ValueSpecification test1Specification = constructSpecification("test1");
+    final ValueSpecification test2Specification = constructSpecification("test2");
+    final ValueSpecification test3Specification = constructSpecification("test3");
+
+    final TestLiveDataClient client = new TestLiveDataClient();
+    final FixedMarketDataAvailabilityProvider availabilityProvider = new FixedMarketDataAvailabilityProvider();
+    availabilityProvider.addAvailableData(test1Specification);
+    availabilityProvider.addAvailableData(test2Specification);
+    availabilityProvider.addAvailableData(test3Specification);
+    final LiveMarketDataProvider provider =
         new LiveMarketDataProvider(client, availabilityProvider, new InMemorySecuritySource(), UserPrincipal.getTestUser());
-    
-    provider.subscribe(test1Requirement);
-    provider.subscribe(test2Requirement);
-    
-    provider.subscribe(test3Requirement);
-    provider.subscribe(test3Requirement);
-    provider.subscribe(test3Requirement);
-    
-    MutableFudgeMsg msg1 = new FudgeContext().newMessage();
+
+    provider.subscribe(test1Specification);
+    provider.subscribe(test2Specification);
+
+    provider.subscribe(test3Specification);
+    provider.subscribe(test3Specification);
+    provider.subscribe(test3Specification);
+
+    final MutableFudgeMsg msg1 = new FudgeContext().newMessage();
     msg1.add(_marketDataRequirement, 52.07);
-    
-    MutableFudgeMsg msg2 = new FudgeContext().newMessage();
+
+    final MutableFudgeMsg msg2 = new FudgeContext().newMessage();
     msg2.add(_marketDataRequirement, 52.15);
-    
-    MutableFudgeMsg msg3a = new FudgeContext().newMessage();
+
+    final MutableFudgeMsg msg3a = new FudgeContext().newMessage();
     msg3a.add(_marketDataRequirement, 52.16);
-    MutableFudgeMsg msg3b = new FudgeContext().newMessage();
+    final MutableFudgeMsg msg3b = new FudgeContext().newMessage();
     msg3b.add(_marketDataRequirement, 52.17);
-    
+
     client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), ExternalId.of("testdomain", "test1")), msg1);
     client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), ExternalId.of("testdomain", "test2")), msg2);
     client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), ExternalId.of("testdomain", "test3")), msg3a);
     client.marketDataReceived(new LiveDataSpecification(client.getDefaultNormalizationRuleSetId(), ExternalId.of("testdomain", "test3")), msg3b);
-    
-    MarketDataSnapshot snapshot = provider.snapshot(null);
-    snapshot.init(Collections.<ValueRequirement>emptySet(), 0, TimeUnit.MILLISECONDS);
-    
-    Double test1Value = (Double) snapshot.query(test1Requirement).getValue();
+
+    final MarketDataSnapshot snapshot = provider.snapshot(null);
+    snapshot.init(Collections.<ValueSpecification>emptySet(), 0, TimeUnit.MILLISECONDS);
+
+    final Double test1Value = (Double) snapshot.query(test1Specification);
     assertNotNull(test1Value);
     assertEquals(52.07, test1Value, 0.000001);
-    
-    Double test2Value = (Double) snapshot.query(test2Requirement).getValue();
+
+    final Double test2Value = (Double) snapshot.query(test2Specification);
     assertNotNull(test2Value);
     assertEquals(52.15, test2Value, 0.000001);
-    
-    Double test3Value = (Double) snapshot.query(test3Requirement).getValue();
+
+    final Double test3Value = (Double) snapshot.query(test3Specification);
     assertNotNull(test3Value);
     assertEquals(52.17, test3Value, 0.000001);
-    
-    assertNull(snapshot.query(constructRequirement("invalidticker")));
+
+    assertNull(snapshot.query(constructSpecification("invalidticker")));
   }
-  
+
 
 }

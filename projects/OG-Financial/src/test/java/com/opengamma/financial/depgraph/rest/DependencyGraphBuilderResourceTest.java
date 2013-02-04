@@ -121,22 +121,22 @@ public class DependencyGraphBuilderResourceTest {
       }
 
       @Override
-      public void subscribe(final ValueRequirement valueRequirement) {
+      public void subscribe(final ValueSpecification valueSpecification) {
         fail();
       }
 
       @Override
-      public void subscribe(final Set<ValueRequirement> valueRequirements) {
+      public void subscribe(final Set<ValueSpecification> valueSpecifications) {
         fail();
       }
 
       @Override
-      public void unsubscribe(final ValueRequirement valueRequirement) {
+      public void unsubscribe(final ValueSpecification valueSpecification) {
         fail();
       }
 
       @Override
-      public void unsubscribe(final Set<ValueRequirement> valueRequirements) {
+      public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
         fail();
       }
 

@@ -38,6 +38,7 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.DependencyNodeFilter;
@@ -45,6 +46,7 @@ import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.OverrideOperation;
+import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ComputedValueResult;
@@ -404,6 +406,8 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
    */
   private Map<ViewComputationCache, OverrideOperation> getCacheMarketDataOperation() {
     final Map<ViewComputationCache, OverrideOperation> shifts = new HashMap<ViewComputationCache, OverrideOperation>();
+    OverrideOperationCompiler compiler = null;
+    ComputationTargetResolver.AtVersionCorrection resolver = null;
     for (final ViewCalculationConfiguration calcConfig : getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurations()) {
       final Set<String> marketDataShift = calcConfig.getDefaultProperties().getValues(MARKET_DATA_SHIFT_PROPERTY);
       OverrideOperation operation = null;
@@ -412,9 +416,13 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           // This doesn't really mean much
           s_logger.error("Market data shift for {} not valid - {}", calcConfig.getName(), marketDataShift);
         } else {
+          if (compiler == null) {
+            compiler = getViewProcessContext().getOverrideOperationCompiler();
+            resolver = getViewProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver().atVersionCorrection(getVersionCorrection());
+          }
           final String shiftExpr = marketDataShift.iterator().next();
           try {
-            operation = getViewProcessContext().getOverrideOperationCompiler().compile(shiftExpr);
+            operation = compiler.compile(shiftExpr, resolver);
           } catch (final IllegalArgumentException e) {
             s_logger.error("Market data shift for  {} not valid - {}", calcConfig.getName(), shiftExpr);
             s_logger.info("Invalid market data shift", e);

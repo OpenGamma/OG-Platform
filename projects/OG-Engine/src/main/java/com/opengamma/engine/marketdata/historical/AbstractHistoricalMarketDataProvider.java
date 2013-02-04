@@ -5,10 +5,7 @@
  */
 package com.opengamma.engine.marketdata.historical;
 
-import java.util.Collections;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
@@ -20,32 +17,30 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
-import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.MarketDataTargetResolver;
-import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Market data provider that sources data from historical time-series.
  */
-public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarketDataProvider implements MarketDataAvailabilityProvider, MarketDataTargetResolver {
+public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarketDataProvider implements MarketDataAvailabilityProvider {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractHistoricalMarketDataProvider.class);
 
   private final HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   private final String _timeSeriesResolverKey;
   private final MarketDataPermissionProvider _permissionProvider;
-  private final ConcurrentMap<ValueRequirement, Pair<ExternalIdBundle, Integer>> _subscriptionIdBundleMap = new ConcurrentHashMap<ValueRequirement, Pair<ExternalIdBundle, Integer>>();
-  private final ExternalIdBundleLookup _externalIdLookup;
 
   /**
    * Creates a new market data provider.
@@ -62,7 +57,6 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
     _historicalTimeSeriesSource = historicalTimeSeriesSource;
     _timeSeriesResolverKey = timeSeriesResolverKey;
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
-    _externalIdLookup = new ExternalIdBundleLookup(securitySource);
   }
 
   public AbstractHistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final SecuritySource securitySource) {
@@ -70,48 +64,25 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
   }
 
   @Override
-  public void subscribe(final ValueRequirement valueRequirement) {
-    subscribe(Collections.singleton(valueRequirement));
+  public void subscribe(final ValueSpecification valueSpecification) {
+    s_logger.debug("Added subscriptions to {}", valueSpecification);
+    subscriptionSucceeded(valueSpecification);
   }
 
   @Override
-  public void subscribe(final Set<ValueRequirement> valueRequirements) {
-    synchronized (_subscriptionIdBundleMap) {
-      for (final ValueRequirement requirement : valueRequirements) {
-        final Pair<ExternalIdBundle, Integer> existing = _subscriptionIdBundleMap.get(requirement);
-        if (existing != null) {
-          _subscriptionIdBundleMap.put(requirement, Pair.of(existing.getFirst(), existing.getSecond() + 1));
-        } else {
-          _subscriptionIdBundleMap.put(requirement, Pair.of(getExternalIdBundleLookup().getExternalIds(requirement.getTargetReference()), 1));
-        }
-      }
-    }
-    s_logger.debug("Added subscriptions to {}", valueRequirements);
-    subscriptionSucceeded(valueRequirements);
+  public void subscribe(final Set<ValueSpecification> valueSpecifications) {
+    s_logger.debug("Added subscriptions to {}", valueSpecifications);
+    subscriptionSucceeded(valueSpecifications);
   }
 
   @Override
-  public void unsubscribe(final ValueRequirement valueRequirement) {
-    unsubscribe(Collections.singleton(valueRequirement));
+  public void unsubscribe(final ValueSpecification valueSpecification) {
+    s_logger.debug("Removed subscription from {}", valueSpecification);
   }
 
   @Override
-  public void unsubscribe(final Set<ValueRequirement> valueRequirements) {
-    synchronized (_subscriptionIdBundleMap) {
-      for (final ValueRequirement requirement : valueRequirements) {
-        final Pair<ExternalIdBundle, Integer> existing = _subscriptionIdBundleMap.get(requirement);
-        if (existing == null) {
-          s_logger.warn("Attempted to unsubscribe from {} for which no subscription exists", requirement);
-          continue;
-        }
-        if (existing.getSecond() == 1) {
-          _subscriptionIdBundleMap.remove(requirement);
-        } else {
-          _subscriptionIdBundleMap.put(requirement, Pair.of(existing.getFirst(), existing.getSecond() - 1));
-        }
-      }
-    }
-    s_logger.debug("Removed subscriptions from {}", valueRequirements);
+  public void unsubscribe(final Set<ValueSpecification> valueSpecifications) {
+    s_logger.debug("Removed subscriptions from {}", valueSpecifications);
   }
 
   //-------------------------------------------------------------------------
@@ -137,43 +108,41 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
 
   @Override
   public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
-    // TODO [PLAT-3044] Implement this properly
-    final ExternalIdBundle idBundle = getExternalIdBundle(desiredValue);
-    if (idBundle == null) {
+    final ExternalIdBundle identifiers;
+    if (target instanceof ExternalBundleIdentifiable) {
+      identifiers = ((ExternalBundleIdentifiable) target).getExternalIdBundle();
+    } else if (target instanceof ExternalIdentifiable) {
+      identifiers = ((ExternalIdentifiable) target).getExternalId().toBundle();
+    } else {
       return null;
     }
-    final HistoricalTimeSeries hts =
-        _historicalTimeSeriesSource.getHistoricalTimeSeries(desiredValue.getValueName(), idBundle, null,
-            _timeSeriesResolverKey, null, true, null, true, 0);
+    final HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(desiredValue.getValueName(), identifiers, null, _timeSeriesResolverKey, null, true, null, true, 0);
     if (hts == null) {
       if (s_logger.isDebugEnabled() && desiredValue.getValueName().equals(MarketDataRequirementNames.MARKET_VALUE)) {
         s_logger.debug("Missing market data {}", desiredValue);
       }
       return null;
     } else {
-      return MarketDataUtils.createMarketDataValue(desiredValue, hts.getUniqueId());
+      return new ValueSpecification(desiredValue.getValueName(), ComputationTargetSpecification.of(hts.getUniqueId()), ValueProperties.with(ValuePropertyNames.FUNCTION, getSyntheticFunctionName())
+          .get());
     }
-  }
-
-  @Override
-  public ExternalIdBundle getExternalIdBundle(final ValueRequirement requirement) {
-    final Pair<ExternalIdBundle, Integer> existingSubscription = _subscriptionIdBundleMap.get(requirement);
-    if (existingSubscription != null) {
-      return existingSubscription.getFirst();
-    }
-    return getExternalIdBundleLookup().getExternalIds(requirement.getTargetReference());
   }
 
   protected HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _historicalTimeSeriesSource;
   }
 
-  protected ExternalIdBundleLookup getExternalIdBundleLookup() {
-    return _externalIdLookup;
-  }
-
   public String getTimeSeriesResolverKey() {
     return _timeSeriesResolverKey;
+  }
+
+  /**
+   * The function name used in value specifications describing items sourced by this provider. This is only used for diagnostics when browsing the dependency graph.
+   *
+   * @return the function name
+   */
+  protected String getSyntheticFunctionName() {
+    return getClass().getSimpleName();
   }
 
 }

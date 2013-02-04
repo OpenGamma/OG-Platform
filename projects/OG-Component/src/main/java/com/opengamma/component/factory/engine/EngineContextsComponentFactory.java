@@ -215,8 +215,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   }
 
   protected OverrideOperationCompiler initOverrideOperationCompiler(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
-    final OverrideOperationCompiler ooc = new MarketDataELCompiler(getSecuritySource());
-
+    final OverrideOperationCompiler ooc = new MarketDataELCompiler();
     final ComponentInfo info = new ComponentInfo(OverrideOperationCompiler.class, getClassifier());
     repo.registerComponent(info, ooc);
     return ooc;
