@@ -9,6 +9,8 @@ import static com.opengamma.bbg.BloombergConstants.BBG_BASE_METAL_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BBG_COAL;
 import static com.opengamma.bbg.BloombergConstants.BBG_CRUDE_OIL;
 import static com.opengamma.bbg.BloombergConstants.BBG_ELECTRICITY;
+import static com.opengamma.bbg.BloombergConstants.BBG_FOODSTUFF;
+import static com.opengamma.bbg.BloombergConstants.BBG_LIVESTOCK;
 import static com.opengamma.bbg.BloombergConstants.BBG_PRECIOUS_METAL_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BBG_REFINED_PRODUCTS;
 import static com.opengamma.bbg.BloombergConstants.BBG_SOY;
@@ -87,7 +89,9 @@ public class CommodityFutureOptionLoader extends SecurityLoader {
       BBG_COAL,
       BBG_CRUDE_OIL,
       BBG_WHEAT,
-      BBG_SOY);
+      BBG_SOY,
+      BBG_FOODSTUFF,
+      BBG_LIVESTOCK);
 
   private static final ExchangeDataProvider exchangeData = DefaultExchangeDataProvider.getInstance();
 
