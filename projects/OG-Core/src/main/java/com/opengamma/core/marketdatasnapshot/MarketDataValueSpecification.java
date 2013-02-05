@@ -32,12 +32,12 @@ public final class MarketDataValueSpecification {
   private final ExternalId _identifier;
 
   /**
-   * Creates an instance for a type of market data and a unique identifier.
-   * 
+   * Creates an instance for a type of market data and an external identifier.
+   *
    * @param type the type of market data this refers to, not null
    * @param identifier an identifier of the data this refers to, for example a ticker, not null
    */
-  public MarketDataValueSpecification(MarketDataValueType type, ExternalId identifier) {
+  public MarketDataValueSpecification(final MarketDataValueType type, final ExternalId identifier) {
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(identifier, "identifier");
     _type = type;
@@ -47,7 +47,7 @@ public final class MarketDataValueSpecification {
   //-------------------------------------------------------------------------
   /**
    * Gets the type of the market data.
-   * 
+   *
    * @return the type
    */
   public MarketDataValueType getType() {
@@ -56,7 +56,7 @@ public final class MarketDataValueSpecification {
 
   /**
    * Gets the identifier of the data.
-   * 
+   *
    * @return the identifier
    */
   public ExternalId getIdentifier() {
@@ -68,17 +68,17 @@ public final class MarketDataValueSpecification {
    * Checks if this specification equals another.
    * <p>
    * This checks the type and unique identifier.
-   * 
+   *
    * @param object  the object to compare to, null returns false
    * @return true if equal
    */
   @Override
-  public boolean equals(Object object) {
+  public boolean equals(final Object object) {
     if (object == this) {
       return true;
     }
     if (object instanceof MarketDataValueSpecification) {
-      MarketDataValueSpecification other = (MarketDataValueSpecification) object;
+      final MarketDataValueSpecification other = (MarketDataValueSpecification) object;
       return ObjectUtils.equals(getType(), other.getType()) &&
               ObjectUtils.equals(getIdentifier(), other.getIdentifier());
     }
@@ -87,7 +87,7 @@ public final class MarketDataValueSpecification {
 
   /**
    * Returns a suitable hash code.
-   * 
+   *
    * @return the hash code
    */
   @Override
@@ -103,7 +103,7 @@ public final class MarketDataValueSpecification {
    *     UniqueId uniqueId;
    *   }
    * </pre>
-   * 
+   *
    * @param serializer Fudge serialization context, not null
    * @return the message representation of this value specification
    */
@@ -116,8 +116,8 @@ public final class MarketDataValueSpecification {
   }
 
   public static MarketDataValueSpecification fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    MarketDataValueType type = deserializer.fieldValueToObject(MarketDataValueType.class, msg.getByName("type"));
-    ExternalId identifier = deserializer.fieldValueToObject(ExternalId.class, msg.getByName("uniqueId"));
+    final MarketDataValueType type = deserializer.fieldValueToObject(MarketDataValueType.class, msg.getByName("type"));
+    final ExternalId identifier = deserializer.fieldValueToObject(ExternalId.class, msg.getByName("uniqueId"));
     return new MarketDataValueSpecification(type, identifier);
   }
 
