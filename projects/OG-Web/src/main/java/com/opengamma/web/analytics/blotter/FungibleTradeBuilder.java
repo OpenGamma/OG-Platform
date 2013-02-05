@@ -92,13 +92,12 @@ import com.opengamma.util.OpenGammaClock;
     sink.setValue(property.name(), property.metaProperty().getString(property.bean()));
   }
 
-  // TODO need a test for this
   /* package */ UniqueId addTrade(BeanDataSource tradeData, UniqueId nodeId) {
     ManageableTrade trade = buildTrade(tradeData);
     Security security = trade.getSecurityLink().resolve(_securitySource);
     // this slightly awkward approach is due to the portfolio master API. you can look up a node directly but in order
     // to save it you have to save the whole portfolio. this means you need to look up the node to find the portfolio
-    // ID, look up the portfolio, find the node in the portfolio and operate on that
+    // ID, look up the portfolio, find the node in the portfolio, modify that copy of the node and save the portfolio
     ManageablePortfolioNode node = _portfolioMaster.getNode(nodeId);
     ManageablePortfolio portfolio = _portfolioMaster.get(node.getPortfolioId()).getPortfolio();
     ManageablePortfolioNode portfolioNode = findNode(portfolio.getRootNode(), nodeId);
@@ -122,15 +121,30 @@ import com.opengamma.util.OpenGammaClock;
 
   /* package */ UniqueId updateTrade(BeanDataSource tradeData) {
     ManageableTrade trade = buildTrade(tradeData);
-    // TODO need the node ID so we can add the position to the portfolio node
-    // TODO would it be better to have a saveTrade method that adds it to the position, saves it and returns the trade ID?
-    // TODO is a trade's security allowed to change? presumably not
-    //ManageablePosition position = getPosition(trade);
-    //ManageablePosition savedPosition = savePosition(position);
-    //List<ManageableTrade> trades = savedPosition.getTrades();
-    //ManageableTrade savedTrade = trades.get(0);
-    //return savedTrade.getUniqueId();
-    throw new UnsupportedOperationException();
+    ManageableTrade previousTrade = getPositionMaster().getTrade(trade.getUniqueId());
+    ManageablePosition position = getPositionMaster().get(previousTrade.getParentPositionId()).getPosition();
+    if (!trade.getSecurityLink().equals(previousTrade.getSecurityLink())) {
+      throw new IllegalArgumentException("Cannot update a trade's security. new version " + trade +
+                                             ", previous version: " + previousTrade);
+    }
+    List<ManageableTrade> trades = Lists.newArrayList();
+    for (ManageableTrade existingTrade : position.getTrades()) {
+      if (existingTrade.getUniqueId().equals(trade.getUniqueId())) {
+        trades.add(trade);
+        position.setQuantity(position.getQuantity().subtract(existingTrade.getQuantity()).add(trade.getQuantity()));
+      } else {
+        trades.add(existingTrade);
+      }
+    }
+    position.setTrades(trades);
+    ManageablePosition savedPosition = getPositionMaster().update(new PositionDocument(position)).getPosition();
+    ManageableTrade savedTrade = savedPosition.getTrade(trade.getUniqueId().getObjectId());
+    if (savedTrade == null) {
+      // shouldn't ever happen
+      throw new DataNotFoundException("Failed to save trade " + trade + " to position " + savedPosition);
+    } else {
+      return savedTrade.getUniqueId();
+    }
   }
 
   /**
@@ -179,6 +193,7 @@ import com.opengamma.util.OpenGammaClock;
       throw new IllegalArgumentException("Trade counterparty is required");
     }
     tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
+    // TODO validation?
     return tradeBuilder.build();
   }
   /**

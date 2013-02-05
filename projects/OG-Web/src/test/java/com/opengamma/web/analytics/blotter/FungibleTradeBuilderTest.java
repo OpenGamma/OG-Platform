@@ -94,9 +94,10 @@ public class FungibleTradeBuilderTest {
     _savedNode = savedPortfolio.getRootNode().getChildNodes().get(0);
   }
 
-  private BeanDataSource createTradeData(String securityTicker) {
+  private BeanDataSource createTradeData(String securityTicker, String id) {
     String securityId = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, securityTicker).toString();
-    return BlotterTestUtils.beanData("type", FungibleTradeBuilder.TRADE_TYPE_NAME,
+    return BlotterTestUtils.beanData("uniqueId", id,
+                                     "type", FungibleTradeBuilder.TRADE_TYPE_NAME,
                                      "tradeDate", "2012-12-21",
                                      "tradeTime", "14:25",
                                      "securityIdBundle", securityId,
@@ -115,7 +116,7 @@ public class FungibleTradeBuilderTest {
    */
   @Test
   public void addTradeNoExistingPosition() {
-    UniqueId tradeId = _tradeBuilder.addTrade(createTradeData("INTC US Equity"), _savedNode.getUniqueId());
+    UniqueId tradeId = _tradeBuilder.addTrade(createTradeData("INTC US Equity", null), _savedNode.getUniqueId());
     ManageableTrade testTrade = _positionMaster.getTrade(tradeId);
     assertEquals(LocalDate.of(2012, 12, 21), testTrade.getTradeDate());
     assertEquals(OffsetTime.of(LocalTime.of(14, 25), ZoneOffset.UTC), testTrade.getTradeTime());
@@ -146,7 +147,7 @@ public class FungibleTradeBuilderTest {
    */
   @Test
   public void addTradeToExistingPosition() {
-    UniqueId tradeId = _tradeBuilder.addTrade(createTradeData("AAPL US Equity"), _savedNode.getUniqueId());
+    UniqueId tradeId = _tradeBuilder.addTrade(createTradeData("AAPL US Equity", null), _savedNode.getUniqueId());
     ManageableTrade testTrade = _positionMaster.getTrade(tradeId);
     assertEquals(LocalDate.of(2012, 12, 21), testTrade.getTradeDate());
     assertEquals(OffsetTime.of(LocalTime.of(14, 25), ZoneOffset.UTC), testTrade.getTradeTime());
@@ -169,5 +170,37 @@ public class FungibleTradeBuilderTest {
     ManageablePortfolioNode testNode = testPortfolio.getRootNode().getChildNodes().get(0);
     assertEquals(1, testNode.getPositionIds().size());
     assertEquals(_savedPosition.getUniqueId().getObjectId(), testNode.getPositionIds().get(0));
+  }
+
+  /**
+   * update a trade - the position's quantity should also be adjusted
+   */
+  @Test
+  public void updateTrade() {
+    ManageableTrade previousTrade = _savedPosition.getTrades().get(0);
+    BeanDataSource tradeData = createTradeData("AAPL US Equity", previousTrade.getUniqueId().toString());
+    UniqueId updatedId = _tradeBuilder.updateTrade(tradeData);
+
+    ManageableTrade updatedTrade = _positionMaster.getTrade(updatedId);
+    assertEquals(LocalDate.of(2012, 12, 21), updatedTrade.getTradeDate());
+    assertEquals(OffsetTime.of(LocalTime.of(14, 25), ZoneOffset.UTC), updatedTrade.getTradeTime());
+    assertEquals(APPLE_BUNDLE, updatedTrade.getSecurityLink().getExternalId());
+    assertEquals(1234d, updatedTrade.getPremium());
+    assertEquals(Currency.USD, updatedTrade.getPremiumCurrency());
+    assertEquals(LocalDate.of(2012, 12, 22), updatedTrade.getPremiumDate());
+    assertEquals(OffsetTime.of(LocalTime.of(13, 30), ZoneOffset.UTC), updatedTrade.getPremiumTime());
+    assertEquals(BigDecimal.valueOf(30), updatedTrade.getQuantity());
+    assertEquals(ExternalId.of(AbstractTradeBuilder.CPTY_SCHEME, "cptyName"), updatedTrade.getCounterpartyExternalId());
+    assertTrue(updatedTrade.getAttributes().isEmpty());
+  }
+
+  /**
+   * update the trade and change the security - this should fail
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void updateTradeChangeSecurity() {
+    ManageableTrade previousTrade = _savedPosition.getTrades().get(0);
+    BeanDataSource tradeData = createTradeData("INTC US Equity", previousTrade.getUniqueId().toString());
+    _tradeBuilder.updateTrade(tradeData);
   }
 }
