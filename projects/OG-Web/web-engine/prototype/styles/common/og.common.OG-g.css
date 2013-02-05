@@ -117,7 +117,7 @@
     float: right;
     position: absolute;
     right: -3px;
-    top: 0px;
+    top: 0;
     height: 100%;
     width: 3px;
     cursor: ew-resize;
@@ -125,14 +125,12 @@
 }
 
 .OG-g-h-resize:hover {
-    border-left: 3px solid #555;
+    border-left-color: #999;
 }
 
 .OG-g-h-resizer {
+    border-left: 1px dotted #000;
     position: absolute;
-    width: 1px;
-    background: #555;
-    border: 1px dotted #ddd;
     z-index: 5;
 }
 
