@@ -24,7 +24,6 @@ import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
@@ -57,11 +56,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
   /**
-   * The security source.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private SecuritySource _securitySource;
-  /**
    * The meta-data about the server.
    */
   @PropertyDefinition(validate = "notNull")
@@ -83,7 +77,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     final LiveDataMetaDataProvider provider = getServerMetaDataProvider();
     final LiveDataClient liveDataClient = createLiveDataClient(provider);
 
-    final MarketDataAvailabilityProvider availabilityProvider = BloombergDataUtils.createAvailabilityProvider(getSecuritySource());
+    final MarketDataAvailabilityProvider availabilityProvider = BloombergDataUtils.createAvailabilityProvider();
     // [PLAT-3044] The MDAP must perform resolution of external identifier bundles
     final LiveDataFactory defaultFactory = new LiveDataFactory(liveDataClient, availabilityProvider);
     final Map<String, LiveDataFactory> factoryMap = ImmutableMap.of(BLOOMBERG_LIVE_SOURCE_NAME, defaultFactory);
@@ -148,8 +142,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
-      case -702456965:  // securitySource
-        return getSecuritySource();
       case -187029565:  // serverMetaDataProvider
         return getServerMetaDataProvider();
       case -1495762275:  // jmsConnector
@@ -164,9 +156,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
       case -281470431:  // classifier
         setClassifier((String) newValue);
         return;
-      case -702456965:  // securitySource
-        setSecuritySource((SecuritySource) newValue);
-        return;
       case -187029565:  // serverMetaDataProvider
         setServerMetaDataProvider((LiveDataMetaDataProvider) newValue);
         return;
@@ -180,7 +169,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_securitySource, "securitySource");
     JodaBeanUtils.notNull(_serverMetaDataProvider, "serverMetaDataProvider");
     JodaBeanUtils.notNull(_jmsConnector, "jmsConnector");
     super.validate();
@@ -194,7 +182,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     if (obj != null && obj.getClass() == this.getClass()) {
       final ExampleMarketDataComponentFactory other = (ExampleMarketDataComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getServerMetaDataProvider(), other.getServerMetaDataProvider()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           super.equals(obj);
@@ -206,7 +193,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getServerMetaDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     return hash ^ super.hashCode();
@@ -236,32 +222,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
    */
   public final Property<String> classifier() {
     return metaBean().classifier().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the security source.
-   * @return the value of the property, not null
-   */
-  public SecuritySource getSecuritySource() {
-    return _securitySource;
-  }
-
-  /**
-   * Sets the security source.
-   * @param securitySource  the new value of the property, not null
-   */
-  public void setSecuritySource(final SecuritySource securitySource) {
-    JodaBeanUtils.notNull(securitySource, "securitySource");
-    this._securitySource = securitySource;
-  }
-
-  /**
-   * Gets the the {@code securitySource} property.
-   * @return the property, not null
-   */
-  public final Property<SecuritySource> securitySource() {
-    return metaBean().securitySource().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -332,11 +292,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", ExampleMarketDataComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code securitySource} property.
-     */
-    private final MetaProperty<SecuritySource> _securitySource = DirectMetaProperty.ofReadWrite(
-        this, "securitySource", ExampleMarketDataComponentFactory.class, SecuritySource.class);
-    /**
      * The meta-property for the {@code serverMetaDataProvider} property.
      */
     private final MetaProperty<LiveDataMetaDataProvider> _serverMetaDataProvider = DirectMetaProperty.ofReadWrite(
@@ -352,7 +307,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "securitySource",
         "serverMetaDataProvider",
         "jmsConnector");
 
@@ -367,8 +321,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
-        case -702456965:  // securitySource
-          return _securitySource;
         case -187029565:  // serverMetaDataProvider
           return _serverMetaDataProvider;
         case -1495762275:  // jmsConnector
@@ -399,14 +351,6 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
      */
     public final MetaProperty<String> classifier() {
       return _classifier;
-    }
-
-    /**
-     * The meta-property for the {@code securitySource} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<SecuritySource> securitySource() {
-      return _securitySource;
     }
 
     /**

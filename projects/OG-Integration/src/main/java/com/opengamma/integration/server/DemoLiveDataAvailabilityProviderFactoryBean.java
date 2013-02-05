@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashSet;
 
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNamesHelper;
 import com.opengamma.engine.marketdata.availability.DomainMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
@@ -18,22 +17,16 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
- * 
+ *
  */
 public class DemoLiveDataAvailabilityProviderFactoryBean extends SingletonFactoryBean<MarketDataAvailabilityProvider> {
 
-  private final SecuritySource _securitySource;
-  
-  public DemoLiveDataAvailabilityProviderFactoryBean(SecuritySource securitySource) {
-    _securitySource = securitySource;
-  }
-  
   @Override
   protected MarketDataAvailabilityProvider createObject() {
-    Collection<ExternalScheme> acceptableSchemes = new HashSet<ExternalScheme>();
+    final Collection<ExternalScheme> acceptableSchemes = new HashSet<ExternalScheme>();
     Collections.addAll(acceptableSchemes, ExternalSchemes.BLOOMBERG_BUID_WEAK, ExternalSchemes.BLOOMBERG_BUID, ExternalSchemes.BLOOMBERG_TICKER_WEAK, ExternalSchemes.BLOOMBERG_TICKER);
-    Collection<String> validMarketDataRequirementNames = MarketDataRequirementNamesHelper.constructValidRequirementNames();
-    return new DomainMarketDataAvailabilityProvider(_securitySource, acceptableSchemes, validMarketDataRequirementNames);
+    final Collection<String> validMarketDataRequirementNames = MarketDataRequirementNamesHelper.constructValidRequirementNames();
+    return new DomainMarketDataAvailabilityProvider(acceptableSchemes, validMarketDataRequirementNames);
   }
 
 }

@@ -142,8 +142,7 @@ public class DependencyGraphBuilderResourceTest {
 
       @Override
       public MarketDataAvailabilityProvider getAvailabilityProvider() {
-        return new DomainMarketDataAvailabilityProvider(cfs.getFunctionCompilationContext().getSecuritySource(), Arrays.asList(ExternalScheme.of("Foo")), Arrays
-            .asList(MarketDataRequirementNames.MARKET_VALUE));
+        return new DomainMarketDataAvailabilityProvider(Arrays.asList(ExternalScheme.of("Foo")), Arrays.asList(MarketDataRequirementNames.MARKET_VALUE));
       }
 
       @Override

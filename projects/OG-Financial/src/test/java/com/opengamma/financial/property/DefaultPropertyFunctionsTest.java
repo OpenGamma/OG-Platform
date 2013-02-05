@@ -399,8 +399,7 @@ public class DefaultPropertyFunctionsTest {
     ctx.setComputationTargetResults(new ComputationTargetResults(cfr.getAllResolutionRules()));
     ctx.init();
     builder.setFunctionResolver(cfr);
-    builder.setMarketDataAvailabilityProvider(new DomainMarketDataAvailabilityProvider(ctx.getSecuritySource(), Arrays.asList(ExternalScheme.of("Foo")), Arrays
-        .asList(MarketDataRequirementNames.MARKET_VALUE)));
+    builder.setMarketDataAvailabilityProvider(new DomainMarketDataAvailabilityProvider(Arrays.asList(ExternalScheme.of("Foo")), Arrays.asList(MarketDataRequirementNames.MARKET_VALUE)));
     return builder;
   }
 

@@ -12,10 +12,12 @@ import com.opengamma.util.PublicSPI;
  * for a given requirement.
  * <p>
  * Availability status is used, for example, in dependency graph building to decide whether
- * to satisfy a requirement directly from market data or use a function application. 
+ * to satisfy a requirement directly from market data or use a function application.
  */
 @PublicSPI
 public enum MarketDataAvailability {
+
+  // PLAT-3044 Do we need this?
 
   /**
    * Market data <em>should</em> be available for the requirement.
@@ -27,7 +29,7 @@ public enum MarketDataAvailability {
 
   /**
    * Market data is not available. To build a dependency graph, the requirement must be
-   * satisfied by some other means such as a function application. 
+   * satisfied by some other means such as a function application.
    */
   NOT_AVAILABLE,
 
@@ -42,7 +44,7 @@ public enum MarketDataAvailability {
 
   /**
    * Tests if this enum value is the {@link #AVAILABLE} value.
-   * 
+   *
    * @return true if this is the {@link #AVAILABLE} value, false otherwise
    */
   public boolean isAvailable() {
