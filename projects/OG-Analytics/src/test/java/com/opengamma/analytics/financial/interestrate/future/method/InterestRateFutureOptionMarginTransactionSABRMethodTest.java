@@ -5,41 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-
-import java.util.List;
-import java.util.Map;
-
-import org.testng.annotations.Test;
-import org.threeten.bp.Period;
-import org.threeten.bp.ZonedDateTime;
-
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.analytics.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueSABRCalculator;
-import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.analytics.financial.interestrate.method.SensitivityFiniteDifference;
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
-import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests the method for interest rate future option with SABR volatility parameter surfaces.
@@ -238,6 +203,5 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   //    assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getRho(), sensiSecurity.getRho());
   //    assertEquals("Future discounting curve sensitivity: security price vs transaction sensitivity", sensiMethod.getNu(), sensiSecurity.getNu());
   //  }
->>>>>>> [PLAT-3042] Create futures transaction/security. Changed methods and calculators.
 
 }

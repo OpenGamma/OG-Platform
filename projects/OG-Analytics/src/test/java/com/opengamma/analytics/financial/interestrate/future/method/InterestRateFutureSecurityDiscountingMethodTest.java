@@ -5,34 +5,6 @@
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-
-import org.testng.annotations.Test;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.LocalTime;
-import org.threeten.bp.Period;
-import org.threeten.bp.ZoneOffset;
-import org.threeten.bp.ZonedDateTime;
-
-import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
-import com.opengamma.analytics.financial.interestrate.ParSpreadMarketQuoteCalculator;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.future.calculator.PriceFromCurvesDiscountingCalculator;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests for the methods related to interest rate securities pricing without convexity adjustment.
@@ -130,6 +102,5 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   //    final CurrencyAmount pv0 = METHOD.presentValue(futures0, CURVES);
   //    assertEquals("Future par spread", pv0.getAmount(), 0, TOLERANCE_PV);
   //  }
->>>>>>> [PLAT-3042] Create futures transaction/security. Changed methods and calculators.
 
 }
