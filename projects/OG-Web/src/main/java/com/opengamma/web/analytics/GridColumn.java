@@ -56,7 +56,7 @@ import com.opengamma.util.ArgumentChecker;
                                          Class<?> columnType,
                                          TargetLookup targetLookup) {
     CellRenderer renderer = new AnalyticsRenderer(columnSpec, targetLookup);
-    return new GridColumn(createHeader(columnSpec),
+    return new GridColumn(columnSpec.getValueName(),
                           createDescription(columnSpec.getValueProperties()),
                           columnType,
                           renderer,
@@ -93,17 +93,6 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ ResultsCell getResults(int rowIndex, ResultsCache cache) {
     return _renderer.getResults(rowIndex, cache, _type);
-  }
-
-  private static String createHeader(ColumnSpecification columnKey) {
-    String header;
-    String normalizedConfigName = columnKey.getCalcConfigName().toLowerCase().trim();
-    if ("default".equals(normalizedConfigName) || "portfolio".equals(normalizedConfigName)) {
-      header = columnKey.getValueName();
-    } else {
-      header = columnKey.getCalcConfigName() + "/" + columnKey.getValueName();
-    }
-    return header;
   }
 
   private static String createDescription(ValueProperties constraints) {
