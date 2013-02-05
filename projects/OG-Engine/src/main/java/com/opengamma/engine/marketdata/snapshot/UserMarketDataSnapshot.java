@@ -17,8 +17,8 @@ import org.threeten.bp.Instant;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
+import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataKey;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.ValueSnapshot;
@@ -34,14 +34,18 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
+import com.opengamma.engine.marketdata.availability.AbstractMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
@@ -54,13 +58,14 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Represents a market data snapshot from a {@link MarketDataSnapshotSource}.
  */
-public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implements StructuredMarketDataKey.Visitor<Object>, MarketDataAvailabilityProvider {
+public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private static final String INSTRUMENT_TYPE_PROPERTY = "InstrumentType";
   private static final String SURFACE_QUOTE_TYPE_PROPERTY = "SurfaceQuoteType";
   private static final String SURFACE_QUOTE_UNITS_PROPERTY = "SurfaceUnits";
 
   private static final Map<String, StructuredMarketDataHandler> s_structuredDataHandler = new HashMap<String, StructuredMarketDataHandler>();
+  private static final ValueProperties GLOBAL_VALUE_QUERY_PROPERTIES = MemoryUtils.instance(ValueProperties.with(ValuePropertyNames.FUNCTION, "GlobalValue").get());
 
   private final MarketDataSnapshotSource _snapshotSource;
   private final UniqueId _snapshotId;
@@ -161,7 +166,13 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
       @Override
       protected Object query(final UniqueId target, final ValueProperties properties, final StructuredMarketDataSnapshot snapshot) {
         final String name = properties.getValues(ValuePropertyNames.CURVE).iterator().next();
-        return snapshot.getYieldCurves().get(new YieldCurveKey(Currency.of(target.getValue()), name));
+        if (snapshot.getYieldCurves() != null) {
+          final YieldCurveSnapshot data = snapshot.getYieldCurves().get(new YieldCurveKey(Currency.of(target.getValue()), name));
+          if (data != null) {
+            return convertYieldCurveMarketData(data);
+          }
+        }
+        return null;
       }
 
     });
@@ -213,7 +224,14 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
         final String instrumentType = properties.getValues(INSTRUMENT_TYPE_PROPERTY).iterator().next();
         final String quoteType = properties.getValues(SURFACE_QUOTE_TYPE_PROPERTY).iterator().next();
         final String quoteUnits = properties.getValues(SURFACE_QUOTE_UNITS_PROPERTY).iterator().next();
-        return snapshot.getVolatilitySurfaces().get(new VolatilitySurfaceKey(target, name, instrumentType, quoteType, quoteUnits));
+        if (snapshot.getVolatilitySurfaces() != null) {
+          final VolatilitySurfaceKey key = new VolatilitySurfaceKey(target, name, instrumentType, quoteType, quoteUnits);
+          final VolatilitySurfaceSnapshot data = snapshot.getVolatilitySurfaces().get(key);
+          if (data != null) {
+            return createVolatilitySurfaceData(data, key);
+          }
+        }
+        return null;
       }
 
     });
@@ -250,7 +268,13 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
       @Override
       protected Object query(final UniqueId target, final ValueProperties properties, final StructuredMarketDataSnapshot snapshot) {
         final String name = properties.getValues(ValuePropertyNames.CUBE).iterator().next();
-        return snapshot.getVolatilityCubes().get(new VolatilityCubeKey(Currency.of(target.getValue()), name));
+        if (snapshot.getVolatilityCubes() != null) {
+          final VolatilityCubeSnapshot data = snapshot.getVolatilityCubes().get(new VolatilityCubeKey(Currency.of(target.getValue()), name));
+          if (data != null) {
+            return convertVolatilityCubeMarketData(data);
+          }
+        }
+        return null;
       }
 
     });
@@ -263,54 +287,6 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
 
   private static void registerStructuredMarketDataHandler(final String valueRequirementName, final StructuredMarketDataHandler handler) {
     s_structuredDataHandler.put(valueRequirementName, handler);
-  }
-
-  @Override
-  public Object visitYieldCurveKey(final YieldCurveKey marketDataKey) {
-    final YieldCurveSnapshot yieldCurveSnapshot = getYieldCurveSnapshot(marketDataKey);
-    if (yieldCurveSnapshot == null) {
-      return null;
-    }
-    return buildSnapshot(yieldCurveSnapshot);
-  }
-
-  @Override
-  public Object visitVolatilitySurfaceKey(final VolatilitySurfaceKey marketDataKey) {
-    final VolatilitySurfaceSnapshot volSurfaceSnapshot = getVolSurfaceSnapshot(marketDataKey);
-    if (volSurfaceSnapshot == null) {
-      return null;
-    }
-    return buildVolatilitySurfaceData(volSurfaceSnapshot, marketDataKey);
-  }
-
-  @Override
-  public Object visitVolatilityCubeKey(final VolatilityCubeKey marketDataKey) {
-    final VolatilityCubeSnapshot volCubeSnapshot = getVolCubeSnapshot(marketDataKey);
-    if (volCubeSnapshot == null) {
-      return null;
-    }
-    return buildVolatilityCubeData(volCubeSnapshot);
-  }
-
-  private YieldCurveSnapshot getYieldCurveSnapshot(final YieldCurveKey yieldcurveKey) {
-    if (getSnapshot().getYieldCurves() == null) {
-      return null;
-    }
-    return getSnapshot().getYieldCurves().get(yieldcurveKey);
-  }
-
-  private VolatilityCubeSnapshot getVolCubeSnapshot(final VolatilityCubeKey volCubeKey) {
-    if (getSnapshot().getVolatilityCubes() == null) {
-      return null;
-    }
-    return getSnapshot().getVolatilityCubes().get(volCubeKey);
-  }
-
-  private VolatilitySurfaceSnapshot getVolSurfaceSnapshot(final VolatilitySurfaceKey volSurfaceKey) {
-    if (getSnapshot().getVolatilitySurfaces() == null) {
-      return null;
-    }
-    return getSnapshot().getVolatilitySurfaces().get(volSurfaceKey);
   }
 
   private StructuredMarketDataSnapshot getSnapshot() {
@@ -328,7 +304,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
     return _snapshotId;
   }
 
-  private Double query(final ValueSnapshot valueSnapshot) {
+  private static Double query(final ValueSnapshot valueSnapshot) {
     if (valueSnapshot == null) {
       return null;
     }
@@ -339,12 +315,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
     return valueSnapshot.getMarketValue();
   }
 
-  private SnapshotDataBundle buildSnapshot(final YieldCurveSnapshot yieldCurveSnapshot) {
-    final UnstructuredMarketDataSnapshot values = yieldCurveSnapshot.getValues();
-    return buildBundle(values);
-  }
-
-  private SnapshotDataBundle buildBundle(final UnstructuredMarketDataSnapshot values) {
+  private static SnapshotDataBundle createSnapshotDataBundle(final UnstructuredMarketDataSnapshot values) {
     final SnapshotDataBundle ret = new SnapshotDataBundle();
     final HashMap<ExternalId, Double> points = new HashMap<ExternalId, Double>();
     for (final Entry<MarketDataValueSpecification, Map<String, ValueSnapshot>> entry : values.getValues().entrySet()) {
@@ -355,7 +326,11 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
     return ret;
   }
 
-  private VolatilitySurfaceData<Object, Object> buildVolatilitySurfaceData(final VolatilitySurfaceSnapshot volCubeSnapshot, final VolatilitySurfaceKey marketDataKey) {
+  private static SnapshotDataBundle convertYieldCurveMarketData(final YieldCurveSnapshot yieldCurveSnapshot) {
+    return createSnapshotDataBundle(yieldCurveSnapshot.getValues());
+  }
+
+  private static VolatilitySurfaceData<Object, Object> createVolatilitySurfaceData(final VolatilitySurfaceSnapshot volCubeSnapshot, final VolatilitySurfaceKey marketDataKey) {
     final Set<Object> xs = new HashSet<Object>();
     final Set<Object> ys = new HashSet<Object>();
     final Map<Pair<Object, Object>, Double> values = new HashMap<Pair<Object, Object>, Double>();
@@ -369,33 +344,19 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
         xs.toArray(), ys.toArray(), values);
   }
 
-  private VolatilityCubeData buildVolatilityCubeData(final VolatilityCubeSnapshot volCubeSnapshot) {
+  private static VolatilityCubeData convertVolatilityCubeMarketData(final VolatilityCubeSnapshot volCubeSnapshot) {
     final Map<VolatilityPoint, ValueSnapshot> values = volCubeSnapshot.getValues();
     final HashMap<VolatilityPoint, Double> dataPoints = buildVolValues(values);
     final HashMap<Pair<Tenor, Tenor>, Double> strikes = buildVolStrikes(volCubeSnapshot.getStrikes());
-    final SnapshotDataBundle otherData = buildBundle(volCubeSnapshot.getOtherValues());
-
+    final SnapshotDataBundle otherData = createSnapshotDataBundle(volCubeSnapshot.getOtherValues());
     final VolatilityCubeData ret = new VolatilityCubeData();
     ret.setDataPoints(dataPoints);
     ret.setOtherData(otherData);
     ret.setATMStrikes(strikes);
-
     return ret;
   }
 
-  private HashMap<Pair<Tenor, Tenor>, Double> buildVolStrikes(final Map<Pair<Tenor, Tenor>, ValueSnapshot> strikes) {
-    final HashMap<Pair<Tenor, Tenor>, Double> dataPoints = new HashMap<Pair<Tenor, Tenor>, Double>();
-    for (final Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : strikes.entrySet()) {
-      final ValueSnapshot value = entry.getValue();
-      final Double query = query(value);
-      if (query != null) {
-        dataPoints.put(entry.getKey(), query);
-      }
-    }
-    return dataPoints;
-  }
-
-  private HashMap<VolatilityPoint, Double> buildVolValues(final Map<VolatilityPoint, ValueSnapshot> values) {
+  private static HashMap<VolatilityPoint, Double> buildVolValues(final Map<VolatilityPoint, ValueSnapshot> values) {
     final HashMap<VolatilityPoint, Double> dataPoints = new HashMap<VolatilityPoint, Double>();
     for (final Entry<VolatilityPoint, ValueSnapshot> entry : values.entrySet()) {
       final ValueSnapshot value = entry.getValue();
@@ -407,14 +368,44 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
     return dataPoints;
   }
 
-  protected ValueSpecification resolveUnstructured(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
-    final UnstructuredMarketDataSnapshot snapshot = getSnapshot().getGlobalValues();
-    snapshot.getValues();
-    throw new UnsupportedOperationException("PLAT-3044 TODO");
+  private static HashMap<Pair<Tenor, Tenor>, Double> buildVolStrikes(final Map<Pair<Tenor, Tenor>, ValueSnapshot> strikes) {
+    final HashMap<Pair<Tenor, Tenor>, Double> dataPoints = new HashMap<Pair<Tenor, Tenor>, Double>();
+    for (final Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : strikes.entrySet()) {
+      final ValueSnapshot value = entry.getValue();
+      final Double query = query(value);
+      if (query != null) {
+        dataPoints.put(entry.getKey(), query);
+      }
+    }
+    return dataPoints;
   }
 
-  protected Object queryUnstructured(final ValueSpecification valueSpecification) {
-    throw new UnsupportedOperationException("PLAT-3044 TODO");
+  protected ValueSpecification convertMarketDataValueSpecification(final MarketDataValueSpecification marketDataSpec, final String valueName) {
+    final ExternalId identifier = marketDataSpec.getIdentifier();
+    final ComputationTargetSpecification targetSpec = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("UserMarketDataSnapshot", identifier.toString()));
+    return new ValueSpecification(valueName, targetSpec, GLOBAL_VALUE_QUERY_PROPERTIES);
+  }
+
+  protected MarketDataValueSpecification convertValueSpecification(final ValueSpecification valueSpec) {
+    final ExternalId identifier = ExternalId.parse(valueSpec.getTargetSpecification().getUniqueId().getValue());
+    return new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, identifier);
+  }
+
+  protected Object queryUnstructured(final ValueSpecification valueSpec) {
+    final UnstructuredMarketDataSnapshot unstructured = getSnapshot().getGlobalValues();
+    if (unstructured != null) {
+      final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> valuesByTarget = unstructured.getValues();
+      if (valuesByTarget != null) {
+        final Map<String, ValueSnapshot> valuesByName = valuesByTarget.get(convertValueSpecification(valueSpec));
+        if (valuesByName != null) {
+          final ValueSnapshot value = valuesByName.get(valueSpec.getValueName());
+          if (value != null) {
+            return query(value);
+          }
+        }
+      }
+    }
+    return null;
   }
 
   // AbstractMarketDataSnapshot
@@ -479,13 +470,56 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
 
   // MarketDataAvailabilityProvider
 
-  @Override
-  public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
-    final StructuredMarketDataHandler handler = s_structuredDataHandler.get(desiredValue.getValueName());
-    if (handler == null) {
-      return resolveUnstructured(targetSpec, target, desiredValue);
-    }
-    return handler.resolve(targetSpec, target, desiredValue, getSnapshot());
+  public MarketDataAvailabilityProvider getAvailabilityProvider() {
+    return new AbstractMarketDataAvailabilityProvider() {
+
+      @Override
+      protected MarketDataAvailabilityProvider withDelegate(final Delegate delegate) {
+        assert false;
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue) {
+        final MarketDataValueSpecification mdvs;
+        if (targetSpec.getType().isTargetType(ComputationTargetType.SECURITY)) {
+          mdvs = new MarketDataValueSpecification(MarketDataValueType.SECURITY, identifier);
+        } else {
+          mdvs = new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, identifier);
+        }
+        if (getSnapshot().getGlobalValues().getValues().containsKey(mdvs)) {
+          return convertMarketDataValueSpecification(mdvs, desiredValue.getValueName());
+        } else {
+          return null;
+        }
+      }
+
+      @Override
+      protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalIdBundle identifiers, final ValueRequirement desiredValue) {
+        for (final ExternalId identifier : identifiers) {
+          final ValueSpecification resolved = getAvailability(targetSpec, identifier, desiredValue);
+          if (resolved != null) {
+            return resolved;
+          }
+        }
+        return null;
+      }
+
+      @Override
+      public ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final Object target, final ValueRequirement desiredValue) {
+        final StructuredMarketDataHandler handler = s_structuredDataHandler.get(desiredValue.getValueName());
+        if (handler == null) {
+          if ((getSnapshot().getGlobalValues() != null) && (getSnapshot().getGlobalValues().getValues() != null) && !getSnapshot().getGlobalValues().getValues().isEmpty()) {
+            return super.getAvailability(targetSpec, target, desiredValue);
+          } else {
+            return null;
+          }
+        } else {
+          return handler.resolve(targetSpec, target, desiredValue, getSnapshot());
+        }
+      }
+
+    };
   }
 
 }

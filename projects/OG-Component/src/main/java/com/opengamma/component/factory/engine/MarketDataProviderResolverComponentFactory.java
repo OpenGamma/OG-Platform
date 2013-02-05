@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.component.factory.engine;
@@ -25,7 +25,6 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.CombinedMarketDataProviderFactory;
-import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProviderFactory;
@@ -68,49 +67,49 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   /**
    * The market data snapshot source.
    */
-  @PropertyDefinition(validate = "notNull")  
+  @PropertyDefinition(validate = "notNull")
   private MarketDataSnapshotSource _marketDataSnapshotSource;
-  
+
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
+  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) throws Exception {
     initMarketDataProviderResolver(repo);
   }
 
-  private MarketDataProviderResolver initMarketDataProviderResolver(ComponentRepository repo) {
-    TypeBasedMarketDataProviderResolver providerResolver = new TypeBasedMarketDataProviderResolver();
-    
+  private MarketDataProviderResolver initMarketDataProviderResolver(final ComponentRepository repo) {
+    final TypeBasedMarketDataProviderResolver providerResolver = new TypeBasedMarketDataProviderResolver();
+
     providerResolver.addProvider(LiveMarketDataSpecification.class, getLiveMarketDataProviderFactory());
-    
-    MarketDataProviderFactory fixedHistoricalMarketDataProviderFactory = initFixedHistoricalMarketDataProviderFactory();
+
+    final MarketDataProviderFactory fixedHistoricalMarketDataProviderFactory = initFixedHistoricalMarketDataProviderFactory();
     providerResolver.addProvider(FixedHistoricalMarketDataSpecification.class, fixedHistoricalMarketDataProviderFactory);
-    
-    MarketDataProviderFactory latestHistoricalMarketDataProviderFactory = initLatestHistoricalMarketDataProviderFactory();
+
+    final MarketDataProviderFactory latestHistoricalMarketDataProviderFactory = initLatestHistoricalMarketDataProviderFactory();
     providerResolver.addProvider(LatestHistoricalMarketDataSpecification.class, latestHistoricalMarketDataProviderFactory);
-    
-    MarketDataProviderFactory userMarketDataProviderFactory = initUserMarketDataProviderFactory();
+
+    final MarketDataProviderFactory userMarketDataProviderFactory = initUserMarketDataProviderFactory();
     providerResolver.addProvider(UserMarketDataSpecification.class, userMarketDataProviderFactory);
-    
-    MarketDataProviderFactory combinedMarketDataProviderFactory = initCombinedMarketDataProviderFactory(providerResolver);
+
+    final MarketDataProviderFactory combinedMarketDataProviderFactory = initCombinedMarketDataProviderFactory(providerResolver);
     providerResolver.addProvider(CombinedMarketDataSpecification.class, combinedMarketDataProviderFactory);
-    
-    ComponentInfo info = new ComponentInfo(MarketDataProviderResolver.class, getClassifier());
+
+    final ComponentInfo info = new ComponentInfo(MarketDataProviderResolver.class, getClassifier());
     repo.registerComponent(info, providerResolver);
     return providerResolver;
   }
-  
+
   protected MarketDataProviderFactory initFixedHistoricalMarketDataProviderFactory() {
     return new HistoricalMarketDataProviderFactory(getHistoricalTimeSeriesSource(), getSecuritySource());
   }
-  
+
   protected MarketDataProviderFactory initLatestHistoricalMarketDataProviderFactory() {
     return new LatestHistoricalMarketDataProviderFactory(getHistoricalTimeSeriesSource(), getSecuritySource());
   }
-  
+
   protected MarketDataProviderFactory initUserMarketDataProviderFactory() {
-    return new UserMarketDataProviderFactory(getMarketDataSnapshotSource(), new ExternalIdBundleLookup(getSecuritySource()), new OptimisticMarketDataAvailabilityProvider());
+    return new UserMarketDataProviderFactory(getMarketDataSnapshotSource(), new OptimisticMarketDataAvailabilityProvider());
   }
-  
-  protected MarketDataProviderFactory initCombinedMarketDataProviderFactory(MarketDataProviderResolver underlyingResolver) {
+
+  protected MarketDataProviderFactory initCombinedMarketDataProviderFactory(final MarketDataProviderResolver underlyingResolver) {
     return new CombinedMarketDataProviderFactory(underlyingResolver);
   }
 
@@ -133,7 +132,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
@@ -150,7 +149,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
@@ -182,12 +181,12 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      MarketDataProviderResolverComponentFactory other = (MarketDataProviderResolverComponentFactory) obj;
+      final MarketDataProviderResolverComponentFactory other = (MarketDataProviderResolverComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
@@ -222,7 +221,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
    * Sets the classifier under which to publish.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(String classifier) {
+  public void setClassifier(final String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -248,7 +247,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
    * Sets the live market data provider factory.
    * @param liveMarketDataProviderFactory  the new value of the property, not null
    */
-  public void setLiveMarketDataProviderFactory(MarketDataProviderFactory liveMarketDataProviderFactory) {
+  public void setLiveMarketDataProviderFactory(final MarketDataProviderFactory liveMarketDataProviderFactory) {
     JodaBeanUtils.notNull(liveMarketDataProviderFactory, "liveMarketDataProviderFactory");
     this._liveMarketDataProviderFactory = liveMarketDataProviderFactory;
   }
@@ -274,7 +273,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
    * Sets the historical time-series source.
    * @param historicalTimeSeriesSource  the new value of the property, not null
    */
-  public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+  public void setHistoricalTimeSeriesSource(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
     JodaBeanUtils.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
     this._historicalTimeSeriesSource = historicalTimeSeriesSource;
   }
@@ -300,7 +299,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
    * Sets the security source.
    * @param securitySource  the new value of the property, not null
    */
-  public void setSecuritySource(SecuritySource securitySource) {
+  public void setSecuritySource(final SecuritySource securitySource) {
     JodaBeanUtils.notNull(securitySource, "securitySource");
     this._securitySource = securitySource;
   }
@@ -326,7 +325,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
    * Sets the market data snapshot source.
    * @param marketDataSnapshotSource  the new value of the property, not null
    */
-  public void setMarketDataSnapshotSource(MarketDataSnapshotSource marketDataSnapshotSource) {
+  public void setMarketDataSnapshotSource(final MarketDataSnapshotSource marketDataSnapshotSource) {
     JodaBeanUtils.notNull(marketDataSnapshotSource, "marketDataSnapshotSource");
     this._marketDataSnapshotSource = marketDataSnapshotSource;
   }
@@ -392,7 +391,7 @@ public class MarketDataProviderResolverComponentFactory extends AbstractComponen
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;

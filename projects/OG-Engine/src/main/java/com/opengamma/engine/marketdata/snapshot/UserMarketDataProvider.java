@@ -13,14 +13,12 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotChangeListener;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
-import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.availability.MarketDataSnapshotAvailabilityProvider;
 import com.opengamma.engine.marketdata.availability.UnionMarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
@@ -40,15 +38,13 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   private final MarketDataSnapshotSource _snapshotSource;
   private final MarketDataPermissionProvider _permissionProvider;
   private final MarketDataSnapshotChangeListener _snapshotSourceChangeListener;
-  private final ExternalIdBundleLookup _identifierLookup;
   private final Object _listenerLock = new Object();
 
   private MarketDataAvailabilityProvider _baseMarketDataAvailabilityProvider;
 
-  public UserMarketDataProvider(final MarketDataSnapshotSource snapshotSource, final UniqueId snapshotId, final ExternalIdBundleLookup identifierLookup) {
+  public UserMarketDataProvider(final MarketDataSnapshotSource snapshotSource, final UniqueId snapshotId) {
     ArgumentChecker.notNull(snapshotSource, "snapshotSource");
     ArgumentChecker.notNull(snapshotId, "snapshotId");
-    ArgumentChecker.notNull(identifierLookup, "identifierLookup");
     _snapshotSource = snapshotSource;
     _snapshotId = snapshotId;
     // Assume no permission issues
@@ -59,7 +55,6 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
         valuesChanged(_listeningValueSpecifications);
       }
     };
-    _identifierLookup = identifierLookup;
   }
 
   //-------------------------------------------------------------------------
@@ -108,18 +103,15 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   //-------------------------------------------------------------------------
   @Override
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
-    final MarketDataSnapshot snapshot = snapshot();
+    final UserMarketDataSnapshot snapshot = snapshot();
     snapshot.init();
-    // PLAT-3044 MarketDataSnapshotAvailabilityProvider is the wrong solution to this; we need more state
-    final MarketDataSnapshotAvailabilityProvider snapshotAvailabilityProvider = new MarketDataSnapshotAvailabilityProvider(snapshot);
-
     if (getBaseMarketDataAvailabilityProvider() == null) {
-      return snapshotAvailabilityProvider;
+      return snapshot.getAvailabilityProvider();
     } else {
       // [PLAT-1459] 2011-10-03 -- missing values in the snapshot will prevent the dep graph from building even though
       // it builds in the live case where the availability provider is more optimistic. Using a union of the two works
       // around this problem.
-      return new UnionMarketDataAvailabilityProvider(Arrays.asList(getBaseMarketDataAvailabilityProvider(), snapshotAvailabilityProvider));
+      return new UnionMarketDataAvailabilityProvider(Arrays.asList(getBaseMarketDataAvailabilityProvider(), snapshot.getAvailabilityProvider()));
     }
   }
 
@@ -144,8 +136,8 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   }
 
   //-------------------------------------------------------------------------
-  private MarketDataSnapshot snapshot() {
-    return new UserMarketDataSnapshot(getSnapshotSource(), getSnapshotId(), _identifierLookup);
+  private UserMarketDataSnapshot snapshot() {
+    return new UserMarketDataSnapshot(getSnapshotSource(), getSnapshotId());
   }
 
   private MarketDataSnapshotSource getSnapshotSource() {

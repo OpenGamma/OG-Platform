@@ -35,8 +35,8 @@ public abstract class AbstractMarketDataAvailabilityProvider implements MarketDa
       _underlying = underlying.withDelegate(this);
     }
 
-    private Delegate(final MarketDataAvailabilityProvider underlying) {
-      _underlying = underlying;
+    private Delegate() {
+      _underlying = null;
     }
 
     protected abstract ValueSpecification getAvailability(ComputationTargetSpecification targetSpec, ExternalId identifier, ValueRequirement desiredValue);
@@ -60,7 +60,7 @@ public abstract class AbstractMarketDataAvailabilityProvider implements MarketDa
   }
 
   protected AbstractMarketDataAvailabilityProvider() {
-    _delegate = new Delegate((MarketDataAvailabilityProvider) this) {
+    _delegate = new Delegate() {
 
       @Override
       protected ValueSpecification getAvailability(final ComputationTargetSpecification targetSpec, final ExternalId identifier, final ValueRequirement desiredValue) {
