@@ -49,13 +49,17 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
+<<<<<<< HEAD
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
+=======
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+>>>>>>> [PLAT-3042] Create futures transaction/security. Changed methods and calculators.
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
@@ -501,13 +505,23 @@ public class InstrumentDerivativeVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFuture(final InterestRateFuture future, final DATA_TYPE data) {
-    return _delegate.visitInterestRateFuture(future, data);
+  public RESULT_TYPE visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final DATA_TYPE data) {
+    return _delegate.visitInterestRateFutureTransaction(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitInterestRateFuture(final InterestRateFuture future) {
-    return _delegate.visitInterestRateFuture(future);
+  public RESULT_TYPE visitInterestRateFutureTransaction(final InterestRateFutureTransaction future) {
+    return _delegate.visitInterestRateFutureTransaction(future);
+  }
+
+  @Override
+  public RESULT_TYPE visitInterestRateFutureSecurity(final InterestRateFutureSecurity future, final DATA_TYPE data) {
+    return _delegate.visitInterestRateFutureSecurity(future, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitInterestRateFutureSecurity(final InterestRateFutureSecurity future) {
+    return _delegate.visitInterestRateFutureSecurity(future);
   }
 
   @Override

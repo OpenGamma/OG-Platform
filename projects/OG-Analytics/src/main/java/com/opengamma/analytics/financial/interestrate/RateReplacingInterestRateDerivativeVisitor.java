@@ -10,7 +10,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
@@ -62,8 +62,8 @@ public final class RateReplacingInterestRateDerivativeVisitor extends Instrument
   }
 
   @Override
-  public InterestRateFuture visitInterestRateFuture(final InterestRateFuture security, final Double rate) {
-    return new InterestRateFuture(security.getLastTradingTime(), security.getIborIndex(), security.getFixingPeriodStartTime(), security.getFixingPeriodEndTime(),
+  public InterestRateFutureTransaction visitInterestRateFutureTransaction(final InterestRateFutureTransaction security, final Double rate) {
+    return new InterestRateFutureTransaction(security.getLastTradingTime(), security.getIborIndex(), security.getFixingPeriodStartTime(), security.getFixingPeriodEndTime(),
         security.getFixingPeriodAccrualFactor(), 1 - rate, security.getNotional(), security.getPaymentAccrualFactor(), security.getQuantity(), security.getName(), security.getDiscountingCurveName(),
         security.getForwardCurveName());
   }

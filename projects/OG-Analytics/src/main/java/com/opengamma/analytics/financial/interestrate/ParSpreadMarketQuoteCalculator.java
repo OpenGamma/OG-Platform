@@ -19,8 +19,6 @@ import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountin
 import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
@@ -58,7 +56,7 @@ public final class ParSpreadMarketQuoteCalculator extends InstrumentDerivativeVi
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
-  private static final InterestRateFutureDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureDiscountingMethod.getInstance();
+  //  private static final InterestRateFutureTransactionDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureTransactionDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FX_SWAP = ForexSwapDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
@@ -122,16 +120,16 @@ public final class ParSpreadMarketQuoteCalculator extends InstrumentDerivativeVi
 
   //     -----     Futures     -----
 
-  /**
-   * For InterestRateFutures the ParSpread is the spread to be added to the reference price to obtain a present value of zero.
-   * @param future The futures.
-   * @param curves The yield curve bundle.
-   * @return The par spread.
-   */
-  @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURES.price(future, curves) - future.getReferencePrice();
-  }
+  //  /**
+  //   * For InterestRateFutures the ParSpread is the spread to be added to the reference price to obtain a present value of zero.
+  //   * @param future The futures.
+  //   * @param curves The yield curve bundle.
+  //   * @return The par spread.
+  //   */
+  //  @Override
+  //  public Double visitInterestRateFuture(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+  //    return METHOD_IR_FUTURES.price(future, curves) - future.getReferencePrice();
+  //  }
 
   //     -----     Forex     -----
 

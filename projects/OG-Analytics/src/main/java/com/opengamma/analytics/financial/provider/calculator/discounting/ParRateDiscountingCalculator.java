@@ -6,8 +6,8 @@
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -43,7 +43,7 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
   private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
 
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
-  private static final InterestRateFutureDiscountingMethod METHOD_IR_FUT = InterestRateFutureDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
 
   /**
    * Computes the par rate of a swap with one fixed leg.
@@ -87,7 +87,7 @@ public final class ParRateDiscountingCalculator extends InstrumentDerivativeVisi
   //     -----     Futures     -----
 
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture futures, final MulticurveProviderInterface multicurves) {
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final MulticurveProviderInterface multicurves) {
     return METHOD_IR_FUT.parRate(futures, multicurves);
   }
 

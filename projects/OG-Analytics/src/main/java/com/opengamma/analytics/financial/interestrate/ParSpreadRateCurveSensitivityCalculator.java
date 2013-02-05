@@ -16,8 +16,6 @@ import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountin
 import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.util.ArgumentChecker;
@@ -58,7 +56,8 @@ public final class ParSpreadRateCurveSensitivityCalculator extends InstrumentDer
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
-  private static final InterestRateFutureDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureDiscountingMethod.getInstance();
+
+  //  private static final InterestRateFutureTransactionDiscountingMethod METHOD_IR_FUTURES = InterestRateFutureTransactionDiscountingMethod.getInstance();
 
   @Override
   public InterestRateCurveSensitivity visitCash(final Cash deposit, final YieldCurveBundle curves) {
@@ -96,9 +95,9 @@ public final class ParSpreadRateCurveSensitivityCalculator extends InstrumentDer
     return METHOD_FRA.parSpreadCurveSensitivity(fra, curves);
   }
 
-  @Override
-  public InterestRateCurveSensitivity visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return METHOD_IR_FUTURES.priceCurveSensitivity(future, curves).multipliedBy(-1.0);
-  }
+  //  @Override
+  //  public InterestRateCurveSensitivity visitInterestRateFuture(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+  //    return METHOD_IR_FUTURES.priceCurveSensitivity(future, curves).multipliedBy(-1.0);
+  //  }
 
 }

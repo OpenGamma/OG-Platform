@@ -32,7 +32,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -158,7 +158,7 @@ public class PresentValueSensitivityCalculatorTest {
     final int quantity = 123;
     final double[] nodeTimes = new double[] {fixingPeriodStartTime, fixingPeriodEndTime };
 
-    final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 0.0, 1.0, paymentAccrualFactor, quantity,
+    final InterestRateFutureTransaction ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 0.0, 1.0, paymentAccrualFactor, quantity,
         "K", ZERO_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
 
     final Map<String, List<DoublesPair>> sense = ir.accept(PVSC, CURVES);

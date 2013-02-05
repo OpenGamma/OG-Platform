@@ -10,36 +10,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Method to compute the price for an interest rate future with discounting (like a forward).
  * No convexity adjustment is done.
  */
-public final class InterestRateFutureDiscountingMethod extends InterestRateFutureMethod {
+public final class InterestRateFutureSecurityDiscountingMethod { //extends InterestRateFutureSecurityMethod {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final InterestRateFutureDiscountingMethod INSTANCE = new InterestRateFutureDiscountingMethod();
+  private static final InterestRateFutureSecurityDiscountingMethod INSTANCE = new InterestRateFutureSecurityDiscountingMethod();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static InterestRateFutureDiscountingMethod getInstance() {
+  public static InterestRateFutureSecurityDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private InterestRateFutureDiscountingMethod() {
+  private InterestRateFutureSecurityDiscountingMethod() {
   }
 
   /**
@@ -48,7 +47,7 @@ public final class InterestRateFutureDiscountingMethod extends InterestRateFutur
    * @param multicurves The multi-curve provider.
    * @return The price.
    */
-  public double price(final InterestRateFuture futures, final MulticurveProviderInterface multicurves) {
+  public double price(final InterestRateFutureSecurity futures, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(futures, "Futures");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
     final double forward = multicurves.getForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor());
@@ -57,23 +56,12 @@ public final class InterestRateFutureDiscountingMethod extends InterestRateFutur
   }
 
   /**
-   * Computes the present value without convexity adjustment.
-   * @param futures The futures.
-   * @param multicurves The multi-curve provider.
-   * @return The present value.
-   */
-  public MultipleCurrencyAmount presentValue(final InterestRateFuture futures, final MulticurveProviderInterface multicurves) {
-    final double pv = presentValueFromPrice(futures, price(futures, multicurves));
-    return MultipleCurrencyAmount.of(futures.getCurrency(), pv);
-  }
-
-  /**
    * Computes the future rate (1-price) from the curves using an estimation of the future rate without convexity adjustment.
    * @param futures The futures.
    * @param multicurves The multi-curve provider.
    * @return The rate.
    */
-  public double parRate(final InterestRateFuture futures, final MulticurveProviderInterface multicurves) {
+  public double parRate(final InterestRateFutureSecurity futures, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(futures, "Futures");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
     return multicurves.getForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor());
@@ -85,7 +73,7 @@ public final class InterestRateFutureDiscountingMethod extends InterestRateFutur
    * @param multicurves The multi-curve provider.
    * @return The price rate sensitivity.
    */
-  public MulticurveSensitivity priceCurveSensitivity(final InterestRateFuture futures, final MulticurveProviderInterface multicurves) {
+  public MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureSecurity futures, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(futures, "Futures");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
     // Partials - XBar => d(price)/dX

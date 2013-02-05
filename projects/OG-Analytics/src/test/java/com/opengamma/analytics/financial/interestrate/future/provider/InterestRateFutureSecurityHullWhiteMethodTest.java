@@ -10,30 +10,24 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.MarketQuoteCurveSensitivityHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.MarketQuoteHullWhiteCalculator;
-import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueCurveSensitivityHullWhiteCalculator;
-import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
-import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.hullwhite.SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator;
-import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.SimpleParameterSensitivity;
-import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.SimpleParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -52,18 +46,14 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
   private static final String NAME = "ERU2";
-  private static final int QUANTITY = 400;
 
   public static final String NOT_USED = "Not used";
   public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 12);
-  private static final ZonedDateTime TRADE_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, -1, CALENDAR);
-  private static final double TRADE_PRICE = 0.99;
-  private static final InterestRateFutureDefinition ERU2_DEFINITION = new InterestRateFutureDefinition(TRADE_DATE, TRADE_PRICE, LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, QUANTITY, NAME);
+  private static final InterestRateFutureSecurityDefinition ERU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME);
 
-  private static final double REFERENCE_PRICE = 0.98;
-  private static final InterestRateFuture ERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, NOT_USED_A);
+  private static final InterestRateFutureSecurity ERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
 
   private static final double MEAN_REVERSION = 0.01;
   private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
@@ -75,22 +65,16 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
 
   private static final InterestRateFutureSecurityHullWhiteMethod METHOD_IRFUT_HW = InterestRateFutureSecurityHullWhiteMethod.getInstance();
 
-  private static final PresentValueHullWhiteCalculator PVHWC = PresentValueHullWhiteCalculator.getInstance();
-  private static final PresentValueCurveSensitivityHullWhiteCalculator PVCSHWC = PresentValueCurveSensitivityHullWhiteCalculator.getInstance();
   private static final MarketQuoteHullWhiteCalculator MQHWC = MarketQuoteHullWhiteCalculator.getInstance();
   private static final MarketQuoteCurveSensitivityHullWhiteCalculator MQCSHWC = MarketQuoteCurveSensitivityHullWhiteCalculator.getInstance();
 
   private static final double SHIFT_FD = 1.0E-6;
-  private static final ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> PSHWC = new ParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface>(PVCSHWC);
-  private static final ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator PSHWC_FD = new ParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(PVHWC, SHIFT_FD);
   private static final SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> SPSHWC = new SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface>(
       MQCSHWC);
   private static final SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator SPSHWC_FD = new SimpleParameterSensitivityHullWhiteDiscountInterpolatedFDCalculator(MQHWC, SHIFT_FD);
 
   private static final double TOLERANCE_PRICE = 1.0E-10;
   private static final double TOLERANCE_PRICE_DELTA = 1.0E-8;
-  private static final double TOLERANCE_PV = 1.0E-2;
-  private static final double TOLERANCE_PV_DELTA = 1.0E+2;
 
   @Test
   /**
@@ -112,34 +96,6 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
     final SimpleParameterSensitivity pcsExact = SPSHWC.calculateSensitivity(ERU2, HW_MULTICURVES, MULTICURVES.getAllNames());
     final SimpleParameterSensitivity pcsFD = SPSHWC_FD.calculateSensitivity(ERU2, HW_MULTICURVES);
     AssertSensivityObjects.assertEquals("DeliverableSwapFuturesSecurityHullWhiteMethod: priceCurveSensitivity", pcsExact, pcsFD, TOLERANCE_PRICE_DELTA);
-  }
-
-  @Test
-  /**
-   * Test the present value computed from the curves and HW parameters.
-   */
-  public void presentValue() {
-    final MultipleCurrencyAmount pvComputed = METHOD_IRFUT_HW.presentValue(ERU2, HW_MULTICURVES);
-    final double price = METHOD_IRFUT_HW.price(ERU2, HW_MULTICURVES);
-    final double pvExpected = (price - REFERENCE_PRICE) * ERU2.getNotional() * ERU2.getPaymentAccrualFactor() * QUANTITY;
-    assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
-  }
-
-  @Test
-  public void presentValueMethodVsCalculator() {
-    final MultipleCurrencyAmount pvMethod = METHOD_IRFUT_HW.presentValue(ERU2, HW_MULTICURVES);
-    final MultipleCurrencyAmount pvCalculator = ERU2.accept(PVHWC, HW_MULTICURVES);
-    assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: present value - calculator vs method", pvCalculator.getAmount(EUR), pvMethod.getAmount(EUR), TOLERANCE_PV);
-  }
-
-  @Test
-  /**
-   * Tests present value curve sensitivity.
-   */
-  public void presentValueCurveSensitivity() {
-    final MultipleCurrencyParameterSensitivity pvpsDepositExact = PSHWC.calculateSensitivity(ERU2, HW_MULTICURVES, HW_MULTICURVES.getMulticurveProvider().getAllNames());
-    final MultipleCurrencyParameterSensitivity pvpsDepositFD = PSHWC_FD.calculateSensitivity(ERU2, HW_MULTICURVES);
-    AssertSensivityObjects.assertEquals("CashDiscountingProviderMethod: presentValueCurveSensitivity ", pvpsDepositExact, pvpsDepositFD, TOLERANCE_PV_DELTA);
   }
 
   //  @Test

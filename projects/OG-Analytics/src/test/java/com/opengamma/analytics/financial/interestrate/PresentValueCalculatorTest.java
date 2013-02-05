@@ -21,7 +21,7 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -132,12 +132,12 @@ public class PresentValueCalculatorTest {
     final double price = 1 - rate;
     final double notional = 1;
     final int quantity = 123;
-    InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice, notional, paymentAccrualFactor,
+    InterestRateFutureTransaction ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice, notional, paymentAccrualFactor,
         quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     double pv = ir.accept(PVC, CURVES);
     assertEquals(price * notional * paymentAccrualFactor * quantity, pv, 1e-12);
     final double deltaPrice = 0.01;
-    ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, deltaPrice, notional, paymentAccrualFactor, quantity, "A",
+    ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, deltaPrice, notional, paymentAccrualFactor, quantity, "A",
         FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     pv = ir.accept(PVC, CURVES);
     assertEquals((price - deltaPrice) * notional * paymentAccrualFactor * quantity, pv, 1e-12);

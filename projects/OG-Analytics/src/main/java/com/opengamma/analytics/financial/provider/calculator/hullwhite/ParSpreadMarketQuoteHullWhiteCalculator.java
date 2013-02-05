@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
@@ -50,8 +50,8 @@ public final class ParSpreadMarketQuoteHullWhiteCalculator extends InstrumentDer
    * @return The par spread.
    */
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture future, final HullWhiteOneFactorProviderInterface multicurves) {
-    return METHOD_IRFUT_HW.price(future, multicurves) - future.getReferencePrice();
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final HullWhiteOneFactorProviderInterface multicurves) {
+    return METHOD_IRFUT_HW.price(future.getUnderlying(), multicurves) - future.getReferencePrice();
   }
 
 }

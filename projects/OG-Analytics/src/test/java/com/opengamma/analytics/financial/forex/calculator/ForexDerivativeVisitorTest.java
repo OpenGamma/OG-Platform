@@ -57,11 +57,12 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
@@ -311,7 +312,7 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitInterestRateFuture(final InterestRateFuture future, final T data) {
+    public String visitInterestRateFutureTransaction(final InterestRateFutureTransaction future, final T data) {
       return null;
     }
 
@@ -486,7 +487,7 @@ public class ForexDerivativeVisitorTest {
     }
 
     @Override
-    public String visitInterestRateFuture(final InterestRateFuture future) {
+    public String visitInterestRateFutureTransaction(final InterestRateFutureTransaction future) {
       return null;
     }
 
@@ -931,6 +932,16 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitForexForward(final ForexForward fx, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureSecurity(InterestRateFutureSecurity future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitInterestRateFutureSecurity(InterestRateFutureSecurity future) {
       return null;
     }
 

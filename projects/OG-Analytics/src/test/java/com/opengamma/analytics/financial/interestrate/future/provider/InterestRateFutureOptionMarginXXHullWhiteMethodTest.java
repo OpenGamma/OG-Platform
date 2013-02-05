@@ -11,13 +11,13 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
@@ -72,12 +72,10 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
   private static final String NAME_MAR13 = "ERH3";
   private static final String NAME_JUN14 = "ERM4";
   // Futures
-  private static final InterestRateFutureDefinition ERH3_DEFINITION = new InterestRateFutureDefinition(REFERENCE_DATE.minusDays(1), 0.0, FUT_LAST_MAR13, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, 1,
-      NAME_MAR13);
-  private static final InterestRateFutureDefinition ERM4_DEFINITION = new InterestRateFutureDefinition(REFERENCE_DATE.minusDays(1), 0.0, FUT_LAST_JUN14, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, 1,
-      NAME_JUN14);
-  private static final InterestRateFuture ERH3 = ERH3_DEFINITION.toDerivative(REFERENCE_DATE, 0.0, NOT_USED_A);
-  private static final InterestRateFuture ERM4 = ERM4_DEFINITION.toDerivative(REFERENCE_DATE, 0.0, NOT_USED_A);
+  private static final InterestRateFutureSecurityDefinition ERH3_DEFINITION = new InterestRateFutureSecurityDefinition(FUT_LAST_MAR13, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME_MAR13);
+  private static final InterestRateFutureSecurityDefinition ERM4_DEFINITION = new InterestRateFutureSecurityDefinition(FUT_LAST_JUN14, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME_JUN14);
+  private static final InterestRateFutureSecurity ERH3 = ERH3_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final InterestRateFutureSecurity ERM4 = ERM4_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
   // Options on futures - securities
   private static final double STRIKE_1 = 0.9900;
   private static final double STRIKE_2 = 0.9875;

@@ -7,14 +7,15 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.testng.annotations.Test;
-import org.threeten.bp.ZonedDateTime;
+import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import org.testng.annotations.Test;
+
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
@@ -51,12 +52,11 @@ public class InterestRateFutureOptionMarginSecuritySABRMethodTest {
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -EURIBOR3M.getSpotLag(), TARGET);
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
-  private static final double REFERENCE_PRICE = 0.0;
   private static final String NAME = "EDU2";
   private static final double STRIKE = 0.9850;
-  private static final InterestRateFutureDefinition EDU2_DEFINITION = new InterestRateFutureDefinition(LAST_TRADING_DATE, STRIKE, LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, 1, NAME);
-  private static final InterestRateFuture EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, NOT_USED_A);
-  // Option
+  private static final InterestRateFutureSecurityDefinition EDU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME);
+  private static final InterestRateFutureSecurity EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  // Option 
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final double EXPIRATION_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
@@ -64,7 +64,7 @@ public class InterestRateFutureOptionMarginSecuritySABRMethodTest {
   private static final InterestRateFutureOptionMarginSecurity OPTION_EDU2 = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
 
   private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD_OPT_FUT_SEC_SABR = InterestRateFutureOptionMarginSecuritySABRMethod.getInstance();
-  private static final InterestRateFutureDiscountingMethod METHOD_DSC_FUT = InterestRateFutureDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_DSC_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
 
   @Test
   /**

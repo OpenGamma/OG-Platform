@@ -49,13 +49,17 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.interestrate.future.derivative.DeliverableSwapFuturesSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
+<<<<<<< HEAD
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
+=======
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+>>>>>>> [PLAT-3042] Create futures transaction/security. Changed methods and calculators.
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthly;
@@ -263,9 +267,13 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitBondFuture(BondFuture future);
 
-  RESULT_TYPE visitInterestRateFuture(InterestRateFuture future, DATA_TYPE data);
+  RESULT_TYPE visitInterestRateFutureTransaction(InterestRateFutureTransaction future, DATA_TYPE data);
 
-  RESULT_TYPE visitInterestRateFuture(InterestRateFuture future);
+  RESULT_TYPE visitInterestRateFutureTransaction(InterestRateFutureTransaction future);
+
+  RESULT_TYPE visitInterestRateFutureSecurity(InterestRateFutureSecurity future, DATA_TYPE data);
+
+  RESULT_TYPE visitInterestRateFutureSecurity(InterestRateFutureSecurity future);
 
   RESULT_TYPE visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future, DATA_TYPE data);
 

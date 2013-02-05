@@ -7,16 +7,17 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import org.testng.annotations.Test;
-import org.threeten.bp.ZonedDateTime;
+import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import org.testng.annotations.Test;
+
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.provider.calculator.sabrstrifutures.PresentValueCurveSensitivitySABRSTIRFuturesCalculator;
 import com.opengamma.analytics.financial.provider.calculator.sabrstrifutures.PresentValueSABRSTIRFuturesCalculator;
@@ -61,15 +62,11 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -EURIBOR3M.getSpotLag(), TARGET);
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
-  private static final double REFERENCE_PRICE = 0.0;
   private static final String NAME = "EDU2";
   private static final double STRIKE = 0.9850;
-  private static final InterestRateFutureDefinition EDU2_DEFINITION = new InterestRateFutureDefinition(LAST_TRADING_DATE, STRIKE, LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, 1, NAME);
-  private static final String DISCOUNTING_CURVE_NAME = "Funding";
-  private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAMES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
-  private static final InterestRateFuture EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, CURVES_NAMES);
-  // Option
+  private static final InterestRateFutureSecurityDefinition EDU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME);
+  private static final InterestRateFutureSecurity EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  // Option 
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final double EXPIRATION_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRATION_DATE);
   private static final boolean IS_CALL = true;
@@ -85,7 +82,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
 
   private static final InterestRateFutureOptionMarginTransactionSABRMethod METHOD_SABR_TRA = InterestRateFutureOptionMarginTransactionSABRMethod.getInstance();
   private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD_SABR_SEC = InterestRateFutureOptionMarginSecuritySABRMethod.getInstance();
-  private static final InterestRateFutureDiscountingMethod METHOD_FUT = InterestRateFutureDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
 
   private static final PresentValueSABRSTIRFuturesCalculator PVSFC = PresentValueSABRSTIRFuturesCalculator.getInstance();
   private static final PresentValueCurveSensitivitySABRSTIRFuturesCalculator PVCSSFC = PresentValueCurveSensitivitySABRSTIRFuturesCalculator.getInstance();

@@ -7,8 +7,8 @@ package com.opengamma.analytics.financial.provider.calculator.discounting;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 
 /**
@@ -38,7 +38,7 @@ public final class MarketQuoteDiscountingCalculator extends InstrumentDerivative
   /**
    * Pricing methods.
    */
-  private static final InterestRateFutureDiscountingMethod METHOD_IR_FUT = InterestRateFutureDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final MulticurveProviderInterface multicurves) {
@@ -48,7 +48,7 @@ public final class MarketQuoteDiscountingCalculator extends InstrumentDerivative
   //     -----     Futures     -----
 
   @Override
-  public Double visitInterestRateFuture(final InterestRateFuture futures, final MulticurveProviderInterface multicurves) {
+  public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final MulticurveProviderInterface multicurves) {
     return METHOD_IR_FUT.price(futures, multicurves);
   }
 

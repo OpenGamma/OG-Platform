@@ -16,10 +16,9 @@ import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.provider.calculator.discounting.MarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
-import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -30,8 +29,6 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -42,7 +39,6 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
-  private static final Currency EUR = EURIBOR3M.getCurrency();
 
   public static final String NOT_USED = "Not used";
   public static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
@@ -59,9 +55,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   private static final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, TENOR, BUSINESS_DAY, CALENDAR, IS_EOM);
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
-  private static final double REFERENCE_PRICE = 0.0;
   private static final String NAME = "ERU2";
-  private static final int QUANTITY = 123;
   // Time version
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2011, 5, 12);
   private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE, LocalTime.of(0, 0)), ZoneOffset.UTC);
@@ -69,16 +63,14 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   private static final double FIXING_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE_ZONED, SPOT_LAST_TRADING_DATE);
   private static final double FIXING_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE_ZONED, FIXING_END_DATE);
   private static final double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
-  private static final InterestRateFuture ERU2 = new InterestRateFuture(LAST_TRADING_TIME, EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR,
-      QUANTITY, NAME, NOT_USED, NOT_USED);
+  private static final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR,
+      NAME, NOT_USED, NOT_USED);
 
-  private static final InterestRateFutureDiscountingMethod METHOD_IRFUT_DSC = InterestRateFutureDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_IRFUT_SEC_DSC = InterestRateFutureSecurityDiscountingMethod.getInstance();
 
   private static final MarketQuoteDiscountingCalculator MQDC = MarketQuoteDiscountingCalculator.getInstance();
   private static final ParRateDiscountingCalculator PRDC = ParRateDiscountingCalculator.getInstance();
-  private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();
 
-  //  private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PRICE = 1.0E-10;
 
   @Test
@@ -86,7 +78,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    * Test the price computed from the curves
    */
   public void price() {
-    final double price = METHOD_IRFUT_DSC.price(ERU2, MULTICURVES);
+    final double price = METHOD_IRFUT_SEC_DSC.price(ERU2, MULTICURVES);
     final double forward = MULTICURVES.getForwardRate(EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL);
     final double expectedPrice = 1.0 - forward;
     assertEquals("Future price from curves", expectedPrice, price, TOLERANCE_PRICE);
@@ -97,7 +89,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    * Tests the method versus the calculator for the price.
    */
   public void priceMethodVsCalculator() {
-    final double priceMethod = METHOD_IRFUT_DSC.price(ERU2, MULTICURVES);
+    final double priceMethod = METHOD_IRFUT_SEC_DSC.price(ERU2, MULTICURVES);
     final double priceCalculator = ERU2.accept(MQDC, MULTICURVES);
     assertEquals("Bond future security Discounting: Method vs calculator", priceMethod, priceCalculator, TOLERANCE_PRICE);
   }
@@ -107,7 +99,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    * Test the rate computed from the curves
    */
   public void parRate() {
-    final double rate = METHOD_IRFUT_DSC.parRate(ERU2, MULTICURVES);
+    final double rate = METHOD_IRFUT_SEC_DSC.parRate(ERU2, MULTICURVES);
     final double expectedRate = MULTICURVES.getForwardRate(EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL);
     assertEquals("Future price from curves", expectedRate, rate, TOLERANCE_PRICE);
   }
@@ -117,21 +109,9 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
    * Test the rate computed from the method and from the calculator.
    */
   public void parRateMethodVsCalculator() {
-    final double rateMethod = METHOD_IRFUT_DSC.parRate(ERU2, MULTICURVES);
+    final double rateMethod = METHOD_IRFUT_SEC_DSC.parRate(ERU2, MULTICURVES);
     final double rateCalculator = ERU2.accept(PRDC, MULTICURVES);
     assertEquals("Future price from curves", rateMethod, rateCalculator, TOLERANCE_PRICE);
-  }
-
-  @Test
-  /**
-   * Test the par spread.
-   */
-  public void parSpread() {
-    final double parSpread = ERU2.accept(PSMQDC, MULTICURVES);
-    final InterestRateFuture futures0 = new InterestRateFuture(LAST_TRADING_TIME, EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE + parSpread, NOTIONAL, FUTURE_FACTOR,
-        QUANTITY, NAME, NOT_USED, NOT_USED);
-    final MultipleCurrencyAmount pv0 = METHOD_IRFUT_DSC.presentValue(futures0, MULTICURVES);
-    assertEquals("Future par spread", pv0.getAmount(EUR), 0, TOLERANCE_PRICE);
   }
 
 }

@@ -3,17 +3,18 @@ package com.opengamma.analytics.financial.interestrate.future.provider;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import org.testng.annotations.Test;
-import org.threeten.bp.ZonedDateTime;
+import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import org.testng.annotations.Test;
+
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -54,13 +55,12 @@ public class InterestRateFutureOptionMarginXXBlackSmileMethodTest {
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -EURIBOR3M.getSpotLag(), TARGET);
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
-  private static final double REFERENCE_PRICE = 0.0;
   private static final String NAME = "ERU2";
   private static final double STRIKE = 0.9850;
-  private static final InterestRateFutureDefinition ERU2_DEFINITION = new InterestRateFutureDefinition(LAST_TRADING_DATE, STRIKE, LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, 1, NAME);
+  private static final InterestRateFutureSecurityDefinition ERU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
-  private static final InterestRateFuture ERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, NOT_USED_A);
-  // Option
+  private static final InterestRateFutureSecurity ERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  // Option 
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final boolean IS_CALL = true;
 
@@ -80,7 +80,7 @@ public class InterestRateFutureOptionMarginXXBlackSmileMethodTest {
       TRADE_DATE_2, TRADE_PRICE);
   private static final InterestRateFutureOptionMarginTransaction TRANSACTION_2 = TRANSACTION_2_DEFINITION.toDerivative(REFERENCE_DATE, MARGIN_PRICE, NOT_USED_A);
 
-  private static final InterestRateFutureDiscountingMethod METHOD_FUTURES = InterestRateFutureDiscountingMethod.getInstance();
+  private static final InterestRateFutureSecurityDiscountingMethod METHOD_FUTURES = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final InterestRateFutureOptionMarginSecurityBlackSmileMethod METHOD_SECURITY_OPTION_BLACK = InterestRateFutureOptionMarginSecurityBlackSmileMethod.getInstance();
   private static final InterestRateFutureOptionMarginTransactionBlackSmileMethod METHOD_TRANSACTION_OPTION_BLACK = InterestRateFutureOptionMarginTransactionBlackSmileMethod.getInstance();
 

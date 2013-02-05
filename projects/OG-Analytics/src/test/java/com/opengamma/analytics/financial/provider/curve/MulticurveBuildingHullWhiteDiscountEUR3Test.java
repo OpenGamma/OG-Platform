@@ -26,7 +26,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDepositIbor;
@@ -102,10 +102,10 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
   //  private static final GeneratorFRA GENERATOR_FRA_3M = new GeneratorFRA("GENERATOR_FRA_3M", EURIBOR3M);
   private static final GeneratorFRA GENERATOR_FRA_6M = new GeneratorFRA("GENERATOR_FRA_6M", EURIBOR6M);
   private static final ZonedDateTime ERZ1_START_PERIOD = DateUtils.getUTCDate(2011, 12, 21);
-  private static final InterestRateFutureDefinition ERZ1_DEFINITION = InterestRateFutureDefinition.fromFixingPeriodStartDate(ERZ1_START_PERIOD, 0, 1, ERZ1_START_PERIOD, EURIBOR3M, NOTIONAL, 0.25,
+  private static final InterestRateFutureTransactionDefinition ERZ1_DEFINITION = InterestRateFutureTransactionDefinition.fromFixingPeriodStartDate(ERZ1_START_PERIOD, 0, 1, ERZ1_START_PERIOD, EURIBOR3M, NOTIONAL, 0.25,
       "ERZ1");
   private static final ZonedDateTime ERH2_START_PERIOD = DateUtils.getUTCDate(2012, 3, 21);
-  private static final InterestRateFutureDefinition ERH2_DEFINITION = InterestRateFutureDefinition.fromFixingPeriodStartDate(ERH2_START_PERIOD, 0, 1, ERH2_START_PERIOD, EURIBOR3M, NOTIONAL, 0.25,
+  private static final InterestRateFutureTransactionDefinition ERH2_DEFINITION = InterestRateFutureTransactionDefinition.fromFixingPeriodStartDate(ERH2_START_PERIOD, 0, 1, ERH2_START_PERIOD, EURIBOR3M, NOTIONAL, 0.25,
       "ERH2");
   private static final GeneratorInterestRateFutures GENERATOR_ERZ1 = new GeneratorInterestRateFutures("ERZ1", ERZ1_DEFINITION);
   private static final GeneratorInterestRateFutures GENERATOR_ERH2 = new GeneratorInterestRateFutures("ERZ1", ERH2_DEFINITION);
@@ -439,8 +439,8 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
           if (instrument instanceof SwapFixedIborDefinition) {
             ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday), NOT_USED_2);
           } else {
-            if (instrument instanceof InterestRateFutureDefinition) {
-              ird = ((InterestRateFutureDefinition) instrument).toDerivative(NOW, 0.0, NOT_USED_2); // Trade date = today, reference price not used.
+            if (instrument instanceof InterestRateFutureTransactionDefinition) {
+              ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0, NOT_USED_2); // Trade date = today, reference price not used.
             } else {
               ird = instrument.toDerivative(NOW, NOT_USED_2);
             }
@@ -484,8 +484,8 @@ public class MulticurveBuildingHullWhiteDiscountEUR3Test {
     if (instrument instanceof CashDefinition) {
       return ((CashDefinition) instrument).getRate();
     }
-    if (instrument instanceof InterestRateFutureDefinition) {
-      return 1 - ((InterestRateFutureDefinition) instrument).getTransactionPrice();
+    if (instrument instanceof InterestRateFutureTransactionDefinition) {
+      return 1 - ((InterestRateFutureTransactionDefinition) instrument).getTransactionPrice();
     }
     return 0.01;
   }

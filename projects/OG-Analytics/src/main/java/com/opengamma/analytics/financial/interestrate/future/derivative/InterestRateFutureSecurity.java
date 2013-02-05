@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of an interest rate future security.
  */
-public class InterestRateFuture implements InstrumentDerivative {
+public class InterestRateFutureSecurity implements InstrumentDerivative {
 
   /**
    * Future last trading time. Usually the date for which the third Wednesday of the month is the spot date.
@@ -48,10 +48,6 @@ public class InterestRateFuture implements InstrumentDerivative {
    */
   private final double _paymentAccrualFactor;
   /**
-   * The quantity/number of contract.
-   */
-  private final int _quantity;
-  /**
    * Future name.
    */
   private final String _name;
@@ -63,12 +59,6 @@ public class InterestRateFuture implements InstrumentDerivative {
    * The name of the forward curve used in to estimate the fixing index.
    */
   private final String _forwardCurveName;
-  /**
-   * The reference price is used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward.  
-   * The price is in relative number and not in percent. A standard price will be 0.985 and not 98.5.
-   * TODO Confirm treatment
-   */
-  private final double _referencePrice;
 
   /**
    * Constructor from all the details.
@@ -77,17 +67,14 @@ public class InterestRateFuture implements InstrumentDerivative {
    * @param fixingPeriodStartTime Fixing period of the reference Ibor starting time.
    * @param fixingPeriodEndTime Fixing period of the reference Ibor end time.
    * @param fixingPeriodAccrualFactor Fixing period of the reference Ibor accrual factor.
-   * @param referencePrice TODO
    * @param notional Future notional.
-   * @param paymentAccrualFactor Future payment accrual factor.  
-   * @param quantity The quantity/number of contract.
+   * @param paymentAccrualFactor Future payment accrual factor. 
    * @param name Future name.
    * @param discountingCurveName The discounting curve name.
    * @param forwardCurveName The forward curve name.
    */
-  public InterestRateFuture(final double lastTradingTime, final IborIndex iborIndex, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingPeriodAccrualFactor,
-      final double referencePrice,
-      final double notional, final double paymentAccrualFactor, final int quantity, final String name, final String discountingCurveName, final String forwardCurveName) {
+  public InterestRateFutureSecurity(final double lastTradingTime, final IborIndex iborIndex, final double fixingPeriodStartTime, final double fixingPeriodEndTime,
+      final double fixingPeriodAccrualFactor, final double notional, final double paymentAccrualFactor, final String name, final String discountingCurveName, final String forwardCurveName) {
     Validate.notNull(iborIndex, "Ibor index");
     Validate.notNull(name, "Name");
     Validate.notNull(discountingCurveName, "Discounting curve name");
@@ -97,10 +84,8 @@ public class InterestRateFuture implements InstrumentDerivative {
     _fixingPeriodStartTime = fixingPeriodStartTime;
     _fixingPeriodEndTime = fixingPeriodEndTime;
     _fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
-    _referencePrice = referencePrice;
     _notional = notional;
     _paymentAccrualFactor = paymentAccrualFactor;
-    _quantity = quantity;
     _discountingCurveName = discountingCurveName;
     _forwardCurveName = forwardCurveName;
     _name = name;
@@ -163,14 +148,6 @@ public class InterestRateFuture implements InstrumentDerivative {
   }
 
   /**
-   * Gets the referencePrice.
-   * @return the referencePrice
-   */
-  public double getReferencePrice() {
-    return _referencePrice;
-  }
-
-  /**
    * Gets the discounting curve name.
    * @return The name.
    */
@@ -202,24 +179,16 @@ public class InterestRateFuture implements InstrumentDerivative {
     return _iborIndex.getCurrency();
   }
 
-  /**
-   * Gets the quantity/number of contract.
-   * @return The quantity.
-   */
-  public int getQuantity() {
-    return _quantity;
-  }
-
   @Override
   public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitInterestRateFuture(this, data);
+    return visitor.visitInterestRateFutureSecurity(this, data);
   }
 
   @Override
   public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitInterestRateFuture(this);
+    return visitor.visitInterestRateFutureSecurity(this);
   }
 
   @Override
@@ -229,8 +198,6 @@ public class InterestRateFuture implements InstrumentDerivative {
     result += " - Start fixing: " + _fixingPeriodStartTime;
     result += " - End fixing: " + _fixingPeriodEndTime;
     result += " - Notional: " + _notional;
-    result += " - Quantity: " + _quantity;
-    result += " - Ref price: " + _referencePrice;
     return result;
   }
 
@@ -269,7 +236,7 @@ public class InterestRateFuture implements InstrumentDerivative {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final InterestRateFuture other = (InterestRateFuture) obj;
+    final InterestRateFutureSecurity other = (InterestRateFutureSecurity) obj;
     if (Double.doubleToLongBits(_fixingPeriodAccrualFactor) != Double.doubleToLongBits(other._fixingPeriodAccrualFactor)) {
       return false;
     }

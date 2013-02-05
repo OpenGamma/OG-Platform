@@ -32,9 +32,7 @@ import com.opengamma.analytics.financial.interestrate.cash.method.DepositZeroDis
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -154,15 +152,15 @@ public class PresentValueCurveSensitivityCalculator extends InstrumentDerivative
     return METHOD_FRA.presentValueCurveSensitivity(fra, curves).getSensitivities();
   }
 
-  /**
-   * {@inheritDoc}
-   * Future transaction pricing without convexity adjustment.
-   */
-  @Override
-  public Map<String, List<DoublesPair>> visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    final InterestRateFutureDiscountingMethod method = InterestRateFutureDiscountingMethod.getInstance();
-    return method.presentValueCurveSensitivity(future, curves).getSensitivities();
-  }
+  //  /**
+  //   * {@inheritDoc}
+  //   * Future transaction pricing without convexity adjustment.
+  //   */
+  //  @Override
+  //  public Map<String, List<DoublesPair>> visitInterestRateFuture(final InterestRateFutureTransaction future, final YieldCurveBundle curves) {
+  //    final InterestRateFutureTransactionDiscountingMethod method = InterestRateFutureTransactionDiscountingMethod.getInstance();
+  //    return method.presentValueCurveSensitivity(future, curves).getSensitivities();
+  //  }
 
   @Override
   public Map<String, List<DoublesPair>> visitBondFixedSecurity(final BondFixedSecurity bond, final YieldCurveBundle curves) {

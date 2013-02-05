@@ -30,7 +30,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.cash.CashDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttribute;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorDepositIbor;
@@ -418,8 +418,8 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeTest {
           if (instrument instanceof SwapFixedIborDefinition) {
             ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday), NOT_USED_2);
           } else {
-            if (instrument instanceof InterestRateFutureDefinition) {
-              ird = ((InterestRateFutureDefinition) instrument).toDerivative(NOW, 0.0, NOT_USED_2); // Trade date = today, reference price not used.
+            if (instrument instanceof InterestRateFutureTransactionDefinition) {
+              ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0, NOT_USED_2); // Trade date = today, reference price not used.
             } else {
               ird = instrument.toDerivative(NOW, NOT_USED_2);
             }
@@ -463,8 +463,8 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeTest {
     if (instrument instanceof CashDefinition) {
       return ((CashDefinition) instrument).getRate();
     }
-    if (instrument instanceof InterestRateFutureDefinition) {
-      return 1 - ((InterestRateFutureDefinition) instrument).getTransactionPrice();
+    if (instrument instanceof InterestRateFutureTransactionDefinition) {
+      return 1 - ((InterestRateFutureTransactionDefinition) instrument).getTransactionPrice();
     }
     return 0.01;
   }

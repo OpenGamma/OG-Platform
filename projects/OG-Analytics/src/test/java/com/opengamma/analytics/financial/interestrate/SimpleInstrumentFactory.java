@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -76,7 +76,7 @@ public abstract class SimpleInstrumentFactory {
 
   public static InstrumentDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName) {
     final double tau = 1. / paymentFreq.getPeriodsPerYear();
-    return new InterestRateFuture(time, DUMMY_INDEX, time, time + tau, tau, 0, 1, tau, 1, "N", fundCurveName, indexCurveName);
+    return new InterestRateFutureTransaction(time, DUMMY_INDEX, time, time + tau, tau, 0, 1, tau, 1, "N", fundCurveName, indexCurveName);
   }
 
 }
