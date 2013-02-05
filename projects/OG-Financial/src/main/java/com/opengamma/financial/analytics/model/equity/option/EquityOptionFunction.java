@@ -240,12 +240,18 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
     final HistoricalTimeSeriesSource tsSource = OpenGammaCompilationContext.getHistoricalTimeSeriesSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final ExternalId underlyingId = getWeakUnderlyingId(FinancialSecurityUtils.getUnderlyingId(security), tsSource, securitySource, volSurfaceName);
+    if (underlyingId == null) {
+      return null;
+    }
     final ValueRequirement volReq = getVolatilitySurfaceRequirement(tsSource, securitySource, desiredValue, security, volSurfaceName, forwardCurveName,
         surfaceCalculationMethod, underlyingId);
     if (volReq == null) {
       return null;
     }
     final ValueRequirement forwardCurveReq = getForwardCurveRequirement(tsSource, securitySource, forwardCurveName, forwardCurveCalculationMethod, security, underlyingId);
+    if (forwardCurveReq == null) {
+      return null;
+    }
     // Return the set
     return Sets.newHashSet(discountingReq, volReq, forwardCurveReq);
   }
@@ -378,9 +384,15 @@ public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledI
         return null;
       }
       final ExternalIdBundle idBundle = tsSource.getExternalIdBundle(historicalTimeSeries.getUniqueId());
-      return ExternalId.of(desiredScheme, idBundle.getExternalId(sourceScheme).getValue());
+      if (idBundle.getExternalId(sourceScheme) != null) {
+        return ExternalId.of(desiredScheme, idBundle.getExternalId(sourceScheme).getValue());
+      }
     }
-    return ExternalId.of(desiredScheme, underlyingSecurity.getExternalIdBundle().getValue(sourceScheme));
+    if (underlyingSecurity.getExternalIdBundle().getExternalId(sourceScheme) != null) {
+      return ExternalId.of(desiredScheme, underlyingSecurity.getExternalIdBundle().getExternalId(sourceScheme).getValue());
+    }
+    s_logger.error("Couldn't get ticker of type " + sourceScheme + " only have " + underlyingId);
+    return null;
   }
 
   /**

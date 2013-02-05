@@ -6,9 +6,7 @@
 package com.opengamma.integration.copier.portfolio.writer;
 
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.joda.beans.JodaBeanUtils;
@@ -142,6 +140,9 @@ public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter
         }
       }
     } else {
+      // Write position
+      _currentRow.putAll(_rowParser.constructRow(position));
+
       // Export only the first trade of each position or none at all
       if (!position.getTrades().isEmpty()) {
         _currentRow.putAll(_rowParser.constructRow(position.getTrades().get(0)));

@@ -43,7 +43,9 @@
       <div class="OG-g-h-cols">
         {{#each columns}}
             <div class="OG-g-h-col c{{index}}" title="{{../name}}: {{name}}
-{{description}}">{{name}}</div>
+{{description}}">{{name}}
+              <div class="OG-g-h-resize resize" data-index="{{index}}"></div>
+            </div>
         {{/each}}
       </div>
     </div>
