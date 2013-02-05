@@ -47,12 +47,12 @@ import com.opengamma.master.security.SecurityMaster;
    * @param position The position
    * @return The saved position
    */
-  @Override
+  //@Override
   /* package */ ManageablePosition savePosition(ManageablePosition position) {
     return getPositionMaster().add(new PositionDocument(position)).getPosition();
   }
 
-  @Override
+  //@Override
   ManageablePosition getPosition(ManageableTrade trade) {
     ManageablePosition position = new ManageablePosition();
     position.setQuantity(trade.getQuantity());

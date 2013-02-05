@@ -184,7 +184,7 @@ public final class PortfolioGridStructure extends MainGridStructure {
         // only add rows for trades in fungible securities, OTC trades and positions are shown as a single row
         if (isFungible(position.getSecurity())) {
           for (Trade trade : position.getTrades()) {
-            String tradeDate = "on " + trade.getTradeDate();
+            String tradeDate = trade.getTradeDate().toString();
             rows.add(new PortfolioGridRow(ComputationTargetSpecification.of(trade), tradeDate, security, trade.getQuantity()));
           }
         }
@@ -210,7 +210,8 @@ public final class PortfolioGridStructure extends MainGridStructure {
 }
 
 /**
- * A row in the grid.
+ * A row in the grid. TODO subclass(es) for trades with trade & position ID?
+ * also security only belongs in position and trade rows, not nodes. do we really care?
  */
 /* package */ class PortfolioGridRow extends MainGridStructure.Row {
 

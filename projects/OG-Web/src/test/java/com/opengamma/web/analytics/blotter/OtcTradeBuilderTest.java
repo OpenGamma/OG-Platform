@@ -79,7 +79,7 @@ public class OtcTradeBuilderTest {
                                                         positionMaster,
                                                         BlotterResource.s_metaBeans,
                                                         BlotterResource.getStringConvert());
-    UniqueId tradeId = builder.buildAndSaveTrade(createTradeData(), BlotterTestUtils.FX_FORWARD_DATA_SOURCE, null);
+    UniqueId tradeId = builder.updateTrade(createTradeData(), BlotterTestUtils.FX_FORWARD_DATA_SOURCE, null);
     ManageableTrade trade = positionMaster.getTrade(tradeId);
     UniqueId positionId = trade.getParentPositionId();
     ManageablePosition position = positionMaster.get(positionId).getPosition();
@@ -109,7 +109,7 @@ public class OtcTradeBuilderTest {
                                                         BlotterResource.s_metaBeans,
                                                         BlotterResource.getStringConvert());
     BeanDataSource tradeData = createTradeData();
-    UniqueId tradeId = builder.buildAndSaveTrade(tradeData, BlotterTestUtils.EQUITY_VARIANCE_SWAP_DATA_SOURCE, null);
+    UniqueId tradeId = builder.updateTrade(tradeData, BlotterTestUtils.EQUITY_VARIANCE_SWAP_DATA_SOURCE, null);
 
     ManageableTrade trade = positionMaster.getTrade(tradeId);
     UniqueId positionId = trade.getParentPositionId();

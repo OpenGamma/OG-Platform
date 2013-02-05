@@ -25,7 +25,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
@@ -58,9 +57,16 @@ import com.opengamma.util.OpenGammaClock;
     super(positionMaster, securityMaster, metaBeans, stringConvert);
   }
 
-  /* package */ UniqueId buildAndSaveTrade(BeanDataSource tradeData,
-                                           BeanDataSource securityData,
-                                           BeanDataSource underlyingData) {
+  /* package */ UniqueId addTrade(BeanDataSource tradeData,
+                                  BeanDataSource securityData,
+                                  BeanDataSource underlyingData,
+                                  UniqueId nodeId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /* package */ UniqueId updateTrade(BeanDataSource tradeData,
+                                     BeanDataSource securityData,
+                                     BeanDataSource underlyingData) {
     if (!TRADE_TYPE_NAME.equals(tradeData.getBeanTypeName())) {
       throw new IllegalArgumentException("Can only build trades of type " + TRADE_TYPE_NAME +
                                              ", type name = " + tradeData.getBeanTypeName());
@@ -86,11 +92,12 @@ import com.opengamma.util.OpenGammaClock;
     tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
     ManageableTrade trade = tradeBuilder.build();
     // TODO need the node ID so we can add the position to the portfolio node
-    ManageablePosition position = getPosition(trade);
-    ManageablePosition savedPosition = savePosition(position);
-    List<ManageableTrade> trades = savedPosition.getTrades();
-    ManageableTrade savedTrade = trades.get(0);
-    return savedTrade.getUniqueId();
+    //ManageablePosition position = getPosition(trade);
+    //ManageablePosition savedPosition = savePosition(position);
+    //List<ManageableTrade> trades = savedPosition.getTrades();
+    //ManageableTrade savedTrade = trades.get(0);
+    //return savedTrade.getUniqueId();
+    throw new UnsupportedOperationException();
   }
 
   // TODO move these to a separate class that only extracts data, also handles securities and underlyings

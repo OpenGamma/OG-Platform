@@ -31,11 +31,19 @@ import com.opengamma.util.ArgumentChecker;
     PortfolioGridRow row = _rows.get(rowIndex);
     ComputationTargetSpecification target = row.getTarget();
     ComputationTargetType targetType = target.getType();
+    // TODO do I need to use the target type to figure out the row type? can I just have different row types?
     if (targetType.isTargetType(ComputationTargetType.POSITION)) {
       RowTarget rowTarget;
       if (isOtc(row.getSecurity())) {
         // OTC trades and positions are shown as a single row as there's always one trade per position
-        // TODO this is the trade ID, need the position ID?
+        // TODO this is the position ID, need the trade ID too
+        // TODO just the node ID when adding trades? what does the position master need to get a node?
+        /*
+        node - nodeId
+        fungible position - positionId
+        fungible trade - tradeId [positionId]
+        otc trade - tradeId positionId
+        */
         rowTarget = new OtcTradeTarget(row.getName(), target.getUniqueId());
       } else {
         // Positions in fungible trades can contain multiple trades so the position has its own row and child rows

@@ -59,13 +59,13 @@ import com.opengamma.util.ArgumentChecker;
    * @param position The position
    * @return The updated position
    */
-  @Override
+  //@Override
   ManageablePosition savePosition(ManageablePosition position) {
     // TODO check position ID exists and this is a valid update to the previous version (same security etc)
     return getPositionMaster().update(new PositionDocument(position)).getPosition();
   }
 
-  @Override
+  //@Override
   ManageablePosition getPosition(ManageableTrade trade) {
     if (!trade.getUniqueId().isVersioned()) {
       throw new IllegalArgumentException("trade ID must be versioned. trade: " + trade);

@@ -12,6 +12,7 @@ import org.joda.convert.StringConvert;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -27,22 +28,23 @@ import com.opengamma.util.ArgumentChecker;
   private final UniqueId _tradeId;
 
   /* package */ ExistingFungibleTradeBuilder(PositionMaster positionMaster,
+                                             PortfolioMaster portfolioMaster,
                                              SecurityMaster securityMaster,
                                              Set<MetaBean> metaBeans,
                                              UniqueId tradeId,
                                              StringConvert stringConvert) {
-    super(positionMaster, securityMaster, metaBeans, stringConvert);
+    super(positionMaster, portfolioMaster, securityMaster, metaBeans, stringConvert);
     // TODO should the ID come from the JSON? that way the URI can always be the object ID and the JSON ID can have a version
     ArgumentChecker.notNull(tradeId, "tradeId");
     _tradeId = tradeId;
   }
 
-  @Override
+  //@Override
   ManageablePosition savePosition(ManageablePosition position) {
     return getPositionMaster().update(new PositionDocument(position)).getPosition();
   }
 
-  @Override
+  //@Override
   ManageablePosition getPosition(ManageableTrade trade) {
     ArgumentChecker.notNull(trade, "trade");
     if (!trade.getUniqueId().isVersioned()) {

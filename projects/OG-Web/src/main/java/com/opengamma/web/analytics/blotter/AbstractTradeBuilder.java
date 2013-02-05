@@ -15,8 +15,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalScheme;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -74,19 +72,6 @@ import com.opengamma.util.ArgumentChecker;
   protected static Map<String, Object> typeInfo(String expectedType, String actualType) {
     return ImmutableMap.<String, Object>of("beanType", false, "expectedType", expectedType, "actualType", actualType);
   }
-
-  /**
-   * Saves a position to the position master.
-   * @param position The position
-   * @return The saved position
-   */
-  /* package */ abstract ManageablePosition savePosition(ManageablePosition position);
-
-  // TODO should this be pushed down into subclasses?
-  // the position might be modified in different ways by the subclasses, might be misleading to have a single
-  // superclass method when the subclass impls do totally different things. maybe name them differently
-  // TODO or change spec and maybe name - this method adds the trade to the position and returns it adjusted appropriately
-  /* package */ abstract ManageablePosition getPosition(ManageableTrade trade);
 
   /* package */  SecurityMaster getSecurityMaster() {
     return _securityMaster;

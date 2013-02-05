@@ -34,6 +34,8 @@ import org.joda.convert.StringConverter;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.OffsetTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -186,7 +188,6 @@ public class BlotterResource {
     s_stringConvert.register(CurrencyPair.class, new JodaBeanConverters.CurrencyPairConverter());
     s_stringConvert.register(ObjectId.class, new JodaBeanConverters.ObjectIdConverter());
     s_stringConvert.register(UniqueId.class, new JodaBeanConverters.UniqueIdConverter());
-    // TODO expiry converter in this class that uses the short date format
     s_stringConvert.register(Expiry.class, new JodaBeanConverters.ExpiryConverter());
     s_stringConvert.register(ExerciseType.class, new JodaBeanConverters.ExerciseTypeConverter());
     s_stringConvert.register(BusinessDayConvention.class, new JodaBeanConverters.BusinessDayConventionConverter());
@@ -199,6 +200,7 @@ public class BlotterResource {
     s_stringConvert.register(OptionType.class, new EnumConverter<OptionType>());
     s_stringConvert.register(GICSCode.class, new GICSCodeConverter());
     s_stringConvert.register(ZonedDateTime.class, new ZonedDateTimeConverter());
+    s_stringConvert.register(OffsetTime.class, new OffsetTimeConverter());
   }
 
   /** For loading and saving securities. */
@@ -383,19 +385,24 @@ public class BlotterResource {
     try {
       JSONObject json = new JSONObject(jsonStr);
       JSONObject tradeJson = json.getJSONObject("trade");
+      UniqueId nodeId = UniqueId.parse(json.getString("nodeId"));
       String tradeTypeName = tradeJson.getString("type");
       // TODO tell don't ask - it is an option to ask each of the new trade builders?
-      UniqueId updatedTradeId;
+      UniqueId tradeId;
       if (tradeTypeName.equals(OtcTradeBuilder.TRADE_TYPE_NAME)) {
-        updatedTradeId =  createOtcTrade(json, tradeJson, _newTradeBuilder);
+        tradeId =  createOtcTrade(json, tradeJson, _newTradeBuilder);
       } else if (tradeTypeName.equals(FungibleTradeBuilder.TRADE_TYPE_NAME)) {
-        NewFungibleTradeBuilder tradeBuilder =
-            new NewFungibleTradeBuilder(_positionMaster, _securityMaster, s_metaBeans, s_stringConvert);
-        updatedTradeId = createFungibleTrade(tradeJson, tradeBuilder);
+        // TODO this could be a field
+        NewFungibleTradeBuilder tradeBuilder = new NewFungibleTradeBuilder(_positionMaster,
+                                                                           _portfolioMaster,
+                                                                           _securityMaster,
+                                                                           s_metaBeans,
+                                                                           s_stringConvert);
+        tradeId = tradeBuilder.addTrade(new JsonBeanDataSource(tradeJson), nodeId);
       } else {
         throw new IllegalArgumentException("Unknown trade type " + tradeTypeName);
       }
-      URI createdTradeUri = uriInfo.getAbsolutePathBuilder().path(updatedTradeId.getObjectId().toString()).build();
+      URI createdTradeUri = uriInfo.getAbsolutePathBuilder().path(tradeId.getObjectId().toString()).build();
       return Response.status(Response.Status.CREATED).header("Location", createdTradeUri).build();
     } catch (JSONException e) {
       throw new IllegalArgumentException("Failed to parse JSON", e);
@@ -419,9 +426,13 @@ public class BlotterResource {
             new ExistingOtcTradeBuilder(tradeId, _securityMaster, _positionMaster, s_metaBeans, s_stringConvert);
         createOtcTrade(json, tradeJson, tradeBuilder);
       } else if (tradeTypeName.equals(FungibleTradeBuilder.TRADE_TYPE_NAME)) {
-        ExistingFungibleTradeBuilder tradeBuilder =
-            new ExistingFungibleTradeBuilder(_positionMaster, _securityMaster, s_metaBeans, tradeId, s_stringConvert);
-        createFungibleTrade(tradeJson, tradeBuilder);
+        ExistingFungibleTradeBuilder tradeBuilder = new ExistingFungibleTradeBuilder(_positionMaster,
+                                                                                     _portfolioMaster,
+                                                                                     _securityMaster,
+                                                                                     s_metaBeans,
+                                                                                     tradeId,
+                                                                                     s_stringConvert);
+        tradeBuilder.updateTrade(new JsonBeanDataSource(tradeJson));
       } else {
         throw new IllegalArgumentException("Unknown trade type " + tradeTypeName);
       }
@@ -442,14 +453,10 @@ public class BlotterResource {
       } else {
         underlyingData = null;
       }
-      return tradeBuilder.buildAndSaveTrade(tradeData, securityData, underlyingData);
+      return tradeBuilder.updateTrade(tradeData, securityData, underlyingData);
     } catch (JSONException e) {
       throw new IllegalArgumentException("Failed to parse JSON", e);
     }
-  }
-
-  private UniqueId createFungibleTrade(JSONObject tradeJson, FungibleTradeBuilder tradeBuilder) {
-    return tradeBuilder.buildAndSaveTrade(new JsonBeanDataSource(tradeJson));
   }
 
   private static Map<Object, Object> map(Object... values) {
@@ -517,6 +524,23 @@ public class BlotterResource {
     @Override
     public String convertToString(ZonedDateTime dateTime) {
       return dateTime.getDate().toString();
+    }
+  }
+
+  /**
+   * Converts an {@link OffsetTime} to a time string (e.g. 11:35) and discards the offset. Creates
+   * an {@link OffsetTime} instance by parsing a local date string and using UTC as the offset.
+   */
+  private static class OffsetTimeConverter implements StringConverter<OffsetTime> {
+
+    @Override
+    public OffsetTime convertFromString(Class<? extends OffsetTime> cls, String timeString) {
+      return OffsetTime.of(LocalTime.parse(timeString), ZoneOffset.UTC);
+    }
+
+    @Override
+    public String convertToString(OffsetTime time) {
+      return time.getTime().toString();
     }
   }
 }
