@@ -20,7 +20,7 @@ import org.threeten.bp.Instant;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
 import com.opengamma.engine.view.calc.ViewComputationJob;
@@ -252,14 +252,14 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     } finally {
       unlock();
     }
-    final Set<ValueRequirement> marketDataRequirements = compiledViewDefinition.getMarketDataRequirements().keySet();
+    final Set<ValueSpecification> marketData = compiledViewDefinition.getMarketDataRequirements();
     // [PLAT-1158] The notifications are performed outside of holding the lock which avoids the deadlock problem, but we'll still block
     // for completion which was the thing PLAT-1158 was trying to avoid. This is because the contracts for the order in which
     // notifications can be received is unclear and I don't want to risk introducing a change at this moment in time.
     for (final ViewResultListener listener : listeners) {
       try {
         final UserPrincipal listenerUser = listener.getUser();
-        final boolean hasMarketDataPermissions = permissionProvider.checkMarketDataPermissions(listenerUser, marketDataRequirements).isEmpty();
+        final boolean hasMarketDataPermissions = permissionProvider.checkMarketDataPermissions(listenerUser, marketData).isEmpty();
         listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
       } catch (final Exception e) {
         logListenerError(listener, e);
@@ -528,9 +528,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       try {
         final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = latestCompilation.getFirst();
         final MarketDataPermissionProvider permissionProvider = latestCompilation.getSecond();
-        final Set<ValueRequirement> marketDataRequirements = compiledViewDefinition.getMarketDataRequirements().keySet();
-        final Set<ValueRequirement> deniedRequirements =
-              permissionProvider.checkMarketDataPermissions(listener.getUser(), marketDataRequirements);
+        final Set<ValueSpecification> marketData = compiledViewDefinition.getMarketDataRequirements();
+        final Set<ValueSpecification> deniedRequirements =
+            permissionProvider.checkMarketDataPermissions(listener.getUser(), marketData);
         final boolean hasMarketDataPermissions = deniedRequirements.isEmpty();
         listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
         if (latestResult != null) {

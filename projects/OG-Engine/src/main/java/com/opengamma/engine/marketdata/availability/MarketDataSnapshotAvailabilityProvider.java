@@ -16,6 +16,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailabilityProvider {
 
+  // PLAT-3044 Delete this; the MarketDataSnapshot does not have enough state to do the resolution just from it. The only place it is used is in
+  // conjunction with UserMarketDataSnapshot which is constructed with more capabilities for value resolution.
+
   private final MarketDataSnapshot _snapshot;
 
   /**

@@ -261,6 +261,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot implement
 
   @Override
   public UniqueId getUniqueId() {
+    // REVIEW 2013-02-04 Andrew -- This is not a useful unique identifier.
     return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "UserMarketDataSnapshot:" + getSnapshotTime());
   }
 

@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Maps;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 
@@ -69,7 +70,7 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
         final OverrideOperation operation = (OverrideOperation) result;
         result = getUnderlying().query(value);
         if (result != null) {
-          return operation.apply(requirement, result);
+          return operation.apply(getOverrideValueRequirement(value), result);
         } else {
           return null;
         }
@@ -106,7 +107,7 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
         for (final Map.Entry<ValueSpecification, Object> underlyingEntry : response.entrySet()) {
           final OverrideOperation overrideOperation = overrideOperations.get(underlyingEntry.getKey());
           if (overrideOperation != null) {
-            result.put(underlyingEntry.getKey(), overrideOperation.apply(underlyingEntry.getKey(), underlyingEntry.getValue()));
+            result.put(underlyingEntry.getKey(), overrideOperation.apply(getOverrideValueRequirement(underlyingEntry.getKey()), underlyingEntry.getValue()));
           } else {
             result.put(underlyingEntry.getKey(), underlyingEntry.getValue());
           }
@@ -114,6 +115,11 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
       }
     }
     return result;
+  }
+
+  private ValueRequirement getOverrideValueRequirement(final ValueSpecification subscription) {
+    // TODO: Converting a value specification to a requirement like this is probably going to be wrong
+    return new ValueRequirement(subscription.getValueName(), subscription.getTargetSpecification(), subscription.getProperties());
   }
 
   //-------------------------------------------------------------------------

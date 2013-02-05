@@ -28,7 +28,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Represents a directed graph of nodes describing how to execute a view to produce the required terminal outputs.
@@ -60,7 +59,7 @@ public class DependencyGraph {
    */
   private final Map<ValueSpecification, DependencyNode> _outputValues = new HashMap<ValueSpecification, DependencyNode>();
 
-  private final Set<Pair<ValueRequirement, ValueSpecification>> _allRequiredMarketData = new HashSet<Pair<ValueRequirement, ValueSpecification>>();
+  private final Set<ValueSpecification> _allRequiredMarketData = new HashSet<ValueSpecification>();
 
   private final Set<ComputationTargetSpecification> _allComputationTargets = new HashSet<ComputationTargetSpecification>();
 
@@ -201,13 +200,11 @@ public class DependencyGraph {
   }
 
   /**
-   * Returns the set of market data required for successful execution of the graph. Each market data entry is given as
-   * a requirement/specification pair. The requirement may be passed to a market data provider. The corresponding
-   * specification may be used to add the market data to a computation value cache.
+   * Returns the set of market data required for successful execution of the graph. These correspond to the leaf nodes of the graph and can be queried from a market data provider.
    *
    * @return the set of market data requirements.
    */
-  public Set<Pair<ValueRequirement, ValueSpecification>> getAllRequiredMarketData() {
+  public Set<ValueSpecification> getAllRequiredMarketData() {
     return Collections.unmodifiableSet(_allRequiredMarketData);
   }
 
@@ -237,11 +234,12 @@ public class DependencyGraph {
         _terminalOutputs.put(output, null);
       }
     }
-    final Pair<ValueRequirement, ValueSpecification> marketData = node.getRequiredMarketData();
+    final ValueSpecification marketData = node.getRequiredMarketData();
     if (marketData != null) {
       _allRequiredMarketData.add(marketData);
+    } else {
+      _allComputationTargets.add(node.getComputationTarget());
     }
-    _allComputationTargets.add(node.getComputationTarget());
     for (final ValueSpecification output : node.getOutputValues()) {
       final DependencyNode previous = _outputValues.put(output, node);
       if (previous != null) {
@@ -275,7 +273,7 @@ public class DependencyGraph {
     if (!_dependencyNodes.remove(node)) {
       return;
     }
-    final Pair<ValueRequirement, ValueSpecification> marketData = node.getRequiredMarketData();
+    final ValueSpecification marketData = node.getRequiredMarketData();
     if (marketData != null) {
       _allRequiredMarketData.remove(marketData);
     }

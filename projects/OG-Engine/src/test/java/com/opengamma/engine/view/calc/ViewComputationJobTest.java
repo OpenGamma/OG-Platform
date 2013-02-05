@@ -19,9 +19,7 @@ import org.threeten.bp.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeType;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
@@ -440,10 +438,9 @@ public class ViewComputationJobTest {
 
     @Override
     public MarketDataSnapshot snapshot(final MarketDataSpecification marketDataSpec) {
-      final SecuritySource dummySecuritySource = new InMemorySecuritySource();
+      // [PLAT-3044] The MDAP must perform resolution of external identifier bundles
       return new LiveMarketDataSnapshot(_underlyingProvider.snapshot(marketDataSpec),
-          new LiveMarketDataProvider(_dummyLiveDataClient, getAvailabilityProvider(),
-              dummySecuritySource, UserPrincipal.getTestUser()));
+          new LiveMarketDataProvider(_dummyLiveDataClient, getAvailabilityProvider(), UserPrincipal.getTestUser()));
     }
 
     @Override

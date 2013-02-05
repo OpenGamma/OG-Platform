@@ -5,7 +5,6 @@
  */
 package com.opengamma.engine.marketdata.live;
 
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.UserPrincipal;
@@ -18,20 +17,18 @@ public class LiveDataFactory {
 
   private final LiveDataClient _liveDataClient;
   private final MarketDataAvailabilityProvider _availabilityProvider;
-  private final SecuritySource _securitySource;
 
-  public LiveDataFactory(LiveDataClient liveDataClient,
-                         MarketDataAvailabilityProvider availabilityProvider,
-                         SecuritySource securitySource) {
+  // [PLAT-3044] The availabilityProvider must perform suitable resolution of external id bundles etc.
+
+  public LiveDataFactory(final LiveDataClient liveDataClient,
+      final MarketDataAvailabilityProvider availabilityProvider) {
     ArgumentChecker.notNull(liveDataClient, "liveDataClient");
     ArgumentChecker.notNull(availabilityProvider, "availabilityProvider");
-    ArgumentChecker.notNull(securitySource, "securitySource");
     _liveDataClient = liveDataClient;
     _availabilityProvider = availabilityProvider;
-    _securitySource = securitySource;
   }
 
-  /* package */ LiveMarketDataProvider create(UserPrincipal user) {
-    return new LiveMarketDataProvider(_liveDataClient, _availabilityProvider, _securitySource, user);
+  /* package */ LiveMarketDataProvider create(final UserPrincipal user) {
+    return new LiveMarketDataProvider(_liveDataClient, _availabilityProvider, user);
   }
 }

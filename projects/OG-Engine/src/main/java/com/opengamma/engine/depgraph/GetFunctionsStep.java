@@ -82,7 +82,7 @@ import com.opengamma.util.tuple.Triple;
           && getValueRequirement().getConstraints().isSatisfiedBy(marketDataSpec.getProperties())) {
         final MarketDataSourcingFunction function = MarketDataSourcingFunction.INSTANCE;
         final ValueSpecification resultSpec = context.simplifyType(marketDataSpec);
-        final ResolvedValue resolvedValue = createResult(resultSpec, new ParameterizedFunction(function, function.getParameters(getValueRequirement())), Collections.<ValueSpecification>emptySet(),
+        final ResolvedValue resolvedValue = createResult(resultSpec, new ParameterizedFunction(function, function.getDefaultParameters()), Collections.<ValueSpecification>emptySet(),
             Collections.singleton(resultSpec));
         final ResolvedValueProducer producer = new SingleResolvedValueProducer(getValueRequirement(), resolvedValue);
         final ResolvedValueProducer existing = context.declareTaskProducing(resultSpec, getTask(), producer);

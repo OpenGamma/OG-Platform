@@ -22,43 +22,45 @@ import com.opengamma.engine.view.ViewDefinition;
  * times.
  */
 public interface CompiledViewDefinition {
-  
+
   /**
    * Gets the view definition which was compiled.
-   * 
+   *
    * @return the view definition, not null
    */
   ViewDefinition getViewDefinition();
-  
+
   /**
    * Gets the fully-resolved portfolio associated with the view definition.
-   * 
+   *
    * @return the fully-resolved portfolio, or null if no portfolio is associated with the view definition
    */
   Portfolio getPortfolio();
-  
+
   /**
    * Gets a compiled view calculation configuration.
-   * 
+   *
    * @param viewCalculationConfiguration  the name of the calculation configuration, not null
    * @return the compiled view calculation configuration, or null if no calculation configuration exists with
-   *         that name. 
+   *         that name.
    */
   CompiledViewCalculationConfiguration getCompiledCalculationConfiguration(String viewCalculationConfiguration);
-  
+
   /**
    * Gets all compiled view calculation configurations.
-   * 
+   *
    * @return a collection of all compiled view calcualtion configurations, not null
    */
   Collection<CompiledViewCalculationConfiguration> getCompiledCalculationConfigurations();
-  
+
   /**
-   * Gets the combined market data requirements of all calculation configurations.
+   * Gets the combined market data requirements of all calculation configurations. These specifications correspond to the values that must be sourced by the leaf nodes of the graph and may be used to
+   * establish market data subscriptions. If the external identifiers corresponding to the market data lines are required, the associated market data provider that participated in the graph building
+   * must be consulted to provide a conversion.
    * 
-   * @return a map from each stated value requirement to the resolved value specification for all market data, not null
+   * @return the value specifications for all necessary market data, not null
    */
-  Map<ValueRequirement, ValueSpecification> getMarketDataRequirements();
+  Set<ValueSpecification> getMarketDataRequirements();
 
   /**
    * Gets the combined terminal values requirements along with resolved specifications.
@@ -70,23 +72,23 @@ public interface CompiledViewDefinition {
 
   /**
    * Gets the combined computation targets across every calculation configuration.
-   * 
+   *
    * @return a set of all computation targets, not null
    */
   Set<ComputationTargetSpecification> getComputationTargets();
-  
+
   /**
    * Gets the instant from which the compiled view definition is valid, inclusive.
-   *  
+   *
    * @return the instant from which the evaluation model is valid, or null to indicate no restriction
    */
   Instant getValidFrom();
-  
+
   /**
    * Gets the instant to which the compiled view definition is valid, inclusive.
-   * 
-   * @return the instant to which the evaluation model is valid, or null to indicate no restriction 
+   *
+   * @return the instant to which the evaluation model is valid, or null to indicate no restriction
    */
   Instant getValidTo();
-  
+
 }

@@ -110,6 +110,7 @@ public class UserMarketDataProvider extends AbstractMarketDataProvider {
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
     final MarketDataSnapshot snapshot = snapshot();
     snapshot.init();
+    // PLAT-3044 MarketDataSnapshotAvailabilityProvider is the wrong solution to this; we need more state
     final MarketDataSnapshotAvailabilityProvider snapshotAvailabilityProvider = new MarketDataSnapshotAvailabilityProvider(snapshot);
 
     if (getBaseMarketDataAvailabilityProvider() == null) {

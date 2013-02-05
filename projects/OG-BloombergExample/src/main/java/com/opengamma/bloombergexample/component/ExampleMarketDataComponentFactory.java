@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.bloombergexample.component;
@@ -74,52 +74,53 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
 
   //-------------------------------------------------------------------------
   @Override
-  public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
+  public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) throws Exception {
     initLiveMarketDataProviderFactory(repo);
     initNamedMarketDataSpecificationRepository(repo);
   }
 
-  private MarketDataProviderFactory initLiveMarketDataProviderFactory(ComponentRepository repo) {
-    LiveDataMetaDataProvider provider = getServerMetaDataProvider();
-    LiveDataClient liveDataClient = createLiveDataClient(provider);
-    
-    MarketDataAvailabilityProvider availabilityProvider = BloombergDataUtils.createAvailabilityProvider(getSecuritySource());
-    LiveDataFactory defaultFactory = new LiveDataFactory(liveDataClient, availabilityProvider, getSecuritySource());
-    Map<String, LiveDataFactory> factoryMap = ImmutableMap.of(BLOOMBERG_LIVE_SOURCE_NAME, defaultFactory);
-    LiveMarketDataProviderFactory marketDataProviderFactory = new LiveMarketDataProviderFactory(defaultFactory, factoryMap);
-    
-    ComponentInfo info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
+  private MarketDataProviderFactory initLiveMarketDataProviderFactory(final ComponentRepository repo) {
+    final LiveDataMetaDataProvider provider = getServerMetaDataProvider();
+    final LiveDataClient liveDataClient = createLiveDataClient(provider);
+
+    final MarketDataAvailabilityProvider availabilityProvider = BloombergDataUtils.createAvailabilityProvider(getSecuritySource());
+    // [PLAT-3044] The MDAP must perform resolution of external identifier bundles
+    final LiveDataFactory defaultFactory = new LiveDataFactory(liveDataClient, availabilityProvider);
+    final Map<String, LiveDataFactory> factoryMap = ImmutableMap.of(BLOOMBERG_LIVE_SOURCE_NAME, defaultFactory);
+    final LiveMarketDataProviderFactory marketDataProviderFactory = new LiveMarketDataProviderFactory(defaultFactory, factoryMap);
+
+    final ComponentInfo info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
     repo.registerComponent(info, marketDataProviderFactory);
     return marketDataProviderFactory;
   }
 
-  private LiveDataClient createLiveDataClient(LiveDataMetaDataProvider provider) {
-    LiveDataMetaData metaData = provider.metaData();
-    URI jmsUri = metaData.getJmsBrokerUri();
+  private LiveDataClient createLiveDataClient(final LiveDataMetaDataProvider provider) {
+    final LiveDataMetaData metaData = provider.metaData();
+    final URI jmsUri = metaData.getJmsBrokerUri();
     if (metaData.getServerType() != LiveDataServerTypes.STANDARD || jmsUri == null) {
       throw new IllegalStateException();
     }
     JmsConnector jmsConnector = getJmsConnector();
     if (jmsConnector.getClientBrokerUri().equals(jmsUri) == false) {
-      JmsConnectorFactoryBean jmsFactory = new JmsConnectorFactoryBean(jmsConnector);
+      final JmsConnectorFactoryBean jmsFactory = new JmsConnectorFactoryBean(jmsConnector);
       jmsFactory.setClientBrokerUri(jmsUri);
       jmsConnector = jmsFactory.getObjectCreating();
     }
-    
-    RemoteLiveDataClientFactoryBean ldcFb = new RemoteLiveDataClientFactoryBean();
+
+    final RemoteLiveDataClientFactoryBean ldcFb = new RemoteLiveDataClientFactoryBean();
     ldcFb.setJmsConnector(jmsConnector);
     ldcFb.setSubscriptionTopic(metaData.getJmsSubscriptionTopic());
     ldcFb.setEntitlementTopic(metaData.getJmsEntitlementTopic());
     ldcFb.setHeartbeatTopic(metaData.getJmsHeartbeatTopic());
-    LiveDataClient ldcDistributed = ldcFb.getObjectCreating();
+    final LiveDataClient ldcDistributed = ldcFb.getObjectCreating();
     return ldcDistributed;
   }
 
-  private NamedMarketDataSpecificationRepository initNamedMarketDataSpecificationRepository(ComponentRepository repo) {
-    InMemoryNamedMarketDataSpecificationRepository specRepository = new InMemoryNamedMarketDataSpecificationRepository();
-    
+  private NamedMarketDataSpecificationRepository initNamedMarketDataSpecificationRepository(final ComponentRepository repo) {
+    final InMemoryNamedMarketDataSpecificationRepository specRepository = new InMemoryNamedMarketDataSpecificationRepository();
+
     specRepository.addSpecification(BLOOMBERG_LIVE_SOURCE_NAME, new LiveMarketDataSpecification(BLOOMBERG_LIVE_SOURCE_NAME));
-    ComponentInfo info = new ComponentInfo(NamedMarketDataSpecificationRepository.class, getClassifier());
+    final ComponentInfo info = new ComponentInfo(NamedMarketDataSpecificationRepository.class, getClassifier());
     repo.registerComponent(info, specRepository);
     return specRepository;
   }
@@ -143,7 +144,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
@@ -158,7 +159,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
@@ -186,12 +187,12 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ExampleMarketDataComponentFactory other = (ExampleMarketDataComponentFactory) obj;
+      final ExampleMarketDataComponentFactory other = (ExampleMarketDataComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getServerMetaDataProvider(), other.getServerMetaDataProvider()) &&
@@ -224,7 +225,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
    * Sets the classifier under which to publish.
    * @param classifier  the new value of the property, not null
    */
-  public void setClassifier(String classifier) {
+  public void setClassifier(final String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
     this._classifier = classifier;
   }
@@ -250,7 +251,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
    * Sets the security source.
    * @param securitySource  the new value of the property, not null
    */
-  public void setSecuritySource(SecuritySource securitySource) {
+  public void setSecuritySource(final SecuritySource securitySource) {
     JodaBeanUtils.notNull(securitySource, "securitySource");
     this._securitySource = securitySource;
   }
@@ -276,7 +277,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
    * Sets the meta-data about the server.
    * @param serverMetaDataProvider  the new value of the property, not null
    */
-  public void setServerMetaDataProvider(LiveDataMetaDataProvider serverMetaDataProvider) {
+  public void setServerMetaDataProvider(final LiveDataMetaDataProvider serverMetaDataProvider) {
     JodaBeanUtils.notNull(serverMetaDataProvider, "serverMetaDataProvider");
     this._serverMetaDataProvider = serverMetaDataProvider;
   }
@@ -302,7 +303,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
    * Sets the JMS connector.
    * @param jmsConnector  the new value of the property, not null
    */
-  public void setJmsConnector(JmsConnector jmsConnector) {
+  public void setJmsConnector(final JmsConnector jmsConnector) {
     JodaBeanUtils.notNull(jmsConnector, "jmsConnector");
     this._jmsConnector = jmsConnector;
   }
@@ -362,7 +363,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;

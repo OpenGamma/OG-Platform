@@ -17,7 +17,6 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -52,8 +51,8 @@ public class LiveMarketDataProviderTest {
     availabilityProvider.addAvailableData(test1Specification);
     availabilityProvider.addAvailableData(test2Specification);
     availabilityProvider.addAvailableData(test3Specification);
-    final LiveMarketDataProvider provider =
-        new LiveMarketDataProvider(client, availabilityProvider, new InMemorySecuritySource(), UserPrincipal.getTestUser());
+    // [PLAT-3044] The MDAP must perform resolution of external identifier bundles
+    final LiveMarketDataProvider provider = new LiveMarketDataProvider(client, availabilityProvider, UserPrincipal.getTestUser());
 
     provider.subscribe(test1Specification);
     provider.subscribe(test2Specification);
