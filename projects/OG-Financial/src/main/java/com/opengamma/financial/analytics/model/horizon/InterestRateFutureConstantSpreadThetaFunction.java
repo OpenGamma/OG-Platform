@@ -20,7 +20,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.horizon.ConstantSpreadHorizonThetaCalculator;
-import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -94,7 +94,7 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final YieldCurveBundle bundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
-    final InterestRateFutureDefinition definition = _converter.convert(trade);
+    final InterestRateFutureTransactionDefinition definition = _converter.convert(trade);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
