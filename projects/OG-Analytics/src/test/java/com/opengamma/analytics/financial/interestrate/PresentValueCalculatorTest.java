@@ -6,13 +6,13 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.time.calendar.Period;
+
 import org.testng.annotations.Test;
-import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
@@ -21,7 +21,6 @@ import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
@@ -117,35 +116,35 @@ public class PresentValueCalculatorTest {
     assertEquals(pv, pv2, 1e-12);
   }
 
-  @Test
-  public void testFutures() {
-    final IborIndex iborIndex = new IborIndex(CUR, Period.of(3, MONTHS), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
-    final double lastTradingTime = 1.473;
-    final double fixingPeriodStartTime = 1.467;
-    final double fixingPeriodEndTime = 1.75;
-    final double fixingPeriodAccrualFactor = 0.267;
-    final double paymentAccrualFactor = 0.25;
-    final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
-    final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
-    final double rate = (curve.getDiscountFactor(fixingPeriodStartTime) / curve.getDiscountFactor(fixingPeriodEndTime) - 1.0) / fixingPeriodAccrualFactor;
-    final double price = 1 - rate;
-    final double notional = 1;
-    final int quantity = 123;
-    InterestRateFutureTransaction ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice, notional, paymentAccrualFactor,
-        quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    double pv = ir.accept(PVC, CURVES);
-    assertEquals(price * notional * paymentAccrualFactor * quantity, pv, 1e-12);
-    final double deltaPrice = 0.01;
-    ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, deltaPrice, notional, paymentAccrualFactor, quantity, "A",
-        FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
-    pv = ir.accept(PVC, CURVES);
-    assertEquals((price - deltaPrice) * notional * paymentAccrualFactor * quantity, pv, 1e-12);
-  }
+  //  @Test
+  //  public void testFutures() {
+  //    final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
+  //        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+  //    final double lastTradingTime = 1.473;
+  //    final double fixingPeriodStartTime = 1.467;
+  //    final double fixingPeriodEndTime = 1.75;
+  //    final double fixingPeriodAccrualFactor = 0.267;
+  //    final double paymentAccrualFactor = 0.25;
+  //    final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
+  //    final YieldAndDiscountCurve curve = CURVES.getCurve(FIVE_PC_CURVE_NAME);
+  //    final double rate = (curve.getDiscountFactor(fixingPeriodStartTime) / curve.getDiscountFactor(fixingPeriodEndTime) - 1.0) / fixingPeriodAccrualFactor;
+  //    final double price = 1 - rate;
+  //    final double notional = 1;
+  //    final int quantity = 123;
+  //    InterestRateFutureTransaction ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice, notional, paymentAccrualFactor,
+  //        quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+  //    double pv = ir.accept(PVC, CURVES);
+  //    assertEquals(price * notional * paymentAccrualFactor * quantity, pv, 1e-12);
+  //    final double deltaPrice = 0.01;
+  //    ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, deltaPrice, notional, paymentAccrualFactor, quantity, "A",
+  //        FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+  //    pv = ir.accept(PVC, CURVES);
+  //    assertEquals((price - deltaPrice) * notional * paymentAccrualFactor * quantity, pv, 1e-12);
+  //  }
 
   @Test
   public void testFixedCouponAnnuity() {
-    AnnuityCouponFixed annuityReceiver = new AnnuityCouponFixed(CUR, new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 1.0, ZERO_PC_CURVE_NAME, false);
+    AnnuityCouponFixed annuityReceiver = new AnnuityCouponFixed(CUR, new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 1.0, ZERO_PC_CURVE_NAME, false);
 
     double pv = annuityReceiver.accept(PVC, CURVES);
     assertEquals(10.0, pv, 1e-12);
@@ -181,7 +180,7 @@ public class PresentValueCalculatorTest {
     for (int i = 0; i < n; i++) {
       coupons[i] = new CouponFixed(CUR, tau * (i + 1), FIVE_PC_CURVE_NAME, yearFrac, coupon);
     }
-    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FIVE_PC_CURVE_NAME) });
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FIVE_PC_CURVE_NAME)});
     final BondFixedSecurity bond = new BondFixedSecurity(nominal, new AnnuityCouponFixed(coupons), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FIVE_PC_CURVE_NAME, "S");
     final double pv = bond.accept(PVC, CURVES);
     assertEquals(1.0, pv, 1e-12);
