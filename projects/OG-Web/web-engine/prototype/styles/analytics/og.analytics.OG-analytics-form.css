@@ -138,10 +138,10 @@
     width: 100%;
 }
 
-.OG-analytics-form .og-view .og-icon-down{
+.OG-analytics-form .og-view div.og-icon-down{
     height: 22px;
     right:-19px;
-    top:15px;
+    top:14px;
 }
 
 
