@@ -5,8 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.index;
 
+import javax.time.calendar.ZonedDateTime;
+
 import org.apache.commons.lang.ObjectUtils;
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.util.ArgumentChecker;
@@ -26,11 +27,7 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument<GeneratorA
    * @param name The generator name.
    * @param security The underlying STIR futures security.
    */
-<<<<<<< HEAD
-  public GeneratorInterestRateFutures(final String name, final InterestRateFutureDefinition security) {
-=======
   public GeneratorInterestRateFutures(String name, final InterestRateFutureTransactionDefinition security) {
->>>>>>> [PLAT-3042] Create futures transaction/security. Changed methods and calculators.
     super(name);
     ArgumentChecker.notNull(security, "STIR futures security");
     _security = security;
@@ -48,17 +45,10 @@ public class GeneratorInterestRateFutures extends GeneratorInstrument<GeneratorA
   /**
    * The quantity is modified to be in line with the required quantity.
    */
-<<<<<<< HEAD
-  public InterestRateFutureDefinition generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final GeneratorAttribute attribute) {
-    final int quantity = (int) Math.ceil(notional / _security.getNotional());
-    return InterestRateFutureDefinition.fromFixingPeriodStartDate(date, marketQuote, quantity, _security.getFixingPeriodStartDate(), _security.getIborIndex(),
-        _security.getNotional(), _security.getFixingPeriodAccrualFactor(), _security.getName());
-=======
   public InterestRateFutureTransactionDefinition generateInstrument(ZonedDateTime date, double marketQuote, double notional, final GeneratorAttribute attribute) {
     int quantity = (int) Math.ceil(notional / _security.getNotional());
     return InterestRateFutureTransactionDefinition.fromFixingPeriodStartDate(date, marketQuote, quantity, _security.getFixingPeriodStartDate(), _security.getIborIndex(), _security.getNotional(),
         _security.getFixingPeriodAccrualFactor(), _security.getName());
->>>>>>> [PLAT-3042] Create futures transaction/security. Changed methods and calculators.
   }
 
   @Override

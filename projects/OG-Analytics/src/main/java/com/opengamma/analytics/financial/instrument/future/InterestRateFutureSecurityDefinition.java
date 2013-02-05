@@ -5,9 +5,10 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.ZonedDateTime;
+
 import org.apache.commons.lang.ObjectUtils;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExpiredException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -210,12 +211,9 @@ public class InterestRateFutureSecurityDefinition implements InstrumentDefinitio
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final LocalDate date = dateTime.getDate();
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-<<<<<<< HEAD:projects/OG-Analytics/src/main/java/com/opengamma/analytics/financial/instrument/future/InterestRateFutureDefinition.java
     final LocalDate transactionDateLocal = _transactionDate.getDate();
     final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().getDate();
-=======
-    final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().toLocalDate();
->>>>>>> [PLAT-3042] Create futures transaction/security. Changed methods and calculators.:projects/OG-Analytics/src/main/java/com/opengamma/analytics/financial/instrument/future/InterestRateFutureSecurityDefinition.java
+    //    final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().toLocalDate();
     if (date.isAfter(lastMarginDateLocal)) {
       throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
     }
