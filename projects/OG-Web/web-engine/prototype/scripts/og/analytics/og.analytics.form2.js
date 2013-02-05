@@ -97,7 +97,7 @@ $.register_module({
                     return toggle('temporal'), controls.temporal.eq(0).blur(0),
                         toggle('datasources'), controls.datasources.eq(-1).focus(0);
                 if ($elem.is(controls.datasources.eq(0)))
-                    return toggle('datasources'), controls.datasources.eq(0).focus(0);
+                    return toggle('datasources'), controls.datasources.eq(0).blur(0);
             }
         };
 

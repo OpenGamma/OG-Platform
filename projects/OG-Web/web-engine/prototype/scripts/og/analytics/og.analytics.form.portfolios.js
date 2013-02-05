@@ -21,11 +21,10 @@ $.register_module({
                 }
             });
             block.on('form:load', function () {
-                var select = $('#' + form.id + ' select[name=' + index + ']')
-                        .searchable({wildcards:true}).focus().hide(),
-                    selectedIndex ,
+                var selectedIndex,
+                    select = $('#' + form.id + ' select[name=' + index + ']').searchable().hide(),
                     list = select.siblings('select').addClass('dropdown-list'),
-                    input = select.siblings('input').attr('placeholder', 'Select portfolio'),
+                    input = select.siblings('input').attr('placeholder', 'Select portfolio').select(),
                     toggle = select.parent().siblings('.og-icon-down');
 
                 if (select.val() !== '') {
@@ -34,17 +33,17 @@ $.register_module({
                     input.val(option.text());
                 }
 
-                input.removeAttr('style').show().blur(function () {
-                    $(this).show();
+                input.removeAttr('style').blur(function () {
                     list.hide();
                 }).keydown(function (event) {
                     if (event.keyCode === $.ui.keyCode.ESCAPE) list.hide();
-                    if (event.keyCode === $.ui.keyCode.UP || event.keyCode === $.ui.keyCode.DOWN) list.show();
-                    $(this).show();
+                    if (event.keyCode === $.ui.keyCode.UP || event.keyCode === $.ui.keyCode.DOWN) {
+                        list.show();
+                        if (input.val() === '') input.focus(0).click();
+                    }
                 }).click(function (event) {
                     list.show().prop('selectedIndex', selectedIndex);
                     select.prop('selectedIndex', selectedIndex);
-                    $(this).show();
                 });
 
                 toggle.click(function (event) {
@@ -53,7 +52,7 @@ $.register_module({
                         select.prop('selectedIndex', selectedIndex);
                         list.show().prop('selectedIndex', selectedIndex);
                     }
-                    input.show().focus(0).click();
+                    input.focus(0).click();
                 });
 
                 list.on('mousedown', function (event) {
@@ -61,7 +60,7 @@ $.register_module({
                         selectedIndex = list.prop('selectedIndex');
                     select.prop('selectedIndex', selectedIndex);
                     list.prop('selectedIndex', selectedIndex);
-                    input.show().val(text).focus(0);
+                    input.val(text).focus(0);
                 });
             });
         };

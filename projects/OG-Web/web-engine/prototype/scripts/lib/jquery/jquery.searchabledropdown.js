@@ -247,13 +247,13 @@
         input.keydown(function(e) {
 
         	// tab stop
-        	if(e.keyCode == 9) {
+        	/*if(e.keyCode == 9) {
         		disable(e);
-        	}
+        	}*/
 
         	// return on shift, ctrl, alt key mode
-        	if(e.shiftKey || e.ctrlKey || e.altKey)
-        		return;
+        	/*if(e.shiftKey || e.ctrlKey || e.altKey)
+        		return;*/
 
         	// which key is pressed
             switch(e.keyCode) {
@@ -335,7 +335,7 @@
 
             // overlay text field for searching capability
             input.attr("type", "text");
-            input.hide();
+            // input.hide();
             input.height(self.outerHeight());
 
             // default styles for text field
@@ -521,7 +521,7 @@
         	clearSearchTimer();
 
 			// hide search field and selector
-			input.hide();
+			// input.hide();
         	selector.hide();
 
 			// restore last results
