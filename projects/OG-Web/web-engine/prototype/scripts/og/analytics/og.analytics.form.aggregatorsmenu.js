@@ -86,7 +86,7 @@ $.register_module({
                 if ($elem.is(menu.$dom.add)) return menu.stop(event), add_handler(default_aggregation);
                 if ($elem.is(del_s)) return menu.stop(event), delete_handler(entry);
                 if ($elem.is($select)) return select_handler(entry);
-                if ($elem.is('button')) return menu.button_handler($elem.text());
+                if ($elem.is('button')) return menu.button_handler($elem.text()), menu.stop(event), false;
             };
 
             var remove_entry = function (entry) {
