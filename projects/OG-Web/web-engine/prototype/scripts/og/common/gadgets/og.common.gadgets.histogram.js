@@ -15,7 +15,7 @@ $.register_module({
                 return live;
             };
             gadget.resize = function () {try {histogram.resize();} catch (error) {}};
-            prepare_data = function (data) {
+            histogram_data = function (data) {
                 var input = data.timeseries.data, stripped, max, min, range, buckets = 50, bar, count = [],
                 maxcount = 0, output = {};
                 stripped = input.reduce(function(a,b){return a.concat(b[1]);},[]);
@@ -34,16 +34,35 @@ $.register_module({
                     }
                 });
                 count[buckets-1][1] = count[buckets-1][1] + maxcount;
-                output.data = count;
+                output.histogram_data = count;
+                output.pdf_data = pdf_data(stripped);
                 output.bar = bar;
                 return output;
+            };
+            normpdf = function (x, mu, sigma, constant) {
+                var diff = x-mu;
+                return Math.exp(-( diff*diff / (2*sigma*sigma) )) / sigma*constant;
+            };
+            pdf_data = function (stripped) {
+                var output = {}, count = [], diff = 0, sigma, constant = Math.sqrt(2*Math.PI); 
+                mu = stripped.reduce(function(a,b){return a+b;})/stripped.length;
+                $.each(stripped, function(index, value){
+                    diff +=  (value-mu)*(value-mu);
+                });
+                sigma = Math.sqrt(diff/(stripped.length-1));
+                stripped.sort();
+                $.each(stripped, function(index, value){
+                    count.push([value, (normpdf(value,mu,sigma, constant))]);
+                });
+                output.data = count;
+                return count;
             };
             gadget.dataman = new og.analytics
                 .Cell({source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'histogram')
                 .on('data', function (value) {
                     var data = typeof value.v !== 'undefined' ? value.v : value;
                     if (!histogram && data && (typeof data === 'object')) histogram = new og.common.gadgets
-                        .HistogramPlot($.extend(true, {}, config,  prepare_data(data)));
+                        .HistogramPlot($.extend(true, {}, config,  histogram_data(data)));
                 })
                 .on('fatal', function (message) {$selector.html(message);});
             if (!config.child) og.common.gadgets.manager.register(gadget);
