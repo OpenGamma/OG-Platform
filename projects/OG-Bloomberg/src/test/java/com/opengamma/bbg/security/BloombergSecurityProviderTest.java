@@ -42,7 +42,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
-import org.threeten.bp.ZoneOffset;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.bbg.BloombergConnector;
@@ -65,6 +64,7 @@ import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
+import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -105,7 +105,7 @@ public class BloombergSecurityProviderTest {
     BloombergReferenceDataProvider refDataProvider = new BloombergReferenceDataProvider(connector);
     refDataProvider.start();
     _refDataProvider = refDataProvider;
-    DefaultExchangeDataProvider exchangeProvider = new DefaultExchangeDataProvider();
+    ExchangeDataProvider exchangeProvider = DefaultExchangeDataProvider.getInstance();
     return new BloombergSecurityProvider(refDataProvider, exchangeProvider);
   }
 
@@ -526,6 +526,7 @@ public class BloombergSecurityProviderTest {
       _secKey = secKey;
     }
 
+    @Override
     public Security call() throws Exception {
       return _securityProvider.getSecurity(_secKey);
     }

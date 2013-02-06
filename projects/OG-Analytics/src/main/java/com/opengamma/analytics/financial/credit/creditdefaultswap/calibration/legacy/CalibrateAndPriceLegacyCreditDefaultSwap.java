@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.creditdefaultswap.calibration;
+package com.opengamma.analytics.financial.credit.creditdefaultswap.calibration.legacy;
 
 import org.threeten.bp.ZonedDateTime;
 

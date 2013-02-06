@@ -20,7 +20,9 @@ public final class CalculationPropertyNamesAndValues {
   public static final String BAW_METHOD = "BaroneAdesiWhaleyMethod";
   /** The Bjerksund-Stensland approximation for American options */
   public static final String BJERKSUND_STENSLAND_METHOD = "BjerksundStenslandMethod";
-
+  /** The so-called PDE method computes prices for American and European options under the BlackScholesMerton model*/
+  public static final String PDE_METHOD = "PDE";
+  
   //Values for PROPERTY_MODEL_TYPE
   /** Analytic */
   public static final String ANALYTIC = "Analytic";

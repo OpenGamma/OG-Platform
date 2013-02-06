@@ -30,7 +30,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 public class YieldCurveFunctionUtils {
 
   public static Set<ValueRequirement> getCurveRequirements(final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource) {
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     if (curveConfig.getExogenousConfigData() != null) {
       final LinkedHashMap<String, String[]> exogenousCurves = curveConfig.getExogenousConfigData();
       for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {
@@ -56,7 +56,7 @@ public class YieldCurveFunctionUtils {
 
   public static Set<ValueRequirement> getCurveRequirements(final MultiCurveCalculationConfig curveConfig, final ConfigDBCurveCalculationConfigSource configSource,
       final ValueRequirement desiredValue) {
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     if (curveConfig.getExogenousConfigData() != null) {
       final LinkedHashMap<String, String[]> exogenousCurves = curveConfig.getExogenousConfigData();
       for (final Map.Entry<String, String[]> entry : exogenousCurves.entrySet()) {
@@ -123,7 +123,8 @@ public class YieldCurveFunctionUtils {
             throw new OpenGammaRuntimeException("Could not get curve called " + curveName);
           }
           final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
-          curves.setCurve(curveName, curve);
+          final String fullCurveName = curveName + "_" + target.getUniqueId().getValue();
+          curves.setCurve(fullCurveName, curve);
         }
         curves.addAll(getAllYieldCurves(inputs, exogenousConfig, configSource));
       }
@@ -137,7 +138,8 @@ public class YieldCurveFunctionUtils {
         throw new OpenGammaRuntimeException("Could not get curve called " + curveName);
       }
       final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
-      curves.setCurve(curveName, curve);
+      final String fullCurveName = curveName + "_" + target.getUniqueId().getValue();
+      curves.setCurve(fullCurveName, curve);
     }
     return curves;
   }
@@ -154,7 +156,8 @@ public class YieldCurveFunctionUtils {
         throw new OpenGammaRuntimeException("Could not get curve called " + curveName);
       }
       final YieldAndDiscountCurve curve = (YieldAndDiscountCurve) curveObject;
-      curves.setCurve(curveName, curve);
+      final String fullCurveName = curveName + "_" + target.getUniqueId().getValue();
+      curves.setCurve(fullCurveName, curve);
     }
     return curves;
   }

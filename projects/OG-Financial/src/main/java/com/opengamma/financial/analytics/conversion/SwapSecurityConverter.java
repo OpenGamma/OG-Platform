@@ -26,6 +26,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefi
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedONSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
@@ -52,12 +53,21 @@ import com.opengamma.util.money.Currency;
  * Convert the swaps from their Security version to the Definition version.
  */
 public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
-
+  /** A holiday source */
   private final HolidaySource _holidaySource;
+  /** A convention bundle source */
   private final ConventionBundleSource _conventionSource;
+  /** A region source */
   private final RegionSource _regionSource;
+  /** Is this converter being used in curve construction code */
   private final boolean _forCurves;
 
+  /**
+   * @param holidaySource The holiday source, not null
+   * @param conventionSource The convention source, not null
+   * @param regionSource The region source, not null
+   * @param forCurves true if the converter is used in curve construction code
+   */
   public SwapSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource, final boolean forCurves) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(conventionSource, "convention source");
@@ -92,6 +102,8 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         return getIborCMSSwapDefinition(security);
       case SWAP_FIXED_OIS:
         return getFixedOISSwapDefinition(security, SwapSecurityUtils.payFixed(security), _forCurves);
+      case SWAP_CROSS_CURRENCY:
+        return getCrossCurrencySwapDefinition(security);
       default:
         throw new OpenGammaRuntimeException("Cannot handle swapType " + swapType);
     }
@@ -305,6 +317,12 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final Period fixedLegPaymentPeriod = getTenor(swapIndexConvention.getSwapFixedLegFrequency());
     final IndexSwap swapIndex = new IndexSwap(fixedLegPaymentPeriod, swapIndexConvention.getSwapFixedLegDayCount(), iborIndex, swapIndexConvention.getPeriod());
     return AnnuityCouponCMSDefinition.from(effectiveDate, maturityDate, notional, swapIndex, tenorPayment, floatLeg.getDayCount(), isPayer);
+  }
+
+  private SwapXCcyIborIborDefinition getCrossCurrencySwapDefinition(final SwapSecurity security) {
+    final ZonedDateTime settlementDate = security.getEffectiveDate();
+    //TODO in the functions, I've used pay leg as the first leg and receive as the second. Anything in here should be consistent
+    return null;
   }
 
   private Period getTenor(final Frequency freq) {

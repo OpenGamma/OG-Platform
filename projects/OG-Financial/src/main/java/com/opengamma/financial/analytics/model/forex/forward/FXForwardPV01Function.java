@@ -94,11 +94,11 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
     if (receiveCurveNames == null || receiveCurveNames.size() != 1) {
       return null;
     }
-    final Set<String> payCurveConfigNames = constraints.getValues(PAY_CURVE_CALC_CONFIG);
+    final Set<String> payCurveConfigNames = constraints.getValues(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
     if (payCurveConfigNames == null || payCurveConfigNames.size() != 1) {
       return null;
     }
-    final Set<String> receiveCurveConfigNames = constraints.getValues(RECEIVE_CURVE_CALC_CONFIG);
+    final Set<String> receiveCurveConfigNames = constraints.getValues(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     if (receiveCurveConfigNames == null || receiveCurveConfigNames.size() != 1) {
       return null;
     }
@@ -179,8 +179,8 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
     return createValueProperties()
         .withAny(ValuePropertyNames.PAY_CURVE)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(PAY_CURVE_CALC_CONFIG)
-        .withAny(RECEIVE_CURVE_CALC_CONFIG)
+        .withAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
+        .withAny(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.CURRENCY)
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURVE);
@@ -190,8 +190,8 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
     return createValueProperties()
         .withAny(ValuePropertyNames.PAY_CURVE)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(PAY_CURVE_CALC_CONFIG)
-        .withAny(RECEIVE_CURVE_CALC_CONFIG)
+        .withAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
+        .withAny(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG)
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .with(ValuePropertyNames.CURVE, curveName);
@@ -201,15 +201,15 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
-    final String payCurveCalculationConfig = desiredValue.getConstraint(PAY_CURVE_CALC_CONFIG);
-    final String receiveCurveCalculationConfig = desiredValue.getConstraint(RECEIVE_CURVE_CALC_CONFIG);
+    final String payCurveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
+    final String receiveCurveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final String currency = desiredValue.getConstraint(ValuePropertyNames.CURRENCY);
     return createValueProperties()
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
-        .with(PAY_CURVE_CALC_CONFIG, payCurveCalculationConfig)
-        .with(RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfig)
+        .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)
+        .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfig)
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .with(ValuePropertyNames.CURVE, curveName);
@@ -220,8 +220,8 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
-        .with(PAY_CURVE_CALC_CONFIG, payCurveCalculationConfig)
-        .with(RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfig)
+        .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)
+        .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfig)
         .with(ValuePropertyNames.CURRENCY, resultCurrency).withOptional(ValuePropertyNames.CURRENCY)
         .with(ValuePropertyNames.CURVE_CURRENCY, resultCurrency).withOptional(ValuePropertyNames.CURVE_CURRENCY)
         .with(ValuePropertyNames.CURVE, resultCurveName).withOptional(ValuePropertyNames.CURVE).get();
