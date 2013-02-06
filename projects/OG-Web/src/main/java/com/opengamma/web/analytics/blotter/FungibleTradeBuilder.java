@@ -46,11 +46,15 @@ import com.opengamma.util.OpenGammaClock;
  */
 /* package */ class FungibleTradeBuilder extends AbstractTradeBuilder {
 
-  /* package */ static String TRADE_TYPE_NAME = "FungibleTrade";
+  /** Value for the type name in the JSON for fungible trades */
+  /* package */ static final String TRADE_TYPE_NAME = "FungibleTrade";
 
+  /** Key used in the JSON for the security ID bundle. */
   private static final String SECURITY_ID_BUNDLE = "securityIdBundle";
 
+  /** For loading and saving portfolios and nodes. */
   private final PortfolioMaster _portfolioMaster;
+  /** For loading and saving securities. */
   private final MasterSecuritySource _securitySource;
 
   /* package */ FungibleTradeBuilder(PositionMaster positionMaster,
@@ -58,7 +62,7 @@ import com.opengamma.util.OpenGammaClock;
                                      SecurityMaster securityMaster,
                                      Set<MetaBean> metaBeans,
                                      StringConvert stringConvert) {
-    super(positionMaster, securityMaster, metaBeans, stringConvert);
+    super(positionMaster, portfolioMaster, securityMaster, metaBeans, stringConvert);
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     _portfolioMaster = portfolioMaster;
     _securitySource = new MasterSecuritySource(getSecurityMaster());
@@ -98,6 +102,7 @@ import com.opengamma.util.OpenGammaClock;
     // this slightly awkward approach is due to the portfolio master API. you can look up a node directly but in order
     // to save it you have to save the whole portfolio. this means you need to look up the node to find the portfolio
     // ID, look up the portfolio, find the node in the portfolio, modify that copy of the node and save the portfolio
+    // TODO can use a portfolio search request and only hit the master once
     ManageablePortfolioNode node = _portfolioMaster.getNode(nodeId);
     ManageablePortfolio portfolio = _portfolioMaster.get(node.getPortfolioId()).getPortfolio();
     ManageablePortfolioNode portfolioNode = findNode(portfolio.getRootNode(), nodeId);
@@ -230,25 +235,5 @@ import com.opengamma.util.OpenGammaClock;
     structure.put("properties", properties);
     structure.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
     return structure;
-  }
-
-  /**
-   * Performs a depth first search to find a node with a specified ID.
-   * @param node The node at which to start searching
-   * @param nodeId The node ID
-   * @return The node with specified ID, not null
-   * @throws DataNotFoundException If not matching node if found
-   */
-  private static ManageablePortfolioNode findNode(ManageablePortfolioNode node, UniqueId nodeId) {
-    if (node.getUniqueId().equals(nodeId)) {
-      return node;
-    }
-    for (ManageablePortfolioNode childNode : node.getChildNodes()) {
-      ManageablePortfolioNode node1 = findNode(childNode, nodeId);
-      if (node1 != null) {
-        return node1;
-      }
-    }
-    throw new DataNotFoundException("Node " + nodeId + " not found");
   }
 }

@@ -127,8 +127,6 @@ public class BlotterResource {
       FloatingSpreadIRLeg.meta(),
       FloatingGearingIRLeg.meta(),
       InterestRateNotional.meta());
-  /** For building and saving new trades and associated securities. */
-  private final NewOtcTradeBuilder _newTradeBuilder;
 
   /** Map of underlying security types keyed by the owning security type. */
   private static final Map<Class<?>, Class<?>> s_underlyingSecurityTypes = ImmutableMap.<Class<?>, Class<?>>of(
@@ -205,22 +203,30 @@ public class BlotterResource {
 
   /** For loading and saving securities. */
   private final SecurityMaster _securityMaster;
-  /** For loading and saving portfolio. */
-  private final PortfolioMaster _portfolioMaster;
   /** For loading and saving positions. */
   private final PositionMaster _positionMaster;
-
   /** For creating output from Freemarker templates. */
   private FreemarkerOutputter _freemarker;
+  /** For building and saving new trades and associated securities. */
+  private final OtcTradeBuilder _otcTradeBuilder;
+  /** For building trades in fungible securities. */
+  private final FungibleTradeBuilder _fungibleTradeBuilder;
 
   public BlotterResource(SecurityMaster securityMaster, PortfolioMaster portfolioMaster, PositionMaster positionMaster) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     _securityMaster = securityMaster;
-    _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
-    _newTradeBuilder = new NewOtcTradeBuilder(_securityMaster, _positionMaster, s_metaBeans, s_stringConvert);
+    _fungibleTradeBuilder = new FungibleTradeBuilder(_positionMaster,
+                                                     portfolioMaster,
+                                                     _securityMaster,
+                                                     s_metaBeans,
+                                                     s_stringConvert);
+    _otcTradeBuilder = new OtcTradeBuilder(positionMaster,
+                                           portfolioMaster,
+                                           securityMaster,
+                                           s_metaBeans, s_stringConvert);
   }
 
   /* package */ static StringConvert getStringConvert() {
@@ -364,6 +370,7 @@ public class BlotterResource {
   private ManageableSecurity findSecurity(ManageableSecurityLink securityLink) {
     SecurityDocument securityDocument;
     if (securityLink.getObjectId() != null) {
+      // TODO do we definitely want the LATEST?
       securityDocument = _securityMaster.get(securityLink.getObjectId(), VersionCorrection.LATEST);
     } else {
       SecuritySearchRequest searchRequest = new SecuritySearchRequest(securityLink.getExternalId());
@@ -387,18 +394,13 @@ public class BlotterResource {
       JSONObject tradeJson = json.getJSONObject("trade");
       UniqueId nodeId = UniqueId.parse(json.getString("nodeId"));
       String tradeTypeName = tradeJson.getString("type");
-      // TODO tell don't ask - it is an option to ask each of the new trade builders?
+      // TODO tell don't ask - it is an option to ask each of the trade builders? but their interfaces are different
+      // they would have to know how to extract the subsections of the JSON
       UniqueId tradeId;
       if (tradeTypeName.equals(OtcTradeBuilder.TRADE_TYPE_NAME)) {
-        tradeId =  createOtcTrade(json, tradeJson, _newTradeBuilder);
+        tradeId =  createOtcTrade(json, tradeJson, nodeId);
       } else if (tradeTypeName.equals(FungibleTradeBuilder.TRADE_TYPE_NAME)) {
-        // TODO this could be a field
-        NewFungibleTradeBuilder tradeBuilder = new NewFungibleTradeBuilder(_positionMaster,
-                                                                           _portfolioMaster,
-                                                                           _securityMaster,
-                                                                           s_metaBeans,
-                                                                           s_stringConvert);
-        tradeId = tradeBuilder.addTrade(new JsonBeanDataSource(tradeJson), nodeId);
+        tradeId = _fungibleTradeBuilder.addTrade(new JsonBeanDataSource(tradeJson), nodeId);
       } else {
         throw new IllegalArgumentException("Unknown trade type " + tradeTypeName);
       }
@@ -416,23 +418,16 @@ public class BlotterResource {
   // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
   public void updateTrade(@FormParam("trade") String jsonStr, @PathParam("tradeIdStr") String tradeIdStr) {
     try {
+      // TODO what should happen to this? the ID is also in the JSON
       UniqueId tradeId = UniqueId.parse(tradeIdStr);
       JSONObject json = new JSONObject(jsonStr);
       JSONObject tradeJson = json.getJSONObject("trade");
       String tradeTypeName = tradeJson.getString("type");
       // TODO tell don't ask - ask each of the existing trade builders until one of them can handle it?
       if (tradeTypeName.equals(OtcTradeBuilder.TRADE_TYPE_NAME)) {
-        OtcTradeBuilder tradeBuilder =
-            new ExistingOtcTradeBuilder(tradeId, _securityMaster, _positionMaster, s_metaBeans, s_stringConvert);
-        createOtcTrade(json, tradeJson, tradeBuilder);
+        createOtcTrade(json, tradeJson, null);
       } else if (tradeTypeName.equals(FungibleTradeBuilder.TRADE_TYPE_NAME)) {
-        ExistingFungibleTradeBuilder tradeBuilder = new ExistingFungibleTradeBuilder(_positionMaster,
-                                                                                     _portfolioMaster,
-                                                                                     _securityMaster,
-                                                                                     s_metaBeans,
-                                                                                     tradeId,
-                                                                                     s_stringConvert);
-        tradeBuilder.updateTrade(new JsonBeanDataSource(tradeJson));
+        _fungibleTradeBuilder.updateTrade(new JsonBeanDataSource(tradeJson));
       } else {
         throw new IllegalArgumentException("Unknown trade type " + tradeTypeName);
       }
@@ -441,7 +436,8 @@ public class BlotterResource {
     }
   }
 
-  private UniqueId createOtcTrade(JSONObject json, JSONObject tradeJson, OtcTradeBuilder tradeBuilder) {
+  // TODO this could move inside the builder
+  private UniqueId createOtcTrade(JSONObject json, JSONObject tradeJson, UniqueId nodeId) {
     try {
       JSONObject securityJson = json.getJSONObject("security");
       JSONObject underlyingJson = json.optJSONObject("underlying");
@@ -453,7 +449,11 @@ public class BlotterResource {
       } else {
         underlyingData = null;
       }
-      return tradeBuilder.updateTrade(tradeData, securityData, underlyingData);
+      if (nodeId == null) {
+        return _otcTradeBuilder.updateTrade(tradeData, securityData, underlyingData);
+      } else {
+        return _otcTradeBuilder.addTrade(tradeData, securityData, underlyingData, nodeId);
+      }
     } catch (JSONException e) {
       throw new IllegalArgumentException("Failed to parse JSON", e);
     }

@@ -18,10 +18,14 @@ import org.threeten.bp.OffsetTime;
 import org.threeten.bp.ZoneOffset;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.financial.conversion.JodaBeanConverters;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.portfolio.ManageablePortfolio;
+import com.opengamma.master.portfolio.ManageablePortfolioNode;
+import com.opengamma.master.portfolio.PortfolioDocument;
+import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.portfolio.impl.InMemoryPortfolioMaster;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
@@ -49,10 +53,6 @@ public class OtcTradeBuilderTest {
   // TODO test that the URL ID is always unversioned and the trade ID is always versioned
   // TODO what happens if an existing trade's security is changed?
 
-  static {
-    JodaBeanConverters.getInstance();
-  }
-
   // TODO create trade with various fields missing (especially attributes)
 
   // TODO move to BlotterTestUtils?
@@ -75,11 +75,21 @@ public class OtcTradeBuilderTest {
   public void newSecurityWithNoUnderlying() {
     SecurityMaster securityMaster = new InMemorySecurityMaster();
     PositionMaster positionMaster = new InMemoryPositionMaster();
-    NewOtcTradeBuilder builder = new NewOtcTradeBuilder(securityMaster,
-                                                        positionMaster,
-                                                        BlotterResource.s_metaBeans,
-                                                        BlotterResource.getStringConvert());
-    UniqueId tradeId = builder.updateTrade(createTradeData(), BlotterTestUtils.FX_FORWARD_DATA_SOURCE, null);
+    PortfolioMaster portfolioMaster = new InMemoryPortfolioMaster();
+    OtcTradeBuilder builder = new OtcTradeBuilder(positionMaster,
+                                                  portfolioMaster,
+                                                  securityMaster,
+                                                  BlotterResource.s_metaBeans,
+                                                  BlotterResource.getStringConvert());
+    ManageablePortfolio portfolio = new ManageablePortfolio();
+    ManageablePortfolioNode root = new ManageablePortfolioNode();
+    ManageablePortfolioNode node = new ManageablePortfolioNode();
+    root.addChildNode(node);
+    portfolio.setRootNode(root);
+    ManageablePortfolio savedPortfolio = portfolioMaster.add(new PortfolioDocument(portfolio)).getPortfolio();
+    UniqueId nodeId = savedPortfolio.getRootNode().getChildNodes().get(0).getUniqueId();
+
+    UniqueId tradeId = builder.addTrade(createTradeData(), BlotterTestUtils.FX_FORWARD_DATA_SOURCE, null, nodeId);
     ManageableTrade trade = positionMaster.getTrade(tradeId);
     UniqueId positionId = trade.getParentPositionId();
     ManageablePosition position = positionMaster.get(positionId).getPosition();
@@ -98,19 +108,33 @@ public class OtcTradeBuilderTest {
     assertEquals(PREMIUM_TIME, trade.getPremiumTime());
     assertEquals(TRADE_TIME, trade.getTradeTime());
     assertEquals(ATTRIBUTES, trade.getAttributes());
+
+    // can't check the node ID as nodes are completely replaced
+    ManageablePortfolioNode loadedRoot = portfolioMaster.get(savedPortfolio.getUniqueId()).getPortfolio().getRootNode();
+    ManageablePortfolioNode loadedNode = loadedRoot.getChildNodes().get(0);
+    assertEquals(1, loadedNode.getPositionIds().size());
+    assertEquals(positionId.getObjectId(), loadedNode.getPositionIds().get(0));
   }
 
   @Test
   public void newSecurityWithFungibleUnderlying() {
     SecurityMaster securityMaster = new InMemorySecurityMaster();
     PositionMaster positionMaster = new InMemoryPositionMaster();
-    NewOtcTradeBuilder builder = new NewOtcTradeBuilder(securityMaster,
-                                                        positionMaster,
-                                                        BlotterResource.s_metaBeans,
-                                                        BlotterResource.getStringConvert());
-    BeanDataSource tradeData = createTradeData();
-    UniqueId tradeId = builder.updateTrade(tradeData, BlotterTestUtils.EQUITY_VARIANCE_SWAP_DATA_SOURCE, null);
+    PortfolioMaster portfolioMaster = new InMemoryPortfolioMaster();
+    OtcTradeBuilder builder = new OtcTradeBuilder(positionMaster,
+                                                  portfolioMaster,
+                                                  securityMaster,
+                                                  BlotterResource.s_metaBeans,
+                                                  BlotterResource.getStringConvert());
+    ManageablePortfolio portfolio = new ManageablePortfolio();
+    ManageablePortfolioNode root = new ManageablePortfolioNode();
+    ManageablePortfolioNode node = new ManageablePortfolioNode();
+    root.addChildNode(node);
+    portfolio.setRootNode(root);
+    ManageablePortfolio savedPortfolio = portfolioMaster.add(new PortfolioDocument(portfolio)).getPortfolio();
+    UniqueId nodeId = savedPortfolio.getRootNode().getChildNodes().get(0).getUniqueId();
 
+    UniqueId tradeId = builder.addTrade(createTradeData(), BlotterTestUtils.EQUITY_VARIANCE_SWAP_DATA_SOURCE, null, nodeId);
     ManageableTrade trade = positionMaster.getTrade(tradeId);
     UniqueId positionId = trade.getParentPositionId();
     ManageablePosition position = positionMaster.get(positionId).getPosition();
@@ -130,6 +154,12 @@ public class OtcTradeBuilderTest {
     assertEquals(TRADE_TIME, trade.getTradeTime());
     assertEquals(ATTRIBUTES, trade.getAttributes());
     assertEquals(position.getUniqueId(), trade.getParentPositionId());
+
+    // can't check the node ID as nodes are completely replaced
+    ManageablePortfolioNode loadedRoot = portfolioMaster.get(savedPortfolio.getUniqueId()).getPortfolio().getRootNode();
+    ManageablePortfolioNode loadedNode = loadedRoot.getChildNodes().get(0);
+    assertEquals(1, loadedNode.getPositionIds().size());
+    assertEquals(positionId.getObjectId(), loadedNode.getPositionIds().get(0));
   }
 
   @Test

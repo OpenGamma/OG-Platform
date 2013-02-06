@@ -14,7 +14,11 @@ import org.joda.convert.StringConvert;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.UniqueId;
+import com.opengamma.master.portfolio.ManageablePortfolioNode;
+import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -24,27 +28,37 @@ import com.opengamma.util.ArgumentChecker;
  */
 /* package */ abstract class AbstractTradeBuilder {
 
-  // TODO where should these live? they're duplicated in FungibleTradeBuilder
-  protected static final ExternalScheme CPTY_SCHEME = ExternalScheme.of("Cpty");
-  protected static final String COUNTERPARTY = "counterparty";
+  /** Scheme for counterparty external IDs */
+  /* package */ static final ExternalScheme CPTY_SCHEME = ExternalScheme.of("Cpty");
+  /** JSON key for the counterparty name */
+  /* package */ static final String COUNTERPARTY = "counterparty";
 
+  /** For loading and saving securities */
   private final SecurityMaster _securityMaster;
+  /** For loading and saving positions and trades */
   private final PositionMaster _positionMaster;
+  /** For looking up {@link MetaBean}s to build securities */
   private final MetaBeanFactory _metaBeanFactory;
-
+  /** For converting JSON values when building beans */
   private final StringConvert _stringConvert;
+  /** For loading and saving portfolios and nodes */
+  private final PortfolioMaster _portfolioMaster;
 
   /* package */ AbstractTradeBuilder(PositionMaster positionMaster,
+                                     PortfolioMaster portfolioMaster,
                                      SecurityMaster securityMaster,
                                      Set<MetaBean> metaBeans,
                                      StringConvert stringConvert) {
-    _stringConvert = stringConvert;
     ArgumentChecker.notNull(securityMaster, "securityManager");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notEmpty(metaBeans, "metaBeans");
+    ArgumentChecker.notNull(stringConvert, "stringConvert");
+    ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
+    _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
     _securityMaster = securityMaster;
     _metaBeanFactory = new MapMetaBeanFactory(metaBeans);
+    _stringConvert = stringConvert;
   }
 
   protected static Map<String, Object> property(String name,
@@ -73,6 +87,26 @@ import com.opengamma.util.ArgumentChecker;
     return ImmutableMap.<String, Object>of("beanType", false, "expectedType", expectedType, "actualType", actualType);
   }
 
+  /**
+   * Performs a depth first search to find a node with a specified ID.
+   * @param node The node at which to start searching
+   * @param nodeId The node ID
+   * @return The node with specified ID, not null
+   * @throws DataNotFoundException If not matching node if found
+   */
+  /* package */ static ManageablePortfolioNode findNode(ManageablePortfolioNode node, UniqueId nodeId) {
+    if (node.getUniqueId().equals(nodeId)) {
+      return node;
+    }
+    for (ManageablePortfolioNode childNode : node.getChildNodes()) {
+      ManageablePortfolioNode node1 = findNode(childNode, nodeId);
+      if (node1 != null) {
+        return node1;
+      }
+    }
+    throw new DataNotFoundException("Node " + nodeId + " not found");
+  }
+
   /* package */  SecurityMaster getSecurityMaster() {
     return _securityMaster;
   }
@@ -87,5 +121,9 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ StringConvert getStringConvert() {
     return _stringConvert;
+  }
+
+  /* package */ PortfolioMaster getPortfolioMaster() {
+    return _portfolioMaster;
   }
 }

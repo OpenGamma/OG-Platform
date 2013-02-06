@@ -20,22 +20,33 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.portfolio.ManageablePortfolio;
+import com.opengamma.master.portfolio.ManageablePortfolioNode;
+import com.opengamma.master.portfolio.PortfolioDocument;
+import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.portfolio.PortfolioSearchRequest;
+import com.opengamma.master.portfolio.PortfolioSearchResult;
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
+import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.PositionSearchRequest;
+import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
+import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.OpenGammaClock;
 
 /**
  * Builds and saves trades, securities and underlying securities for OTC securities.
  */
-/* package */ abstract class OtcTradeBuilder extends AbstractTradeBuilder {
+/* package */ class OtcTradeBuilder extends AbstractTradeBuilder {
 
   /** Type name for OTC trades used in the data sent to the client. */
   /* package */ static final String TRADE_TYPE_NAME = "OtcTrade";
@@ -50,18 +61,46 @@ import com.opengamma.util.OpenGammaClock;
       new PropertyFilter(FinancialSecurity.meta().externalIdBundle()),
       new PropertyFilter(ManageableSecurity.meta().securityType()));
 
-  /* package */ OtcTradeBuilder(SecurityMaster securityMaster,
-                                PositionMaster positionMaster,
+  /* package */ OtcTradeBuilder(PositionMaster positionMaster,
+                                PortfolioMaster portfoioMaster,
+                                SecurityMaster securityMaster,
                                 Set<MetaBean> metaBeans,
                                 StringConvert stringConvert) {
-    super(positionMaster, securityMaster, metaBeans, stringConvert);
+    super(positionMaster, portfoioMaster, securityMaster, metaBeans, stringConvert);
   }
 
   /* package */ UniqueId addTrade(BeanDataSource tradeData,
                                   BeanDataSource securityData,
                                   BeanDataSource underlyingData,
                                   UniqueId nodeId) {
-    throw new UnsupportedOperationException();
+    /*
+    validate:
+      underlying is present
+      underlying type is correct
+    */
+    ManageableSecurity underlying = buildUnderlying(underlyingData);
+    ManageableSecurity savedUnderlying;
+    if (underlying == null) {
+      savedUnderlying = null;
+    } else {
+      savedUnderlying = getSecurityMaster().add(new SecurityDocument(underlying)).getSecurity();
+    }
+    ManageableSecurity security = buildSecurity(securityData, savedUnderlying);
+    ManageableSecurity savedSecurity = getSecurityMaster().add(new SecurityDocument(security)).getSecurity();
+    ManageableTrade trade = buildTrade(tradeData, savedSecurity);
+    ManageablePosition position = new ManageablePosition(BigDecimal.ONE, trade.getSecurityLink().getExternalId());
+    position.setTrades(Lists.newArrayList(trade));
+    ManageablePosition savedPosition = getPositionMaster().add(new PositionDocument(position)).getPosition();
+    ManageableTrade savedTrade = savedPosition.getTrades().get(0);
+
+    PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
+    searchRequest.addNodeObjectId(nodeId.getObjectId());
+    PortfolioSearchResult searchResult = getPortfolioMaster().search(searchRequest);
+    ManageablePortfolio portfolio = searchResult.getSinglePortfolio();
+    ManageablePortfolioNode node = findNode(portfolio.getRootNode(), nodeId);
+    node.addPosition(savedPosition.getUniqueId());
+    getPortfolioMaster().update(new PortfolioDocument(portfolio));
+    return savedTrade.getUniqueId();
   }
 
   /* package */ UniqueId updateTrade(BeanDataSource tradeData,
@@ -71,7 +110,34 @@ import com.opengamma.util.OpenGammaClock;
       throw new IllegalArgumentException("Can only build trades of type " + TRADE_TYPE_NAME +
                                              ", type name = " + tradeData.getBeanTypeName());
     }
-    ObjectId securityId = buildSecurity(securityData, underlyingData).getObjectId();
+    /*
+    validate:
+      underlying is present
+      underlying type is correct
+      trade's security type hasn't changed
+    */
+    ManageableSecurity underlying = buildUnderlying(underlyingData);
+    ManageableSecurity savedUnderlying;
+    if (underlying == null) {
+      savedUnderlying = null;
+    } else {
+      savedUnderlying = getSecurityMaster().update(new SecurityDocument(underlying)).getSecurity();
+    }
+    ManageableSecurity security = buildSecurity(securityData, savedUnderlying);
+    ManageableSecurity savedSecurity = getSecurityMaster().update(new SecurityDocument(security)).getSecurity();
+    ManageableTrade trade = buildTrade(tradeData, savedSecurity);
+    PositionSearchRequest searchRequest = new PositionSearchRequest();
+    searchRequest.addTradeObjectId(trade.getUniqueId());
+    PositionSearchResult searchResult = getPositionMaster().search(searchRequest);
+    ManageablePosition position = searchResult.getSinglePosition();
+    // TODO validation
+    position.setTrades(Lists.newArrayList(trade));
+    ManageablePosition savedPosition = getPositionMaster().update(new PositionDocument(position)).getPosition();
+    ManageableTrade savedTrade = savedPosition.getTrades().get(0);
+    return savedTrade.getUniqueId();
+  }
+
+  private ManageableTrade buildTrade(BeanDataSource tradeData, Security security) {
     ManageableTrade.Meta meta = ManageableTrade.meta();
     BeanBuilder<? extends ManageableTrade> tradeBuilder =
         tradeBuilder(tradeData,
@@ -84,20 +150,13 @@ import com.opengamma.util.OpenGammaClock;
                      meta.premiumTime());
     tradeBuilder.set(meta.attributes(), tradeData.getMapValues(meta.attributes().name()));
     tradeBuilder.set(meta.quantity(), BigDecimal.ONE);
-    tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(securityId));
+    tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(security.getUniqueId().getObjectId()));
     String counterparty = (String) tradeData.getValue(COUNTERPARTY);
     if (StringUtils.isEmpty(counterparty)) {
       throw new IllegalArgumentException("Trade counterparty is required");
     }
     tradeBuilder.set(meta.counterpartyExternalId(), ExternalId.of(CPTY_SCHEME, counterparty));
-    ManageableTrade trade = tradeBuilder.build();
-    // TODO need the node ID so we can add the position to the portfolio node
-    //ManageablePosition position = getPosition(trade);
-    //ManageablePosition savedPosition = savePosition(position);
-    //List<ManageableTrade> trades = savedPosition.getTrades();
-    //ManageableTrade savedTrade = trades.get(0);
-    //return savedTrade.getUniqueId();
-    throw new UnsupportedOperationException();
+    return tradeBuilder.build();
   }
 
   // TODO move these to a separate class that only extracts data, also handles securities and underlyings
@@ -137,16 +196,9 @@ import com.opengamma.util.OpenGammaClock;
     return builder;
   }
 
-  /**
-   * Saves a security to the security master.
-   * @param security The security
-   * @return The saved security
-   */
-  /* package */ abstract ManageableSecurity saveSecurity(ManageableSecurity security);
-
-  private UniqueId buildSecurity(BeanDataSource securityData, BeanDataSource underlyingData) {
-    ExternalId underlyingId = buildUnderlying(underlyingData);
+  private FinancialSecurity buildSecurity(BeanDataSource securityData, Security underlying) {
     BeanDataSource dataSource;
+    ExternalId underlyingId = getUnderlyingId(underlying);
     // TODO would it be better to just return the bean builder from the visitor and handle this property manually?
     // TODO would have to use a different property for every security with underlyingId, there's no common supertype with it
     if (underlyingId != null) {
@@ -155,19 +207,23 @@ import com.opengamma.util.OpenGammaClock;
       dataSource = securityData;
     }
     FinancialSecurity security = build(dataSource);
-    ManageableSecurity savedSecurity = saveSecurity(security);
-    return savedSecurity.getUniqueId();
+    // TODO check underlying is of the correct type
+    return security;
   }
 
-  private ExternalId buildUnderlying(BeanDataSource underlyingData) {
+  private FinancialSecurity buildUnderlying(BeanDataSource underlyingData) {
     if (underlyingData == null) {
       return null;
     }
-    FinancialSecurity underlying = build(underlyingData);
-    saveSecurity(underlying);
-    ExternalId underlyingId = underlying.accept(new ExternalIdVisitor(getSecurityMaster()));
-    if (underlyingId == null) {
-      throw new IllegalArgumentException("Unable to get external ID of underlying security " + underlying);
+    return build(underlyingData);
+  }
+
+  private ExternalId getUnderlyingId(Security underlying) {
+    ExternalId underlyingId;
+    if (underlying instanceof FinancialSecurity) {
+      underlyingId = ((FinancialSecurity) underlying).accept(new ExternalIdVisitor(getSecurityMaster()));
+    } else {
+      underlyingId = null;
     }
     return underlyingId;
   }
