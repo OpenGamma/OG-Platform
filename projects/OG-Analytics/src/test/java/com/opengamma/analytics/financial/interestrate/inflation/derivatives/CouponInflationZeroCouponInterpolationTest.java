@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.interestrate.inflation.derivatives;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
@@ -32,9 +31,7 @@ import com.opengamma.util.time.DateUtils;
 public class CouponInflationZeroCouponInterpolationTest {
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
-  private static final Currency REGION = Currency.EUR;
-  private static final Period LAG = Period.of(14, DAYS);
-  private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR, REGION, LAG);
+  private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
@@ -56,14 +53,14 @@ public class CouponInflationZeroCouponInterpolationTest {
     REFERENCE_END_TIME[0] = ACT_ACT.getDayCountFraction(PRICING_DATE, REFERENCE_END_DATE[0]);
     REFERENCE_END_TIME[1] = ACT_ACT.getDayCountFraction(PRICING_DATE, REFERENCE_END_DATE[1]);
   }
-  private static final String DISCOUNTING_CURVE_NAME = "Discounting";
+
   private static final double WEIGHT = 1.0 - (PAYMENT_DATE.getDayOfMonth() - 1) / PAYMENT_DATE.getDate().lengthOfMonth();
-  private static final CouponInflationZeroCouponInterpolation ZERO_COUPON = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX,
-      INDEX_APRIL_2008, REFERENCE_END_TIME, WEIGHT, false);
+  private static final CouponInflationZeroCouponInterpolation ZERO_COUPON = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008,
+      REFERENCE_END_TIME, WEIGHT, false);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
-    new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, null, INDEX_APRIL_2008, REFERENCE_END_TIME, WEIGHT, false);
+    new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, null, INDEX_APRIL_2008, REFERENCE_END_TIME, WEIGHT, false);
   }
 
   @Test
@@ -82,17 +79,17 @@ public class CouponInflationZeroCouponInterpolationTest {
    */
   public void equalHash() {
     assertEquals(ZERO_COUPON, ZERO_COUPON);
-    CouponInflationZeroCouponInterpolation couponDuplicate = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008,
-        REFERENCE_END_TIME, WEIGHT, false);
+    CouponInflationZeroCouponInterpolation couponDuplicate = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, REFERENCE_END_TIME,
+        WEIGHT, false);
     assertEquals(ZERO_COUPON, couponDuplicate);
     assertEquals(ZERO_COUPON.hashCode(), couponDuplicate.hashCode());
     CouponInflationZeroCouponInterpolation modified;
-    modified = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008 + 0.1, REFERENCE_END_TIME, WEIGHT, false);
+    modified = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008 + 0.1, REFERENCE_END_TIME, WEIGHT, false);
     assertFalse(ZERO_COUPON.equals(modified));
     double[] modifiedReferenceTime = new double[2];
     modifiedReferenceTime[0] = REFERENCE_END_TIME[0];
     modifiedReferenceTime[1] = REFERENCE_END_TIME[1] + 0.1;
-    modified = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, modifiedReferenceTime, WEIGHT, false);
+    modified = new CouponInflationZeroCouponInterpolation(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, modifiedReferenceTime, WEIGHT, false);
     assertFalse(ZERO_COUPON.equals(modified));
   }
 

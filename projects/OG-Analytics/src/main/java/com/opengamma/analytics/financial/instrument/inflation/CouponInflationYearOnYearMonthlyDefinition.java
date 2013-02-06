@@ -6,6 +6,7 @@
 
 package com.opengamma.analytics.financial.instrument.inflation;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -13,6 +14,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
@@ -143,26 +145,32 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double referenceEndTime = TimeCalculator.getTimeBetween(date, getReferenceEndDate());
     final double referenceStartTime = TimeCalculator.getTimeBetween(date, getReferenceStartDate());
-
-    final String discountingCurveName = yieldCurveNames[0];
-    return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(),
-        referenceStartTime, referenceEndTime, _payNotional);
+    return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, referenceEndTime, _payNotional);
   }
 
   @Override
-  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> data, final String... yieldCurveNames) {
+  public Coupon toDerivative(ZonedDateTime date, DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final LocalDate dayConversion = date.getDate();
     final String discountingCurveName = yieldCurveNames[0];
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final LocalDate dayFixing = getReferenceEndDate().getDate();
+    if (dayConversion.isAfter(dayFixing)) {
+      final Double fixedEndIndex = priceIndexTimeSeries.getValue(getReferenceEndDate());
+      if (fixedEndIndex != null) {
+        final Double fixedStartIndex = priceIndexTimeSeries.getValue(getReferenceStartDate());
+        final Double fixedRate = (fixedEndIndex / fixedStartIndex - (payNotional() ? 0.0 : 1.0));
+        return new CouponFixed(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
+      }
+    }
     double referenceEndTime = 0.0;
     double referenceStartTime = 0.0;
     referenceEndTime = TimeCalculator.getTimeBetween(date, _referenceEndDate);
     referenceStartTime = TimeCalculator.getTimeBetween(date, _referenceStartDate);
-    return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(),
-        referenceStartTime, referenceEndTime, _payNotional);
+    return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, referenceEndTime, _payNotional);
   }
 
   @Override

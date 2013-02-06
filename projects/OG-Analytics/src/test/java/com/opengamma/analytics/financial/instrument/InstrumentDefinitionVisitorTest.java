@@ -1078,6 +1078,7 @@ public class InstrumentDefinitionVisitorTest {
     public String visitCouponFixedCompoundingDefinition(CouponFixedCompoundingDefinition payment) {
       return null;
     }
+
   }
 
 }

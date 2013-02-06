@@ -6,11 +6,11 @@
 package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
@@ -34,16 +34,14 @@ import com.opengamma.util.time.DateUtils;
 public class CouponFixedCompoundingDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
-  private static final Period Y1 = Period.ofYears(1);
+  private static final Period Y1 = Period.of(1, YEARS);
   private static final double NOTIONAL = 123000000;
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2012, 8, 24);
   private static final ZonedDateTime ACCRUAL_END_DATE = DateUtils.getUTCDate(2022, 8, 24);
   private static final double RATE = .05;
   private final static Currency CURRENCY = Currency.of("EUR");
 
-  private final static CouponFixedCompoundingDefinition COUPON_DEFINITION = CouponFixedCompoundingDefinition.from(CURRENCY, NOTIONAL, ACCRUAL_START_DATE, ACCRUAL_END_DATE, Y1, RATE);
-
-  private static final CouponFixedCompoundingDiscountingMethod METHOD_COMPOUNDING = CouponFixedCompoundingDiscountingMethod.getInstance();
+  private final static CouponFixedCompoundingDefinition COUPON_DEFINITION = CouponFixedCompoundingDefinition.from(CURRENCY, ACCRUAL_START_DATE, ACCRUAL_END_DATE, NOTIONAL, Y1, RATE);
 
   private static final ZonedDateTime REFERENCE_DATE_BEFORE = DateUtils.getUTCDate(2012, 8, 7);
   private static final CouponFixedCompounding COUPON = COUPON_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE, "");
@@ -56,7 +54,7 @@ public class CouponFixedCompoundingDiscountingMethodTest {
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
 
   private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PVCSDC);
-  private static final double SHIFT = 5.0E-7;
+  private static final double SHIFT = 1.0E-8;
   private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVDC, SHIFT);
 
   @Test
@@ -78,7 +76,7 @@ public class CouponFixedCompoundingDiscountingMethodTest {
   public void presentValueCurveSensitivity() {
     MultipleCurrencyParameterSensitivity pvpsAnnuityExact = PSC.calculateSensitivity(COUPON, MULTICURVES, MULTICURVES.getAllNames());
     MultipleCurrencyParameterSensitivity pvpsAnnuityFD = PSC_DSC_FD.calculateSensitivity(COUPON, MULTICURVES);
-    AssertSensivityObjects.assertEquals("CouponIborAverageDiscountingMethod: presentValueCurveSensitivity ", pvpsAnnuityExact, pvpsAnnuityFD, TOLERANCE_PV_DELTA);
+    AssertSensivityObjects.assertEquals("CouponFixedCompoundingDiscountingMethod: presentValueCurveSensitivity ", pvpsAnnuityExact, pvpsAnnuityFD, TOLERANCE_PV_DELTA);
   }
 
   @Test

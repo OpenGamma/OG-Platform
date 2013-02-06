@@ -42,7 +42,6 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
    * Inflation zero-coupon constructor.
    * @param currency The coupon currency.
    * @param paymentTime The time to payment.
-   * @param fundingCurveName The discounting curve name.
    * @param paymentYearFraction Accrual factor of the accrual period.
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
@@ -51,10 +50,10 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
    * @param weight The weight on the first month index in the interpolation.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
-  public CouponInflationZeroCouponInterpolation(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional,
-      final IndexPrice priceIndex,
-      final double indexStartValue, final double[] referenceEndTime, final double weight, final boolean payNotional) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, priceIndex);
+  public CouponInflationZeroCouponInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
+      final double indexStartValue,
+      final double[] referenceEndTime, final double weight, final boolean payNotional) {
+    super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;
     _weight = weight;
@@ -95,8 +94,8 @@ public class CouponInflationZeroCouponInterpolation extends CouponInflation {
 
   @Override
   public CouponInflationZeroCouponInterpolation withNotional(final double notional) {
-    return new CouponInflationZeroCouponInterpolation(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue, _referenceEndTime,
-        _weight, _payNotional);
+    return new CouponInflationZeroCouponInterpolation(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue, _referenceEndTime, _weight,
+        _payNotional);
   }
 
   @Override

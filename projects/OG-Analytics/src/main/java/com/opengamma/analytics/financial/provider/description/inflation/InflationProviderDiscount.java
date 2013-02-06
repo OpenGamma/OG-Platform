@@ -135,6 +135,13 @@ public class InflationProviderDiscount implements InflationProviderInterface {
     return _multicurveProvider;
   }
 
+  public InflationProviderDiscount withPriceIndex(final IndexPrice index, final PriceIndexCurve replacement) {
+    final Map<IndexPrice, PriceIndexCurve> newPriceIndexCurves = new LinkedHashMap<IndexPrice, PriceIndexCurve>(_priceIndexCurves);
+    newPriceIndexCurves.put(index, replacement);
+    final InflationProviderDiscount decorated = new InflationProviderDiscount(_multicurveProvider, newPriceIndexCurves);
+    return decorated;
+  }
+
   //     =====     Methods related to MulticurveProvider     =====
 
   @Override
@@ -313,6 +320,18 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   @Override
   public InflationProviderDiscount withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement) {
     MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withDiscountFactor(ccy, replacement);
+    return new InflationProviderDiscount(decoratedMulticurve, _priceIndexCurves);
+  }
+
+  @Override
+  public InflationProviderDiscount withForward(final IborIndex index, YieldAndDiscountCurve replacement) {
+    MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withForward(index, replacement);
+    return new InflationProviderDiscount(decoratedMulticurve, _priceIndexCurves);
+  }
+
+  @Override
+  public InflationProviderDiscount withForward(final IndexON index, YieldAndDiscountCurve replacement) {
+    MulticurveProviderDiscount decoratedMulticurve = _multicurveProvider.withForward(index, replacement);
     return new InflationProviderDiscount(decoratedMulticurve, _priceIndexCurves);
   }
 

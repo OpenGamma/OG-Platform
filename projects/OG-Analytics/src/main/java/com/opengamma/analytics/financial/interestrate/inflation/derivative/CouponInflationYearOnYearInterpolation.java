@@ -52,7 +52,6 @@ public class CouponInflationYearOnYearInterpolation extends CouponInflation {
    * Inflation year on year coupon constructor.
    * @param currency The coupon currency.
    * @param paymentTime The time to payment.
-   * @param fundingCurveName The discounting curve name.
    * @param paymentYearFraction Accrual factor of the accrual period.
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
@@ -62,10 +61,10 @@ public class CouponInflationYearOnYearInterpolation extends CouponInflation {
    * @param weightEnd The weight on the first month index in the interpolation of the index at the coupon end.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
-  public CouponInflationYearOnYearInterpolation(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional,
-      final IndexPrice priceIndex, final double[] referenceStartTime,
-      final double[] referenceEndTime, final double weightStart, final double weightEnd, final boolean payNotional) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, priceIndex);
+  public CouponInflationYearOnYearInterpolation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
+      final double[] referenceStartTime, final double[] referenceEndTime,
+      final double weightStart, final double weightEnd, final boolean payNotional) {
+    super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
     this._referenceStartTime = referenceStartTime;
     this._referenceEndTime = referenceEndTime;
     _weightStart = weightStart;
@@ -116,9 +115,9 @@ public class CouponInflationYearOnYearInterpolation extends CouponInflation {
 
   @Override
   public CouponInflationYearOnYearInterpolation withNotional(final double notional) {
-    return new CouponInflationYearOnYearInterpolation(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getPriceIndex(), _referenceStartTime,
-        _referenceEndTime,
-        _weightStart, _weightEnd, _payNotional);
+    return new CouponInflationYearOnYearInterpolation(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _referenceStartTime, _referenceEndTime,
+        _weightStart,
+        _weightEnd, _payNotional);
   }
 
   @Override
@@ -149,17 +148,22 @@ public class CouponInflationYearOnYearInterpolation extends CouponInflation {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (!super.equals(obj))
+    }
+    if (!super.equals(obj)) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     CouponInflationYearOnYearInterpolation other = (CouponInflationYearOnYearInterpolation) obj;
-    if (!Arrays.equals(_referenceEndTime, other._referenceEndTime))
+    if (!Arrays.equals(_referenceEndTime, other._referenceEndTime)) {
       return false;
-    if (!Arrays.equals(_referenceStartTime, other._referenceStartTime))
+    }
+    if (!Arrays.equals(_referenceStartTime, other._referenceStartTime)) {
       return false;
+    }
     return true;
   }
 

@@ -26,13 +26,12 @@ public abstract class CouponInflation extends Coupon {
    * Inflation coupon constructor.
    * @param currency The coupon currency.
    * @param paymentTime The time to payment.
-   * @param fundingCurveName The discounting curve name.
    * @param paymentYearFraction Accrual factor of the accrual period.
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
    */
-  public CouponInflation(Currency currency, double paymentTime, String fundingCurveName, double paymentYearFraction, double notional, IndexPrice priceIndex) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
+  public CouponInflation(Currency currency, double paymentTime, double paymentYearFraction, double notional, IndexPrice priceIndex) {
+    super(currency, paymentTime, "Not used", paymentYearFraction, notional);
     Validate.notNull(priceIndex, "Price index");
     _priceIndex = priceIndex;
   }

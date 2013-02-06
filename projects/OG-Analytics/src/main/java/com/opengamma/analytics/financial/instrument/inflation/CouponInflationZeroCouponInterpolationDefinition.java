@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.instrument.inflation;
 
 import java.util.Arrays;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -14,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
@@ -145,7 +147,7 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
     referenceStartDate[0] = refInterpolatedDate.withDayOfMonth(1);
     referenceStartDate[1] = referenceStartDate[0].plusMonths(1);
     final double weightStart = 1.0 - (accrualStartDate.getDayOfMonth() - 1.0) / accrualStartDate.getDate().lengthOfMonth();
-    final Double[] knownIndex = new Double[] {priceIndexTimeSeries.getValue(referenceStartDate[0]), priceIndexTimeSeries.getValue(referenceStartDate[1])};
+    final Double[] knownIndex = new Double[] {priceIndexTimeSeries.getValue(referenceStartDate[0]), priceIndexTimeSeries.getValue(referenceStartDate[1]) };
     double indexStartValue = 0;
     if ((knownIndex[0] != null) && (knownIndex[1] != null)) { // Fixing fully known
       indexStartValue = weightStart * knownIndex[0] + (1 - weightStart) * knownIndex[1]; // Interpolated index
@@ -224,10 +226,8 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
     final double[] referenceEndTime = new double[2];
     referenceEndTime[0] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[0]);
     referenceEndTime[1] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[1]);
-
-    final String discountingCurveName = yieldCurveNames[0];
-    return new CouponInflationZeroCouponInterpolation(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(),
-        _indexStartValue, referenceEndTime, _weight, _payNotional);
+    return new CouponInflationZeroCouponInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime, _weight,
+        _payNotional);
   }
 
   @Override
@@ -236,13 +236,25 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final LocalDate dayConversion = date.getDate();
     final String discountingCurveName = yieldCurveNames[0];
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final LocalDate dayFixing = getReferenceEndDate()[1].getDate();
+    if (dayConversion.isAfter(dayFixing)) {
+      final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(getReferenceEndDate()[1]);
+
+      if (fixedEndIndex1 != null) {
+        final Double fixedEndIndex0 = priceIndexTimeSeries.getValue(getReferenceEndDate()[0]);
+        final Double fixedEndIndex = getWeight() * fixedEndIndex0 + (1 - getWeight()) * fixedEndIndex1;
+        final Double fixedRate = (fixedEndIndex / getIndexStartValue() - (payNotional() ? 0.0 : 1.0));
+        return new CouponFixed(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
+      }
+    }
     final double[] referenceEndTime = new double[2];
     referenceEndTime[0] = TimeCalculator.getTimeBetween(date, _referenceEndDate[0]);
     referenceEndTime[1] = TimeCalculator.getTimeBetween(date, _referenceEndDate[1]);
-    return new CouponInflationZeroCouponInterpolation(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(),
-        _indexStartValue, referenceEndTime, _weight, _payNotional);
+    return new CouponInflationZeroCouponInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime, _weight,
+        _payNotional);
   }
 
   @Override

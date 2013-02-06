@@ -36,7 +36,6 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
    * Inflation zero-coupon constructor.
    * @param currency The coupon currency.
    * @param paymentTime The time to payment.
-   * @param fundingCurveName The discounting curve name.
    * @param paymentYearFraction Accrual factor of the accrual period.
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
@@ -44,10 +43,10 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
    * @param referenceEndTime The reference time for the index at the coupon end.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    */
-  public CouponInflationZeroCouponMonthly(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional,
-      final IndexPrice priceIndex, final double indexStartValue,
-      final double referenceEndTime, final boolean payNotional) {
-    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, priceIndex);
+  public CouponInflationZeroCouponMonthly(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex,
+      final double indexStartValue, final double referenceEndTime,
+      final boolean payNotional) {
+    super(currency, paymentTime, paymentYearFraction, notional, priceIndex);
     this._indexStartValue = indexStartValue;
     this._referenceEndTime = referenceEndTime;
     _payNotional = payNotional;
@@ -79,8 +78,7 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
 
   @Override
   public CouponInflationZeroCouponMonthly withNotional(final double notional) {
-    return new CouponInflationZeroCouponMonthly(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue, _referenceEndTime,
-        _payNotional);
+    return new CouponInflationZeroCouponMonthly(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getPriceIndex(), _indexStartValue, _referenceEndTime, _payNotional);
   }
 
   @Override

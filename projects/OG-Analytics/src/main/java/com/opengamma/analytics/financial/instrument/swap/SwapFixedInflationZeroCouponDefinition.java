@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -11,12 +11,11 @@ import org.apache.commons.lang.Validate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -29,21 +28,12 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
 
   /**
-   * Zero-coupon inflation swap constructor.
-   * @param fixedLeg The swap fixed leg.
-   * @param inflationLeg The swap inflation leg.
-   */
-  public SwapFixedInflationZeroCouponDefinition(final AnnuityCouponFixedDefinition fixedLeg, final AnnuityDefinition<? extends PaymentDefinition> inflationLeg) {
-    super(fixedLeg, inflationLeg);
-  }
-
-  /**
    * Zero-coupon inflation swap constructor for the fixed and inflation coupons.
    * @param fixedCpn The swap fixed leg.
    * @param inflationCpn The swap inflation leg.
    */
-  public SwapFixedInflationZeroCouponDefinition(final CouponFixedDefinition fixedCpn, final CouponInflationDefinition inflationCpn) {
-    super(new AnnuityCouponFixedDefinition(new CouponFixedDefinition[] {fixedCpn}), new AnnuityDefinition<PaymentDefinition>(new CouponInflationDefinition[] {inflationCpn}));
+  public SwapFixedInflationZeroCouponDefinition(final CouponFixedCompoundingDefinition fixedCpn, final CouponInflationDefinition inflationCpn) {
+    super(new AnnuityDefinition<PaymentDefinition>(new CouponFixedCompoundingDefinition[] {fixedCpn }), new AnnuityDefinition<PaymentDefinition>(new CouponInflationDefinition[] {inflationCpn }));
   }
 
   /**
@@ -69,9 +59,9 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
     Validate.notNull(businessDayConvention, "Business day convention");
     Validate.notNull(calendar, "Calendar");
     Validate.notNull(priceIndexTimeSeries, "Time series of price index");
-    double rateComposed = Math.pow(1 + fixedRate, tenor) - 1;
     ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settlementDate, Period.of(tenor, YEARS), businessDayConvention, calendar, endOfMonth);
-    CouponFixedDefinition fixedCpn = CouponFixedDefinition.from(index.getCurrency(), paymentDate, settlementDate, paymentDate, 1.0, (isPayer ? -1.0 : 1.0) * notional, rateComposed);
+    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(index.getCurrency(), paymentDate, settlementDate, (isPayer ? -1.0 : 1.0) * notional, Period.of(tenor, YEARS),
+        fixedRate);
     CouponInflationZeroCouponInterpolationDefinition inflationCpn = CouponInflationZeroCouponInterpolationDefinition.from(settlementDate, paymentDate, (isPayer ? 1.0 : -1.0) * notional, index,
         priceIndexTimeSeries, monthLag, false);
     return new SwapFixedInflationZeroCouponDefinition(fixedCpn, inflationCpn);

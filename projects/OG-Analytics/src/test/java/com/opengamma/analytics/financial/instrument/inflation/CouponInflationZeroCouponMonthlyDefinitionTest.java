@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.inflation;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
@@ -36,9 +35,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 public class CouponInflationZeroCouponMonthlyDefinitionTest {
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
-  private static final Currency REGION = Currency.EUR;
-  private static final Period LAG = Period.of(14, DAYS);
-  private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR, REGION, LAG);
+  private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
@@ -181,8 +178,7 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
     Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, CURVE_NAMES);
     double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
-    CouponInflationZeroCouponMonthly zeroCoupon = new CouponInflationZeroCouponMonthly(CUR, paymentTime, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, referenceEndTime,
-        false);
+    CouponInflationZeroCouponMonthly zeroCoupon = new CouponInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, referenceEndTime, false);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCouponConverted, zeroCoupon);
   }
 
@@ -195,8 +191,7 @@ public class CouponInflationZeroCouponMonthlyDefinitionTest {
     Coupon zeroCouponConverted = ZERO_COUPON_DEFINITION.toDerivative(pricingDate, priceIndexTS, CURVE_NAMES);
     double paymentTime = ACT_ACT.getDayCountFraction(pricingDate, PAYMENT_DATE);
     final double referenceEndTime = ACT_ACT.getDayCountFraction(pricingDate, REFERENCE_END_DATE);
-    CouponInflationZeroCouponMonthly zeroCoupon = new CouponInflationZeroCouponMonthly(CUR, paymentTime, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, referenceEndTime,
-        false);
+    CouponInflationZeroCouponMonthly zeroCoupon = new CouponInflationZeroCouponMonthly(CUR, paymentTime, 1.0, NOTIONAL, PRICE_INDEX, INDEX_APRIL_2008, referenceEndTime, false);
     assertEquals("Inflation zero-coupon: toDerivative", zeroCoupon, zeroCouponConverted);
   }
 

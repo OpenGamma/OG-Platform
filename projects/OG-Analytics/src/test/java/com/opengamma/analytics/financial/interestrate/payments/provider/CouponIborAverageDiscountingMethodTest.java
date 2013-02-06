@@ -85,7 +85,7 @@ public class CouponIborAverageDiscountingMethodTest {
 
     final double df = MULTICURVES.getDiscountFactor(CPN_IBOR__AVERAGE.getCurrency(), CPN_IBOR_1.getPaymentTime());
     final double pvExpected = CPN_IBOR__AVERAGE.getNotional() * CPN_IBOR__AVERAGE.getPaymentYearFraction() * (WEIGHT_1 * forward1 + WEIGHT_2 * forward2) * df;
-    assertEquals("CouponIborDiscountingMarketMethod: present value", pvExpected, pvComputed.getAmount(EURIBOR3M.getCurrency()), TOLERANCE_PV);
+    assertEquals("CouponIborDiscountingMarketMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test
@@ -94,9 +94,9 @@ public class CouponIborAverageDiscountingMethodTest {
     final MultipleCurrencyAmount pvComputed1 = METHOD_CPN_IBOR.presentValue(CPN_IBOR_1, MULTICURVES);
     final MultipleCurrencyAmount pvComputed2 = METHOD_CPN_IBOR.presentValue(CPN_IBOR_2, MULTICURVES);
     final double pvExpected = CPN_IBOR__AVERAGE.getPaymentYearFraction() *
-        (WEIGHT_1 * pvComputed1.getAmount(EURIBOR3M.getCurrency()) / ACCRUAL_FACTOR_1 + WEIGHT_2 * pvComputed2.getAmount(EURIBOR3M.getCurrency()) / ACCRUAL_FACTOR_2);
+        (WEIGHT_1 * pvComputed1.getAmount(EUR) / ACCRUAL_FACTOR_1 + WEIGHT_2 * pvComputed2.getAmount(EUR) / ACCRUAL_FACTOR_2);
 
-    assertEquals("CouponIborDiscountingMarketMethod: present value", pvExpected, pvComputed.getAmount(EURIBOR3M.getCurrency()), TOLERANCE_PV);
+    assertEquals("CouponIborDiscountingMarketMethod: present value", pvExpected, pvComputed.getAmount(EUR), TOLERANCE_PV);
   }
 
   @Test

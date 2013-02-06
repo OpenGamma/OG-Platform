@@ -155,4 +155,8 @@ public interface InflationProviderInterface extends ParameterProviderInterface {
 
   InflationProviderInterface withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement);
 
+  InflationProviderInterface withForward(IborIndex index, YieldAndDiscountCurve replacement);
+
+  InflationProviderInterface withForward(IndexON index, YieldAndDiscountCurve replacement);
+
 }

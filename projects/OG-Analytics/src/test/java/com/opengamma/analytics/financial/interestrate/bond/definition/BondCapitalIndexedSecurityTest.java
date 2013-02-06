@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
@@ -44,9 +43,7 @@ public class BondCapitalIndexedSecurityTest {
   // Index-Lined Gilt 2% Index-linked Treasury Stock 2035 - GB0031790826
   private static final String NAME = "UK RPI";
   private static final Currency CUR = Currency.GBP;
-  private static final Currency REGION = Currency.GBP;
-  private static final Period LAG = Period.of(14, DAYS);
-  private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR, REGION, LAG);
+  private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("GBP");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final DayCount DAY_COUNT_GILT_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");

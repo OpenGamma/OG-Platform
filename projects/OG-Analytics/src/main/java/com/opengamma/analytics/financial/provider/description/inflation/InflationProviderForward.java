@@ -317,4 +317,14 @@ public class InflationProviderForward implements InflationProviderInterface {
     return new InflationProviderForward(decoratedMulticurve, _priceIndexCurves);
   }
 
+  @Override
+  public InflationProviderInterface withForward(IborIndex index, YieldAndDiscountCurve replacement) {
+    return null;
+  }
+
+  @Override
+  public InflationProviderInterface withForward(IndexON index, YieldAndDiscountCurve replacement) {
+    return null;
+  }
+
 }

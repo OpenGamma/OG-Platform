@@ -6,9 +6,11 @@
 
 package com.opengamma.analytics.financial.instrument.payment;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
+
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
@@ -104,7 +106,8 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
    * @return The compounded coupon.
    */
   public static CouponFixedCompoundingDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime[] accrualStartDates,
-      final ZonedDateTime[] accrualEndDates, final double[] paymentAccrualFactors, final double notional, final double rate) {
+      final ZonedDateTime[] accrualEndDates, final double[] paymentAccrualFactors, final double notional, final double rate)
+  {
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime accrualStartDate = accrualStartDates[0];
     final ZonedDateTime accrualEndDate = accrualEndDates[nbSubPeriod - 1];
@@ -120,16 +123,16 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
    * Builds a fixed compounded coupon from a total period. 
    * If required the stub of the sub-periods will be short and last. The payment date is the start accrual date plus the tenor in the index conventions.
    * @param currency The currency.
-   * @param notional The coupon notional.
    * @param accrualStartDate The first accrual date. 
    * @param accrualEndDate The last accrual date.
-   * @param tenor The total coupon tenor.
+   * @param notional The coupon notional.
+   * @param tenorPeriod The total coupon tenor.
    * @param rate The fixed rate.
    * @return The compounded coupon.
    */
-  public static CouponFixedCompoundingDefinition from(final Currency currency, final double notional, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final Period tenor, final double rate) {
-    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(accrualStartDate, accrualEndDate, tenor, true, false);
+  public static CouponFixedCompoundingDefinition from(final Currency currency, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional,
+      final Period tenorPeriod, final double rate) {
+    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(accrualStartDate, accrualEndDate, tenorPeriod, true, false);
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime[] accrualStartDates = new ZonedDateTime[nbSubPeriod];
     accrualStartDates[0] = accrualStartDate;
@@ -139,6 +142,31 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
       paymentAccrualFactors[loopsub] = TimeCalculator.getTimeBetween(accrualStartDates[loopsub], accrualEndDates[loopsub]);
     }
     return from(currency, accrualEndDates[nbSubPeriod - 1], accrualStartDates, accrualEndDates, paymentAccrualFactors, notional, rate);
+  }
+
+  /**
+   * Builds a fixed compounded coupon from a tenor in years. This constructor is needed for inflation ZC swap. 
+   * If required the stub of the sub-periods will be short and last. The payment date is the start accrual date plus the tenor in the index conventions.
+   * @param currency The currency.
+   * @param paymentDate The payment date.
+   * @param accrualStartDate The first accrual date.
+   * @param notional The coupon notional.
+   * @param tenor The total coupon tenor.
+   * @param rate The fixed rate.
+   * @return The compounded coupon.
+   */
+  public static CouponFixedCompoundingDefinition from(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final double notional,
+      final int tenor, final double rate) {
+    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getUnadjustedDateSchedule(accrualStartDate, accrualStartDate.plus(Period.of(tenor, YEARS)), Period.of(tenor, YEARS), true, false);
+    final int nbSubPeriod = accrualEndDates.length;
+    final ZonedDateTime[] accrualStartDates = new ZonedDateTime[nbSubPeriod];
+    accrualStartDates[0] = accrualStartDate;
+    System.arraycopy(accrualEndDates, 0, accrualStartDates, 1, nbSubPeriod - 1);
+    final double[] paymentAccrualFactors = new double[nbSubPeriod];
+    for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
+      paymentAccrualFactors[loopsub] = 1.0;
+    }
+    return from(currency, paymentDate, accrualStartDates, accrualEndDates, paymentAccrualFactors, notional, rate);
   }
 
   public double getRate() {
@@ -165,8 +193,8 @@ public final class CouponFixedCompoundingDefinition extends CouponDefinition {
   @Override
   public CouponFixedCompounding toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
-    final LocalDate dayConversion = date.toLocalDate();
-    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    final LocalDate dayConversion = date.getDate();
+    ArgumentChecker.isTrue(!dayConversion.isAfter(getPaymentDate().getDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     return new CouponFixedCompounding(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(),
         getPaymentAccrualFactors(), getRate());

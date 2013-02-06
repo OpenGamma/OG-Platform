@@ -27,9 +27,7 @@ import com.opengamma.util.time.DateUtils;
 public class CouponInflationYearOnYearMonthlyTest {
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
-  private static final Currency REGION = Currency.EUR;
-  private static final Period LAG = DateUtils.periodOfDays(14);
-  private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR, REGION, LAG);
+  private static final IndexPrice PRICE_INDEX = new IndexPrice(NAME, CUR);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2008, 8, 18);
@@ -44,13 +42,12 @@ public class CouponInflationYearOnYearMonthlyTest {
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
   private static final double REFERENCE_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_START_DATE);
   private static final double REFERENCE_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, REFERENCE_END_DATE);
-  private static final String DISCOUNTING_CURVE_NAME = "Discounting";
-  private static final CouponInflationYearOnYearMonthly YoY_COUPON = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
-      REFERENCE_END_TIME, false);
+  private static final CouponInflationYearOnYearMonthly YoY_COUPON = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME, REFERENCE_END_TIME,
+      false);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndex() {
-    new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, null, REFERENCE_START_TIME, REFERENCE_END_TIME, false);
+    new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, null, REFERENCE_START_TIME, REFERENCE_END_TIME, false);
   }
 
   @Test
@@ -69,16 +66,17 @@ public class CouponInflationYearOnYearMonthlyTest {
    */
   public void equalHash() {
     assertEquals(YoY_COUPON, YoY_COUPON);
-    final CouponInflationYearOnYearMonthly couponDuplicate = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
-        REFERENCE_END_TIME, false);
+
+    CouponInflationYearOnYearMonthly couponDuplicate = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME, REFERENCE_END_TIME,
+        false);
     assertEquals(YoY_COUPON, couponDuplicate);
     assertEquals(YoY_COUPON.hashCode(), couponDuplicate.hashCode());
     CouponInflationYearOnYearMonthly modified;
-    modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME + 0.1,
-        REFERENCE_END_TIME, false);
+    modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME + 0.1, REFERENCE_END_TIME,
+        false);
     assertFalse(YoY_COUPON.equals(modified));
-    modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME,
-        REFERENCE_END_TIME + 0.1, false);
+    modified = new CouponInflationYearOnYearMonthly(CUR, PAYMENT_TIME, 1.0, NOTIONAL, PRICE_INDEX, REFERENCE_START_TIME, REFERENCE_END_TIME + 0.1,
+        false);
     assertFalse(YoY_COUPON.equals(modified));
   }
 }

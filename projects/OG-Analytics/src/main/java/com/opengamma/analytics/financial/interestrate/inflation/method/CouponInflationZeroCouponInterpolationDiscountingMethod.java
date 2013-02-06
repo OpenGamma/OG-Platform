@@ -24,6 +24,18 @@ import com.opengamma.util.tuple.DoublesPair;
 public class CouponInflationZeroCouponInterpolationDiscountingMethod {
 
   /**
+   * Computes the estimated index with the weight and the two reference end dates.
+   * @param coupon The zero-coupon payment.
+   * @param inflation The inflation provider.
+   * @return The net amount.
+   */
+  public double indexEstimation(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface inflation) {
+    final double estimatedIndexMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
+    final double estimatedIndexMonth1 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[1]);
+    return coupon.getWeight() * estimatedIndexMonth0 + (1 - coupon.getWeight()) * estimatedIndexMonth1;
+  }
+
+  /**
    * Computes the present value of the zero-coupon coupon with reference index at start of the month.
    * @param coupon The zero-coupon payment.
    * @param inflation The inflation provider.
@@ -39,6 +51,22 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethod {
   }
 
   /**
+   * Computes the par spread of the zero-coupon swap with the fixed rate of the fixed leg of inflation zero-coupon swap.
+   * @param coupon The zero-coupon payment.
+   * @param inflation The inflation provider.
+   * @param tenor the teno as used in the fixed leg
+   * @param fixedRate the fixed rate
+   * @return The present value.
+   */
+  public double parSpread(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface inflation, final int tenor, final double fixedRate) {
+    Validate.notNull(tenor, "Tenor");
+    Validate.notNull(coupon, "Coupon");
+    Validate.notNull(inflation, "Inflation");
+    double estimatedIndex = indexEstimation(coupon, inflation);
+    return Math.pow((estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)), 1 / tenor) - 1 - fixedRate;
+  }
+
+  /**
    * Computes the net amount of the zero-coupon coupon with reference index at start of the month.
    * @param coupon The zero-coupon payment.
    * @param inflation The inflation provider.
@@ -50,18 +78,6 @@ public class CouponInflationZeroCouponInterpolationDiscountingMethod {
     double estimatedIndex = indexEstimation(coupon, inflation);
     double netAmount = (estimatedIndex / coupon.getIndexStartValue() - (coupon.payNotional() ? 0.0 : 1.0)) * coupon.getNotional();
     return MultipleCurrencyAmount.of(coupon.getCurrency(), netAmount);
-  }
-
-  /**
-   * Computes the estimated index with the weight and the two reference end dates.
-   * @param coupon The zero-coupon payment.
-   * @param inflation The inflation provider.
-   * @return The net amount.
-   */
-  public double indexEstimation(final CouponInflationZeroCouponInterpolation coupon, final InflationProviderInterface inflation) {
-    final double estimatedIndexMonth0 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[0]);
-    final double estimatedIndexMonth1 = inflation.getPriceIndex(coupon.getPriceIndex(), coupon.getReferenceEndTime()[1]);
-    return coupon.getWeight() * estimatedIndexMonth0 + (1 - coupon.getWeight()) * estimatedIndexMonth1;
   }
 
   /**

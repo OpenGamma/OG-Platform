@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.instrument.bond;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
@@ -45,8 +44,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class BondCapitalIndexedSecurityDefinitionTest {
   // Index-Linked Gilt 2% Index-linked Treasury Stock 2035 - GB0031790826
   private static final String NAME_INDEX_UK = "UK RPI";
-  private static final Period LAG_INDEX_UK = Period.of(14, DAYS);
-  private static final IndexPrice PRICE_INDEX_UKRPI = new IndexPrice(NAME_INDEX_UK, Currency.GBP, Currency.GBP, LAG_INDEX_UK);
+  private static final IndexPrice PRICE_INDEX_UKRPI = new IndexPrice(NAME_INDEX_UK, Currency.GBP);
   private static final Calendar CALENDAR_GBP = new MondayToFridayCalendar("GBP");
   private static final BusinessDayConvention BUSINESS_DAY_GBP = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final DayCount DAY_COUNT_GILT_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
@@ -87,7 +85,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     final CouponInflationZeroCouponMonthlyGearingDefinition nominalPayment = CouponInflationZeroCouponMonthlyGearingDefinition.from(START_DATE_GILT_1,
         MATURITY_DATE_GILT_1, NOTIONAL_GILT_1, PRICE_INDEX_UKRPI, INDEX_START_GILT_1, MONTH_LAG_GILT_1, true, 1.0);
     final AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> nominalAnnuity = new AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition>(
-        new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment});
+        new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment });
     // Coupon construction
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(FIRST_COUPON_DATE_GILT_1, MATURITY_DATE_GILT_1, COUPON_PERIOD_GILT_1,
         true, false);
@@ -168,8 +166,8 @@ public class BondCapitalIndexedSecurityDefinitionTest {
         PRICE_INDEX_UKRPI, MONTH_LAG_GILT_1, START_DATE_GILT_1, INDEX_START_GILT_1, FIRST_COUPON_DATE_GILT_1, MATURITY_DATE_GILT_1, COUPON_PERIOD_GILT_1,
         NOTIONAL_GILT_1, REAL_RATE_GILT_1, BUSINESS_DAY_GBP, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP, DAY_COUNT_GILT_1, YIELD_CONVENTION_GILT_1, IS_EOM_GILT_1, ISSUER_UK);
     final BondCapitalIndexedSecurity<Coupon> bond = bondFromDefinition.toDerivative(pricingDate, ukRpi, "Not used");
-    final ZonedDateTime[] referenceDateNextCoupon = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 1), DateUtils.getUTCDate(2011, 5, 1)}; // Nov 10, May 11
-    final double[] referenceIndexNextCoupon = new double[] {ukRpi.getValue(referenceDateNextCoupon[0]), ukRpi.getValue(referenceDateNextCoupon[1])};
+    final ZonedDateTime[] referenceDateNextCoupon = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 11, 1), DateUtils.getUTCDate(2011, 5, 1) }; // Nov 10, May 11
+    final double[] referenceIndexNextCoupon = new double[] {ukRpi.getValue(referenceDateNextCoupon[0]), ukRpi.getValue(referenceDateNextCoupon[1]) };
     for (int loopcpn = 0; loopcpn < 2; loopcpn++) {
       final double amountNextCoupon = referenceIndexNextCoupon[loopcpn] / INDEX_START_GILT_1 * NOTIONAL_GILT_1 * REAL_RATE_GILT_1;
       assertEquals("Capital Index Bond: toDerivative", amountNextCoupon, ((CouponFixed) bond.getCoupon().getNthPayment(loopcpn)).getAmount());
@@ -185,8 +183,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
 
   // 2% 10-YEAR TREASURY INFLATION-PROTECTED SECURITIES (TIPS) Due January 15, 2016 - US912828ET33
   private static final String NAME_INDEX_US = "US CPI-U";
-  private static final Period LAG_INDEX_US = DateUtils.periodOfDays(14);
-  private static final IndexPrice PRICE_INDEX_USCPI = new IndexPrice(NAME_INDEX_US, Currency.EUR, Currency.EUR, LAG_INDEX_US);
+  private static final IndexPrice PRICE_INDEX_USCPI = new IndexPrice(NAME_INDEX_US, Currency.EUR);
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
   private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final DayCount DAY_COUNT_TIPS_1 = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
@@ -211,7 +208,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
     final CouponInflationZeroCouponInterpolationGearingDefinition nominalPayment = CouponInflationZeroCouponInterpolationGearingDefinition.from(START_DATE_TIPS_1,
         MATURITY_DATE_TIPS_1, NOTIONAL_TIPS_1, PRICE_INDEX_USCPI, INDEX_START_TIPS_1, MONTH_LAG_TIPS_1, true, 1.0);
     final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> nominalAnnuity = new AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>(
-        new CouponInflationZeroCouponInterpolationGearingDefinition[] {nominalPayment});
+        new CouponInflationZeroCouponInterpolationGearingDefinition[] {nominalPayment });
     // Coupon construction
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(START_DATE_TIPS_1, MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, true,
         false);

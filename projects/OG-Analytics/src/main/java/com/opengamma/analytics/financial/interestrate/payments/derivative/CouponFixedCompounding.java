@@ -37,6 +37,16 @@ public class CouponFixedCompounding extends Coupon {
   private final double[] _paymentAccrualFactors;
 
   /**
+   * The notional accrued is the amount equal to
+  * $$
+  * \begin{equation*}
+  * \notional \left(\prod_{i=1}^n (1+\delta_i r) \right)
+  * \end{equation*}
+  * $$
+   */
+  private final double _notionalAccrued;
+
+  /**
    * Constructor.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
@@ -50,6 +60,13 @@ public class CouponFixedCompounding extends Coupon {
     super(currency, paymentTime, "", paymentYearFraction, notional);
     _paymentAccrualFactors = paymentAccrualFactors;
     _rate = rate;
+    final int nbSubPeriod = paymentAccrualFactors.length;
+    double notionalAccrued = notional;
+    for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
+
+      notionalAccrued *= 1 + paymentAccrualFactors[loopsub] * rate;
+    }
+    _notionalAccrued = notionalAccrued;
   }
 
   public double getRate() {
@@ -58,6 +75,10 @@ public class CouponFixedCompounding extends Coupon {
 
   public double[] getPaymentAccrualFactors() {
     return _paymentAccrualFactors;
+  }
+
+  public double getNotionalAccrued() {
+    return _notionalAccrued;
   }
 
   @Override

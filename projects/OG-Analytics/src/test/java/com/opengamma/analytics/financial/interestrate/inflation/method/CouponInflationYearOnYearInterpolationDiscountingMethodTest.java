@@ -125,8 +125,24 @@ public class CouponInflationYearOnYearInterpolationDiscountingMethodTest {
     final double initialIndexMonth1 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(YEAR_ON_YEAR_WITH.getReferenceStartTime()[1]);
     final double initialIndex = YEAR_ON_YEAR_WITH.getWeightStart() * initialIndexMonth0 + (1 - YEAR_ON_YEAR_WITH.getWeightStart()) * initialIndexMonth1;
     final double finalIndex = YEAR_ON_YEAR_WITH.getWeightEnd() * finalIndexMonth0 + (1 - YEAR_ON_YEAR_WITH.getWeightEnd()) * finalIndexMonth1;
-    final double pvExpected = (finalIndex / initialIndex - 1) * df * NOTIONAL;
+    final double pvExpected = (finalIndex / initialIndex) * df * NOTIONAL;
     assertEquals("Year on year coupon inflation: Present value", pvExpected, pv.getAmount(YEAR_ON_YEAR_WITH.getCurrency()), 1.0E-2);
   }
 
+  @Test
+  /**
+   * Tests the present value.
+   */
+  public void presentValueWithoutNotional() {
+    final MultipleCurrencyAmount pv = METHOD.presentValue(YEAR_ON_YEAR_NO, MARKET.getInflationProvider());
+    final double df = MARKET.getCurve(YEAR_ON_YEAR_WITH.getCurrency()).getDiscountFactor(YEAR_ON_YEAR_WITH.getPaymentTime());
+    final double finalIndexMonth0 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(YEAR_ON_YEAR_WITH.getReferenceEndTime()[0]);
+    final double finalIndexMonth1 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(YEAR_ON_YEAR_WITH.getReferenceEndTime()[1]);
+    final double initialIndexMonth0 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(YEAR_ON_YEAR_WITH.getReferenceStartTime()[0]);
+    final double initialIndexMonth1 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(YEAR_ON_YEAR_WITH.getReferenceStartTime()[1]);
+    final double initialIndex = YEAR_ON_YEAR_WITH.getWeightStart() * initialIndexMonth0 + (1 - YEAR_ON_YEAR_WITH.getWeightStart()) * initialIndexMonth1;
+    final double finalIndex = YEAR_ON_YEAR_WITH.getWeightEnd() * finalIndexMonth0 + (1 - YEAR_ON_YEAR_WITH.getWeightEnd()) * finalIndexMonth1;
+    final double pvExpected = (finalIndex / initialIndex - 1) * df * NOTIONAL;
+    assertEquals("Year on year coupon inflation: Present value", pvExpected, pv.getAmount(YEAR_ON_YEAR_WITH.getCurrency()), 1.0E-2);
+  }
 }

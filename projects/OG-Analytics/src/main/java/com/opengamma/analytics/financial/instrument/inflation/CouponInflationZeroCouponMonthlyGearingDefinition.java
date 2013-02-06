@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.inflation;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -12,6 +13,7 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
@@ -212,9 +214,8 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double referenceEndTime = TimeCalculator.getTimeBetween(date, getReferenceEndDate());
-    final String discountingCurveName = yieldCurveNames[0];
-    return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(),
-        _indexStartValue, referenceEndTime, _payNotional, _factor);
+    return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime, _payNotional,
+        _factor);
   }
 
   @Override
@@ -223,12 +224,21 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    final LocalDate dayConversion = date.getDate();
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final LocalDate dayFixing = getReferenceEndDate().getDate();
     final String discountingCurveName = yieldCurveNames[0];
+    if (dayConversion.isAfter(dayFixing)) {
+      final Double fixedEndIndex = priceIndexTimeSeries.getValue(getReferenceEndDate());
+      if (fixedEndIndex != null) {
+        final Double fixedRate = _factor * (fixedEndIndex / getIndexStartValue() - (payNotional() ? 0.0 : 1.0));
+        return new CouponFixed(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
+      }
+    }
     double referenceEndTime = 0.0;
     referenceEndTime = TimeCalculator.getTimeBetween(date, _referenceEndDate);
-    return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), getPriceIndex(),
-        _indexStartValue, referenceEndTime, _payNotional, _factor);
+    return new CouponInflationZeroCouponMonthlyGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime, _payNotional,
+        _factor);
   }
 
   @Override

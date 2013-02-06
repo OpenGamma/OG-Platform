@@ -53,32 +53,19 @@ public final class CouponFixedCompoundingDiscountingMethod {
   public MultipleCurrencyAmount presentValue(CouponFixedCompounding coupon, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-
-    final int nbSubPeriod = coupon.getPaymentAccrualFactors().length;
-    double notionalAccrued = coupon.getNotional();
-    for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
-
-      notionalAccrued *= 1 + coupon.getPaymentAccrualFactors()[loopsub] * coupon.getRate();
-    }
-
     final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    final double pv = (notionalAccrued - coupon.getNotional()) * df;
+    final double pv = (coupon.getNotionalAccrued() - coupon.getNotional()) * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
   }
 
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponFixedCompounding coupon, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-    final int nbSubPeriod = coupon.getPaymentAccrualFactors().length;
-    double notionalAccrued = coupon.getNotional();
-    for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
 
-      notionalAccrued *= 1 + coupon.getPaymentAccrualFactors()[loopsub] * coupon.getRate();
-    }
     final double dfPayment = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     // Backward sweep
     final double pvBar = 1.0;
-    final double dfPaymentBar = (notionalAccrued - coupon.getNotional()) * pvBar;
+    final double dfPaymentBar = (coupon.getNotionalAccrued() - coupon.getNotional()) * pvBar;
 
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
     final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
