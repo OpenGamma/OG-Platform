@@ -100,8 +100,10 @@ public class FutureSecurityConverter extends FinancialSecurityVisitorAdapter<Ins
       @Override
       public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
         final InterestRateFutureTransactionDefinition securityDefinition = (InterestRateFutureTransactionDefinition) security.accept(_irFutureConverter);
-        return new InterestRateFutureTransactionDefinition(securityDefinition.getLastTradingDate(), referencePrice, securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(),
-            securityDefinition.getNotional(), securityDefinition.getPaymentAccrualFactor(), 1, securityDefinition.getName());
+        return securityDefinition;
+//      new InterestRateFutureTransactionDefinition(securityDefinition.getLastTradingDate(), referencePrice, 
+//      securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(),
+//      securityDefinition.getNotional(), securityDefinition.getPaymentAccrualFactor(), 1, securityDefinition.getName());
       }
 
       @SuppressWarnings("synthetic-access")
