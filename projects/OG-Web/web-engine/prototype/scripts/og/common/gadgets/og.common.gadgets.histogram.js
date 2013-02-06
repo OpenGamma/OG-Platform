@@ -41,11 +41,15 @@ $.register_module({
             };
             normpdf = function (x, mu, sigma, constant) {
                 var diff = x-mu;
-                return Math.exp(-( diff*diff / (2*sigma*sigma) )) / sigma*constant;
+                return (Math.exp(-( (diff*diff) / (2*(sigma*sigma)) ))) / (sigma*constant);
             };
             pdf_data = function (stripped) {
-                var output = {}, count = [], diff = 0, sigma, constant = Math.sqrt(2*Math.PI); 
-                mu = stripped.reduce(function(a,b){return a+b;})/stripped.length;
+                var output = {}, 
+                    count = [], 
+                    diff = 0, 
+                    sigma, 
+                    constant = Math.sqrt(2*Math.PI), 
+                    mu = stripped.reduce(function(a,b){return a+b;})/stripped.length;
                 $.each(stripped, function(index, value){
                     diff +=  (value-mu)*(value-mu);
                 });

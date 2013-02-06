@@ -21,7 +21,8 @@ $.register_module({
                     border: '1px solid #fdd',
                     padding: '2px',
                     'background-color': '#fee',
-                    opacity: 0.80
+                    opacity: 0.80,
+                    zIndex: 6
                 }).appendTo("body").fadeIn(200);
             };
 
