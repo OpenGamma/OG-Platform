@@ -57,8 +57,8 @@ public abstract class FXForwardMultiValuedFunction extends FXForwardFunction {
     return createValueProperties()
         .withAny(ValuePropertyNames.PAY_CURVE)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(PAY_CURVE_CALC_CONFIG)
-        .withAny(RECEIVE_CURVE_CALC_CONFIG);
+        .withAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
+        .withAny(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
   }
 
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String payCurveName, final String receiveCurveName,
@@ -66,20 +66,20 @@ public abstract class FXForwardMultiValuedFunction extends FXForwardFunction {
     return createValueProperties()
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
-        .with(PAY_CURVE_CALC_CONFIG, payCurveCalculationConfig)
-        .with(RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfig);
+        .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)
+        .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfig);
   }
 
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
-    final String payCurveCalculationConfig = desiredValue.getConstraint(PAY_CURVE_CALC_CONFIG);
-    final String receiveCurveCalculationConfig = desiredValue.getConstraint(RECEIVE_CURVE_CALC_CONFIG);
+    final String payCurveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
+    final String receiveCurveCalculationConfig = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     return createValueProperties()
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName)
-        .with(PAY_CURVE_CALC_CONFIG, payCurveCalculationConfig)
-        .with(RECEIVE_CURVE_CALC_CONFIG, receiveCurveCalculationConfig);
+        .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfig)
+        .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfig);
   }
 }

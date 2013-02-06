@@ -65,8 +65,8 @@ public class FXForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFu
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
     final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
-    final String payCurveConfig = desiredValue.getConstraint(PAY_CURVE_CALC_CONFIG);
-    final String receiveCurveConfig = desiredValue.getConstraint(RECEIVE_CURVE_CALC_CONFIG);
+    final String payCurveConfig = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
+    final String receiveCurveConfig = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     final String daysForward = desiredValue.getConstraint(PROPERTY_DAYS_TO_MOVE_FORWARD);
     final String fullPayCurveName = payCurveName + "_" + payCurrency.getCode();
     final String fullReceiveCurveName = receiveCurveName + "_" + receiveCurrency.getCode();

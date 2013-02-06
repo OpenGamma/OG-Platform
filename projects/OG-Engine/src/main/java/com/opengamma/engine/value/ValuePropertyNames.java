@@ -105,6 +105,18 @@ public final class ValuePropertyNames {
   public static final String RECEIVE_CURVE = "ReceiveCurve";
 
   /**
+   * The name of the curve calculation configuration used for the pay leg of an instrument (e.g.
+   * an FX forward or a cross-currency swap).
+   */
+  public static final String PAY_CURVE_CALCULATION_CONFIG = "PayCurveCalculationConfig";
+
+  /**
+   * The name of the curve calculation configuration used for the receive leg of an instrument
+   * (e.g. an FX forward or a cross-currency swap).
+   */
+  public static final String RECEIVE_CURVE_CALCULATION_CONFIG = "ReceiveCurveCalculationConfig";
+
+  /**
    * The symbolic name of a surface used to produce a value, valid within the naming context of
    * the function repository containing the function definition used.
    * <p>
