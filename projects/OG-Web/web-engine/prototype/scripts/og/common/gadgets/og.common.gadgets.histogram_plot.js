@@ -9,7 +9,6 @@ $.register_module({
         var module = this, loading_template;
         return function (config) {
             var gadget = this, selector = config.selector, $plot, options = {};
-            console.log(config);
             gadget.resize = function () {
                 load_plots();
             };
@@ -29,7 +28,7 @@ $.register_module({
                         data: config.histogram_data,
                         bars: {
                             show: true,
-                            barWidth: config.bar,
+                            barWidth: config.interval,
                             fill: true,
                             lineWidth: 1
                         },
