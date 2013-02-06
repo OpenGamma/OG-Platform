@@ -35,7 +35,7 @@ $.register_module({
                 });
                 count[buckets-1][1] = count[buckets-1][1] + maxcount;
                 output.histogram_data = count;
-                output.pdf_data = pdf_data(stripped);
+                output.norm_pdf_data = pdf_data(stripped);
                 output.bar = bar;
                 return output;
             };
@@ -44,11 +44,7 @@ $.register_module({
                 return (Math.exp(-( (diff*diff) / (2*(sigma*sigma)) ))) / (sigma*constant);
             };
             pdf_data = function (stripped) {
-                var output = {}, 
-                    count = [], 
-                    diff = 0, 
-                    sigma, 
-                    constant = Math.sqrt(2*Math.PI), 
+                var norm = [], diff = 0, sigma, constant = Math.sqrt(2*Math.PI), 
                     mu = stripped.reduce(function(a,b){return a+b;})/stripped.length;
                 $.each(stripped, function(index, value){
                     diff +=  (value-mu)*(value-mu);
@@ -56,10 +52,9 @@ $.register_module({
                 sigma = Math.sqrt(diff/(stripped.length-1));
                 stripped.sort();
                 $.each(stripped, function(index, value){
-                    count.push([value, (normpdf(value,mu,sigma, constant))]);
+                    norm.push([value, (normpdf(value, mu, sigma, constant))]);
                 });
-                output.data = count;
-                return count;
+                return norm;
             };
             gadget.dataman = new og.analytics
                 .Cell({source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'histogram')
