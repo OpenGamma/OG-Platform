@@ -44,6 +44,16 @@ import com.opengamma.util.money.Currency;
  *
  */
 public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvoker {
+  /**
+   * @deprecated Deprecated value property name - has been moved to {@link ValuePropertyNames#PAY_CURVE_CALCULATION_CONFIG}
+   */
+  @Deprecated
+  public static final String PAY_CURVE_CALC_CONFIG = ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG;
+  /**
+   * @deprecated Deprecated value property name - has been moved to {@link ValuePropertyNames#RECEIVE_CURVE_CALCULATION_CONFIG}
+   */
+  @Deprecated
+  public static final String RECEIVE_CURVE_CALC_CONFIG = ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG;
   /** The value requirement produced by this function */
   private final String _valueRequirementName;
 
