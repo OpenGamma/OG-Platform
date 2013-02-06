@@ -74,7 +74,8 @@ public abstract class EquityOptionInterpolatedBlackLognormalDefaults extends Def
     ValueRequirementNames.CARRY_RHO,
     ValueRequirementNames.THETA,
     ValueRequirementNames.DUAL_DELTA,
-    ValueRequirementNames.VEGA
+    ValueRequirementNames.VEGA,
+    ValueRequirementNames.PNL // Produced by EquityOption*ScenarioFunction
   };
 
   /**

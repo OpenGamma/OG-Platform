@@ -84,21 +84,23 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(EquityOptionBAWGreeksFunction.class));
     functions.add(functionConfiguration(EquityOptionBAWPresentValueFunction.class));
+    functions.add(functionConfiguration(EquityOptionBAWScenarioPnLFunction.class));
     functions.add(functionConfiguration(EquityOptionBAWValueDeltaFunction.class));
     functions.add(functionConfiguration(EquityOptionBAWValueGammaFunction.class));
     functions.add(functionConfiguration(EquityOptionBjerksundStenslandGreeksFunction.class));
     functions.add(functionConfiguration(EquityOptionBjerksundStenslandPresentValueFunction.class));
     functions.add(functionConfiguration(EquityOptionBjerksundStenslandValueDeltaFunction.class));
     functions.add(functionConfiguration(EquityOptionBjerksundStenslandValueGammaFunction.class));
+    functions.add(functionConfiguration(EquityOptionBjerksundStenslandScenarioPnLFunction.class));
     functions.add(functionConfiguration(EquityOptionPDEPresentValueFunction.class));
+    functions.add(functionConfiguration(EquityOptionPDEScenarioPnLFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackFundingCurveSensitivitiesFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackImpliedVolFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackPresentValueFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackRhoFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackSpotDeltaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackThetaFunction.class));
-    // functions.add(functionConfiguration(EquityOptionBlackScenarioFunction.class));
-    functions.add(functionConfiguration(CaseysTestFunction.class));
+    functions.add(functionConfiguration(EquityOptionBlackScenarioPnLFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackSpotGammaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackSpotVannaFunction.class));
     functions.add(functionConfiguration(EquityOptionBlackVegaFunction.class));

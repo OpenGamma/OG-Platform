@@ -61,7 +61,8 @@ public abstract class EquityOptionSurfaceCalculationMethodDefaults extends Defau
     ValueRequirementNames.CARRY_RHO,
     ValueRequirementNames.THETA,
     ValueRequirementNames.DUAL_DELTA,
-    ValueRequirementNames.VEGA
+    ValueRequirementNames.VEGA,
+    ValueRequirementNames.PNL // Used for EquityOption*ScenarioPnLFunction's
   };
 
   /**
