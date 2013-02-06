@@ -50,7 +50,7 @@ $.register_module({
                 $(selector).bind("plothover", function (event, pos, item) {
                     if (item && item.series.hoverable) {
                         if (previousPoint != item.dataIndex) {
-                            var x = item.datapoint[0], y = item.datapoint[1], delta = x+config.bar, 
+                            var x = item.datapoint[0], y = item.datapoint[1], delta = x+config.interval, 
                                 msg = y + " occurrences in range<br/>" + x.toFixed(5) + " to " + delta.toFixed(5);
                                 previousPoint = item.dataIndex;
                             $("#tooltip").remove();
