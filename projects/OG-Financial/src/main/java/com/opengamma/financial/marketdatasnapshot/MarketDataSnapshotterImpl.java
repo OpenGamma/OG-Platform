@@ -39,7 +39,6 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.MarketDataUtils;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.target.ComputationTargetReference;
@@ -66,7 +65,6 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotterImpl.class);
 
   private final VolatilityCubeDefinitionSource _cubeDefinitionSource;
-  private final ExternalIdBundleLookup _identifierLookup;
   private final YieldCurveSnapper _yieldCurveSnapper = new YieldCurveSnapper();
   private final VolatilitySurfaceSnapper _volatilitySurfaceSnapper = new VolatilitySurfaceSnapper();
   private final VolatilityCubeSnapper _volatilityCubeSnapper;
@@ -74,14 +72,12 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
   private final StructuredSnapper[] _structuredSnappers;
 
   /**
-   * @param identifierLookup the lookup mechanism for resolved target specifications to orginal data identifiers
    * @param cubeDefinitionSource The source of vol cube defns ( used to fill out the cube snapshots with nulls )
    */
-  public MarketDataSnapshotterImpl(final ExternalIdBundleLookup identifierLookup, final VolatilityCubeDefinitionSource cubeDefinitionSource) {
+  public MarketDataSnapshotterImpl(final VolatilityCubeDefinitionSource cubeDefinitionSource) {
     _cubeDefinitionSource = cubeDefinitionSource;
     _volatilityCubeSnapper = new VolatilityCubeSnapper(_cubeDefinitionSource);
     _structuredSnappers = new StructuredSnapper[] {_yieldCurveSnapper, _volatilitySurfaceSnapper, _volatilityCubeSnapper };
-    _identifierLookup = identifierLookup;
   }
 
   @Override
@@ -141,6 +137,8 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
         final DependencyNode nodeProducing = graph.getNodeProducing(computedValue.getSpecification());
         if (nodeProducing != null && isTerminalUnstructuredOutput(nodeProducing, graph)) {
           dataFound.add(computedValue);
+          // [PLAT-3044] The target specification is peculiar to the market data provider. What the consumer(s) of that value asked for is another matter.
+          // [PLAT-3044] A NO-OP translation node to re-write the value would indicate the originally requested target, the problem is then just resolving that target.
           final ComputationTargetReference target = nodeProducing.getRequiredMarketData().getTargetSpecification();
           final ExternalIdBundle identifiers = _identifierLookup.getExternalIds(target);
           if (identifiers != null) {

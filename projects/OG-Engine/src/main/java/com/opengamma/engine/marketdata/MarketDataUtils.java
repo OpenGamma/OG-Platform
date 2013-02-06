@@ -8,7 +8,6 @@ package com.opengamma.engine.marketdata;
 import java.util.Map;
 
 import com.opengamma.core.id.ExternalIdOrderConfig;
-import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
@@ -16,8 +15,6 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.marketdata.availability.MarketDataNotSatisfiableException;
 import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
-import com.opengamma.engine.target.ComputationTargetType;
-import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -34,29 +31,6 @@ import com.opengamma.util.functional.Function1;
  */
 @PublicAPI
 public class MarketDataUtils {
-
-  private static final ComputationTargetTypeMap<MarketDataValueType> s_getMarketDataValueType = getMarketDataValueType();
-
-  private static ComputationTargetTypeMap<MarketDataValueType> getMarketDataValueType() {
-    final ComputationTargetTypeMap<MarketDataValueType> map = new ComputationTargetTypeMap<MarketDataValueType>();
-    map.put(ComputationTargetType.PORTFOLIO_NODE, null);
-    map.put(ComputationTargetType.POSITION, null);
-    map.put(ComputationTargetType.TRADE, null);
-    map.put(ComputationTargetType.SECURITY, MarketDataValueType.SECURITY);
-    map.put(ComputationTargetType.ANYTHING, MarketDataValueType.PRIMITIVE);
-    // NULL is not a market data type, and doesn't need an explicit entry to mask ANYTHING
-    return map;
-  }
-
-  /**
-   * Returns the closest matching {@link MarketDataValueType} for a {@link ComputationTargetType}.
-   *
-   * @param type the type to look up, not null
-   * @return the market data value type
-   */
-  public static MarketDataValueType getMarketDataValueType(final ComputationTargetType type) {
-    return s_getMarketDataValueType.get(type);
-  }
 
   // [PLAT-3044] Most of the methods here should not be necessary. Arbitrary conversion from external id bundles to unique identifiers is unlikely to be a good idea. Review and deprecate/delete.
 

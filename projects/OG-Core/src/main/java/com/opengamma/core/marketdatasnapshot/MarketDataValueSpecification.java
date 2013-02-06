@@ -22,6 +22,9 @@ import com.opengamma.util.ArgumentChecker;
 public final class MarketDataValueSpecification {
   //TODO This is a whole lot like LiveDataSpecification, but decoupled.  We may want to unify them
 
+  // REVIEW 2013-02-05 Andrew -- Nothing uses the type; types are used to provide resolution strategies for alternative identifiers for a requirement. A specification
+  // like this just needs the identifier. This whole class can then be removed; only the identifier is needed for its purpose.
+
   /**
    * The type of the target.
    */

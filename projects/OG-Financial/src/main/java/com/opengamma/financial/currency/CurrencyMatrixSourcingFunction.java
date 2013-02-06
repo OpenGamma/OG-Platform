@@ -19,7 +19,6 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -48,8 +47,6 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyMatrixSourcingFunction.class);
 
   private static final String CURRENCY_MATRIX_NAME_PROPERTY = "CurrencyMatrix";
-
-  private static final ExternalIdBundleLookup s_externalIdLookup = new ExternalIdBundleLookup(null);
 
   /**
    * Scheme used for the target primitive.
@@ -204,6 +201,7 @@ public class CurrencyMatrixSourcingFunction extends AbstractFunction.NonCompiled
 
   private ValueRequirement getSeriesConversionRequirement(final CurrencyMatrixValueRequirement valueRequirement) {
     final ValueRequirement requirement = valueRequirement.getValueRequirement();
+    // TODO: PLAT-2782 resolve the requirement's target to an ExternalIdentifiable or ExternalBundleIdentifiable
     final ExternalIdBundle targetIdentifiers = s_externalIdLookup.getExternalIds(requirement.getTargetReference());
     final HistoricalTimeSeriesResolutionResult timeSeries = getHistoricalTimeSeriesResolver().resolve(targetIdentifiers, null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
     if (timeSeries == null) {

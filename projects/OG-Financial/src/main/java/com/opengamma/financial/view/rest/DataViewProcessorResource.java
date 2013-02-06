@@ -25,8 +25,6 @@ import javax.ws.rs.core.UriInfo;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.core.config.impl.DataConfigSourceResource;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
@@ -77,11 +75,6 @@ public class DataViewProcessorResource extends AbstractDataResource {
    * URI path to the snapshotter.
    */
   public static final String PATH_SNAPSHOTTER = "marketDataSnapshotter";
-
-  /**
-   * The identifier lookup.
-   */
-  private final ExternalIdBundleLookup _identifierLookup;
   /**
    * The view processor.
    */
@@ -99,7 +92,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
    */
   private final ScheduledExecutorService _scheduler;
   /**
-   * The stale view client expiry job. 
+   * The stale view client expiry job.
    */
   @SuppressWarnings("unused")
   private final AbstractRestfulJmsResultPublisherExpiryJob<DataViewClientResource> _expiryJob;
@@ -114,17 +107,15 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   /**
    * Creates an instance.
-   * 
-   * @param securitySource a security source to use for resolving things, null to not resolve
+   *
    * @param viewProcessor the view processor, not null
    * @param volatilityCubeDefinitionSource the volatility cube, not null
    * @param jmsConnector the JMS connector, not null
    * @param fudgeContext the Fudge context, not null
    * @param scheduler the scheduler, not null
    */
-  public DataViewProcessorResource(final SecuritySource securitySource, final ViewProcessor viewProcessor, final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource,
-      final JmsConnector jmsConnector, final FudgeContext fudgeContext, final ScheduledExecutorService scheduler) {
-    _identifierLookup = new ExternalIdBundleLookup(securitySource);
+  public DataViewProcessorResource(final ViewProcessor viewProcessor, final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource, final JmsConnector jmsConnector,
+      final FudgeContext fudgeContext, final ScheduledExecutorService scheduler) {
     _viewProcessor = viewProcessor;
     _volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
     _jmsConnector = jmsConnector;
@@ -169,10 +160,10 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   @Path(PATH_SNAPSHOTTER)
   public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl() {
-    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_identifierLookup, _volatilityCubeDefinitionSource);
+    final MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_volatilityCubeDefinitionSource);
     return new DataMarketDataSnapshotterResource(_viewProcessor, snp);
   }
-  
+
   //-------------------------------------------------------------------------
   @Path(PATH_PROCESSES + "/{viewProcessId}")
   public DataViewProcessResource getViewProcess(@PathParam("viewProcessId") final String viewProcessId) {
@@ -200,7 +191,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
     final ViewClient client = _viewProcessor.createViewClient(user);
     final URI viewProcessorUri = getViewProcessorUri(uriInfo);
     // Required for heartbeating, but also acts as an optimisation for getViewClient because view clients created
-    // through the REST API should be accessed again through the same API, potentially many times.  
+    // through the REST API should be accessed again through the same API, potentially many times.
     final DataViewClientResource viewClientResource = createViewClientResource(client, viewProcessorUri);
     _createdViewClients.put(client.getUniqueId(), viewClientResource);
     final URI createdUri = uriClient(uriInfo.getRequestUri(), client.getUniqueId());

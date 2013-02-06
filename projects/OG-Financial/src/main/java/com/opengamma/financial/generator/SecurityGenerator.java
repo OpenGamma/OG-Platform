@@ -32,6 +32,8 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -39,7 +41,9 @@ import com.opengamma.engine.function.DummyFunctionReinitializer;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputsImpl;
-import com.opengamma.engine.marketdata.ExternalIdBundleLookup;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
+import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
@@ -60,7 +64,10 @@ import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromY
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.id.ExternalBundleIdentifiable;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -300,12 +307,61 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return result.iterator().next();
   }
 
-  private ComputedValue findMarketData(final ExternalIdBundleLookup lookup, final ComputationTargetSpecificationResolver.AtVersionCorrection resolver, final ValueRequirement requirement) {
-    final Pair<LocalDate, Double> value = getHistoricalSource().getLatestDataPoint(MarketDataRequirementNames.MARKET_VALUE, lookup.getExternalIds(requirement.getTargetReference()), null);
+  // [PLAT-3044] This is in the wrong place. If it is useful, move somewhere more sensible (the ExternalIdBundleLookup classes that were deleted perhaps!?)
+  private static class ExternalIdBundleResolver implements ComputationTargetReferenceVisitor<ExternalIdBundle> {
+
+    private final ComputationTargetResolver.AtVersionCorrection _targetResolver;
+    private final ComputationTargetSpecificationResolver.AtVersionCorrection _specificationResolver;
+
+    public ExternalIdBundleResolver(final ComputationTargetResolver.AtVersionCorrection resolver) {
+      _targetResolver = resolver;
+      _specificationResolver = resolver.getSpecificationResolver();
+    }
+
+    public ComputationTargetSpecification getTargetSpecification(final ComputationTargetReference reference) {
+      return _specificationResolver.getTargetSpecification(reference);
+    }
+
+    public ExternalIdBundle getExternalIdBundle(final ComputationTargetReference reference) {
+      return reference.accept(this);
+    }
+
+    @Override
+    public ExternalIdBundle visitComputationTargetRequirement(final ComputationTargetRequirement requirement) {
+      final ComputationTargetSpecification specification = _specificationResolver.getTargetSpecification(requirement);
+      if (specification != null) {
+        return visitComputationTargetSpecification(specification);
+      } else {
+        return requirement.getIdentifiers();
+      }
+    }
+
+    @Override
+    public ExternalIdBundle visitComputationTargetSpecification(final ComputationTargetSpecification specification) {
+      final ComputationTarget target = _targetResolver.resolve(specification);
+      if (target == null) {
+        return null;
+      }
+      if (target.getValue() instanceof ExternalBundleIdentifiable) {
+        return ((ExternalBundleIdentifiable) target.getValue()).getExternalIdBundle();
+      } else if (target.getValue() instanceof ExternalIdentifiable) {
+        return ((ExternalIdentifiable) target.getValue()).getExternalId().toBundle();
+      } else {
+        // Note: Don't convert the unique identifier to an external identifier.
+        return null;
+      }
+    }
+
+  }
+
+  private ComputedValue findMarketData(final ExternalIdBundleResolver resolver, final ValueRequirement requirement) {
+    final ComputationTargetSpecification targetSpec = resolver.getTargetSpecification(requirement.getTargetReference());
+    // TODO: What to do if the targetSpec can't be resolved. We can still get an identifier bundle, but the spec for the CV will be wrong
+    final Pair<LocalDate, Double> value = getHistoricalSource().getLatestDataPoint(MarketDataRequirementNames.MARKET_VALUE, resolver.getExternalIdBundle(targetSpec), null);
     if (value == null) {
       return null;
     }
-    return new ComputedValue(new ValueSpecification(requirement.getValueName(), resolver.getTargetSpecification(requirement.getTargetReference()),
+    return new ComputedValue(new ValueSpecification(requirement.getValueName(), targetSpec,
         ValueProperties.with(ValuePropertyNames.FUNCTION, "MARKET_DATA").get()), value.getSecond());
   }
 
