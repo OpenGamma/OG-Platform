@@ -98,7 +98,7 @@ import com.opengamma.util.OpenGammaClock;
     searchRequest.addNodeObjectId(nodeId.getObjectId());
     PortfolioSearchResult searchResult = getPortfolioMaster().search(searchRequest);
     ManageablePortfolio portfolio = searchResult.getSinglePortfolio();
-    ManageablePortfolioNode node = findNode(portfolio.getRootNode(), nodeId);
+    ManageablePortfolioNode node = findNode(portfolio, nodeId);
     node.addPosition(savedPosition.getUniqueId());
     getPortfolioMaster().update(new PortfolioDocument(portfolio));
     return savedTrade.getUniqueId();

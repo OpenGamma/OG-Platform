@@ -17,6 +17,7 @@ import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
@@ -89,13 +90,22 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Performs a depth first search to find a node with a specified ID.
-   * @param node The node at which to start searching
+   * @param portfolio The portfolio to search
    * @param nodeId The node ID
    * @return The node with specified ID, not null
-   * @throws DataNotFoundException If not matching node if found
+   * @throws DataNotFoundException If the node can't be found
    */
-  /* package */ static ManageablePortfolioNode findNode(ManageablePortfolioNode node, UniqueId nodeId) {
-    if (node.getUniqueId().equals(nodeId)) {
+  /* package */ static ManageablePortfolioNode findNode(ManageablePortfolio portfolio, UniqueId nodeId) {
+    ManageablePortfolioNode node = findNode(portfolio.getRootNode(), nodeId);
+    if (node != null) {
+      return node;
+    } else {
+      throw new DataNotFoundException("Node " + nodeId + " not found");
+    }
+  }
+
+  private static ManageablePortfolioNode findNode(ManageablePortfolioNode node, UniqueId nodeId) {
+    if (node.getUniqueId().equalObjectId(nodeId)) {
       return node;
     }
     for (ManageablePortfolioNode childNode : node.getChildNodes()) {
@@ -104,7 +114,7 @@ import com.opengamma.util.ArgumentChecker;
         return node1;
       }
     }
-    throw new DataNotFoundException("Node " + nodeId + " not found");
+    return null;
   }
 
   /* package */  SecurityMaster getSecurityMaster() {

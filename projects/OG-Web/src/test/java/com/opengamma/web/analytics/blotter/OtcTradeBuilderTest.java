@@ -251,9 +251,6 @@ public class OtcTradeBuilderTest {
     searchRequest.setExternalIdSearch(new ExternalIdSearch(underlyingId));
     SecuritySearchResult searchResult = _securityMaster.search(searchRequest);
     SwapSecurity updatedUnderlying = (SwapSecurity) searchResult.getSingleSecurity();
-    ExternalIdBundle underlyingBundle = updatedUnderlying.getExternalIdBundle();
-    // this isn't part of the equality check below because the test swaption can't know what the ID will be
-    assertTrue(underlyingBundle.contains(underlyingId));
     ZonedDateTime tradeDate = ZonedDateTime.of(LocalDateTime.of(2013, 1, 1, 11, 0), ZoneOffset.UTC);
     assertEquals(tradeDate, updatedUnderlying.getTradeDate());
   }
