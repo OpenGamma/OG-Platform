@@ -25,6 +25,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -35,8 +36,6 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.position.PositionSearchRequest;
-import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
@@ -87,7 +86,8 @@ import com.opengamma.util.OpenGammaClock;
     }
     ManageableSecurity security = buildSecurity(securityData, savedUnderlying);
     ManageableSecurity savedSecurity = getSecurityMaster().add(new SecurityDocument(security)).getSecurity();
-    ManageableTrade trade = buildTrade(tradeData, savedSecurity);
+    ManageableTrade trade = buildTrade(tradeData);
+    trade.setSecurityLink(new ManageableSecurityLink(savedSecurity.getUniqueId()));
     ManageablePosition position = new ManageablePosition(BigDecimal.ONE, trade.getSecurityLink().getExternalId());
     position.setTrades(Lists.newArrayList(trade));
     ManageablePosition savedPosition = getPositionMaster().add(new PositionDocument(position)).getPosition();
@@ -115,29 +115,74 @@ import com.opengamma.util.OpenGammaClock;
       underlying is present
       underlying type is correct
       trade's security type hasn't changed
+      trade ID is versioned
     */
+    ManageableTrade trade = buildTrade(tradeData);
+    // load the previous version of the trade and position and get the version correction. this allows us to get the
+    // matching previous versions of the security and underlying so we can
+    //   a) ensure that we're updating the correct IDs
+    //   b) ensure that the new securities are of the same type (and any other validation)
+    ManageableTrade previousTrade = getPositionMaster().getTrade(trade.getUniqueId());
+    PositionDocument positionDocument = getPositionMaster().get(previousTrade.getParentPositionId());
+    VersionCorrection previousVersionCorrection = VersionCorrection.of(positionDocument.getVersionFromInstant(),
+                                                                       positionDocument.getCorrectionFromInstant());
+    ManageableSecurity previousSecurity =
+        getSecurityMaster().get(previousTrade.getSecurityLink().getObjectId(), previousVersionCorrection).getSecurity();
+
     ManageableSecurity underlying = buildUnderlying(underlyingData);
     ManageableSecurity savedUnderlying;
     if (underlying == null) {
       savedUnderlying = null;
     } else {
+      // need to set the unique ID to the ID from the previous version, securities aren't allowed to change
+      // any changes in the security data are interpreted as edits to the security
+      ManageableSecurity previousUnderlying = getUnderlyingSecurity(previousSecurity, previousVersionCorrection);
+      validateSecurity(underlying, previousUnderlying);
+      underlying.setUniqueId(previousUnderlying.getUniqueId());
       savedUnderlying = getSecurityMaster().update(new SecurityDocument(underlying)).getSecurity();
     }
     ManageableSecurity security = buildSecurity(securityData, savedUnderlying);
+    // need to set the unique ID to the ID from the previous version, securities aren't allowed to change
+    // any changes in the security data are interpreted as edits to the security
+    validateSecurity(security, previousSecurity);
+    security.setUniqueId(previousSecurity.getUniqueId());
     ManageableSecurity savedSecurity = getSecurityMaster().update(new SecurityDocument(security)).getSecurity();
-    ManageableTrade trade = buildTrade(tradeData, savedSecurity);
-    PositionSearchRequest searchRequest = new PositionSearchRequest();
-    searchRequest.addTradeObjectId(trade.getUniqueId());
-    PositionSearchResult searchResult = getPositionMaster().search(searchRequest);
-    ManageablePosition position = searchResult.getSinglePosition();
-    // TODO validation
+    trade.setSecurityLink(new ManageableSecurityLink(savedSecurity.getUniqueId()));
+    ManageablePosition position = positionDocument.getPosition();
     position.setTrades(Lists.newArrayList(trade));
     ManageablePosition savedPosition = getPositionMaster().update(new PositionDocument(position)).getPosition();
     ManageableTrade savedTrade = savedPosition.getTrades().get(0);
     return savedTrade.getUniqueId();
   }
 
-  private ManageableTrade buildTrade(BeanDataSource tradeData, Security security) {
+  private ManageableSecurity getUnderlyingSecurity(ManageableSecurity security, VersionCorrection versionCorrection) {
+    if (security instanceof FinancialSecurity) {
+      UnderlyingSecurityVisitor visitor = new UnderlyingSecurityVisitor(versionCorrection, getSecurityMaster());
+      return ((FinancialSecurity) security).accept(visitor);
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Checks that the new and old versions of a security have the same type and if the new version specifies an ID
+   * it is the same as the old ID.
+   * @param newVersion The new version of the security
+   * @param previousVersion The previous version of the security
+   */
+  private static void validateSecurity(ManageableSecurity newVersion, ManageableSecurity previousVersion) {
+    if (!newVersion.getClass().equals(previousVersion.getClass())) {
+      throw new IllegalArgumentException("Security type cannot change, new version " + newVersion + ", " +
+                                             "previousVersion: " + previousVersion);
+    }
+    if (newVersion.getUniqueId() != null && !newVersion.getUniqueId().equals(previousVersion.getUniqueId())) {
+      throw new IllegalArgumentException("Cannot update a security with a different ID, " +
+                                             "new ID: " + newVersion.getUniqueId() + ", " +
+                                             "previous ID: " + previousVersion.getUniqueId());
+    }
+  }
+
+  private ManageableTrade buildTrade(BeanDataSource tradeData) {
     ManageableTrade.Meta meta = ManageableTrade.meta();
     BeanBuilder<? extends ManageableTrade> tradeBuilder =
         tradeBuilder(tradeData,
@@ -150,7 +195,9 @@ import com.opengamma.util.OpenGammaClock;
                      meta.premiumTime());
     tradeBuilder.set(meta.attributes(), tradeData.getMapValues(meta.attributes().name()));
     tradeBuilder.set(meta.quantity(), BigDecimal.ONE);
-    tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(security.getUniqueId().getObjectId()));
+    // TODO shouldn't the security ID be here? or will it be the external ID?
+    tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink());
+    //tradeBuilder.set(meta.securityLink(), new ManageableSecurityLink(security.getUniqueId().getObjectId()));
     String counterparty = (String) tradeData.getValue(COUNTERPARTY);
     if (StringUtils.isEmpty(counterparty)) {
       throw new IllegalArgumentException("Trade counterparty is required");
@@ -206,9 +253,7 @@ import com.opengamma.util.OpenGammaClock;
     } else {
       dataSource = securityData;
     }
-    FinancialSecurity security = build(dataSource);
-    // TODO check underlying is of the correct type
-    return security;
+    return build(dataSource);
   }
 
   private FinancialSecurity buildUnderlying(BeanDataSource underlyingData) {

@@ -33,11 +33,11 @@ import com.opengamma.util.money.Currency;
 /* package */ class BlotterTestUtils {
 
   /* package */ static final FXForwardSecurity FX_FORWARD;
-  /* package */ static final BeanDataSource FX_FORWARD_DATA_SOURCE;
+  /* package */ static final MapBeanDataSource FX_FORWARD_DATA_SOURCE;
   /* package */ static final SwapSecurity SWAP;
-  /* package */ static final BeanDataSource SWAP_DATA_SOURCE;
+  /* package */ static final MapBeanDataSource SWAP_DATA_SOURCE;
   /* package */ static final EquityVarianceSwapSecurity EQUITY_VARIANCE_SWAP;
-  /* package */ static final BeanDataSource EQUITY_VARIANCE_SWAP_DATA_SOURCE;
+  /* package */ static final MapBeanDataSource EQUITY_VARIANCE_SWAP_DATA_SOURCE;
 
   static {
     ImmutableMap<String, String> attributes = ImmutableMap.of("attr1", "attrVal1", "attr2", "attrVal2");
@@ -173,7 +173,15 @@ import com.opengamma.util.money.Currency;
     return LocalDate.parse(dateStr).atTime(11, 0).atZone(ZoneOffset.UTC);
   }
 
-  /* package */ static BeanDataSource beanData(Object... pairs) {
+  /* package */ static MapBeanDataSource overrideBeanData(MapBeanDataSource delegate, Object... pairs) {
+    final Map<Object, Object> map = Maps.newHashMap();
+    for (int i = 0; i < pairs.length / 2; i++) {
+      map.put(pairs[i * 2], pairs[(i * 2) + 1]);
+    }
+    return new MapBeanDataSource(delegate, map);
+  }
+
+  /* package */ static MapBeanDataSource beanData(Object... pairs) {
     final Map<Object, Object> map = Maps.newHashMap();
     for (int i = 0; i < pairs.length / 2; i++) {
       map.put(pairs[i * 2], pairs[(i * 2) + 1]);
@@ -186,7 +194,12 @@ import com.opengamma.util.money.Currency;
 
     private final Map<Object, Object> _map;
 
-    public MapBeanDataSource(Map<Object, Object> map) {
+    private MapBeanDataSource(MapBeanDataSource delegate, Map<Object, Object> map) {
+      _map = Maps.newHashMap(delegate._map);
+      _map.putAll(map);
+    }
+
+    private MapBeanDataSource(Map<Object, Object> map) {
       _map = map;
     }
 
