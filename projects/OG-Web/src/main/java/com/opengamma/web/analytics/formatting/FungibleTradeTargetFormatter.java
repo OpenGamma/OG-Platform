@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.analytics.formatting;
 
+import java.util.Map;
+
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.web.analytics.FungibleTradeTarget;
@@ -25,11 +27,11 @@ import com.opengamma.web.analytics.FungibleTradeTarget;
   }
 
   @Override
-  public Object formatCell(FungibleTradeTarget target, ValueSpecification valueSpec) {
-    return ImmutableMap.of(NAME, target.getName(),
-                           NODE_ID, target.getNodeId().getObjectId(),
-                           POSITION_ID, target.getPositionId().getObjectId(),
-                           TRADE_ID, target.getTradeId().getObjectId());
+  public Map<String, Object> formatCell(FungibleTradeTarget target, ValueSpecification valueSpec) {
+    return ImmutableMap.<String, Object>of(NAME, target.getName(),
+                                           NODE_ID, target.getNodeId().getObjectId(),
+                                           POSITION_ID, target.getPositionId().getObjectId(),
+                                           TRADE_ID, target.getTradeId().getObjectId());
   }
 
   @Override

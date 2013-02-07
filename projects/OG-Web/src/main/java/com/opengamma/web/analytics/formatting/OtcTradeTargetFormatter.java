@@ -5,8 +5,11 @@
  */
 package com.opengamma.web.analytics.formatting;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.UniqueId;
 import com.opengamma.web.analytics.OtcTradeTarget;
 
 /**
@@ -28,11 +31,16 @@ import com.opengamma.web.analytics.OtcTradeTarget;
   }
 
   @Override
-  public Object formatCell(OtcTradeTarget target, ValueSpecification valueSpec) {
-    return ImmutableMap.of(NAME, target.getName(),
-                           NODE_ID, target.getNodeId().getObjectId(),
-                           POSITION_ID, target.getPositionId().getObjectId(),
-                           TRADE_ID, target.getTradeId().getObjectId());
+  public Map<String, Object> formatCell(OtcTradeTarget target, ValueSpecification valueSpec) {
+    Map<String, Object> results = Maps.newHashMap();
+    results.put(NAME, target.getName());
+    results.put(NODE_ID, target.getNodeId().getObjectId());
+    results.put(POSITION_ID, target.getPositionId().getObjectId());
+    UniqueId tradeId = target.getTradeId();
+    if (tradeId != null) {
+      results.put(TRADE_ID, tradeId.getObjectId());
+    }
+    return results;
   }
 
   @Override

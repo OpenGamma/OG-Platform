@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.analytics.formatting;
 
+import java.util.Map;
+
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.web.analytics.PositionTarget;
@@ -23,10 +25,10 @@ import com.opengamma.web.analytics.PositionTarget;
   }
 
   @Override
-  public Object formatCell(PositionTarget target, ValueSpecification valueSpec) {
-    return ImmutableMap.of(NAME, target.getName(),
-                           NODE_ID, target.getNodeId(),
-                           POSITION_ID, target.getPositionId());
+  public Map<String, Object> formatCell(PositionTarget target, ValueSpecification valueSpec) {
+    return ImmutableMap.<String, Object>of(NAME, target.getName(),
+                                           NODE_ID, target.getNodeId(),
+                                           POSITION_ID, target.getPositionId());
   }
 
   @Override
