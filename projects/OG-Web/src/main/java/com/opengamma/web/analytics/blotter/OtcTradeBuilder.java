@@ -45,6 +45,12 @@ import com.opengamma.util.OpenGammaClock;
 
 /**
  * Builds and saves trades, securities and underlying securities for OTC securities.
+ * TODO the use of VersionCorrection.LATEST in this class is incorrect
+ * the weak link between trades/positions and securities is a problem for OTCs because in reality they're a single
+ * atomic object. the problem at the moment is there's no way to know which version of the security is being modified
+ * given the unique ID of the trade. thereofore it's not possible to detect any concurrent modification of securities,
+ * the last update wins. there are various potential fixes but it might not be worth doing before the imminent refactor
+ * of trades, positions and securities.
  */
 /* package */ class OtcTradeBuilder extends AbstractTradeBuilder {
 
@@ -89,7 +95,9 @@ import com.opengamma.util.OpenGammaClock;
     ManageableSecurity savedSecurity = getSecurityMaster().add(new SecurityDocument(security)).getSecurity();
     ManageableTrade trade = buildTrade(tradeData);
     trade.setSecurityLink(new ManageableSecurityLink(savedSecurity.getUniqueId()));
-    ManageablePosition position = new ManageablePosition(BigDecimal.ONE, trade.getSecurityLink().getExternalId());
+    ManageablePosition position = new ManageablePosition();
+    position.setQuantity(BigDecimal.ONE);
+    position.setSecurityLink(new ManageableSecurityLink(trade.getSecurityLink()));
     position.setTrades(Lists.newArrayList(trade));
     ManageablePosition savedPosition = getPositionMaster().add(new PositionDocument(position)).getPosition();
     ManageableTrade savedTrade = savedPosition.getTrades().get(0);
@@ -119,10 +127,6 @@ import com.opengamma.util.OpenGammaClock;
       trade ID is versioned
     */
     ManageableTrade trade = buildTrade(tradeData);
-    // load the previous version of the trade and position and get the version correction. this allows us to get the
-    // matching previous versions of the security and underlying so we can
-    //   a) ensure that we're updating the correct IDs
-    //   b) ensure that the new securities are of the same type (and any other validation)
     ManageableTrade previousTrade = getPositionMaster().getTrade(trade.getUniqueId());
     ManageableSecurity previousSecurity =
         getSecurityMaster().get(previousTrade.getSecurityLink().getObjectId(), VersionCorrection.LATEST).getSecurity();
@@ -236,7 +240,8 @@ import com.opengamma.util.OpenGammaClock;
   private BeanBuilder<? extends ManageableTrade> tradeBuilder(BeanDataSource tradeData, MetaProperty<?>... properties) {
     BeanBuilder<? extends ManageableTrade> builder = ManageableTrade.meta().builder();
     for (MetaProperty<?> property : properties) {
-      builder.setString(property, (String) tradeData.getValue(property.name()));
+      builder.set(property, getStringConvert().convertFromString(property.propertyType(),
+                                                                 (String) tradeData.getValue(property.name())));
     }
     return builder;
   }

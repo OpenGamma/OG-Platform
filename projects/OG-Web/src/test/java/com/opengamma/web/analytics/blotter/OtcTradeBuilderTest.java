@@ -80,11 +80,11 @@ public class OtcTradeBuilderTest {
         "type", "OtcTrade",
         "counterparty", "testCpty",
         "tradeDate", "2012-12-21",
-        "tradeTime", "10:00+00:00",
+        "tradeTime", "10:00",
         "premium", "1234",
         "premiumCurrency", "GBP",
         "premiumDate", "2012-12-25",
-        "premiumTime", "13:00+00:00",
+        "premiumTime", "13:00",
         "attributes", ATTRIBUTES};
     Object[] tradeData = ArrayUtils.addAll(basicData, valuePairs);
     return BlotterTestUtils.beanData(tradeData);
