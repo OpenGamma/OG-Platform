@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics.blotter;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -15,13 +16,17 @@ import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.OffsetTime;
 import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.financial.security.LongShort;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdSearch;
@@ -143,7 +148,7 @@ public class OtcTradeBuilderTest {
     BeanDataSource updatedSecurityData = BlotterTestUtils.overrideBeanData(BlotterTestUtils.FX_FORWARD_DATA_SOURCE,
                                                                            "payCurrency", "AUD",
                                                                            "payAmount", "200",
-                                                                           "regionId", "Reg~234");
+                                                                           "regionId", "Reg~345");
 
     UniqueId updatedTradeId = _builder.updateTrade(updatedTradeData, updatedSecurityData, null);
     ManageableTrade updatedTrade = _positionMaster.getTrade(updatedTradeId);
@@ -157,7 +162,7 @@ public class OtcTradeBuilderTest {
                                                                                 VersionCorrection.LATEST).getSecurity();
     assertEquals(Currency.AUD, updatedSecurity.getPayCurrency());
     assertEquals(200d, updatedSecurity.getPayAmount());
-    assertEquals(ExternalId.of("Reg", "234"), updatedSecurity.getRegionId());
+    assertEquals(ExternalId.of("Reg", "345"), updatedSecurity.getRegionId());
   }
 
   @Test
@@ -200,7 +205,9 @@ public class OtcTradeBuilderTest {
     SecuritySearchResult searchResult = _securityMaster.search(searchRequest);
     ManageableSecurity underlying = searchResult.getSingleSecurity();
     ExternalIdBundle underlyingBundle = underlying.getExternalIdBundle();
+    // this isn't part of the equality check below because the test swaption can't know what the ID will be
     assertTrue(underlyingBundle.contains(underlyingId));
+    // clear these values so we can do an equality check with the test swaption
     underlying.setUniqueId(null);
     underlying.setExternalIdBundle(ExternalIdBundle.EMPTY);
     assertEquals(BlotterTestUtils.SWAP, underlying);
@@ -208,7 +215,46 @@ public class OtcTradeBuilderTest {
 
   @Test
   public void existingSecurityWithOtcUnderlying() {
-    // i.e. a swaption
+    UniqueId tradeId = _builder.addTrade(createTradeData(),
+                                         BlotterTestUtils.SWAPTION_DATA_SOURCE,
+                                         BlotterTestUtils.SWAP_DATA_SOURCE,
+                                         _nodeId);
 
+    BeanDataSource updatedTradeData = createTradeData("uniqueId", tradeId.toString(),
+                                                      "counterparty", "updatedCounterparty",
+                                                      "tradeDate", "2012-12-22",
+                                                      "premium", "4321");
+    BeanDataSource updatedSecurityData = BlotterTestUtils.overrideBeanData(BlotterTestUtils.SWAPTION_DATA_SOURCE,
+                                                                           "payer", "false",
+                                                                           "longShort", "Long",
+                                                                           "currency", "CAD");
+    BeanDataSource updatedUnderlyingData = BlotterTestUtils.overrideBeanData(BlotterTestUtils.SWAP_DATA_SOURCE,
+                                                                             "tradeDate", "2013-01-01",
+                                                                             "eom", "false");
+
+    UniqueId updatedTradeId = _builder.updateTrade(updatedTradeData, updatedSecurityData, updatedUnderlyingData);
+    ManageableTrade updatedTrade = _positionMaster.getTrade(updatedTradeId);
+    assertEquals("updatedCounterparty", updatedTrade.getCounterpartyExternalId().getValue());
+    assertEquals(LocalDate.of(2012, 12, 22), updatedTrade.getTradeDate());
+    assertEquals(4321d, updatedTrade.getPremium());
+    PositionDocument positionDocument = _positionMaster.get(updatedTrade.getParentPositionId());
+    ManageablePosition updatedPosition = positionDocument.getPosition();
+    assertEquals(updatedTrade, updatedPosition.getTrade(updatedTradeId));
+    SwaptionSecurity updatedSecurity = (SwaptionSecurity) _securityMaster.get(updatedTrade.getSecurityLink().getObjectId(),
+                                                                              VersionCorrection.LATEST).getSecurity();
+    assertFalse(updatedSecurity.isPayer());
+    assertEquals(LongShort.LONG, updatedSecurity.getLongShort());
+    assertEquals(Currency.CAD, updatedSecurity.getCurrency());
+
+    ExternalId underlyingId = updatedSecurity.getUnderlyingId();
+    SecuritySearchRequest searchRequest = new SecuritySearchRequest();
+    searchRequest.setExternalIdSearch(new ExternalIdSearch(underlyingId));
+    SecuritySearchResult searchResult = _securityMaster.search(searchRequest);
+    SwapSecurity updatedUnderlying = (SwapSecurity) searchResult.getSingleSecurity();
+    ExternalIdBundle underlyingBundle = updatedUnderlying.getExternalIdBundle();
+    // this isn't part of the equality check below because the test swaption can't know what the ID will be
+    assertTrue(underlyingBundle.contains(underlyingId));
+    ZonedDateTime tradeDate = ZonedDateTime.of(LocalDateTime.of(2013, 1, 1, 11, 0), ZoneOffset.UTC);
+    assertEquals(tradeDate, updatedUnderlying.getTradeDate());
   }
 }

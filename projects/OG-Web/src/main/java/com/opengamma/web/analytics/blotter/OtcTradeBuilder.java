@@ -40,6 +40,7 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 
 /**
@@ -78,13 +79,13 @@ import com.opengamma.util.OpenGammaClock;
       underlying type is correct
     */
     ManageableSecurity underlying = buildUnderlying(underlyingData);
-    ManageableSecurity savedUnderlying;
+    ManageableSecurity security;
     if (underlying == null) {
-      savedUnderlying = null;
+      security = buildSecurity(securityData);
     } else {
-      savedUnderlying = getSecurityMaster().add(new SecurityDocument(underlying)).getSecurity();
+      ManageableSecurity savedUnderlying = getSecurityMaster().add(new SecurityDocument(underlying)).getSecurity();
+      security = buildSecurity(securityData, savedUnderlying);
     }
-    ManageableSecurity security = buildSecurity(securityData, savedUnderlying);
     ManageableSecurity savedSecurity = getSecurityMaster().add(new SecurityDocument(security)).getSecurity();
     ManageableTrade trade = buildTrade(tradeData);
     trade.setSecurityLink(new ManageableSecurityLink(savedSecurity.getUniqueId()));
@@ -127,18 +128,18 @@ import com.opengamma.util.OpenGammaClock;
         getSecurityMaster().get(previousTrade.getSecurityLink().getObjectId(), VersionCorrection.LATEST).getSecurity();
 
     ManageableSecurity underlying = buildUnderlying(underlyingData);
-    ManageableSecurity savedUnderlying;
+    ManageableSecurity security;
     if (underlying == null) {
-      savedUnderlying = null;
+      security = buildSecurity(securityData);
     } else {
       // need to set the unique ID to the ID from the previous version, securities aren't allowed to change
       // any changes in the security data are interpreted as edits to the security
       ManageableSecurity previousUnderlying = getUnderlyingSecurity(previousSecurity, VersionCorrection.LATEST);
       validateSecurity(underlying, previousUnderlying);
       underlying.setUniqueId(previousUnderlying.getUniqueId());
-      savedUnderlying = getSecurityMaster().update(new SecurityDocument(underlying)).getSecurity();
+      ManageableSecurity savedUnderlying = getSecurityMaster().update(new SecurityDocument(underlying)).getSecurity();
+      security = buildSecurity(securityData, savedUnderlying);
     }
-    ManageableSecurity security = buildSecurity(securityData, savedUnderlying);
     // need to set the unique ID to the ID from the previous version, securities aren't allowed to change
     // any changes in the security data are interpreted as edits to the security
     validateSecurity(security, previousSecurity);
@@ -241,23 +242,23 @@ import com.opengamma.util.OpenGammaClock;
   }
 
   private FinancialSecurity buildSecurity(BeanDataSource securityData, Security underlying) {
+    ArgumentChecker.notNull(underlying, "underlying");
     BeanDataSource dataSource;
     ExternalId underlyingId = getUnderlyingId(underlying);
     // TODO would it be better to just return the bean builder from the visitor and handle this property manually?
     // TODO would have to use a different property for every security with underlyingId, there's no common supertype with it
-    if (underlyingId != null) {
-      dataSource = new PropertyReplacingDataSource(securityData, "underlyingId", underlyingId.toString());
-    } else {
-      dataSource = securityData;
+    if (underlyingId == null) {
+      throw new IllegalArgumentException("Unable to get underlying ID for security " + underlying);
     }
-    return build(dataSource);
+    dataSource = new PropertyReplacingDataSource(securityData, "underlyingId", underlyingId.toString());
+    return buildSecurity(dataSource);
   }
 
   private FinancialSecurity buildUnderlying(BeanDataSource underlyingData) {
     if (underlyingData == null) {
       return null;
     }
-    return build(underlyingData);
+    return buildSecurity(underlyingData);
   }
 
   private ExternalId getUnderlyingId(Security underlying) {
@@ -271,7 +272,7 @@ import com.opengamma.util.OpenGammaClock;
   }
 
   @SuppressWarnings("unchecked")
-  private FinancialSecurity build(BeanDataSource data) {
+  private FinancialSecurity buildSecurity(BeanDataSource data) {
     // TODO custom converters for dates
     // default timezone based on OpenGammaClock
     // default times for effectiveDate and maturityDate properties on SwapSecurity, probably others

@@ -88,10 +88,10 @@ import com.opengamma.util.time.Expiry;
           "frequency", "3m",
           "regionId", "Reg~123",
           "eom", "true",
-        "notional", beanData(
-        "type", "InterestRateNotional",
-        "currency", "USD",
-        "amount", "222.33")),
+          "notional", beanData(
+            "type", "InterestRateNotional",
+            "currency", "USD",
+            "amount", "222.33")),
         "receiveLeg", beanData(
           "type", "FloatingInterestRateLeg",
           "floatingReferenceRateId", "Rate~123",
@@ -104,10 +104,10 @@ import com.opengamma.util.time.Expiry;
           "frequency", "6m",
           "regionId", "Reg~234",
           "eom", "true",
-        "notional", beanData(
-        "type", "InterestRateNotional",
-        "currency", "GBP",
-        "amount", "123.45")));
+          "notional", beanData(
+            "type", "InterestRateNotional",
+            "currency", "GBP",
+            "amount", "123.45")));
 
     ZonedDateTime tradeDate = parseDate(tradeDateStr);
     ZonedDateTime effectiveDate = parseDate(effectiveDateStr);
