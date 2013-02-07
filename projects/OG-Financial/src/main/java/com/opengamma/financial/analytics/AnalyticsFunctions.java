@@ -245,6 +245,7 @@ public class AnalyticsFunctions extends AbstractRepositoryConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.Z_SPREAD);
     addUnitScalingFunction(functions, ValueRequirementNames.ZOMMA);
     addUnitScalingFunction(functions, ValueRequirementNames.ZOMMA_P);
+    addUnitScalingFunction(functions, ValueRequirementNames.BARRIER_DISTANCE);
   }
 
   protected RepositoryConfigurationSource cashFlowFunctionConfiguration() {

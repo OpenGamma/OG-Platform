@@ -11,6 +11,7 @@ import com.opengamma.engine.function.config.AbstractRepositoryConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.futureoption.BarrierOptionDistanceDefaults;
 
 /**
  * Function repository configuration source for the functions contained in this package.
@@ -39,12 +40,14 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
   /**
    * @param overhedge The overhedge to use for equity barrier options
    * @param callSpreadFullWidth The width of the call spread to use for barrier options
+   * @param barrierFormat the barrier output display format
    * @return The repository with equity barrier option defaults set
    */
-  public static RepositoryConfigurationSource defaults(final double overhedge, final double callSpreadFullWidth) {
+  public static RepositoryConfigurationSource defaults(final double overhedge, final double callSpreadFullWidth, final String barrierFormat) {
     final Defaults factory = new Defaults();
     factory.setOverhedge(overhedge);
     factory.setCallSpreadFullWidth(callSpreadFullWidth);
+    factory.setBarrierDistanceFormat(barrierFormat);
     factory.afterPropertiesSet();
     return factory.getObject();
   }
@@ -56,6 +59,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
 
     private double _overhedge; /* = 0.0; */
     private double _callSpreadFullWidth = 0.001;
+    private String _barrierFormat = EquityVanillaBarrierOptionDistanceFunction.BARRIER_ABS;
 
     public void setOverhedge(final double overhedge) {
       _overhedge = overhedge;
@@ -73,9 +77,18 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
       return _callSpreadFullWidth;
     }
 
+    public void setBarrierDistanceFormat(final String format) {
+      _barrierFormat = format;
+    }
+
+    public String getBarrierDistanceFormat() {
+      return _barrierFormat;
+    }
+
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
       functions.add(functionConfiguration(EquityVanillaBarrierOptionDefaults.class, Double.toString(getOverhedge()), Double.toString(getCallSpreadFullWidth())));
+      functions.add(functionConfiguration(BarrierOptionDistanceDefaults.class, getBarrierDistanceFormat()));
     }
 
   }
@@ -127,6 +140,7 @@ public class OptionFunctions extends AbstractRepositoryConfigurationBean {
     functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_THETA, ValueRequirementNames.THETA));
     functions.add(functionConfiguration(PositionGreeksFunction.class, ValueRequirementNames.POSITION_VEGA, ValueRequirementNames.VEGA));
     functions.add(functionConfiguration(WeightedVegaFunction.class)); 
+    functions.add(functionConfiguration(EquityVanillaBarrierOptionDistanceFunction.class));
   }
 
 }

@@ -254,4 +254,9 @@ public final class ValuePropertyNames {
    * such that each column may represent, for example, the vega of all positions sensitive to changes in that specific surface
    */
   public static final String UNDERLYING_TICKER = "UnderlyingTicker";
+
+  /**
+   * Controls the number formatting of the barrier distance - e.g. abs, percentage
+   */
+  public static final String BARRIER_DISTANCE_OUTPUT_FORMAT = "BarrierDistanceOutputFormat";
 }
