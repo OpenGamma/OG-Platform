@@ -45,7 +45,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -86,7 +85,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.POSITION;
+    return ComputationTargetType.TRADE;
   }
   
   @Override
@@ -155,7 +154,7 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
       dailyValueMove = dailyValueMove * optionSecurity.getPointValue();
     }
     // Finally, multiply by the Trade's Quantity
-    final Double dailyPnL = target.getPosition().getQuantity().doubleValue() * dailyValueMove;
+    final Double dailyPnL = target.getTrade().getQuantity().doubleValue() * dailyValueMove;
 
     // 3. Get Spec and Return
     final ValueRequirement desiredValue = desiredValues.iterator().next();
