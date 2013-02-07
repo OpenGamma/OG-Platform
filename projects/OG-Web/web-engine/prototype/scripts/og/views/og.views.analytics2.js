@@ -6,8 +6,8 @@ $.register_module({
     name: 'og.views.analytics2',
     dependencies: [],
     obj: function () {
-        var routes = og.common.routes, module = this, view, 
-            main_selector = '.OG-layout-analytics-center', form;
+        var routes = og.common.routes, module = this, view,
+            main_selector = '.OG-layout-analytics-center';
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
             check_state: og.views.common.state.check.partial('/'),
@@ -25,7 +25,7 @@ $.register_module({
                         layout.main.sizePane('east', right);
                     },
                     right_handler:  function (resizer) {
-                        var inner = layout.inner.sizePane, $resizer = resizer, 
+                        var inner = layout.inner.sizePane, $resizer = resizer,
                         right = layout.right.sizePane, main = layout.main.sizePane;
                         $.when(og.api.text({module: 'og.analytics.resize_menu_tash'})).then(function (template) {
                         $menu = $(template).position({my: 'left top', at: 'right bottom', of: $resizer})
