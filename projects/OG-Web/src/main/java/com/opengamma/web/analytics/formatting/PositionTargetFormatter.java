@@ -11,16 +11,22 @@ import com.opengamma.web.analytics.PositionTarget;
 
 /* package */ class PositionTargetFormatter extends AbstractFormatter<PositionTarget> {
 
+  /** JSON key */
   private static final String NAME = "name";
-  private static final String ID = "id";
+  /** JSON key */
+  private static final String NODE_ID = "nodeId";
+  /** JSON key */
+  private static final String POSITION_ID = "positionId";
 
   /* package */  PositionTargetFormatter() {
     super(PositionTarget.class);
   }
 
   @Override
-  public Object formatCell(PositionTarget value, ValueSpecification valueSpec) {
-    return ImmutableMap.of(NAME, value.getName(), ID, value.getId());
+  public Object formatCell(PositionTarget target, ValueSpecification valueSpec) {
+    return ImmutableMap.of(NAME, target.getName(),
+                           NODE_ID, target.getNodeId(),
+                           POSITION_ID, target.getPositionId());
   }
 
   @Override

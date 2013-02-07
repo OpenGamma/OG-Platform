@@ -28,6 +28,7 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.blotter.BlotterColumn;
@@ -168,7 +169,7 @@ public final class PortfolioGridStructure extends MainGridStructure {
         } else {
           nodeName = node.getName();
         }
-        return Lists.newArrayList(new PortfolioGridRow(target, nodeName));
+        return Lists.newArrayList(new PortfolioGridRow(target, nodeName, node.getUniqueId()));
       }
 
       // TODO need to return list of rows including trades - but only for fungible security types
@@ -176,16 +177,19 @@ public final class PortfolioGridStructure extends MainGridStructure {
       public List<PortfolioGridRow> apply(PortfolioNode parentNode, Position position) {
         ComputationTargetSpecification nodeSpec = ComputationTargetSpecification.of(parentNode);
         // TODO I don't think toLatest() will do long term. resolution time available on the result model
+        UniqueId positionId = position.getUniqueId();
         ComputationTargetSpecification target = nodeSpec.containing(ComputationTargetType.POSITION,
-                                                                    position.getUniqueId().toLatest());
+                                                                    positionId.toLatest());
         Security security = position.getSecurity();
         List<PortfolioGridRow> rows = Lists.newArrayList();
-        rows.add(new PortfolioGridRow(target, security.getName(), security, position.getQuantity()));
+        UniqueId nodeId = parentNode.getUniqueId();
+        rows.add(new PortfolioGridRow(target, security.getName(), security, position.getQuantity(), nodeId, positionId));
         // only add rows for trades in fungible securities, OTC trades and positions are shown as a single row
         if (isFungible(position.getSecurity())) {
           for (Trade trade : position.getTrades()) {
             String tradeDate = trade.getTradeDate().toString();
-            rows.add(new PortfolioGridRow(ComputationTargetSpecification.of(trade), tradeDate, security, trade.getQuantity()));
+            rows.add(new PortfolioGridRow(ComputationTargetSpecification.of(trade), tradeDate, security, trade.getQuantity(),
+                                          nodeId, positionId, trade.getUniqueId()));
           }
         }
         return rows;
@@ -219,16 +223,25 @@ public final class PortfolioGridStructure extends MainGridStructure {
   private final Security _security;
   /** The row's quantity, null for row's that don't represent a position. */
   private final BigDecimal _quantity;
+  private final UniqueId _nodeId;
+  private final UniqueId _positionId;
+  private final UniqueId _tradeId;
+
+  // TODO nodeId, positionId, tradeId
 
   /**
    * For rows representing portfolio nodes which have no security or quantity
    * @param target The row's target
    * @param name The row name
    */
-  /* package */ PortfolioGridRow(ComputationTargetSpecification target, String name) {
+  /* package */ PortfolioGridRow(ComputationTargetSpecification target, String name, UniqueId nodeId) {
     super(target, name);
+    ArgumentChecker.notNull(nodeId, "nodeId");
     _security = null;
     _quantity = null;
+    _nodeId = nodeId;
+    _positionId = null;
+    _tradeId = null;
   }
 
   /**
@@ -240,12 +253,45 @@ public final class PortfolioGridStructure extends MainGridStructure {
   /* package */ PortfolioGridRow(ComputationTargetSpecification target,
                                  String name,
                                  Security security,
-                                 BigDecimal quantity) {
+                                 BigDecimal quantity,
+                                 UniqueId nodeId,
+                                 UniqueId positionId) {
     super(target, name);
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(quantity, "quantity");
+    ArgumentChecker.notNull(nodeId, "nodeId");
+    ArgumentChecker.notNull(positionId, "positionId");
     _security = security;
     _quantity = quantity;
+    _nodeId = nodeId;
+    _positionId = positionId;
+    _tradeId = null;
+  }
+
+  /**
+   * For rows representing position nodes which have a security and quantity
+   * @param target The row's target
+   * @param security The position's security, not null
+   * @param quantity The position's quantity, not null
+   */
+  /* package */ PortfolioGridRow(ComputationTargetSpecification target,
+                                 String name,
+                                 Security security,
+                                 BigDecimal quantity,
+                                 UniqueId nodeId,
+                                 UniqueId positionId,
+                                 UniqueId tradeId) {
+    super(target, name);
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(quantity, "quantity");
+    ArgumentChecker.notNull(nodeId, "nodeId");
+    ArgumentChecker.notNull(positionId, "positionId");
+    ArgumentChecker.notNull(tradeId, "tradeId");
+    _security = security;
+    _quantity = quantity;
+    _nodeId = nodeId;
+    _positionId = positionId;
+    _tradeId = tradeId;
   }
 
   /* package */ Security getSecurity() {
@@ -254,5 +300,17 @@ public final class PortfolioGridStructure extends MainGridStructure {
 
   /* package */ BigDecimal getQuantity() {
     return _quantity;
+  }
+
+  /* package */ UniqueId getNodeId() {
+    return _nodeId;
+  }
+
+  /* package */ UniqueId getPositionId() {
+    return _positionId;
+  }
+
+  /* package */ UniqueId getTradeId() {
+    return _tradeId;
   }
 }

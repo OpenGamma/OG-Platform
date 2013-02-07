@@ -13,11 +13,34 @@ import com.opengamma.id.UniqueId;
  */
 public class OtcTradeTarget extends RowTarget {
 
+  /** The trade ID */
+  private final UniqueId _tradeId;
+  /** The position ID */
+  private final UniqueId _positionId;
+
   /**
    * @param name The row name
-   * @param id The position ID
+   * @param nodeId The ID of the portfolio node containing the trade
+   * @param positionId The position ID
+   * @param tradeId the trade ID
    */
-  /* package */ OtcTradeTarget(String name, UniqueId id) {
-    super(name, id);
+  /* package */ OtcTradeTarget(String name, UniqueId nodeId, UniqueId positionId, UniqueId tradeId) {
+    super(name, nodeId);
+    _tradeId = tradeId;
+    _positionId = positionId;
+  }
+
+  /**
+   * @return The trade ID
+   */
+  public UniqueId getPositionId() {
+    return _positionId;
+  }
+
+  /**
+   * @return The trade ID
+   */
+  public UniqueId getTradeId() {
+    return _tradeId;
   }
 }

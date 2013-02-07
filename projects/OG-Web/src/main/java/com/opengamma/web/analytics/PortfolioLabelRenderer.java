@@ -36,26 +36,20 @@ import com.opengamma.util.ArgumentChecker;
       RowTarget rowTarget;
       if (isOtc(row.getSecurity())) {
         // OTC trades and positions are shown as a single row as there's always one trade per position
-        // TODO this is the position ID, need the trade ID too
-        // TODO just the node ID when adding trades? what does the position master need to get a node?
-        /*
-        node - nodeId
-        fungible position - positionId
-        fungible trade - tradeId [positionId]
-        otc trade - tradeId positionId
-        */
-        rowTarget = new OtcTradeTarget(row.getName(), target.getUniqueId());
+        rowTarget = new OtcTradeTarget(row.getName(), target.getUniqueId(), row.getPositionId(), row.getTradeId());
       } else {
         // Positions in fungible trades can contain multiple trades so the position has its own row and child rows
         // for each of its trades
-        rowTarget = new PositionTarget(row.getName(), target.getUniqueId());
+        rowTarget = new PositionTarget(row.getName(), target.getUniqueId(), row.getPositionId());
       }
       return ResultsCell.forStaticValue(rowTarget, columnType);
     } else if (targetType.isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
       return ResultsCell.forStaticValue(new NodeTarget(row.getName(), target.getUniqueId()), columnType);
     } else if (targetType.isTargetType(ComputationTargetType.TRADE)) {
       // only fungible trades have their own row, OTC trades are shown on the same row as their parent position
-      return ResultsCell.forStaticValue(new FungibleTradeTarget(row.getName(), target.getUniqueId()), columnType);
+      FungibleTradeTarget tradeTarget =
+          new FungibleTradeTarget(row.getName(), target.getUniqueId(), row.getPositionId(), row.getTradeId());
+      return ResultsCell.forStaticValue(tradeTarget, columnType);
     }
     throw new IllegalArgumentException("Unexpected target type for row: " + targetType);
   }

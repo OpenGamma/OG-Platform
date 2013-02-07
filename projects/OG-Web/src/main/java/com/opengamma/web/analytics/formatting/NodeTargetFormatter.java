@@ -11,16 +11,18 @@ import com.opengamma.web.analytics.NodeTarget;
 
 /* package */ class NodeTargetFormatter extends AbstractFormatter<NodeTarget> {
 
+  /** JSON key */
   private static final String NAME = "name";
-  private static final String ID = "id";
+  /** JSON key */
+  private static final String NODE_ID = "nodeId";
 
   /* package */  NodeTargetFormatter() {
     super(NodeTarget.class);
   }
 
   @Override
-  public Object formatCell(NodeTarget value, ValueSpecification valueSpec) {
-    return ImmutableMap.of(NAME, value.getName(), ID, value.getId().getObjectId());
+  public Object formatCell(NodeTarget target, ValueSpecification valueSpec) {
+    return ImmutableMap.of(NAME, target.getName(), NODE_ID, target.getNodeId().getObjectId());
   }
 
   @Override
