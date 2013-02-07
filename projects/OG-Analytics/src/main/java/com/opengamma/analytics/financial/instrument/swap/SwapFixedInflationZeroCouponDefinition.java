@@ -60,7 +60,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
     Validate.notNull(calendar, "Calendar");
     Validate.notNull(priceIndexTimeSeries, "Time series of price index");
     ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settlementDate, Period.of(tenor, YEARS), businessDayConvention, calendar, endOfMonth);
-    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(index.getCurrency(), paymentDate, settlementDate, (isPayer ? -1.0 : 1.0) * notional, Period.of(tenor, YEARS),
+    CouponFixedCompoundingDefinition fixedCpn = CouponFixedCompoundingDefinition.from(index.getCurrency(), paymentDate, settlementDate, (isPayer ? -1.0 : 1.0) * notional, tenor,
         fixedRate);
     CouponInflationZeroCouponInterpolationDefinition inflationCpn = CouponInflationZeroCouponInterpolationDefinition.from(settlementDate, paymentDate, (isPayer ? 1.0 : -1.0) * notional, index,
         priceIndexTimeSeries, monthLag, false);
