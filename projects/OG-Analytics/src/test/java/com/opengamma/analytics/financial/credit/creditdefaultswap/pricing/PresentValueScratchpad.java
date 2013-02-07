@@ -52,7 +52,7 @@ public class PresentValueScratchpad {
   // ---------------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
-  private static final boolean outputResults = false;
+  private static final boolean outputResults = true;
 
   // ----------------------------------------------------------------------------------
 
@@ -65,7 +65,8 @@ public class PresentValueScratchpad {
   private static final String protectionBuyerREDCode = "ABC123";
 
   private static final String protectionSellerTicker = "IBM";
-  private static final String protectionSellerShortName = "International Business Machines";
+  private static final String protectionSellerShortName = "International Business Mac" +
+      "hines";
   private static final String protectionSellerREDCode = "XYZ321";
 
   private static final String referenceEntityTicker = "BT";
@@ -341,6 +342,17 @@ public class PresentValueScratchpad {
     }
 
     // -------------------------------------------------------------------------------------
+
+    /*
+    final GenerateCreditDefaultSwapPremiumLegSchedule cashflowSchedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+
+    // Build the premium leg cashflow schedule from the contract specification
+    final ZonedDateTime[] premiumLegSchedule = cashflowSchedule.constructCreditDefaultSwapPremiumLegSchedule(cds);
+
+    for (int i = 0; i < premiumLegSchedule.length; i++) {
+      System.out.println("i = " + "\t" + i + "\t" + premiumLegSchedule[i]);
+    }
+    */
 
     // Define the market data to calibrate to
 
