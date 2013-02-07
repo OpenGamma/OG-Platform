@@ -214,7 +214,7 @@ import com.opengamma.util.OpenGammaClock;
    * @param trade The trade
    * @param sink The sink that should be populated with the trade data
    */
-  /* package */ static void extractTradeData(ManageableTrade trade, BeanDataSink<?> sink) {
+  /* package */ void extractTradeData(ManageableTrade trade, BeanDataSink<?> sink) {
     sink.setValue("type", TRADE_TYPE_NAME);
     extractPropertyData(trade.uniqueId(), sink);
     extractPropertyData(trade.tradeDate(), sink);
@@ -227,8 +227,8 @@ import com.opengamma.util.OpenGammaClock;
     sink.setValue(COUNTERPARTY, trade.getCounterpartyExternalId().getValue());
   }
 
-  private static void extractPropertyData(Property<?> property, BeanDataSink<?> sink) {
-    sink.setValue(property.name(), property.metaProperty().getString(property.bean()));
+  private void extractPropertyData(Property<?> property, BeanDataSink<?> sink) {
+    sink.setValue(property.name(), getStringConvert().convertToString(property.metaProperty().get(property.bean())));
   }
 
   /**

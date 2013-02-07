@@ -320,7 +320,7 @@ public class BlotterResource {
     try {
       JsonDataSink tradeSink = new JsonDataSink(s_stringConvert);
       if (isOtc(security)) {
-        OtcTradeBuilder.extractTradeData(trade, tradeSink);
+        _otcTradeBuilder.extractTradeData(trade, tradeSink);
         MetaBean securityMetaBean = s_metaBeansByTypeName.get(security.getClass().getSimpleName());
         if (securityMetaBean == null) {
           throw new DataNotFoundException("No MetaBean is registered for security type " + security.getClass().getName());
