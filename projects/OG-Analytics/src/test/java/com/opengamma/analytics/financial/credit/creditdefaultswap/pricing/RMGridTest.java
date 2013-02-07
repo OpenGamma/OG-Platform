@@ -56,7 +56,7 @@ public class RMGridTest {
   // ---------------------------------------------------------------------------------------
 
   // Flag to control if any test results are output to the console
-  private static final boolean outputResults = true;
+  private static final boolean outputResults = false;
 
   // ----------------------------------------------------------------------------------
 
