@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDef
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapXCcyIborIbor;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
@@ -320,9 +321,52 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
   }
 
   private SwapXCcyIborIborDefinition getCrossCurrencySwapDefinition(final SwapSecurity security) {
+    if (!(security.getPayLeg() instanceof FloatingInterestRateLeg)) { 
+      throw new OpenGammaRuntimeException("X Ccy Swap legs should be Floating legs");
+    }
+    FloatingInterestRateLeg payLeg = (FloatingInterestRateLeg) security.getPayLeg();
+    if (!(security.getReceiveLeg() instanceof FloatingInterestRateLeg)) {
+      throw new OpenGammaRuntimeException("X Ccy Swap legs should be Floating legs");
+    }
+    FloatingInterestRateLeg recLeg = (FloatingInterestRateLeg) security.getReceiveLeg();
     final ZonedDateTime settlementDate = security.getEffectiveDate();
-    //TODO in the functions, I've used pay leg as the first leg and receive as the second. Anything in here should be consistent
-    return null;
+    final ZonedDateTime maturityDate = security.getMaturityDate();
+    final double notional1 = ((InterestRateNotional) security.getPayLeg().getNotional()).getAmount();
+    final double notional2 = ((InterestRateNotional) security.getReceiveLeg().getNotional()).getAmount();
+    double spread1 = 0.0;
+    double spread2 = 0.0;
+    if (security.getPayLeg() instanceof FloatingSpreadIRLeg) {
+      spread1 = ((FloatingSpreadIRLeg) security.getPayLeg()).getSpread();
+    }
+    if (security.getReceiveLeg() instanceof FloatingSpreadIRLeg) {
+      spread2 = ((FloatingSpreadIRLeg) security.getReceiveLeg()).getSpread();
+    }
+    
+    final Currency currency1 = ((InterestRateNotional) payLeg.getNotional()).getCurrency();
+    final ConventionBundle iborIndexConvention1 = _conventionSource.getConventionBundle(payLeg.getFloatingReferenceRateId());
+    if (iborIndexConvention1 == null) {
+      throw new OpenGammaRuntimeException("Could not get Ibor index convention for " + currency1 + " using " + payLeg.getFloatingReferenceRateId());
+    }
+    final Period tenorIbor1 = iborIndexConvention1.getPeriod();
+    final ExternalId regionId1 = payLeg.getRegionId();
+    final Calendar calendar1 = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId1);
+    final IborIndex iborIndex1 = new IborIndex(currency1, tenorIbor1, iborIndexConvention1.getSettlementDays(), calendar1, iborIndexConvention1.getDayCount(),
+        iborIndexConvention1.getBusinessDayConvention(), iborIndexConvention1.isEOMConvention());
+    
+    final Currency currency2 = ((InterestRateNotional) recLeg.getNotional()).getCurrency();
+    final ConventionBundle iborIndexConvention2 = _conventionSource.getConventionBundle(recLeg.getFloatingReferenceRateId());
+    if (iborIndexConvention2 == null) {
+      throw new OpenGammaRuntimeException("Could not get Ibor index convention for " + currency2 + " using " + recLeg.getFloatingReferenceRateId());
+    }
+    final Period tenorIbor2 = iborIndexConvention1.getPeriod();
+    final ExternalId regionId2 = recLeg.getRegionId();
+    final Calendar calendar2 = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId2);
+    final IborIndex iborIndex2 = new IborIndex(currency2, tenorIbor2, iborIndexConvention2.getSettlementDays(), calendar2, iborIndexConvention2.getDayCount(),
+        iborIndexConvention2.getBusinessDayConvention(), iborIndexConvention2.isEOMConvention());
+    
+    final GeneratorSwapXCcyIborIbor generator = new GeneratorSwapXCcyIborIbor("", iborIndex1, iborIndex2);
+    SwapXCcyIborIborDefinition swap = SwapXCcyIborIborDefinition.from(settlementDate, maturityDate, generator, notional1, notional2, spread1, spread2,  true);
+    return swap;
   }
 
   private Period getTenor(final Frequency freq) {
