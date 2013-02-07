@@ -105,7 +105,7 @@ import com.opengamma.util.OpenGammaClock;
     // TODO can use a portfolio search request and only hit the master once
     ManageablePortfolioNode node = _portfolioMaster.getNode(nodeId);
     ManageablePortfolio portfolio = _portfolioMaster.get(node.getPortfolioId()).getPortfolio();
-    ManageablePortfolioNode portfolioNode = findNode(portfolio.getRootNode(), nodeId);
+    ManageablePortfolioNode portfolioNode = findNode(portfolio, nodeId);
     ManageablePosition position = findPosition(portfolioNode, security);
     if (position == null) {
       // no position in this security on the node, create a new position just for this trade
@@ -163,7 +163,8 @@ import com.opengamma.util.OpenGammaClock;
       // TODO which version do I want? will LATEST do?
       PositionDocument document = getPositionMaster().get(positionId, VersionCorrection.LATEST);
       ManageablePosition position = document.getPosition();
-      if (position.getSecurityLink().resolve(_securitySource).equals(security)) {
+      Security positionSecurity = position.getSecurityLink().resolve(_securitySource);
+      if (positionSecurity.getExternalIdBundle().containsAny(security.getExternalIdBundle())) {
         return position;
       }
     }
