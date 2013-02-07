@@ -66,18 +66,14 @@ $.register_module({
                 grid.selector.clear();
             };
             var mousemove = function (grid, event) {
-                var x = event.pageX - grid.offset.left + grid.elements.scroll_body.scrollLeft(),
-                scan = grid.meta.columns.scan.all, nearest = Math.max(
-                    grid.meta.fixed_length - 1,
-                    grid.meta.columns.scan.all.reduce(function (acc, val, idx) {return val < x ? idx : acc;}, 0)
-                );
-                $('.' + reorderer).css({
-                    left: event.pageX - offset_left
-                });
-                console.log(grid.offset.left - grid.elements.scroll_body.scrollLeft() + scan[nearest],
-                    grid.meta.columns.scan.fixed[grid.meta.fixed_length - 1]);
-                $('.' + line).show()
-                    .css({left: grid.offset.left - grid.elements.scroll_body.scrollLeft() + scan[nearest]});
+                var scroll_left = grid.elements.scroll_body.scrollLeft(),
+                    x = event.pageX - grid.offset.left + scroll_left,
+                    scan = grid.meta.columns.scan.all, nearest = Math.max(
+                        grid.meta.fixed_length - 1,
+                        grid.meta.columns.scan.all.reduce(function (acc, val, idx) {return val < x ? idx : acc;}, 0)
+                    );
+                $('.' + reorderer).css({left: event.pageX - offset_left});
+                $('.' + line).show().css({left: grid.offset.left - scroll_left + scan[nearest]});
             };
             var mouseup = function (grid, event) {
                 clean_up(grid);
@@ -324,6 +320,9 @@ $.register_module({
             meta.set_height = meta.show_sets ? set_height : 0;
             meta.header_height =  meta.set_height + title_height;
             meta.scrollbar = scrollbar;
+            columns.orig_widths = columns.fixed.concat(columns.scroll).reduce(function (acc, set) {
+                return acc.concat(set.columns.map(function (col) {return col.width || null;}));
+            }, []);
             grid.col_widths();
             col_fields.forEach(function (key) {columns[key + 's'] = [];}); // plural version
             columns.fixed.forEach(function (set) {set.columns.forEach(populate);});
@@ -518,29 +517,44 @@ $.register_module({
             };
         };
         Grid.prototype.col_widths = function () {
-            var grid = this, meta = grid.meta, avg_col_width, fixed_width, scroll_cols = meta.columns.scroll,
-                scroll_width, last_set, remainder, parent_width = grid.elements.parent.width();
+            var grid = this, meta = grid.meta, avg_col_width, fixed_width,
+                fixed_cols = meta.columns.fixed, scroll_cols = meta.columns.scroll, scroll_data_width,
+                def_scrolls, scroll_width, last_set, remainder, parent_width = grid.elements.parent.width();
             meta.fixed_length = meta.columns.fixed.length && meta.columns.fixed[0].columns.length;
-            meta.scroll_length = meta.columns.scroll.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
+            meta.scroll_length = scroll_cols.reduce(function (acc, set) {return acc + set.columns.length;}, 0);
             if (grid.col_override.length !== meta.fixed_length + meta.scroll_length) // if length has changed (in meta)
                 grid.col_override = new Array(meta.fixed_length + meta.scroll_length);
             (function (idx) {
-                meta.columns.fixed.concat(meta.columns.scroll).forEach(function (set) {
-                    set.columns.forEach(function (col) {col.width = grid.col_override[idx++] || col.width;})
+                fixed_cols.concat(scroll_cols).forEach(function (set) {
+                    set.columns.forEach(function (col) {
+                        col.width = grid.col_override[idx] || meta.columns.orig_widths[idx];
+                        idx += 1;
+                    });
                 });
             })(0);
+            def_scrolls = scroll_cols.reduce(function (top, set) {
+                top.length += set.columns.reduce(function (acc, col) {
+                    top.width += +col.width;
+                    return col.width ? acc + 1 : acc;
+                }, 0);
+                return top;
+            }, {length: 0, width: 0});
             meta.columns.widths = [];
             fixed_width = meta.columns.fixed.length && meta.columns.fixed[0].columns.reduce(function (acc, col, idx) {
                 meta.columns.widths.push(col.width = col.width || (idx ? 150 : 250));
                 return acc + col.width;
             }, 0);
-            remainder = (scroll_width = parent_width - fixed_width - scrollbar) -
-                ((avg_col_width = Math.floor(scroll_width / meta.scroll_length)) * meta.scroll_length);
+            scroll_width = parent_width - fixed_width - scrollbar;
+            avg_col_width = Math.floor((scroll_width - def_scrolls.width) / (meta.scroll_length - def_scrolls.length));
             scroll_cols.forEach(function (set) {
                 set.columns.forEach(function (col) {
                     meta.columns.widths.push(col.width = col.width || Math.max(default_col_width, avg_col_width));
                 });
             });
+            scroll_data_width = scroll_cols.pluck('columns').reduce(function (acc, set) {return acc + set.pluck('width')
+                .reduce(function (acc, val) {return acc + val;});}, 0);
+            if ((remainder = scroll_width - scroll_data_width) <= 0) return;
+            meta.columns.widths[meta.columns.widths.length - 1] += remainder;
             (last_set = scroll_cols[scroll_cols.length - 1].columns)[last_set.length - 1].width += remainder;
         };
         Grid.prototype.fire = og.common.events.fire;
