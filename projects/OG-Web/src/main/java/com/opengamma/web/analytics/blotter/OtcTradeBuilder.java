@@ -123,11 +123,8 @@ import com.opengamma.util.OpenGammaClock;
     //   a) ensure that we're updating the correct IDs
     //   b) ensure that the new securities are of the same type (and any other validation)
     ManageableTrade previousTrade = getPositionMaster().getTrade(trade.getUniqueId());
-    PositionDocument positionDocument = getPositionMaster().get(previousTrade.getParentPositionId());
-    VersionCorrection previousVersionCorrection = VersionCorrection.of(positionDocument.getVersionFromInstant(),
-                                                                       positionDocument.getCorrectionFromInstant());
     ManageableSecurity previousSecurity =
-        getSecurityMaster().get(previousTrade.getSecurityLink().getObjectId(), previousVersionCorrection).getSecurity();
+        getSecurityMaster().get(previousTrade.getSecurityLink().getObjectId(), VersionCorrection.LATEST).getSecurity();
 
     ManageableSecurity underlying = buildUnderlying(underlyingData);
     ManageableSecurity savedUnderlying;
@@ -136,7 +133,7 @@ import com.opengamma.util.OpenGammaClock;
     } else {
       // need to set the unique ID to the ID from the previous version, securities aren't allowed to change
       // any changes in the security data are interpreted as edits to the security
-      ManageableSecurity previousUnderlying = getUnderlyingSecurity(previousSecurity, previousVersionCorrection);
+      ManageableSecurity previousUnderlying = getUnderlyingSecurity(previousSecurity, VersionCorrection.LATEST);
       validateSecurity(underlying, previousUnderlying);
       underlying.setUniqueId(previousUnderlying.getUniqueId());
       savedUnderlying = getSecurityMaster().update(new SecurityDocument(underlying)).getSecurity();
@@ -148,7 +145,7 @@ import com.opengamma.util.OpenGammaClock;
     security.setUniqueId(previousSecurity.getUniqueId());
     ManageableSecurity savedSecurity = getSecurityMaster().update(new SecurityDocument(security)).getSecurity();
     trade.setSecurityLink(new ManageableSecurityLink(savedSecurity.getUniqueId()));
-    ManageablePosition position = positionDocument.getPosition();
+    ManageablePosition position = getPositionMaster().get(previousTrade.getParentPositionId()).getPosition();
     position.setTrades(Lists.newArrayList(trade));
     ManageablePosition savedPosition = getPositionMaster().update(new PositionDocument(position)).getPosition();
     ManageableTrade savedTrade = savedPosition.getTrades().get(0);

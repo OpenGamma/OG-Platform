@@ -186,7 +186,7 @@ public class BlotterResource {
     s_stringConvert.register(CurrencyPair.class, new JodaBeanConverters.CurrencyPairConverter());
     s_stringConvert.register(ObjectId.class, new JodaBeanConverters.ObjectIdConverter());
     s_stringConvert.register(UniqueId.class, new JodaBeanConverters.UniqueIdConverter());
-    s_stringConvert.register(Expiry.class, new JodaBeanConverters.ExpiryConverter());
+    s_stringConvert.register(Expiry.class, new ExpiryConverter());
     s_stringConvert.register(ExerciseType.class, new JodaBeanConverters.ExerciseTypeConverter());
     s_stringConvert.register(BusinessDayConvention.class, new JodaBeanConverters.BusinessDayConventionConverter());
     s_stringConvert.register(YieldConvention.class, new JodaBeanConverters.YieldConventionConverter());
@@ -418,7 +418,7 @@ public class BlotterResource {
   // TODO the config endpoint uses form params for the JSON. why? better to use a MessageBodyWriter?
   public void updateTrade(@FormParam("trade") String jsonStr, @PathParam("tradeIdStr") String tradeIdStr) {
     try {
-      // TODO what should happen to this? the ID is also in the JSON
+      // TODO what should happen to this? the ID is also in the JSON. check they match?
       UniqueId tradeId = UniqueId.parse(tradeIdStr);
       JSONObject json = new JSONObject(jsonStr);
       JSONObject tradeJson = json.getJSONObject("trade");
@@ -541,6 +541,23 @@ public class BlotterResource {
     @Override
     public String convertToString(OffsetTime time) {
       return time.getTime().toString();
+    }
+  }
+
+  /**
+   * Converts between an {@link Expiry} and a local date string (e.g. 2011-03-08).
+   */
+  private static class ExpiryConverter implements StringConverter<Expiry> {
+
+    @Override
+    public Expiry convertFromString(Class<? extends Expiry> cls, String localDateString) {
+      LocalDate localDate = LocalDate.parse(localDateString);
+      return new Expiry(localDate.atTime(11, 0).atZone(ZoneOffset.UTC));
+    }
+
+    @Override
+    public String convertToString(Expiry expiry) {
+      return expiry.getExpiry().getDate().toString();
     }
   }
 }

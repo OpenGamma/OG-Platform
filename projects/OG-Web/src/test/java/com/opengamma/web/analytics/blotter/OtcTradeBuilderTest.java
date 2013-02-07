@@ -7,6 +7,7 @@ package com.opengamma.web.analytics.blotter;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.math.BigDecimal;
 
@@ -20,7 +21,10 @@ import org.threeten.bp.ZoneOffset;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -35,6 +39,8 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.InMemoryPositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.util.money.Currency;
 
@@ -128,41 +134,6 @@ public class OtcTradeBuilderTest {
   }
 
   @Test
-  public void newSecurityWithFungibleUnderlying() {
-    UniqueId tradeId = _builder.addTrade(createTradeData(), BlotterTestUtils.EQUITY_VARIANCE_SWAP_DATA_SOURCE, null, _nodeId);
-    ManageableTrade trade = _positionMaster.getTrade(tradeId);
-    UniqueId positionId = trade.getParentPositionId();
-    ManageablePosition position = _positionMaster.get(positionId).getPosition();
-    assertEquals(BigDecimal.ONE, position.getQuantity());
-    ManageableSecurity security =
-        _securityMaster.get(trade.getSecurityLink().getObjectId(), VersionCorrection.LATEST).getSecurity();
-    assertNotNull(security);
-    security.setUniqueId(null); // so it can be tested for equality against the unsaved version
-    assertEquals(BlotterTestUtils.EQUITY_VARIANCE_SWAP, security);
-
-    assertEquals(COUNTERPARTY_ID, trade.getCounterpartyExternalId());
-    assertEquals(PREMIUM, trade.getPremium());
-    assertEquals(Currency.GBP, trade.getPremiumCurrency());
-    assertEquals(PREMIUM_DATE, trade.getPremiumDate());
-    assertEquals(TRADE_DATE, trade.getTradeDate());
-    assertEquals(PREMIUM_TIME, trade.getPremiumTime());
-    assertEquals(TRADE_TIME, trade.getTradeTime());
-    assertEquals(ATTRIBUTES, trade.getAttributes());
-    assertEquals(position.getUniqueId(), trade.getParentPositionId());
-
-    // can't check the node ID as nodes are completely replaced
-    ManageablePortfolioNode loadedRoot = _portfolioMaster.get(_savedPortfolio.getUniqueId()).getPortfolio().getRootNode();
-    ManageablePortfolioNode loadedNode = loadedRoot.getChildNodes().get(0);
-    assertEquals(1, loadedNode.getPositionIds().size());
-    assertEquals(positionId.getObjectId(), loadedNode.getPositionIds().get(0));
-  }
-
-  @Test
-  public void newSecurityWithOtcUnderlying() {
-    // i.e. a swaption
-  }
-
-  @Test
   public void existingSecurityWithNoUnderlying() {
     UniqueId tradeId = _builder.addTrade(createTradeData(), BlotterTestUtils.FX_FORWARD_DATA_SOURCE, null, _nodeId);
     BeanDataSource updatedTradeData = createTradeData("uniqueId", tradeId.toString(),
@@ -173,6 +144,7 @@ public class OtcTradeBuilderTest {
                                                                            "payCurrency", "AUD",
                                                                            "payAmount", "200",
                                                                            "regionId", "Reg~234");
+
     UniqueId updatedTradeId = _builder.updateTrade(updatedTradeData, updatedSecurityData, null);
     ManageableTrade updatedTrade = _positionMaster.getTrade(updatedTradeId);
     assertEquals("updatedCounterparty", updatedTrade.getCounterpartyExternalId().getValue());
@@ -181,18 +153,57 @@ public class OtcTradeBuilderTest {
     PositionDocument positionDocument = _positionMaster.get(updatedTrade.getParentPositionId());
     ManageablePosition updatedPosition = positionDocument.getPosition();
     assertEquals(updatedTrade, updatedPosition.getTrade(updatedTradeId));
-    VersionCorrection versionCorrection = VersionCorrection.of(positionDocument.getVersionFromInstant(),
-                                                               positionDocument.getCorrectionFromInstant());
     FXForwardSecurity updatedSecurity = (FXForwardSecurity) _securityMaster.get(updatedTrade.getSecurityLink().getObjectId(),
-                                                                                versionCorrection).getSecurity();
+                                                                                VersionCorrection.LATEST).getSecurity();
     assertEquals(Currency.AUD, updatedSecurity.getPayCurrency());
     assertEquals(200d, updatedSecurity.getPayAmount());
     assertEquals(ExternalId.of("Reg", "234"), updatedSecurity.getRegionId());
   }
 
   @Test
-  public void existingSecurityWithFungibleUnderlying() {
+  public void newSecurityWithOtcUnderlying() {
+    UniqueId tradeId = _builder.addTrade(createTradeData(),
+                                         BlotterTestUtils.SWAPTION_DATA_SOURCE,
+                                         BlotterTestUtils.SWAP_DATA_SOURCE,
+                                         _nodeId);
 
+    ManageableTrade trade = _positionMaster.getTrade(tradeId);
+    UniqueId positionId = trade.getParentPositionId();
+    ManageablePosition position = _positionMaster.get(positionId).getPosition();
+    assertEquals(BigDecimal.ONE, trade.getQuantity());
+    assertEquals(BigDecimal.ONE, position.getQuantity());
+    SwaptionSecurity security = (SwaptionSecurity) _securityMaster.get(trade.getSecurityLink().getObjectId(),
+                                                                       VersionCorrection.LATEST).getSecurity();
+    assertNotNull(security);
+    // check this later
+    ExternalId underlyingId = security.getUnderlyingId();
+    security.setUniqueId(null); // so it can be tested for equality against the unsaved version
+    security.setUnderlyingId(BlotterTestUtils.SWAPTION.getUnderlyingId()); // will need this later
+    assertEquals(BlotterTestUtils.SWAPTION, security);
+    assertEquals(COUNTERPARTY_ID, trade.getCounterpartyExternalId());
+    assertEquals(PREMIUM, trade.getPremium());
+    assertEquals(Currency.GBP, trade.getPremiumCurrency());
+    assertEquals(PREMIUM_DATE, trade.getPremiumDate());
+    assertEquals(TRADE_DATE, trade.getTradeDate());
+    assertEquals(PREMIUM_TIME, trade.getPremiumTime());
+    assertEquals(TRADE_TIME, trade.getTradeTime());
+    assertEquals(ATTRIBUTES, trade.getAttributes());
+
+    // can't check the node ID as nodes are completely replaced
+    ManageablePortfolioNode loadedRoot = _portfolioMaster.get(_savedPortfolio.getUniqueId()).getPortfolio().getRootNode();
+    ManageablePortfolioNode loadedNode = loadedRoot.getChildNodes().get(0);
+    assertEquals(1, loadedNode.getPositionIds().size());
+    assertEquals(positionId.getObjectId(), loadedNode.getPositionIds().get(0));
+
+    SecuritySearchRequest searchRequest = new SecuritySearchRequest();
+    searchRequest.setExternalIdSearch(new ExternalIdSearch(underlyingId));
+    SecuritySearchResult searchResult = _securityMaster.search(searchRequest);
+    ManageableSecurity underlying = searchResult.getSingleSecurity();
+    ExternalIdBundle underlyingBundle = underlying.getExternalIdBundle();
+    assertTrue(underlyingBundle.contains(underlyingId));
+    underlying.setUniqueId(null);
+    underlying.setExternalIdBundle(ExternalIdBundle.EMPTY);
+    assertEquals(BlotterTestUtils.SWAP, underlying);
   }
 
   @Test

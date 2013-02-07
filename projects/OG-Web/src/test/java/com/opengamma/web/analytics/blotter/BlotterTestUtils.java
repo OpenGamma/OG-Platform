@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -21,6 +22,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.EuropeanExerciseType;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
@@ -29,6 +32,7 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
 
 /* package */ class BlotterTestUtils {
 
@@ -36,6 +40,8 @@ import com.opengamma.util.money.Currency;
   /* package */ static final MapBeanDataSource FX_FORWARD_DATA_SOURCE;
   /* package */ static final SwapSecurity SWAP;
   /* package */ static final MapBeanDataSource SWAP_DATA_SOURCE;
+  /* package */ static final SwaptionSecurity SWAPTION;
+  /* package */ static final MapBeanDataSource SWAPTION_DATA_SOURCE;
   /* package */ static final EquityVarianceSwapSecurity EQUITY_VARIANCE_SWAP;
   /* package */ static final MapBeanDataSource EQUITY_VARIANCE_SWAP_DATA_SOURCE;
 
@@ -167,6 +173,28 @@ import com.opengamma.util.money.Currency;
                                        SimpleFrequencyFactory.INSTANCE.getFrequency("Weekly"));
     EQUITY_VARIANCE_SWAP.setName("TODO");
     EQUITY_VARIANCE_SWAP.setAttributes(attributes);
+
+    //-------------------------------------
+
+    SWAPTION_DATA_SOURCE = beanData(
+        "type", "SwaptionSecurity",
+        "name", "TODO",
+        "attributes", attributes,
+        "payer", "true",
+        "longShort", "Short",
+        "expiry", "2013-03-08",
+        "cashSettled", "false",
+        "currency", "GBP",
+        "notional", "100000",
+        "exerciseType", "European",
+        "settlementDate", "2013-03-10");
+    // need to provide a value for the underlying ID but it isn't used
+    Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 3, 8, 0, 0), ZoneOffset.UTC));
+    ZonedDateTime settlementDate = ZonedDateTime.of(LocalDateTime.of(2013, 3, 10, 11, 0), ZoneOffset.UTC);
+    SWAPTION = new SwaptionSecurity(true, ExternalId.of("ABC", "123"), false, expiry, false, Currency.GBP, 100000d,
+                                    new EuropeanExerciseType(), settlementDate);
+    SWAPTION.setName("TODO");
+    SWAPTION.setAttributes(attributes);
   }
 
   private static ZonedDateTime parseDate(String dateStr) {
