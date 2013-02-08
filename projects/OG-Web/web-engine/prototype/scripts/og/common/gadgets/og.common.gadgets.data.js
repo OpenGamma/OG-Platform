@@ -9,7 +9,7 @@ $.register_module({
         var module = this, loading_template, formatters, char_width = 9, STRING = 'STRING';
         var cell_value = function (v) {return {v: v + ''};};
         var col_names = (function () {
-            var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''), base = letters.length, base_log = Math.log(base);
+            var letters = 'ABΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ'.split(''), base = letters.length, base_log = Math.log(base);
             var letter = function (num) {
                 if (num < base) return letters[num];
                 var digits = Math.floor(Math.log(num) / base_log) + 1, lcv, result = '', digit, power;
