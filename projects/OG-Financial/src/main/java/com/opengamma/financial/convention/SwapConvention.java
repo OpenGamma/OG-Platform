@@ -40,7 +40,7 @@ public class SwapConvention extends Convention {
    */
   //TODO is this the right type?
   @PropertyDefinition(validate = "notNull")
-  private String _recieveLegConventionName;
+  private String _receiveLegConventionName;
 
   /**
    * For the builder
@@ -73,24 +73,24 @@ public class SwapConvention extends Convention {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1537399682:  // payLegConventionName
         return getPayLegConventionName();
-      case -1711672529:  // recieveLegConventionName
-        return getRecieveLegConventionName();
+      case 102594215:  // receiveLegConventionName
+        return getReceiveLegConventionName();
     }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1537399682:  // payLegConventionName
         setPayLegConventionName((String) newValue);
         return;
-      case -1711672529:  // recieveLegConventionName
-        setRecieveLegConventionName((String) newValue);
+      case 102594215:  // receiveLegConventionName
+        setReceiveLegConventionName((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -99,19 +99,19 @@ public class SwapConvention extends Convention {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_payLegConventionName, "payLegConventionName");
-    JodaBeanUtils.notNull(_recieveLegConventionName, "recieveLegConventionName");
+    JodaBeanUtils.notNull(_receiveLegConventionName, "receiveLegConventionName");
     super.validate();
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final SwapConvention other = (SwapConvention) obj;
+      SwapConvention other = (SwapConvention) obj;
       return JodaBeanUtils.equal(getPayLegConventionName(), other.getPayLegConventionName()) &&
-          JodaBeanUtils.equal(getRecieveLegConventionName(), other.getRecieveLegConventionName()) &&
+          JodaBeanUtils.equal(getReceiveLegConventionName(), other.getReceiveLegConventionName()) &&
           super.equals(obj);
     }
     return false;
@@ -121,7 +121,7 @@ public class SwapConvention extends Convention {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getPayLegConventionName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRecieveLegConventionName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveLegConventionName());
     return hash ^ super.hashCode();
   }
 
@@ -138,7 +138,7 @@ public class SwapConvention extends Convention {
    * Sets the payLegConventionName.
    * @param payLegConventionName  the new value of the property, not null
    */
-  public void setPayLegConventionName(final String payLegConventionName) {
+  public void setPayLegConventionName(String payLegConventionName) {
     JodaBeanUtils.notNull(payLegConventionName, "payLegConventionName");
     this._payLegConventionName = payLegConventionName;
   }
@@ -153,28 +153,28 @@ public class SwapConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the recieveLegConventionName.
+   * Gets the receiveLegConventionName.
    * @return the value of the property, not null
    */
-  public String getRecieveLegConventionName() {
-    return _recieveLegConventionName;
+  public String getReceiveLegConventionName() {
+    return _receiveLegConventionName;
   }
 
   /**
-   * Sets the recieveLegConventionName.
-   * @param recieveLegConventionName  the new value of the property, not null
+   * Sets the receiveLegConventionName.
+   * @param receiveLegConventionName  the new value of the property, not null
    */
-  public void setRecieveLegConventionName(final String recieveLegConventionName) {
-    JodaBeanUtils.notNull(recieveLegConventionName, "recieveLegConventionName");
-    this._recieveLegConventionName = recieveLegConventionName;
+  public void setReceiveLegConventionName(String receiveLegConventionName) {
+    JodaBeanUtils.notNull(receiveLegConventionName, "receiveLegConventionName");
+    this._receiveLegConventionName = receiveLegConventionName;
   }
 
   /**
-   * Gets the the {@code recieveLegConventionName} property.
+   * Gets the the {@code receiveLegConventionName} property.
    * @return the property, not null
    */
-  public final Property<String> recieveLegConventionName() {
-    return metaBean().recieveLegConventionName().createProperty(this);
+  public final Property<String> receiveLegConventionName() {
+    return metaBean().receiveLegConventionName().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -193,17 +193,17 @@ public class SwapConvention extends Convention {
     private final MetaProperty<String> _payLegConventionName = DirectMetaProperty.ofReadWrite(
         this, "payLegConventionName", SwapConvention.class, String.class);
     /**
-     * The meta-property for the {@code recieveLegConventionName} property.
+     * The meta-property for the {@code receiveLegConventionName} property.
      */
-    private final MetaProperty<String> _recieveLegConventionName = DirectMetaProperty.ofReadWrite(
-        this, "recieveLegConventionName", SwapConvention.class, String.class);
+    private final MetaProperty<String> _receiveLegConventionName = DirectMetaProperty.ofReadWrite(
+        this, "receiveLegConventionName", SwapConvention.class, String.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "payLegConventionName",
-        "recieveLegConventionName");
+        "receiveLegConventionName");
 
     /**
      * Restricted constructor.
@@ -212,12 +212,12 @@ public class SwapConvention extends Convention {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 1537399682:  // payLegConventionName
           return _payLegConventionName;
-        case -1711672529:  // recieveLegConventionName
-          return _recieveLegConventionName;
+        case 102594215:  // receiveLegConventionName
+          return _receiveLegConventionName;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -247,11 +247,11 @@ public class SwapConvention extends Convention {
     }
 
     /**
-     * The meta-property for the {@code recieveLegConventionName} property.
+     * The meta-property for the {@code receiveLegConventionName} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> recieveLegConventionName() {
-      return _recieveLegConventionName;
+    public final MetaProperty<String> receiveLegConventionName() {
+      return _receiveLegConventionName;
     }
 
   }
