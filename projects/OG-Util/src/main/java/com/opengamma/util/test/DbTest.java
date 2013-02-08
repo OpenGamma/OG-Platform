@@ -167,7 +167,7 @@ public abstract class DbTest implements TableCreationCallback {
   protected static Object[][] getParameters() {
     String databaseType = System.getProperty("test.database.type");
     if (databaseType == null) {
-      databaseType = "postgres";
+      databaseType = "all";
     }
     Collection<String> databaseTypes = TestProperties.getDatabaseTypes(databaseType);
     ArrayList<Object[]> parameters = new ArrayList<Object[]>();
