@@ -5,18 +5,19 @@
  */
 package com.opengamma.financial.convention;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-
-import com.opengamma.id.ExternalIdBundle;
 import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.id.ExternalIdBundle;
 
 /**
  *
@@ -32,7 +33,7 @@ public class VanillaIborLegConvention extends Convention {
    */
   //TODO is this the right type?
   @PropertyDefinition(validate = "notNull")
-  private String _iborIndexName;
+  private String _iborIndexConvention;
 
   /**
    * Is the fixing in advance (true) or in arrears (false).
@@ -59,10 +60,10 @@ public class VanillaIborLegConvention extends Convention {
     super();
   }
 
-  public VanillaIborLegConvention(final String name, final ExternalIdBundle externalIdBundle, final String iborIndexName, final boolean isAdvanceFixing,
+  public VanillaIborLegConvention(final String name, final ExternalIdBundle externalIdBundle, final String iborIndexConvention, final boolean isAdvanceFixing,
       final StubType stubType, final String interpolationMethod) {
     super(name, externalIdBundle);
-    setIborIndexName(iborIndexName);
+    setIborIndexConvention(iborIndexConvention);
     setIsAdvanceFixing(isAdvanceFixing);
     setStubType(stubType);
     setInterpolationMethod(interpolationMethod);
@@ -90,8 +91,8 @@ public class VanillaIborLegConvention extends Convention {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1693079841:  // iborIndexName
-        return getIborIndexName();
+      case -1542426233:  // iborIndexConvention
+        return getIborIndexConvention();
       case 1363941829:  // isAdvanceFixing
         return isIsAdvanceFixing();
       case 1873675528:  // stubType
@@ -105,8 +106,8 @@ public class VanillaIborLegConvention extends Convention {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 1693079841:  // iborIndexName
-        setIborIndexName((String) newValue);
+      case -1542426233:  // iborIndexConvention
+        setIborIndexConvention((String) newValue);
         return;
       case 1363941829:  // isAdvanceFixing
         setIsAdvanceFixing((Boolean) newValue);
@@ -123,7 +124,7 @@ public class VanillaIborLegConvention extends Convention {
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_iborIndexName, "iborIndexName");
+    JodaBeanUtils.notNull(_iborIndexConvention, "iborIndexConvention");
     JodaBeanUtils.notNull(_stubType, "stubType");
     JodaBeanUtils.notNull(_interpolationMethod, "interpolationMethod");
     super.validate();
@@ -136,7 +137,7 @@ public class VanillaIborLegConvention extends Convention {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       VanillaIborLegConvention other = (VanillaIborLegConvention) obj;
-      return JodaBeanUtils.equal(getIborIndexName(), other.getIborIndexName()) &&
+      return JodaBeanUtils.equal(getIborIndexConvention(), other.getIborIndexConvention()) &&
           JodaBeanUtils.equal(isIsAdvanceFixing(), other.isIsAdvanceFixing()) &&
           JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
           JodaBeanUtils.equal(getInterpolationMethod(), other.getInterpolationMethod()) &&
@@ -148,7 +149,7 @@ public class VanillaIborLegConvention extends Convention {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIborIndexName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIborIndexConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(isIsAdvanceFixing());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolationMethod());
@@ -157,28 +158,28 @@ public class VanillaIborLegConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the iborIndexName.
+   * Gets the iborIndexConvention.
    * @return the value of the property, not null
    */
-  public String getIborIndexName() {
-    return _iborIndexName;
+  public String getIborIndexConvention() {
+    return _iborIndexConvention;
   }
 
   /**
-   * Sets the iborIndexName.
-   * @param iborIndexName  the new value of the property, not null
+   * Sets the iborIndexConvention.
+   * @param iborIndexConvention  the new value of the property, not null
    */
-  public void setIborIndexName(String iborIndexName) {
-    JodaBeanUtils.notNull(iborIndexName, "iborIndexName");
-    this._iborIndexName = iborIndexName;
+  public void setIborIndexConvention(String iborIndexConvention) {
+    JodaBeanUtils.notNull(iborIndexConvention, "iborIndexConvention");
+    this._iborIndexConvention = iborIndexConvention;
   }
 
   /**
-   * Gets the the {@code iborIndexName} property.
+   * Gets the the {@code iborIndexConvention} property.
    * @return the property, not null
    */
-  public final Property<String> iborIndexName() {
-    return metaBean().iborIndexName().createProperty(this);
+  public final Property<String> iborIndexConvention() {
+    return metaBean().iborIndexConvention().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -269,10 +270,10 @@ public class VanillaIborLegConvention extends Convention {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code iborIndexName} property.
+     * The meta-property for the {@code iborIndexConvention} property.
      */
-    private final MetaProperty<String> _iborIndexName = DirectMetaProperty.ofReadWrite(
-        this, "iborIndexName", VanillaIborLegConvention.class, String.class);
+    private final MetaProperty<String> _iborIndexConvention = DirectMetaProperty.ofReadWrite(
+        this, "iborIndexConvention", VanillaIborLegConvention.class, String.class);
     /**
      * The meta-property for the {@code isAdvanceFixing} property.
      */
@@ -293,7 +294,7 @@ public class VanillaIborLegConvention extends Convention {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "iborIndexName",
+        "iborIndexConvention",
         "isAdvanceFixing",
         "stubType",
         "interpolationMethod");
@@ -307,8 +308,8 @@ public class VanillaIborLegConvention extends Convention {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1693079841:  // iborIndexName
-          return _iborIndexName;
+        case -1542426233:  // iborIndexConvention
+          return _iborIndexConvention;
         case 1363941829:  // isAdvanceFixing
           return _isAdvanceFixing;
         case 1873675528:  // stubType
@@ -336,11 +337,11 @@ public class VanillaIborLegConvention extends Convention {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code iborIndexName} property.
+     * The meta-property for the {@code iborIndexConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> iborIndexName() {
-      return _iborIndexName;
+    public final MetaProperty<String> iborIndexConvention() {
+      return _iborIndexConvention;
     }
 
     /**
