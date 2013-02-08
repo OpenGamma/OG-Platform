@@ -79,7 +79,7 @@ public class SwapFixedLegConvention extends Convention {
    * The stub type.
    */
   @PropertyDefinition(validate = "notNull")
-  private StubType _stubType = StubType.NONE;
+  private StubType _stubType;
 
   /**
    * For the builder
@@ -121,7 +121,7 @@ public class SwapFixedLegConvention extends Convention {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1331459943:  // paymentPeriod
         return getPaymentPeriod();
@@ -144,7 +144,7 @@ public class SwapFixedLegConvention extends Convention {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1331459943:  // paymentPeriod
         setPaymentPeriod((Period) newValue);
@@ -186,12 +186,12 @@ public class SwapFixedLegConvention extends Convention {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final SwapFixedLegConvention other = (SwapFixedLegConvention) obj;
+      SwapFixedLegConvention other = (SwapFixedLegConvention) obj;
       return JodaBeanUtils.equal(getPaymentPeriod(), other.getPaymentPeriod()) &&
           JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
@@ -232,7 +232,7 @@ public class SwapFixedLegConvention extends Convention {
    * Sets the payment period.
    * @param paymentPeriod  the new value of the property, not null
    */
-  public void setPaymentPeriod(final Period paymentPeriod) {
+  public void setPaymentPeriod(Period paymentPeriod) {
     JodaBeanUtils.notNull(paymentPeriod, "paymentPeriod");
     this._paymentPeriod = paymentPeriod;
   }
@@ -258,7 +258,7 @@ public class SwapFixedLegConvention extends Convention {
    * Sets the day count.
    * @param dayCount  the new value of the property, not null
    */
-  public void setDayCount(final DayCount dayCount) {
+  public void setDayCount(DayCount dayCount) {
     JodaBeanUtils.notNull(dayCount, "dayCount");
     this._dayCount = dayCount;
   }
@@ -284,7 +284,7 @@ public class SwapFixedLegConvention extends Convention {
    * Sets the business day convention.
    * @param businessDayConvention  the new value of the property, not null
    */
-  public void setBusinessDayConvention(final BusinessDayConvention businessDayConvention) {
+  public void setBusinessDayConvention(BusinessDayConvention businessDayConvention) {
     JodaBeanUtils.notNull(businessDayConvention, "businessDayConvention");
     this._businessDayConvention = businessDayConvention;
   }
@@ -310,7 +310,7 @@ public class SwapFixedLegConvention extends Convention {
    * Sets the number of days to settle.
    * @param daysToSettle  the new value of the property
    */
-  public void setDaysToSettle(final int daysToSettle) {
+  public void setDaysToSettle(int daysToSettle) {
     this._daysToSettle = daysToSettle;
   }
 
@@ -335,7 +335,7 @@ public class SwapFixedLegConvention extends Convention {
    * Sets should dates follow the end-of-month rule.
    * @param isEOM  the new value of the property
    */
-  public void setIsEOM(final boolean isEOM) {
+  public void setIsEOM(boolean isEOM) {
     this._isEOM = isEOM;
   }
 
@@ -360,7 +360,7 @@ public class SwapFixedLegConvention extends Convention {
    * Sets the currency.
    * @param currency  the new value of the property, not null
    */
-  public void setCurrency(final Currency currency) {
+  public void setCurrency(Currency currency) {
     JodaBeanUtils.notNull(currency, "currency");
     this._currency = currency;
   }
@@ -386,7 +386,7 @@ public class SwapFixedLegConvention extends Convention {
    * Sets the region calendar.
    * @param regionCalendar  the new value of the property, not null
    */
-  public void setRegionCalendar(final ExternalId regionCalendar) {
+  public void setRegionCalendar(ExternalId regionCalendar) {
     JodaBeanUtils.notNull(regionCalendar, "regionCalendar");
     this._regionCalendar = regionCalendar;
   }
@@ -412,7 +412,7 @@ public class SwapFixedLegConvention extends Convention {
    * Sets the stub type.
    * @param stubType  the new value of the property, not null
    */
-  public void setStubType(final StubType stubType) {
+  public void setStubType(StubType stubType) {
     JodaBeanUtils.notNull(stubType, "stubType");
     this._stubType = stubType;
   }
@@ -496,7 +496,7 @@ public class SwapFixedLegConvention extends Convention {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 1331459943:  // paymentPeriod
           return _paymentPeriod;
