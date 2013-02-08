@@ -14,11 +14,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-
-import com.opengamma.lambdava.functions.Function1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Clock;
@@ -41,15 +36,11 @@ import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.impl.ConfigSearchIterator;
-<<<<<<< HEAD
-import com.opengamma.util.generate.scripts.Scriptable;
-=======
-import com.opengamma.util.functional.Function1;
->>>>>>> develop
 import com.opengamma.util.money.Currency;
 
 /**
@@ -95,11 +86,7 @@ public class CurveNodeHistoricalDataLoader {
 
     final List<LocalDate> dates = buildDates();
 
-<<<<<<< HEAD
-    Set<String> curveNames = functional(curves).map(new Function1<YieldCurveDefinition, String>() {
-=======
-    final Set<String> curveNames = map(new HashSet<String>(), curves, new Function1<YieldCurveDefinition, String>() {
->>>>>>> develop
+    final Set<String> curveNames = functional(curves).map(new Function1<YieldCurveDefinition, String>() {
       @Override
       public String execute(final YieldCurveDefinition yieldCurveDefinition) {
         return yieldCurveDefinition.getName() + "_" + yieldCurveDefinition.getCurrency().getCode();

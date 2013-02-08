@@ -72,6 +72,7 @@ import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.lambdava.tuple.ObjectsPair;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -84,7 +85,6 @@ import com.opengamma.master.security.SecuritySearchSortOrder;
 import com.opengamma.master.security.impl.SecuritySearchIterator;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.generate.scripts.Scriptable;
-import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Create future price curve based on the instruments in security master.

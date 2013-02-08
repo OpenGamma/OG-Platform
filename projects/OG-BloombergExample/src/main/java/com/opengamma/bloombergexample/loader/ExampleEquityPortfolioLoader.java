@@ -14,9 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-import javax.time.calendar.LocalDate;
-
 import com.opengamma.lambdava.functions.Function1;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
