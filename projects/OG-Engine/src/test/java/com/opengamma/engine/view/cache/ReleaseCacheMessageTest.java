@@ -44,7 +44,7 @@ public class ReleaseCacheMessageTest {
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager = new CacheManager();
+    _cacheManager = CacheManager.newInstance();
   }
 
   @AfterMethod

@@ -53,7 +53,7 @@ public class EHCachingMasterConfigSourceTest {
 
   @BeforeMethod
   public void setUp() {
-    _cacheManager = new CacheManager();
+    _cacheManager = CacheManager.newInstance();
     _underlyingConfigMaster = new UnitTestConfigMaster();
     _cachingSource = new EHCachingMasterConfigSource(_underlyingConfigMaster, _cacheManager);
   }
