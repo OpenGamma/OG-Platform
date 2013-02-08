@@ -83,7 +83,7 @@ public class FXOptionFunctionUtils {
     if (spotObject == null) {
       throw new OpenGammaRuntimeException("Could not get spot requirement");
     }
-    final double spot = (Double) spotObject;
+    double spot = (Double) spotObject;
     final CurrencyPair baseQuotePair = baseQuotePairs.getCurrencyPair(putCurrency, callCurrency);
     if (baseQuotePair == null) {
       throw new OpenGammaRuntimeException("Could not get base/quote pair for currency pair (" + putCurrency + ", " + callCurrency + ")");
@@ -98,6 +98,7 @@ public class FXOptionFunctionUtils {
       allCurveNames = new String[] {fullCallCurveName, fullPutCurveName};
       ccy1 = callCurrency;
       ccy2 = putCurrency;
+      spot = 1. / spot;
     }
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(allCurveNames, curves);
     final Object volatilitySurfaceObject = inputs.getValue(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA);
