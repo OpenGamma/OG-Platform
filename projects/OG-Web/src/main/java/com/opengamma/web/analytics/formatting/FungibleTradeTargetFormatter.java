@@ -5,22 +5,33 @@
  */
 package com.opengamma.web.analytics.formatting;
 
+import java.util.Map;
+
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.web.analytics.FungibleTradeTarget;
 
 /* package */ class FungibleTradeTargetFormatter extends AbstractFormatter<FungibleTradeTarget> {
 
+  /** JSON key */
   private static final String NAME = "name";
-  private static final String ID = "id";
+  /** JSON key */
+  private static final String NODE_ID = "nodeId";
+  /** JSON key */
+  private static final String POSITION_ID = "positionId";
+  /** JSON key */
+  private static final String TRADE_ID = "tradeId";
 
   /* package */  FungibleTradeTargetFormatter() {
     super(FungibleTradeTarget.class);
   }
 
   @Override
-  public Object formatCell(FungibleTradeTarget trade, ValueSpecification valueSpec) {
-    return ImmutableMap.of(NAME, trade.getName(), ID, trade.getId().getObjectId());
+  public Map<String, Object> formatCell(FungibleTradeTarget target, ValueSpecification valueSpec) {
+    return ImmutableMap.<String, Object>of(NAME, target.getName(),
+                                           NODE_ID, target.getNodeId().getObjectId(),
+                                           POSITION_ID, target.getPositionId().getObjectId(),
+                                           TRADE_ID, target.getTradeId().getObjectId());
   }
 
   @Override

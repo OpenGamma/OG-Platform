@@ -188,7 +188,13 @@ public class ForwardFunctions extends AbstractRepositoryConfigurationBean {
       final String[] args = new String[getPerCurrencyPairInfo().size() * 3];
       int i = 0;
       for (final Map.Entry<Pair<String, String>, CurrencyPairInfo> e : getPerCurrencyPairInfo().entrySet()) {
-        args[i++] = e.getKey().getFirst() + e.getKey().getSecond();
+        final String ccy1 = e.getKey().getFirst();
+        final String ccy2 = e.getKey().getSecond();
+        if (ccy1.compareTo(ccy2) <= 0) {
+          args[i++] = ccy1 + ccy2;
+        } else {
+          args[i++] = ccy2 + ccy1;
+        }
         args[i++] = e.getValue().getCurveName();
         args[i++] = e.getValue().getCurveCalculationMethod();
       }

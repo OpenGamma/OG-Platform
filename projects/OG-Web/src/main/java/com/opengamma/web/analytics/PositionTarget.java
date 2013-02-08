@@ -12,7 +12,18 @@ import com.opengamma.id.UniqueId;
  */
 public class PositionTarget extends RowTarget {
 
-  /* package */ PositionTarget(String name, UniqueId id) {
-    super(name, id);
+  /** The position ID */
+  private final UniqueId _positionId;
+
+  /* package */ PositionTarget(String name, UniqueId nodeId, UniqueId positionId) {
+    super(name, nodeId);
+    _positionId = positionId;
+  }
+
+  /**
+   * @return The position ID
+   */
+  public UniqueId getPositionId() {
+    return _positionId;
   }
 }

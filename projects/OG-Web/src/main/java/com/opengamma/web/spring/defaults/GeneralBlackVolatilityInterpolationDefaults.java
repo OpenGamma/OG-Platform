@@ -43,7 +43,7 @@ public class GeneralBlackVolatilityInterpolationDefaults {
     SPLINE_INTERPOLATION_DEFAULTS.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
     SPLINE_INTERPOLATION_DEFAULTS.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     SPLINE_INTERPOLATION_DEFAULTS.add(Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
-    SPLINE_INTERPOLATION_DEFAULTS.add(BlackVolatilitySurfacePropertyNamesAndValues.QUIET_SPLINE_EXTRAPOLATOR_FAILURE);
+    SPLINE_INTERPOLATION_DEFAULTS.add(BlackVolatilitySurfacePropertyNamesAndValues.FLAT_SPLINE_EXTRAPOLATOR_FAILURE);
   }
   
   /**
