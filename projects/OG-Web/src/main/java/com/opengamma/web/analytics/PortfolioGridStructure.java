@@ -122,7 +122,9 @@ public final class PortfolioGridStructure extends MainGridStructure {
           columns.add(GridColumn.forKey(columnSpec, columnType, targetLookup));
         }
       }
-      columnGroups.add(new GridColumnGroup(calcConfig.getName(), columns, true));
+      if (!columns.isEmpty()) {
+        columnGroups.add(new GridColumnGroup(calcConfig.getName(), columns, true));
+      }
     }
     return columnGroups;
   }
@@ -221,10 +223,13 @@ public final class PortfolioGridStructure extends MainGridStructure {
 
   /** The row's security, null if the row represents a node in the portfolio structure. */
   private final Security _security;
-  /** The row's quantity, null for row's that don't represent a position. */
+  /** The row's quantity, null for row's that don't represent a position or trade. */
   private final BigDecimal _quantity;
+  /** The node ID of the row (if it's a noderow ) or its parent node (if it's a position or trade row). */
   private final UniqueId _nodeId;
+  /** The position ID of the row (if it's a position row) or its parent position (if it's a trade row). */
   private final UniqueId _positionId;
+  /** The row's trade ID (if it's a trade row). */
   private final UniqueId _tradeId;
 
   // TODO nodeId, positionId, tradeId

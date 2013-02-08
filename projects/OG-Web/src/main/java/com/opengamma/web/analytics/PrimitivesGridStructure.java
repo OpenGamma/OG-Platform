@@ -45,8 +45,7 @@ public final class PrimitivesGridStructure extends MainGridStructure {
     GridColumn labelColumn = new GridColumn("Label", "", String.class, new PrimitivesLabelRenderer(rows));
     GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn), false);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
-    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(),
-                                                                         targetLookup);
+    List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), targetLookup);
     List<GridColumnGroup> groups = Lists.newArrayList(fixedColumns);
     groups.addAll(analyticsColumns);
     return new PrimitivesGridStructure(new GridColumnGroups(groups), targetLookup);
@@ -65,7 +64,9 @@ public final class PrimitivesGridStructure extends MainGridStructure {
           columns.add(GridColumn.forKey(columnSpec, columnType, targetLookup));
         }
       }
-      columnGroups.add(new GridColumnGroup(calcConfig.getName(), columns, true));
+      if (!columns.isEmpty()) {
+        columnGroups.add(new GridColumnGroup(calcConfig.getName(), columns, true));
+      }
     }
     return columnGroups;
   }
