@@ -48,13 +48,13 @@ public class IborIndexConvention extends Convention {
   /**
    * The number of days to settle.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private int _daysToSettle;
 
   /**
-   * Should the schedule be generated using EOM.
+   * Should dates follow the end-of-month rule.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private boolean _isEOM;
 
   /**
@@ -190,8 +190,6 @@ public class IborIndexConvention extends Convention {
   protected void validate() {
     JodaBeanUtils.notNull(_dayCount, "dayCount");
     JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
-    JodaBeanUtils.notNull(_daysToSettle, "daysToSettle");
-    JodaBeanUtils.notNull(_isEOM, "isEOM");
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_fixingTime, "fixingTime");
     JodaBeanUtils.notNull(_fixingCalendar, "fixingCalendar");
@@ -291,7 +289,7 @@ public class IborIndexConvention extends Convention {
   //-----------------------------------------------------------------------
   /**
    * Gets the number of days to settle.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public int getDaysToSettle() {
     return _daysToSettle;
@@ -299,10 +297,9 @@ public class IborIndexConvention extends Convention {
 
   /**
    * Sets the number of days to settle.
-   * @param daysToSettle  the new value of the property, not null
+   * @param daysToSettle  the new value of the property
    */
   public void setDaysToSettle(int daysToSettle) {
-    JodaBeanUtils.notNull(daysToSettle, "daysToSettle");
     this._daysToSettle = daysToSettle;
   }
 
@@ -316,19 +313,18 @@ public class IborIndexConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets should the schedule be generated using EOM.
-   * @return the value of the property, not null
+   * Gets should dates follow the end-of-month rule.
+   * @return the value of the property
    */
   public boolean isIsEOM() {
     return _isEOM;
   }
 
   /**
-   * Sets should the schedule be generated using EOM.
-   * @param isEOM  the new value of the property, not null
+   * Sets should dates follow the end-of-month rule.
+   * @param isEOM  the new value of the property
    */
   public void setIsEOM(boolean isEOM) {
-    JodaBeanUtils.notNull(isEOM, "isEOM");
     this._isEOM = isEOM;
   }
 
