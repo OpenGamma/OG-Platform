@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.convention;
 
-import java.io.Serializable;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -14,9 +13,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalTime;
@@ -24,13 +21,14 @@ import org.threeten.bp.LocalTime;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
  *
  */
 @BeanDefinition
-public class IborIndexConvention extends DirectBean implements Serializable {
+public class IborIndexConvention extends Convention {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -93,10 +91,13 @@ public class IborIndexConvention extends DirectBean implements Serializable {
    * For the builder
    */
   public IborIndexConvention() {
+    super();
   }
 
-  public IborIndexConvention(final DayCount dayCount, final BusinessDayConvention businessDayConvention, final int daysToSettle, final boolean isEOM,
-      final Currency currency, final LocalTime fixingTime, final ExternalId fixingCalendar, final ExternalId regionCalendar, final String fixingPage) {
+  public IborIndexConvention(final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
+      final int daysToSettle, final boolean isEOM, final Currency currency, final LocalTime fixingTime, final ExternalId fixingCalendar,
+      final ExternalId regionCalendar, final String fixingPage) {
+    super(name, externalIdBundle);
     setDayCount(dayCount);
     setBusinessDayConvention(businessDayConvention);
     setDaysToSettle(daysToSettle);
@@ -127,7 +128,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1905311443:  // dayCount
         return getDayCount();
@@ -152,7 +153,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1905311443:  // dayCount
         setDayCount((DayCount) newValue);
@@ -200,12 +201,12 @@ public class IborIndexConvention extends DirectBean implements Serializable {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final IborIndexConvention other = (IborIndexConvention) obj;
+      IborIndexConvention other = (IborIndexConvention) obj;
       return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
           JodaBeanUtils.equal(getDaysToSettle(), other.getDaysToSettle()) &&
@@ -214,14 +215,15 @@ public class IborIndexConvention extends DirectBean implements Serializable {
           JodaBeanUtils.equal(getFixingTime(), other.getFixingTime()) &&
           JodaBeanUtils.equal(getFixingCalendar(), other.getFixingCalendar()) &&
           JodaBeanUtils.equal(getRegionCalendar(), other.getRegionCalendar()) &&
-          JodaBeanUtils.equal(getFixingPage(), other.getFixingPage());
+          JodaBeanUtils.equal(getFixingPage(), other.getFixingPage()) &&
+          super.equals(obj);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
+    int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDaysToSettle());
@@ -231,7 +233,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingPage());
-    return hash;
+    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -247,7 +249,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
    * Sets the day count.
    * @param dayCount  the new value of the property, not null
    */
-  public void setDayCount(final DayCount dayCount) {
+  public void setDayCount(DayCount dayCount) {
     JodaBeanUtils.notNull(dayCount, "dayCount");
     this._dayCount = dayCount;
   }
@@ -273,7 +275,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
    * Sets the business day convention.
    * @param businessDayConvention  the new value of the property, not null
    */
-  public void setBusinessDayConvention(final BusinessDayConvention businessDayConvention) {
+  public void setBusinessDayConvention(BusinessDayConvention businessDayConvention) {
     JodaBeanUtils.notNull(businessDayConvention, "businessDayConvention");
     this._businessDayConvention = businessDayConvention;
   }
@@ -299,7 +301,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
    * Sets the number of days to settle.
    * @param daysToSettle  the new value of the property, not null
    */
-  public void setDaysToSettle(final int daysToSettle) {
+  public void setDaysToSettle(int daysToSettle) {
     JodaBeanUtils.notNull(daysToSettle, "daysToSettle");
     this._daysToSettle = daysToSettle;
   }
@@ -325,7 +327,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
    * Sets should the schedule be generated using EOM.
    * @param isEOM  the new value of the property, not null
    */
-  public void setIsEOM(final boolean isEOM) {
+  public void setIsEOM(boolean isEOM) {
     JodaBeanUtils.notNull(isEOM, "isEOM");
     this._isEOM = isEOM;
   }
@@ -351,7 +353,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
    * Sets the currency.
    * @param currency  the new value of the property, not null
    */
-  public void setCurrency(final Currency currency) {
+  public void setCurrency(Currency currency) {
     JodaBeanUtils.notNull(currency, "currency");
     this._currency = currency;
   }
@@ -377,7 +379,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
    * Sets the fixing time.
    * @param fixingTime  the new value of the property, not null
    */
-  public void setFixingTime(final LocalTime fixingTime) {
+  public void setFixingTime(LocalTime fixingTime) {
     JodaBeanUtils.notNull(fixingTime, "fixingTime");
     this._fixingTime = fixingTime;
   }
@@ -403,7 +405,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
    * Sets the fixing calendar.
    * @param fixingCalendar  the new value of the property, not null
    */
-  public void setFixingCalendar(final ExternalId fixingCalendar) {
+  public void setFixingCalendar(ExternalId fixingCalendar) {
     JodaBeanUtils.notNull(fixingCalendar, "fixingCalendar");
     this._fixingCalendar = fixingCalendar;
   }
@@ -429,7 +431,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
    * Sets the region calendar.
    * @param regionCalendar  the new value of the property, not null
    */
-  public void setRegionCalendar(final ExternalId regionCalendar) {
+  public void setRegionCalendar(ExternalId regionCalendar) {
     JodaBeanUtils.notNull(regionCalendar, "regionCalendar");
     this._regionCalendar = regionCalendar;
   }
@@ -455,7 +457,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
    * Sets the fixing page information.
    * @param fixingPage  the new value of the property, not null
    */
-  public void setFixingPage(final String fixingPage) {
+  public void setFixingPage(String fixingPage) {
     JodaBeanUtils.notNull(fixingPage, "fixingPage");
     this._fixingPage = fixingPage;
   }
@@ -472,7 +474,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
   /**
    * The meta-bean for {@code IborIndexConvention}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta extends Convention.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -527,7 +529,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "dayCount",
         "businessDayConvention",
         "daysToSettle",
@@ -545,7 +547,7 @@ public class IborIndexConvention extends DirectBean implements Serializable {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 1905311443:  // dayCount
           return _dayCount;
