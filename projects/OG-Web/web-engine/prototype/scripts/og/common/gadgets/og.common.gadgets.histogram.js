@@ -19,6 +19,7 @@ $.register_module({
                 try {histogram.resize();} catch (error) {}
             };
             prepare_data = function (data) {
+                console.log(data);
                 stripped = data.timeseries.data.reduce(function(a,b){return a.concat(b[1]);},[]);
             };
             histogram_data = function () {
@@ -51,7 +52,7 @@ $.register_module({
                     diff +=  (value-mu)*(value-mu);
                 });
                 sigma = Math.sqrt(diff/(stripped.length-1));
-                stripped.sort();
+                //stripped.sort();
                 $.each(stripped, function(index, value){
                     norm.push([value, (normpdf(value, mu, sigma, constant))]);
                 });
