@@ -513,9 +513,9 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         }
         final String idScheme = rs.getString("KEY_SCHEME");
         final String idValue = rs.getString("KEY_VALUE");
-        final LocalDate validFrom = DbDateUtils.fromSqlDateNullFarPast(rs.getDate("KEY_VALID_FROM"));
-        final LocalDate validTo = DbDateUtils.fromSqlDateNullFarFuture(rs.getDate("KEY_VALID_TO"));
         if (idScheme != null && idValue != null) {
+          final LocalDate validFrom = DbDateUtils.fromSqlDateNullFarPast(rs.getDate("KEY_VALID_FROM"));
+          final LocalDate validTo = DbDateUtils.fromSqlDateNullFarFuture(rs.getDate("KEY_VALID_TO"));
           ExternalIdWithDates id = ExternalIdWithDates.of(ExternalId.of(idScheme, idValue), validFrom, validTo);
           _info.setExternalIdBundle(_info.getExternalIdBundle().withExternalId(id));
         }
