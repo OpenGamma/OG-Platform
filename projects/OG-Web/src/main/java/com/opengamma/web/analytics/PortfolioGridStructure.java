@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -185,13 +186,21 @@ public final class PortfolioGridStructure extends MainGridStructure {
         Security security = position.getSecurity();
         List<PortfolioGridRow> rows = Lists.newArrayList();
         UniqueId nodeId = parentNode.getUniqueId();
-        rows.add(new PortfolioGridRow(target, security.getName(), security, position.getQuantity(), nodeId, positionId));
-        // only add rows for trades in fungible securities, OTC trades and positions are shown as a single row
         if (isFungible(position.getSecurity())) {
+          rows.add(new PortfolioGridRow(target, security.getName(), security, position.getQuantity(), nodeId, positionId));
           for (Trade trade : position.getTrades()) {
             String tradeDate = trade.getTradeDate().toString();
             rows.add(new PortfolioGridRow(ComputationTargetSpecification.of(trade), tradeDate, security, trade.getQuantity(),
                                           nodeId, positionId, trade.getUniqueId()));
+          }
+        } else {
+          Collection<Trade> trades = position.getTrades();
+          if (trades.isEmpty()) {
+            rows.add(new PortfolioGridRow(target, security.getName(), security, position.getQuantity(), nodeId, positionId));
+          } else {
+            // there is never more than one trade on a position in an OTC security
+            UniqueId tradeId = trades.iterator().next().getUniqueId();
+            rows.add(new PortfolioGridRow(target, security.getName(), security, position.getQuantity(), nodeId, positionId, tradeId));
           }
         }
         return rows;
@@ -231,8 +240,6 @@ public final class PortfolioGridStructure extends MainGridStructure {
   private final UniqueId _positionId;
   /** The row's trade ID (if it's a trade row). */
   private final UniqueId _tradeId;
-
-  // TODO nodeId, positionId, tradeId
 
   /**
    * For rows representing portfolio nodes which have no security or quantity
