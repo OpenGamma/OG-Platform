@@ -9,12 +9,14 @@ import com.opengamma.master.orgs.impl.DataOrganisationMasterResource;
 import com.opengamma.masterdb.TimeOverrideRequest;
 import com.opengamma.util.ArgumentChecker;
 
-import javax.time.TimeSource;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
+
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZoneId;
 
 /**
  * RESTful resource for organisations.
@@ -50,9 +52,9 @@ public class DataDbOrganisationMasterResource extends DataOrganisationMasterReso
   public Response setTimeOverride(final TimeOverrideRequest doc) {
     ArgumentChecker.notNull(doc, "doc");
     if (doc.getTimeOverride() == null) {
-      getDbOrganisationMaster().resetTimeSource();
+      getDbOrganisationMaster().resetClock();
     } else {
-      getDbOrganisationMaster().setTimeSource(TimeSource.fixed(doc.getTimeOverride()));
+      getDbOrganisationMaster().setClock(Clock.fixed(doc.getTimeOverride(), ZoneId.of("UTC")));
     }
     return responseOk();
   }

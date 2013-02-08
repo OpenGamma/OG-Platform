@@ -8,9 +8,6 @@ package com.opengamma.masterdb.org;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import java.util.Arrays;
-
-import javax.time.calendar.LocalDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +27,6 @@ import com.opengamma.master.orgs.ManageableOrganisation;
 import com.opengamma.master.orgs.OrganisationDocument;
 import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.masterdb.orgs.DbOrganisationMaster;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.DbTest;
 
 /**
@@ -72,7 +68,7 @@ public class DbOrganisationMasterTest extends DbTest {
     assertNotNull(_orgMaster);
     assertEquals(true, _orgMaster.getUniqueIdScheme().equals("DbOrg"));
     assertNotNull(_orgMaster.getDbConnector());
-    assertNotNull(_orgMaster.getTimeSource());
+    assertNotNull(_orgMaster.getClock());
   }
 
 

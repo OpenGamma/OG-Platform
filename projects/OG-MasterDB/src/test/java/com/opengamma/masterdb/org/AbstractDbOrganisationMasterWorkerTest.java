@@ -27,9 +27,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-
-import javax.time.Instant;
-import javax.time.TimeSource;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneId;
 
 import static com.opengamma.util.db.DbDateUtils.MAX_SQL_TIMESTAMP;
 import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
@@ -99,7 +99,7 @@ public abstract class AbstractDbOrganisationMasterWorkerTest extends DbTest {
 //    obligor_has_defaulted                        smallint NOT NULL,
 
     Instant now = Instant.now();
-    _orgMaster.setTimeSource(TimeSource.fixed(now));
+    _orgMaster.setClock(Clock.fixed(now, ZoneId.of("UTC")));
     _version1Instant = now.minusSeconds(100);
     _version2Instant = now.minusSeconds(50);
     s_logger.debug("test data now:   {}", _version1Instant);

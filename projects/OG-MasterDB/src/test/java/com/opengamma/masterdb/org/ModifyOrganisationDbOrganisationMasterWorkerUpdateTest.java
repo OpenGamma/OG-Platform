@@ -7,14 +7,11 @@ package com.opengamma.masterdb.org;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.BadSqlGrammarException;
-import org.testng.Assert;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.obligor.CreditRating;
@@ -23,14 +20,11 @@ import com.opengamma.core.obligor.CreditRatingMoodys;
 import com.opengamma.core.obligor.CreditRatingStandardAndPoors;
 import com.opengamma.core.obligor.Region;
 import com.opengamma.core.obligor.Sector;
-import com.opengamma.elsql.ElSqlBundle;
-import com.opengamma.elsql.ElSqlConfig;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.orgs.ManageableOrganisation;
 import com.opengamma.master.orgs.OrganisationDocument;
 import com.opengamma.master.orgs.OrganisationHistoryRequest;
 import com.opengamma.master.orgs.OrganisationHistoryResult;
-import com.opengamma.masterdb.orgs.DbOrganisationMaster;
 import com.opengamma.util.test.DbTest;
 
 /**
@@ -123,7 +117,7 @@ public class ModifyOrganisationDbOrganisationMasterWorkerUpdateTest extends Abst
 
   @Test
   public void test_update_getUpdateGet() {
-    Instant now = Instant.now(_orgMaster.getTimeSource());
+    Instant now = Instant.now(_orgMaster.getClock());
 
     UniqueId uniqueId = UniqueId.of("DbOrg", "101", "0");
     OrganisationDocument base = _orgMaster.get(uniqueId);

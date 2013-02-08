@@ -26,12 +26,10 @@ import com.opengamma.master.orgs.OrganisationSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
 import org.joda.beans.JodaBeanUtils;
+import org.threeten.bp.Instant;
 
-import javax.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * An in-memory implementation of a organisation master.
