@@ -15,6 +15,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
+import com.opengamma.analytics.financial.interestrate.CompoundingType;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -199,6 +200,22 @@ public final class Converters {
       StubType.valueOf(name);
     } catch (IllegalArgumentException e) {
       throw new OpenGammaRuntimeException("Bad value for stub type (" + name + ")");
+    }
+  }
+  
+  public static CompoundingType compoundingTypeBeanToCompoundingType(final CompoundingTypeBean compoundingTypeBean) {
+    if (compoundingTypeBean == null) {
+      return null;
+    }
+    validateCompoundingType(compoundingTypeBean.getName());
+    return CompoundingType.valueOf(compoundingTypeBean.getName());
+  }
+  
+  private static void validateCompoundingType(final String name) {
+    try {
+      CompoundingType.valueOf(name);      
+    } catch (IllegalArgumentException e) {
+      throw new OpenGammaRuntimeException("Bad value for compounding type (" + name + ")");
     }
   }
   

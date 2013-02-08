@@ -113,6 +113,8 @@ public interface HibernateSecurityMasterDao {
   
   StubTypeBean getOrCreateStubTypeBean(String name);
   
+  CompoundingTypeBean getOrCreateCompoundingTypeBean(String name);
+  
   DebtSeniorityBean getOrCreateDebtSeniorityBean(String name);
   
   RestructuringClauseBean getOrCreateRestructuringCleanBean(String name);

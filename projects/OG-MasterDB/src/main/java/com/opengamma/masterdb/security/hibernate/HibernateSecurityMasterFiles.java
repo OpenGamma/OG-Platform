@@ -58,6 +58,7 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       ExchangeBean.class,
       FrequencyBean.class,
       StubTypeBean.class,
+      CompoundingTypeBean.class,
       IdentifierAssociationBean.class,
       DebtSeniorityBean.class,
       RestructuringClauseBean.class,
