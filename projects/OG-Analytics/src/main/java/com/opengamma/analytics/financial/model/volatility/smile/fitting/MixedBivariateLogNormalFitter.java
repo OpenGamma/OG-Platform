@@ -109,7 +109,7 @@ public class MixedBivariateLogNormalFitter {
     double rho = 0.;
     _shift = 0;
     boolean done = false;
-    double[] paramsJump = new double[_nData];
+    double[] paramsJump = new double[_nParams];
 
     _gradM = exactFunctionDerivative(_paramsGuess);
     _dataDerivedYDiff = exactFunctionValue(_paramsGuess);
