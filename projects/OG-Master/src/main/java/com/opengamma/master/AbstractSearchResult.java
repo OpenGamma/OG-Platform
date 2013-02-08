@@ -67,11 +67,20 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code AbstractSearchResult}.
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("rawtypes")
+  public static AbstractSearchResult.Meta meta() {
+    return AbstractSearchResult.Meta.INSTANCE;
+  }
+  /**
+   * The meta-bean for {@code AbstractSearchResult}.
    * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R extends AbstractDocument> AbstractSearchResult.Meta<R> meta() {
+  public static <R extends AbstractDocument> AbstractSearchResult.Meta<R> metaAbstractSearchResult(Class<R> cls) {
     return AbstractSearchResult.Meta.INSTANCE;
   }
   static {

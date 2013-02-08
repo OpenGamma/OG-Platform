@@ -7,7 +7,6 @@ package com.opengamma.engine.function.dsl.functions;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.dsl.FunctionInput;
@@ -16,6 +15,7 @@ import com.opengamma.engine.function.dsl.FunctionSignature;
 import com.opengamma.engine.function.dsl.TargetSpecificationReference;
 import com.opengamma.engine.function.dsl.properties.RecordingValueProperties;
 import com.opengamma.engine.function.dsl.properties.ValuePropertiesModifier;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;

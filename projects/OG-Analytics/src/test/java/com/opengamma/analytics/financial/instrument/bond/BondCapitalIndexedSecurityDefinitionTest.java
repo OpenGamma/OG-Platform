@@ -8,11 +8,12 @@ package com.opengamma.analytics.financial.instrument.bond;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
@@ -44,7 +45,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 public class BondCapitalIndexedSecurityDefinitionTest {
   // Index-Linked Gilt 2% Index-linked Treasury Stock 2035 - GB0031790826
   private static final String NAME_INDEX_UK = "UK RPI";
-  private static final Period LAG_INDEX_UK = Period.ofDays(14);
+  private static final Period LAG_INDEX_UK = Period.of(14, DAYS);
   private static final IndexPrice PRICE_INDEX_UKRPI = new IndexPrice(NAME_INDEX_UK, Currency.GBP, Currency.GBP, LAG_INDEX_UK);
   private static final Calendar CALENDAR_GBP = new MondayToFridayCalendar("GBP");
   private static final BusinessDayConvention BUSINESS_DAY_GBP = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -58,7 +59,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   private static final double INDEX_START_GILT_1 = 173.60; // November 2001 
   private static final double NOTIONAL_GILT_1 = 1.00;
   private static final double REAL_RATE_GILT_1 = 0.02;
-  private static final Period COUPON_PERIOD_GILT_1 = Period.ofMonths(6);
+  private static final Period COUPON_PERIOD_GILT_1 = Period.of(6, MONTHS);
   private static final int COUPON_PER_YEAR_GILT_1 = 2;
   private static final int SETTLEMENT_DAYS_GILT_1 = 2;
   private static final String ISSUER_UK = "UK GOVT";
@@ -178,7 +179,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
 
   // 2% 10-YEAR TREASURY INFLATION-PROTECTED SECURITIES (TIPS) Due January 15, 2016 - US912828ET33
   private static final String NAME_INDEX_US = "US CPI-U";
-  private static final Period LAG_INDEX_US = Period.ofDays(14);
+  private static final Period LAG_INDEX_US = Period.of(14, DAYS);
   private static final IndexPrice PRICE_INDEX_USCPI = new IndexPrice(NAME_INDEX_US, Currency.USD, Currency.USD, LAG_INDEX_US);
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD");
   private static final BusinessDayConvention BUSINESS_DAY_USD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
@@ -191,7 +192,7 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   private static final double INDEX_START_TIPS_1 = 198.47742; // Date: 
   private static final double NOTIONAL_TIPS_1 = 100.00;
   private static final double REAL_RATE_TIPS_1 = 0.02;
-  private static final Period COUPON_PERIOD_TIPS_1 = Period.ofMonths(6);
+  private static final Period COUPON_PERIOD_TIPS_1 = Period.of(6, MONTHS);
   private static final int SETTLEMENT_DAYS_TIPS_1 = 2;
   private static final String ISSUER_US = "US GOVT";
 

@@ -8,7 +8,6 @@ package com.opengamma.analytics.math.rootfinding;
 
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
-import static com.opengamma.analytics.math.rootfinding.YieldCurveFittingSetup.FX_MATRIX;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;

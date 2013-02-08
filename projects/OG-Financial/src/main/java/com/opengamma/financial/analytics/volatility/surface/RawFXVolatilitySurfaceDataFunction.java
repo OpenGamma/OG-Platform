@@ -5,93 +5,76 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.CompiledFunctionDefinition;
-import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- *
+ * Constructs volatility surface data objects for FX options if the target is an unordered currency pair.
  */
 public class RawFXVolatilitySurfaceDataFunction extends RawVolatilitySurfaceDataFunction {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(RawFXVolatilitySurfaceDataFunction.class);
 
+  /**
+   * Default constructor
+   */
   public RawFXVolatilitySurfaceDataFunction() {
     super(InstrumentTypeProperties.FOREX);
   }
 
   @Override
-  public boolean isCorrectIdType(final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      s_logger.error("Target unique id was null {}", target);
-      return false;
-    }
-    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
-  }
-
-  @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext myContext, final InstantProvider atInstantProvider) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(myContext);
-    final ConfigDBVolatilitySurfaceDefinitionSource definitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
-    final ConfigDBVolatilitySurfaceSpecificationSource specificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    return new FXVolatilitySurfaceCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000), atInstant, definitionSource, specificationSource);
+  protected ComputationTargetType getTargetType() {
+    return ComputationTargetType.UNORDERED_CURRENCY_PAIR;
   }
 
   /**
-   * Implementation of the compiled function
+   * Tries the unordered currency pair both ways. If the target is UnorderedCurrencyPair~EURUSD, and the surface name is OPENGAMMA, will look for
+   * OPENGAMMA_EURUSD_FX_VANILLA_OPTION and OPENGAMMA_USDEUR_FX_VANILLA_OPTION.
+   * {@inheritDoc}
    */
-  protected class FXVolatilitySurfaceCompiledFunction extends CompiledFunction {
-
-    public FXVolatilitySurfaceCompiledFunction(final ZonedDateTime from, final ZonedDateTime to, final ZonedDateTime now,
-        final ConfigDBVolatilitySurfaceDefinitionSource definitionSource, final ConfigDBVolatilitySurfaceSpecificationSource specificationSource) {
-      super(from, to, now, definitionSource, specificationSource);
-    }
-
-    @Override
-    protected VolatilitySurfaceDefinition<Object, Object> getSurfaceDefinition(final ComputationTarget target, final String definitionName, final String instrumentType) {
-      final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(target.getUniqueId());
-      String name = pair.getFirstCurrency().getCode() + pair.getSecondCurrency().getCode();
-      String fullDefinitionName = definitionName + "_" + name;
-      VolatilitySurfaceDefinition<Object, Object> definition = (VolatilitySurfaceDefinition<Object, Object>) getDefinitionSource().getDefinition(fullDefinitionName, instrumentType);
+  @Override
+  protected VolatilitySurfaceDefinition<?, ?> getDefinition(final VolatilitySurfaceDefinitionSource definitionSource, final ComputationTarget target, final String definitionName) {
+    final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(target.getUniqueId());
+    String name = pair.getFirstCurrency().getCode() + pair.getSecondCurrency().getCode();
+    String fullDefinitionName = definitionName + "_" + name;
+    VolatilitySurfaceDefinition<?, ?> definition = definitionSource.getDefinition(fullDefinitionName, InstrumentTypeProperties.FOREX);
+    if (definition == null) {
+      name = pair.getSecondCurrency().getCode() + pair.getFirstCurrency().getCode();
+      fullDefinitionName = definitionName + "_" + name;
+      definition = definitionSource.getDefinition(fullDefinitionName, InstrumentTypeProperties.FOREX);
       if (definition == null) {
-        name = pair.getSecondCurrency().getCode() + pair.getFirstCurrency().getCode();
-        fullDefinitionName = definitionName + "_" + name;
-        definition = (VolatilitySurfaceDefinition<Object, Object>) getDefinitionSource().getDefinition(fullDefinitionName, instrumentType);
-        if (definition == null) {
-          s_logger.error("Could not get volatility surface definition named " + fullDefinitionName + " for instrument type " + instrumentType);
-          return null;
-        }
+        s_logger.error("Could not get volatility surface definition named " + fullDefinitionName + " for instrument type " + InstrumentTypeProperties.FOREX);
+        return null;
       }
-      return definition;
     }
+    return definition;
+  }
 
-    @Override
-    protected VolatilitySurfaceSpecification getSurfaceSpecification(final ComputationTarget target, final String specificationName, final String instrumentType) {
-      final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(target.getUniqueId());
-      String name = pair.getFirstCurrency().getCode() + pair.getSecondCurrency().getCode();
-      String fullSpecificationName = specificationName + "_" + name;
-      VolatilitySurfaceSpecification specification = getSpecificationSource().getSpecification(fullSpecificationName, instrumentType);
+  /**
+   * Tries the unordered currency pair both ways. If the target is UnorderedCurrencyPair~EURUSD, and the surface name is OPENGAMMA, will look for
+   * OPENGAMMA_EURUSD_FX_VANILLA_OPTION and OPENGAMMA_USDEUR_FX_VANILLA_OPTION.
+   * {@inheritDoc}
+   */
+  @Override
+  protected VolatilitySurfaceSpecification getSpecification(final VolatilitySurfaceSpecificationSource specificationSource, final ComputationTarget target, final String specificationName) {
+    final UnorderedCurrencyPair pair = UnorderedCurrencyPair.of(target.getUniqueId());
+    String name = pair.getFirstCurrency().getCode() + pair.getSecondCurrency().getCode();
+    String fullSpecificationName = specificationName + "_" + name;
+    VolatilitySurfaceSpecification specification = specificationSource.getSpecification(fullSpecificationName, InstrumentTypeProperties.FOREX);
+    if (specification == null) {
+      name = pair.getSecondCurrency().getCode() + pair.getFirstCurrency().getCode();
+      fullSpecificationName = specificationName + "_" + name;
+      specification = specificationSource.getSpecification(fullSpecificationName, InstrumentTypeProperties.FOREX);
       if (specification == null) {
-        name = pair.getSecondCurrency().getCode() + pair.getFirstCurrency().getCode();
-        fullSpecificationName = specificationName + "_" + name;
-        specification = getSpecificationSource().getSpecification(fullSpecificationName, instrumentType);
-        if (specification == null) {
-          s_logger.error("Could not get volatility surface specification named " + fullSpecificationName);
-          return null;
-        }
+        s_logger.error("Could not get volatility surface specification named " + fullSpecificationName + " for instrument type " + InstrumentTypeProperties.FOREX);
+        return null;
       }
-      return specification;
     }
+    return specification;
   }
 }

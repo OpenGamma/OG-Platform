@@ -23,7 +23,7 @@ CConnectionPipe::CConnectionPipe (CNamedPipe *poPipe, unsigned long dwReadTimeou
 	m_dwReadTimeout = dwReadTimeout;
 }
 
-/// Destroys the IPX connection.
+/// Destroys the IPC connection.
 CConnectionPipe::~CConnectionPipe () {
 	LOGDEBUG (TEXT ("Destroying connection pipe"));
 	delete m_poPipe;

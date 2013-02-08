@@ -44,8 +44,8 @@ public abstract class DbTest implements TableCreationCallback {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbTest.class);
 
-  protected static Map<String, String> s_databaseTypeVersion = new HashMap<String, String>();
-  private static final Map<String, DbDialect> s_dbDialects = new HashMap<String, DbDialect>();
+  protected static Map<String, String> s_databaseTypeVersion = new HashMap<>();
+  private static final Map<String, DbDialect> s_dbDialects = new HashMap<>();
   private static final File SCRIPT_INSTALL_DIR = new File(DbTool.getWorkingDirectory(), "temp/" + DbTest.class.getSimpleName());
 
   static {
@@ -179,7 +179,7 @@ public abstract class DbTest implements TableCreationCallback {
     return array;
   }
 
-  protected static Object[][] getParametersForDatabase(final String databaseType) {
+  public static Object[][] getParametersForDatabase(final String databaseType) {
     ArrayList<Object[]> parameters = new ArrayList<Object[]>();
     for (String db : TestProperties.getDatabaseTypes(databaseType)) {
       parameters.add(new Object[]{db, "latest"});

@@ -8,12 +8,11 @@ package com.opengamma.analytics.financial.schedule;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 /**
  * 
@@ -30,16 +29,16 @@ public class EndOfYearScheduleCalculator extends Schedule {
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
     if (startDate.equals(endDate)) {
-      if (startDate.getDayOfMonth() == 31 && startDate.getMonthOfYear() == MonthOfYear.DECEMBER) {
+      if (startDate.getDayOfMonth() == 31 && startDate.getMonth() == Month.DECEMBER) {
         return new LocalDate[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but neither was the last day of the year");
     }
     final List<LocalDate> dates = new ArrayList<LocalDate>();
-    LocalDate date = startDate.with(DateAdjusters.lastDayOfYear());
+    LocalDate date = startDate.with(TemporalAdjusters.lastDayOfYear());
     while (!date.isAfter(endDate)) {
       dates.add(date);
-      date = date.plusYears(1).with(DateAdjusters.lastDayOfYear());
+      date = date.plusYears(1).with(TemporalAdjusters.lastDayOfYear());
     }
     return dates.toArray(EMPTY_LOCAL_DATE_ARRAY);
   }
@@ -54,16 +53,16 @@ public class EndOfYearScheduleCalculator extends Schedule {
     Validate.notNull(endDate, "end date");
     Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
     if (startDate.equals(endDate)) {
-      if (startDate.getDayOfMonth() == 31 && startDate.getMonthOfYear() == MonthOfYear.DECEMBER) {
+      if (startDate.getDayOfMonth() == 31 && startDate.getMonth() == Month.DECEMBER) {
         return new ZonedDateTime[] {startDate};
       }
       throw new IllegalArgumentException("Start date and end date were the same but neither was the last day of the year");
     }
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
-    ZonedDateTime date = startDate.with(DateAdjusters.lastDayOfYear());
+    ZonedDateTime date = startDate.with(TemporalAdjusters.lastDayOfYear());
     while (!date.isAfter(endDate)) {
       dates.add(date);
-      date = date.plusYears(1).with(DateAdjusters.lastDayOfYear());
+      date = date.plusYears(1).with(TemporalAdjusters.lastDayOfYear());
     }
     return dates.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);
   }

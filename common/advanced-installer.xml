@@ -68,7 +68,7 @@
     <attribute name="dir" default="." />
     <sequential>
       <echo message="Building @{build-id}" />
-      <exec executable="${ai.command}" dir="@{dir}">
+      <exec executable="${ai.command}" dir="@{dir}" failonerror="true">
         <arg value="/build" />
         <arg value="@{file}" />
         <arg value="-buildslist" />

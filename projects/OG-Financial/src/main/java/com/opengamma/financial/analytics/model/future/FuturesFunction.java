@@ -9,53 +9,61 @@ import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
+import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
+import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * @param <T> The type of the data returned from the calculator
  */
 public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(FuturesFunction.class);
-  private static final FutureSecurityConverter CONVERTER = new FutureSecurityConverter();
+  /** The converter */
+  private FutureSecurityConverter _converter;
 
+  /** The value requirement name */
   private final String _valueRequirementName;
+  /** The calculator */
   private final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> _calculator;
 
   /**
@@ -69,6 +77,17 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
     _calculator = calculator;
   }
 
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
+    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
+    final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
+    _converter = new FutureSecurityConverter(irFutureConverter, bondFutureConverter);
+  }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
@@ -91,9 +110,9 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
       throw new OpenGammaRuntimeException("Time series for " + security.getExternalIdBundle() + " was empty");
     }
     // Build the analytic's version of the security - the derivative
-    final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
-    final InstrumentDefinitionWithData<?, Double> definition = security.accept(CONVERTER);
-    final InstrumentDerivative derivative = definition.toDerivative(valuationTime, lastMarginPrice);
+    final ZonedDateTime valuationTime = ZonedDateTime.now(executionContext.getValuationClock());
+    final InstrumentDefinitionWithData<?, Double> definition = security.accept(_converter);
+    final InstrumentDerivative derivative = definition.toDerivative(valuationTime, lastMarginPrice, new String[] {"", ""});
     // Build the DataBundle it requires
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final SimpleFutureDataBundle dataBundle = getFutureDataBundle(security, inputs, timeSeriesBundle, desiredValue);
@@ -110,55 +129,98 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
-      return false;
-    }
     final Security security = target.getTrade().getSecurity();
-    if (!(security instanceof FutureSecurity)) {
-      return false;
-    }
-    if (security instanceof InterestRateFutureSecurity || security instanceof BondFutureSecurity) {
-      return false;
-    }
-    return true;
+    return security instanceof FutureSecurity;
   }
 
+  /**
+   * Creates general value properties
+   * @param target The target
+   * @return The value properties
+   */
   protected abstract ValueProperties.Builder createValueProperties(final ComputationTarget target);
 
+  /**
+   * Creates value properties with the property values set
+   * @param target The target
+   * @param desiredValue The desired value
+   * @return The value properties
+   */
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target, final ValueRequirement desiredValue) {
     return createValueProperties(target);
   }
 
+  /**
+   * Creates the data bundle used in futures pricing
+   * @param security The security
+   * @param inputs The market data inputs
+   * @param timeSeriesBundle A bundle containing time series
+   * @param desiredValue The desired value
+   * @return The data bundle used for pricing futures
+   */
   protected abstract SimpleFutureDataBundle getFutureDataBundle(final FutureSecurity security, final FunctionInputs inputs,
       final HistoricalTimeSeriesBundle timeSeriesBundle, final ValueRequirement desiredValue);
 
+  /**
+   * @return The calculator
+   */
   protected InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> getCalculator() {
     return _calculator;
   }
 
+  /**
+   * Gets the spot value requirement
+   * @param security The security
+   * @return The spot asset value requirement if the future has a spot asset id, null otherwise
+   */
   protected ValueRequirement getSpotAssetRequirement(final FutureSecurity security) {
-    final ExternalId spotAssetId = getSpotAssetId(security);
-    final ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotAssetId);
-    return req;
+    try {
+      final ExternalId spotAssetId = getSpotAssetId(security);
+      if (spotAssetId == null) {
+        return null;
+      }
+      final ValueRequirement req = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, spotAssetId);
+      return req;
+    } catch (final UnsupportedOperationException e) {
+      s_logger.info(e.getMessage());
+      return null;
+    }
   }
 
+  /**
+   * Gets the spot asset id from a security
+   * @param sec The security
+   * @return The spot asset id, null if not available
+   */
   protected ExternalId getSpotAssetId(final FutureSecurity sec) {
     final ExternalId spotAssetId = FinancialSecurityUtils.getUnderlyingId(sec);
     if (spotAssetId == null) {
-      throw new OpenGammaRuntimeException(sec.getContractCategory() + " failed to find spot asset id.");
+      s_logger.info("Failed to find spot asset id (category = {}) for future with id bundle {}", sec.getContractCategory(), sec.getExternalIdBundle());
+      return null;
     }
     return spotAssetId;
   }
 
-  protected Double getSpot(final FutureSecurity security, final FunctionInputs inputs) {
-    final ValueRequirement spotRequirement = getSpotAssetRequirement(security);
-    final Object spotObject = inputs.getValue(spotRequirement);
+  /**
+   * Gets the spot value
+   * @param inputs The market data inputs
+   * @return The spot value
+   * @throws OpenGammaRuntimeException If the spot value is null
+   */
+  protected Double getSpot(final FunctionInputs inputs) {
+    final Object spotObject = inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     if (spotObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + spotRequirement);
+      throw new OpenGammaRuntimeException("Could not get the spot value");
     }
     return (Double) spotObject;
   }
 
+  /**
+   * Gets the historical time series of the future price
+   * @param context The compilation context
+   * @param security The security
+   * @return The value requirement for the time series of future price
+   */
   protected ValueRequirement getReferencePriceRequirement(final FunctionCompilationContext context, final FutureSecurity security) {
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final ExternalIdBundle idBundle = security.getExternalIdBundle();
@@ -168,7 +230,7 @@ public abstract class FuturesFunction<T> extends AbstractFunction.NonCompiledInv
       return null;
     }
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(timeSeries, MarketDataRequirementNames.MARKET_VALUE,
-        DateConstraint.VALUATION_TIME.minus(Period.ofDays(7)), true, DateConstraint.VALUATION_TIME, true);
+        DateConstraint.VALUATION_TIME.minus(DateUtils.periodOfDays(7)), true, DateConstraint.VALUATION_TIME, true);
   }
 
 }

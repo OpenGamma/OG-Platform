@@ -131,7 +131,7 @@ public class PortfolioComponentIdentifiersFunction extends AbstractFunctionInvok
       }
 
       @Override
-      public void preOrderOperation(final Position position) {
+      public void preOrderOperation(final PortfolioNode parentNode, final Position position) {
         if (includePosition) {
           storeIdentifier(componentIds, position.getUniqueId());
         }

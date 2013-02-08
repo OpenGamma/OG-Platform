@@ -13,13 +13,15 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.net.URI;
 import java.util.Collection;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.core.security.Security;
@@ -58,10 +60,10 @@ public class DataFinancialSecuritySourceResourceTest {
   @Test
   public void testSearchBonds() {
     BondSecurity target = new GovernmentBondSecurity("US TREASURY N/B", "Government", "US", "Treasury", Currency.USD,
-        YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC)), "", 200,
+        YieldConventionFactory.INSTANCE.getYieldConvention("US Treasury equivalent"), new Expiry(zdt(2011, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC)), "", 200,
         SimpleFrequencyFactory.INSTANCE.getFrequency(SimpleFrequency.SEMI_ANNUAL_NAME), DayCountFactory.INSTANCE.getDayCount("Actual/Actual"),
-        ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC),
-        ZonedDateTime.of(2011, 2, 1, 12, 0, 0, 0, TimeZone.UTC), 100d, 100000000, 5000, 1000, 100, 100);
+        zdt(2011, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC), zdt(2011, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC),
+        zdt(2011, 2, 1, 12, 0, 0, 0, ZoneOffset.UTC), 100d, 100000000, 5000, 1000, 100, 100);
     target.setExternalIdBundle(ExternalIdBundle.of(ExternalId.of("A", "B")));
     Collection targetColl = ImmutableList.<Security>of(target);
     
@@ -70,6 +72,11 @@ public class DataFinancialSecuritySourceResourceTest {
     Response test = _resource.searchBonds("US TREASURY N/B");
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertEquals(FudgeListWrapper.of(targetColl), test.getEntity());
+  }
+
+  //-------------------------------------------------------------------------
+  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+    return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
   }
 
 }

@@ -13,9 +13,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import javax.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +21,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
+import org.threeten.bp.Instant;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
@@ -430,6 +428,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   /**
    * Processes the document correction, within a retrying transaction.
    *
+   * @param beforeId  the ID before
    * @param document  the document to correct, not null
    * @return the corrected document, not null
    */
@@ -543,12 +542,12 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
       @Override
       public Instant getVersionsFromInstant() {
-        return thisVersionFrom.minus(1, TimeUnit.MILLISECONDS);
+        return thisVersionFrom.minusMillis(1);
       }
 
       @Override
       public Instant getVersionsToInstant() {
-        return thisVersionFrom.minus(1, TimeUnit.MILLISECONDS);
+        return thisVersionFrom.minusMillis(1);
       }
     }).getFirstDocument();
   }

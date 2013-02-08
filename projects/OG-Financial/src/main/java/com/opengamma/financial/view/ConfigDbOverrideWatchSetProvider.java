@@ -14,7 +14,6 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * A {@link WatchSetProvider} that takes a config reference and replaces it with an alternative scheme and name of the document.
@@ -35,14 +34,14 @@ public class ConfigDbOverrideWatchSetProvider implements WatchSetProvider {
  }
  
  @Override
- public Set<Pair<ObjectId, VersionCorrection>> getAdditionalWatchSet(final Set<Pair<ObjectId, VersionCorrection>> watchSet) {
-   final Set<Pair<ObjectId, VersionCorrection>> result = new HashSet<Pair<ObjectId, VersionCorrection>>();
+ public Set<ObjectId> getAdditionalWatchSet(final Set<ObjectId> watchSet) {
+   final Set<ObjectId> result = new HashSet<ObjectId>();
    for (String scheme : _schemes) {
-     for (Pair<ObjectId, VersionCorrection> watch : watchSet) {
-       if (_configScheme.equals(watch.getFirst().getScheme())) {
+     for (ObjectId watch : watchSet) {
+       if (_configScheme.equals(watch.getScheme())) {
          try {
-           final ConfigDocument doc = _configMaster.get(watch.getFirst(), watch.getSecond());
-           result.add(Pair.of(ObjectId.of(scheme, doc.getName()), VersionCorrection.LATEST));
+           final ConfigDocument doc = _configMaster.get(watch, VersionCorrection.LATEST);
+           result.add(ObjectId.of(scheme, doc.getName()));
          } catch (DataNotFoundException ex) {
            // ignore
          }

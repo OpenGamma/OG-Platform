@@ -10,14 +10,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.joda.beans.Bean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.PropertyReadWrite;
+import org.joda.convert.StringConvert;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -29,7 +29,7 @@ import com.opengamma.util.OpenGammaClock;
 /**
  * Builds an HTML page containing a description of a type's attributes. It's intended to help with the development
  * of the blotter, not to be a long-term feature of the platform (hence the hacky nature of it).
- * Its output is used to populate bean-structure.tfl.
+ * Its output is used to populate bean-structure.ftl.
  * TODO decide if this is worth keeping and clean it up or delete it when it's not useful any more
  */
 /* package */ class BeanStructureBuilder implements BeanVisitor<Map<String, Object>> {
@@ -61,6 +61,7 @@ import com.opengamma.util.OpenGammaClock;
     s_types.put(String.class, STRING);
   }
 
+  private final StringConvert _stringConvert;
   private final Map<String, Object> _beanData = Maps.newHashMap();
   private final BeanHierarchy _beanHierarchy;
   private final List<Map<String, Object>> _propertyData = Lists.newArrayList();
@@ -69,19 +70,31 @@ import com.opengamma.util.OpenGammaClock;
 
   /* package */ BeanStructureBuilder(Set<MetaBean> metaBeans,
                                      Map<Class<?>, Class<?>> underlyingSecurityTypes,
-                                     Map<Class<?>, String> endpoints) {
+                                     Map<Class<?>, String> endpoints,
+                                     StringConvert stringConvert) {
     ArgumentChecker.notNull(underlyingSecurityTypes, "underlyingSecurityTypes");
     ArgumentChecker.notNull(metaBeans, "metaBeans");
     ArgumentChecker.notNull(endpoints, "endpoints");
+    ArgumentChecker.notNull(stringConvert, "stringConvert");
     _endpoints = endpoints;
     _underlyingSecurityTypes = underlyingSecurityTypes;
     _beanHierarchy = new BeanHierarchy(metaBeans);
+    _stringConvert = stringConvert;
   }
 
   @Override
-  public void visitBean(MetaBean metaBean) {
+  public void visitMetaBean(MetaBean metaBean) {
     _beanData.clear();
-    _beanData.put("type", metaBean.beanType().getSimpleName());
+    String typeName = metaBean.beanType().getSimpleName();
+    _beanData.put("type", typeName);
+    Map<String, Object> typeProperty = Maps.newHashMap();
+    typeProperty.put("name", "type");
+    typeProperty.put("type", PropertyType.SINGLE.name().toLowerCase());
+    typeProperty.put("types", ImmutableList.of(typeInfo("string", null, null, false)));
+    typeProperty.put("optional", false);
+    typeProperty.put("readOnly", false);
+    typeProperty.put("value", typeName);
+    _propertyData.add(typeProperty);
     Class<?> underlyingType = _underlyingSecurityTypes.get(metaBean.beanType());
     if (underlyingType != null) {
       _beanData.put("underlyingTypes", typesFor(underlyingType));
@@ -95,22 +108,22 @@ import com.opengamma.util.OpenGammaClock;
   }
 
   @Override
-  public void visitCollectionProperty(MetaProperty<?> property) {
+  public void visitCollectionProperty(MetaProperty<?> property, BeanTraverser traverser) {
     _propertyData.add(arrayType(property));
   }
 
   @Override
-  public void visitSetProperty(MetaProperty<?> property) {
+  public void visitSetProperty(MetaProperty<?> property, BeanTraverser traverser) {
     _propertyData.add(arrayType(property));
   }
 
   @Override
-  public void visitListProperty(MetaProperty<?> property) {
+  public void visitListProperty(MetaProperty<?> property, BeanTraverser traverser) {
     _propertyData.add(arrayType(property));
   }
 
   @Override
-  public void visitMapProperty(MetaProperty<?> property) {
+  public void visitMapProperty(MetaProperty<?> property, BeanTraverser traverser) {
     Class<? extends Bean> beanType = property.metaBean().beanType();
     Class<?> keyType = JodaBeanUtils.mapKeyType(property, beanType);
     Class<?> valueType = JodaBeanUtils.mapValueType(property, beanType);
@@ -118,7 +131,7 @@ import com.opengamma.util.OpenGammaClock;
   }
 
   @Override
-  public void visitProperty(MetaProperty<?> property) {
+  public void visitProperty(MetaProperty<?> property, BeanTraverser traverser) {
     _propertyData.add(property(property, typesFor(property.propertyType()), null, PropertyType.SINGLE));
   }
 
@@ -133,10 +146,10 @@ import com.opengamma.util.OpenGammaClock;
     return property(property, typesFor(property.propertyType()), null, PropertyType.ARRAY);
   }
 
-  private static boolean isConvertible(Class<?> type) {
+  private boolean isConvertible(Class<?> type) {
     boolean canConvert;
     try {
-      JodaBeanUtils.stringConverter().findConverter(type);
+      _stringConvert.findConverter(type);
       canConvert = true;
     } catch (Exception e) {
       canConvert = false;
@@ -152,10 +165,6 @@ import com.opengamma.util.OpenGammaClock;
       return !definitionAnnotation.validate().equals("notNull");
     }
   }
-
-  ///* package */ static List<Map<String, Object>> typesFor(Class<?> type, BeanHierarchy beanHierarchy, ) {
-  //
-  //}
 
   /* package */ List<Map<String, Object>> typesFor(Class<?> type) {
     String typeName = s_types.get(type);
@@ -187,9 +196,7 @@ import com.opengamma.util.OpenGammaClock;
                                                     PropertyType propertyType) {
     Map<String, Object> result = Maps.newHashMap();
     // TODO this is *really* dirty and not supposed to be anything else. fix or remove
-    boolean readOnly = property.readWrite() == PropertyReadWrite.READ_ONLY ||
-        property.name().equals("uniqueId") ||
-        property.name().equals("name");
+    boolean readOnly = property.readWrite() == PropertyReadWrite.READ_ONLY || property.name().equals("uniqueId");
 
     // TODO this is obviously a poor choice of names
     result.put("type", propertyType.name().toLowerCase());

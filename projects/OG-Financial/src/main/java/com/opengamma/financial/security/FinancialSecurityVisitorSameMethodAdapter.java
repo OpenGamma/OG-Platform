@@ -11,6 +11,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
@@ -29,6 +30,7 @@ import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
@@ -49,6 +51,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
@@ -108,6 +111,11 @@ public class FinancialSecurityVisitorSameMethodAdapter<T> implements FinancialSe
 
   @Override
   public T visitCashSecurity(final CashSecurity security) {
+    return _value.visit(security);
+  }
+
+  @Override
+  public T visitCashFlowSecurity(final CashFlowSecurity security) {
     return _value.visit(security);
   }
 
@@ -237,6 +245,11 @@ public class FinancialSecurityVisitorSameMethodAdapter<T> implements FinancialSe
   }
 
   @Override
+  public T visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
+    return _value.visit(security);
+  }
+
+  @Override
   public T visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
     return _value.visit(security);
   }
@@ -326,4 +339,8 @@ public class FinancialSecurityVisitorSameMethodAdapter<T> implements FinancialSe
     return _value.visit(security);
   }
 
+  @Override
+  public T visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+    return _value.visit(security);
+  }
 }

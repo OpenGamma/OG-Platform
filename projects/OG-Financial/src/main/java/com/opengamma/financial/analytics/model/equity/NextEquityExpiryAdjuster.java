@@ -8,10 +8,11 @@ package com.opengamma.financial.analytics.model.equity;
 import java.util.EnumSet;
 import java.util.Set;
 
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.MonthOfYear;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Month;
+import org.threeten.bp.temporal.Temporal;
+import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.financial.analytics.ircurve.DayOfWeekInMonthPlusOffsetAdjuster;
 import com.opengamma.financial.analytics.ircurve.NextQuarterAdjuster;
@@ -20,24 +21,27 @@ import com.opengamma.financial.analytics.ircurve.NextQuarterAdjuster;
  * {@code DatAdjuster} that finds the next Expiry in Equity Futures Options.
  * This is the Saturday immediately following the 3rd Friday of the next IMM Future Expiry Month.
  */
-public class NextEquityExpiryAdjuster implements DateAdjuster {
+public class NextEquityExpiryAdjuster implements TemporalAdjuster {
 
   /** An adjuster finding the Saturday following the 3rd Friday in a month. May be before or after date */
-  private static final DateAdjuster s_dayOfMonth = new DayOfWeekInMonthPlusOffsetAdjuster(3, DayOfWeek.FRIDAY, 1);
+  private static final TemporalAdjuster s_dayOfMonth = new DayOfWeekInMonthPlusOffsetAdjuster(3, DayOfWeek.FRIDAY, 1);
 
   /** An adjuster moving to the next quarter */
-  private static final DateAdjuster s_nextQuarterAdjuster = new NextQuarterAdjuster();
+  private static final TemporalAdjuster s_nextQuarterAdjuster = new NextQuarterAdjuster();
 
   /** The IMM Expiry months  */
-  private final Set<MonthOfYear> _immFutureQuarters = EnumSet.of(MonthOfYear.MARCH, MonthOfYear.JUNE, MonthOfYear.SEPTEMBER, MonthOfYear.DECEMBER);
+  private final Set<Month> _immFutureQuarters = EnumSet.of(Month.MARCH, Month.JUNE, Month.SEPTEMBER, Month.DECEMBER);
 
   @Override
-  public LocalDate adjustDate(final LocalDate date) {
-    if (_immFutureQuarters.contains(date.getMonthOfYear()) &&
+  public Temporal adjustInto(Temporal temporal) {
+    LocalDate date = LocalDate.from(temporal);
+    if (_immFutureQuarters.contains(date.getMonth()) &&
         date.with(s_dayOfMonth).isAfter(date)) { // in a quarter
-      return date.with(s_dayOfMonth);
-    } 
-    return date.with(s_nextQuarterAdjuster).with(s_dayOfMonth);    
+      date = date.with(s_dayOfMonth);
+    } else {
+      date = date.with(s_nextQuarterAdjuster).with(s_dayOfMonth);
+    }
+    return temporal.with(date);
   }
 
 }

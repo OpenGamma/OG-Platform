@@ -6,11 +6,11 @@
 package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -40,7 +40,7 @@ public class GeneratorInterestRateFuturesTest {
   @Test
   public void generateInstrument() {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    Period tenorInit = Period.ofMonths(1);
+    Period tenorInit = Period.of(1, MONTHS);
     Integer num = 2;
     double price = 0.99;
     double notional = 100000;

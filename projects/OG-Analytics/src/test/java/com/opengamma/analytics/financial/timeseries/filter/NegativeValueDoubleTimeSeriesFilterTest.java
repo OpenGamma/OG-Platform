@@ -9,9 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 
-import javax.time.calendar.LocalDate;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
@@ -53,14 +52,14 @@ public class NegativeValueDoubleTimeSeriesFilterTest {
     int j = 0, k = 0;
     for (int i = 0; i < n; i++) {
       d = RANDOM.nextDouble();
-      dates[i] = LocalDate.ofEpochDays(i);
+      dates[i] = LocalDate.ofEpochDay(i);
       if (d < 0.25) {
         data[i] = -d;
-        rejectedDates[k] = LocalDate.ofEpochDays(i);
+        rejectedDates[k] = LocalDate.ofEpochDay(i);
         rejectedData[k++] = -d;
       } else {
         data[i] = d;
-        filteredDates[j] = LocalDate.ofEpochDays(i);
+        filteredDates[j] = LocalDate.ofEpochDay(i);
         filteredData[j++] = d;
       }
     }

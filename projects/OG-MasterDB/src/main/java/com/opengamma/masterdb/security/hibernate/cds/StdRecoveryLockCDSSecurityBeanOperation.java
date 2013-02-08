@@ -15,7 +15,6 @@ import static com.opengamma.masterdb.security.hibernate.Converters.stubTypeBeanT
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 import static com.opengamma.masterdb.security.hibernate.swap.NotionalBeanOperation.createNotional;
 
-import com.opengamma.financial.security.cds.StandardFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.StandardRecoveryLockCDSSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.depgraph;
@@ -61,7 +61,7 @@ public class DependencyNode {
 
   /**
    * Creates a new node.
-   * 
+   *
    * @param target the computation target, not null
    */
   public DependencyNode(final ComputationTarget target) {
@@ -70,7 +70,7 @@ public class DependencyNode {
 
   /**
    * Creates a new node.
-   * 
+   *
    * @param target the computation target specification, not null
    */
   public DependencyNode(final ComputationTargetSpecification target) {
@@ -81,11 +81,11 @@ public class DependencyNode {
   /**
    * Adds a set of nodes as inputs to this node. The nodes added are updated to include this node in their
    * dependent node set.
-   * 
+   *
    * @param inputNodes nodes to add, not null and not containing null
    */
-  public void addInputNodes(Set<DependencyNode> inputNodes) {
-    for (DependencyNode inputNode : inputNodes) {
+  public void addInputNodes(final Set<DependencyNode> inputNodes) {
+    for (final DependencyNode inputNode : inputNodes) {
       addInputNode(inputNode);
     }
   }
@@ -93,16 +93,16 @@ public class DependencyNode {
   /**
    * Adds a node as input to this node. The node added is updated to include this node in its dependent node
    * set.
-   * 
+   *
    * @param inputNode node to add, not null
    */
-  public void addInputNode(DependencyNode inputNode) {
+  public void addInputNode(final DependencyNode inputNode) {
     ArgumentChecker.notNull(inputNode, "Input Node");
     _inputNodes.add(inputNode);
     inputNode.addDependentNode(this);
   }
 
-  protected void addDependentNode(DependencyNode dependentNode) {
+  protected void addDependentNode(final DependencyNode dependentNode) {
     ArgumentChecker.notNull(dependentNode, "Dependent Node");
     _dependentNodes.add(dependentNode);
   }
@@ -110,7 +110,7 @@ public class DependencyNode {
   /**
    * Returns the set of all immediately dependent nodes - i.e. nodes that consume one or more output values generated
    * by this node.
-   * 
+   *
    * @return the set of dependent nodes
    */
   public Set<DependencyNode> getDependentNodes() {
@@ -118,25 +118,9 @@ public class DependencyNode {
   }
 
   /**
-   * Returns the dependent node. This call is only valid if there is a single (or no) dependent node.
-   * 
-   * @return the node, or null if there are no dependent nodes
-   * @throws IllegalStateException if there are multiple dependent nodes
-   */
-  public DependencyNode getDependentNode() {
-    if (_dependentNodes.isEmpty()) {
-      return null;
-    } else if (_dependentNodes.size() > 1) {
-      throw new IllegalStateException("More than one dependent node");
-    } else {
-      return _dependentNodes.iterator().next();
-    }
-  }
-
-  /**
    * Returns the set of all immediate input nodes - i.e. nodes that produce one or more of the input values to the function
    * attached to this node.
-   * 
+   *
    * @return the set of input nodes
    */
   public Set<DependencyNode> getInputNodes() {
@@ -147,11 +131,11 @@ public class DependencyNode {
    * Adds output values to this node. Graph construction will initially include the maximal set of outputs from the function.
    * This will later be pruned to remove any values not required as inputs to other nodes and not specified as terminal outputs
    * of the graph.
-   * 
+   *
    * @param outputValues the output values produced by this node, not null
    */
-  public void addOutputValues(Set<ValueSpecification> outputValues) {
-    for (ValueSpecification outputValue : outputValues) {
+  public void addOutputValues(final Set<ValueSpecification> outputValues) {
+    for (final ValueSpecification outputValue : outputValues) {
       addOutputValue(outputValue);
     }
   }
@@ -160,21 +144,21 @@ public class DependencyNode {
    * Adds an output value to the node. Graph construction will initially include the maximal set of outputs from the function.
    * This will later be pruned to remove any values not required as inputs to other nodes and not specified as terminal outputs
    * of the graph.
-   * 
+   *
    * @param outputValue an output value produced by this node, not null
    */
-  public void addOutputValue(ValueSpecification outputValue) {
+  public void addOutputValue(final ValueSpecification outputValue) {
     ArgumentChecker.notNull(outputValue, "Output value");
     _outputValues.add(outputValue);
   }
 
   /**
    * Removes an output value from this node. The value must not be used as an input to a dependent node.
-   * 
+   *
    * @param outputValue the value to remove
    */
-  public void removeOutputValue(ValueSpecification outputValue) {
-    for (DependencyNode outputNode : _dependentNodes) {
+  public void removeOutputValue(final ValueSpecification outputValue) {
+    for (final DependencyNode outputNode : _dependentNodes) {
       if (outputNode._inputValues.contains(outputValue)) {
         throw new IllegalStateException("Can't remove output value " + outputValue + " required for input to " + outputNode);
       }
@@ -185,54 +169,111 @@ public class DependencyNode {
   }
 
   /**
-   * Replace an output value from this node with another.
-   * 
+   * Replace an output value from this node with another. Returns the number of times the value is consumed by dependent nodes.
+   *
    * @param existingOutputValue the existing value
    * @param newOutputValue the value to replace it with
+   * @return the number of replacements made in dependenct nodes
    */
-  public void replaceOutputValue(final ValueSpecification existingOutputValue, final ValueSpecification newOutputValue) {
+  public int replaceOutputValue(final ValueSpecification existingOutputValue, final ValueSpecification newOutputValue) {
     if (!_outputValues.remove(existingOutputValue)) {
       throw new IllegalStateException("Existing output value " + existingOutputValue + " not in output set of " + this);
     }
     _outputValues.add(newOutputValue);
-    for (DependencyNode outputNode : _dependentNodes) {
+    int count = 0;
+    for (final DependencyNode outputNode : _dependentNodes) {
       if (outputNode._inputValues.remove(existingOutputValue)) {
         outputNode._inputValues.add(newOutputValue);
+        count++;
       }
     }
-  }
-
-  /* package */void clearOutputValues() {
-    _outputValues.clear();
+    return count;
   }
 
   /* package */void clearInputs() {
-    for (DependencyNode inputNode : _inputNodes) {
+    for (final DependencyNode inputNode : _inputNodes) {
       inputNode._dependentNodes.remove(this);
     }
     _inputNodes.clear();
     _inputValues.clear();
   }
 
-  public void addInputValue(ValueSpecification inputValue) {
+  public void addInputValue(final ValueSpecification inputValue) {
     ArgumentChecker.notNull(inputValue, "Input value");
     _inputValues.add(inputValue);
   }
 
   /**
+   * Replaces the dependency node that an input value is sourced from. If this was the only input value sourced from the previous input node then it is removed from the input node set.
+   *
+   * @param inputValue the input value to replace, not null
+   * @param previousInputNode the node the data was being produced by, not null
+   * @param newInputNode the new input node, not null
+   */
+  public void replaceInput(final ValueSpecification inputValue, final DependencyNode previousInputNode, final DependencyNode newInputNode) {
+    addInputNode(newInputNode);
+    for (final ValueSpecification input : _inputValues) {
+      if (!inputValue.equals(input)) {
+        if (previousInputNode._outputValues.contains(input)) {
+          // Previous input still produces other values we consume
+          return;
+        }
+      }
+    }
+    // Not consuming any other inputs from this node
+    previousInputNode._dependentNodes.remove(this);
+    _inputNodes.remove(previousInputNode);
+  }
+
+  /**
+   * Cuts all edges linking this node, replacing it with the given node. The new node will be updated to include the input and output value specifications from this node.
+   *
+   * @param newNode the node to replace this in the graph
+   */
+  /* package */void replaceWith(final DependencyNode newNode) {
+    for (final DependencyNode input : _inputNodes) {
+      if (input._dependentNodes.remove(this)) {
+        input._dependentNodes.add(newNode);
+        newNode._inputNodes.add(input);
+      }
+    }
+    newNode._inputValues.addAll(_inputValues);
+    for (final DependencyNode output : _dependentNodes) {
+      if (output._inputNodes.remove(this)) {
+        output._inputNodes.add(newNode);
+        newNode._dependentNodes.add(output);
+      }
+    }
+    // Rewrite the original outputs to use the target of the new node
+    for (final ValueSpecification outputValue : _outputValues) {
+      final ValueSpecification newOutputValue = MemoryUtils.instance(new ValueSpecification(outputValue.getValueName(), newNode.getComputationTarget(), outputValue.getProperties()));
+      newNode._outputValues.add(newOutputValue);
+      for (final DependencyNode output : _dependentNodes) {
+        if (output._inputValues.remove(outputValue)) {
+          output._inputValues.add(newOutputValue);
+        }
+      }
+    }
+  }
+
+  /**
    * Returns the set of output values produced by this node.
-   * 
+   *
    * @return the set of output values
    */
   public Set<ValueSpecification> getOutputValues() {
     return Collections.unmodifiableSet(_outputValues);
   }
 
+  /* package */Set<ValueSpecification> getOutputValuesCopy() {
+    return new HashSet<ValueSpecification>(_outputValues);
+  }
+
   /**
    * Returns the set of terminal output values produced by this node. This is a subset of {@link #getOutputValues}. After
    * graph construction any output values that are not consumed by other nodes will be pruned unless they are declared
    * as terminal output values.
-   * 
+   *
    * @return the set of output values, or the empty set if none
    */
   public Set<ValueSpecification> getTerminalOutputValues() {
@@ -241,16 +282,20 @@ public class DependencyNode {
 
   /**
    * Returns the set of input values.
-   * 
+   *
    * @return the set of input values
    */
   public Set<ValueSpecification> getInputValues() {
     return Collections.unmodifiableSet(_inputValues);
   }
 
+  /* package */Set<ValueSpecification> getInputValuesCopy() {
+    return new HashSet<ValueSpecification>(_inputValues);
+  }
+
   /**
    * Tests if a given value is an input to this node.
-   * 
+   *
    * @param specification value to test
    * @return true if the value is an input to this node
    */
@@ -260,20 +305,22 @@ public class DependencyNode {
 
   /**
    * Returns the market data requirement of this node.
-   * 
-   * @return the market data requirement.
+   *
+   * @return the market data requirement, or null if none
    */
   public Pair<ValueRequirement, ValueSpecification> getRequiredMarketData() {
     if (_function.getFunction() instanceof MarketDataSourcingFunction) {
       final MarketDataSourcingFunction ldsf = ((MarketDataSourcingFunction) _function.getFunction());
-      return ldsf.getMarketDataRequirement();
+      final ValueSpecification outputValue = getOutputValues().iterator().next();
+      final ValueRequirement inputValue = ldsf.getMarketDataRequirement(_function.getParameters(), outputValue);
+      return Pair.of(inputValue, outputValue);
     }
     return null;
   }
 
   /**
    * Returns the function used at this node.
-   * 
+   *
    * @return the function
    */
   public ParameterizedFunction getFunction() {
@@ -282,34 +329,31 @@ public class DependencyNode {
 
   /**
    * Uses default parameters to invoke the function. Useful in tests.
-   * 
+   *
    * @param function Function to be invoked
    */
-  public void setFunction(CompiledFunctionDefinition function) {
+  public void setFunction(final CompiledFunctionDefinition function) {
     setFunction(new ParameterizedFunction(function, function.getFunctionDefinition().getDefaultParameters()));
   }
 
   /**
    * Sets the function to be used to execute this node.
-   * 
+   *
    * @param function Function to be invoked
    */
-  public void setFunction(ParameterizedFunction function) {
+  public void setFunction(final ParameterizedFunction function) {
     ArgumentChecker.notNull(function, "Function");
     if (_function != null) {
       throw new IllegalStateException("The function was already set");
     }
-
-    if (function.getFunction().getTargetType() != getComputationTarget().getType()) {
-      throw new IllegalArgumentException("Provided function of type " + function.getFunction().getTargetType() + " but target of type " + getComputationTarget().getType());
-    }
-
+    // [PLAT-2286] We used to check the function's target was right for the target specification. This would require knowledge of
+    // the resolution strategy to do properly. The function type has to be compatible with something that is a sub-type of the target.
     _function = function;
   }
 
   /**
    * Returns the computation target of the node.
-   * 
+   *
    * @return the computation target
    */
   public ComputationTargetSpecification getComputationTarget() {
@@ -319,17 +363,17 @@ public class DependencyNode {
   /**
    * Removes any unused outputs. These are any output values that are not terminal output values and are not
    * stated as inputs to any dependent nodes.
-   * 
+   *
    * @return the set of outputs removed, or the empty set if none were removed
    */
   public Set<ValueSpecification> removeUnnecessaryOutputs() {
-    Set<ValueSpecification> unnecessaryOutputs = new HashSet<ValueSpecification>();
-    for (ValueSpecification outputSpec : _outputValues) {
+    final Set<ValueSpecification> unnecessaryOutputs = new HashSet<ValueSpecification>();
+    for (final ValueSpecification outputSpec : _outputValues) {
       if (_terminalOutputValues.contains(outputSpec)) {
         continue;
       }
       boolean isUsed = false;
-      for (DependencyNode dependantNode : _dependentNodes) {
+      for (final DependencyNode dependantNode : _dependentNodes) {
         if (dependantNode.hasInputValue(outputSpec)) {
           isUsed = true;
           break;
@@ -346,16 +390,25 @@ public class DependencyNode {
   /**
    * Marks an output as terminal, meaning that it cannot be pruned. If this node already belongs to a graph, use
    * {@link DependencyGraph#addTerminalOutput(ValueRequirement requirement, ValueSpecification specification)}.
-   * 
+   *
    * @param terminalOutput  the output to mark as terminal
    */
-  public void addTerminalOutputValue(ValueSpecification terminalOutput) {
+  public void addTerminalOutputValue(final ValueSpecification terminalOutput) {
     _terminalOutputValues.add(terminalOutput);
+  }
+
+  /**
+   * Unmarks an output as terminal, reversing {@link #addTerminalOutputValue}. The output will remain as an output of the node.
+   *
+   * @param terminalOutput the output to unmark as terminal
+   */
+  public void removeTerminalOutputValue(final ValueSpecification terminalOutput) {
+    _terminalOutputValues.remove(terminalOutput);
   }
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
     sb.append("DependencyNode[");
     if (getFunction() != null) {
       sb.append(getFunction().getFunction().getFunctionDefinition().getShortName());

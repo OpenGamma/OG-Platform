@@ -5,7 +5,7 @@
  */
 package com.opengamma.web.analytics;
 
-import javax.time.Duration;
+import org.threeten.bp.Duration;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

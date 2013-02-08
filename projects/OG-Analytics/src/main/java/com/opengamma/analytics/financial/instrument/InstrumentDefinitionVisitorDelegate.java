@@ -16,6 +16,9 @@ import com.opengamma.analytics.financial.commodity.definition.MetalFutureDefinit
 import com.opengamma.analytics.financial.commodity.definition.MetalFutureOptionDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityFutureDefinition;
 import com.opengamma.analytics.financial.equity.future.definition.EquityIndexDividendFutureDefinition;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOptionDefinition;
+import com.opengamma.analytics.financial.equity.option.EquityOptionDefinition;
+import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwapDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOptionDefinition;
@@ -76,6 +79,7 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixe
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -84,8 +88,12 @@ import com.opengamma.util.ArgumentChecker;
  * @param <RESULT_TYPE> The type of the results
  */
 public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> implements InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> {
+  /** The delegate visitor */
   private final InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> _delegate;
 
+  /**
+   * @param delegate The delegate, not null
+   */
   public InstrumentDefinitionVisitorDelegate(final InstrumentDefinitionVisitor<DATA_TYPE, RESULT_TYPE> delegate) {
     ArgumentChecker.notNull(delegate, "delegate");
     _delegate = delegate;
@@ -790,4 +798,45 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   public RESULT_TYPE visitEquityIndexDividendFutureDefinition(final EquityIndexDividendFutureDefinition future) {
     return _delegate.visitEquityIndexDividendFutureDefinition(future);
   }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexOptionDefinition(final EquityIndexOptionDefinition option, final DATA_TYPE data) {
+    return _delegate.visitEquityIndexOptionDefinition(option, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityIndexOptionDefinition(final EquityIndexOptionDefinition option) {
+    return _delegate.visitEquityIndexOptionDefinition(option);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityOptionDefinition(final EquityOptionDefinition option, final DATA_TYPE data) {
+    return _delegate.visitEquityOptionDefinition(option, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityOptionDefinition(final EquityOptionDefinition option) {
+    return _delegate.visitEquityOptionDefinition(option);
+  }
+
+  @Override
+  public RESULT_TYPE visitVarianceSwapDefinition(final VarianceSwapDefinition varianceSwap) {
+    return _delegate.visitVarianceSwapDefinition(varianceSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitVarianceSwapDefinition(final VarianceSwapDefinition varianceSwap, final DATA_TYPE data) {
+    return _delegate.visitVarianceSwapDefinition(varianceSwap, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityVarianceSwapDefinition(final EquityVarianceSwapDefinition varianceSwap) {
+    return _delegate.visitEquityVarianceSwapDefinition(varianceSwap);
+  }
+
+  @Override
+  public RESULT_TYPE visitEquityVarianceSwapDefinition(final EquityVarianceSwapDefinition varianceSwap, final DATA_TYPE data) {
+    return _delegate.visitEquityVarianceSwapDefinition(varianceSwap, data);
+  }
+
 }

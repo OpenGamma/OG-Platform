@@ -14,8 +14,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -24,6 +22,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
@@ -80,7 +79,7 @@ public class DbSecurityMasterTest extends DbTest {
     assertNotNull(_secMaster);
     assertEquals(true, _secMaster.getUniqueIdScheme().equals("DbSec"));
     assertNotNull(_secMaster.getDbConnector());
-    assertNotNull(_secMaster.getTimeSource());
+    assertNotNull(_secMaster.getClock());
   }
 
   //-------------------------------------------------------------------------

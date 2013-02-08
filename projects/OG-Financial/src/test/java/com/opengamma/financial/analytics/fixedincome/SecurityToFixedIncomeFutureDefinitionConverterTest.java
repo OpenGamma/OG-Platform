@@ -11,10 +11,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
@@ -111,7 +110,7 @@ public class SecurityToFixedIncomeFutureDefinitionConverterTest {
       }
 
       @Override
-      public TimeZone getTimeZone() {
+      public ZoneId getTimeZone() {
         return null;
       }
 

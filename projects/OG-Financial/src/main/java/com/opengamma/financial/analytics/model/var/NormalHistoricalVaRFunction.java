@@ -25,6 +25,7 @@ import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -37,7 +38,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * 
  */
-public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
+public class NormalHistoricalVaRFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(NormalHistoricalVaRFunction.class);
   /** The property for the VaR distribution type */
   public static final String PROPERTY_VAR_DISTRIBUTION = "VaRDistributionType";
@@ -255,4 +256,10 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
         new DoubleTimeSeriesStatisticsCalculator(StatisticsCalculatorFactory.getCalculator(stdDevCalculatorNames.iterator().next()));
     return new NormalLinearVaRCalculator<DoubleTimeSeries<?>>(meanCalculator, stdDevCalculator);
   }
+
+  @Override
+  public ComputationTargetType getTargetType() {
+    return ComputationTargetType.PORTFOLIO_NODE.or(ComputationTargetType.POSITION);
+  }
+
 }

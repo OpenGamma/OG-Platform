@@ -9,14 +9,13 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -50,7 +49,7 @@ public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends Defau
   public ForexLocalVolatilityPDEPriceDefaultPropertiesFunction(final String forwardCurveCalculationMethod, final String forwardCurveName, final String surfaceType, final String xAxis,
       final String yAxis, final String yAxisType, final String surfaceName, final String h, final String pdeDirection, final String theta, final String timeSteps, final String spaceSteps,
       final String timeGridBunching, final String spaceGridBunching, final String maxMoneyness, final String strikeInterpolatorName, final String timeInterpolatorName) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.FX_OPTION_SECURITY, true);
     ArgumentChecker.notNull(forwardCurveCalculationMethod, "forward curve calculation method");
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
     ArgumentChecker.notNull(surfaceType, "surface type");
@@ -85,11 +84,6 @@ public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends Defau
     _maxMoneyness = maxMoneyness;
     _strikeInterpolatorName = strikeInterpolatorName;
     _timeInterpolatorName = timeInterpolatorName;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getSecurity() instanceof FXOptionSecurity;
   }
 
   @Override

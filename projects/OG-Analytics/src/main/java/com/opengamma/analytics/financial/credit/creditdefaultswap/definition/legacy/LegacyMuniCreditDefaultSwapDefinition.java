@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
@@ -26,7 +26,6 @@ public class LegacyMuniCreditDefaultSwapDefinition extends LegacyCreditDefaultSw
   //----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Check hashCode and equals methods (fix these)
-  // TODO : Remove the builder methods
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -95,68 +94,14 @@ public class LegacyMuniCreditDefaultSwapDefinition extends LegacyCreditDefaultSw
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   /*
-  // Builder method to allow the maturity of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  @Override
-  public LegacyMuniCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
-
-    ArgumentChecker.notNull(maturityDate, "maturity date");
-    ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
-
-    final LegacyMuniCreditDefaultSwapDefinition modifiedCDS = new LegacyMuniCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
-        getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), maturityDate, getStubType(), getCouponFrequency(),
-        getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), getParSpread());
-
-    return modifiedCDS;
-  }
-  */
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
-  // Builder method to allow the premium leg coupon of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  @Override
-  public LegacyMuniCreditDefaultSwapDefinition withSpread(final double parSpread) {
-
-    final LegacyMuniCreditDefaultSwapDefinition modifiedCDS = new LegacyMuniCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
-        getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(),
-        getStubType(), getCouponFrequency(), getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(),
-        getAdjustMaturityDate(), getNotional(), getRecoveryRate(), getIncludeAccruedPremium(), getProtectionStart(), getParSpread());
-
-    return modifiedCDS;
-  }
-  */
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
-  // Builder method to allow the recovery rate of a Legacy CDS object to be modified (used during calibration of the hazard rate curve)
-
-  @Override
-  public LegacyMuniCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
-
-    final LegacyMuniCreditDefaultSwapDefinition modifiedCDS = new LegacyMuniCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(),
-        getReferenceEntity(), getCurrency(), getDebtSeniority(), getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getStubType(), getCouponFrequency(),
-        getDayCountFractionConvention(), getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(),
-        recoveryRate, getIncludeAccruedPremium(), getProtectionStart(), getParSpread());
-
-    return modifiedCDS;
-  }
-  */
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
   @Override
   public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    long temp;
-    temp = Double.doubleToLongBits(_parSpread);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    return result;
+  final int prime = 31;
+  int result = super.hashCode();
+  long temp;
+  temp = Double.doubleToLongBits(_parSpread);
+  result = prime * result + (int) (temp ^ (temp >>> 32));
+  return result;
   }
   */
 

@@ -15,7 +15,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.channels.Channels;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -45,8 +47,7 @@ import com.opengamma.util.async.AsynchronousResult;
 import com.opengamma.util.async.ResultListener;
 
 /**
- * Client connection thread to interface with the C++ module. This connects to the two
- * pipe interfaces and provides user message routing.
+ * Client connection thread to interface with the C++ module. This connects to the two pipe interfaces and provides user message routing.
  */
 public class Client implements Runnable {
 
@@ -64,7 +65,7 @@ public class Client implements Runnable {
   private volatile boolean _poisoned;
   private FudgeMsg _stashMessage;
 
-  protected Client(ClientContext clientContext, final String inputPipeName, final String outputPipeName, final SessionContext session) {
+  protected Client(final ClientContext clientContext, final String inputPipeName, final String outputPipeName, final SessionContext session) {
     _clientContext = clientContext;
     _sessionContext = session;
     _executor = clientContext.createExecutor();
@@ -125,7 +126,7 @@ public class Client implements Runnable {
           try {
             s_logger.debug("Waiting for message to write");
             msg = getOutputMessageBuffer().take();
-          } catch (InterruptedException e) {
+          } catch (final InterruptedException e) {
             s_logger.warn("Interrupted receiving message from output queue");
             continue;
           }
@@ -133,7 +134,7 @@ public class Client implements Runnable {
             try {
               s_logger.debug("Writing message {}", msg);
               _writer.writeMessageEnvelope(msg);
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
               s_logger.error("Exception during message write", t);
             }
           } else {
@@ -151,7 +152,7 @@ public class Client implements Runnable {
   protected void sendUserMessage(final UserMessage message) {
     sendUserMessage(message.toFudgeMsg(new FudgeSerializer(getClientContext().getFudgeContext())));
   }
-  
+
   protected void sendUserMessage(final FudgeMsg msg) {
     getOutputMessageBuffer().add(new FudgeMsgEnvelope(msg, 0, MessageDirectives.USER));
   }
@@ -160,12 +161,12 @@ public class Client implements Runnable {
     return new SessionContextInitializationEventHandler() {
 
       @Override
-      public void initContext(MutableSessionContext context) {
+      public void initContext(final MutableSessionContext context) {
         context.setMessageSender(new MessageSender() {
 
           @Override
           public UserMessagePayload call(final UserMessagePayload message, final long timeoutMillis)
-            throws TimeoutException {
+              throws TimeoutException {
             // TODO: implement this if/when we need it
             throw new UnsupportedOperationException();
           }
@@ -201,7 +202,7 @@ public class Client implements Runnable {
       }
 
       @Override
-      public void initContextWithStash(MutableSessionContext context, FudgeMsg stash) {
+      public void initContextWithStash(final MutableSessionContext context, final FudgeMsg stash) {
         initContext(context);
       }
 
@@ -222,9 +223,8 @@ public class Client implements Runnable {
   }
 
   /**
-   * The main connection thread must always be in "READ" mode to avoid deadlocking against the
-   * alternating C/C++ one. Therefore we have a separate dispatch thread (or pool of them) for
-   * when messages arrive.
+   * The main connection thread must always be in "READ" mode to avoid deadlocking against the alternating C/C++ one. Therefore we have a separate dispatch thread (or pool of them) for when messages
+   * arrive.
    */
   @Override
   public final void run() {
@@ -238,12 +238,16 @@ public class Client implements Runnable {
     final Thread sender = new Thread(createMessageWriter());
     sender.setName(Thread.currentThread().getName() + "-Writer");
     sender.start();
+    // The "termination" timeout is used for the startup delay before the watchdog thread starts as the first connection can
+    // be rather slow while waiting (for example) for the function list to be built if it is not already cached
     final ScheduledFuture<?> watchdogFuture = getClientContext().getHousekeepingScheduler().scheduleWithFixedDelay(watchdog,
-        getClientContext().getHeartbeatTimeout(), getClientContext().getHeartbeatTimeout() * 2, TimeUnit.MILLISECONDS);
+        getClientContext().getTerminationTimeout(), getClientContext().getHeartbeatTimeout() * 2, TimeUnit.MILLISECONDS);
     // Main read loop - this thread is always available to read to avoid process deadlock. The loop will
     // abort on I/O error or if the watchdog fires (triggering an I/O error)
     try {
       boolean contextInitialized = false;
+      Queue<Runnable> deferredMessages = null;
+      @SuppressWarnings("resource" /* pipe gets closed during disconnect call, don't want it closed when reader falls out of scope */)
       final FudgeMsgReader reader = new FudgeMsgReader(getInputPipe());
       final FudgeDeserializer deserializer = new FudgeDeserializer(getClientContext().getFudgeContext());
       s_logger.info("Starting message read loop");
@@ -252,7 +256,21 @@ public class Client implements Runnable {
         watchdog.stillAlive();
         switch (messageEnvelope.getProcessingDirectives()) {
           case MessageDirectives.USER: {
-            getExecutor().execute(dispatchUserMessage(messageEnvelope.getMessage()));
+            final Runnable dispatch = dispatchUserMessage(messageEnvelope.getMessage());
+            if (deferredMessages == null) {
+              getExecutor().execute(dispatch);
+            } else {
+              synchronized (deferredMessages) {
+                if (deferredMessages.isEmpty()) {
+                  s_logger.debug("Dispatching post-initialisation user message");
+                  getExecutor().execute(dispatch);
+                  deferredMessages = null;
+                } else {
+                  s_logger.debug("Deferring user message dispatch until after context initialisation");
+                  deferredMessages.add(dispatch);
+                }
+              }
+            }
             break;
           }
           case MessageDirectives.CLIENT: {
@@ -266,7 +284,8 @@ public class Client implements Runnable {
                   s_logger.debug("Ignoring heartbeat request - other messages pending");
                 }
                 if (!contextInitialized) {
-                  initializeContext(message.getStash());
+                  deferredMessages = new LinkedList<Runnable>();
+                  initializeContext(message.getStash(), deferredMessages);
                   contextInitialized = true;
                 }
                 break;
@@ -286,9 +305,9 @@ public class Client implements Runnable {
         }
         s_logger.debug("Waiting for Fudge message");
       }
-    } catch (FudgeRuntimeIOException e) {
+    } catch (final FudgeRuntimeIOException e) {
       s_logger.warn("Error reading message {}", e.toString());
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       s_logger.error("Unexpected exception thrown during read loop", t);
     }
     watchdogFuture.cancel(true);
@@ -302,7 +321,7 @@ public class Client implements Runnable {
         dumpThreads();
       }
       s_logger.debug("Client thread(s) terminated");
-    } catch (InterruptedException e) {
+    } catch (final InterruptedException e) {
       s_logger.warn("Interrupted joining threads, {}", e.toString());
     }
     s_logger.info("Destroying session context");
@@ -319,7 +338,7 @@ public class Client implements Runnable {
       _inputPipe = getClientContext().getFudgeContext().createReader(
           (DataInput) new DataInputStream(new BufferedInputStream(Channels.newInputStream(new FileInputStream(
               getInputPipeName()).getChannel()))));
-    } catch (FileNotFoundException e) {
+    } catch (final FileNotFoundException e) {
       s_logger.warn("Couldn't connect to pipe: {} ({})", getInputPipeName(), e.toString());
       return false;
     }
@@ -327,7 +346,7 @@ public class Client implements Runnable {
     try {
       _outputPipe = getClientContext().getFudgeContext().createWriter(
           (DataOutput) new DataOutputStream(new BufferedOutputStream(new FileOutputStream(getOutputPipeName()))));
-    } catch (FileNotFoundException e) {
+    } catch (final FileNotFoundException e) {
       s_logger.warn("Couldn't connect to pipe: {} ({})", getOutputPipeName(), e.toString());
     }
     if ((_inputPipe != null) && (_outputPipe != null)) {
@@ -339,15 +358,15 @@ public class Client implements Runnable {
   }
 
   private void disconnectPipes() {
-    FudgeStreamReader in = getInputPipe();
+    final FudgeStreamReader in = getInputPipe();
     _inputPipe = null;
-    FudgeStreamWriter out = getOutputPipe();
+    final FudgeStreamWriter out = getOutputPipe();
     _outputPipe = null;
     if (in != null) {
       try {
         s_logger.debug("Closing input pipe");
         in.close();
-      } catch (FudgeRuntimeIOException e) {
+      } catch (final FudgeRuntimeIOException e) {
         s_logger.warn("Error closing input pipe: {}", e.toString());
       }
     }
@@ -355,7 +374,7 @@ public class Client implements Runnable {
       try {
         s_logger.debug("Closing output pipe");
         out.close();
-      } catch (FudgeRuntimeIOException e) {
+      } catch (final FudgeRuntimeIOException e) {
         s_logger.warn("Error closing output pipe: {}", e.toString());
       }
     }
@@ -363,9 +382,9 @@ public class Client implements Runnable {
 
   private static void dumpThreads() {
     final Map<Thread, StackTraceElement[]> stacks = Thread.getAllStackTraces();
-    for (Map.Entry<Thread, StackTraceElement[]> entry : stacks.entrySet()) {
+    for (final Map.Entry<Thread, StackTraceElement[]> entry : stacks.entrySet()) {
       System.out.println("Thread: " + entry.getKey());
-      for (StackTraceElement frame : entry.getValue()) {
+      for (final StackTraceElement frame : entry.getValue()) {
         System.out.println("\t" + frame);
       }
     }
@@ -379,7 +398,24 @@ public class Client implements Runnable {
       }
     };
   }
-  
+
+  private void initializeContext(final FudgeMsg stash, final Queue<Runnable> deferredDispatches) {
+    deferredDispatches.add(null);
+    getExecutor().execute(new Runnable() {
+      @Override
+      public void run() {
+        initializeContext(stash);
+        synchronized (deferredDispatches) {
+          deferredDispatches.remove(); // First item is the NULL posted above
+          while (!deferredDispatches.isEmpty()) {
+            s_logger.debug("Dispatching deferred user message");
+            getExecutor().execute(deferredDispatches.remove());
+          }
+        }
+      }
+    });
+  }
+
   private void sendUserMessageResponse(final UserMessage userMessage, UserMessagePayload response) {
     if (response == null) {
       s_logger.error("User message handler returned null for synchronous message call {}", userMessage);
@@ -397,7 +433,7 @@ public class Client implements Runnable {
     try {
       s_logger.debug("Dispatching user message {}", msg);
       response = userMessage.getPayload().accept(getClientContext().getMessageHandler(), getSessionContext());
-    } catch (AsynchronousExecution e) {
+    } catch (final AsynchronousExecution e) {
       // Only bother with the result if we're going to use it
       if (userMessage.getHandle() != null) {
         e.setResultListener(new ResultListener<UserMessagePayload>() {
@@ -406,7 +442,7 @@ public class Client implements Runnable {
             UserMessagePayload response = null;
             try {
               response = result.getResult();
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
               s_logger.error("Error in user message handler", t);
               response = UserMessagePayload.EMPTY_PAYLOAD;
             }
@@ -415,7 +451,7 @@ public class Client implements Runnable {
         });
       }
       return;
-    } catch (Throwable t) {
+    } catch (final Throwable t) {
       s_logger.error("Error in user message handler", t);
       response = UserMessagePayload.EMPTY_PAYLOAD;
     }
@@ -445,7 +481,7 @@ public class Client implements Runnable {
     // Poison the reader thread by forcing an I/O exception when the pipes close
     disconnectPipes();
   }
-  
+
   protected boolean isPoisoned() {
     return _poisoned;
   }

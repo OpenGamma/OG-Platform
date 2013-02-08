@@ -7,16 +7,16 @@ package com.opengamma.core.config.impl;
 
 import static com.google.common.collect.Sets.newHashSet;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.ChangeProvider;
+import com.opengamma.core.change.PassthroughChangeManager;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -41,7 +41,7 @@ public class DelegatingConfigSource
    *
    * @param defaultSource  the source to use when no scheme matches, not null
    */
-  public DelegatingConfigSource(ConfigSource defaultSource) {
+  public DelegatingConfigSource(final ConfigSource defaultSource) {
     super(defaultSource);
   }
 
@@ -51,56 +51,88 @@ public class DelegatingConfigSource
    * @param defaultSource  the source to use when no scheme matches, not null
    * @param schemePrefixToSourceMap  the map of sources by scheme to switch on, not null
    */
-  public DelegatingConfigSource(ConfigSource defaultSource, Map<String, ConfigSource> schemePrefixToSourceMap) {
+  public DelegatingConfigSource(final ConfigSource defaultSource, final Map<String, ConfigSource> schemePrefixToSourceMap) {
     super(defaultSource, schemePrefixToSourceMap);
-    AggregatingChangeManager changeManager = new AggregatingChangeManager();
+    final AggregatingChangeManager changeManager = new AggregatingChangeManager();
 
     // REVIEW jonathan 2011-08-03 -- this assumes that the delegating source lasts for the lifetime of the engine as we
     // never detach from the underlying change managers.
     changeManager.addChangeManager(defaultSource.changeManager());
-    for (ConfigSource source : schemePrefixToSourceMap.values()) {
+    for (final ConfigSource source : schemePrefixToSourceMap.values()) {
       changeManager.addChangeManager(source.changeManager());
     }
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ConfigItem<?> get(UniqueId uniqueId) {
+  public ConfigItem<?> get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     return chooseDelegate(uniqueId.getScheme()).get(uniqueId);
   }
 
   @Override
-  public ConfigItem<?> get(ObjectId objectId, VersionCorrection versionCorrection) {
+  public ConfigItem<?> get(final ObjectId objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     return chooseDelegate(objectId.getScheme()).get(objectId, versionCorrection);
   }
 
   @Override
-  public <R> ConfigItem<R> get(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
-    Map<String, ConfigSource> delegates = getDelegates();
+  public <R> Collection<ConfigItem<R>> get(final Class<R> clazz, final String configName, final VersionCorrection versionCorrection) {
+    final Map<String, ConfigSource> delegates = getDelegates();
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(configName, "configName");
-    for (ConfigSource configSource : delegates.values()) {
-      ConfigItem<R> config = configSource.get(clazz, configName, versionCorrection);
-      if (config != null) {
-        return config;
+    ArgumentChecker.notNull(versionCorrection, "versionCorrection");
+    Collection<ConfigItem<R>> results = null;
+    boolean alloc = false;
+    for (final ConfigSource configSource : delegates.values()) {
+      final Collection<ConfigItem<R>> configs = configSource.get(clazz, configName, versionCorrection);
+      if (!configs.isEmpty()) {
+        if (results == null) {
+          results = configs;
+        } else if (alloc) {
+          results.addAll(configs);
+        } else {
+          final Collection<ConfigItem<R>> newResults = Lists.newArrayListWithCapacity(results.size() + configs.size());
+          newResults.addAll(results);
+          newResults.addAll(configs);
+          results = newResults;
+          alloc = true;
+        }
       }
     }
-    return getDefaultDelegate().get(clazz, configName, versionCorrection);
+    final Collection<ConfigItem<R>> configs = getDefaultDelegate().get(clazz, configName, versionCorrection);
+    if (configs.isEmpty()) {
+      if (results == null) {
+        return Collections.emptySet();
+      } else {
+        return results;
+      }
+    } else {
+      if (results == null) {
+        return configs;
+      } else if (alloc) {
+        results.addAll(configs);
+        return results;
+      } else {
+        final Collection<ConfigItem<R>> newResults = Lists.newArrayListWithCapacity(results.size() + configs.size());
+        newResults.addAll(results);
+        newResults.addAll(configs);
+        return newResults;
+      }
+    }
   }
 
   @Override
-  public <R> Collection<ConfigItem<R>> getAll(Class<R> clazz, VersionCorrection versionCorrection) {
-    Map<String, ConfigSource> delegates = getDelegates();
+  public <R> Collection<ConfigItem<R>> getAll(final Class<R> clazz, final VersionCorrection versionCorrection) {
+    final Map<String, ConfigSource> delegates = getDelegates();
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    Set<ConfigItem<R>> combined = newHashSet();
-    for (ConfigSource configSource : delegates.values()) {
-      Collection<ConfigItem<R>> configs = configSource.getAll(clazz, versionCorrection);
+    final Set<ConfigItem<R>> combined = newHashSet();
+    for (final ConfigSource configSource : delegates.values()) {
+      final Collection<ConfigItem<R>> configs = configSource.getAll(clazz, versionCorrection);
       if (configs != null) {
-        combined.addAll(configs);        
+        combined.addAll(configs);
       }
     }
     combined.addAll(getDefaultDelegate().getAll(clazz, versionCorrection));
@@ -108,14 +140,14 @@ public class DelegatingConfigSource
   }
 
   @Override
-  public <R> R getConfig(Class<R> clazz, UniqueId uniqueId) {
+  public <R> R getConfig(final Class<R> clazz, final UniqueId uniqueId) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     return chooseDelegate(uniqueId.getScheme()).getConfig(clazz, uniqueId);
   }
 
   @Override
-  public <R> R getConfig(Class<R> clazz, ObjectId objectId, VersionCorrection versionCorrection) {
+  public <R> R getConfig(final Class<R> clazz, final ObjectId objectId, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
@@ -123,41 +155,38 @@ public class DelegatingConfigSource
   }
 
   @Override
-  public <R> R getConfig(Class<R> clazz, String configName, VersionCorrection versionCorrection) {
+  public <R> R getSingle(final Class<R> clazz, final String configName, final VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(configName, "configName");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
 
-    Map<String, ConfigSource> delegates = getDelegates();
-    for (ConfigSource configSource : delegates.values()) {
-      R config = configSource.getConfig(clazz, configName, versionCorrection);
+    final Map<String, ConfigSource> delegates = getDelegates();
+    for (final ConfigSource configSource : delegates.values()) {
+      final R config = configSource.getSingle(clazz, configName, versionCorrection);
       if (config != null) {
         return config;
       }
     }
-    return getDefaultDelegate().getConfig(clazz, configName, versionCorrection);
+    return getDefaultDelegate().getSingle(clazz, configName, versionCorrection);
   }
 
   @Override
-  public <R> R getLatestByName(Class<R> clazz, String name) {
-    return getConfig(clazz, name, VersionCorrection.LATEST);
+  public <R> R getLatestByName(final Class<R> clazz, final String name) {
+    return getSingle(clazz, name, VersionCorrection.LATEST);
   }
 
   @Override
   public ChangeManager changeManager() {
-    Map<String, ConfigSource> delegates = getDelegates();
-    List<ChangeProvider> changeProviders = new ArrayList<ChangeProvider>();
-    for (ConfigSource configSource : delegates.values()) {
-      changeProviders.add(configSource);
-    }
-    return new AggregatingChangeManager(changeProviders);
+    final PassthroughChangeManager cm = new PassthroughChangeManager(getDelegates().values());
+    cm.addChangeManager(getDefaultDelegate().changeManager());
+    return cm;
   }
 
   @Override
-  public Map<UniqueId, ConfigItem<?>> get(Collection<UniqueId> uniqueIds) {
+  public Map<UniqueId, ConfigItem<?>> get(final Collection<UniqueId> uniqueIds) {
     ArgumentChecker.notNull(uniqueIds, "uniqueIds");
-    Map<UniqueId, ConfigItem<?>> map = new HashMap<UniqueId, ConfigItem<?>>();
-    for (UniqueId uniqueId : uniqueIds) {
+    final Map<UniqueId, ConfigItem<?>> map = Maps.newHashMap();
+    for (final UniqueId uniqueId : uniqueIds) {
       map.put(uniqueId, get(uniqueId));
     }
     return map;

@@ -11,15 +11,14 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.time.Duration;
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.DataDuplicationException;
 import com.opengamma.elsql.ElSqlBundle;
@@ -314,6 +313,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     ArgumentChecker.notNull(document.getInfo().getDataSource(), "document.info.dataSource");
     ArgumentChecker.notNull(document.getInfo().getDataProvider(), "document.info.dataProvider");
     ArgumentChecker.notNull(document.getInfo().getObservationTime(), "document.info.observationTime");
+    ArgumentChecker.notNull(document.getInfo().getExternalIdBundle(), "document.info.externalIdBundle");
 
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.setDataField(document.getInfo().getDataField());
@@ -342,6 +342,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     ArgumentChecker.notNull(document.getInfo().getDataSource(), "document.info.dataSource");
     ArgumentChecker.notNull(document.getInfo().getDataProvider(), "document.info.dataProvider");
     ArgumentChecker.notNull(document.getInfo().getObservationTime(), "document.info.observationTime");
+    ArgumentChecker.notNull(document.getInfo().getExternalIdBundle(), "document.info.externalIdBundle");
 
     final long docId = nextId("hts_master_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);

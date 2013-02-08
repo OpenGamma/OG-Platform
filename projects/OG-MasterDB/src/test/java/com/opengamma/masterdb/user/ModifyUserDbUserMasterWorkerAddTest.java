@@ -5,17 +5,19 @@
  */
 package com.opengamma.masterdb.user;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
-
-import javax.time.Instant;
-import javax.time.calendar.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 
 import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalIdBundle;
@@ -53,7 +55,7 @@ public class ModifyUserDbUserMasterWorkerAddTest extends AbstractDbUserMasterWor
 
   @Test
   public void test_add() {
-    Instant now = Instant.now(_usrMaster.getTimeSource());
+    Instant now = Instant.now(_usrMaster.getClock());
     
     ManageableOGUser user = new ManageableOGUser("AddedUser");
     user.setPasswordHash("TESTHASH");
@@ -61,7 +63,7 @@ public class ModifyUserDbUserMasterWorkerAddTest extends AbstractDbUserMasterWor
     user.setEmailAddress("test@test.com");
     user.setExternalIdBundle(BUNDLE);
     user.setEntitlements(Sets.newHashSet("A", "B"));
-    TimeZone zone = user.getTimeZone();
+    ZoneId zone = user.getTimeZone();
     UserDocument doc = new UserDocument(user);
     UserDocument test = _usrMaster.add(doc);
     
@@ -97,6 +99,30 @@ public class ModifyUserDbUserMasterWorkerAddTest extends AbstractDbUserMasterWor
     
     UserDocument test = _usrMaster.get(added.getUniqueId());
     assertEquals(added, test);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingTimeZoneProperty() {
+    ManageableOGUser user = mock(ManageableOGUser.class);
+    when(user.getUserId()).thenReturn("AddedUser");
+    UserDocument doc = new UserDocument(user);
+    UserDocument test = _usrMaster.add(doc);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_add_addWithMissingUserIdProperty() {
+    ManageableOGUser user = mock(ManageableOGUser.class);
+    when(user.getTimeZone()).thenReturn(ZoneOffset.UTC);
+    UserDocument doc = new UserDocument(user);
+    UserDocument test = _usrMaster.add(doc);
+  }
+
+  @Test
+  public void test_add_addWithMinimalProperties() {
+    // Time zone is set to UTC automatically and user ID is a required arg to constructor
+    ManageableOGUser user = new ManageableOGUser("AddedUser");
+    UserDocument doc = new UserDocument(user);
+    UserDocument test = _usrMaster.add(doc);
   }
 
 }

@@ -10,7 +10,7 @@
     </#macro>
     <@page title="${type} Structure">
         <@section title="${type}">
-            <@table items=properties empty="" headers=["Property", "Type", "Optional", "Read-only", "Endpoint"]; prop>
+            <@table items=properties empty="" headers=["Property", "Type", "Value", "Nullable", "Read-only", "Endpoint"]; prop>
             <td>${prop.name}</td>
             <td>
                 <#if prop.type == "map">
@@ -21,6 +21,7 @@
                     <#if prop.type == "array">]</#if>
                 </#if>
             </td>
+            <td><#if prop.value?has_content>${prop.value}</#if></td>
             <td><#if prop.optional>true</#if></td>
             <td><#if prop.readOnly>true</#if></td>
             <td>
@@ -32,7 +33,7 @@
             </td>
             </@table>
         </@section>
-        <#if underlyingType?has_content>
+        <#if underlyingTypes?has_content>
             <@subsection title="Underlying Security">
                 <#list underlyingTypes as info>
                     <a href="${info.expectedType}">${info.expectedType}</a><#if info_has_next>, </#if>

@@ -17,9 +17,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import javax.time.Instant;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
@@ -46,7 +45,6 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.VersionedSource;
 import com.opengamma.util.test.Timeout;
-import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Test the ViewProcessorManager class.
@@ -63,11 +61,11 @@ public class ViewProcessorManagerTest {
     public MockViewProcessor() {
       final InMemoryFunctionRepository functions = new InMemoryFunctionRepository();
       _compiledFunctionService = new CompiledFunctionService(functions, new CachingFunctionRepositoryCompiler(), new FunctionCompilationContext());
-      functions.addFunction(new MockFunction("mock", new ComputationTarget("Foo")) {
+      functions.addFunction(new MockFunction("mock", ComputationTarget.NULL) {
 
         @Override
         public void init(final FunctionCompilationContext context) {
-          context.getFunctionReinitializer().reinitializeFunction(getFunctionDefinition(), Pair.of(UniqueId.of("Test", "Watched").getObjectId(), VersionCorrection.LATEST));
+          context.getFunctionReinitializer().reinitializeFunction(getFunctionDefinition(), ObjectId.of("Test", "Watched"));
         }
 
       });
@@ -205,7 +203,7 @@ public class ViewProcessorManagerTest {
     }
 
     public void notifyListenerWatchedIdentifier() {
-      _listener.entityChanged(new ChangeEvent(ChangeType.CHANGED, ObjectId.of("Test", "Unwatched"), null, null, Instant.now()));
+      _listener.entityChanged(new ChangeEvent(ChangeType.CHANGED, ObjectId.of("Test", "Watched"), null, null, Instant.now()));
     }
   }
 

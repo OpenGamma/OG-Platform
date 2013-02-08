@@ -12,7 +12,9 @@ import com.opengamma.id.UniqueId;
  */
 /* package */  abstract class RowTarget {
 
+  /** The row name. */
   private final String _name;
+  /** ID of the row's target. */
   private final UniqueId _id;
 
   /* package */  RowTarget(String name, UniqueId id) {

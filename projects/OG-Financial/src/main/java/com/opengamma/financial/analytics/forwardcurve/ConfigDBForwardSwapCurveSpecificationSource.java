@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.forwardcurve;
@@ -10,7 +10,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class ConfigDBForwardSwapCurveSpecificationSource implements ForwardCurveSpecificationSource {
   private static final String SUFFIX = "_FORWARD_SWAP";
@@ -28,6 +28,6 @@ public class ConfigDBForwardSwapCurveSpecificationSource implements ForwardCurve
 
   @Override
   public ForwardSwapCurveSpecification getSpecification(final String name, final String currency, final VersionCorrection versionCorrection) {
-    return _configSource.getConfig(ForwardSwapCurveSpecification.class, name + "_" + currency + SUFFIX, versionCorrection);
+    return _configSource.getSingle(ForwardSwapCurveSpecification.class, name + "_" + currency + SUFFIX, versionCorrection);
   }
 }

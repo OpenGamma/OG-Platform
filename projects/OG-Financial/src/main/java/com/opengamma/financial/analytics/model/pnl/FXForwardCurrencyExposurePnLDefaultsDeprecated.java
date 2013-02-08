@@ -9,13 +9,12 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
-import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -62,9 +61,6 @@ public class FXForwardCurrencyExposurePnLDefaultsDeprecated extends DefaultPrope
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.POSITION) {
-      return false;
-    }
     if (!(target.getPosition().getSecurity() instanceof FXForwardSecurity)) {
       return false;
     }
@@ -78,8 +74,8 @@ public class FXForwardCurrencyExposurePnLDefaultsDeprecated extends DefaultPrope
   protected void getDefaults(final PropertyDefaults defaults) {
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.PAY_CURVE);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.RECEIVE_CURVE);
-    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, FXForwardFunction.PAY_CURVE_CALC_CONFIG);
-    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
+    defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_PERIOD);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SCHEDULE_CALCULATOR);
     defaults.addValuePropertyName(ValueRequirementNames.PNL_SERIES, ValuePropertyNames.SAMPLING_FUNCTION);
@@ -93,10 +89,10 @@ public class FXForwardCurrencyExposurePnLDefaultsDeprecated extends DefaultPrope
     if (ValuePropertyNames.RECEIVE_CURVE.equals(propertyName)) {
       return Collections.singleton(_receiveCurveName);
     }
-    if (FXForwardFunction.PAY_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(_payCurveConfig);
     }
-    if (FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(_receiveCurveConfig);
     }
     if (ValuePropertyNames.SAMPLING_PERIOD.equals(propertyName)) {

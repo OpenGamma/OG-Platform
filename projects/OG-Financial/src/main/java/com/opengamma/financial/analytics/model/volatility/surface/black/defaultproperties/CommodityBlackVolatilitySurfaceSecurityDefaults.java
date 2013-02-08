@@ -7,9 +7,9 @@ package com.opengamma.financial.analytics.model.volatility.surface.black.default
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 
 /**
@@ -22,18 +22,12 @@ public class CommodityBlackVolatilitySurfaceSecurityDefaults extends CommodityBl
   };
 
   public CommodityBlackVolatilitySurfaceSecurityDefaults(final String... defaultsPerCurrency) {
-    super(ComputationTargetType.SECURITY, VALUE_REQUIREMENTS, defaultsPerCurrency);
+    super(FinancialSecurityTypes.COMMODITY_FUTURE_OPTION_SECURITY, VALUE_REQUIREMENTS, defaultsPerCurrency);
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     final Security security = target.getSecurity();
-    if (!(security instanceof CommodityFutureOptionSecurity)) {
-      return false;
-    }
     final String currency = ((CommodityFutureOptionSecurity) security).getCurrency().getCode();
     return getAllCurrencies().contains(currency);
   }

@@ -44,6 +44,11 @@ public class MetalFutureSecurity extends CommodityFutureSecurity {
   public MetalFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String category) {
     super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
   }
+  
+  public MetalFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, String category, ExternalId underlyingId) {
+    super(expiry, tradingExchange, settlementExchange, currency, unitAmount, category);
+    setUnderlyingId(underlyingId);
+  }
 
   //-------------------------------------------------------------------------
   @Override

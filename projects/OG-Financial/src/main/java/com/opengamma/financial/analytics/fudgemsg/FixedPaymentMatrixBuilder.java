@@ -8,14 +8,13 @@ package com.opengamma.financial.analytics.fudgemsg;
 import java.util.List;
 import java.util.Map;
 
-import javax.time.calendar.LocalDate;
-
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Maps;
 import com.opengamma.financial.analytics.cashflow.FixedPaymentMatrix;

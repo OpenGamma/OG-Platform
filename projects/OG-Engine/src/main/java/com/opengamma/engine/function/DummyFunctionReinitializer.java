@@ -11,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.lambdava.tuple.Pair;
 
 /**
  * Implementation of the function re-initialization hook that discards any requests.
@@ -22,12 +20,12 @@ public class DummyFunctionReinitializer implements FunctionReinitializer {
   private static final Logger s_logger = LoggerFactory.getLogger(DummyFunctionReinitializer.class);
 
   @Override
-  public void reinitializeFunction(final FunctionDefinition function, final Pair<ObjectId, VersionCorrection> identifier) {
+  public void reinitializeFunction(final FunctionDefinition function, final ObjectId identifier) {
     s_logger.info("Reinitialize {} on changes to {}", function, identifier);
   }
 
   @Override
-  public void reinitializeFunction(final FunctionDefinition function, final Collection<Pair<ObjectId, VersionCorrection>> identifiers) {
+  public void reinitializeFunction(final FunctionDefinition function, final Collection<ObjectId> identifiers) {
     s_logger.info("Reinitialize {} on changes to {}", function, identifiers);
   }
 

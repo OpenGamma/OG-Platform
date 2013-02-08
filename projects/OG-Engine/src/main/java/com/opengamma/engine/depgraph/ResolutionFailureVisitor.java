@@ -12,14 +12,11 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Visitor for processing resolution failure information. The basic implementation writes messages to a logger. Override these
- * methods for more useful error reporting. Note that the methods are synchronized so that a visitor instance can be used by
- * multiple threads, but the invocation from each is suitably atomic for the recursive cases.
+ * Visitor for processing resolution failure information. The basic implementation writes messages to a logger. Override these methods for more useful error reporting.
  * 
  * @param <T> return type of the visit methods
  */
@@ -33,38 +30,38 @@ public abstract class ResolutionFailureVisitor<T> {
   public static final ResolutionFailureVisitor<Void> DEFAULT_INSTANCE = new ResolutionFailureVisitor<Void>() {
   };
 
-  protected synchronized T visitCouldNotResolve(final ValueRequirement valueRequirement) {
+  protected T visitCouldNotResolve(final ValueRequirement valueRequirement) {
     s_logger.info("Could not resolve {}", valueRequirement);
     return null;
   }
 
-  protected synchronized T visitNoFunctions(final ValueRequirement valueRequirement) {
+  protected T visitNoFunctions(final ValueRequirement valueRequirement) {
     s_logger.info("No functions available for {}", valueRequirement);
     return null;
   }
 
-  protected synchronized T visitRecursiveRequirement(final ValueRequirement valueRequirement) {
+  protected T visitRecursiveRequirement(final ValueRequirement valueRequirement) {
     s_logger.info("Recursive requirement on {} for function(s) producing it", valueRequirement);
     return null;
   }
 
-  protected synchronized T visitUnsatisfied(final ValueRequirement valueRequirement) {
+  protected T visitUnsatisfied(final ValueRequirement valueRequirement) {
     s_logger.info("Unsatisfied requirement {}", valueRequirement);
     return null;
   }
 
-  protected synchronized T visitMarketDataMissing(final ValueRequirement valueRequirement) {
+  protected T visitMarketDataMissing(final ValueRequirement valueRequirement) {
     s_logger.info("Market data missing to satisfy requirement {}", valueRequirement);
     return null;
   }
 
-  protected synchronized T visitSuccessfulFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected T visitSuccessfulFunction(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied) {
     s_logger.info("Applied {} for {}", function, valueRequirement);
     return null;
   }
 
-  protected synchronized T visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected T visitFailedFunction(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied) {
     s_logger.info("Couldn't satisfy {} to produce {}", unsatisfied, desiredOutput);
     s_logger.info("Caused by:");
@@ -74,7 +71,7 @@ public abstract class ResolutionFailureVisitor<T> {
     return null;
   }
 
-  protected T visitFailedFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected T visitFailedFunction(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied, final Set<ResolutionFailure> unsatisfiedAdditional) {
     if (unsatisfied.isEmpty()) {
       return visitFailedFunction(valueRequirement, function, desiredOutput, satisfied, unsatisfiedAdditional);
@@ -87,7 +84,7 @@ public abstract class ResolutionFailureVisitor<T> {
     }
   }
 
-  protected T visitFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected T visitFunction(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied, final Set<ResolutionFailure> unsatisfiedAdditional) {
     if (unsatisfied.isEmpty() && unsatisfiedAdditional.isEmpty()) {
       return visitSuccessfulFunction(valueRequirement, function, desiredOutput, satisfied);
@@ -96,29 +93,30 @@ public abstract class ResolutionFailureVisitor<T> {
     }
   }
 
-  protected synchronized T visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected T visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
     s_logger.info("getAdditionalRequirements method failed on {} with inputs {}", function, requirements);
     return null;
   }
 
-  protected synchronized T visitGetResultsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
-    s_logger.info("getResults method failed on {}", function);
+  protected T visitGetResultsFailed(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
+      final Map<ValueSpecification, ValueRequirement> requirements) {
+    s_logger.info("getResults method failed on {} with inputs {}", function, requirements);
     return null;
   }
 
-  protected synchronized T visitGetRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
+  protected T visitGetRequirementsFailed(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput) {
     s_logger.info("getRequirements method failed on {} for {}", function, desiredOutput);
     return null;
   }
 
-  protected synchronized T visitLateResolutionFailure(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected T visitLateResolutionFailure(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
     s_logger.info("Provisional result {} not in function output after late resolution", desiredOutput);
     return null;
   }
 
-  protected synchronized T visitBlacklistSuppressed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+  protected T visitBlacklistSuppressed(final ValueRequirement valueRequirement, final String function, final ValueSpecification desiredOutput,
       final Map<ValueSpecification, ValueRequirement> requirements) {
     s_logger.info("Function blacklist prevented resolution of {}", valueRequirement);
     return null;

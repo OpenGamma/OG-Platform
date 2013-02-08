@@ -10,7 +10,10 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.id.UniqueId;
+import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetTypeMap;
 
 /**
  * Run queue implementation based on sorting the runnable tasks. When the run queue is small, this is comparable to {@link ConcurrentLinkedQueueRunQueue} or {@link StackRunQueue} implementations as
@@ -23,12 +26,23 @@ import com.opengamma.id.UniqueId;
 
   private static final int MAX_UNSORTED = 2048;
   private static final int BUFFER_INCREMENT = 4096;
+  private static final ComputationTargetTypeMap<Integer> s_priority;
 
   private ContextRunnable[] _buffer = new ContextRunnable[BUFFER_INCREMENT];
   private int _length;
   private int _sorted;
   private boolean _sorting;
   private final Object _sortingLock = new Object();
+
+  static {
+    s_priority = new ComputationTargetTypeMap<Integer>();
+    s_priority.put(ComputationTargetType.PORTFOLIO_NODE, 1);
+    s_priority.put(ComputationTargetType.NULL, 2);
+    s_priority.put(ComputationTargetType.ANYTHING, 3);
+    s_priority.put(ComputationTargetType.SECURITY, 4);
+    s_priority.put(ComputationTargetType.TRADE, 5);
+    s_priority.put(ComputationTargetType.POSITION, 6);
+  }
 
   @Override
   public synchronized boolean isEmpty() {
@@ -144,24 +158,6 @@ import com.opengamma.id.UniqueId;
     return runnable;
   }
 
-  private static int compareUID(final ComputationTargetSpecification cts1, final ComputationTargetSpecification cts2) {
-    final UniqueId uid1 = cts1.getUniqueId();
-    final UniqueId uid2 = cts2.getUniqueId();
-    if (uid1 != null) {
-      if (uid2 != null) {
-        return uid1.compareTo(uid2);
-      } else {
-        return 1;
-      }
-    } else {
-      if (uid2 != null) {
-        return -1;
-      } else {
-        return 1;
-      }
-    }
-  }
-
   /**
    * Runnable task comparison. In runnable priority order (most preferable to run first):
    * <ul>
@@ -184,55 +180,30 @@ import com.opengamma.id.UniqueId;
       if (r2 instanceof ResolveTask) {
         final ResolveTask rt1 = (ResolveTask) r1;
         final ResolveTask rt2 = (ResolveTask) r2;
-        final ComputationTargetSpecification cts1 = rt1.getValueRequirement().getTargetSpecification();
-        final ComputationTargetSpecification cts2 = rt2.getValueRequirement().getTargetSpecification();
-        switch (cts1.getType()) {
-          case PORTFOLIO_NODE:
-            switch (cts2.getType()) {
-              case PORTFOLIO_NODE:
-                return compareUID(cts1, cts2);
-              default:
-                return 1;
+        final ComputationTargetReference ctr1 = rt1.getValueRequirement().getTargetReference();
+        final ComputationTargetReference ctr2 = rt2.getValueRequirement().getTargetReference();
+        final Integer p1 = s_priority.get(ctr1.getType());
+        final Integer p2 = s_priority.get(ctr2.getType());
+        if (p1.intValue() < p2.intValue()) {
+          return 1;
+        } else if (p1.intValue() > p2.intValue()) {
+          return -1;
+        } else {
+          if (ctr1 instanceof ComputationTargetSpecification) {
+            if (ctr2 instanceof ComputationTargetSpecification) {
+              return ctr1.getSpecification().getUniqueId().compareTo(ctr2.getSpecification().getUniqueId());
+            } else {
+              // Do requirement -> specification resolution (r2) first
+              return -1;
             }
-          case POSITION:
-            switch (cts2.getType()) {
-              case POSITION:
-                return compareUID(cts1, cts2);
-              default:
-                return -1;
+          } else {
+            if (ctr2 instanceof ComputationTargetRequirement) {
+              return ctr1.getRequirement().getIdentifiers().compareTo(ctr2.getRequirement().getIdentifiers());
+            } else {
+              // Do requirement -> specification resolution (r1) first
+              return 1;
             }
-          case TRADE:
-            switch (cts2.getType()) {
-              case POSITION:
-                return 1;
-              case TRADE:
-                return compareUID(cts1, cts2);
-              default:
-                return -1;
-            }
-          case SECURITY:
-            switch (cts2.getType()) {
-              case POSITION:
-              case TRADE:
-                return 1;
-              case SECURITY:
-                return compareUID(cts1, cts2);
-              default:
-                return -1;
-            }
-          case PRIMITIVE:
-            switch (cts2.getType()) {
-              case POSITION:
-              case TRADE:
-              case SECURITY:
-                return 1;
-              case PRIMITIVE:
-                return compareUID(cts1, cts2);
-              default:
-                return -1;
-            }
-          default:
-            throw new IllegalStateException();
+          }
         }
       } else {
         // Do non-ResolveTask (r2) first

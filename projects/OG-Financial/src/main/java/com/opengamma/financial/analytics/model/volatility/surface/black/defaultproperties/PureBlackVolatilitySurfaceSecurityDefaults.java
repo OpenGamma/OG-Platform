@@ -6,8 +6,9 @@
 package com.opengamma.financial.analytics.model.volatility.surface.black.defaultproperties;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 
 /**
@@ -16,19 +17,13 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 public class PureBlackVolatilitySurfaceSecurityDefaults extends PureBlackVolatilitySurfaceDefaults {
 
   public PureBlackVolatilitySurfaceSecurityDefaults(final String... defaultsPerTicker) {
-    super(ComputationTargetType.SECURITY, defaultsPerTicker);
+    super(FinancialSecurityTypes.EQUITY_VARIANCE_SWAP_SECURITY, defaultsPerTicker);
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    if (!(target.getSecurity() instanceof EquityVarianceSwapSecurity)) {
-      return false;
-    }
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
-    final String underlyingId = security.getSpotUnderlyingId().getValue();
+    final String underlyingId = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security);
     return getAllTickers().contains(underlyingId);
   }
 

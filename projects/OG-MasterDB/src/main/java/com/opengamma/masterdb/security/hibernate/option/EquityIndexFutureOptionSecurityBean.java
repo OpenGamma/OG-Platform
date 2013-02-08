@@ -46,7 +46,7 @@ public class EquityIndexFutureOptionSecurityBean extends SecurityBean {
   @PropertyDefinition
   private ExchangeBean _exchange;
   @PropertyDefinition
-  private Boolean _isMargined;
+  private Boolean _margined;
   @PropertyDefinition
   private Double _pointValue;
   @PropertyDefinition
@@ -70,7 +70,7 @@ public class EquityIndexFutureOptionSecurityBean extends SecurityBean {
       .append(getUnderlying(), option.getUnderlying())
       .append(getCurrency(), option.getCurrency())
       .append(getExchange(), option.getExchange())
-      .append(getIsMargined(), option.getIsMargined())
+      .append(getMargined(), option.getMargined())
       .append(getPointValue(), option.getPointValue())
       .append(getOptionExerciseType(), option.getOptionExerciseType())
       .isEquals();
@@ -85,7 +85,7 @@ public class EquityIndexFutureOptionSecurityBean extends SecurityBean {
       .append(getUnderlying())
       .append(getCurrency())
       .append(getExchange())
-      .append(getIsMargined())
+      .append(getMargined())
       .append(getPointValue())
       .append(getOptionExerciseType())
       .toHashCode();
@@ -129,8 +129,8 @@ public class EquityIndexFutureOptionSecurityBean extends SecurityBean {
         return getCurrency();
       case 1989774883:  // exchange
         return getExchange();
-      case -549878249:  // isMargined
-        return getIsMargined();
+      case 243392205:  // margined
+        return getMargined();
       case 1257391553:  // pointValue
         return getPointValue();
       case -1770633379:  // underlying
@@ -160,8 +160,8 @@ public class EquityIndexFutureOptionSecurityBean extends SecurityBean {
       case 1989774883:  // exchange
         setExchange((ExchangeBean) newValue);
         return;
-      case -549878249:  // isMargined
-        setIsMargined((Boolean) newValue);
+      case 243392205:  // margined
+        setMargined((Boolean) newValue);
         return;
       case 1257391553:  // pointValue
         setPointValue((Double) newValue);
@@ -325,27 +325,27 @@ public class EquityIndexFutureOptionSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the isMargined.
+   * Gets the margined.
    * @return the value of the property
    */
-  public Boolean getIsMargined() {
-    return _isMargined;
+  public Boolean getMargined() {
+    return _margined;
   }
 
   /**
-   * Sets the isMargined.
-   * @param isMargined  the new value of the property
+   * Sets the margined.
+   * @param margined  the new value of the property
    */
-  public void setIsMargined(Boolean isMargined) {
-    this._isMargined = isMargined;
+  public void setMargined(Boolean margined) {
+    this._margined = margined;
   }
 
   /**
-   * Gets the the {@code isMargined} property.
+   * Gets the the {@code margined} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isMargined() {
-    return metaBean().isMargined().createProperty(this);
+  public final Property<Boolean> margined() {
+    return metaBean().margined().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -439,10 +439,10 @@ public class EquityIndexFutureOptionSecurityBean extends SecurityBean {
     private final MetaProperty<ExchangeBean> _exchange = DirectMetaProperty.ofReadWrite(
         this, "exchange", EquityIndexFutureOptionSecurityBean.class, ExchangeBean.class);
     /**
-     * The meta-property for the {@code isMargined} property.
+     * The meta-property for the {@code margined} property.
      */
-    private final MetaProperty<Boolean> _isMargined = DirectMetaProperty.ofReadWrite(
-        this, "isMargined", EquityIndexFutureOptionSecurityBean.class, Boolean.class);
+    private final MetaProperty<Boolean> _margined = DirectMetaProperty.ofReadWrite(
+        this, "margined", EquityIndexFutureOptionSecurityBean.class, Boolean.class);
     /**
      * The meta-property for the {@code pointValue} property.
      */
@@ -464,7 +464,7 @@ public class EquityIndexFutureOptionSecurityBean extends SecurityBean {
         "expiry",
         "currency",
         "exchange",
-        "isMargined",
+        "margined",
         "pointValue",
         "underlying");
 
@@ -489,8 +489,8 @@ public class EquityIndexFutureOptionSecurityBean extends SecurityBean {
           return _currency;
         case 1989774883:  // exchange
           return _exchange;
-        case -549878249:  // isMargined
-          return _isMargined;
+        case 243392205:  // margined
+          return _margined;
         case 1257391553:  // pointValue
           return _pointValue;
         case -1770633379:  // underlying
@@ -564,11 +564,11 @@ public class EquityIndexFutureOptionSecurityBean extends SecurityBean {
     }
 
     /**
-     * The meta-property for the {@code isMargined} property.
+     * The meta-property for the {@code margined} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isMargined() {
-      return _isMargined;
+    public final MetaProperty<Boolean> margined() {
+      return _margined;
     }
 
     /**

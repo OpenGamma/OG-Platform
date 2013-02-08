@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.engine.view;
@@ -22,7 +22,7 @@ import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.DefaultAggregatedExecutionLog;
 import com.opengamma.engine.view.calcnode.MutableExecutionLog;
@@ -33,13 +33,13 @@ import com.opengamma.util.log.SimpleLogEvent;
 import com.opengamma.lambdava.tuple.Pair;
 
 /**
- * 
+ *
  */
 @Test
 public class ViewCalculationResultModelImplTest {
 
   public static final Position POSITION = new SimplePosition(UniqueId.of("PositionIdentifier", "testPosition"), new BigDecimal(1), ExternalIdBundle.EMPTY);
-  public static final ComputationTargetSpecification SPEC = new ComputationTargetSpecification(POSITION);
+  public static final ComputationTargetSpecification SPEC = ComputationTargetSpecification.of(POSITION);
   public static final ComputedValueResult COMPUTED_VALUE_RESULT;
   public static final SimplePortfolio PORTFOLIO;
   public static final SimplePortfolioNode PORTFOLIO_ROOT_NODE;
@@ -49,15 +49,16 @@ public class ViewCalculationResultModelImplTest {
     PORTFOLIO_ROOT_NODE = new SimplePortfolioNode(UniqueId.of("PortfolioIdentifier", "rootNode"), "rootNode");
     PORTFOLIO.setRootNode(PORTFOLIO_ROOT_NODE);
     PORTFOLIO_ROOT_NODE.addPosition(POSITION);
-    
-    ExecutionLog executionLog = MutableExecutionLog.single(new SimpleLogEvent(LogLevel.INFO, "test"), ExecutionLogMode.FULL);
-    ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of("Mock", SPEC, executionLog);
-    AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, null, ExecutionLogMode.INDICATORS);
-    COMPUTED_VALUE_RESULT = new ComputedValueResult(new ValueSpecification(new ValueRequirement("DATA", SPEC), "mockFunctionId"), "12345", aggregatedExecutionLog);
+
+    final ExecutionLog executionLog = MutableExecutionLog.single(new SimpleLogEvent(LogLevel.INFO, "test"), ExecutionLogMode.FULL);
+    final ExecutionLogWithContext executionLogWithContext = ExecutionLogWithContext.of("Mock", SPEC, executionLog);
+    final AggregatedExecutionLog aggregatedExecutionLog = new DefaultAggregatedExecutionLog(executionLogWithContext, null, ExecutionLogMode.INDICATORS);
+    COMPUTED_VALUE_RESULT = new ComputedValueResult(new ValueSpecification("DATA", SPEC, ValueProperties.with(ValuePropertyNames.FUNCTION, "mockFunctionId")
+        .get()), "12345", aggregatedExecutionLog);
   }
 
   public void addValue() {
-    InMemoryViewResultModel resultModel = new InMemoryViewResultModel() {
+    final InMemoryViewResultModel resultModel = new InMemoryViewResultModel() {
       private static final long serialVersionUID = 1L;
     };
     ViewCalculationResultModelImpl calcResult = resultModel.getCalculationResultModelImpl("Default");
@@ -68,13 +69,13 @@ public class ViewCalculationResultModelImplTest {
 
     calcResult = resultModel.getCalculationResultModelImpl("Default");
     assertNotNull(calcResult);
-    Map<Pair<String, ValueProperties>, ComputedValueResult> targetResults = calcResult.getValues(SPEC);
+    final Map<Pair<String, ValueProperties>, ComputedValueResult> targetResults = calcResult.getValues(SPEC);
     assertEquals(1, targetResults.size());
     assertEquals("DATA", targetResults.keySet().iterator().next().getFirst());
     assertEquals(COMPUTED_VALUE_RESULT, targetResults.values().iterator().next());
     assertEquals(Sets.newHashSet(SPEC), Sets.newHashSet(calcResult.getAllTargets()));
 
-    assertNull(calcResult.getValues(new ComputationTargetSpecification("nonexistent")));
+    assertNull(calcResult.getValues(ComputationTargetSpecification.of(UniqueId.of("Test", "nonexistent"))));
   }
 
 }

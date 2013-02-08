@@ -16,12 +16,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
-import javax.time.Instant;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatters;
-
 import org.apache.commons.lang.StringUtils;
 import org.cometd.Bayeux;
 import org.cometd.Client;
@@ -31,12 +25,16 @@ import org.cometd.server.BayeuxService;
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatters;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
@@ -57,7 +55,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
@@ -370,7 +367,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     String[][] versions = new String[snapshotSearchResult.getDocuments().size()][2];
     int i = 0;
     for (MarketDataSnapshotDocument doc : snapshotSearchResult.getDocuments()) {
-      ZonedDateTime snapshotDateTime = ZonedDateTime.ofInstant(doc.getVersionFromInstant(), TimeZone.UTC);
+      ZonedDateTime snapshotDateTime = ZonedDateTime.ofInstant(doc.getVersionFromInstant(), ZoneOffset.UTC);
       versions[i][0] = doc.getUniqueId().toString();
       versions[i][1] = snapshotDateTime.toString(s_snapshotDateTimeFormatter);
       i++;

@@ -8,11 +8,11 @@ package com.opengamma.engine.function.dsl;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.dsl.functions.BaseNonCompiledInvoker;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.*;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -70,13 +70,13 @@ public class BaseNonCompiledInvokerTest {
     when(ct.toSpecification()).thenReturn(cts);
 
     ValueProperties valueProperties = ValueProperties.builder().with("A", "1").with("B", "1").with(ValuePropertyNames.FUNCTION, "PV01_Function").get();
-    ValueRequirement desiredValue = new ValueRequirement("PV01", ct, valueProperties);
+    ValueRequirement desiredValue = new ValueRequirement("PV01", ct.getType(), ct.getUniqueId(), valueProperties);
     Set<ValueRequirement> requirements = dv01.getRequirements(null, ct, desiredValue);
     assertEquals(requirements.size(), 1);
 
     ValueRequirement requirement = requirements.iterator().next();
     assertEquals(requirement.getConstraints(), requirement.getConstraints());
-    assertEquals(requirement.getTargetSpecification(), cts);
+    assertEquals(requirement.getTargetReference().getSpecification(), cts);
     assertEquals(requirement.getValueName(), "PV01");
 
   }
@@ -93,8 +93,8 @@ public class BaseNonCompiledInvokerTest {
     ComputationTarget ct = mock(ComputationTarget.class);
     when(ct.toSpecification()).thenReturn(cts);
     ValueProperties valueProperties = ValueProperties.builder().with("A", "1").with("B", "1").with(ValuePropertyNames.FUNCTION, "PV01_Function").get();
-    ValueRequirement desiredValue = new ValueRequirement("PV01", ct, valueProperties);
-    ValueSpecification specifiedValue = new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints().copy().with("X", "3").get());
+    ValueRequirement desiredValue = new ValueRequirement("PV01", ct.getType(), ct.getUniqueId(), valueProperties);
+    ValueSpecification specifiedValue = new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetReference().getSpecification(), desiredValue.getConstraints().copy().with("X", "3").get());
     Map<ValueSpecification, ValueRequirement> inputSpecificationsMap = new HashMap<ValueSpecification, ValueRequirement>();
     inputSpecificationsMap.put(specifiedValue, desiredValue);
     Set<ValueSpecification> specs = dv01.getResults(null, ct, inputSpecificationsMap);

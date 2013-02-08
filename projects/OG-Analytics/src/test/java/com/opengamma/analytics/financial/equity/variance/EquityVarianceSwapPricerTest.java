@@ -24,7 +24,6 @@ import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -38,7 +37,7 @@ public class EquityVarianceSwapPricerTest {
   private static final String[] EXPIRY_LABELS = new String[] {"1W", "2W", "1M", "3M", "6M", "1Y", "2Y"};
   private static final double[] EXPIRIES = new double[] {1. / 52, 2. / 52, 1. / 12, 3. / 12, 6. / 12, 1.0, 2.0};
   private static final double[][] STRIKES = new double[][] { {50, 55, 60, 65, 70, 75, 80}, {50, 55, 60, 65, 70, 75, 80}, {50, 55, 60, 65, 70, 75, 80},
-    {40, 50, 60, 70, 80, 90}, {40, 50, 60, 70, 80, 90, 100}, {30, 50, 60, 70, 80, 90, 100}, {20, 40, 55, 65, 75, 90, 105, 125}};
+      {40, 50, 60, 70, 80, 90}, {40, 50, 60, 70, 80, 90, 100}, {30, 50, 60, 70, 80, 90, 100}, {20, 40, 55, 65, 75, 90, 105, 125}};
   //  private static final double[][] OTM_PRICES_FLAT;
   //  private static final double[][] OTM_PRICES;
   //  private static final SmileSurfaceDataBundle MARKET_VOLS_FLAT_NODIVS;
@@ -214,178 +213,6 @@ public class EquityVarianceSwapPricerTest {
   //  }
 
   @Test
-  public void bucketedVegaTest() {
-    if (PRINT) {
-      final PureImpliedVolatilitySurface flat = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
-      final SmileSurfaceDataBundle v1 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v2 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v3 = v2;
-      final SmileSurfaceDataBundle v4 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v5 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v6 = v5;
-
-      final double[][] res1 = PRICER.bucketedVega(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v1);
-      final double[][] res2 = PRICER.bucketedVega(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      final double[][] res3 = PRICER.bucketedVega(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      final double[][] res4 = PRICER.bucketedVega(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      final double[][] res5 = PRICER.bucketedVega(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      final double[][] res6 = PRICER.bucketedVega(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
-
-      printBucketedVega("Flat surface - no dividends", res1);
-      printBucketedVega("Flat surface - dividends corrected", res2);
-      printBucketedVega("Flat surface - dividends not corrected", res3);
-      printBucketedVega("Non-flat surface - no dividends", res4);
-      printBucketedVega("Non-flat surface - dividends corrected", res5);
-      printBucketedVega("Non-flat surface - dividends not corrected", res6);
-    }
-  }
-
-  private void printBucketedVega(final String label, final double[][] data) {
-    final int n = data.length;
-    ArgumentChecker.isTrue(n == EXPIRY_LABELS.length, "data wrong length");
-    System.out.println(label);
-    for (int i = 0; i < n; i++) {
-      System.out.print(EXPIRY_LABELS[i] + "\t");
-      final int m = data[i].length;
-      for (int j = 0; j < m; j++) {
-        System.out.print(data[i][j] + "\t");
-      }
-      System.out.print("\n");
-    }
-  }
-
-  @Test
-  public void dividendSensitivityWithStickyImpVolTest() {
-    if (PRINT) {
-      //make all the implied volatility scenarios with the spot fixed
-      final PureImpliedVolatilitySurface flat = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
-
-      final SmileSurfaceDataBundle v1 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v2 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v3 = v2;
-      final SmileSurfaceDataBundle v4 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v5 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v6 = v5;
-
-      //now assume that the implied volatilities remain fixed as the spot moves
-      //    double[][] d1 = pricer.dividendSensitivityWithStickyImpliedVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, ZERO_DIVIDENDS, v1);
-      final double[][] d2 = PRICER.dividendSensitivityWithStickyImpliedVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      final double[][] d3 = PRICER.dividendSensitivityWithStickyImpliedVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      //    double[][] d4 = pricer.dividendSensitivityWithStickyImpliedVol(EVS, SPOT, DISCOUNT_CURVE, ZERO_DIVIDENDS, v4);
-      final double[][] d5 = PRICER.dividendSensitivityWithStickyImpliedVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      final double[][] d6 = PRICER.dividendSensitivityWithStickyImpliedVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
-
-      //printDividendSense("Flat surface - no dividends:", d1);
-      printDividendSense("Flat, divs corr:", d2);
-      printDividendSense("Flat, divs not corr:", d3);
-      //  printDividendSense(" Non-flat surface - no dividends:", d4);
-      printDividendSense("Non-flat, divs corr:", d5);
-      printDividendSense("Non-flat, divs not corr:", d6);
-    }
-  }
-
-  @Test
-  public void dividendSensitivityWithStickyPureVolTest() {
-    if (PRINT) {
-      //make all the implied volatility scenarios with the spot fixed
-      final PureImpliedVolatilitySurface flat = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
-
-      final SmileSurfaceDataBundle v1 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v2 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v3 = v2;
-      final SmileSurfaceDataBundle v4 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v5 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v6 = v5;
-
-      //now assume that the implied volatilities remain fixed as the spot moves
-      //    double[][] d1 = pricer.dividendSensitivityWithStickyPureVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, ZERO_DIVIDENDS, v1);
-      final double[][] d2 = PRICER.dividendSensitivityWithStickyPureVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      final double[][] d3 = PRICER.dividendSensitivityWithStickyPureVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      //      double[][] d4 = pricer.dividendSensitivityWithStickyPureVol(EVS, SPOT, DISCOUNT_CURVE, ZERO_DIVIDENDS, v4);
-      final double[][] d5 = PRICER.dividendSensitivityWithStickyPureVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      final double[][] d6 = PRICER.dividendSensitivityWithStickyPureVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
-
-      //     printDividendSense("Flat surface - no dividends:", d1);
-      printDividendSense("Flat, divs corr:", d2);
-      printDividendSense("Flat, divs not corr:", d3);
-      //      printDividendSense(" Non-flat surface - no dividends:", d4);
-      printDividendSense("Non-flat, divs corr:", d5);
-      printDividendSense("Non-flat, divs not corr:", d6);
-    }
-  }
-
-  private void printDividendSense(final String label, final double[][] data) {
-    System.out.print(label + "\t");
-    final int n = data.length;
-    for (int i = 0; i < n; i++) {
-      final int m = data[i].length;
-      for (int j = 0; j < m; j++) {
-        System.out.print(data[i][j] + "\t");
-      }
-    }
-    System.out.print("\n");
-
-  }
-
-  @Test
-  public void deltaWithDtickyStikeTest() {
-    if (PRINT) {
-      //make all the implied volatility scenarios with the spot fixed
-      final PureImpliedVolatilitySurface flat = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
-      final SmileSurfaceDataBundle v1 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v2 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v3 = v2;
-      final SmileSurfaceDataBundle v4 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v5 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v6 = v5;
-
-      //now assume that the implied volatilities remain fixed as the spot moves
-      final double d1 = PRICER.deltaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      final double d2 = PRICER.deltaWithStickyStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      final double d3 = PRICER.deltaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      final double d4 = PRICER.deltaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      final double d5 = PRICER.deltaWithStickyStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      final double d6 = PRICER.deltaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
-
-      System.out.println("Flat, no divs: " + d1);
-      System.out.println("Flat, divs corr: " + d2);
-      System.out.println("Flat, divs not corr: " + d3);
-      System.out.println("Non-flat, no divs: " + d4);
-      System.out.println("Non-flat, divs corr: " + d5);
-      System.out.println("Non-flat, divs not corr: " + d6);
-    }
-  }
-
-  @Test
-  public void deltaWithStickyPureStrikeTest() {
-    if (PRINT) {
-      //make all the implied volatility scenarios with the spot fixed
-      final PureImpliedVolatilitySurface flat = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
-      final SmileSurfaceDataBundle v1 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v2 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v3 = v2;
-      final SmileSurfaceDataBundle v4 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v5 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v6 = v5;
-
-      //now assume that the implied volatilities remain fixed as the spot moves
-      final double d1 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      final double d2 = PRICER.deltaWithStickyPureStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      final double d3 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      final double d4 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      final double d5 = PRICER.deltaWithStickyPureStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      final double d6 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
-
-      System.out.println("Flat, no divs: " + d1);
-      System.out.println("Flat, divs corr: " + d2);
-      System.out.println("Flat, divs not corr: " + d3);
-      System.out.println("Non-flat, no divs: " + d4);
-      System.out.println("Non-flat, divs corr: " + d5);
-      System.out.println("Non-flat, divs not corr: " + d6);
-    }
-  }
-
-  @Test
   public void deltaWithStickyLocalVolTest() {
     if (PRINT) {
       //make all the implied volatility scenarios with the spot fixed
@@ -411,64 +238,6 @@ public class EquityVarianceSwapPricerTest {
       System.out.println("Non-flat, no divs: " + d4);
       System.out.println("Non-flat, divs corr: " + d5);
       System.out.println("Non-flat, divs not corr: " + d6);
-    }
-  }
-
-  @Test
-  public void gammaStickyStikeTest() {
-    if (PRINT) {
-      //make all the implied volatility scenarios with the spot fixed
-      final PureImpliedVolatilitySurface flat = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
-      final SmileSurfaceDataBundle v1 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v2 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v3 = v2;
-      final SmileSurfaceDataBundle v4 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v5 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v6 = v5;
-
-      //now assume that the implied volatilities remain fixed as the spot moves
-      final double d1 = PRICER.gammaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      final double d2 = PRICER.gammaWithStickyStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      final double d3 = PRICER.gammaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      final double d4 = PRICER.gammaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      final double d5 = PRICER.gammaWithStickyStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      final double d6 = PRICER.gammaWithStickyStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
-
-      System.out.println("Flat, no divs:\t" + d1);
-      System.out.println("Flat, divs corr:\t" + d2);
-      System.out.println("Flat, divs not corr:\t" + d3);
-      System.out.println("Non-flat, no divs:\t" + d4);
-      System.out.println("Non-flat, divs corr:\t" + d5);
-      System.out.println("Non-flat, divs not corr:\t" + d6);
-    }
-  }
-
-  @Test
-  public void gammaWithStickyPureStrikeTest() {
-    if (PRINT) {
-      //make all the implied volatility scenarios with the spot fixed
-      final PureImpliedVolatilitySurface flat = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
-      final SmileSurfaceDataBundle v1 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v2 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v3 = v2;
-      final SmileSurfaceDataBundle v4 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v5 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v6 = v5;
-
-      //now assume that the implied volatilities remain fixed as the spot moves
-      final double d1 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      final double d2 = PRICER.deltaWithStickyPureStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      final double d3 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      final double d4 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      final double d5 = PRICER.deltaWithStickyPureStrike(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      final double d6 = PRICER.deltaWithStickyPureStrike(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
-
-      System.out.println("Flat, no divs:\t" + d1);
-      System.out.println("Flat, divs corr:\t" + d2);
-      System.out.println("Flat, divs not corr:\t" + d3);
-      System.out.println("Non-flat, no divs:\t" + d4);
-      System.out.println("Non-flat, divs corr:\t" + d5);
-      System.out.println("Non-flat, divs not corr:\t" + d6);
     }
   }
 
@@ -503,35 +272,6 @@ public class EquityVarianceSwapPricerTest {
   }
 
   @Test
-  public void vegaImpVolTest() {
-    if (PRINT) {
-      //make all the implied volatility scenarios with the spot fixed
-      final PureImpliedVolatilitySurface flat = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
-      final SmileSurfaceDataBundle v1 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v2 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v3 = v2;
-      final SmileSurfaceDataBundle v4 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v5 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v6 = v5;
-
-      //now assume that the implied volatilities remain fixed as the spot moves
-      final double d1 = PRICER.vegaImpVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      final double d2 = PRICER.vegaImpVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      final double d3 = PRICER.vegaImpVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      final double d4 = PRICER.vegaImpVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      final double d5 = PRICER.vegaImpVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      final double d6 = PRICER.vegaImpVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
-
-      System.out.println("Flat, no divs: " + d1);
-      System.out.println("Flat, divs corr: " + d2);
-      System.out.println("Flat, divs not corr: " + d3);
-      System.out.println("Non-flat, no divs: " + d4);
-      System.out.println("Non-flat, divs corr: " + d5);
-      System.out.println("Non-flat, divs not corr: " + d6);
-    }
-  }
-
-  @Test
   public void vegaLocalVolTest() {
     if (PRINT) {
       //make all the implied volatility scenarios with the spot fixed
@@ -550,35 +290,6 @@ public class EquityVarianceSwapPricerTest {
       final double d4 = PRICER.vegaLocalVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
       final double d5 = PRICER.vegaLocalVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
       final double d6 = PRICER.vegaLocalVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
-
-      System.out.println("Flat, no divs: " + d1);
-      System.out.println("Flat, divs corr: " + d2);
-      System.out.println("Flat, divs not corr: " + d3);
-      System.out.println("Non-flat, no divs: " + d4);
-      System.out.println("Non-flat, divs corr: " + d5);
-      System.out.println("Non-flat, divs not corr: " + d6);
-    }
-  }
-
-  @Test
-  public void vegaPureImpVolTest() {
-    if (PRINT) {
-      //make all the implied volatility scenarios with the spot fixed
-      final PureImpliedVolatilitySurface flat = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
-      final SmileSurfaceDataBundle v1 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v2 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, flat);
-      final SmileSurfaceDataBundle v3 = v2;
-      final SmileSurfaceDataBundle v4 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, NULL_DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v5 = getMarketVols(SPOT, EXPIRIES, STRIKES, DISCOUNT_CURVE, DIVIDENDS, PURE_VOL_SURFACE);
-      final SmileSurfaceDataBundle v6 = v5;
-
-      //now assume that the implied volatilities remain fixed as the spot moves
-      final double d1 = PRICER.vegaPureImpVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v1);
-      final double d2 = PRICER.vegaPureImpVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v2);
-      final double d3 = PRICER.vegaPureImpVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v3);
-      final double d4 = PRICER.vegaPureImpVol(EVS, SPOT, DISCOUNT_CURVE, NULL_DIVIDENDS, v4);
-      final double d5 = PRICER.vegaPureImpVol(EVS_COR_FRO_DIVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v5);
-      final double d6 = PRICER.vegaPureImpVol(EVS, SPOT, DISCOUNT_CURVE, DIVIDENDS, v6);
 
       System.out.println("Flat, no divs: " + d1);
       System.out.println("Flat, divs corr: " + d2);

@@ -15,13 +15,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergIdentifierProvider;
@@ -115,7 +113,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
    *
    * @param args  the arguments, unused
    */
-  public static void main(String[] args) {  // CSIGNORE
+  public static void main(final String[] args) {  // CSIGNORE
     new ExampleTimeSeriesRatingLoader().initAndRun(args, IntegrationToolContext.class);
     new ExampleMultiCurrencySwapPortfolioLoader().initAndRun(args, IntegrationToolContext.class);
     System.exit(0);
@@ -124,7 +122,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    Collection<SwapSecurity> swaps = createRandomSwaps();
+    final Collection<SwapSecurity> swaps = createRandomSwaps();
     if (swaps.size() == 0) {
       throw new OpenGammaRuntimeException("No (valid) swaps were generated.");
     }
@@ -132,27 +130,27 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
   }
 
   private Collection<SwapSecurity> createRandomSwaps() {
-    Collection<SwapSecurity> swaps = new ArrayList<SwapSecurity>();
+    final Collection<SwapSecurity> swaps = new ArrayList<SwapSecurity>();
 
-    SecureRandom random = new SecureRandom();
+    final SecureRandom random = new SecureRandom();
 
     // Currency, TradeDate, Maturity
-    List<Triple<Currency, LocalDate, Tenor>> swapsArgs = newArrayList();
+    final List<Triple<Currency, LocalDate, Tenor>> swapsArgs = newArrayList();
 
     for (int i = 0; i < SECURITIES_SIZE; i++) {
-      Currency ccy = getCurrency(random);
-      LocalDate tradeDate = getTradeDate(random, ccy);
-      Tenor maturity = s_tenors[random.nextInt(s_tenors.length)];
+      final Currency ccy = getCurrency(random);
+      final LocalDate tradeDate = getTradeDate(random, ccy);
+      final Tenor maturity = s_tenors[random.nextInt(s_tenors.length)];
       swapsArgs.add(Triple.of(ccy, tradeDate, maturity));
     }
 
     fetch(swapsArgs);
 
-    for (Triple<Currency, LocalDate, Tenor> swapArgs : swapsArgs) {
+    for (final Triple<Currency, LocalDate, Tenor> swapArgs : swapsArgs) {
       SwapSecurity swap = null;
       try {
         swap = makeSwap(random, swapArgs.getFirst(), swapArgs.getSecond(), swapArgs.getThird());
-      } catch (Exception e) {
+      } catch (final Exception e) {
         e.printStackTrace();
       }
       if (swap != null) {
@@ -160,58 +158,58 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
       }
     }
 
-    StringBuilder sb = new StringBuilder();
+    final StringBuilder sb = new StringBuilder();
     sb.append("Parsed ").append(swaps.size()).append(" swaps:\n");
-    for (SwapSecurity swap : swaps) {
+    for (final SwapSecurity swap : swaps) {
       sb.append("\t").append(swap.getName()).append("\n");
     }
     s_logger.info(sb.toString());
     return swaps;
   }
 
-  private void fetch(List<Triple<Currency, LocalDate, Tenor>> swapsArgs) {
-    MasterConfigSource configSource = new MasterConfigSource(getToolContext().getConfigMaster());
-    Set<ExternalId> externalIds = newHashSet();
-    for (Triple<Currency, LocalDate, Tenor> swapArgs : swapsArgs) {
-      ExternalId swapRateForMaturityIdentifier = getSwapRateFor(configSource, swapArgs.getFirst(), swapArgs.getSecond(), swapArgs.getThird());
+  private void fetch(final List<Triple<Currency, LocalDate, Tenor>> swapsArgs) {
+    final MasterConfigSource configSource = new MasterConfigSource(getToolContext().getConfigMaster());
+    final Set<ExternalId> externalIds = newHashSet();
+    for (final Triple<Currency, LocalDate, Tenor> swapArgs : swapsArgs) {
+      final ExternalId swapRateForMaturityIdentifier = getSwapRateFor(configSource, swapArgs.getFirst(), swapArgs.getSecond(), swapArgs.getThird());
       externalIds.add(swapRateForMaturityIdentifier);
     }
 
-    BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
+    final BloombergHistoricalTimeSeriesLoader loader = new BloombergHistoricalTimeSeriesLoader(
       getToolContext().getHistoricalTimeSeriesMaster(),
       getToolContext().getHistoricalTimeSeriesProvider(),
       new BloombergIdentifierProvider(getToolContext().getBloombergReferenceDataProvider()));
-    loader.addTimeSeries(externalIds, "CMPL", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
+    loader.addTimeSeries(externalIds, "UNKNOWN", "PX_LAST", LocalDate.now().minusYears(1), LocalDate.now());
   }
 
   private SwapSecurity makeSwap(final SecureRandom random, final Currency ccy, final LocalDate tradeDate, final Tenor maturity) {
 
     // get the identifier for the swap rate for the maturity we're interested in (assuming the fixed rate will be =~ swap rate)
-    Double fixedRate = getFixedRate(random, ccy, tradeDate, maturity);
-    Double notional = (double) (random.nextInt(99999) + 1) * 1000;
-    boolean isPayFixed = random.nextBoolean();
+    final Double fixedRate = getFixedRate(random, ccy, tradeDate, maturity);
+    final Double notional = (double) (random.nextInt(99999) + 1) * 1000;
+    final boolean isPayFixed = random.nextBoolean();
 
-    ConventionBundle swapConvention = getSwapConventionBundle(ccy);
-    ConventionBundle liborConvention = getLiborConventionBundle(swapConvention);
+    final ConventionBundle swapConvention = getSwapConventionBundle(ccy);
+    final ConventionBundle liborConvention = getLiborConventionBundle(swapConvention);
 
     // look up the BLOOMBERG ticker out of the bundle
-    ExternalId liborIdentifier = liborConvention.getIdentifiers().getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
+    final ExternalId liborIdentifier = liborConvention.getIdentifiers().getExternalId(ExternalSchemes.BLOOMBERG_TICKER);
     if (liborIdentifier == null) {
       throw new OpenGammaRuntimeException("No bloomberg ticker set up for " + swapConvention.getName());
     }
 
-    ZonedDateTime tradeDateTime = ZonedDateTime.of(tradeDate, LocalTime.MIDNIGHT, TimeZone.UTC);
-    ZonedDateTime maturityDateTime = ZonedDateTime.of(tradeDate.plus(maturity.getPeriod()), LocalTime.MIDNIGHT, TimeZone.UTC);
-    String counterparty = "CParty";
+    final ZonedDateTime tradeDateTime = tradeDate.atStartOfDay(ZoneOffset.UTC);
+    final ZonedDateTime maturityDateTime = tradeDate.plus(maturity.getPeriod()).atStartOfDay(ZoneOffset.UTC);
+    final String counterparty = "CParty";
 
-    SwapLeg fixedLeg = new FixedInterestRateLeg(swapConvention.getSwapFixedLegDayCount(),
+    final SwapLeg fixedLeg = new FixedInterestRateLeg(swapConvention.getSwapFixedLegDayCount(),
       swapConvention.getSwapFixedLegFrequency(),
       swapConvention.getSwapFixedLegRegion(),
       swapConvention.getSwapFixedLegBusinessDayConvention(),
       new InterestRateNotional(ccy, notional),
       false, fixedRate);
 
-    FloatingInterestRateLeg floatingLeg = new FloatingInterestRateLeg(swapConvention.getSwapFloatingLegDayCount(),
+    final FloatingInterestRateLeg floatingLeg = new FloatingInterestRateLeg(swapConvention.getSwapFloatingLegDayCount(),
       swapConvention.getSwapFloatingLegFrequency(),
       swapConvention.getSwapFloatingLegRegion(),
       swapConvention.getSwapFloatingLegBusinessDayConvention(),
@@ -219,11 +217,11 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
       false, ExternalId.of(liborIdentifier.getScheme().toString(), liborIdentifier.getValue()),
       FloatingRateType.IBOR);
     // look up the value on our chosen trade date
-    Double initialRate = getInitialRate(tradeDate, liborIdentifier);
+    final Double initialRate = getInitialRate(tradeDate, liborIdentifier);
     floatingLeg.setInitialFloatingRate(initialRate);
 
-    String fixedLegDescription = PortfolioLoaderHelper.RATE_FORMATTER.format(fixedRate);
-    String floatingLegDescription = swapConvention.getSwapFloatingLegInitialRate().getValue();
+    final String fixedLegDescription = PortfolioLoaderHelper.RATE_FORMATTER.format(fixedRate);
+    final String floatingLegDescription = swapConvention.getSwapFloatingLegInitialRate().getValue();
     SwapLeg payLeg;
     String payLegDescription;
     SwapLeg receiveLeg;
@@ -239,63 +237,63 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
       receiveLeg = fixedLeg;
       receiveLegDescription = fixedLegDescription;
     }
-    SwapSecurity swap = new SwapSecurity(tradeDateTime, tradeDateTime, maturityDateTime, counterparty, payLeg, receiveLeg);
+    final SwapSecurity swap = new SwapSecurity(tradeDateTime, tradeDateTime, maturityDateTime, counterparty, payLeg, receiveLeg);
     swap.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap.setName("IR Swap " + ccy + " " + PortfolioLoaderHelper.NOTIONAL_FORMATTER.format(notional) + " " +
       maturityDateTime.toString(PortfolioLoaderHelper.OUTPUT_DATE_FORMATTER) + " - " + payLegDescription + " / " + receiveLegDescription);
     return swap;
   }
 
-  private Double getFixedRate(SecureRandom random, Currency ccy, LocalDate tradeDate, Tenor maturity) {
-    HistoricalTimeSeriesSource historicalSource = getToolContext().getHistoricalTimeSeriesSource();
-    MasterConfigSource configSource = new MasterConfigSource(getToolContext().getConfigMaster());
-    ExternalId swapRateForMaturityIdentifier = getSwapRateFor(configSource, ccy, tradeDate, maturity);
+  private Double getFixedRate(final SecureRandom random, final Currency ccy, final LocalDate tradeDate, final Tenor maturity) {
+    final HistoricalTimeSeriesSource historicalSource = getToolContext().getHistoricalTimeSeriesSource();
+    final MasterConfigSource configSource = new MasterConfigSource(getToolContext().getConfigMaster());
+    final ExternalId swapRateForMaturityIdentifier = getSwapRateFor(configSource, ccy, tradeDate, maturity);
     if (swapRateForMaturityIdentifier == null) {
       throw new OpenGammaRuntimeException("Couldn't get swap rate identifier for " + ccy + " [" + maturity + "]" + " from " + tradeDate);
     }
 
-    HistoricalTimeSeries fixedRateSeries = historicalSource.getHistoricalTimeSeries("PX_LAST",
+    final HistoricalTimeSeries fixedRateSeries = historicalSource.getHistoricalTimeSeries("PX_LAST",
         swapRateForMaturityIdentifier.toBundle(), HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate, true, tradeDate, true);
     if (fixedRateSeries == null) {
       throw new OpenGammaRuntimeException("can't find time series for " + swapRateForMaturityIdentifier + " on " + tradeDate);
     }
-    Double fixedRate = (fixedRateSeries.getTimeSeries().getEarliestValue() + random.nextDouble()) / 100d;
+    final Double fixedRate = (fixedRateSeries.getTimeSeries().getEarliestValue() + random.nextDouble()) / 100d;
     return fixedRate;
   }
 
-  private Double getInitialRate(LocalDate tradeDate, ExternalId liborIdentifier) {
-    HistoricalTimeSeriesSource historicalSource = getToolContext().getHistoricalTimeSeriesSource();
-    HistoricalTimeSeries initialRateSeries = historicalSource.getHistoricalTimeSeries(
+  private Double getInitialRate(final LocalDate tradeDate, final ExternalId liborIdentifier) {
+    final HistoricalTimeSeriesSource historicalSource = getToolContext().getHistoricalTimeSeriesSource();
+    final HistoricalTimeSeries initialRateSeries = historicalSource.getHistoricalTimeSeries(
       "PX_LAST", liborIdentifier.toBundle(),
       HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate, true, tradeDate, true);
     if (initialRateSeries == null || initialRateSeries.getTimeSeries().isEmpty()) {
       throw new OpenGammaRuntimeException("couldn't get series for " + liborIdentifier + " on " + tradeDate);
     }
-    Double initialRate = initialRateSeries.getTimeSeries().getEarliestValue();
+    final Double initialRate = initialRateSeries.getTimeSeries().getEarliestValue();
     return initialRate;
   }
 
-  private ConventionBundle getLiborConventionBundle(ConventionBundle swapConvention) {
+  private ConventionBundle getLiborConventionBundle(final ConventionBundle swapConvention) {
     // get the convention of the identifier of the initial rate
-    ConventionBundleSource conventionSource = getToolContext().getConventionBundleSource();
-    ConventionBundle liborConvention = conventionSource.getConventionBundle(swapConvention.getSwapFloatingLegInitialRate());
+    final ConventionBundleSource conventionSource = getToolContext().getConventionBundleSource();
+    final ConventionBundle liborConvention = conventionSource.getConventionBundle(swapConvention.getSwapFloatingLegInitialRate());
     if (liborConvention == null) {
       throw new OpenGammaRuntimeException("Couldn't get libor convention for " + swapConvention.getSwapFloatingLegInitialRate());
     }
     return liborConvention;
   }
 
-  private ConventionBundle getSwapConventionBundle(Currency ccy) {
-    ConventionBundleSource conventionSource = getToolContext().getConventionBundleSource();
-    ConventionBundle swapConvention = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
+  private ConventionBundle getSwapConventionBundle(final Currency ccy) {
+    final ConventionBundleSource conventionSource = getToolContext().getConventionBundleSource();
+    final ConventionBundle swapConvention = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
     if (swapConvention == null) {
       throw new OpenGammaRuntimeException("Couldn't get swap convention for " + ccy.getCode());
     }
     return swapConvention;
   }
 
-  private LocalDate getTradeDate(SecureRandom random, Currency ccy) {
-    HolidaySource holidaySource = getToolContext().getHolidaySource();
+  private LocalDate getTradeDate(final SecureRandom random, final Currency ccy) {
+    final HolidaySource holidaySource = getToolContext().getHolidaySource();
     LocalDate tradeDate;
     do {
       tradeDate = DateUtils.previousWeekDay().minusDays(random.nextInt(DAYS_TRADING));
@@ -303,14 +301,14 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
     return tradeDate;
   }
 
-  private Currency getCurrency(SecureRandom random) {
-    int offset = random.nextInt(s_currencies.length);
-    Currency ccy = s_currencies[offset];
+  private Currency getCurrency(final SecureRandom random) {
+    final int offset = random.nextInt(s_currencies.length);
+    final Currency ccy = s_currencies[offset];
     return ccy;
   }
 
-  private static ExternalId getSwapRateFor(ConfigSource configSource, Currency ccy, LocalDate tradeDate, Tenor tenor) {
-    CurveSpecificationBuilderConfiguration curveSpecConfig = configSource.get(CurveSpecificationBuilderConfiguration.class, "DEFAULT_" + ccy.getCode(), VersionCorrection.LATEST).getValue();
+  private static ExternalId getSwapRateFor(final ConfigSource configSource, final Currency ccy, final LocalDate tradeDate, final Tenor tenor) {
+    final CurveSpecificationBuilderConfiguration curveSpecConfig = configSource.getSingle(CurveSpecificationBuilderConfiguration.class, "DEFAULT_" + ccy.getCode(), VersionCorrection.LATEST);
     if (curveSpecConfig == null) {
       throw new OpenGammaRuntimeException("No curve spec builder configuration for DEFAULT_" + ccy.getCode());
     }
@@ -325,22 +323,22 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool<Integr
     return swapSecurity;
   }
 
-  private void persistToPortfolio(Collection<SwapSecurity> swaps, String portfolioName) {
-    PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
-    PositionMaster positionMaster = getToolContext().getPositionMaster();
-    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
+  private void persistToPortfolio(final Collection<SwapSecurity> swaps, final String portfolioName) {
+    final PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
+    final PositionMaster positionMaster = getToolContext().getPositionMaster();
+    final SecurityMaster securityMaster = getToolContext().getSecurityMaster();
 
-    ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
-    ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
-    PortfolioDocument portfolioDoc = new PortfolioDocument();
+    final ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
+    final ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
+    final PortfolioDocument portfolioDoc = new PortfolioDocument();
     portfolioDoc.setPortfolio(portfolio);
 
-    for (SwapSecurity swap : swaps) {
-      SecurityDocument swapToAddDoc = new SecurityDocument();
+    for (final SwapSecurity swap : swaps) {
+      final SecurityDocument swapToAddDoc = new SecurityDocument();
       swapToAddDoc.setSecurity(swap);
       securityMaster.add(swapToAddDoc);
-      ManageablePosition swapPosition = new ManageablePosition(BigDecimal.ONE, swap.getExternalIdBundle());
-      PositionDocument addedDoc = positionMaster.add(new PositionDocument(swapPosition));
+      final ManageablePosition swapPosition = new ManageablePosition(BigDecimal.ONE, swap.getExternalIdBundle());
+      final PositionDocument addedDoc = positionMaster.add(new PositionDocument(swapPosition));
       rootNode.addPosition(addedDoc.getUniqueId());
     }
     portfolioMaster.add(portfolioDoc);

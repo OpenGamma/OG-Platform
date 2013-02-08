@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -41,8 +41,6 @@ public class IRFutureOptionSABRDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES
   };
-  /** The priority */
-  private final PriorityClass _priority;
   /** The curve calculation configuration names to be used for each currency */
   private final Map<String, String> _curveConfigPerCurrency;
   /** The surface names to be used for each currency */
@@ -51,16 +49,13 @@ public class IRFutureOptionSABRDefaults extends DefaultPropertyFunction {
   private final Map<String, String> _fittingMethodPerCurrency;
 
   /**
-   * @param priority The priority, not null
    * @param defaultsPerCurrency The default values per currency, not null. Must contain elements in the order: currency, curve calculation configuration name, surface name
    * and fitting method name.
    */
-  public IRFutureOptionSABRDefaults(final String priority, final String... defaultsPerCurrency) {
+  public IRFutureOptionSABRDefaults(final String... defaultsPerCurrency) {
     super(ComputationTargetType.TRADE, true);
-    ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(defaultsPerCurrency, "defaults per currency");
     ArgumentChecker.isTrue(defaultsPerCurrency.length % 4 == 0, "Must have one curve configuration name, surface name and fitting method name per currency");
-    _priority = PriorityClass.valueOf(priority);
     _curveConfigPerCurrency = Maps.newLinkedHashMap();
     _surfacePerCurrency = Maps.newLinkedHashMap();
     _fittingMethodPerCurrency = Maps.newLinkedHashMap();
@@ -74,9 +69,6 @@ public class IRFutureOptionSABRDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
-      return false;
-    }
     final Security security = target.getTrade().getSecurity();
     if (!(security instanceof IRFutureOptionSecurity)) {
       return false;
@@ -115,8 +107,4 @@ public class IRFutureOptionSABRDefaults extends DefaultPropertyFunction {
     return null;
   }
 
-  @Override
-  public PriorityClass getPriority() {
-    return _priority;
-  }
 }

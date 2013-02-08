@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swaption.deprecated;
@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -18,6 +17,7 @@ import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.swaption.black.SwaptionBlackDefaultPropertiesFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
@@ -43,7 +43,7 @@ public class SwaptionBlackDefaultPropertiesFunctionDeprecated extends DefaultPro
 
   public SwaptionBlackDefaultPropertiesFunctionDeprecated(final String forwardCurveName, final String fundingCurveName, final String surfaceName,
       final String curveCalculationMethod, final String... applicableCurrencies) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.SWAPTION_SECURITY, true);
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
     ArgumentChecker.notNull(fundingCurveName, "funding curve name");
     ArgumentChecker.notNull(surfaceName, "surface name");
@@ -99,12 +99,8 @@ public class SwaptionBlackDefaultPropertiesFunctionDeprecated extends DefaultPro
   }
 
   @Override
-  public PriorityClass getPriority() {
-    return PriorityClass.NORMAL;
-  }
-
-  @Override
   public String getMutualExclusionGroup() {
     return OpenGammaFunctionExclusions.SWAPTION_BLACK_DEFAULTS;
   }
+
 }

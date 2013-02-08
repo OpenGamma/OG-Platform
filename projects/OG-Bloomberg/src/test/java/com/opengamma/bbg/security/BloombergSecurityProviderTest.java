@@ -35,15 +35,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import javax.time.Instant;
-import javax.time.calendar.Clock;
-import javax.time.calendar.TimeZone;
-
 import org.joda.beans.Bean;
 import org.joda.beans.test.BeanAssert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.Clock;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.bbg.BloombergConnector;
@@ -66,6 +64,7 @@ import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
+import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
@@ -106,7 +105,7 @@ public class BloombergSecurityProviderTest {
     BloombergReferenceDataProvider refDataProvider = new BloombergReferenceDataProvider(connector);
     refDataProvider.start();
     _refDataProvider = refDataProvider;
-    DefaultExchangeDataProvider exchangeProvider = new DefaultExchangeDataProvider();
+    ExchangeDataProvider exchangeProvider = DefaultExchangeDataProvider.getInstance();
     return new BloombergSecurityProvider(refDataProvider, exchangeProvider);
   }
 
@@ -319,7 +318,7 @@ public class BloombergSecurityProviderTest {
   }
 
   private Instant getTodayInstant() {
-    Instant toDay = Clock.system(TimeZone.UTC).instant();
+    Instant toDay = Clock.systemUTC().instant();
     return toDay;
   }
 
@@ -527,6 +526,7 @@ public class BloombergSecurityProviderTest {
       _secKey = secKey;
     }
 
+    @Override
     public Security call() throws Exception {
       return _securityProvider.getSecurity(_secKey);
     }

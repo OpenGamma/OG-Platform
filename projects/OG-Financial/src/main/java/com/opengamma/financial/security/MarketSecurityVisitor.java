@@ -11,6 +11,7 @@ import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 
 /**
@@ -52,6 +53,11 @@ public class MarketSecurityVisitor extends FinancialSecurityVisitorSameValueAdap
 
   @Override
   public Boolean visitCommodityFutureOptionSecurity(final CommodityFutureOptionSecurity commodityFutureOptionSecurity) {
+    return true;
+  }
+
+  @Override
+  public Boolean visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
     return true;
   }
 

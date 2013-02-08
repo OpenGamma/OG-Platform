@@ -25,11 +25,11 @@ public class TargetSpecificBlackVolatilitySurfaceDefaults {
   
   static {
     List<String> eurusd = Arrays.asList("EURUSD", "DiscountingImplied", ForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD, "TULLETT");
-    FX_BLACK_SURFACE_DEFAULTS = new HashMap<UnorderedCurrencyPair, List<String>>(); 
+    FX_BLACK_SURFACE_DEFAULTS = new HashMap<>(); 
     FX_BLACK_SURFACE_DEFAULTS.put(UnorderedCurrencyPair.of(Currency.EUR, Currency.USD), eurusd);
 
-    List<String> usdCommodity = Arrays.asList("USD", "BBG_S ", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD, "BBG_S ");
-    COMMODITY_BLACK_SURFACE_DEFAULTS = new HashMap<Currency, List<String>>();
+    List<String> usdCommodity = Arrays.asList("USD", "BBG", ForwardCurveValuePropertyNames.PROPERTY_FUTURE_PRICE_METHOD, "BBG");
+    COMMODITY_BLACK_SURFACE_DEFAULTS = new HashMap<>();
     COMMODITY_BLACK_SURFACE_DEFAULTS.put(Currency.USD, usdCommodity);
   }
   
@@ -38,7 +38,7 @@ public class TargetSpecificBlackVolatilitySurfaceDefaults {
    * @return A collection of lists containing the default values
    */
   public static List<String> getAllFXDefaults() {
-    final List<String> result = new ArrayList<String>();
+    final List<String> result = new ArrayList<>();
     for (final List<String> defaults : FX_BLACK_SURFACE_DEFAULTS.values()) {
       result.addAll(defaults);
     }
@@ -50,7 +50,7 @@ public class TargetSpecificBlackVolatilitySurfaceDefaults {
    * @return A collection of lists containing the default values
    */
   public static List<String> getAllCommodityDefaults() {
-    final List<String> result = new ArrayList<String>();
+    final List<String> result = new ArrayList<>();
     for (final List<String> defaults : COMMODITY_BLACK_SURFACE_DEFAULTS.values()) {
       result.addAll(defaults);
     }

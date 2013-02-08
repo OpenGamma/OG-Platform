@@ -6,17 +6,18 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertTrue;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
@@ -70,11 +71,11 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
 
-  private static final Period[] EXPIRY_TENOR = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(5) };
+  private static final Period[] EXPIRY_TENOR = new Period[] {Period.of(6, MONTHS), Period.of(1, YEARS), Period.of(5, YEARS) };
   private static final int NB_EXPIRY = EXPIRY_TENOR.length;
   private static final ZonedDateTime[] EXPIRY_DATE = new ZonedDateTime[NB_EXPIRY];
   private static final double[] EXPIRY_TIME = new double[NB_EXPIRY];
-  private static final Period[] MATURITY_TENOR = new Period[] {Period.ofYears(1), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10) };
+  private static final Period[] MATURITY_TENOR = new Period[] {Period.of(1, YEARS), Period.of(2, YEARS), Period.of(5, YEARS), Period.of(10, YEARS) };
   private static final double[] MATURITY_TIME = new double[] {1.0, 2.0, 5.0, 10.0 };
   private static final int NB_MATURITY = MATURITY_TENOR.length;
   private static final double[] STRIKE_RELATIVE = new double[] {-0.0100, -0.0050, -0.0025, 0.0000, 0.0025, 0.0050, 0.0100 };
@@ -94,18 +95,18 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
   }
 
   private static final double NOTIONAL = 1000000;
-  private static final Period EXPIRY_1_SWPT = Period.ofYears(2);
+  private static final Period EXPIRY_1_SWPT = Period.of(2, YEARS);
   private static final ZonedDateTime EXPIRY_1_SWPT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EXPIRY_1_SWPT, USD6MLIBOR3M.getIborIndex());
   private static final ZonedDateTime SETTLE_1_SWPT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_1_SWPT_DATE, USD6MLIBOR3M.getSpotLag(), NYC);
-  private static final Period MATURITY_1_SWPT = Period.ofYears(6);
+  private static final Period MATURITY_1_SWPT = Period.of(6, YEARS);
   private static final double STRIKE_1 = 0.0250;
   private static final SwapFixedIborDefinition SWAP_1_DEFINITION = SwapFixedIborDefinition.from(SETTLE_1_SWPT_DATE, MATURITY_1_SWPT, USD6MLIBOR3M, NOTIONAL, STRIKE_1, true);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_1_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_1_SWPT_DATE, SWAP_1_DEFINITION, true);
 
-  private static final Period EXPIRY_2_SWPT = Period.ofMonths(9);
+  private static final Period EXPIRY_2_SWPT = Period.of(9, MONTHS);
   private static final ZonedDateTime EXPIRY_2_SWPT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EXPIRY_2_SWPT, USD6MLIBOR3M.getIborIndex());
   private static final ZonedDateTime SETTLE_2_SWPT_DATE = ScheduleCalculator.getAdjustedDate(EXPIRY_1_SWPT_DATE, USD6MLIBOR3M.getSpotLag(), NYC);
-  private static final Period MATURITY_2_SWPT = Period.ofYears(4);
+  private static final Period MATURITY_2_SWPT = Period.of(4, YEARS);
   private static final double STRIKE_2 = 0.0300;
   private static final SwapFixedIborDefinition SWAP_2_DEFINITION = SwapFixedIborDefinition.from(SETTLE_2_SWPT_DATE, MATURITY_2_SWPT, USD6MLIBOR3M, NOTIONAL, STRIKE_2, true);
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_2_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_2_SWPT_DATE, SWAP_2_DEFINITION, true);

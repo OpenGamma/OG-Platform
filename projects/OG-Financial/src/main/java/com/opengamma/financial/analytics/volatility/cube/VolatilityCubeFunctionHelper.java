@@ -5,24 +5,19 @@
  */
 package com.opengamma.financial.analytics.volatility.cube;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.money.Currency;
-import com.opengamma.lambdava.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -48,7 +43,7 @@ public class VolatilityCubeFunctionHelper {
       s_logger.warn("No cube definition for {} on {}", _definitionName, _currency);
     } else {
       if (_definition.getUniqueId() != null) {
-        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, Pair.of(_definition.getUniqueId().getObjectId(), VersionCorrection.LATEST));
+        context.getFunctionReinitializer().reinitializeFunction(defnToReInit, _definition.getUniqueId().getObjectId());
       } else {
         s_logger.warn("Cube {} on {} has no identifier - cannot subscribe to updates", _definitionName, _currency);
       }
@@ -57,10 +52,7 @@ public class VolatilityCubeFunctionHelper {
   }
 
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.PRIMITIVE) {
-      return false;
-    }
-    return ObjectUtils.equals(target.getUniqueId(), _currency.getUniqueId());
+    return _currency.equals(target.getValue());
   }
 
   public Currency getCurrency() {
@@ -71,22 +63,22 @@ public class VolatilityCubeFunctionHelper {
     return _definitionName;
   }
 
-  public Triple<InstantProvider, InstantProvider, VolatilityCubeSpecification> compile(
-    final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
+  public Triple<Instant, Instant, VolatilityCubeSpecification> compile(
+    final FunctionCompilationContext context, final Instant atInstant) {
     //TODO: avoid doing this compile twice all the time
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    final LocalDate curveDate = atInstant.toLocalDate();
+    final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
+    final LocalDate curveDate = atZDT.getDate();
     final VolatilityCubeSpecification specification = buildSpecification(curveDate);
 
     // ENG-252 expiry logic is wrong so make it valid for the current day only
-    final Instant eod = atInstant.withTime(0, 0).plusDays(1).minusNanos(1000000).toInstant();
+    final Instant eod = atZDT.with(LocalTime.MIDNIGHT).plusDays(1).minusNanos(1000000).toInstant();
     Instant expiry = null;
     // expiry = findCurveExpiryDate(context.getSecuritySource(), fundingCurveSpecification, expiry);
     // expiry = findCurveExpiryDate(context.getSecuritySource(), forwardCurveSpecification, expiry);
     // if (expiry.isBefore(eod)) {
     expiry = eod;
     // }
-    return new Triple<InstantProvider, InstantProvider, VolatilityCubeSpecification>(atInstant.withTime(0, 0),
+    return new Triple<Instant, Instant, VolatilityCubeSpecification>(atZDT.with(LocalTime.MIDNIGHT).toInstant(),
       expiry, specification);
   }
 

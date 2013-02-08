@@ -9,9 +9,8 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNull;
 
-import javax.time.InstantProvider;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -38,7 +37,7 @@ public class FunctionExclusionGroupTest {
     }
 
     @Override
-    public CompiledFunctionDefinition compile(FunctionCompilationContext context, InstantProvider atInstant) {
+    public CompiledFunctionDefinition compile(FunctionCompilationContext context, Instant atInstant) {
       throw new UnsupportedOperationException();
     }
 

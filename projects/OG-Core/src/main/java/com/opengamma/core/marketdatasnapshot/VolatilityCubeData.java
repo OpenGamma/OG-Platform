@@ -15,6 +15,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.lambdava.tuple.Pair;
@@ -260,9 +261,9 @@ public class VolatilityCubeData {
 
     });
     
-    SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = new TreeMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>>();
-    SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>> smileIds = new TreeMap<Tenor, SortedMap<Tenor, ExternalId[]>>();
-    SortedMap<Tenor, SortedMap<Tenor, Double[]>> smileRelativeStrikes = new TreeMap<Tenor, SortedMap<Tenor, Double[]>>();
+    SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> smiles = Maps.newTreeMap();
+    SortedMap<Tenor, SortedMap<Tenor, ExternalId[]>> smileIds = Maps.newTreeMap();
+    SortedMap<Tenor, SortedMap<Tenor, Double[]>> smileRelativeStrikes = Maps.newTreeMap();
     Tenor currentSwapTenor = null;
     Tenor currentOptionExpiry = null;
     ArrayList<Double> strikes = null;
@@ -292,10 +293,10 @@ public class VolatilityCubeData {
         
         currentSwapTenor = swapTenor;
         currentOptionExpiry = optionExpiry;
-        strikes = new ArrayList<Double>();
-        vols = new ArrayList<Double>();
-        ids = new ArrayList<ExternalId>();
-        relativeStrikes = new ArrayList<Double>();
+        strikes = Lists.newArrayList();
+        vols = Lists.newArrayList();
+        ids = Lists.newArrayList();
+        relativeStrikes = Lists.newArrayList();
       }
       strikes.add(entry.getKey().getRelativeStrike());
       vols.add(entry.getValue());
@@ -341,7 +342,7 @@ public class VolatilityCubeData {
       }
     });
     
-    SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> ret = new TreeMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>>();
+    SortedMap<Tenor, SortedMap<Tenor, Pair<double[], double[]>>> ret = Maps.newTreeMap();
     Tenor currentSwapTenor = null;
     Tenor currentOptionExpiry = null;
     ArrayList<Double> strikes = null;
@@ -365,8 +366,8 @@ public class VolatilityCubeData {
         
         currentSwapTenor = swapTenor;
         currentOptionExpiry = optionExpiry;
-        strikes = new ArrayList<Double>();
-        vols = new ArrayList<Double>();
+        strikes = Lists.newArrayList();
+        vols = Lists.newArrayList();
       }
       
       strikes.add(entry.getKey().getRelativeStrike());

@@ -14,6 +14,7 @@ import com.opengamma.masterdb.security.hibernate.bond.YieldConventionBean;
 import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorCMSSpreadSecurityBean;
 import com.opengamma.masterdb.security.hibernate.capfloor.CapFloorSecurityBean;
 import com.opengamma.masterdb.security.hibernate.cash.CashSecurityBean;
+import com.opengamma.masterdb.security.hibernate.cashflow.CashFlowSecurityBean;
 import com.opengamma.masterdb.security.hibernate.cds.CDSSecurityBean;
 import com.opengamma.masterdb.security.hibernate.cds.CreditDefaultSwapSecurityBean;
 import com.opengamma.masterdb.security.hibernate.equity.EquitySecurityBean;
@@ -29,11 +30,13 @@ import com.opengamma.masterdb.security.hibernate.option.BondFutureOptionSecurity
 import com.opengamma.masterdb.security.hibernate.option.CommodityFutureOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.EquityBarrierOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.EquityIndexDividendFutureOptionSecurityBean;
+import com.opengamma.masterdb.security.hibernate.option.EquityIndexFutureOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.EquityIndexOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.EquityOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.FXBarrierOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.FXDigitalOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.FXOptionSecurityBean;
+import com.opengamma.masterdb.security.hibernate.option.FxFutureOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.IRFutureOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.NonDeliverableFXDigitalOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.NonDeliverableFXOptionSecurityBean;
@@ -90,7 +93,9 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       SwaptionSecurityBean.class,
       IRFutureOptionSecurityBean.class,
       CommodityFutureOptionSecurityBean.class,
+      FxFutureOptionSecurityBean.class,
       BondFutureOptionSecurityBean.class,
+      EquityIndexFutureOptionSecurityBean.class,
       EquityIndexDividendFutureOptionSecurityBean.class,
       FXBarrierOptionSecurityBean.class,
       
@@ -103,8 +108,9 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       CapFloorCMSSpreadSecurityBean.class,
       
       CDSSecurityBean.class,
-      CreditDefaultSwapSecurityBean.class
-      
+      CreditDefaultSwapSecurityBean.class,
+
+      CashFlowSecurityBean.class
     };
   }
 

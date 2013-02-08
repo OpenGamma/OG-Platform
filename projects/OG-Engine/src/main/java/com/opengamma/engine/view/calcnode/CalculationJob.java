@@ -18,6 +18,7 @@ import java.util.Set;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.cache.CacheSelectHint;
 import com.opengamma.engine.view.cache.IdentifierEncodedValueSpecifications;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -27,6 +28,7 @@ public class CalculationJob implements IdentifierEncodedValueSpecifications {
   
   private final CalculationJobSpecification _specification;
   private final long _functionInitializationIdentifier;
+  private final VersionCorrection _resolverVersionCorrection;
   private final long[] _required;
   private final List<CalculationJobItem> _jobItems;
 
@@ -43,13 +45,15 @@ public class CalculationJob implements IdentifierEncodedValueSpecifications {
    */
   private boolean _cancelled;
 
-  public CalculationJob(CalculationJobSpecification specification, long functionInitializationIdentifier, long[] requiredJobIds, List<CalculationJobItem> jobItems,
-      final CacheSelectHint cacheSelect) {
+  public CalculationJob(CalculationJobSpecification specification, long functionInitializationIdentifier, final VersionCorrection resolverVersionCorrection, long[] requiredJobIds,
+      List<CalculationJobItem> jobItems, final CacheSelectHint cacheSelect) {
     ArgumentChecker.notNull(specification, "specification");
+    ArgumentChecker.notNull(resolverVersionCorrection, "resolverVersionCorrection");
     ArgumentChecker.notNull(jobItems, "jobItems");
     ArgumentChecker.notNull(cacheSelect, "cacheSelect");
     _specification = specification;
     _functionInitializationIdentifier = functionInitializationIdentifier;
+    _resolverVersionCorrection = resolverVersionCorrection;
     _required = requiredJobIds;
     _jobItems = jobItems;
     _cacheSelect = cacheSelect;
@@ -64,6 +68,10 @@ public class CalculationJob implements IdentifierEncodedValueSpecifications {
 
   public long getFunctionInitializationIdentifier() {
     return _functionInitializationIdentifier;
+  }
+
+  public VersionCorrection getResolverVersionCorrection() {
+    return _resolverVersionCorrection;
   }
 
   public long[] getRequiredJobIds() {

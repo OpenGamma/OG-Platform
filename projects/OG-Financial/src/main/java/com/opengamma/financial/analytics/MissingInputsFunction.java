@@ -9,15 +9,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -26,6 +23,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.FunctionInvoker;
 import com.opengamma.engine.function.FunctionParameters;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -138,7 +136,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final CompiledFunctionDefinition underlying = getUnderlyingDefinition().compile(context, atInstant);
     if (underlying == getUnderlyingCompiled()) {
       s_logger.debug("Compiling underlying on {} gives self", this);
@@ -184,7 +182,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
       return null;
     }
     final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(underlyingResults.size());
-    for (ValueSpecification underlyingResult : underlyingResults) {
+    for (final ValueSpecification underlyingResult : underlyingResults) {
       final ValueProperties.Builder properties = underlyingResult.getProperties().copy();
       properties.with(ValuePropertyNames.AGGREGATION, getAggregationStyleFull(), getAggregationStyleMissing());
       results.add(new ValueSpecification(underlyingResult.getValueName(), underlyingResult.getTargetSpecification(), properties.get()));
@@ -205,7 +203,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
     // Requirement has all constraints asked of us (minus the aggregation style)
     final ValueProperties requirementConstraints = resultConstraints.withoutAny(ValuePropertyNames.AGGREGATION);
     final Set<ValueRequirement> requirements = getUnderlyingCompiled().getRequirements(context, target,
-        new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), requirementConstraints));
+        new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetReference(), requirementConstraints));
     s_logger.debug("Returning requirements {} for {}", requirements, desiredValue);
     return requirements;
   }
@@ -223,7 +221,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
       return null;
     }
     final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(underlyingResults.size() * 2);
-    for (ValueSpecification underlyingResult : underlyingResults) {
+    for (final ValueSpecification underlyingResult : underlyingResults) {
       final ValueProperties properties = underlyingResult.getProperties();
       if ((properties.getProperties() != null) && properties.getProperties().isEmpty()) {
         results.add(underlyingResult);
@@ -241,9 +239,9 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
 
   @Override
   public Set<ValueRequirement> getAdditionalRequirements(final FunctionCompilationContext context, final ComputationTarget target,
-      final Set<ValueSpecification> inputs, Set<ValueSpecification> outputs) {
+      final Set<ValueSpecification> inputs, final Set<ValueSpecification> outputs) {
     final Set<ValueSpecification> underlyingOutputs = Sets.newHashSetWithExpectedSize(outputs.size());
-    for (ValueSpecification output : outputs) {
+    for (final ValueSpecification output : outputs) {
       final ValueProperties properties = output.getProperties().withoutAny(ValuePropertyNames.AGGREGATION);
       underlyingOutputs.add(new ValueSpecification(output.getValueName(), output.getTargetSpecification(), properties));
     }
@@ -277,7 +275,7 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
       return Collections.emptySet();
     }
     final Set<ComputedValue> results = Sets.newHashSetWithExpectedSize(underlyingResults.size());
-    for (ComputedValue underlyingResult : underlyingResults) {
+    for (final ComputedValue underlyingResult : underlyingResults) {
       final ValueSpecification resultSpec = underlyingResult.getSpecification();
       final ValueProperties.Builder properties = resultSpec.getProperties().copy();
       properties.with(ValuePropertyNames.AGGREGATION, getAggregationStyleMissing());
@@ -294,20 +292,20 @@ public class MissingInputsFunction extends AbstractFunction implements CompiledF
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final Set<ValueRequirement> underlyingDesired = Sets.newHashSetWithExpectedSize(desiredValues.size());
-    for (ValueRequirement desiredValue : desiredValues) {
+    for (final ValueRequirement desiredValue : desiredValues) {
       final ValueProperties requirementConstraints = desiredValue.getConstraints().withoutAny(ValuePropertyNames.AGGREGATION);
-      underlyingDesired.add(new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), requirementConstraints));
+      underlyingDesired.add(new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetReference(), requirementConstraints));
     }
     try {
       return createExecuteResults(inputs, getUnderlyingInvoker().execute(executionContext, inputs, target, underlyingDesired));
-    } catch (AsynchronousExecution e) {
-      final AsynchronousOperation<Set<ComputedValue>> async = new AsynchronousOperation<Set<ComputedValue>>();
+    } catch (final AsynchronousExecution e) {
+      final AsynchronousOperation<Set<ComputedValue>> async = AsynchronousOperation.createSet();
       e.setResultListener(new ResultListener<Set<ComputedValue>>() {
         @Override
         public void operationComplete(final AsynchronousResult<Set<ComputedValue>> result) {
           try {
             async.getCallback().setResult(createExecuteResults(inputs, result.getResult()));
-          } catch (RuntimeException e) {
+          } catch (final RuntimeException e) {
             async.getCallback().setException(e);
           }
         }

@@ -20,12 +20,14 @@ import com.opengamma.analytics.financial.sensitivity.PositionGreek;
 import com.opengamma.analytics.financial.trade.OptionTradeData;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
@@ -46,7 +48,7 @@ public class OptionGreekToPositionGreekConverterFunction extends AbstractFunctio
     Object greekResult;    
     Greek greek;
     for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-      greekResult = inputs.getValue(new ValueRequirement(valueName, target.getSecurity()));
+      greekResult = inputs.getValue(valueName);
       if (greekResult == null) {
         s_logger.warn("Could not get value for " + valueName);
       }
@@ -63,10 +65,12 @@ public class OptionGreekToPositionGreekConverterFunction extends AbstractFunctio
     Double positionGreekResult;
     ValueSpecification resultSpecification;
     ComputedValue resultValue;
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final ValueProperties properties = createValueProperties().get();
     for (final ValueRequirement dV : desiredValues) {
       positionGreek = AvailablePositionGreeks.getPositionGreekForValueRequirementName(dV.getValueName());
       positionGreekResult = positionGreeks.get(positionGreek);
-      resultSpecification = new ValueSpecification(new ValueRequirement(dV.getValueName(), target.getSecurity()), getUniqueId());
+      resultSpecification = new ValueSpecification(dV.getValueName(), targetSpec, properties);
       resultValue = new ComputedValue(resultSpecification, positionGreekResult);
       results.add(resultValue);
     }
@@ -74,33 +78,24 @@ public class OptionGreekToPositionGreekConverterFunction extends AbstractFunctio
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.POSITION;
-  }
-
-  @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    if (canApplyTo(context, target)) {
-      final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-      for (final String valueName : AvailableGreeks.getAllGreekNames()) {
-        requirements.add(new ValueRequirement(valueName, target.getSecurity()));
-      }
-      return requirements;
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    for (final String valueName : AvailableGreeks.getAllGreekNames()) {
+      requirements.add(new ValueRequirement(valueName, targetSpec));
     }
-    return null;
+    return requirements;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (canApplyTo(context, target)) {
-      final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
-      for (final String valueName : AvailablePositionGreeks.getAllPositionGreekNames()) {
-        results.add(new ValueSpecification(
-            new ValueRequirement(valueName, target.getSecurity()),
-            getUniqueId()));
-      }
+    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final ValueProperties properties = createValueProperties().get();
+    for (final String valueName : AvailablePositionGreeks.getAllPositionGreekNames()) {
+      results.add(new ValueSpecification(valueName, targetSpec, properties));
     }
-    return null;
+    return results;
   }
 
   @Override

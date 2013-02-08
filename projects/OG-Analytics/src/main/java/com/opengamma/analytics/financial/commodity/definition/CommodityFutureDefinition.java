@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.commodity.definition;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -35,7 +34,7 @@ public abstract class CommodityFutureDefinition<T extends InstrumentDerivative> 
   private final double _amount;
   /** Description of unit size */
   private final String _unitName;
-  /** Settlement type - PHYISCAL or CASH */
+  /** Settlement type - PHYSICAL or CASH */
   private final SettlementType _settlementType;
 
   // extra variables taken from SimpleFuture
@@ -63,9 +62,9 @@ public abstract class CommodityFutureDefinition<T extends InstrumentDerivative> 
    * @param currency currency
    * @param settlementDate settlement date
    */
-  public CommodityFutureDefinition(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount, final ZonedDateTime firstDeliveryDate, final ZonedDateTime lastDeliveryDate,
-                                   final double amount, final String unitName, final SettlementType settlementType, final double referencePrice, final Currency currency,
-                                   final ZonedDateTime settlementDate) {
+  public CommodityFutureDefinition(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount, final ZonedDateTime firstDeliveryDate,
+      final ZonedDateTime lastDeliveryDate, final double amount, final String unitName, final SettlementType settlementType, final double referencePrice,
+      final Currency currency, final ZonedDateTime settlementDate) {
     ArgumentChecker.notNull(expiryDate, "expiry time");
     ArgumentChecker.notNull(underlying, "underlying");
 
@@ -105,8 +104,8 @@ public abstract class CommodityFutureDefinition<T extends InstrumentDerivative> 
    * @param currency currency
    * @param settlementDate settlement date
    */
-  public CommodityFutureDefinition(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount,
-      final double amount, final String unitName, final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
+  public CommodityFutureDefinition(final ZonedDateTime expiryDate, final ExternalId underlying, final double unitAmount, final double amount, final String unitName,
+      final double referencePrice, final Currency currency, final ZonedDateTime settlementDate) {
     this(expiryDate, underlying, unitAmount, null, null, amount, unitName, SettlementType.CASH, referencePrice, currency, settlementDate);
   }
 
@@ -225,7 +224,7 @@ public abstract class CommodityFutureDefinition<T extends InstrumentDerivative> 
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }

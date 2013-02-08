@@ -5,9 +5,9 @@
  */
 package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.greeks;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.credit.RecoveryRateBumpType;
+import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definition.IndexCreditDefaultSwapDefinition;
 import com.opengamma.util.ArgumentChecker;

@@ -6,8 +6,8 @@
 package com.opengamma.engine.function.dsl;
 
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.dsl.properties.RecordingValueProperties;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.id.UniqueId;
 

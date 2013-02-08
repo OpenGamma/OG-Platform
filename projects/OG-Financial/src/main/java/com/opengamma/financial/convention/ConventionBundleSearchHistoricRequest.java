@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.convention;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;

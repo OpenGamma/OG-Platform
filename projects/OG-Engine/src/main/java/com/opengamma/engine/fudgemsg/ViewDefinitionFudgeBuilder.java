@@ -18,7 +18,9 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.resolver.ResolutionRuleTransform;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.DeltaDefinition;
@@ -29,6 +31,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.money.Currency;
 import com.opengamma.lambdava.tuple.Pair;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * Fudge message builder for {@link ViewDefinition} and {@link ViewCalculationConfiguration}. 
@@ -116,6 +119,31 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
     return message;
   }
 
+  /**
+   * Support translation from pre-2286 type specifications, such as CTSpec[PRIMITIVE, CurrencyISO~USD], to resolvable types.
+   * 
+   * @param valueRequirement the possibly legacy specification, not null
+   * @return the updated specification, not null
+   * @deprecated shouldn't be relying on this, a configuration database upgrade script to apply the transformation would be better
+   */
+  @Deprecated
+  private ValueRequirement plat2286Translate(final ValueRequirement valueRequirement) {
+    if (valueRequirement.getTargetReference() instanceof ComputationTargetSpecification) {
+      final ComputationTargetSpecification targetSpec = valueRequirement.getTargetReference().getSpecification();
+      final ComputationTargetType type;
+      if (Currency.OBJECT_SCHEME.equals(targetSpec.getUniqueId().getScheme())) {
+        type = ComputationTargetType.CURRENCY;
+      } else if (UnorderedCurrencyPair.OBJECT_SCHEME.equals(targetSpec.getUniqueId().getScheme())) {
+        type = ComputationTargetType.UNORDERED_CURRENCY_PAIR;
+      } else {
+        return valueRequirement;
+      }
+      return new ValueRequirement(valueRequirement.getValueName(), new ComputationTargetSpecification(type, targetSpec.getUniqueId()), valueRequirement.getConstraints());
+    } else {
+      return valueRequirement;
+    }
+  }
+
   @Override
   public ViewDefinition buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     
@@ -173,7 +201,7 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
         calcConfig.addPortfolioRequirements(securityType, requirements);
       }
       for (FudgeField specificRequirementField : calcConfigMsg.getAllByName(SPECIFIC_REQUIREMENT_FIELD)) {
-        calcConfig.addSpecificRequirement(deserializer.fieldValueToObject(ValueRequirement.class, specificRequirementField));
+        calcConfig.addSpecificRequirement(plat2286Translate(deserializer.fieldValueToObject(ValueRequirement.class, specificRequirementField)));
       }
       if (calcConfigMsg.hasField(DELTA_DEFINITION_FIELD)) {
         calcConfig.setDeltaDefinition(deserializer.fieldValueToObject(DeltaDefinition.class, calcConfigMsg.getByName(DELTA_DEFINITION_FIELD)));

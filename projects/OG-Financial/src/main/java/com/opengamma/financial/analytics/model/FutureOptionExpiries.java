@@ -5,17 +5,16 @@
  */
 package com.opengamma.financial.analytics.model;
 
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 
 /**
  *  Utility Class for computing Expiries of Future Options from ordinals (i.e. nth future after valuationDate)
- *  For IR Options use: DateAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY), new NextExpiryAdjuster()
+ *  For IR Options use: TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY), new NextExpiryAdjuster()
  *  For Equity Options use: new SaturdayAfterThirdFridayAdjuster(), new NextEquityExpiryAdjuster()
  */
 public final class FutureOptionExpiries {
@@ -99,6 +98,25 @@ public final class FutureOptionExpiries {
     final int nthExpiryAfterSixMonths = nthFuture - 6;
     final LocalDate sixMonthsForward = getMonthlyExpiry(6, valDate);
     return getQuarterlyExpiry(nthExpiryAfterSixMonths, sixMonthsForward);
+  }
+
+  /**
+   * Get monthly expiries for the first 6 expires then look for January yearly ones
+   * CME options seem to follow no clear pattern some switch to yearly after 4 monthly options and some have 8 or more
+   * pick a value in the middle so hopefully we get a reasonable number of valid expires for all options
+   * @param nthFuture nth future in the future
+   * @param valDate date to start from
+   * @return expiry the expiry date of the nth option
+   */
+  public LocalDate getEquityFutureOptionExpiry(final int nthFuture, final LocalDate valDate) {
+    Validate.isTrue(nthFuture > 0, "nthFuture must be greater than 0.");
+    if (nthFuture <= 6) { // We look for expiries in the first 6 serial months after curveDate
+      return getMonthlyExpiry(nthFuture, valDate);
+    }
+    // And for yearly January expiry after that
+    final int nExpiryDone = nthFuture - 6;
+    final LocalDate nextYear = LocalDate.of(valDate.getYear() + nExpiryDone, 1, 1);
+    return getMonthlyExpiry(1, nextYear);
   }
 
   public LocalDate getMonthlyExpiry(final int nthMonth, final LocalDate valDate) {

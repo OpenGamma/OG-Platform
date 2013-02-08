@@ -6,6 +6,9 @@
 package com.opengamma.analytics.financial.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,12 +16,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.calculator.MarketQuoteSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.calculator.PresentValueConvertedCalculator;
@@ -117,7 +119,7 @@ public class CurveConstructionSpreadTest {
   private static final BusinessDayConvention BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final IndexON INDEX_ON_1 = new IndexON("Fed Fund", CCY_USD, DAY_COUNT_CASH, 1, CALENDAR);
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", CCY_USD, CALENDAR, DAY_COUNT_CASH);
-  private static final GeneratorSwapFixedON GENERATOR_OIS_USD = new GeneratorSwapFixedON("USD1YFEDFUND", INDEX_ON_1, Period.ofMonths(12), DAY_COUNT_CASH, BDC, true, SPOT_LAG, SPOT_LAG);
+  private static final GeneratorSwapFixedON GENERATOR_OIS_USD = new GeneratorSwapFixedON("USD1YFEDFUND", INDEX_ON_1, Period.of(12, MONTHS), DAY_COUNT_CASH, BDC, true, SPOT_LAG, SPOT_LAG);
   private static final GeneratorDeposit GENERATOR_DEPOSIT_USD = new GeneratorDeposit("USD Deposit", CCY_USD, CALENDAR, SPOT_LAG, DAY_COUNT_CASH, BDC, true);
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor USD6MLIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("USD6MLIBOR3M", CALENDAR);
@@ -170,8 +172,9 @@ public class CurveConstructionSpreadTest {
   public static final GeneratorInstrument[] DSC_USD_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
       GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD };
   /** Tenors for the dsc USD curve */
-  public static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-      Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
+  public static final Period[] DSC_USD_TENOR = new Period[] {Period.of(0, DAYS), Period.of(1, DAYS),
+      Period.of(1, MONTHS), Period.of(2, MONTHS), Period.of(3, MONTHS), Period.of(6, MONTHS), Period.of(9, MONTHS),
+      Period.of(1, YEARS), Period.of(2, YEARS), Period.of(3, YEARS), Period.of(4, YEARS), Period.of(5, YEARS), Period.of(10, YEARS) };
 
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD3_USD_MARKET_QUOTES = new double[] {0.0045, 0.0045, 0.0045, 0.0045, 0.0060, 0.0070, 0.0080, 0.0160 };
@@ -179,8 +182,9 @@ public class CurveConstructionSpreadTest {
   public static final GeneratorInstrument[] FWD3_USD_GENERATORS = new GeneratorInstrument[] {USD6MLIBOR3M, GENERATOR_DEPOSIT_USD, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M,
       USD6MLIBOR3M };
   /** Tenors for the Fwd 3M USD curve */
-  public static final Period[] FWD3_USD_TENOR = new Period[] {Period.ofYears(1), Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-      Period.ofYears(10) };
+  public static final Period[] FWD3_USD_TENOR = new Period[] {Period.of(1, YEARS),
+      Period.of(3, MONTHS), Period.of(6, MONTHS), Period.of(2, YEARS), Period.of(3, YEARS), Period.of(4, YEARS), Period.of(5, YEARS),
+      Period.of(10, YEARS) };
 
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD3_USD_MARKET_QUOTES_2 = new double[] {0.0045, 0.0045, 0.0045, 0.0050, 0.0060, 0.0080, 0.0075, 0.0090, 0.0160 };
@@ -188,8 +192,9 @@ public class CurveConstructionSpreadTest {
   public static final GeneratorInstrument[] FWD3_USD_GENERATORS_2 = new GeneratorInstrument[] {GENERATOR_DEPOSIT_USD, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M,
       USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M };
   /** Tenors for the Fwd 3M USD curve */
-  public static final Period[] FWD3_USD_TENOR_2 = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-      Period.ofYears(7), Period.ofYears(10) };
+  public static final Period[] FWD3_USD_TENOR_2 = new Period[] {Period.of(3, MONTHS), Period.of(6, MONTHS), 
+      Period.of(1, YEARS), Period.of(2, YEARS), Period.of(3, YEARS), Period.of(4, YEARS), Period.of(5, YEARS),
+      Period.of(7, YEARS), Period.of(10, YEARS) };
 
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD3_USD_MARKET_QUOTES_3 = new double[] {0.0045, 0.0045, 0.0045, 0.0050, 0.0060, 0.0080, 0.0075, 0.0090, 0.0160, 0.0200, 0.0180 };
@@ -197,8 +202,9 @@ public class CurveConstructionSpreadTest {
   public static final GeneratorInstrument[] FWD3_USD_GENERATORS_3 = new GeneratorInstrument[] {GENERATOR_DEPOSIT_USD, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M,
       USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M };
   /** Tenors for the Fwd 3M USD curve */
-  public static final Period[] FWD3_USD_TENOR_3 = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-      Period.ofYears(7), Period.ofYears(10), Period.ofYears(15), Period.ofYears(20) };
+  public static final Period[] FWD3_USD_TENOR_3 = new Period[] {Period.of(3, MONTHS), Period.of(6, MONTHS), 
+      Period.of(1, YEARS), Period.of(2, YEARS), Period.of(3, YEARS), Period.of(4, YEARS), Period.of(5, YEARS),
+      Period.of(7, YEARS), Period.of(10, YEARS), Period.of(15, YEARS), Period.of(20, YEARS) };
 
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD3_USD_MARKET_QUOTES_4 = new double[] {0.0100, 0.0125, 0.0150, 0.0140, 0.0113, 0.0131, 0.0136, 0.0142, 0.0146, 0.0135 };
@@ -206,15 +212,16 @@ public class CurveConstructionSpreadTest {
   public static final GeneratorInstrument[] FWD3_USD_GENERATORS_4 = new GeneratorInstrument[] {GENERATOR_DEPOSIT_USD, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M,
       USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M };
   /** Tenors for the Fwd 3M USD curve */
-  public static final Period[] FWD3_USD_TENOR_4 = new Period[] {Period.ofMonths(3), Period.ofYears(1), Period.ofYears(5), Period.ofYears(10), Period.ofMonths(6), Period.ofYears(2), Period.ofYears(3),
-      Period.ofYears(4), Period.ofYears(7), Period.ofYears(15) };
+  public static final Period[] FWD3_USD_TENOR_4 = new Period[] {Period.of(3, MONTHS), 
+      Period.of(1, YEARS), Period.of(5, YEARS), Period.of(10, YEARS), Period.of(6, MONTHS), Period.of(2, YEARS), Period.of(3, YEARS),
+      Period.of(4, YEARS), Period.of(7, YEARS), Period.of(15, YEARS) };
 
   /** Market values for the Fwd 6M USD curve */
   public static final double[] FWD6_USD_MARKET_QUOTES = new double[] {0.0065, 0.0055, 0.0080, 0.0170 };
   /** Generators for the Fwd 6M USD curve */
   public static final GeneratorInstrument[] FWD6_USD_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_USD, USD6MLIBOR6M, USD6MLIBOR6M, USD6MLIBOR6M };
   /** Tenors for the Fwd 6M USD curve */
-  public static final Period[] FWD6_USD_TENOR = new Period[] {Period.ofMonths(6), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10) };
+  public static final Period[] FWD6_USD_TENOR = new Period[] {Period.of(6, MONTHS), Period.of(2, YEARS), Period.of(5, YEARS), Period.of(10, YEARS) };
 
   /** Standard USD discounting curve instrument definitions */
   public static final InstrumentDefinition<?>[] DEFINITIONS_DSC_USD;
@@ -347,9 +354,9 @@ public class CurveConstructionSpreadTest {
   private static List<Pair<YieldCurveBundle, CurveBuildingBlockBundle>> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK = new ArrayList<Pair<YieldCurveBundle, CurveBuildingBlockBundle>>();
 
   // Instrument used for sensitivity tests
-  private static final Period SWAP_START = Period.ofMonths(6);
+  private static final Period SWAP_START = Period.of(6, MONTHS);
   private static final ZonedDateTime SWAP_SETTLE = ScheduleCalculator.getAdjustedDate(ScheduleCalculator.getAdjustedDate(NOW, SPOT_LAG, CALENDAR), SWAP_START, GENERATOR_DEPOSIT_USD);
-  private static final Period SWAP_TENOR = Period.ofYears(5);
+  private static final Period SWAP_TENOR = Period.of(5, YEARS);
   private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(SWAP_SETTLE, SWAP_TENOR, USD6MLIBOR3M, 1000000, 0.02, true);
   private static final SwapFixedCoupon<Coupon> SWAP = SWAP_DEFINITION.toDerivative(NOW, new String[] {CURVE_NAME_DSC_USD, CURVE_NAME_FWD3_USD });
 

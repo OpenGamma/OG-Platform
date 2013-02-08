@@ -12,11 +12,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -25,12 +24,11 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -43,7 +41,6 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.lambdava.tuple.Pair;
 
@@ -61,20 +58,15 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
    */
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
 
-    final ZonedDateTime valTime = executionContext.getValuationClock().zonedDateTime();
-    final LocalDate valDate = valTime.toLocalDate();
+    final ZonedDateTime valTime = ZonedDateTime.now(executionContext.getValuationClock());
+    final LocalDate valDate = valTime.getDate();
 
-    final Currency currency = Currency.of(((UniqueId) target.getValue()).getValue());
+    final Currency currency = (Currency) target.getValue();
     final Calendar calendar = new HolidaySourceCalendarAdapter(OpenGammaExecutionContext.getHolidaySource(executionContext), currency);
 
     // 1. Build the surface name, in two parts: the given name and the target
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final String fullName = surfaceName + "_" + target.getUniqueId().getValue();  // e.g. "FOO_S USD"
-
-    final ConfigSource configSrc = OpenGammaExecutionContext.getConfigSource(executionContext);
-    final ConfigDBVolatilitySurfaceSpecificationSource specSrc = new ConfigDBVolatilitySurfaceSpecificationSource(configSrc);
-    final VolatilitySurfaceSpecification specification = specSrc.getSpecification(fullName, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION);
 
     // 2. Get the RawEquityVolatilitySurfaceData object
     final Object rawSurfaceObject = inputs.getValue(ValueRequirementNames.VOLATILITY_SURFACE_DATA);
@@ -96,7 +88,8 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
     // SurfaceInstrumentProvider just used to get expiry calculator - find a better way as this is quite ugly.
-    final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(surfaceName.substring(4), "Comdty", "", 0., "")
+    final String surfacePrefix = surfaceName.split("\\_")[1];
+    final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = new BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider(surfacePrefix, "Comdty", "", 0., "")
         .getExpiryCalculator();
     for (final Number nthExpiry : rawSurface.getXs()) {
       final Double t = TimeCalculator.getTimeBetween(valDate, expiryCalculator.getExpiryDate(nthExpiry.intValue(), valDate, calendar));
@@ -124,8 +117,7 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.COMMODITY_FUTURE_OPTION)
         .get();
-    final ValueSpecification stdVolSpec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA,
-        new ComputationTargetSpecification(specification.getTarget()), stdVolProperties);
+    final ValueSpecification stdVolSpec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), stdVolProperties);
     return Collections.singleton(new ComputedValue(stdVolSpec, stdVolSurface));
   }
 
@@ -133,7 +125,7 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
    * Some strikes blow up the black function - strip them out
    * @return true if strike works with black function
    */
-  private boolean isValidStrike(final ForwardCurve forwardCurve, final VolatilitySurfaceData<Number, Double> rawSurface, Double t, Number nExpiry) {
+  private boolean isValidStrike(final ForwardCurve forwardCurve, final VolatilitySurfaceData<Number, Double> rawSurface, final Double t, final Number nExpiry) {
     final double forward = forwardCurve.getForward(t);
     // FIXME: Skip points that the Black surface will choke on. Remove this later
     Double low = null;
@@ -161,16 +153,7 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getUniqueId() == null) {
-      return false;
-    }
-    final String targetScheme = target.getUniqueId().getScheme();
-    return Currency.OBJECT_SCHEME.equals(targetScheme);
+    return ComputationTargetType.CURRENCY;
   }
 
   @Override
@@ -205,7 +188,7 @@ public class CommodityOptionVolatilitySurfaceDataFunction extends AbstractFuncti
     // Add forward curve so we can discount strikes > forward
     final ValueProperties forwardProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, givenName).get();
-    ValueRequirement forwardRequirement = new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), forwardProperties);
+    final ValueRequirement forwardRequirement = new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), forwardProperties);
 
     // 3. Build the ValueRequirements' constraints
     final ValueProperties constraints = ValueProperties.builder()

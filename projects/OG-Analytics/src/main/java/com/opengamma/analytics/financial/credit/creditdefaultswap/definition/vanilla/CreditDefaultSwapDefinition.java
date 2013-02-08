@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
@@ -42,6 +41,8 @@ public abstract class CreditDefaultSwapDefinition {
 
   // NOTE : We are enforcing the condition that the three obligors have to be different entities
 
+  // NOTE : There are no builder methods in this class because it is abstract
+
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // TODO : Do we need to allow negative notionals to be consistent with end users (convention above is sensible, but might not be market practice - although MarkIt enforces N > 0)
@@ -51,9 +52,6 @@ public abstract class CreditDefaultSwapDefinition {
   // TODO : Replace rec rate range arg checkers with .isInRangeInclusive
   // TODO : Add a CSA agreement?
   // TODO : Should we also include a CentralCounterParty object in order to track exchange traded contracts?
-
-  // TODO : Need to make this an abstract class !!!!!!
-  // TODO : Remove builder methods
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -103,7 +101,7 @@ public abstract class CreditDefaultSwapDefinition {
   // Flag to determine if we adjust the maturity date to fall on the next IMM date
   private final boolean _immAdjustMaturityDate;
 
-  //Flag to determine if we business day adjust the user input effective date (not a feature of legacy or standard CDS)
+  // Flag to determine if we business day adjust the user input effective date (not a feature of legacy or standard CDS)
   private final boolean _adjustEffectiveDate;
 
   // Flag to determine if we business day adjust the final maturity date (not a feature of legacy or standard CDS)
@@ -336,114 +334,6 @@ public abstract class CreditDefaultSwapDefinition {
   public double getProtectionOffset() {
     return _protectionOffset;
   }
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
-  // Builder method to allow the maturity of a CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public CreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
-
-    ArgumentChecker.notNull(maturityDate, "maturity date");
-    ArgumentChecker.isTrue(!getEffectiveDate().isAfter(maturityDate), "Effective date {} must be on or before maturity date {} (calibration error)", getEffectiveDate(), maturityDate);
-
-    final CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        maturityDate,
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart());
-
-    return modifiedCDS;
-  }
-  */
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
-  // Builder method to allow the premium leg coupon of a CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public CreditDefaultSwapDefinition withSpread(final double parSpread) {
-
-    final CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart());
-
-    return modifiedCDS;
-  }
-  */
-
-  // ----------------------------------------------------------------------------------------------------------------------------------------
-
-  /*
-  // Builder method to allow the recovery rate of a CDS object to be modified (used during calibration of the hazard rate curve)
-
-  public CreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
-
-    final CreditDefaultSwapDefinition modifiedCDS = new CreditDefaultSwapDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        recoveryRate,
-        getIncludeAccruedPremium(),
-        getProtectionStart());
-
-    return modifiedCDS;
-  }
-  */
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

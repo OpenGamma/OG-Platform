@@ -6,13 +6,9 @@
 package com.opengamma.core.historicaltimeseries.impl;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -21,7 +17,10 @@ import net.sf.ehcache.Element;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Clock;
+import org.threeten.bp.LocalDate;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
@@ -619,7 +618,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(identifierSet, "identifierSet");
-    Map<ExternalIdBundle, HistoricalTimeSeries> result = new HashMap<ExternalIdBundle, HistoricalTimeSeries>();
+    Map<ExternalIdBundle, HistoricalTimeSeries> result = Maps.newHashMap();
     Set<ExternalIdBundle> remainingIds = new HashSet<ExternalIdBundle>();
     // caching works individually but all misses can be passed to underlying as one request
     for (ExternalIdBundle identifiers : identifierSet) {

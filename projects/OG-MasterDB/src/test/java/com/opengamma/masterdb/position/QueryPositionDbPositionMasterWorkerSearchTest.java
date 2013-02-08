@@ -11,13 +11,12 @@ import static org.testng.AssertJUnit.assertNotNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.OffsetTime;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
@@ -164,7 +163,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   public void test_search_trades_withPremium() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     
-    LocalDate tradeDate = _now.toLocalDate();
+    LocalDate tradeDate = _now.getDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
     ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
@@ -206,7 +205,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
   public void test_search_trades_withAttributes() {
     ManageablePosition position = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     
-    LocalDate tradeDate = _now.toLocalDate();
+    LocalDate tradeDate = _now.getDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
     ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));
@@ -246,7 +245,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     position.addAttribute("PA2", "B");
     position.addAttribute("PA3", "C");
     
-    LocalDate tradeDate = _now.toLocalDate();
+    LocalDate tradeDate = _now.getDate();
     OffsetTime tradeTime = _now.toOffsetTime().minusSeconds(500);
     
     ManageableTrade trade1 = new ManageableTrade(BigDecimal.TEN, ExternalId.of("A", "B"), tradeDate, tradeTime, ExternalId.of("CPS", "CPV"));

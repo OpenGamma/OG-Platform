@@ -9,6 +9,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.currency.CurrencyPair;
 
@@ -24,7 +25,7 @@ public abstract class FXOptionBlackMultiValuedFunction extends FXOptionBlackFunc
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(PUT_CURVE)
         .withAny(PUT_CURVE_CALC_CONFIG)
         .withAny(CALL_CURVE)
@@ -46,7 +47,7 @@ public abstract class FXOptionBlackMultiValuedFunction extends FXOptionBlackFunc
     final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(PUT_CURVE, putCurveName)
         .with(PUT_CURVE_CALC_CONFIG, putCurveConfig)
         .with(CALL_CURVE, callCurveName)

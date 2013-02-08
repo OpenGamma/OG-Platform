@@ -5,10 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.future;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExpiredException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -71,12 +70,27 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
    */
   private final String _name;
 
+  /**
+   * @param transactionDate The transaction date of the future, not null
+   * @param transactionPrice The transaction price
+   * @param quantity The quantity
+   * @param lastTradingDate The last trading date, not null
+   * @param fixingPeriodStartDate The start date of the Ibor fixing period, not null
+   * @param fixingPeriodEndDate The end date of the Ibor fixing period, not null. Must be after the fixing period start date
+   * @param iborIndex The Ibor index, not null
+   * @param notional  The notional
+   * @param paymentAccrualFactor The payment accrual factor, not negative or zero
+   * @param name The name, not null
+   */
   public InterestRateFutureDefinition(final ZonedDateTime transactionDate, final double transactionPrice, final int quantity, final ZonedDateTime lastTradingDate,
-      final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final IborIndex iborIndex, final double notional, final double paymentAccrualFactor, final String name) {
+      final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final IborIndex iborIndex, final double notional,
+      final double paymentAccrualFactor, final String name) {
     ArgumentChecker.notNull(lastTradingDate, "Last trading date");
     ArgumentChecker.notNull(fixingPeriodStartDate, "Fixing period start date");
     ArgumentChecker.notNull(fixingPeriodEndDate, "Fixing period end date");
+    ArgumentChecker.isTrue(fixingPeriodEndDate.isAfter(fixingPeriodStartDate), "Fixing start date must be after the fixing end date");
     ArgumentChecker.notNull(iborIndex, "Ibor index");
+    ArgumentChecker.notNegativeOrZero(paymentAccrualFactor, "payment accrual factor");
     ArgumentChecker.notNull(name, "Name");
     _transactionDate = transactionDate;
     _transactionPrice = transactionPrice;
@@ -102,8 +116,8 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
    * @param quantity The quantity/number of contract.
    * @param name Future name.
    */
-  public InterestRateFutureDefinition(final ZonedDateTime transactionDate, final double transactionPrice, final ZonedDateTime lastTradingDate, final IborIndex iborIndex, final double notional,
-      final double paymentAccrualFactor, final int quantity, final String name) {
+  public InterestRateFutureDefinition(final ZonedDateTime transactionDate, final double transactionPrice, final ZonedDateTime lastTradingDate, final IborIndex iborIndex,
+      final double notional, final double paymentAccrualFactor, final int quantity, final String name) {
     ArgumentChecker.notNull(lastTradingDate, "Last trading date");
     ArgumentChecker.notNull(iborIndex, "Ibor index");
     ArgumentChecker.notNull(name, "Name");
@@ -112,8 +126,8 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
     this._lastTradingDate = lastTradingDate;
     this._iborIndex = iborIndex;
     _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(_lastTradingDate, _iborIndex.getSpotLag(), _iborIndex.getCalendar());
-    _fixingPeriodEndDate = ScheduleCalculator
-        .getAdjustedDate(_fixingPeriodStartDate, _iborIndex.getTenor(), _iborIndex.getBusinessDayConvention(), _iborIndex.getCalendar(), _iborIndex.isEndOfMonth());
+    _fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(_fixingPeriodStartDate, _iborIndex.getTenor(), _iborIndex.getBusinessDayConvention(),
+        _iborIndex.getCalendar(), _iborIndex.isEndOfMonth());
     _fixingPeriodAccrualFactor = _iborIndex.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
     this._notional = notional;
     this._paymentAccrualFactor = paymentAccrualFactor;
@@ -139,7 +153,8 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
     ArgumentChecker.notNull(iborIndex, "Ibor index");
     final ZonedDateTime lastTradingDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, -iborIndex.getSpotLag(), iborIndex.getCalendar());
     final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(fixingPeriodStartDate, iborIndex);
-    return new InterestRateFutureDefinition(transactionDate, transactionPrice, quantity, lastTradingDate, fixingPeriodStartDate, fixingPeriodEndDate, iborIndex, notional, paymentAccrualFactor, name);
+    return new InterestRateFutureDefinition(transactionDate, transactionPrice, quantity, lastTradingDate, fixingPeriodStartDate, fixingPeriodEndDate, iborIndex,
+        notional, paymentAccrualFactor, name);
   }
 
   /**
@@ -165,7 +180,8 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
    * @return New InterestRate Future
    */
   public InterestRateFutureDefinition withNewNotionalAndTransactionPrice(final double notional, final double txnPrice) {
-    return new InterestRateFutureDefinition(getTransactionDate(), txnPrice, getLastTradingDate(), getIborIndex(), notional, getPaymentAccrualFactor(), getQuantity(), getName());
+    return new InterestRateFutureDefinition(getTransactionDate(), txnPrice, getLastTradingDate(), getIborIndex(), notional, getPaymentAccrualFactor(), getQuantity(),
+        getName());
   }
 
   /** Scales notional to 1.0 in curve fitting to provide better conditioning of the Jacobian */
@@ -260,10 +276,10 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
   public InterestRateFuture toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    final LocalDate date = dateTime.toLocalDate();
+    final LocalDate date = dateTime.getDate();
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    final LocalDate transactionDateLocal = _transactionDate.toLocalDate();
-    final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().toLocalDate();
+    final LocalDate transactionDateLocal = _transactionDate.getDate();
+    final LocalDate lastMarginDateLocal = getFixingPeriodStartDate().getDate();
     if (date.isAfter(lastMarginDateLocal)) {
       throw new ExpiredException("Valuation date, " + date + ", is after last margin date, " + lastMarginDateLocal);
     }
@@ -278,14 +294,15 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
     final double lastTradingTime = TimeCalculator.getTimeBetween(dateTime, getLastTradingDate());
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate());
-    final InterestRateFuture future = new InterestRateFuture(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor, referencePrice, _notional,
-        _paymentAccrualFactor, _quantity, _name, discountingCurveName, forwardCurveName);
+    final InterestRateFuture future = new InterestRateFuture(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor,
+        referencePrice, _notional, _paymentAccrualFactor, _quantity, _name, discountingCurveName, forwardCurveName);
     return future;
   }
 
   @Override
   public InstrumentDerivative toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
+    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName()
+        + " does not support the two argument method (without margin price data).");
   }
 
   @Override

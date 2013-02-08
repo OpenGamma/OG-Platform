@@ -15,14 +15,14 @@ import com.opengamma.core.security.Security;
 public class SecurityTypeMapperFunction implements PortfolioMapperFunction<String> {
 
   @Override
-  public String apply(PortfolioNode node) {
+  public String apply(final PortfolioNode node) {
     return null;
   }
 
   @Override
-  public String apply(Position position) {
-    Security security = position.getSecurity();
+  public String apply(final PortfolioNode parentNode, final Position position) {
+    final Security security = position.getSecurity();
     return security != null ? security.getSecurityType() : null;
   }
-  
+
 }

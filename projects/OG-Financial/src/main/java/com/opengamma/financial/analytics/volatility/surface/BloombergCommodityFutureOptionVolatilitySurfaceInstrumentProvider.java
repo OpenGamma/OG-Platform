@@ -5,12 +5,15 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import javax.time.calendar.LocalDate;
+import java.util.Map;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import org.threeten.bp.LocalDate;
+
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.GoldFutureOptionExpiryCalculator;
+import com.opengamma.financial.convention.LiveCattleFutureOptionExpiryCalculator;
 import com.opengamma.financial.convention.SoybeanFutureOptionExpiryCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -20,10 +23,13 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider extends BloombergFutureOptionVolatilitySurfaceInstrumentProvider {
 
-  private static final BiMap<String, ExchangeTradedInstrumentExpiryCalculator> EXPIRY_RULES;
+  private static final Map<String, ExchangeTradedInstrumentExpiryCalculator> EXPIRY_RULES;
   static {
-    EXPIRY_RULES = HashBiMap.create();
-    EXPIRY_RULES.put("S ", SoybeanFutureOptionExpiryCalculator.getInstance());
+    EXPIRY_RULES = Maps.newHashMap();
+    EXPIRY_RULES.put("BO", SoybeanFutureOptionExpiryCalculator.getInstance());      // Soy oil
+    EXPIRY_RULES.put("GC", GoldFutureOptionExpiryCalculator.getInstance());         // Gold
+    EXPIRY_RULES.put("LC", LiveCattleFutureOptionExpiryCalculator.getInstance());   // Live Cattle
+    EXPIRY_RULES.put("S ", SoybeanFutureOptionExpiryCalculator.getInstance());      // Soy
   }
 
   /**
@@ -84,6 +90,14 @@ public class BloombergCommodityFutureOptionVolatilitySurfaceInstrumentProvider e
     ticker.append(" ");
     ticker.append(getPostfix());
     return ExternalId.of(getScheme(), ticker.toString());
+  }
+
+  /**
+   * Gets the expiryRules.
+   * @return the expiryRules
+   */
+  public static Map<String, ExchangeTradedInstrumentExpiryCalculator> getExpiryRules() {
+    return EXPIRY_RULES;
   }
 
   ExchangeTradedInstrumentExpiryCalculator getExpiryCalculator() {

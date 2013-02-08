@@ -18,16 +18,16 @@ import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_TICK_VAL;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDERLYING_SECURITY_DES;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_UNDL_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_OPT_VAL_PT;
+import static com.opengamma.bbg.BloombergConstants.FIELD_PRIMARY_EXCHANGE_NAME;
 import static com.opengamma.bbg.BloombergConstants.FIELD_SECURITY_DES;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
@@ -38,6 +38,8 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
+import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.ManageableSecurity;
@@ -75,6 +77,8 @@ public class EquityOptionLoader extends SecurityLoader {
    */
   public static final Set<String> VALID_SECURITY_TYPES = ImmutableSet.of(BLOOMBERG_EQUITY_OPTION_SECURITY_TYPE);
   
+  private static final ExchangeDataProvider exchangeData = DefaultExchangeDataProvider.getInstance();
+
   /**
    * Creates an instance.
    * @param referenceDataProvider  the provider, not null
@@ -88,6 +92,7 @@ public class EquityOptionLoader extends SecurityLoader {
   protected ManageableSecurity createSecurity(FudgeMsg fieldData) {
     String rootTicker = fieldData.getString(FIELD_OPTION_ROOT_TICKER);
     String exchange = fieldData.getString(FIELD_EXCH_CODE);
+    String exchangeDescription = fieldData.getString(FIELD_PRIMARY_EXCHANGE_NAME);
     String optionExerciseType = fieldData.getString(FIELD_OPT_EXERCISE_TYP);
     double optionStrikePrice = fieldData.getDouble(FIELD_OPT_STRIKE_PX);
     double pointValue = fieldData.getDouble(FIELD_OPT_VAL_PT);
@@ -140,7 +145,7 @@ public class EquityOptionLoader extends SecurityLoader {
       throw new OpenGammaRuntimeException(expiryDate + " returned from bloomberg not in format yyyy-mm-dd", e);
     }
     int year = expiryLocalDate.getYear();
-    int month = expiryLocalDate.getMonthOfYear().getValue();
+    int month = expiryLocalDate.getMonthValue();
     int day = expiryLocalDate.getDayOfMonth();
     Expiry expiry = new Expiry(DateUtils.getUTCDate(year, month, day));
 
@@ -154,6 +159,14 @@ public class EquityOptionLoader extends SecurityLoader {
     
     final ExerciseType exerciseType = getExerciseType(optionExerciseType);
     
+    // currently we will pick up the unified bbg exchange code - we try to map to MIC via the description
+    if (exchangeDescription != null) {
+      final String exchangeMIC = exchangeData.getExchangeFromDescription(exchangeDescription).getMic();
+      if (exchangeMIC != null) {
+        exchange = exchangeMIC;
+      }
+    }
+
     final EquityOptionSecurity security = new EquityOptionSecurity(
         optionType, 
         optionStrikePrice, 

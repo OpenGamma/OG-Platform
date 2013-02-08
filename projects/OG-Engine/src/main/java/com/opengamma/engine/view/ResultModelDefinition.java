@@ -20,10 +20,12 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
 
@@ -43,6 +45,8 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
 
   private static final long serialVersionUID = 1L;
   
+  private static ComputationTargetTypeMap<Function1<ResultModelDefinition, ResultOutputMode>> s_getOutputMode = getOutputMode();
+
   /**
    * The aggregate position output mode (portfolio nodes).
    * <p>
@@ -245,27 +249,60 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
 //    _primitiveOutputMode = primitiveOutputMode;
 //  }
 
+  private static ComputationTargetTypeMap<Function1<ResultModelDefinition, ResultOutputMode>> getOutputMode() {
+    final ComputationTargetTypeMap<Function1<ResultModelDefinition, ResultOutputMode>> map = new ComputationTargetTypeMap<Function1<ResultModelDefinition, ResultOutputMode>>();
+    map.put(ComputationTargetType.ANYTHING, new Function1<ResultModelDefinition, ResultOutputMode>() {
+      @Override
+      public ResultOutputMode execute(final ResultModelDefinition definition) {
+        return definition.getPrimitiveOutputMode();
+      }
+    });
+    map.put(ComputationTargetType.NULL, new Function1<ResultModelDefinition, ResultOutputMode>() {
+      @Override
+      public ResultOutputMode execute(final ResultModelDefinition definition) {
+        return definition.getPrimitiveOutputMode();
+      }
+    });
+    map.put(ComputationTargetType.SECURITY, new Function1<ResultModelDefinition, ResultOutputMode>() {
+      @Override
+      public ResultOutputMode execute(final ResultModelDefinition definition) {
+        return definition.getSecurityOutputMode();
+      }
+    });
+    map.put(ComputationTargetType.POSITION, new Function1<ResultModelDefinition, ResultOutputMode>() {
+      @Override
+      public ResultOutputMode execute(final ResultModelDefinition definition) {
+        return definition.getPositionOutputMode();
+      }
+    });
+    map.put(ComputationTargetType.TRADE, new Function1<ResultModelDefinition, ResultOutputMode>() {
+      @Override
+      public ResultOutputMode execute(final ResultModelDefinition definition) {
+        return definition.getTradeOutputMode();
+      }
+    });
+    map.put(ComputationTargetType.PORTFOLIO_NODE, new Function1<ResultModelDefinition, ResultOutputMode>() {
+      @Override
+      public ResultOutputMode execute(final ResultModelDefinition definition) {
+        return definition.getAggregatePositionOutputMode();
+      }
+    });
+    return map;
+  }
+
   /**
    * Gets the output mode that applies to values of the given computation target type.
    * 
    * @param computationTargetType  the target type, not null
    * @return  the output mode that applies to values of the give type
    */
-  public ResultOutputMode getOutputMode(ComputationTargetType computationTargetType) {
+  public ResultOutputMode getOutputMode(final ComputationTargetType computationTargetType) {
     ArgumentChecker.notNull(computationTargetType, "computationTargetType");
-    switch (computationTargetType) {
-      case PRIMITIVE:
-        return getPrimitiveOutputMode();
-      case SECURITY:
-        return getSecurityOutputMode();
-      case POSITION:
-        return getPositionOutputMode();
-      case TRADE:
-        return getTradeOutputMode();
-      case PORTFOLIO_NODE:
-        return getAggregatePositionOutputMode();
-      default:
-        throw new IllegalArgumentException("Unknown target type " + computationTargetType);
+    final Function1<ResultModelDefinition, ResultOutputMode> operation = s_getOutputMode.get(computationTargetType);
+    if (operation != null) {
+      return operation.execute(this);
+    } else {
+      throw new IllegalArgumentException("Unknown target type " + computationTargetType);
     }
   }
 

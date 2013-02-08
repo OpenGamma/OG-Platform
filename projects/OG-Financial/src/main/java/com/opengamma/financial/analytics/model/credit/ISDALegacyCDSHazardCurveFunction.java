@@ -16,9 +16,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.InstantProvider;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
@@ -33,12 +34,12 @@ import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -50,7 +51,7 @@ import com.opengamma.financial.analytics.conversion.CreditDefaultSwapSecurityCon
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
-import com.opengamma.financial.analytics.ircurve.YieldCurveFunctionHelper;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
 import com.opengamma.id.ExternalId;
@@ -71,9 +72,9 @@ public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext compilationContext, final InstantProvider atInstantProvider) {
-    final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext compilationContext, final Instant atInstant) {
+    final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
+    return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @SuppressWarnings("synthetic-access")
       @Override
@@ -91,11 +92,10 @@ public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
         if (dataObject == null) {
           throw new OpenGammaRuntimeException("Could not get yield curve data");
         }
-        final SnapshotDataBundle data = (SnapshotDataBundle) dataObject;
-        final Map<ExternalId, Double> marketData = YieldCurveFunctionHelper.buildMarketDataMap(data);
+        final Map<ExternalId, Double> marketData = ((SnapshotDataBundle) dataObject).getDataPoints();
         final InterpolatedYieldCurveSpecificationWithSecurities yieldCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) yieldCurveSpecObject;
         final ISDACurve yieldCurve = (ISDACurve) yieldCurveObject;
-        final ZonedDateTime now = executionContext.getValuationClock().zonedDateTime();
+        final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
         final LegacyVanillaCDSSecurity security = (LegacyVanillaCDSSecurity) target.getSecurity();
         final LegacyVanillaCreditDefaultSwapDefinition cds = _converter.visitLegacyVanillaCDSSecurity(security);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
@@ -131,15 +131,7 @@ public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
 
       @Override
       public ComputationTargetType getTargetType() {
-        return ComputationTargetType.SECURITY;
-      }
-
-      @Override
-      public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-        if (target.getType() != ComputationTargetType.SECURITY) {
-          return false;
-        }
-        return target.getSecurity() instanceof LegacyVanillaCDSSecurity;
+        return FinancialSecurityTypes.LEGACY_VANILLA_CDS_SECURITY;
       }
 
       @Override
@@ -199,7 +191,7 @@ public class ISDALegacyCDSHazardCurveFunction extends AbstractFunction {
         final ComputationTargetSpecification targetSpec = target.toSpecification();
         requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, curveDefinitionProperties));
         requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, targetSpec, curveDefinitionProperties));
-        requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, currency, yieldCurveProperties));
+        requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(currency), yieldCurveProperties));
         return requirements;
       }
 

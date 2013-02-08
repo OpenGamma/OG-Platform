@@ -26,7 +26,7 @@ public class SimplePortfolioCopier implements PortfolioCopier {
   }
 
   public SimplePortfolioCopier(boolean flatten) {
-     _flatten = flatten;
+    _flatten = flatten;
   }
 
   @Override

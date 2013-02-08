@@ -8,12 +8,13 @@ package com.opengamma.financial.analytics.model.futureoption;
 import java.util.Collections;
 import java.util.Set;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.commodity.calculator.CommodityFutureOptionBlackThetaCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -23,17 +24,18 @@ import com.opengamma.engine.value.ValueSpecification;
  */
 public class CommodityFutureOptionBlackThetaFunction extends CommodityFutureOptionBlackFunction {
 
+  /**
+   * Default constructor
+   */
   public CommodityFutureOptionBlackThetaFunction() {
-    super(ValueRequirementNames.VALUE_THETA);
+    super(ValueRequirementNames.THETA);
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final Set<ValueRequirement> desiredValues,
-      final ComputationTarget target) {
-    final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final double theta = derivative.accept(CommodityFutureOptionBlackThetaCalculator.getInstance(), market);
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName()[0], target.toSpecification(), createResultProperties(desiredValue.getConstraints()));
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
     return Collections.singleton(new ComputedValue(spec, theta));
   }
-
 }

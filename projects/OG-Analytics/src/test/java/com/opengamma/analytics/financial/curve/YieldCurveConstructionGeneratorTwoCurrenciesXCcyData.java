@@ -5,13 +5,17 @@
  */
 package com.opengamma.analytics.financial.curve;
 
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorDataBundle;
 import com.opengamma.analytics.financial.curve.building.MultipleYieldCurveFinderGeneratorFunction;
@@ -92,7 +96,7 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   private static final IndexON INDEX_ON_1 = new IndexON("Fed Fund", CCY1, DAY_COUNT_CASH, 1, CALENDAR);
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_1 = new GeneratorDepositON("USD Deposit ON", CCY1, CALENDAR, DAY_COUNT_CASH);
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_2 = new GeneratorDepositON("EUR Deposit ON", CCY2, CALENDAR, DAY_COUNT_CASH);
-  private static final GeneratorSwapFixedON GENERATOR_OIS_1 = new GeneratorSwapFixedON("USD1YFEDFUND", INDEX_ON_1, Period.ofMonths(12), DAY_COUNT_CASH, BDC, true, SPOT_LAG, SPOT_LAG);
+  private static final GeneratorSwapFixedON GENERATOR_OIS_1 = new GeneratorSwapFixedON("USD1YFEDFUND", INDEX_ON_1, Period.of(12, MONTHS), DAY_COUNT_CASH, BDC, true, SPOT_LAG, SPOT_LAG);
   private static final GeneratorForexSwap GENERATOR_FX = new GeneratorForexSwap("EURUSD", CCY2, CCY1, CALENDAR, SPOT_LAG, BDC, true);
   private static final GeneratorDeposit GENERATOR_DEPOSIT_1 = new GeneratorDeposit("USD Deposit", CCY1, CALENDAR, SPOT_LAG, DAY_COUNT_CASH, BDC, true);
   private static final GeneratorDeposit GENERATOR_DEPOSIT_2 = new GeneratorDeposit("EuR Deposit", CCY2, CALENDAR, SPOT_LAG, DAY_COUNT_CASH, BDC, true);
@@ -149,15 +153,15 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   public static final GeneratorInstrument[] DSC_1_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_1, GENERATOR_DEPOSIT_ON_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1,
       GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1, GENERATOR_OIS_1 };
   /** Tenors for the dsc USD curve */
-  public static final Period[] DSC_1_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-      Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
+  public static final Period[] DSC_1_TENOR = new Period[] {Period.of(0, DAYS), Period.of(1, DAYS), Period.of(1, MONTHS), Period.of(2, MONTHS), Period.of(3, MONTHS), Period.of(6, MONTHS), Period.of(9, MONTHS),
+      Period.of(1, YEARS), Period.of(2, YEARS), Period.of(3, YEARS), Period.of(4, YEARS), Period.of(5, YEARS), Period.of(10, YEARS) };
 
   /** Market values for the Fwd 3M USD curve */
   public static final double[] FWD_1_MARKET_QUOTES = new double[] {0.0050, 0.0075, 0.0160, 0.0170, 0.0200, 0.0225 };
   /** Generators for the Fwd 3M USD curve */
   public static final GeneratorInstrument[] FWD_1_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_1, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M, USD6MLIBOR3M };
   /** Tenors for the Fwd 3M USD curve */
-  public static final Period[] FWD_1_TENOR = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10) };
+  public static final Period[] FWD_1_TENOR = new Period[] {Period.of(3, MONTHS), Period.of(6, MONTHS), Period.of(1, YEARS), Period.of(2, YEARS), Period.of(5, YEARS), Period.of(10, YEARS) };
 
   /** Market values for the dsc EUR curve */
   public static final double[] DSC_2_MARKET_QUOTES = new double[] {0.0070, 0.0075, 0.0002, 0.0004, 0.0006, 0.0012, 0.0018, 0.0025, -0.0025, -0.0025, -0.0025, -0.0025, -0.0025 };
@@ -165,8 +169,8 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   public static final GeneratorInstrument[] DSC_2_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_2, GENERATOR_DEPOSIT_ON_2, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX, GENERATOR_FX,
       GENERATOR_FX, GENERATOR_FX, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY, GENERATOR_XCCY };
   /** Tenors for the dsc EUR curve */
-  public static final Period[] DSC_2_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-      Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
+  public static final Period[] DSC_2_TENOR = new Period[] {Period.of(0, DAYS), Period.of(1, DAYS), Period.of(1, MONTHS), Period.of(2, MONTHS), Period.of(3, MONTHS), Period.of(6, MONTHS), Period.of(9, MONTHS),
+      Period.of(1, YEARS), Period.of(2, YEARS), Period.of(3, YEARS), Period.of(4, YEARS), Period.of(5, YEARS), Period.of(10, YEARS) };
   //  /** FX rqtes for the dsc EUR curve */
   //  public static final Double[] DSC_2_FX_RATE = new Double[] {FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD, FX_EURUSD,
   //      FX_EURUSD};
@@ -177,8 +181,8 @@ public class YieldCurveConstructionGeneratorTwoCurrenciesXCcyData {
   public static final GeneratorInstrument[] FWD_2_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_2, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M, EUR1YEURIBOR3M,
       EUR1YEURIBOR3M, EUR1YEURIBOR3M };
   /** Tenors for the Fwd 3M USD curve */
-  public static final Period[] FWD_2_TENOR = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5),
-      Period.ofYears(10) };
+  public static final Period[] FWD_2_TENOR = new Period[] {Period.of(3, MONTHS), Period.of(6, MONTHS), Period.of(1, YEARS), Period.of(2, YEARS), Period.of(3, YEARS), Period.of(4, YEARS), Period.of(5, YEARS),
+      Period.of(10, YEARS) };
 
   /** Standard USD discounting curve instrument definitions */
   public static final List<InstrumentDefinition<?>> DEFINITIONS_DSC_1;

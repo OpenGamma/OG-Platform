@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -26,6 +25,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.ComputationTargetResults;
 import com.opengamma.engine.function.resolver.FunctionPriority;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -282,7 +282,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
       s_logger.debug("No matched values");
       return null;
     }
-    final ValueRequirement reduction = new ValueRequirement(desiredValue.getValueName(), desiredValue.getTargetSpecification(), constraints.get());
+    final ValueRequirement reduction = new ValueRequirement(desiredValue.getValueName(), target.toSpecification(), constraints.get());
     s_logger.debug("Reduced to {}", reduction);
     return Collections.singleton(reduction);
   }

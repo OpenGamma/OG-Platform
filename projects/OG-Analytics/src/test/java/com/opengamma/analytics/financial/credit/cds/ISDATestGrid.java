@@ -1,20 +1,22 @@
 package com.opengamma.analytics.financial.credit.cds;
 
+import static org.threeten.bp.DayOfWeek.SATURDAY;
+import static org.threeten.bp.DayOfWeek.SUNDAY;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.format.DateTimeFormatter;
-import javax.time.calendar.format.DateTimeFormatters;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.format.DateTimeFormatters;
 
 /**
  * The class holds the data for one of the test grids and the associated
@@ -128,9 +130,9 @@ public class ISDATestGrid {
 		LocalDate dt = getTradeDate().minusDays(1);
 		
 		// deal with weekends.
-		if (dt.getDayOfWeek().isSaturday()) {
+		if (dt.getDayOfWeek() == SATURDAY) {
 			dt = dt.minusDays(1);
-		} else if (dt.getDayOfWeek().isSunday()) {
+		} else if (dt.getDayOfWeek() == SUNDAY) {
 			dt = dt.minusDays(2);
 		}
 

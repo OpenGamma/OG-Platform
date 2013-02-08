@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.model.volatility.surface.black.BlackVolatilitySurfacePropertyNamesAndValues;
@@ -21,16 +20,16 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public abstract class BlackVolatilitySurfaceSABRDefaults extends BlackVolatilitySurfaceDefaults {
+public class BlackVolatilitySurfaceSABRDefaults extends BlackVolatilitySurfaceDefaults {
   private static final Logger s_logger = LoggerFactory.getLogger(BlackVolatilitySurfaceSABRDefaults.class);
   private final String _sabrModel;
   private final String _weightingFunction;
   private final String _useExternalBeta;
   private final String _externalBeta;
 
-  public BlackVolatilitySurfaceSABRDefaults(final ComputationTargetType target, final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
+  public BlackVolatilitySurfaceSABRDefaults(final String timeAxis, final String yAxis, final String volatilityTransform, final String timeInterpolator,
       final String timeLeftExtrapolator, final String timeRightExtrapolator, final String sabrModel, final String weightingFunction, final String useExternalBeta, final String externalBeta) {
-    super(target, timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator);
+    super(timeAxis, yAxis, volatilityTransform, timeInterpolator, timeLeftExtrapolator, timeRightExtrapolator);
     ArgumentChecker.notNull(sabrModel, "SABR model");
     ArgumentChecker.notNull(weightingFunction, "weighting function");
     ArgumentChecker.notNull(useExternalBeta, "use external beta");

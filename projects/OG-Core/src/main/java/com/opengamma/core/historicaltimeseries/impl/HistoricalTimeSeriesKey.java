@@ -7,9 +7,8 @@ package com.opengamma.core.historicaltimeseries.impl;
 
 import java.io.Serializable;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalIdBundle;
 

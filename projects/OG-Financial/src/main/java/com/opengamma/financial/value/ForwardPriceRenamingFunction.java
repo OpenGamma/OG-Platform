@@ -8,7 +8,7 @@ package com.opengamma.financial.value;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
@@ -21,13 +21,8 @@ public class ForwardPriceRenamingFunction extends ValueRenamingFunction {
       ValueRequirementNames.FORWARD,
       ValueRequirementNames.UNDERLYING_MARKET_PRICE);
 
-  /**
-   * @param targetType the computation target type for which the function will apply, not null
-   */
-  public ForwardPriceRenamingFunction(ComputationTargetType targetType) {
-    super(VALUE_NAMES_TO_CHANGE, ValueRequirementNames.FORWARD_PRICE, targetType);
+  public ForwardPriceRenamingFunction() {
+    super(VALUE_NAMES_TO_CHANGE, ValueRequirementNames.FORWARD_PRICE, ComputationTargetType.SECURITY.or(ComputationTargetType.POSITION).or(ComputationTargetType.TRADE));
   }
-
-
 
 }

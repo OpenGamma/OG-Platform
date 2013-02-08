@@ -25,7 +25,6 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.lambdava.tuple.Pair;
 
@@ -109,11 +108,6 @@ import com.opengamma.lambdava.tuple.Pair;
 
   public void setLiveDataOverrideInjector(final MarketDataInjector marketDataInjector) {
     _marketDataInjector = marketDataInjector;
-  }
-
-  @Override
-  public VersionCorrection getProcessVersionCorrection() {
-    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -5,18 +5,22 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing;
 
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
+import com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy.CalibrateHazardRateCurveLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyVanillaCreditDefaultSwap;
+import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
@@ -124,7 +128,7 @@ public class PresentValueScratchpad {
   private static final DayCount daycountFractionConvention = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final BusinessDayConvention businessdayAdjustmentConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
-  private static final boolean immAdjustMaturityDate = true;
+  private static final boolean immAdjustMaturityDate = false;
   private static final boolean adjustEffectiveDate = true;
   private static final boolean adjustMaturityDate = true;
 
@@ -142,7 +146,7 @@ public class PresentValueScratchpad {
 
   protected static DayCount s_act365 = new ActualThreeSixtyFive();
 
-  final ZonedDateTime baseDate = ZonedDateTime.of(2012, 11, 15, 0, 0, 0, 0, TimeZone.UTC);
+  final ZonedDateTime baseDate = zdt(2012, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC);
 
   double[] times2 = {
       s_act365.getDayCountFraction(baseDate, baseDate.plusMonths(1)),
@@ -167,33 +171,43 @@ public class PresentValueScratchpad {
   };
 
   double[] times = {
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2012, 12, 16, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 1, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 2, 17, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 5, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2013, 8, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2014, 11, 16, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2015, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2016, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2017, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2018, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2019, 11, 17, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2020, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2021, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2022, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2024, 11, 17, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2027, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2032, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2037, 11, 15, 0, 0, 0, 0, TimeZone.UTC)),
-      s_act365.getDayCountFraction(baseDate, ZonedDateTime.of(2042, 11, 16, 0, 0, 0, 0, TimeZone.UTC))
+      s_act365.getDayCountFraction(baseDate, zdt(2012, 12, 17, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 1, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 2, 17, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 5, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+      s_act365.getDayCountFraction(baseDate, zdt(2013, 8, 15, 0, 0, 0, 0, ZoneOffset.UTC))
   };
 
+  /*
+  ,
+  s_act365.getDayCountFraction(baseDate, zdt(2014, 11, 16, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2015, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2016, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2017, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2018, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2019, 11, 17, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2020, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2021, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2022, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2024, 11, 17, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2027, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2032, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2037, 11, 15, 0, 0, 0, 0, ZoneOffset.UTC)),
+  s_act365.getDayCountFraction(baseDate, zdt(2042, 11, 16, 0, 0, 0, 0, ZoneOffset.UTC))
+  };
+  */
+
   double[] rates = {
-      (new PeriodicInterestRate(0.00208, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.002075, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.00257, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.00311, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.00523, 1)).toContinuous().getRate(),
-      (new PeriodicInterestRate(0.00697, 1)).toContinuous().getRate(),
+      (new PeriodicInterestRate(0.006965, 1)).toContinuous().getRate()
+  };
+
+  //double[] rates = {0.0, 0.0, 0.0, 0.0, 0.0 };
+
+  /*
       (new PeriodicInterestRate(0.00377, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.00451, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.00583, 1)).toContinuous().getRate(),
@@ -209,6 +223,7 @@ public class PresentValueScratchpad {
       (new PeriodicInterestRate(0.02420, 1)).toContinuous().getRate(),
       (new PeriodicInterestRate(0.02481, 1)).toContinuous().getRate(),
   };
+  */
 
   final double flatRate = 0.0;
 
@@ -330,12 +345,14 @@ public class PresentValueScratchpad {
     // Define the market data to calibrate to
 
     // The number of CDS instruments used to calibrate against
-    final int numberOfCalibrationCDS = 8;
+    final int numberOfCalibrationCDS = 1;
 
     // The CDS tenors to calibrate to
     final ZonedDateTime[] tenors = new ZonedDateTime[numberOfCalibrationCDS];
 
     tenors[0] = DateUtils.getUTCDate(2013, 6, 20);
+
+    /*
     tenors[1] = DateUtils.getUTCDate(2013, 12, 20);
     tenors[2] = DateUtils.getUTCDate(2014, 12, 20);
     tenors[3] = DateUtils.getUTCDate(2015, 12, 20);
@@ -343,12 +360,14 @@ public class PresentValueScratchpad {
     tenors[5] = DateUtils.getUTCDate(2017, 12, 20);
     tenors[6] = DateUtils.getUTCDate(2019, 12, 20);
     tenors[7] = DateUtils.getUTCDate(2022, 12, 20);
+    */
 
     // The market observed par CDS spreads at these tenors
     final double[] marketSpreads = new double[numberOfCalibrationCDS];
 
-    final double flatSpread = 550.0;
+    final double flatSpread = 0.0000001; //550.0;
 
+    /*
     marketSpreads[0] = 128.76;
     marketSpreads[1] = 164.62;
     marketSpreads[2] = 263.77;
@@ -357,9 +376,11 @@ public class PresentValueScratchpad {
     marketSpreads[5] = 406.02;
     marketSpreads[6] = 422.60;
     marketSpreads[7] = 432.96;
+    */
+
+    marketSpreads[0] = flatSpread;
 
     /*
-    marketSpreads[0] = flatSpread;
     marketSpreads[1] = flatSpread;
     marketSpreads[2] = flatSpread;
     marketSpreads[3] = flatSpread;
@@ -374,8 +395,6 @@ public class PresentValueScratchpad {
 
     // -------------------------------------------------------------------------------------
 
-    /*
-    
     // Create a calibration CDS (will be a modified version of the baseline CDS)
     LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
 
@@ -414,7 +433,7 @@ public class PresentValueScratchpad {
     // -------------------------------------------------------------------------------------
 
     // Call the constructor to create a CDS present value object
-    final PresentValueLegacyCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyCreditDefaultSwap();
+    final PresentValueLegacyVanillaCreditDefaultSwap creditDefaultSwap = new PresentValueLegacyVanillaCreditDefaultSwap();
 
     // Calculate the CDS MtM
     final double presentValue = creditDefaultSwap.getPresentValueLegacyVanillaCreditDefaultSwap(valuationDate, cds, yieldCurve, newCalibratedHazardRateCurve, priceType);
@@ -426,13 +445,14 @@ public class PresentValueScratchpad {
 
       System.out.println("PV = " + presentValue);
     }
-    
-    */
 
     // -------------------------------------------------------------------------------------
 
   }
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
+  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+    return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
+  }
 
 }

@@ -42,7 +42,6 @@ public class IRFutureOptionSABRPresentValueFunction extends IRFutureOptionSABRFu
     final double pv = irFutureOption.accept(CALCULATOR, data);
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final ValueProperties properties = desiredValue.getConstraints().copy()
-        .withoutAny(ValuePropertyNames.FUNCTION)
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
     final ValueSpecification spec = new ValueSpecification(getValueRequirementNames()[0], target.toSpecification(), properties);

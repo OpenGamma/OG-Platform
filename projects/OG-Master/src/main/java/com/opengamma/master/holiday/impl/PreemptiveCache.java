@@ -11,10 +11,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.time.Duration;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Duration;
 
 import com.google.common.collect.Lists;
 
@@ -37,7 +36,7 @@ public abstract class PreemptiveCache<TKey, TValue> {
   
   public PreemptiveCache(Duration timeout) {
     _timeout = timeout;
-    _timeoutMillis =  _timeout.toMillisLong();
+    _timeoutMillis =  _timeout.toMillis();
     _timer = new Timer("PreemptiveCache refresh " + this.getClass().getName(), true);
     
     //TODO: As cardinality goes up may want to spread the reloads. See also expiry

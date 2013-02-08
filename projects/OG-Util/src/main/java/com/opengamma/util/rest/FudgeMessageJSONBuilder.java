@@ -31,11 +31,14 @@ public class FudgeMessageJSONBuilder {
     ArgumentChecker.notNull(fudgeContext, "FudgeContext");
     _fudgeContext = fudgeContext;
   }
-  
+
+  /**
+   * Creates an instance.
+   */
   public FudgeMessageJSONBuilder() {
     this(OpenGammaFudgeContext.getInstance());
   }
-  
+
   /**
    * Converts the given fudgeMsg to a JSON string representation
    * 
@@ -46,10 +49,10 @@ public class FudgeMessageJSONBuilder {
     ArgumentChecker.notNull(fudgeMsg, "fudge message");
     
     final CharArrayWriter caw = new CharArrayWriter();
-    final FudgeMsgWriter fmw = new FudgeMsgWriter(new FudgeJSONStreamWriter(_fudgeContext, caw));
-    
-    fmw.writeMessage(fudgeMsg);
-    
+    try (FudgeMsgWriter fmw = new FudgeMsgWriter(new FudgeJSONStreamWriter(_fudgeContext, caw))) {
+      fmw.writeMessage(fudgeMsg);
+    }
     return caw.toString();
   }
+
 }

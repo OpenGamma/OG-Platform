@@ -9,7 +9,7 @@ package com.opengamma.language.value;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.time.Instant;
+import org.threeten.bp.Instant;
 
 import com.opengamma.engine.view.helper.AvailableOutputs;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
@@ -59,7 +59,7 @@ public class GetAvailableOutputsFunction extends AbstractFunctionInvoker impleme
   }
 
   public GetAvailableOutputsFunction() {
-    this(new DefinitionAnnotater(ExpandComputedValuesFunction.class));
+    this(new DefinitionAnnotater(GetAvailableOutputsFunction.class));
   }
 
   public static AvailableOutputs invoke(final AvailableOutputsProvider provider, final UniqueId portfolio, final Integer nodeSample, final Integer positionSample, final Instant evaluationTime) {

@@ -11,6 +11,7 @@ import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.cashflow.CashFlowSecurity;
 import com.opengamma.financial.security.cds.CDSSecurity;
 import com.opengamma.financial.security.cds.LegacyFixedRecoveryCDSSecurity;
 import com.opengamma.financial.security.cds.LegacyRecoveryLockCDSSecurity;
@@ -29,6 +30,7 @@ import com.opengamma.financial.security.forward.MetalForwardSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
@@ -49,6 +51,7 @@ import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.FxFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
@@ -62,7 +65,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
  * @param <T> Return type for visitor.
  */
 class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVisitor<T> {
-
+  /** The delegate */
   private final FinancialSecurityVisitor<T> _delegate;
 
   public FinancialSecurityVisitorDelegate(final FinancialSecurityVisitor<T> delegate) {
@@ -102,6 +105,11 @@ class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVisitor<T>
   @Override
   public T visitCashSecurity(final CashSecurity security) {
     return _delegate.visitCashSecurity(security);
+  }
+
+  @Override
+  public T visitCashFlowSecurity(final CashFlowSecurity security) {
+    return _delegate.visitCashFlowSecurity(security);
   }
 
   @Override
@@ -230,6 +238,11 @@ class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVisitor<T>
   }
 
   @Override
+  public T visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
+    return _delegate.visitFxFutureOptionSecurity(security);
+  }
+
+  @Override
   public T visitBondFutureOptionSecurity(final BondFutureOptionSecurity security) {
     return _delegate.visitBondFutureOptionSecurity(security);
   }
@@ -317,5 +330,10 @@ class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVisitor<T>
   @Override
   public T visitLegacyRecoveryLockCDSSecurity(final LegacyRecoveryLockCDSSecurity security) {
     return _delegate.visitLegacyRecoveryLockCDSSecurity(security);
+  }
+
+  @Override
+  public T visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
+    return _delegate.visitDeliverableSwapFutureSecurity(security);
   }
 }

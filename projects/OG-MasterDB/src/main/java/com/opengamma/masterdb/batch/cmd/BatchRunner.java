@@ -5,10 +5,6 @@
  */
 package com.opengamma.masterdb.batch.cmd;
 
-import javax.time.Instant;
-import javax.time.calendar.DateTimeProvider;
-import javax.time.calendar.OffsetDateTime;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -19,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.threeten.bp.Instant;
+import org.threeten.bp.OffsetDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.batch.RunCreationMode;
@@ -70,7 +68,7 @@ public class BatchRunner {
   /**
    * The observation instant.
    */
-  private static DateTimeProvider _observationDateTime = OffsetDateTime.now();
+  private static OffsetDateTime _observationDateTime = OffsetDateTime.now();
 
   /**
    * Version correction as of.
@@ -107,13 +105,12 @@ public class BatchRunner {
       ViewProcessor viewProcessor = appContext.getBean("viewProcessor", ViewProcessor.class);
 
       ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-      MarketDataSpecification marketDataSpec = new FixedHistoricalMarketDataSpecification(_observationDateTime);
-      ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(_valuationInstant, marketDataSpec);
+      MarketDataSpecification marketDataSpec = new FixedHistoricalMarketDataSpecification(_observationDateTime.getDate());
+      ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(_valuationInstant).setMarketDataSpecification(marketDataSpec)
+          .setResolverVersionCorrection(VersionCorrection.of(_versionAsOf, _correctedTo)).create();
       ViewCycleExecutionSequence executionSequence = ArbitraryViewCycleExecutionSequence.of(cycleOptions);
 
-      VersionCorrection versionCorrection = VersionCorrection.of(_versionAsOf, _correctedTo);
-
-      ExecutionOptions executionOptions = new ExecutionOptions(executionSequence, ExecutionFlags.none().awaitMarketData().get(), null, null, versionCorrection);
+      ExecutionOptions executionOptions = new ExecutionOptions(executionSequence, ExecutionFlags.none().awaitMarketData().get(), null, null);
 
       viewClient.attachToViewProcess(UniqueId.parse(_viewDefinitionUid), executionOptions);
     } finally {

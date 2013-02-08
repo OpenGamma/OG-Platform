@@ -121,7 +121,7 @@ public class RemoteClient {
       return (_securityMaster != null) ? _securityMaster : super.getSecurityMaster();
     }
 
-    public void setConfigMasterUri(final URI configMaster) {
+    public void setConfigMaster(final URI configMaster) {
       _configMaster = configMaster;
     }
 

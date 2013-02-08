@@ -5,11 +5,10 @@
  */
 package com.opengamma.engine.marketdata.historical;
 
-import javax.time.Instant;
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -95,7 +94,7 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
       s_logger.info("No time-series for {}, {}", identifiers, valueName);
       return null;
     }
-    return new ComputedValue(MarketDataUtils.createMarketDataValue(requirement), _snapshotDate != null ? hts.getTimeSeries().getValue(_snapshotDate) : hts.getTimeSeries()
+    return new ComputedValue(MarketDataUtils.createMarketDataValue(requirement, hts.getUniqueId()), _snapshotDate != null ? hts.getTimeSeries().getValue(_snapshotDate) : hts.getTimeSeries()
         .getLatestValue());
   }
 

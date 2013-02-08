@@ -7,7 +7,7 @@ package com.opengamma.core.region;
 
 import java.util.Set;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -88,7 +88,7 @@ public interface Region extends UniqueIdentifiable {
    * 
    * @return the time-zone, null if not applicable
    */
-  TimeZone getTimeZone();
+  ZoneId getTimeZone();
 
   /**
    * Gets the short descriptive name of the region.

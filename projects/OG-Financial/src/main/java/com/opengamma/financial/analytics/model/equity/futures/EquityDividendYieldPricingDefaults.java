@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
@@ -34,9 +34,12 @@ import com.opengamma.lambdava.tuple.Pair;
  *
  */
 public class EquityDividendYieldPricingDefaults extends DefaultPropertyFunction {
+  /** The default values */
   private final Map<Currency, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
+  /** The priority */
   private final PriorityClass _priority;
 
+  /** The value requirements for which these defaults apply */
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.VALUE_DELTA,
@@ -95,9 +98,6 @@ public class EquityDividendYieldPricingDefaults extends DefaultPropertyFunction 
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
-      return false;
-    }
     final Security sec = target.getTrade().getSecurity();
     if (!(sec instanceof EquityFutureSecurity || sec instanceof EquityIndexDividendFutureSecurity || sec instanceof IndexFutureSecurity)) {
       return false;

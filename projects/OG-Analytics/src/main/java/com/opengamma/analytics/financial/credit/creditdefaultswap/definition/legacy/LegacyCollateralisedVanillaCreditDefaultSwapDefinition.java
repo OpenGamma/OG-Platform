@@ -5,22 +5,23 @@
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.collateral.definition.CollateralDefinition;
+import com.opengamma.analytics.financial.credit.collateralmodel.CreditSupportAnnexDefinition;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * Definition of a Legacy collateralised vanilla CDS i.e. with the features of CDS contracts prior to the Big Bang in 2009
  */
 public class LegacyCollateralisedVanillaCreditDefaultSwapDefinition extends LegacyVanillaCreditDefaultSwapDefinition {
 
@@ -31,9 +32,10 @@ public class LegacyCollateralisedVanillaCreditDefaultSwapDefinition extends Lega
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  // Member variables specific to the legacy vanilla CDS contract
+  // Member variables specific to the legacy collateralised CDS contract
 
-  private final CollateralDefinition _collateralAgreement;
+  // The CSA that this trade is executed under (specifies the details of the collateral arrangements between the protection buyer and seller)
+  private final CreditSupportAnnexDefinition _creditSupportAnnex;
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -63,7 +65,7 @@ public class LegacyCollateralisedVanillaCreditDefaultSwapDefinition extends Lega
       final boolean includeAccruedPremium,
       final boolean protectionStart,
       final double parSpread,
-      final CollateralDefinition collateralAgreement) {
+      final CreditSupportAnnexDefinition creditSupportAnnex) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -95,13 +97,15 @@ public class LegacyCollateralisedVanillaCreditDefaultSwapDefinition extends Lega
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    _collateralAgreement = collateralAgreement;
+    ArgumentChecker.notNull(creditSupportAnnex, "Credit support annex");
+
+    _creditSupportAnnex = creditSupportAnnex;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
   }
 
-  public CollateralDefinition getCollateralAgreement() {
-    return _collateralAgreement;
+  public CreditSupportAnnexDefinition getCreditSupportAnnexDefinition() {
+    return _creditSupportAnnex;
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

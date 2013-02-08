@@ -79,28 +79,28 @@ public class ExplicitFiniteDifference2D implements ConvectionDiffusionPDESolver2
 
       // The y = ymin and y = ymax boundaries
       for (int i = 1; i < xSteps; i++) {
-        double[] temp = yLowerBoundary.getRightMatrixCondition(pdeData, t, x[i]);
+        double[] temp = yLowerBoundary.getRightMatrixCondition(t, x[i]);
         sum = 0;
         for (int n = 0; n < temp.length; n++) {
           sum += temp[n] * v[i][n];
         }
-        double q = sum + yLowerBoundary.getConstant(pdeData, t, x[i], dy);
+        double q = sum + yLowerBoundary.getConstant(t, x[i], dy);
         sum = 0;
-        temp = yLowerBoundary.getLeftMatrixCondition(pdeData, x[i], t);
+        temp = yLowerBoundary.getLeftMatrixCondition(x[i], t);
         Validate.isTrue(temp[0] != 0.0);
         for (int k1 = 1; k1 < temp.length; k1++) {
           sum += temp[k1] * vNew[i][k1];
         }
         vNew[i][0] = (q - sum) / temp[0];
 
-        temp = yUpperBoundary.getRightMatrixCondition(pdeData, t, x[i]);
+        temp = yUpperBoundary.getRightMatrixCondition(t, x[i]);
         sum = 0;
         for (int n = 0; n < temp.length; n++) {
           sum += temp[n] * v[i][ySteps + n + 1 - temp.length];
         }
-        q = sum + yUpperBoundary.getConstant(pdeData, t, x[i], dy);
+        q = sum + yUpperBoundary.getConstant(t, x[i], dy);
         sum = 0;
-        temp = yUpperBoundary.getLeftMatrixCondition(pdeData, t, x[i]);
+        temp = yUpperBoundary.getLeftMatrixCondition(t, x[i]);
         for (int k1 = 0; k1 < temp.length - 1; k1++) {
           sum += temp[k1] * vNew[i][ySteps + k1 + 1 - temp.length];
         }
@@ -109,27 +109,27 @@ public class ExplicitFiniteDifference2D implements ConvectionDiffusionPDESolver2
 
       // The x = xmin and x = xmax boundaries
       for (int j = 0; j <= ySteps; j++) {
-        double[] temp = xLowerBoundary.getRightMatrixCondition(pdeData, y[j], t);
+        double[] temp = xLowerBoundary.getRightMatrixCondition(y[j], t);
         sum = 0;
         for (int n = 0; n < temp.length; n++) {
           sum += temp[n] * v[n][j];
         }
-        double q = sum + xLowerBoundary.getConstant(pdeData, t, y[j], dx);
+        double q = sum + xLowerBoundary.getConstant(t, y[j], dx);
         sum = 0;
-        temp = xLowerBoundary.getLeftMatrixCondition(pdeData, t, y[j]);
+        temp = xLowerBoundary.getLeftMatrixCondition(t, y[j]);
         for (int k1 = 1; k1 < temp.length; k1++) {
           sum += temp[k1] * vNew[k1][j];
         }
         vNew[0][j] = (q - sum) / temp[0];
 
-        temp = xUpperBoundary.getRightMatrixCondition(pdeData, t, y[j]);
+        temp = xUpperBoundary.getRightMatrixCondition(t, y[j]);
         sum = 0;
         for (int n = 0; n < temp.length; n++) {
           sum += temp[n] * v[xSteps + n + 1 - temp.length][j];
         }
-        q = sum + xUpperBoundary.getConstant(pdeData, t, y[j], dx);
+        q = sum + xUpperBoundary.getConstant(t, y[j], dx);
         sum = 0;
-        temp = xUpperBoundary.getLeftMatrixCondition(pdeData, t, y[j]);
+        temp = xUpperBoundary.getLeftMatrixCondition(t, y[j]);
         for (int k1 = 0; k1 < temp.length - 1; k1++) {
           sum += temp[k1] * vNew[xSteps + k1 + 1 - temp.length][j];
         }

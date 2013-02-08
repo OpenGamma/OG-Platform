@@ -19,7 +19,7 @@ public class AbstractPortfolioNodeTraversalCallback implements PortfolioNodeTrav
   }
 
   @Override
-  public void postOrderOperation(Position position) {
+  public void postOrderOperation(PortfolioNode parentNode, Position position) {
   }
 
   @Override
@@ -27,7 +27,7 @@ public class AbstractPortfolioNodeTraversalCallback implements PortfolioNodeTrav
   }
 
   @Override
-  public void preOrderOperation(Position position) {
+  public void preOrderOperation(PortfolioNode parentNode, Position position) {
   }
 
 }

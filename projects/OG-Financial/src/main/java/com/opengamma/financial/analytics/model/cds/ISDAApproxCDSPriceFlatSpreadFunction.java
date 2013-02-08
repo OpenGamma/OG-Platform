@@ -8,7 +8,7 @@ package com.opengamma.financial.analytics.model.cds;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.time.calendar.ZonedDateTime;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.cds.ISDAApproxCDSPricingMethod;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.credit.cds.ISDACurve;
 import com.opengamma.analytics.financial.instrument.cds.ISDACDSDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
@@ -51,14 +51,11 @@ public class ISDAApproxCDSPriceFlatSpreadFunction extends ISDAApproxCDSPriceFunc
 
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
 
-    requirements.add(new ValueRequirement(
-      ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, cds.getCurrency().getUniqueId(),
-      ValueProperties.with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME).get()));
+    requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetSpecification.of(cds.getCurrency()), ValueProperties.with(ValuePropertyNames.CALCULATION_METHOD,
+        ISDAFunctionConstants.ISDA_METHOD_NAME).get()));
     
     // TODO: Are extra value properties needed here? (see ISDAApproxFlatSpreadFunction)
-    requirements.add(new ValueRequirement(
-      ValueRequirementNames.SPOT_RATE, ComputationTargetType.SECURITY, cds.getUniqueId(),
-      ValueProperties.none()));
+    requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, target.toSpecification(), ValueProperties.none()));
     
     return requirements;
   }
@@ -76,19 +73,13 @@ public class ISDAApproxCDSPriceFlatSpreadFunction extends ISDAApproxCDSPriceFunc
     
     // Time point to price for
     // TODO: Supply an option for the user to specify non-standard step-in and settlement dates
-    final ZonedDateTime pricingDate = executionContext.getValuationClock().zonedDateTime();
+    final ZonedDateTime pricingDate = ZonedDateTime.now(executionContext.getValuationClock());
     final ZonedDateTime stepinDate = pricingDate.plusDays(1);
     final ZonedDateTime settlementDate = findSettlementDate(pricingDate, cdsDefinition.getConvention());
 
     // Discount curve
-    final ISDACurve discountCurve = (ISDACurve) inputs.getValue(new ValueRequirement(
-      ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, cds.getCurrency().getUniqueId(),
-      ValueProperties.with(ValuePropertyNames.CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME).get()
-    ));
-    
-    final double flatSpread = (Double) inputs.getValue(new ValueRequirement(
-      ValueRequirementNames.SPOT_RATE, ComputationTargetType.SECURITY, cds.getUniqueId(),
-      ValueProperties.none()));
+    final ISDACurve discountCurve = (ISDACurve) inputs.getValue(ValueRequirementNames.YIELD_CURVE);
+    final double flatSpread = (Double) inputs.getValue(ValueRequirementNames.SPOT_RATE);
     
     // Convert security in to format suitable for pricing
     final ISDACDSDerivative cdsDerivative = cdsDefinition.toDerivative(pricingDate, stepinDate, settlementDate, discountCurve.getName());

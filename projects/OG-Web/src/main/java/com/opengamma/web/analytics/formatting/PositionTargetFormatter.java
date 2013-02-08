@@ -25,6 +25,6 @@ import com.opengamma.web.analytics.PositionTarget;
 
   @Override
   public DataType getDataType() {
-    return DataType.POSITION_ID;
+    return DataType.POSITION;
   }
 }

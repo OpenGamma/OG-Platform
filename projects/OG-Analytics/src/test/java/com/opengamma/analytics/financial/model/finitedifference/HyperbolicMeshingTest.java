@@ -89,7 +89,7 @@ public class HyperbolicMeshingTest extends MeshingTest {
     double xMin = -3.4;
     double xMax = 10.0;
     double xCent = 0.0;
-    double[] fp = new double[] {5.0, -3.4, -2.0, 7.0 };
+    double[] fp = new double[] {5.0, -3.5, -2.0, 7.0 };
     double beta = 0.2;
     int n = 12;
 

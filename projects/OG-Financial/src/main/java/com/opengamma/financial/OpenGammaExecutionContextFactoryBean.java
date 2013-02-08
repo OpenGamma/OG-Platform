@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial;
@@ -16,6 +16,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.PortfolioStructure;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
@@ -31,13 +32,14 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
   private ConventionBundleSource _conventionBundleSource;
   private ExchangeSource _exchangeSource;
   private ConfigSource _configSource;
+  private ConfigMaster _configMaster;
   private OverrideOperationCompiler _overrideOperationCompiler;
 
   public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
     return _historicalTimeSeriesSource;
   }
 
-  public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource source) {
+  public void setHistoricalTimeSeriesSource(final HistoricalTimeSeriesSource source) {
     _historicalTimeSeriesSource = source;
   }
 
@@ -45,11 +47,11 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     return _securitySource;
   }
 
-  public void setSecuritySource(SecuritySource securitySource) {
+  public void setSecuritySource(final SecuritySource securitySource) {
     _securitySource = securitySource;
   }
 
-  public void setPositionSource(PositionSource positionSource) {
+  public void setPositionSource(final PositionSource positionSource) {
     _positionSource = positionSource;
   }
 
@@ -61,7 +63,7 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     return _regionSource;
   }
 
-  public void setRegionSource(RegionSource regionRepository) {
+  public void setRegionSource(final RegionSource regionRepository) {
     _regionSource = regionRepository;
   }
 
@@ -69,7 +71,7 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     return _exchangeSource;
   }
 
-  public void setExchangeSource(ExchangeSource exchangeSource) {
+  public void setExchangeSource(final ExchangeSource exchangeSource) {
     _exchangeSource = exchangeSource;
   }
 
@@ -77,7 +79,7 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     return _holidaySource;
   }
 
-  public void setHolidaySource(HolidaySource holidaySource) {
+  public void setHolidaySource(final HolidaySource holidaySource) {
     _holidaySource = holidaySource;
   }
 
@@ -85,7 +87,7 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     return _conventionBundleSource;
   }
 
-  public void setConventionBundleSource(ConventionBundleSource referenceRateRepository) {
+  public void setConventionBundleSource(final ConventionBundleSource referenceRateRepository) {
     _conventionBundleSource = referenceRateRepository;
   }
 
@@ -93,8 +95,16 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     return _configSource;
   }
 
-  public void setConfigSource(ConfigSource configSource) {
+  public void setConfigSource(final ConfigSource configSource) {
     _configSource = configSource;
+  }
+
+  public ConfigMaster getConfigMaster() {
+    return _configMaster;
+  }
+
+  public void setConfigMaster(final ConfigMaster configMaster) {
+    _configMaster = configMaster;
   }
 
   public OverrideOperationCompiler getOverrideOperationCompiler() {
@@ -107,7 +117,7 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
 
   @Override
   protected FunctionExecutionContext createObject() {
-    FunctionExecutionContext context = new FunctionExecutionContext();
+    final FunctionExecutionContext context = new FunctionExecutionContext();
     context.setSecuritySource(getSecuritySource());
     context.setPortfolioStructure(new PortfolioStructure(getPositionSource()));
     if (getHistoricalTimeSeriesSource() != null) {
@@ -127,6 +137,9 @@ public class OpenGammaExecutionContextFactoryBean extends SingletonFactoryBean<F
     }
     if (getConfigSource() != null) {
       OpenGammaExecutionContext.setConfigSource(context, getConfigSource());
+    }
+    if (getConfigMaster() != null) {
+      OpenGammaExecutionContext.setConfigMaster(context, getConfigMaster());
     }
     if (getOverrideOperationCompiler() != null) {
       OpenGammaExecutionContext.setOverrideOperationCompiler(context, getOverrideOperationCompiler());

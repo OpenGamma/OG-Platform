@@ -15,51 +15,61 @@ import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.option.AmericanExerciseType;
+import com.opengamma.financial.security.option.CommodityFutureOptionSecurity;
 
 /**
  *
  */
 public class CommodityFutureOptionBjerksundStenslandGreeksFunction extends CommodityFutureOptionBjerksundStenslandFunction {
+  /** Value requirement names */
   private static final String[] GREEK_NAMES = new String[] {
-      ValueRequirementNames.VALUE_DELTA,
-      ValueRequirementNames.VALUE_DUAL_DELTA,
-      ValueRequirementNames.VALUE_RHO,
-      ValueRequirementNames.VALUE_CARRY_RHO,
-      ValueRequirementNames.VALUE_VEGA,
-      ValueRequirementNames.VALUE_THETA
+    ValueRequirementNames.DELTA,
+    ValueRequirementNames.DUAL_DELTA,
+    ValueRequirementNames.RHO,
+    ValueRequirementNames.CARRY_RHO,
+    ValueRequirementNames.VEGA,
+    ValueRequirementNames.THETA
   };
+  /** Equivalent greeks */
   private static final Greek[] GREEKS = new Greek[] {
-      Greek.DELTA,
-      Greek.DUAL_DELTA,
-      Greek.RHO,
-      Greek.CARRY_RHO,
-      Greek.VEGA,
-      Greek.THETA
+    Greek.DELTA,
+    Greek.DUAL_DELTA,
+    Greek.RHO,
+    Greek.CARRY_RHO,
+    Greek.VEGA,
+    Greek.THETA
   };
 
+  /**
+   * Default constructor
+   */
   public CommodityFutureOptionBjerksundStenslandGreeksFunction() {
     super(GREEK_NAMES);
   }
 
   @Override
-  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final Set<ValueRequirement> desiredValues,
-      final ComputationTarget target) {
-    final ValueRequirement desiredValue = desiredValues.iterator().next();
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    return ((CommodityFutureOptionSecurity) target.getSecurity()).getExerciseType() instanceof AmericanExerciseType;
+  }
+
+  @Override
+  protected Set<ComputedValue> computeValues(final InstrumentDerivative derivative, final StaticReplicationDataBundle market, final FunctionInputs inputs,
+      final Set<ValueRequirement> desiredValues, final ComputationTargetSpecification targetSpec, final ValueProperties resultProperties) {
     final GreekResultCollection greeks = derivative.accept(ComFutOptBjerksundStenslandGreekCalculator.getInstance(), market);
-    final ComputationTargetSpecification targetSpec = target.toSpecification();
-    final ValueProperties properties = createResultProperties(desiredValue.getConstraints());
-    final Set<ComputedValue> result = new HashSet<ComputedValue>();
+    final Set<ComputedValue> result = new HashSet<>();
     for (int i = 0; i < GREEKS.length; i++) {
-      final ValueSpecification spec = new ValueSpecification(GREEK_NAMES[i], targetSpec, properties);
+      final ValueSpecification spec = new ValueSpecification(GREEK_NAMES[i], targetSpec, resultProperties);
       final double greek = greeks.get(GREEKS[i]);
       result.add(new ComputedValue(spec, greek));
     }
     return result;
   }
-
 }

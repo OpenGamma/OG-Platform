@@ -8,10 +8,9 @@ package com.opengamma.financial.analytics.model.simpleinstrument;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.Validate;
+import org.threeten.bp.Clock;
+import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -21,14 +20,13 @@ import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFXFutur
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFXFuturePresentValueCalculator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.id.ExternalSchemes;
-import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -42,6 +40,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
@@ -67,7 +66,7 @@ public class SimpleFXFuturePresentValueFunction extends AbstractFunction.NonComp
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final FXFutureSecurity security = (FXFutureSecurity) target.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
     final Currency payCurrency = security.getNumerator();
     final Object payCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(payCurrency, _payCurveName, null, null));
     if (payCurveObject == null) {
@@ -84,7 +83,7 @@ public class SimpleFXFuturePresentValueFunction extends AbstractFunction.NonComp
     final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
     final Currency currencyBase = currencyPair.getBase();
     final ExternalId underlyingIdentifier = getSpotIdentifier(security, currencyPair);
-    final Object spotObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingIdentifier));
+    final Object spotObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, underlyingIdentifier));
     if (spotObject == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + underlyingIdentifier);
     }
@@ -107,16 +106,7 @@ public class SimpleFXFuturePresentValueFunction extends AbstractFunction.NonComp
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.SECURITY;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
-    final Security security = target.getSecurity();
-    return security instanceof FXFutureSecurity;
+    return FinancialSecurityTypes.FX_FUTURE_SECURITY;
   }
 
   @Override
@@ -138,7 +128,7 @@ public class SimpleFXFuturePresentValueFunction extends AbstractFunction.NonComp
     final ExternalId underlyingIdentifier = getSpotIdentifier(future, currencyPair);
     final ValueRequirement payYieldCurve = YieldCurveFunction.getCurveRequirement(future.getNumerator(), _payCurveName, null, null);
     final ValueRequirement receiveYieldCurve = YieldCurveFunction.getCurveRequirement(future.getDenominator(), _receiveCurveName, null, null);
-    final ValueRequirement spot = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingIdentifier);
+    final ValueRequirement spot = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, underlyingIdentifier);
     return Sets.newHashSet(payYieldCurve, receiveYieldCurve, spot);
   }
 

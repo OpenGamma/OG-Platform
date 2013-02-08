@@ -7,11 +7,11 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -42,7 +42,7 @@ public class CouponFixedDefinitionTest {
   private static final ZonedDateTime FAKE_DATE = DateUtils.getUTCDate(0, 1, 1);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BD_CONVENTION = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final IborIndex INDEX = new IborIndex(CUR, Period.ofMonths(6), 0, CALENDAR, DAY_COUNT, BD_CONVENTION, false);
+  private static final IborIndex INDEX = new IborIndex(CUR, Period.of(6, MONTHS), 0, CALENDAR, DAY_COUNT, BD_CONVENTION, false);
   private static final CouponFloatingDefinition COUPON = new CouponIborDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FAKE_DATE, INDEX);
   private static final CouponFixedDefinition FIXED_COUPON = new CouponFixedDefinition(COUPON, RATE);
 
@@ -62,7 +62,7 @@ public class CouponFixedDefinitionTest {
   @Test
   public void fromGeneratorDeposit() {
     GeneratorDeposit generator = new USDDeposit(CALENDAR);
-    Period tenor = Period.ofMonths(3);
+    Period tenor = Period.of(3, MONTHS);
     CouponFixedDefinition cpnFixed = CouponFixedDefinition.from(ACCRUAL_START_DATE, tenor, generator, NOTIONAL, RATE);
     ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, tenor, generator.getBusinessDayConvention(), CALENDAR, generator.isEndOfMonth());
     double accrual = generator.getDayCount().getDayCountFraction(ACCRUAL_START_DATE, endDate);

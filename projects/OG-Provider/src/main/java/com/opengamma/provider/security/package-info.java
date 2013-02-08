@@ -5,7 +5,7 @@
  */
 
 /**
- * Security provider SPI.
+ * Security provider and enhancer SPI.
  * <p>
  * This is implemented on top of major data sources that can provide security market data.
  */

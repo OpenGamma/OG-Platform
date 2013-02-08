@@ -63,6 +63,7 @@ public class MixedLogNormalVolatilitySurfaceTest {
 
   @Test(enabled = false)
   public void printTest() {
+    System.out.println("MixedLogNormalVolatilitySurfaceTest. printTest");
     final double t = 1.5;
     final double spot = 100.0;
     final double r = 0.05;

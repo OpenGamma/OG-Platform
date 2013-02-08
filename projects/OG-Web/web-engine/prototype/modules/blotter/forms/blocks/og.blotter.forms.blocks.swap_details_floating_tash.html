@@ -1,4 +1,4 @@
-<table class="OG-table">
+<table class="OG-table" id="{{index}}">
   <colgroup>
     <col style="width: 30%">              
     <col style="width: 70%">
@@ -6,14 +6,115 @@
   <tbody>
     <tr>
       <td>
-        <span>Floating</span>
       </td>
-      <td class="og-triple-cell">
-        <div><span><select><option value="" selected disabled="disabled">Day Count</option>
-          </select></span><span><select><option value="" selected disabled="disabled">Frequency</option>
-          </select></span><span><select><option value="" selected disabled="disabled">Reference Rate</option></select>
-        </span>
-      </div>
+      <td>
+        <input name="{{leg}}eom" type="checkbox" /><span>End Of Month</span>
+      </td>
     </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Notional</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <div><span>{{{item_0}}}</span><span><input name="{{leg}}notional.amount" type="text" value="{{notional}}"/></span></div>
+      </td>
+    </tr>
+    {{{item_1}}}
+    <tr>
+      <td>
+        <label>
+          <span>Day Count</span>
+        </label>
+      </td>
+      <td>
+        {{{item_2}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Frequency</span>
+        </label>
+      </td>
+      <td>
+        {{{item_3}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Business Day Convention</span>
+        </label>
+      </td>
+      <td>
+        {{{item_4}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Initial Floating Rate</span>
+        </label>
+      </td>
+      <td>
+        <input name="{{leg}}initialFloatingRate" type="text" value="{{initial}}"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Floating Rate Type</span>
+        </label>
+      </td>
+      <td>
+        {{{item_5}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Settlement Days</span>
+        </label>
+      </td>
+      <td>
+        <input name="{{leg}}settlementDays" type="text" value="{{settlement}}"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Offset Fixing</span>
+        </label>
+      </td>
+      <td>
+        {{{item_6}}}
+      </td>
+    </tr>
+    {{#if spre}}
+      <tr>
+        <td>
+          <label>
+            <span>Spread</span>
+          </label>
+        </td>
+        <td>
+          <input name="{{leg}}spread" type="text" value="{{spread}}"/>
+        </td>
+      </tr>
+    {{/if}}
+    {{#if gear}}
+      <tr>
+        <td>
+          <label>
+            <span>Gearing</span>
+          </label>
+        </td>
+        <td>
+          <input name="{{leg}}gearing" type="text" value="{{gearing}}"/>
+        </td>
+      </tr>
+    {{/if}}
   </tbody>
 </table>

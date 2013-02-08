@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
@@ -86,7 +85,7 @@ import com.opengamma.util.tuple.Triple;
     final ValueSpecification originalOutput = resolvedFunction.getSecond();
     ValueSpecification resolvedOutput = originalOutput.compose(getValueRequirement());
     if (resolvedOutput != originalOutput) {
-      resolvedOutput = MemoryUtils.instance(resolvedOutput);
+      resolvedOutput = context.simplifyType(resolvedOutput);
     }
     final Pair<ResolveTask[], ResolvedValueProducer[]> existing = context.getTasksProducing(resolvedOutput);
     if (existing == null) {

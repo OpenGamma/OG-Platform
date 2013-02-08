@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial;
@@ -15,9 +15,11 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
+import com.opengamma.financial.analytics.model.pnl.PnLRequirementsGatherer;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
+import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 
 /**
@@ -25,19 +27,69 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
  */
 public final class OpenGammaCompilationContext {
 
-  private static final String CONFIG_SOURCE_NAME = "configSource";
-  private static final String REGION_SOURCE_NAME = "regionSource";
-  private static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
-  private static final String INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME = "interpolatedYieldCurveDefinitionSource";
-  private static final String INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME = "interpolatedYieldCurveSpecificationBuilder";
-  private static final String VOLATILITY_CUBE_DEFINITION_SOURCE_NAME = "volatilityCubeDefinitionSource";
-  private static final String CURRENCY_MATRIX_SOURCE_NAME = "currencyMatrixSource";
-  private static final String HOLIDAY_SOURCE_NAME = "holidaySource";
-  private static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
-  private static final String SECURITY_SOURCE_NAME = "securitySource";
-  private static final String CURVE_CALCULATION_CONFIG_NAME = "curveCalculationConfigurationSource";
-  private static final String HISTORICAL_TIME_SERIES_SOURCE = "historicalTimeSeriesSource";
-  private static final String HISTORICAL_TIME_SERIES_RESOLVER = "historicalTimeSeriesResolver";
+  /**
+   * The name under which an instance of {@link ConfigSource} should be bound.
+   * <p>
+   * Where possible, components should not be tightly coupled to the configuration database. An intermediate interface, with an implementation that is backed by a ConfigSource, allows the flexibility
+   * to source that data from an external system, or a more efficient storage mechanism, in the future.
+   */
+  public static final String CONFIG_SOURCE_NAME = "configSource";
+  /**
+   * The name under which an instance of {@link RegionSource} should be bound.
+   */
+  public static final String REGION_SOURCE_NAME = "regionSource";
+  /**
+   * The name under which an instance of {@link ConvensionBundleSource} should be bound.
+   */
+  public static final String CONVENTION_BUNDLE_SOURCE_NAME = "conventionBundleSource";
+  /**
+   * The name under which an instance of {@link InterpolatedYieldCurveDefinitionSource} should be bound.
+   */
+  public static final String INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME = "interpolatedYieldCurveDefinitionSource";
+  /**
+   * The name under which an instance of {@link InterpolatedYieldCurveSpecificationBuilder} should be bound.
+   */
+  public static final String INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME = "interpolatedYieldCurveSpecificationBuilder";
+  /**
+   * The name under which an instance of {@link VolatilityCubeDefinitionSource} should be bound.
+   */
+  public static final String VOLATILITY_CUBE_DEFINITION_SOURCE_NAME = "volatilityCubeDefinitionSource";
+  /**
+   * The name under which an instance of {@link CurrencyMatrixSource} should be bound.
+   */
+  public static final String CURRENCY_MATRIX_SOURCE_NAME = "currencyMatrixSource";
+  /**
+   * The name under which an instance of {@link HolidaySource} should be bound.
+   */
+  public static final String HOLIDAY_SOURCE_NAME = "holidaySource";
+  /**
+   * The name under which an instance of {@link ExchangeSource} should be bound.
+   */
+  public static final String EXCHANGE_SOURCE_NAME = "exchangeSource";
+  /**
+   * The name under which an instance of {@link SecuritySource} should be bound.
+   */
+  public static final String SECURITY_SOURCE_NAME = "securitySource";
+  /**
+   * The name under which an instance of {@link CurveCalculationConfigSource} should be bound.
+   */
+  public static final String CURVE_CALCULATION_CONFIG_NAME = "curveCalculationConfigurationSource";
+  /**
+   * The name under which an instance of {@link HistoricalTimeSeriesSource} should be bound.
+   */
+  public static final String HISTORICAL_TIME_SERIES_SOURCE_NAME = "historicalTimeSeriesSource";
+  /**
+   * The name under which an instance of {@link HistoricalTimeSeriesResolver} should be bound.
+   */
+  public static final String HISTORICAL_TIME_SERIES_RESOLVER_NAME = "historicalTimeSeriesResolver";
+  /**
+   * The name under which an instance of {@link TempTargetRepository} should be bound.
+   */
+  public static final String TEMPORARY_TARGETS_NAME = "tempTargets";
+
+  private static final String PERMISSIVE_FLAG_NAME = "permissive";
+
+  private static final String PNL_REQUIREMENTS_GATHERER_NAME = "pnlRequirementsGatherer";
 
   /**
    * Restricted constructor.
@@ -190,21 +242,67 @@ public final class OpenGammaCompilationContext {
   public static void setCurveCalculationConfigSource(final FunctionCompilationContext compilationContext, final CurveCalculationConfigSource curveConfigSource) {
     set(compilationContext, CURVE_CALCULATION_CONFIG_NAME, curveConfigSource);
   }
-  
+
   public static HistoricalTimeSeriesSource getHistoricalTimeSeriesSource(final FunctionCompilationContext compilationContext) {
-    return get(compilationContext, HISTORICAL_TIME_SERIES_SOURCE);
+    return get(compilationContext, HISTORICAL_TIME_SERIES_SOURCE_NAME);
   }
-  
+
   public static void setHistoricalTimeSeriesSource(final FunctionCompilationContext compilationContext, final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
-    set(compilationContext, HISTORICAL_TIME_SERIES_SOURCE, historicalTimeSeriesSource);
+    set(compilationContext, HISTORICAL_TIME_SERIES_SOURCE_NAME, historicalTimeSeriesSource);
   }
 
   public static HistoricalTimeSeriesResolver getHistoricalTimeSeriesResolver(final FunctionCompilationContext compilationContext) {
-    return get(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER);
+    return get(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER_NAME);
   }
 
   public static void setHistoricalTimeSeriesResolver(final FunctionCompilationContext compilationContext, final HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
-    set(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER, historicalTimeSeriesResolver);
+    set(compilationContext, HISTORICAL_TIME_SERIES_RESOLVER_NAME, historicalTimeSeriesResolver);
+  }
+
+  public static TempTargetRepository getTempTargets(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, TEMPORARY_TARGETS_NAME);
+  }
+
+  public static void setTempTargets(final FunctionCompilationContext compilationContext, final TempTargetRepository tempTargets) {
+    set(compilationContext, TEMPORARY_TARGETS_NAME, tempTargets);
+  }
+
+  /**
+   * Tests whether functions should allow more permissive constraints. Permissive behavior, if implemented by a function, will prefer to satisfy a constraint by assuming (possibly inappropriate)
+   * values rather than abandon the production. This increases the chance of a successful graph build for an inaccurately specified view but the graph may not be as the user intended/expected.
+   * <p>
+   * This flag is off by default.
+   *
+   * @param compilationContext the context to test, not null
+   * @return true if permissive behavior is enabled, false otherwise.
+   */
+  public static boolean isPermissive(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, PERMISSIVE_FLAG_NAME) != null;
+  }
+
+  /**
+   * Sets whether functions should allow more permissive constraints. Permissive behavior, if implemented by a function, will prefer to satisfy a constraint by assuming (possibly inappropriate) values
+   * rather than abandon the production. This increases the chance of a successful graph build for an inaccurately specified view but the graph may not be as the user intended/expected.
+   * <p>
+   * This flag is off by default.
+   *
+   * @param compilationContext the context to update, not null
+   * @param permissive true to enable permissive behavior, false to disable it
+   */
+  public static void setPermissive(final FunctionCompilationContext compilationContext, final boolean permissive) {
+    if (permissive) {
+      set(compilationContext, PERMISSIVE_FLAG_NAME, Boolean.TRUE);
+    } else {
+      compilationContext.remove(PERMISSIVE_FLAG_NAME);
+    }
+  }
+
+  public static PnLRequirementsGatherer getPnLRequirementsGatherer(final FunctionCompilationContext compilationContext) {
+    return get(compilationContext, PNL_REQUIREMENTS_GATHERER_NAME);
+  }
+
+  public static void setPnLRequirementsGatherer(final FunctionCompilationContext compilationContext, final PnLRequirementsGatherer pnlRequirementsGatherer) {
+    set(compilationContext, PNL_REQUIREMENTS_GATHERER_NAME, pnlRequirementsGatherer);
   }
 
 }

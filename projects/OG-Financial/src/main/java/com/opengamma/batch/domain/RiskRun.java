@@ -10,8 +10,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-
 import com.opengamma.lambdava.functions.Function1;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -24,6 +22,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.Sets;
 import com.opengamma.batch.BatchMaster;
@@ -36,6 +35,9 @@ import com.opengamma.id.VersionCorrection;
 
 import static com.opengamma.lambdava.streams.Lambdava.functional;
 
+/**
+ * Bean to hold data about a risk run.
+ */
 @BeanDefinition
 public class RiskRun extends DirectBean implements ObjectIdentifiable {
 
@@ -83,7 +85,7 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
   
   @PropertyDefinition
   private SnapshotMode _snapshotMode;  
-  
+
   /**
    * Gets the viewDefinitionUid.
    * @return the value of the property

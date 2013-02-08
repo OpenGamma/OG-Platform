@@ -7,11 +7,10 @@ package com.opengamma.util.tuple;
 
 import static org.testng.Assert.assertEquals;
 
-import javax.time.calendar.LocalDate;
-
 import com.opengamma.lambdava.tuple.*;
 import org.fudgemsg.FudgeMsg;
 import org.testng.annotations.Test;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;

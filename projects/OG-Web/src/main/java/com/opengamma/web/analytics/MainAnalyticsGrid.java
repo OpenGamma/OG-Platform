@@ -5,21 +5,24 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.lambdava.tuple.Pair;
 
@@ -27,7 +30,7 @@ import com.opengamma.lambdava.tuple.Pair;
  * Grid for displaying analytics data for a portfolio or for calculated values that aren't associated with the
  * portfolio (primitives). This class isn't thread safe.
  */
-/* package */ abstract class MainAnalyticsGrid<V extends MainGridViewport> extends AnalyticsGrid<V> {
+/* package */ abstract class MainAnalyticsGrid extends AnalyticsGrid<MainGridViewport> {
 
   /** Row and column structure of the grid. */
   protected final MainGridStructure _gridStructure;
@@ -107,8 +110,8 @@ import com.opengamma.lambdava.tuple.Pair;
     }
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
-    DependencyGraphGrid grid =
-        DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId, _targetResolver, viewportListener);
+    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId,
+                                                          _targetResolver, viewportListener, _cache);
     _depGraphs.put(graphId, grid);
   }
 
@@ -161,6 +164,11 @@ import com.opengamma.lambdava.tuple.Pair;
     return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition);
   }
 
+  @Override
+  MainGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
+    return new MainGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, _cache);
+  }
+
   /**
    * Updates an existing viewport on a dependency graph grid
    *
@@ -199,7 +207,7 @@ import com.opengamma.lambdava.tuple.Pair;
    * @return The IDs for all depdendency graph grids that are sent to listeners when the grid structure changes
    */
   /* package */ List<String> getDependencyGraphCallbackIds() {
-    List<String> gridIds = new ArrayList<String>();
+    List<String> gridIds = Lists.newArrayList();
     for (AnalyticsGrid grid : _depGraphs.values()) {
       gridIds.add(grid.getCallbackId());
     }
@@ -230,8 +238,13 @@ import com.opengamma.lambdava.tuple.Pair;
   protected static class DummyTargetResolver implements ComputationTargetResolver {
 
     @Override
-    public ComputationTarget resolve(ComputationTargetSpecification specification) {
+    public ComputationTarget resolve(final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
       return null;
+    }
+
+    @Override
+    public ComputationTargetType simplifyType(final ComputationTargetType type) {
+      return type;
     }
 
     @Override
@@ -240,8 +253,19 @@ import com.opengamma.lambdava.tuple.Pair;
     }
 
     @Override
-    public PositionSource getPositionSource() {
-      return null;
+    public ComputationTargetSpecificationResolver getSpecificationResolver() {
+      throw new UnsupportedOperationException();
     }
+
+    @Override
+    public AtVersionCorrection atVersionCorrection(final VersionCorrection versionCorrection) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ChangeManager changeManager() {
+      return DummyChangeManager.INSTANCE;
+    }
+
   }
 }

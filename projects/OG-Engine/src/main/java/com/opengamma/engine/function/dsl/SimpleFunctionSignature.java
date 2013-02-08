@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.function.dsl;
 
-import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.lambdava.streams.Functional;
 import com.opengamma.lambdava.streams.Stream;
 

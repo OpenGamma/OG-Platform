@@ -15,11 +15,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
-
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -31,8 +29,6 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurityLink;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.OptimisticMarketDataAvailabilityProvider;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.CompiledFunctionRepository;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -42,6 +38,8 @@ import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.InMemoryCompiledFunctionRepository;
 import com.opengamma.engine.function.exclusion.AbstractFunctionExclusionGroups;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
+import com.opengamma.engine.marketdata.availability.OptimisticMarketDataAvailabilityProvider;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -162,7 +160,7 @@ public class AvailablePortfolioOutputsTest {
       return new FunctionDefinition() {
 
         @Override
-        public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+        public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
           throw new UnsupportedOperationException();
         }
 
@@ -302,7 +300,7 @@ public class AvailablePortfolioOutputsTest {
 
       @Override
       public Set<ValueRequirement> getRequirements(final Position position, final ValueRequirement desiredValue) {
-        return Collections.singleton(new ValueRequirement(VALUE_1, new ComputationTargetSpecification(position.getSecurity())));
+        return Collections.singleton(new ValueRequirement(VALUE_1, ComputationTargetSpecification.of(position.getSecurity())));
       }
 
     });

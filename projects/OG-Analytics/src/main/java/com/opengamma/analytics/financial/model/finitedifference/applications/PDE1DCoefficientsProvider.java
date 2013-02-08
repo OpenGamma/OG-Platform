@@ -10,11 +10,13 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DFullCoefficients;
 import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDE1DStandardCoefficients;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceConverter;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilitySurfaceStrike;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
@@ -27,10 +29,10 @@ public class PDE1DCoefficientsProvider {
   private static final Surface<Double, Double, Double> ZERO_SURFACE = ConstantDoublesSurface.from(0.0);
   private static final Surface<Double, Double, Double> UNITY_SURFACE = ConstantDoublesSurface.from(1.0);
 
-  //******************************************************************************************************************************
-  // Backwards PDEs - the initial condition is the option payoff at expiry, T, and the PDE is solved backwards in  time, t.
+  // ******************************************************************************************************************************
+  // Backwards PDEs - the initial condition is the option payoff at expiry, T, and the PDE is solved backwards in time, t.
   // In this setup, the time coordinate is time-to-expiry tau = T-t, so this initial condition is at tau = 0
-  //******************************************************************************************************************************
+  // ******************************************************************************************************************************
 
   /**
    * Sets up a standard Black-Scholes PDE
@@ -62,8 +64,7 @@ public class PDE1DCoefficientsProvider {
       }
     };
 
-    return new ConvectionDiffusionPDE1DStandardCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b),
-        ConstantDoublesSurface.from(rate));
+    return new ConvectionDiffusionPDE1DStandardCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(rate));
   }
 
   /**
@@ -75,8 +76,7 @@ public class PDE1DCoefficientsProvider {
    * @param vol The volatility
    * @return a ConvectionDiffusionPDE1DStandardCofficients
    */
-  public ConvectionDiffusionPDE1DStandardCoefficients getBlackScholes(final Curve<Double, Double> rate,
-      final Curve<Double, Double> yield, final Curve<Double, Double> vol) {
+  public ConvectionDiffusionPDE1DStandardCoefficients getBlackScholes(final Curve<Double, Double> rate, final Curve<Double, Double> yield, final Curve<Double, Double> vol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -108,8 +108,7 @@ public class PDE1DCoefficientsProvider {
       }
     };
 
-    return new ConvectionDiffusionPDE1DStandardCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b),
-        FunctionalDoublesSurface.from(c));
+    return new ConvectionDiffusionPDE1DStandardCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c));
   }
 
   /**
@@ -167,8 +166,7 @@ public class PDE1DCoefficientsProvider {
    * @return The ConvectionDiffusionPDE1DStandardCofficients  to run through a PDE solver that will give the time-zero option price as a
    *  function of the time-zero value of the underlying
    */
-  public ConvectionDiffusionPDE1DStandardCoefficients getBackwardsLocalVol(final double rate, final double yield,
-      final double maturity, final LocalVolatilitySurfaceStrike localVol) {
+  public ConvectionDiffusionPDE1DStandardCoefficients getBackwardsLocalVol(final double rate, final double yield, final double maturity, final LocalVolatilitySurfaceStrike localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -192,8 +190,7 @@ public class PDE1DCoefficientsProvider {
       }
     };
 
-    return new ConvectionDiffusionPDE1DStandardCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b),
-        ConstantDoublesSurface.from(rate));
+    return new ConvectionDiffusionPDE1DStandardCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(rate));
   }
 
   /**
@@ -212,8 +209,7 @@ public class PDE1DCoefficientsProvider {
    * @return The data to run through a PDE solver that will give the time-zero forward option price as a function of the time-zero
    * value of the underlying
    */
-  public ConvectionDiffusionPDE1DStandardCoefficients getBackwardsLocalVol(final ForwardCurve forwardCurve, final double maturity,
-      final LocalVolatilitySurfaceStrike localVol) {
+  public ConvectionDiffusionPDE1DStandardCoefficients getBackwardsLocalVol(final ForwardCurve forwardCurve, final double maturity, final LocalVolatilitySurfaceStrike localVol) {
 
     final double fT = forwardCurve.getForward(maturity);
 
@@ -226,12 +222,63 @@ public class PDE1DCoefficientsProvider {
         final double t = maturity - tau;
         final double ft = forwardCurve.getForward(t);
 
-        final double temp = f * localVol.getVolatility(t, f * ft / fT); //NOTE: f * ft / fT = s, the spot
+        final double temp = f * localVol.getVolatility(t, f * ft / fT); // NOTE: f * ft / fT = s, the spot
         return -0.5 * temp * temp;
       }
     };
 
     return new ConvectionDiffusionPDE1DStandardCoefficients(FunctionalDoublesSurface.from(a), ZERO_SURFACE, ZERO_SURFACE);
+  }
+
+  /**
+   * Backwards PDE setup for option price under a local volatility. The state variables are time-to-maturity and
+   * value of the underlying. The PDE is
+   * @param instRiskFreeRate the instantaneous risk free rate, r_t
+   * @param instCostOfCarry the instantaneous cost-of-carry, b_t = r_t - q_t, where q_t is the (instantaneous) yield 
+   * @param maturity the time-to-maturity
+   * @param localVol A local volatility surface - gives the instantaneous (log-normal) volatility as a function of time and
+   * the value of the underlying at that time
+   * @return The data to run through a PDE solver that will give the time-zero option price as a function of the time-zero
+   * value of the underlying
+   */
+  public ConvectionDiffusionPDE1DStandardCoefficients getBackwardsLocalVol(final Curve<Double, Double> instRiskFreeRate, final Curve<Double, Double> instCostOfCarry, final double maturity,
+      final LocalVolatilitySurfaceStrike localVol) {
+
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        final double tau = ts[0];
+        final double s = ts[1];
+        final double t = maturity - tau;
+        final double temp = s * localVol.getVolatility(t, s);
+        return -0.5 * temp * temp;
+      }
+    };
+
+    final Function<Double, Double> b = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        final double tau = ts[0];
+        final double s = ts[1];
+        final double t = maturity - tau;
+        return -s * instCostOfCarry.getYValue(t);
+      }
+    };
+
+    final Function<Double, Double> c = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        final double tau = ts[0];
+        final double t = maturity - tau;
+        return instRiskFreeRate.getYValue(t);
+      }
+    };
+
+    return new ConvectionDiffusionPDE1DStandardCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b),
+        FunctionalDoublesSurface.from(c));
   }
 
   /**
@@ -283,8 +330,7 @@ public class PDE1DCoefficientsProvider {
    * @return The data to run through a PDE solver that will give the time-zero option price as a function of the time-zero
    * value of the log-spot
    */
-  public ConvectionDiffusionPDE1DStandardCoefficients getLogBackwardsLocalVol(final double rate, final double yield, final double maturity,
-      final LocalVolatilitySurfaceStrike localVol) {
+  public ConvectionDiffusionPDE1DStandardCoefficients getLogBackwardsLocalVol(final double rate, final double yield, final double maturity, final LocalVolatilitySurfaceStrike localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -376,8 +422,7 @@ public class PDE1DCoefficientsProvider {
    * @return The data to run through a PDE solver that will give the time-zero <b>forward</b> option price as a function of the time-zero
    * value of the log of the forward
    */
-  public ConvectionDiffusionPDE1DStandardCoefficients getLogBackwardsLocalVol(final ForwardCurve forwardCurve, final double maturity,
-      final LocalVolatilitySurfaceStrike localVol) {
+  public ConvectionDiffusionPDE1DStandardCoefficients getLogBackwardsLocalVol(final ForwardCurve forwardCurve, final double maturity, final LocalVolatilitySurfaceStrike localVol) {
 
     final double f0T = forwardCurve.getForward(maturity);
 
@@ -391,7 +436,7 @@ public class PDE1DCoefficientsProvider {
         final double t = maturity - tau;
         final double f0t = forwardCurve.getForward(t);
 
-        final double temp = localVol.getVolatility(t, ftT * f0t / f0T); //NOTE: f * ft / fT = s, the spot
+        final double temp = localVol.getVolatility(t, ftT * f0t / f0T); // NOTE: f * ft / fT = s, the spot
         return -0.5 * temp * temp;
       }
     };
@@ -413,11 +458,11 @@ public class PDE1DCoefficientsProvider {
     return new ConvectionDiffusionPDE1DStandardCoefficients(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ZERO_SURFACE);
   }
 
-  //******************************************************************************************************************************
-  // Forward PDEs - the initial condition is at expiry, T = 0, and the PDE is solved forward  in expiry time, T (calendar time t remains zero).
+  // ******************************************************************************************************************************
+  // Forward PDEs - the initial condition is at expiry, T = 0, and the PDE is solved forward in expiry time, T (calendar time t remains zero).
   // In this setup the coordinates are T and strike, k, so solving the PDE gives a set rather that a single option price
   // (NOTE: only option prices with European call and put payoffs can be transformed into a forward PDE)
-  //******************************************************************************************************************************
+  // ******************************************************************************************************************************
 
   /**
    * Classic (i.e. formulated in terms of constant instantaneous short rates) forward PDE setup for option price under a BlackSholes framework.
@@ -539,9 +584,9 @@ public class PDE1DCoefficientsProvider {
     return getForwardLocalVol(lvm);
   }
 
-  //******************************************************************************************************************************
+  // ******************************************************************************************************************************
   // Forward PDEs for the transition density $P(t,S_t,T,S_T)$
-  //******************************************************************************************************************************
+  // ******************************************************************************************************************************
 
   /**
    * The Fokker-Plank equation with a deterministic (time dependent) short-rate and a local volatility (i.e. a instantaneous volatility that is
@@ -579,8 +624,7 @@ public class PDE1DCoefficientsProvider {
       }
     };
 
-    return new ConvectionDiffusionPDE1DFullCoefficients(UNITY_SURFACE, UNITY_SURFACE, ZERO_SURFACE, FunctionalDoublesSurface.from(alpha),
-        FunctionalDoublesSurface.from(beta));
+    return new ConvectionDiffusionPDE1DFullCoefficients(UNITY_SURFACE, UNITY_SURFACE, ZERO_SURFACE, FunctionalDoublesSurface.from(alpha), FunctionalDoublesSurface.from(beta));
 
   }
 
@@ -641,7 +685,7 @@ public class PDE1DCoefficientsProvider {
 
   }
 
-  //TODO handle with a central calculator
+  // TODO handle with a central calculator
   private static double getLocalVolFirstDiv(final LocalVolatilitySurfaceStrike localVol, final double t, final double s) {
     final double eps = 1e-4;
     final double up = localVol.getVolatility(t, s + eps);

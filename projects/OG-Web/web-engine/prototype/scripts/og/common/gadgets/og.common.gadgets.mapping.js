@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.common.gadgets.mapping',
     dependencies: [],
     obj: function () {
-        var mapping, gadget_names = {
+        var module = this, mapping, gadget_names = {
             'Curve': 'Curve',
             'Data': 'Data',
             'Log': 'Log',
@@ -31,7 +31,7 @@ $.register_module({
                 gadget_options = {
                     gadget: 'og.common.gadgets.' + gadget_type,
                     options: {
-                        source: source, child: true, col: cell.col, row: cell.row,
+                        source: source, child: true, col: cell.col, row: cell.row, type: cell.type,
                         menu: false, datapoints_link: false, /* ONLY RELEVANT FOR TIMESERIES (be wary) */
                         id: cell.value.v.id, editable: false, external_links: true /* ONLY EXPANDED POSITIONS */
                     },
@@ -46,6 +46,7 @@ $.register_module({
                 if (cell.value.logLevel === 'ERROR') return 'Log';
                 var order = mapping.panel_preference[panel || 'new-window'],
                     type_map = mapping.data_type_map[cell.type], i, k;
+                if (!type_map) throw new Error(module.name + ': no type information available for ' + cell.type);
                 for (i = 0; i < order.length; i++)
                     for (k = 0; k < type_map.length; k++)
                         if (order[i] === type_map[k]) return mapping.gadgets[order[i]];
@@ -62,12 +63,15 @@ $.register_module({
             },
             depgraph_blacklist: ['DOUBLE', 'STRING', 'TENOR', 'UNKNOWN'],
             data_type_map: {
-                CURVE                   : [1, 3, 6],
+                CURVE                   : [3, 1, 6],
                 DOUBLE                  : [0, 6],
+                FUNGIBLE_TRADE          : [5],
                 LABELLED_MATRIX_1D      : [0, 1, 6],
                 LABELLED_MATRIX_2D      : [0, 1, 6],
                 LABELLED_MATRIX_3D      : [0, 1, 6],
-                POSITION_ID             : [5],
+                MATRIX_2D               : [0, 1, 6],
+                OTC_TRADE               : [5],
+                POSITION                : [5],
                 STRING                  : [0, 6],
                 SURFACE_DATA            : [2, 1, 0, 6],
                 UNPLOTTABLE_SURFACE_DATA: [1, 6],

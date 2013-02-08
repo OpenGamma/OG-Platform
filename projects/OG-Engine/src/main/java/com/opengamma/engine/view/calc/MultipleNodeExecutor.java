@@ -35,6 +35,7 @@ import com.opengamma.engine.view.calcnode.CalculationJob;
 import com.opengamma.engine.view.calcnode.CalculationJobSpecification;
 import com.opengamma.engine.view.calcnode.JobResultReceiver;
 import com.opengamma.engine.view.calcnode.stats.FunctionCosts;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.lambdava.tuple.Pair;
@@ -72,6 +73,10 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
     return getCycle().getFunctionInitId();
   }
 
+  protected VersionCorrection getResolverVersionCorrection() {
+    return getCycle().getVersionCorrection();
+  }
+
   protected SingleComputationCycle getCycle() {
     return _cycle;
   }
@@ -82,10 +87,6 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
 
   protected CalculationJobSpecification createJobSpecification(final DependencyGraph graph) {
     return new CalculationJobSpecification(getCycle().getUniqueId(), graph.getCalculationConfigurationName(), getCycle().getValuationTime(), JobIdSource.getId());
-  }
-
-  protected void addJobToViewProcessorQuery(final CalculationJobSpecification jobSpec, final DependencyGraph graph) {
-    getCycle().getViewProcessContext().getViewProcessorQueryReceiver().addJob(jobSpec, graph);
   }
 
   protected Cancelable dispatchJob(final CalculationJob job, final JobResultReceiver jobResultReceiver) {
@@ -104,20 +105,20 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
     final Collection<DependencyNode> nodes = context.getGraph().getExecutionOrder();
     final CompleteGraphFragment fragment = new CompleteGraphFragment(context, statistics, nodes);
     long invocationCost = 0;
-    for (DependencyNode node : nodes) {
+    for (final DependencyNode node : nodes) {
       invocationCost += context.getFunctionStatistics(node.getFunction().getFunction()).getInvocationCost();
     }
     statistics.graphProcessed(context.getGraph().getCalculationConfigurationName(), 1, context.getGraph().getSize(), invocationCost, Double.NaN);
     context.allocateFragmentMap(1);
     final Set<ValueSpecification> sharedValues = new HashSet<ValueSpecification>(context.getGraph().getTerminalOutputSpecifications());
     final Set<ValueSpecification> privateValues = new HashSet<ValueSpecification>();
-    for (DependencyNode node : nodes) {
-      for (ValueSpecification output : node.getOutputValues()) {
+    for (final DependencyNode node : nodes) {
+      for (final ValueSpecification output : node.getOutputValues()) {
         if (!sharedValues.contains(output)) {
           privateValues.add(output);
         }
       }
-      for (ValueSpecification input : node.getInputValues()) {
+      for (final ValueSpecification input : node.getInputValues()) {
         if (!privateValues.contains(input)) {
           sharedValues.add(input);
         }
@@ -135,7 +136,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
   protected MutableGraphFragment.Root executeMultipleFragments(final MutableGraphFragmentContext context, final GraphExecutorStatisticsGatherer statistics) {
     final Set<MutableGraphFragment> allFragments = Sets.newHashSetWithExpectedSize(context.getGraph().getSize());
     final MutableGraphFragment.Root logicalRoot = new MutableGraphFragment.Root(context, statistics);
-    for (MutableGraphFragment root : graphToFragments(context, context.getGraph(), allFragments)) {
+    for (final MutableGraphFragment root : graphToFragments(context, context.getGraph(), allFragments)) {
       root.getOutputFragments().add(logicalRoot);
       logicalRoot.getInputFragments().add(root);
     }
@@ -179,7 +180,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
         (double) totalInvocationCost / (double) count, (double) totalDataCost / (double) count);
     // printFragment(logicalRoot);
     // Execute anything left (leaf nodes)
-    for (MutableGraphFragment fragment : allFragments) {
+    for (final MutableGraphFragment fragment : allFragments) {
       fragment.execute(context);
     }
     return logicalRoot;
@@ -262,7 +263,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
   private void graphToFragments(final MutableGraphFragmentContext context, final DependencyGraph graph, final Collection<MutableGraphFragment> output,
       final Map<DependencyNode, MutableGraphFragment> node2fragment, final Collection<DependencyNode> nodes) {
     // TODO Andrew 2010-09-02 -- Can we do this by iterating the graph nodes instead of walking the tree?
-    for (DependencyNode node : nodes) {
+    for (final DependencyNode node : nodes) {
       if (!graph.containsNode(node)) {
         continue;
       }
@@ -273,7 +274,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
         final Collection<DependencyNode> inputNodes = node.getInputNodes();
         if (!inputNodes.isEmpty()) {
           graphToFragments(context, graph, fragment.getInputFragments(), node2fragment, inputNodes);
-          for (MutableGraphFragment input : fragment.getInputFragments()) {
+          for (final MutableGraphFragment input : fragment.getInputFragments()) {
             input.getOutputFragments().add(fragment);
           }
         }
@@ -292,7 +293,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
     boolean result = false;
     do {
       // Scan all fragments for possible merges
-      for (MutableGraphFragment fragment : allFragments) {
+      for (final MutableGraphFragment fragment : allFragments) {
         if (fragment.getInputFragments().isEmpty()) {
           // No inputs to consider
           continue;
@@ -320,18 +321,18 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
       if (validCandidates.isEmpty()) {
         return result;
       }
-      for (Map.Entry<MutableGraphFragment, MutableGraphFragment> merge : validCandidates.entrySet()) {
+      for (final Map.Entry<MutableGraphFragment, MutableGraphFragment> merge : validCandidates.entrySet()) {
         final MutableGraphFragment fragment = merge.getKey();
         final MutableGraphFragment mergeCandidate = merge.getValue();
         mergeCandidate.appendFragment(fragment);
         // Merge candidate already has the correct inputs by definition
-        for (MutableGraphFragment dependency : fragment.getOutputFragments()) {
+        for (final MutableGraphFragment dependency : fragment.getOutputFragments()) {
           dependency.getInputFragments().remove(fragment);
           if (mergeCandidate.getOutputFragments().add(dependency)) {
             dependency.getInputFragments().add(mergeCandidate);
           }
         }
-        for (MutableGraphFragment input : fragment.getInputFragments()) {
+        for (final MutableGraphFragment input : fragment.getInputFragments()) {
           input.getOutputFragments().remove(fragment);
         }
         allFragments.remove(fragment);
@@ -375,7 +376,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
       dependency.prependFragment(context, fragment);
       fragmentIterator.remove();
       dependency.getInputFragments().remove(fragment);
-      for (MutableGraphFragment input : fragment.getInputFragments()) {
+      for (final MutableGraphFragment input : fragment.getInputFragments()) {
         dependency.getInputFragments().add(input);
         input.getOutputFragments().remove(fragment);
         input.getOutputFragments().add(dependency);
@@ -392,7 +393,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
   private void findTailFragments(final Set<MutableGraphFragment> allFragments) {
     // Estimate start times based on fragment costs and dependencies
     final NavigableMap<Long, Pair<List<MutableGraphFragment>, List<MutableGraphFragment>>> concurrencyEvent = new TreeMap<Long, Pair<List<MutableGraphFragment>, List<MutableGraphFragment>>>();
-    for (MutableGraphFragment fragment : allFragments) {
+    for (final MutableGraphFragment fragment : allFragments) {
       Pair<List<MutableGraphFragment>, List<MutableGraphFragment>> event = concurrencyEvent.get(fragment.getStartTime());
       if (event == null) {
         event = Pair.of((List<MutableGraphFragment>) new LinkedList<MutableGraphFragment>(), null);
@@ -419,16 +420,16 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
     // Walk the execution plan, coloring the graph with potential invocation sites
     final Map<Integer, AtomicInteger> executing = new HashMap<Integer, AtomicInteger>();
     int nextExecutionId = 0;
-    for (Map.Entry<Long, Pair<List<MutableGraphFragment>, List<MutableGraphFragment>>> eventEntry : concurrencyEvent.entrySet()) {
+    for (final Map.Entry<Long, Pair<List<MutableGraphFragment>, List<MutableGraphFragment>>> eventEntry : concurrencyEvent.entrySet()) {
       final Pair<List<MutableGraphFragment>, List<MutableGraphFragment>> event = eventEntry.getValue();
       if (event.getSecond() != null) {
-        for (MutableGraphFragment finishing : event.getSecond()) {
+        for (final MutableGraphFragment finishing : event.getSecond()) {
           // Decrement the concurrency count for the graph color
           executing.get(finishing.getExecutionId()).decrementAndGet();
         }
       }
       if (event.getFirst() != null) {
-        for (MutableGraphFragment starting : event.getFirst()) {
+        for (final MutableGraphFragment starting : event.getFirst()) {
           if (starting.getInputFragments().isEmpty()) {
             // No inputs, so we're a leaf node = new graph color
             nextExecutionId++;
@@ -475,7 +476,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
                 // Below concurrency limit so use same color and add as tails
                 starting.setExecutionId(nodeColour);
                 concurrency.incrementAndGet();
-                for (MutableGraphFragment input : starting.getInputFragments()) {
+                for (final MutableGraphFragment input : starting.getInputFragments()) {
                   input.addTail(starting);
                 }
               }
@@ -494,7 +495,7 @@ public class MultipleNodeExecutor implements DependencyGraphExecutor<DependencyG
     if (indent.length() > 16) {
       return;
     }
-    for (GraphFragment<?> fragment : fragments) {
+    for (final GraphFragment<?> fragment : fragments) {
       if (!printed.add(fragment)) {
         System.out.println(indent + " " + fragment + " ...");
         continue;

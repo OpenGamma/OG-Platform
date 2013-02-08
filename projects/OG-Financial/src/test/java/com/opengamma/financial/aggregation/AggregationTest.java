@@ -25,7 +25,7 @@ public class AggregationTest {
 
   /*
   public Portfolio makeTestPortfolio() {
-    Expiry expiry = new Expiry(ZonedDateTime.fromInstant(Clock.system(TimeZone.UTC).instant(), TimeZone.UTC));
+    Expiry expiry = new Expiry(ZonedDateTime.fromInstant(Clock.systemUTC().instant(), ZoneOffset.UTC));
     
     EquitySecurity aaplSec = new EquitySecurity("AAPL US", "BLOOMBERG");
     aaplSec.setCurrency(Currency.getInstance("USD"));

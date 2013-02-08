@@ -5,12 +5,15 @@
  */
 package com.opengamma.analytics.financial.credit.bumpers;
 
-import com.opengamma.analytics.financial.credit.SpreadBumpType;
 
 /**
  * Class containing utilities for bumping credit spread term structures by user defined methods and amounts
  */
 public class CreditSpreadBumpers {
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // TODO : Add error checkers for the input arguments
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 

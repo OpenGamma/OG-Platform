@@ -164,11 +164,20 @@ public abstract class AbstractLink<T extends UniqueIdentifiable> extends DirectB
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code AbstractLink}.
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("rawtypes")
+  public static AbstractLink.Meta meta() {
+    return AbstractLink.Meta.INSTANCE;
+  }
+  /**
+   * The meta-bean for {@code AbstractLink}.
    * @param <R>  the bean's generic type
+   * @param cls  the bean's generic type
    * @return the meta-bean, not null
    */
   @SuppressWarnings("unchecked")
-  public static <R extends UniqueIdentifiable> AbstractLink.Meta<R> meta() {
+  public static <R extends UniqueIdentifiable> AbstractLink.Meta<R> metaAbstractLink(Class<R> cls) {
     return AbstractLink.Meta.INSTANCE;
   }
   static {

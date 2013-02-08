@@ -39,7 +39,6 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.livedata.rest.RemoteLiveDataInjector;
 import com.opengamma.financial.rest.AbstractRestfulJmsResultConsumer;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.rest.UniformInterfaceException404NotFound;
@@ -344,13 +343,6 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
     }
   }
   
-  @Override
-  public VersionCorrection getProcessVersionCorrection() {
-    URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_PROCESS_VERSION_CORRECTION);
-    return getClient().accessFudge(uri).get(VersionCorrection.class);
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public boolean isViewCycleAccessSupported() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_VIEW_CYCLE_ACCESS_SUPPORTED);

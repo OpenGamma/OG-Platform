@@ -14,13 +14,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.text.StrBuilder;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.util.ArgumentChecker;

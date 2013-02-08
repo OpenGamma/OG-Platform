@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.Instant;
-import javax.time.InstantProvider;
+import org.threeten.bp.Instant;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
@@ -46,7 +46,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
      * @param earliestInvocation  earliest time this metadata and invoker are valid, null to indicate no lower validity bound
      * @param latestInvocation  latest time this metadata and invoker are valid, null to indicate no upper validity bound
      */
-    protected AbstractCompiledFunction(final InstantProvider earliestInvocation, final InstantProvider latestInvocation) {
+    protected AbstractCompiledFunction(final Instant earliestInvocation, final Instant latestInvocation) {
       setEarliestInvocationTime(earliestInvocation);
       setLatestInvocationTime(latestInvocation);
     }
@@ -54,6 +54,18 @@ public abstract class AbstractFunction implements FunctionDefinition {
     @Override
     public final FunctionDefinition getFunctionDefinition() {
       return AbstractFunction.this;
+    }
+
+    /**
+     * Default implementation always returns true - the function is applicable. Overload this if there is a cheap test that should suppress the call to {@link #getResults}.
+     * 
+     * @param context The compilation context with view-specific parameters and configurations.
+     * @param target the Target for which capability is to be tests
+     * @return always true
+     */
+    @Override
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      return true;
     }
 
     /**
@@ -77,19 +89,19 @@ public abstract class AbstractFunction implements FunctionDefinition {
     /**
      * Sets the earliest time that this metadata and invoker will be valid for.
      * 
-     * @param timestamp earliest time, null to indicate no lower validity bound
+     * @param timestamp  the earliest time, null to indicate no lower validity bound
      */
-    public void setEarliestInvocationTime(final InstantProvider timestamp) {
-      _earliestInvocationTime = (timestamp != null) ? timestamp.toInstant() : null;
+    public void setEarliestInvocationTime(final Instant timestamp) {
+      _earliestInvocationTime = timestamp;
     }
 
     /**
      * Sets the latest time that this metadata and invoker will be valid for.
      * 
-     * @param timestamp latest time, null to indicate no upper validity bound
+     * @param timestamp  the latest time, null to indicate no upper validity bound
      */
-    public void setLatestInvocationTime(final InstantProvider timestamp) {
-      _latestInvocationTime = (timestamp != null) ? timestamp.toInstant() : null;
+    public void setLatestInvocationTime(final Instant timestamp) {
+      _latestInvocationTime = timestamp;
     }
 
     @Override
@@ -129,8 +141,18 @@ public abstract class AbstractFunction implements FunctionDefinition {
      * @param earliestInvocation  earliest time this metadata and invoker are valid, null to indicate no lower validity bound
      * @param latestInvocation  latest time this metadata and invoker are valid, null to indicate no upper validity bound
      */
-    protected AbstractInvokingCompiledFunction(final InstantProvider earliestInvocation, final InstantProvider latestInvocation) {
+    protected AbstractInvokingCompiledFunction(final Instant earliestInvocation, final Instant latestInvocation) {
       super(earliestInvocation, latestInvocation);
+    }
+
+    /**
+     * Creates an instance.
+     * 
+     * @param earliestInvocation  earliest time this metadata and invoker are valid, null to indicate no lower validity bound
+     * @param latestInvocation  latest time this metadata and invoker are valid, null to indicate no upper validity bound
+     */
+    protected AbstractInvokingCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation) {
+      super(earliestInvocation.toInstant(), latestInvocation.toInstant());
     }
 
     /**
@@ -243,12 +265,25 @@ public abstract class AbstractFunction implements FunctionDefinition {
      * @return this instance
      */
     @Override
-    public final CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstant) {
+    public final CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
       return this;
     }
 
     /**
+     * Default implementation always returns true - the function is applicable. Overload this if there is a cheap test that should suppress the call to {@link #getResults}.
+     * 
+     * @param context The compilation context with view-specific parameters and configurations.
+     * @param target the Target for which capability is to be tests
+     * @return always true
+     */
+    @Override
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+      return true;
+    }
+
+    /**
      * Default implementation returns the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}.
+     * 
      * @param context The compilation context with view-specific parameters and configurations.
      * @param target The target for which calculation is desired.
      * @param inputs The resolved inputs to the function.

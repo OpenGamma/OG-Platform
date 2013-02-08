@@ -13,7 +13,7 @@ import org.joda.beans.MetaBean;
 
 /**
  * Interface for classes that receive data from a bean and create another object from it.
- * TODO is this interface worth the complication or would it be better to imlement BeanVisitor directly?
+ * @param <T> The type of object created by the sink
  */
 /* package */ interface BeanDataSink<T> {
 
@@ -21,11 +21,12 @@ import org.joda.beans.MetaBean;
 
   void setValue(String propertyName, Object value);
 
-  void setCollectionValues(String propertyName, Collection<?> values);
+  void setCollection(String propertyName, Collection<?> values);
 
-  void setMapValues(String propertyName, Map<?, ?> values);
+  void setMap(String propertyName, Map<?, ?> values);
 
-  void setBeanValue(String propertyName, Bean bean, BeanTraverser traverser);
+  // TODO why does the sink need to do the conversion?
+  Object convert(Object value, Class<?> type, BeanTraverser traverser);
 
   T finish();
 }

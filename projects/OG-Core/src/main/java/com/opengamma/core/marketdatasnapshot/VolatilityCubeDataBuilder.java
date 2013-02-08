@@ -5,7 +5,6 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -17,6 +16,7 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.lambdava.tuple.Pair;
@@ -113,7 +113,7 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
     FudgeMsg strikesMsg = message.getMessage(STRIKES_FIELD_NAME);
     
     if (strikesMsg != null) {
-      Map<Pair<Tenor, Tenor>, Double> strikes = new HashMap<Pair<Tenor, Tenor>, Double>();      
+      Map<Pair<Tenor, Tenor>, Double> strikes = Maps.newHashMap();
       for (FudgeField strikeField : strikesMsg) {
         FudgeMsg strikeMsg = (FudgeMsg) strikeField.getValue();
         Tenor swapTenor = deserializer.fieldValueToObject(Tenor.class, strikeMsg.getByName(SWAP_TENOR_FIELD_NAME));
@@ -126,7 +126,7 @@ public class VolatilityCubeDataBuilder implements FudgeBuilder<VolatilityCubeDat
     
     FudgeMsg atmVolatilitiesMsg = message.getMessage(ATM_VOLS_FIELD_NAME);
     if (atmVolatilitiesMsg != null) {
-      Map<Pair<Tenor, Tenor>, Double> atmVols = new HashMap<Pair<Tenor, Tenor>, Double>();      
+      Map<Pair<Tenor, Tenor>, Double> atmVols = Maps.newHashMap();
       for (FudgeField atmVolField : atmVolatilitiesMsg) {
         FudgeMsg atmVolatilityMsg = (FudgeMsg) atmVolField.getValue();
         Tenor swapTenor = deserializer.fieldValueToObject(Tenor.class, atmVolatilityMsg.getByName(SWAP_TENOR_FIELD_NAME));

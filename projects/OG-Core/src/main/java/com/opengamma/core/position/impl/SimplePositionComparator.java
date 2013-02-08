@@ -26,7 +26,7 @@ public class SimplePositionComparator implements Comparator<Position> {
     ExternalId bestExId1 = getBestIdentifier(externalBundle1);
     ExternalId bestExId2 = getBestIdentifier(externalBundle2);
     int result = CompareUtils.compareWithNullLow(bestExId1, bestExId2);
-    if (result != 0) {
+    if (result == 0) {
       return positionOrTrade2.getQuantity().compareTo(positionOrTrade1.getQuantity());
     } else {
       return result;

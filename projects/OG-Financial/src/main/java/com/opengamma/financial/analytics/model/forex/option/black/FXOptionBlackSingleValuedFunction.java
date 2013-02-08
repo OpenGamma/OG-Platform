@@ -22,6 +22,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.CurrencyPairsFunction;
+import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
@@ -73,7 +74,7 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
   @Override
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(PUT_CURVE)
         .withAny(PUT_CURVE_CALC_CONFIG)
         .withAny(CALL_CURVE)
@@ -87,7 +88,7 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
 
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final CurrencyPair baseQuotePair) {
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(PUT_CURVE)
         .withAny(PUT_CURVE_CALC_CONFIG)
         .withAny(CALL_CURVE)
@@ -110,7 +111,7 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
     final String leftExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME);
     final String rightExtrapolatorName = desiredValue.getConstraint(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .with(PUT_CURVE, putCurveName)
         .with(PUT_CURVE_CALC_CONFIG, putCurveConfig)
         .with(CALL_CURVE, callCurveName)

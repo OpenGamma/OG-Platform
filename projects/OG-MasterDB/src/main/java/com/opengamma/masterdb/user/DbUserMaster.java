@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.TimeZone;
+import org.threeten.bp.ZoneId;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -197,7 +197,9 @@ public class DbUserMaster
   @Override
   protected UserDocument insert(UserDocument document) {
     ArgumentChecker.notNull(document.getUser(), "document.user");
-    
+    ArgumentChecker.notNull(document.getUser().getUserId(), "document.user.userid");
+    ArgumentChecker.notNull(document.getUser().getTimeZone(), "document.user.timezone");
+
     final long docId = nextId("usr_oguser_seq");
     final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
     final UniqueId uniqueId = createUniqueId(docOid, docId);
@@ -216,7 +218,7 @@ public class DbUserMaster
       .addValue("userid", user.getUserId())
       .addValue("password", user.getPasswordHash())
       .addValue("name", user.getName())
-      .addValue("time_zone", user.getTimeZone().getID())
+      .addValue("time_zone", user.getTimeZone().getId())
       .addValue("email_address", user.getEmailAddress());
     
     // the arguments for inserting into the idkey tables
@@ -340,7 +342,7 @@ public class DbUserMaster
       ManageableOGUser user = new ManageableOGUser(rs.getString("USERID"));
       user.setPasswordHash(rs.getString("PASSWORD"));
       user.setName(rs.getString("NAME"));
-      user.setTimeZone(TimeZone.of(rs.getString("TIME_ZONE")));
+      user.setTimeZone(ZoneId.of(rs.getString("TIME_ZONE")));
       user.setEmailAddress(rs.getString("EMAIL_ADDRESS"));
       user.setUniqueId(uniqueId);
       _currUser = user;

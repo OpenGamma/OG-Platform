@@ -25,6 +25,9 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.equity.option.EquityOption;
+import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -88,13 +91,14 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 
 /**
  * 
  */
 public class InstrumentDerivativeVisitorTest {
   private static final Set<InstrumentDerivative> ALL_DERIVATIVES = TestInstrumentDefinitionsAndDerivatives.getAllDerivatives();
-  private static final MyVisitor<Object> VISITOR = new MyVisitor<Object>();
+  private static final MyVisitor<Object> VISITOR = new MyVisitor<>();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDerivative() {
@@ -110,7 +114,8 @@ public class InstrumentDerivativeVisitorTest {
           fail();
         } catch (final IllegalArgumentException e) {
         } catch (final NullPointerException e) {
-          throw new NullPointerException("accept(InstrumentDerivativeVisitor visitor) in " + derivative.getClass().getSimpleName() + " does not check that the visitor is not null");
+          throw new NullPointerException("accept(InstrumentDerivativeVisitor visitor) in " + derivative.getClass().getSimpleName()
+              + " does not check that the visitor is not null");
         }
       } else {
         throw new NullPointerException("Derivative was null");
@@ -122,7 +127,8 @@ public class InstrumentDerivativeVisitorTest {
         fail();
       } catch (final IllegalArgumentException e) {
       } catch (final NullPointerException e) {
-        throw new NullPointerException("accept(InstrumentDerivativeVisitor visitor, S data) in " + derivative.getClass().getSimpleName() + " does not check that the visitor is not null");
+        throw new NullPointerException("accept(InstrumentDerivativeVisitor visitor, S data) in " + derivative.getClass().getSimpleName()
+            + " does not check that the visitor is not null");
       }
     }
   }
@@ -136,7 +142,7 @@ public class InstrumentDerivativeVisitorTest {
   public void testDelegate() {
     final String s = "aaaa";
     final String result = s + " + data1";
-    final BondFixedVisitor<Object> visitor = new BondFixedVisitor<Object>(VISITOR, s);
+    final BondFixedVisitor<Object> visitor = new BondFixedVisitor<>(VISITOR, s);
     for (final InstrumentDerivative definition : ALL_DERIVATIVES) {
       if (definition instanceof BondFixedSecurity) {
         assertEquals(definition.accept(visitor), s);
@@ -179,7 +185,7 @@ public class InstrumentDerivativeVisitorTest {
   @Test
   public void testSameValueAdapter() {
     final Double value = Math.PI;
-    final InstrumentDerivativeVisitor<Double, Double> visitor = new InstrumentDerivativeVisitorSameValueAdapter<Double, Double>(value);
+    final InstrumentDerivativeVisitor<Double, Double> visitor = new InstrumentDerivativeVisitorSameValueAdapter<>(value);
     for (final InstrumentDerivative derivative : ALL_DERIVATIVES) {
       assertEquals(value, derivative.accept(visitor));
       assertEquals(value, derivative.accept(visitor, Math.E));
@@ -981,6 +987,46 @@ public class InstrumentDerivativeVisitorTest {
     @Override
     public String visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final T data) {
       return getValue(future, true);
+    }
+
+    @Override
+    public String visitEquityIndexOption(final EquityIndexOption option, final T data) {
+      return getValue(option, true);
+    }
+
+    @Override
+    public String visitEquityIndexOption(final EquityIndexOption option) {
+      return getValue(option, false);
+    }
+
+    @Override
+    public String visitEquityOption(final EquityOption option, final T data) {
+      return getValue(option, true);
+    }
+
+    @Override
+    public String visitEquityOption(final EquityOption option) {
+      return getValue(option, false);
+    }
+
+    @Override
+    public String visitVarianceSwap(final VarianceSwap varianceSwap) {
+      return getValue(varianceSwap, false);
+    }
+
+    @Override
+    public String visitVarianceSwap(final VarianceSwap varianceSwap, final T data) {
+      return getValue(varianceSwap, true);
+    }
+
+    @Override
+    public String visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap) {
+      return getValue(varianceSwap, false);
+    }
+
+    @Override
+    public String visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap, final T data) {
+      return getValue(varianceSwap, true);
     }
   }
 }

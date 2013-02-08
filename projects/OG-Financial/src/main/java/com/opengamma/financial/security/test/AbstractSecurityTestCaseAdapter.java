@@ -177,5 +177,8 @@ public abstract class AbstractSecurityTestCaseAdapter implements SecurityTestCas
   @Override
   public void testLegacyVanillaCDSSecurity() {
   }
-  
+
+  @Override
+  public void testCashFlowSecurity() {
+  }
 }

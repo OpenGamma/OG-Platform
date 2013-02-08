@@ -15,6 +15,7 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -30,6 +31,10 @@ public abstract class CostOfCarryFuturesFunction<T> extends FuturesFunction<T> {
   /** The calculation method name */
   public static final String CALCULATION_METHOD_NAME = "CostOfCarry";
 
+  /**
+   * @param valueRequirementName The value requirement name
+   * @param calculator The calculator
+   */
   public CostOfCarryFuturesFunction(final String valueRequirementName, final InstrumentDerivativeVisitor<SimpleFutureDataBundle, T> calculator)  {
     super(valueRequirementName, calculator);
   }
@@ -61,13 +66,13 @@ public abstract class CostOfCarryFuturesFunction<T> extends FuturesFunction<T> {
   @Override
   protected SimpleFutureDataBundle getFutureDataBundle(final FutureSecurity security, final FunctionInputs inputs,
     final HistoricalTimeSeriesBundle timeSeriesBundle, final ValueRequirement desiredValue) {
-    final Double spotUnderlyer = getSpot(security, inputs);
+    final Double spotUnderlyer = getSpot(inputs);
     final Double costOfCarry = getCostOfCarry(security, inputs);
     return new SimpleFutureDataBundle(null, null, spotUnderlyer, null, costOfCarry);
   }
 
   private ValueRequirement getCostOfCarryRequirement(final FutureSecurity security) {
-    return new ValueRequirement(MarketDataRequirementNames.COST_OF_CARRY, getSpotAssetId(security));
+    return new ValueRequirement(MarketDataRequirementNames.COST_OF_CARRY, ComputationTargetType.PRIMITIVE, getSpotAssetId(security)); // [PLAT-2286] Is this PRIMITIVE or SECURITY?
   }
 
   private Double getCostOfCarry(final FutureSecurity security, final FunctionInputs inputs) {

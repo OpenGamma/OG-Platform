@@ -5,7 +5,7 @@
  */
 package com.opengamma.core.holiday;
 
-import javax.time.calendar.LocalDate;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.Link;
@@ -45,6 +45,7 @@ public interface HolidayResolver extends LinkResolver<Holiday> {
    * @throws DataNotFoundException if the target could not be resolved
    * @throws RuntimeException if an error occurs
    */
+  @Override
   Holiday resolve(Link<Holiday> link);
 
   /**

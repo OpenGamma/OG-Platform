@@ -213,7 +213,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
       .addTimestamp("corr_from_instant", document.getCorrectionFromInstant())
       .addTimestampNullFuture("corr_to_instant", document.getCorrectionToInstant())
       .addValue("name", document.getName())
-      .addValue("time_zone", exchange.getTimeZone() != null ? exchange.getTimeZone().getID() : null)
+      .addValue("time_zone", exchange.getTimeZone() != null ? exchange.getTimeZone().getId() : null, Types.VARCHAR)
       .addValue("detail", new SqlLobValue(bytes, getDialect().getLobHandler()), Types.BLOB);
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();

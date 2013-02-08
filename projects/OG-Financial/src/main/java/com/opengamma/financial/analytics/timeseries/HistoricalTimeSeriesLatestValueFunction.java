@@ -9,17 +9,18 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.Period;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValueRequirement;
@@ -43,24 +44,34 @@ public class HistoricalTimeSeriesLatestValueFunction extends AbstractFunction.No
     final String ageLimitValue = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.AGE_LIMIT_PROPERTY);
     final Period ageLimit = HistoricalTimeSeriesFunctionUtils.UNLIMITED_AGE_LIMIT_VALUE.equals(ageLimitValue) ? null : Period.parse(ageLimitValue);
     final Object value;
-    if (latestDataPoint == null || (ageLimit != null && !ageLimit.minus(Period.between(latestDataPoint.getFirst(), executionContext.getValuationClock().dateTime())).isPositiveOrZero())) {
+    if (checkMissing(executionContext, latestDataPoint, ageLimit)) {
       value = MissingMarketDataSentinel.getInstance();
     } else {
       final String adjusterString = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.ADJUST_PROPERTY);
       final HistoricalTimeSeriesAdjustment htsa = HistoricalTimeSeriesAdjustment.parse(adjusterString);
       value = htsa.adjust(latestDataPoint._2());
     }
-    return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetSpecification(), desiredValue.getConstraints()), value));
+    return Collections.singleton(new ComputedValue(new ValueSpecification(desiredValue.getValueName(), target.toSpecification(), desiredValue.getConstraints()), value));
+  }
+
+  // TODO: reverse logic here to be checkAvailable()
+  private boolean checkMissing(final FunctionExecutionContext executionContext, final Pair<LocalDate, Double> latestDataPoint, final Period ageLimit) {
+    if (latestDataPoint == null) {
+      return true;
+    }
+    if (ageLimit != null) {
+      LocalDateTime now = LocalDateTime.now(executionContext.getValuationClock());
+      Period difference = ageLimit.minus(Period.between(latestDataPoint.getFirst(), now));
+      if (!(difference.isPositive() || difference.isZero())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override
   public ComputationTargetType getTargetType() {
-    return ComputationTargetType.PRIMITIVE;
-  }
-
-  @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return true;
+    return ComputationTargetType.PRIMITIVE; // UID of the time series
   }
 
   @Override

@@ -54,7 +54,6 @@ public class DbPositionMasterFactoryBean extends AbstractDbMasterFactoryBean<DbP
    * The meta-bean for {@code DbPositionMasterFactoryBean}.
    * @return the meta-bean, not null
    */
-  @SuppressWarnings("unchecked")
   public static DbPositionMasterFactoryBean.Meta meta() {
     return DbPositionMasterFactoryBean.Meta.INSTANCE;
   }

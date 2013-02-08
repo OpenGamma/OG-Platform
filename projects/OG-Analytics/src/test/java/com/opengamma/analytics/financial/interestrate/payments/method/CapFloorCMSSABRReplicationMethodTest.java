@@ -7,14 +7,15 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 import it.unimi.dsi.fastutil.doubles.DoubleAVLTreeSet;
 
 import java.util.List;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCapFloorCMSDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
@@ -64,17 +65,17 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final Period ANNUITY_TENOR = Period.ofYears(5);
+  private static final Period ANNUITY_TENOR = Period.of(5, YEARS);
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 17);
   //Fixed leg: Semi-annual bond
-  private static final Period FIXED_PAYMENT_PERIOD = Period.ofMonths(6);
+  private static final Period FIXED_PAYMENT_PERIOD = Period.of(6, MONTHS);
   private static final DayCount FIXED_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final double RATE = 0.0325;
   private static final boolean FIXED_IS_PAYER = true;
   private static final AnnuityCouponFixedDefinition FIXED_ANNUITY = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, FIXED_PAYMENT_PERIOD, CALENDAR, FIXED_DAY_COUNT,
       BUSINESS_DAY, IS_EOM, 1.0, RATE, FIXED_IS_PAYER);
   //Ibor leg: quarterly money
-  private static final Period INDEX_TENOR = Period.ofMonths(3);
+  private static final Period INDEX_TENOR = Period.of(3, MONTHS);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
@@ -119,7 +120,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final CapFloorCMSSABRReplicationMethod METHOD = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
 
   private static final GeneratorSwapFixedIbor USD_GENERATOR = GeneratorSwapFixedIborMaster.getInstance().getGenerator("USD6MLIBOR3M", CALENDAR);
-  private static final IndexSwap USD_SWAP_10Y = new IndexSwap(USD_GENERATOR, Period.ofYears(5));
+  private static final IndexSwap USD_SWAP_10Y = new IndexSwap(USD_GENERATOR, Period.of(5, YEARS));
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, USD_GENERATOR.getIborIndex().getSpotLag(), CALENDAR);
 
   @Test
@@ -145,12 +146,12 @@ public class CapFloorCMSSABRReplicationMethodTest {
    * Tests the present value of an annuity vs the sum of pv of each caplet.
    */
   public void presentValueAnnuity() {
-    final Period START_CMSCAP = Period.ofYears(5);
-    final Period LENGTH_CMSCAP = Period.ofYears(10);
+    final Period START_CMSCAP = Period.of(5, YEARS);
+    final Period LENGTH_CMSCAP = Period.of(10, YEARS);
     final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, START_CMSCAP, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR, USD_GENERATOR.getIborIndex()
         .isEndOfMonth());
     final ZonedDateTime END_DATE = START_DATE.plus(LENGTH_CMSCAP);
-    final Period capPeriod = Period.ofMonths(6);
+    final Period capPeriod = Period.of(6, MONTHS);
     final DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");
     final AnnuityCapFloorCMSDefinition capDefinition = AnnuityCapFloorCMSDefinition.from(START_DATE, END_DATE, NOTIONAL, USD_SWAP_10Y, capPeriod, capDayCount, false, STRIKE, IS_CAP);
     final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -273,12 +274,12 @@ public class CapFloorCMSSABRReplicationMethodTest {
    * Tests the present value of an annuity vs the sum of pv of each caplet.
    */
   public void presentValueCurveSensitivityAnnuity() {
-    final Period START_CMSCAP = Period.ofYears(5);
-    final Period LENGTH_CMSCAP = Period.ofYears(10);
+    final Period START_CMSCAP = Period.of(5, YEARS);
+    final Period LENGTH_CMSCAP = Period.of(10, YEARS);
     final ZonedDateTime START_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, START_CMSCAP, USD_GENERATOR.getIborIndex().getBusinessDayConvention(), CALENDAR, USD_GENERATOR.getIborIndex()
         .isEndOfMonth());
     final ZonedDateTime END_DATE = START_DATE.plus(LENGTH_CMSCAP);
-    final Period capPeriod = Period.ofMonths(6);
+    final Period capPeriod = Period.of(6, MONTHS);
     final DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");
     final AnnuityCapFloorCMSDefinition capDefinition = AnnuityCapFloorCMSDefinition.from(START_DATE, END_DATE, NOTIONAL, USD_SWAP_10Y, capPeriod, capDayCount, false, STRIKE, IS_CAP);
     final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);

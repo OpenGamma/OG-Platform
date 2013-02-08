@@ -64,6 +64,18 @@
     memoryStoreEvictionPolicy="LRU"
     />
   <cache
+    name="bbg-classifier-cache"
+    maxElementsInMemory="100000"
+    eternal="false"
+    timeToIdleSeconds="604800"
+    timeToLiveSeconds="604800"
+    overflowToDisk="true"
+    maxElementsOnDisk="0"
+    diskPersistent="true"
+    diskExpiryThreadIntervalSeconds="120"
+    memoryStoreEvictionPolicy="LRU"
+    />
+  <cache
     name="referenceData"
     maxElementsInMemory="10000"
     eternal="false"

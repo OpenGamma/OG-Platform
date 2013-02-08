@@ -12,14 +12,14 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 /**
  * A grid for displaying primitives analytics data.
  */
-/* package */ class PrimitivesAnalyticsGrid extends MainAnalyticsGrid<PrimitivesGridViewport> {
+/* package */ class PrimitivesAnalyticsGrid extends MainAnalyticsGrid {
 
   /* package */ PrimitivesAnalyticsGrid(CompiledViewDefinition compiledViewDef,
                                         String gridId,
                                         ComputationTargetResolver targetResolver,
                                         ValueMappings valueMappings,
                                         ViewportListener viewportListener) {
-    this(new PrimitivesGridStructure(compiledViewDef, valueMappings), gridId, targetResolver, viewportListener);
+    this(PrimitivesGridStructure.create(compiledViewDef, valueMappings), gridId, targetResolver, viewportListener);
   }
 
   /* package */ PrimitivesAnalyticsGrid(MainGridStructure gridStructure,
@@ -36,8 +36,8 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
    * @return The viewport
    */
   @Override
-  protected PrimitivesGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
-    return new PrimitivesGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, _cache);
+  protected MainGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId) {
+    return new MainGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, _cache);
   }
 
   /**
@@ -45,6 +45,9 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
    * @return An empty primitives grid
    */
   /* package */ static PrimitivesAnalyticsGrid empty(String gridId) {
-    return new PrimitivesAnalyticsGrid(PrimitivesGridStructure.empty(), gridId, new DummyTargetResolver(), new NoOpViewportListener());
+    return new PrimitivesAnalyticsGrid(PrimitivesGridStructure.empty(),
+                                       gridId,
+                                       new DummyTargetResolver(),
+                                       new NoOpViewportListener());
   }
 }

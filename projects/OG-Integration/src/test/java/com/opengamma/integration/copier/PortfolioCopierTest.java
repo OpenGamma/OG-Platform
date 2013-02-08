@@ -77,7 +77,7 @@ public class PortfolioCopierTest {
     PortfolioReader portfolioReader = 
         new SingleSheetSimplePortfolioReader(PORTFOLIO_FILE, SECURITY_TYPE);
     PortfolioWriter portfolioWriter = new MasterPortfolioWriter(PORTFOLIO_NAME, portfolioMaster, positionMaster,
-        securityMaster, false, false, false);
+        securityMaster, false, false, false, false);
     portfolioCopier.copy(portfolioReader, portfolioWriter);
     portfolioReader.close();
     portfolioWriter.close();

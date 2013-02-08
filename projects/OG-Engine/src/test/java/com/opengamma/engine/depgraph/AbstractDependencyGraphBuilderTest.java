@@ -20,10 +20,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.testng.Assert;
 
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
-import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ValueRequirement;
 
@@ -75,7 +73,7 @@ import com.opengamma.engine.value.ValueRequirement;
   }
 
   protected Map<MockFunction, DependencyNode> assertGraphContains(final DependencyGraph graph, final MockFunction... functions) {
-    final Collection<DependencyNode> nodes = graph.getDependencyNodes(ComputationTargetType.PRIMITIVE);
+    final Collection<DependencyNode> nodes = graph.getDependencyNodes();
     final List<MockFunction> functionList = new LinkedList<MockFunction>(Arrays.asList(functions));
     final Map<MockFunction, DependencyNode> result = new HashMap<MockFunction, DependencyNode>();
     for (DependencyNode node : nodes) {
@@ -95,13 +93,8 @@ import com.opengamma.engine.value.ValueRequirement;
   protected static abstract class TestFunction extends AbstractFunction.NonCompiledInvoker {
 
     @Override
-    public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
-      return ComputationTargetType.PRIMITIVE.equals(target.getType());
-    }
-
-    @Override
     public ComputationTargetType getTargetType() {
-      return ComputationTargetType.PRIMITIVE;
+      return ComputationTargetType.ANYTHING;
     }
 
     public int getPriority() {

@@ -211,6 +211,11 @@
         margin-left: 0px;
     }
 
+/* filters */
+.OG-analytics-form-menu.og-filters input[type=radio] {
+    vertical-align: top;
+}
+
 /* ie8 doesnt support nth or last child...degrade */
     .ie8 .OG-analytics-form-menu select {
         min-width: 150px;

@@ -17,11 +17,11 @@ import static org.testng.AssertJUnit.assertSame;
 
 import java.util.List;
 
-import javax.time.Instant;
 import javax.ws.rs.core.Response;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.threeten.bp.Instant;
 
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.domain.CalculationConfiguration;

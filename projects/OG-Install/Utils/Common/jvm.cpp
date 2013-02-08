@@ -143,24 +143,17 @@ CJavaRT::~CJavaRT () {
 	FreeLibrary (m_hDll);
 }
 
-static HMODULE _findJavaFromRegistry (PCSTR pszPublisher) {
-	TCHAR sz[MAX_PATH];
-	DWORD cb;
-	HANDLE hFile = NULL;
+static HMODULE _findJavaFromRegistry (HKEY hkeyPublisher, PCSTR pszVersion) {
+	HANDLE hFile = INVALID_HANDLE_VALUE;
 	HMODULE hModule = (HMODULE)INVALID_HANDLE_VALUE;
-	HKEY hKey = NULL;
-	int n;
-	size_t cch;
 	do {
-		StringCbPrintf (sz, sizeof (sz), "SOFTWARE\\%s\\Java Runtime Environment", pszPublisher);
-		if (RegOpenKey (HKEY_LOCAL_MACHINE, sz, &hKey) != ERROR_SUCCESS) break;
-		cb = sizeof (sz);
-		if (RegGetValue (hKey, NULL, "CurrentVersion", RRF_RT_REG_SZ, NULL, sz, &cb) != ERROR_SUCCESS) break;
-		cb = sizeof (sz);
-		if (RegGetValue (hKey, sz, "RuntimeLib", RRF_RT_REG_SZ, NULL, sz, &cb) != ERROR_SUCCESS) break;
+		char sz[MAX_PATH];
+		DWORD cb = sizeof (sz);
+		if (RegGetValue (hkeyPublisher, pszVersion, "RuntimeLib", RRF_RT_REG_SZ, NULL, sz, &cb) != ERROR_SUCCESS) break;
 		hFile = CreateFile (sz, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-		cch = strlen (sz);
+		size_t cch = strlen (sz);
 		if (hFile == INVALID_HANDLE_VALUE) {
+			// JRE 1.7, 32-bit doesn't seem to have this bug but 64-bit does.
 			if ((cch > 15) && !strcmp (sz + cch - 15, "\\client\\jvm.dll")) {
 				memcpy (sz + cch - 14, "server", 6);
 				hFile = CreateFile (sz, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -169,7 +162,7 @@ static HMODULE _findJavaFromRegistry (PCSTR pszPublisher) {
 				break;
 			}
 		}
-		n = 2;
+		int n = 2;
 		while (--cch > 0) {
 			if (sz[cch] == '\\') {
 				if (!--n) {
@@ -183,8 +176,54 @@ static HMODULE _findJavaFromRegistry (PCSTR pszPublisher) {
 		hModule = LoadLibraryEx (sz, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
 		SetDllDirectory (NULL);
 	} while (FALSE);
-	if (hKey) RegCloseKey (hKey);
 	if (hFile) CloseHandle (hFile);
+	return hModule;
+}
+
+static int _VersionFragment (PCSTR pszVersion, int nFragment) {
+	int nValue;
+	size_t cch = strlen (pszVersion), i = 0;
+	do {
+		nValue = 0;
+		while ((i < cch) && (pszVersion[i] != '.')) {
+			if ((pszVersion[i] >= '0') && (pszVersion[i] <= '9')) {
+				nValue = (nValue * 10) + (pszVersion[i] - '0');
+			}
+			i++;
+		}
+		if (i < cch) i++;
+	} while (nFragment-- > 0);
+	return nValue;
+}
+
+#define JAVA_MINIMUM_MAJOR_VERSION	1
+#define JAVA_MINIMUM_MINOR_VERSION	7
+
+static HMODULE _findJavaFromRegistry (PCSTR pszPublisher) {
+	HMODULE hModule = (HMODULE)INVALID_HANDLE_VALUE;
+	HKEY hKey = NULL;
+	do {
+		char sz[8];
+		StringCbPrintf (sz, sizeof (sz), "SOFTWARE\\%s\\Java Runtime Environment", pszPublisher);
+		if (RegOpenKey (HKEY_LOCAL_MACHINE, sz, &hKey) != ERROR_SUCCESS) break;
+		DWORD cb = sizeof (sz);
+		if (RegGetValue (hKey, NULL, "CurrentVersion", RRF_RT_REG_SZ, NULL, sz, &cb) != ERROR_SUCCESS) break;
+		int nMajorVersion = _VersionFragment (sz, 0);
+		if (nMajorVersion == JAVA_MINIMUM_MAJOR_VERSION) {
+			if (_VersionFragment (sz, 1) >= JAVA_MINIMUM_MINOR_VERSION) {
+				hModule = _findJavaFromRegistry (hKey, sz);
+			}
+		} else if (nMajorVersion > JAVA_MINIMUM_MAJOR_VERSION) {
+			hModule = _findJavaFromRegistry (hKey, sz);
+		}
+		if (hModule) break;
+		cb = sizeof (sz);
+		if (RegGetValue (hKey, NULL, "Java7FamilyVersion", RRF_RT_REG_SZ, NULL, sz, &cb) != ERROR_SUCCESS) break;
+		hModule = _findJavaFromRegistry (hKey, sz);
+		if (hModule) break;
+		hModule = _findJavaFromRegistry (hKey, "1.7");
+	} while (FALSE);
+	if (hKey) RegCloseKey (hKey);
 	return hModule;
 }
 

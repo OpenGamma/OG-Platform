@@ -5,7 +5,8 @@
  */
 package com.opengamma.engine.function.dsl;
 
-import com.opengamma.engine.ComputationTargetType;
+
+import com.opengamma.engine.target.ComputationTargetType;
 
 public class Function {
 

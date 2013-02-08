@@ -222,13 +222,10 @@ public class SimplePortfolioNodeTest {
     SimplePosition position1 = new SimplePosition(UniqueId.of("Child", "A"), BigDecimal.ZERO, ExternalId.of("A", "B"));
     SimplePosition position2 = new SimplePosition(UniqueId.of("Child", "B"), BigDecimal.ZERO, ExternalId.of("A", "B"));
     child.addPosition(position1);
-    position2.setParentNodeId(child.getUniqueId ());
     child.addPosition(position2);
     root.addChildNode(child);
     assertNotSame(position1, root.getPosition(UniqueId.of("Child", "A")));
     // equal except for the parent link
-    assertFalse(position1.equals (root.getPosition(UniqueId.of("Child", "A"))));
-    position1.setParentNodeId(child.getUniqueId ());
     assertEquals(position1, root.getPosition(UniqueId.of("Child", "A")));
     assertEquals(position2, root.getPosition(UniqueId.of("Child", "B")));
     assertEquals(null, root.getPosition(UniqueId.of("NotFound", "A")));

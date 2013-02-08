@@ -11,10 +11,13 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.id.UniqueId;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
+import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -23,17 +26,6 @@ import com.opengamma.util.money.Currency;
 public class CurrencyMatrixConfigPopulator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyMatrixConfigPopulator.class);
-
-  private static final String[] DOLLARS_PER_UNIT_CURRENCIES = new String[]{"EUR", "GBP", "AUD", "NZD"};
-  private static final String[] UNITS_PER_DOLLAR_CURRENCIES = new String[]{"JPY", "CHF", "SEK", "CAD", "DKK", "BRL", "TWD", "MYR"};
-  private static final String[] CURRENCIES = combine(DOLLARS_PER_UNIT_CURRENCIES, UNITS_PER_DOLLAR_CURRENCIES);
-
-  private static String[] combine(final String[] a, final String[] b) {
-    final String[] x = new String[a.length + b.length];
-    System.arraycopy(a, 0, x, 0, a.length);
-    System.arraycopy(b, 0, x, a.length, b.length);
-    return x;
-  }
 
   /**
    * Bloomberg currency matrix config name
@@ -45,62 +37,43 @@ public class CurrencyMatrixConfigPopulator {
    */
   public static final String SYNTHETIC_LIVE_DATA = "SyntheticLiveData";
 
-  public CurrencyMatrixConfigPopulator(final ConfigMaster cfgMaster) {
-    populateCurrencyMatrixConfigMaster(cfgMaster);
-  }
-
   public static ConfigMaster populateCurrencyMatrixConfigMaster(final ConfigMaster cfgMaster) {
-    storeCurrencyMatrix(cfgMaster, BLOOMBERG_LIVE_DATA, createBloombergConversionMatrix());
-    storeCurrencyMatrix(cfgMaster, SYNTHETIC_LIVE_DATA, createSyntheticConversionMatrix());
+    final CurrencyPairs currencies = new MasterConfigSource(cfgMaster).getSingle(CurrencyPairs.class, CurrencyPairs.DEFAULT_CURRENCY_PAIRS, VersionCorrection.LATEST);
+    storeCurrencyMatrix(cfgMaster, BLOOMBERG_LIVE_DATA, createBloombergConversionMatrix(currencies));
+    storeCurrencyMatrix(cfgMaster, SYNTHETIC_LIVE_DATA, createSyntheticConversionMatrix(currencies));
     return cfgMaster;
   }
 
   private static void storeCurrencyMatrix(final ConfigMaster cfgMaster, final String name, final CurrencyMatrix currencyMatrix) {
-    final ConfigItem<CurrencyMatrix> doc = ConfigItem.of(currencyMatrix);
+    final ConfigItem<CurrencyMatrix> doc = ConfigItem.of(currencyMatrix, name, CurrencyMatrix.class);
     doc.setName(name);
     ConfigMasterUtils.storeByName(cfgMaster, doc);
   }
 
-  public static CurrencyMatrix createBloombergConversionMatrix() {
+  public static CurrencyMatrix createBloombergConversionMatrix(final CurrencyPairs currencies) {
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
-    final Currency commonCross = Currency.USD;
-    for (final String currency : DOLLARS_PER_UNIT_CURRENCIES) {
-      matrix.setLiveData(commonCross, Currency.of(currency),
-          new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.toString(), currency + " Curncy")));
-    }
-    for (final String currency : UNITS_PER_DOLLAR_CURRENCIES) {
-      matrix.setLiveData(Currency.of(currency), commonCross,
-          new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, UniqueId.of(ExternalSchemes.BLOOMBERG_TICKER.toString(), currency + " Curncy")));
-    }
-    for (final String currency : CURRENCIES) {
-      final Currency target = Currency.of(currency);
-      for (final String currency2 : CURRENCIES) {
-        if (!currency.equals(currency2)) {
-          matrix.setCrossConversion(Currency.of(currency2), target, commonCross);
-        }
-      }
+    for (final CurrencyPair pair : currencies.getPairs()) {
+      matrix.setLiveData(pair.getCounter(), pair.getBase(),
+          new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER.toString(), pair.getBase().getCode() +
+              pair.getCounter().getCode() + " Curncy")));
     }
     dumpMatrix(matrix);
     return matrix;
   }
 
-  public static CurrencyMatrix createSyntheticConversionMatrix() {
+  public static CurrencyMatrix createSyntheticConversionMatrix(final CurrencyPairs currencies) {
     final SimpleCurrencyMatrix matrix = new SimpleCurrencyMatrix();
     final Currency commonCross = Currency.USD;
-    for (final String currency : DOLLARS_PER_UNIT_CURRENCIES) {
-      matrix.setLiveData(commonCross, Currency.of(currency),
-          new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, UniqueId.of(ExternalSchemes.OG_SYNTHETIC_TICKER.getName(), commonCross.toString() + currency)));
+    for (final CurrencyPair pair : currencies.getPairs()) {
+      if (commonCross.equals(pair.getBase()) || commonCross.equals(pair.getCounter())) {
+        matrix.setLiveData(pair.getCounter(), pair.getBase(),
+            new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER.getName(), pair.getBase().getCode() +
+                pair.getCounter().getCode())));
+      }
     }
-    for (final String currency : UNITS_PER_DOLLAR_CURRENCIES) {
-      matrix.setLiveData(Currency.of(currency), commonCross,
-          new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, UniqueId.of(ExternalSchemes.OG_SYNTHETIC_TICKER.getName(), commonCross.toString() + currency)));
-    }
-    for (final String currency : CURRENCIES) {
-      final Currency target = Currency.of(currency);
-      for (final String currency2 : CURRENCIES) {
-        if (!currency.equals(currency2)) {
-          matrix.setCrossConversion(Currency.of(currency2), target, commonCross);
-        }
+    for (final CurrencyPair pair : currencies.getPairs()) {
+      if (!commonCross.equals(pair.getBase()) && !commonCross.equals(pair.getCounter())) {
+        matrix.setCrossConversion(pair.getCounter(), pair.getBase(), commonCross);
       }
     }
     dumpMatrix(matrix);

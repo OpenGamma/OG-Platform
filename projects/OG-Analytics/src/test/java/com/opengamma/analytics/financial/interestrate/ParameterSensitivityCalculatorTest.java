@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,10 +16,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.curve.sensitivity.ParameterSensitivityCalculator;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
@@ -66,7 +66,7 @@ public abstract class ParameterSensitivityCalculatorTest {
   private static final Currency USD = USDLIBOR6M.getCurrency();
   private static final FXMatrix FX_MATRIX = new FXMatrix(USD);
   private static final HashMap<String, Currency> CCY_MAP = new HashMap<String, Currency>();
-  private static final Period SWAP_TENOR = Period.ofYears(5);
+  private static final Period SWAP_TENOR = Period.of(5, YEARS);
   private static final double SWAP_RATE = 0.05;
   private static final double SWAP_NOTIONAL = 1.0;
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 6, 29);

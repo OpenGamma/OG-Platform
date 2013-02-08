@@ -15,12 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.model.forex.forward.FXForwardFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.lambdava.tuple.Pair;
@@ -80,8 +79,8 @@ public abstract class FXForwardCurveFromYieldCurvesDefaults extends DefaultPrope
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.PAY_CURVE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.RECEIVE_CURVE);
-      defaults.addValuePropertyName(valueRequirement, FXForwardFunction.PAY_CURVE_CALC_CONFIG);
-      defaults.addValuePropertyName(valueRequirement, FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG);
     }
   }
 
@@ -105,10 +104,10 @@ public abstract class FXForwardCurveFromYieldCurvesDefaults extends DefaultPrope
     if (ValuePropertyNames.RECEIVE_CURVE.equals(propertyName)) {
       return Collections.singleton(receivePair.getSecond());
     }
-    if (FXForwardFunction.PAY_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(payPair.getFirst());
     }
-    if (FXForwardFunction.RECEIVE_CURVE_CALC_CONFIG.equals(propertyName)) {
+    if (ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG.equals(propertyName)) {
       return Collections.singleton(receivePair.getFirst());
     }
     s_logger.error("Could not get default value for {}", propertyName);

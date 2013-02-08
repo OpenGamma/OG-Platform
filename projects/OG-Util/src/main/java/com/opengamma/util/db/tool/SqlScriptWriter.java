@@ -14,7 +14,7 @@ import com.opengamma.util.db.script.DbScript;
  * Writes database scripts.
  */
 public interface SqlScriptWriter extends Closeable {
-  
+
   /**
    * Writes a database script.
    * 

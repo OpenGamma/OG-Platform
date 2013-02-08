@@ -22,6 +22,9 @@ import com.opengamma.analytics.financial.commodity.derivative.MetalFutureOption;
 import com.opengamma.analytics.financial.credit.cds.ISDACDSDerivative;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.analytics.financial.equity.future.derivative.EquityIndexDividendFuture;
+import com.opengamma.analytics.financial.equity.option.EquityIndexOption;
+import com.opengamma.analytics.financial.equity.option.EquityOption;
+import com.opengamma.analytics.financial.equity.variance.EquityVarianceSwap;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
@@ -87,6 +90,7 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.TenorSwap;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 
 /**
  * Tests the visitor of Forex derivatives.
@@ -143,7 +147,7 @@ public class ForexDerivativeVisitorTest {
     testException(NDO, o);
     testException(FX_OPTION_DIGITAL);
     testException(FX_OPTION_DIGITAL, o);
-    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP };
+    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP};
     try {
       forexArray[0].accept(VISITOR_ABSTRACT);
       assertTrue(false);
@@ -909,6 +913,46 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitEquityIndexDividendFuture(final EquityIndexDividendFuture future, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEquityIndexOption(final EquityIndexOption option, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEquityIndexOption(final EquityIndexOption option) {
+      return null;
+    }
+
+    @Override
+    public String visitVarianceSwap(final VarianceSwap varianceSwap) {
+      return null;
+    }
+
+    @Override
+    public String visitVarianceSwap(final VarianceSwap varianceSwap, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap) {
+      return null;
+    }
+
+    @Override
+    public String visitEquityVarianceSwap(final EquityVarianceSwap varianceSwap, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEquityOption(final EquityOption option, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitEquityOption(final EquityOption option) {
       return null;
     }
 

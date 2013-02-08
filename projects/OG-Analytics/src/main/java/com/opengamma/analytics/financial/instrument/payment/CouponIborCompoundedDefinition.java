@@ -7,13 +7,11 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import java.util.Arrays;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.ObjectUtils;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -256,19 +254,19 @@ public final class CouponIborCompoundedDefinition extends CouponDefinition imple
 
   @Override
   public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    final LocalDate dateConversion = dateTime.toLocalDate();
+    final LocalDate dateConversion = dateTime.getDate();
     ArgumentChecker.notNull(indexFixingTimeSeries, "Index fixing time series");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    ArgumentChecker.isTrue(!dateConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
+    ArgumentChecker.isTrue(!dateConversion.isAfter(getPaymentDate().getDate()), "date is after payment date");
     final String discountingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
     final int nbSubPeriods = _fixingDates.length;
     int nbFixed = 0;
     double ratioAccrued = 1.0;
-    while ((nbFixed < nbSubPeriods) && (dateConversion.isAfter(_fixingDates[nbFixed].toLocalDate()))) {
-      final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(_fixingDates[nbFixed].toLocalDate(), LocalTime.of(0, 0), TimeZone.UTC);
+    while ((nbFixed < nbSubPeriods) && (dateConversion.isAfter(_fixingDates[nbFixed].getDate()))) {
+      final ZonedDateTime rezonedFixingDate = _fixingDates[nbFixed].getDate().atStartOfDay(ZoneOffset.UTC);
       final Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate);
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + rezonedFixingDate);
@@ -276,8 +274,8 @@ public final class CouponIborCompoundedDefinition extends CouponDefinition imple
       ratioAccrued *= 1.0 + _paymentAccrualFactors[nbFixed] * fixedRate;
       nbFixed++;
     }
-    if ((nbFixed < nbSubPeriods) && dateConversion.equals(_fixingDates[nbFixed].toLocalDate())) {
-      final ZonedDateTime rezonedFixingDate = ZonedDateTime.of(_fixingDates[nbFixed].toLocalDate(), LocalTime.of(0, 0), TimeZone.UTC);
+    if ((nbFixed < nbSubPeriods) && dateConversion.equals(_fixingDates[nbFixed].getDate())) {
+      final ZonedDateTime rezonedFixingDate = _fixingDates[nbFixed].getDate().atStartOfDay(ZoneOffset.UTC);
       final Double fixedRate = indexFixingTimeSeries.getValue(rezonedFixingDate);
       if (fixedRate != null) {
         // Implementation note: on the fixing date and fixing already known.
@@ -308,8 +306,8 @@ public final class CouponIborCompoundedDefinition extends CouponDefinition imple
 
   @Override
   public CouponIborCompounded toDerivative(final ZonedDateTime dateTime, final String... yieldCurveNames) {
-    final LocalDate dateConversion = dateTime.toLocalDate();
-    ArgumentChecker.isTrue(!dateConversion.isAfter(_fixingDates[0].toLocalDate()), "toDerivative without time series should have a date before the first fixing date.");
+    final LocalDate dateConversion = dateTime.getDate();
+    ArgumentChecker.isTrue(!dateConversion.isAfter(_fixingDates[0].getDate()), "toDerivative without time series should have a date before the first fixing date.");
     final String discountingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());

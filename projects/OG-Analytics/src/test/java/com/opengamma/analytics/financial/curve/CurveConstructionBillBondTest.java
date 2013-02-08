@@ -6,17 +6,19 @@
 package com.opengamma.analytics.financial.curve;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.threeten.bp.temporal.ChronoUnit.DAYS;
+import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
+import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
+import org.threeten.bp.Period;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.calculator.PresentValueMCACalculator;
 import com.opengamma.analytics.financial.curve.building.CurveBuildingBlockBundle;
@@ -80,7 +82,7 @@ public class CurveConstructionBillBondTest {
   private static final BusinessDayConvention BDC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final IndexON INDEX_FED_FUND = new IndexON("Fed Fund", CCY_USD, DAY_COUNT_CASH, 1, CALENDAR);
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", CCY_USD, CALENDAR, DAY_COUNT_CASH);
-  private static final GeneratorSwapFixedON GENERATOR_OIS_USD = new GeneratorSwapFixedON("USD1YFEDFUND", INDEX_FED_FUND, Period.ofMonths(12), DAY_COUNT_CASH, BDC, true, SPOT_LAG_OIS, SPOT_LAG_OIS);
+  private static final GeneratorSwapFixedON GENERATOR_OIS_USD = new GeneratorSwapFixedON("USD1YFEDFUND", INDEX_FED_FUND, Period.of(12, MONTHS), DAY_COUNT_CASH, BDC, true, SPOT_LAG_OIS, SPOT_LAG_OIS);
 
   private static final String NAME_COUNTERPART = "US GOVT";
   private static final GeneratorDepositONCounterpart GENERATOR_DEPOSIT_ON_USGOVT = new GeneratorDepositONCounterpart("US GOVT Deposit ON", CCY_USD, CALENDAR, DAY_COUNT_CASH, NAME_COUNTERPART);
@@ -125,15 +127,16 @@ public class CurveConstructionBillBondTest {
   public static final GeneratorInstrument[] DSC_USD_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_USD, GENERATOR_DEPOSIT_ON_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD,
       GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD, GENERATOR_OIS_USD };
   /** Tenors for the dsc USD curve */
-  public static final Period[] DSC_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(1), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9),
-      Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
+  public static final Period[] DSC_USD_TENOR = new Period[] {Period.of(0, DAYS), Period.of(1, DAYS),
+      Period.of(1, MONTHS), Period.of(2, MONTHS), Period.of(3, MONTHS), Period.of(6, MONTHS), Period.of(9, MONTHS),
+      Period.of(1, YEARS), Period.of(2, YEARS), Period.of(3, YEARS), Period.of(4, YEARS), Period.of(5, YEARS), Period.of(10, YEARS) };
 
   /** Market values for the govt USD curve */
   public static final double[] GOVTUS_USD_MARKET_QUOTES = new double[] {0.0010, 0.0015, 0.0020, 0.0015 };
   /** Generators for the govt USD curve */
   public static final GeneratorInstrument[] GOVTUS_USD_GENERATORS = new GeneratorInstrument[] {GENERATOR_DEPOSIT_ON_USGOVT, GENERATOR_BILL[0], GENERATOR_BILL[1], GENERATOR_BILL[2] };
   /** Tenors for the govt USD curve */
-  public static final Period[] GOVTUS_USD_TENOR = new Period[] {Period.ofDays(0), Period.ofDays(0), Period.ofDays(0), Period.ofDays(0) };
+  public static final Period[] GOVTUS_USD_TENOR = new Period[] {Period.of(0, DAYS), Period.of(0, DAYS), Period.of(0, DAYS), Period.of(0, DAYS) };
 
   /** Standard USD discounting curve instrument definitions */
   public static final InstrumentDefinition<?>[] DEFINITIONS_DSC_USD;

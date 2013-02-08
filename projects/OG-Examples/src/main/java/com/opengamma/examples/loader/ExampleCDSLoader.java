@@ -7,11 +7,11 @@ package com.opengamma.examples.loader;
 
 import java.math.BigDecimal;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
 import org.apache.commons.lang.math.RandomUtils;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.id.ExternalSchemes;
@@ -90,8 +90,8 @@ public class ExampleCDSLoader extends AbstractTool<ToolContext> {
   
   private CDSSecurity makeOneCDS() {
     
-    ZonedDateTime maturity = ZonedDateTime.of(2020, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
-    ZonedDateTime startDate = ZonedDateTime.of(2010, 12, 20, 0, 0, 0, 0, TimeZone.UTC);
+    ZonedDateTime maturity = LocalDateTime.of(2020, 12, 20, 0, 0, 0, 0).atZone(ZoneOffset.UTC);
+    ZonedDateTime startDate = LocalDateTime.of(2010, 12, 20, 0, 0, 0, 0).atZone(ZoneOffset.UTC);
     SimpleFrequency frequency = SimpleFrequency.ANNUAL;
     DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");

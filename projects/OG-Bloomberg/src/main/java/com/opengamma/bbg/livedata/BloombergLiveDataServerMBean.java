@@ -5,11 +5,10 @@
  */
 package com.opengamma.bbg.livedata;
 
-import javax.time.Instant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.threeten.bp.Instant;
 
 import com.opengamma.livedata.server.LiveDataServerMBean;
 
@@ -53,7 +52,7 @@ public class BloombergLiveDataServerMBean extends LiveDataServerMBean {
     if (rejection == null) {
       return 0;
     } else {
-      return rejection.getInstant().getEpochSeconds();
+      return rejection.getInstant().getEpochSecond();
     }
   }
   
@@ -63,7 +62,7 @@ public class BloombergLiveDataServerMBean extends LiveDataServerMBean {
     if (rejection == null) {
       return Long.MAX_VALUE;
     } else {
-      return Instant.now().getEpochSeconds() - rejection.getInstant().getEpochSeconds();
+      return Instant.now().getEpochSecond() - rejection.getInstant().getEpochSecond();
     }
   }
   

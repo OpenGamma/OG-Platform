@@ -15,15 +15,15 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
+import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.analytics.model.volatility.local.PDEPropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -43,7 +43,7 @@ public class EquityVarianceSwapDefaults extends DefaultPropertyFunction {
   private final Map<String, String> _surfaceNames;
 
   public EquityVarianceSwapDefaults(final String priority, final String... perEquityConfig) {
-    super(ComputationTargetType.SECURITY, true);
+    super(FinancialSecurityTypes.EQUITY_VARIANCE_SWAP_SECURITY, true);
     ArgumentChecker.notNull(priority, "priority");
     ArgumentChecker.notNull(perEquityConfig, "per equity config");
     final int n = perEquityConfig.length;
@@ -69,15 +69,8 @@ public class EquityVarianceSwapDefaults extends DefaultPropertyFunction {
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.SECURITY) {
-      return false;
-    }
     final Security security = target.getSecurity();
-    if (!(security instanceof EquityVarianceSwapSecurity)) {
-      return false;
-    }
-    final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) security;
-    final String underlyingEquity = varianceSwap.getSpotUnderlyingId().getValue();
+    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(security);
     return _discountingCurveNames.containsKey(underlyingEquity);
   }
 
@@ -96,8 +89,7 @@ public class EquityVarianceSwapDefaults extends DefaultPropertyFunction {
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue,
       final String propertyName) {
-    final EquityVarianceSwapSecurity varianceSwap = (EquityVarianceSwapSecurity) target.getSecurity();
-    final String underlyingEquity = varianceSwap.getSpotUnderlyingId().getValue();
+    final String underlyingEquity = EquitySecurityUtils.getIndexOrEquityNameFromUnderlying(target.getSecurity());
     if (!_discountingCurveNames.containsKey(underlyingEquity)) {
       s_logger.error("Could not get config for underlying equity " + underlyingEquity + "; should never happen");
       return null;

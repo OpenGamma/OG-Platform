@@ -26,7 +26,7 @@ public interface GridStructure {
   /**
    * @return Meta data for the grid's columns
    */
-  AnalyticsColumnGroups getColumnStructure();
+  GridColumnGroups getColumnStructure();
 
   /**
    * @param row The row index
