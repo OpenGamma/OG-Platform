@@ -29,8 +29,11 @@ import com.opengamma.util.ArgumentChecker;
   private final int _endRow;
   /** Immediate child nodes. */
   private final List<AnalyticsNode> _children;
+  /** Whether this node represents a position in a fungible security, i.e. it has child nodes which are trades. */
+  private final boolean _fungiblePosition;
 
-  /* package */ AnalyticsNode(int startRow, int endRow, List<AnalyticsNode> children) {
+  /* package */ AnalyticsNode(int startRow, int endRow, List<AnalyticsNode> children, boolean fungiblePosition) {
+    _fungiblePosition = fungiblePosition;
     ArgumentChecker.notNull(children, "children");
     _startRow = startRow;
     _endRow = endRow;
@@ -41,7 +44,7 @@ import com.opengamma.util.ArgumentChecker;
    * @return An empty root node that starts and ends at row zero and has no children.
    */
   /* package */ static AnalyticsNode emptyRoot() {
-    return new AnalyticsNode(0, 0, Collections.<AnalyticsNode>emptyList());
+    return new AnalyticsNode(0, 0, Collections.<AnalyticsNode>emptyList(), false);
   }
 
   /**
@@ -52,7 +55,7 @@ import com.opengamma.util.ArgumentChecker;
   /* package */ static AnalyticsNode portoflioRoot(CompiledViewDefinition compiledViewDef) {
     Portfolio portfolio = compiledViewDef.getPortfolio();
     if (portfolio == null) {
-      return new AnalyticsNode(0, 0, Collections.<AnalyticsNode>emptyList());
+      return new AnalyticsNode(0, 0, Collections.<AnalyticsNode>emptyList(), false);
     }
     PortfolioNode root = portfolio.getRootNode();
     return new PortfolioNodeBuilder(root).getRoot();
@@ -78,6 +81,13 @@ import com.opengamma.util.ArgumentChecker;
    */
   /* package */ List<AnalyticsNode> getChildren() {
     return _children;
+  }
+
+  /**
+   * @return Whether this node represents a position in a fungible security, i.e. it has child nodes which are trades
+   */
+  public boolean isFungiblePosition() {
+    return _fungiblePosition;
   }
 
   @Override
@@ -107,20 +117,20 @@ import com.opengamma.util.ArgumentChecker;
       for (Position position : node.getPositions()) {
         ++_lastRow;
         if (position.getTrades().size() > 0 && isFungible(position.getSecurity())) {
-          nodes.add(createPositionNode(position));
+          nodes.add(createFungiblePositionNode(position));
         }
       }
       for (PortfolioNode child : node.getChildNodes()) {
         ++_lastRow;
         nodes.add(createPortfolioNode(child));
       }
-      return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes));
+      return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes), false);
     }
 
-    private AnalyticsNode createPositionNode(Position position) {
+    private AnalyticsNode createFungiblePositionNode(Position position) {
       int nodeStart = _lastRow;
       _lastRow += position.getTrades().size();
-      return new AnalyticsNode(nodeStart, _lastRow, Collections.<AnalyticsNode>emptyList());
+      return new AnalyticsNode(nodeStart, _lastRow, Collections.<AnalyticsNode>emptyList(), true);
     }
 
     /**

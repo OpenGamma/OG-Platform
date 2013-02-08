@@ -100,7 +100,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
           nodes.add(newNode);
         }
       }
-      return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes));
+      return new AnalyticsNode(nodeStart, _lastRow, Collections.unmodifiableList(nodes), false);
     }
   }
 

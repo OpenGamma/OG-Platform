@@ -7,6 +7,7 @@ package com.opengamma.engine.depgraph;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -155,11 +156,11 @@ import com.opengamma.engine.value.ValueSpecification;
   private volatile boolean _recursion;
 
   /**
-   * Function mutual exclusion group hints. Functions shouldn't be considered if their group hint is already present in a parent task.
+   * Function mutual exclusion group hints. Functions shouldn't be considered if their group hint is already present in a parent task for a given target.
    */
-  private final Set<FunctionExclusionGroup> _functionExclusion;
+  private final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> _functionExclusion;
 
-  public ResolveTask(final ValueRequirement valueRequirement, final ResolveTask parent, final Set<FunctionExclusionGroup> functionExclusion) {
+  public ResolveTask(final ValueRequirement valueRequirement, final ResolveTask parent, final Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> functionExclusion) {
     super(valueRequirement);
     final int hc;
     if (parent != null) {
@@ -254,7 +255,7 @@ import com.opengamma.engine.value.ValueSpecification;
     }
   }
 
-  public Set<FunctionExclusionGroup> getFunctionExclusion() {
+  public Map<ComputationTargetSpecification, Set<FunctionExclusionGroup>> getFunctionExclusion() {
     return _functionExclusion;
   }
 

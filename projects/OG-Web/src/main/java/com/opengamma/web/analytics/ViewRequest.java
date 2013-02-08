@@ -40,6 +40,7 @@ public class ViewRequest {
    * @param aggregators Used for aggregating the view's portfolio, not null
    * @param marketDataSpecs The source(s) of market data for the view, not empty
    * @param valuationTime The valuation time used when calculating the analytics, can be null
+   * @param blotter Whether to show blotter columns containing security and trade data in the portfolio grid
    * @param portfolioVersionCorrection Version and correction time for the portfolio used when calculating the analytics
    */
   public ViewRequest(UniqueId viewDefinitionId,

@@ -53,6 +53,7 @@ public final class PrimitivesGridStructure extends MainGridStructure {
 
   private static List<GridColumnGroup> buildAnalyticsColumns(ViewDefinition viewDef, TargetLookup targetLookup) {
     List<GridColumnGroup> columnGroups = Lists.newArrayList();
+    Set<ColumnSpecification> columnSpecs = Sets.newHashSet();
     for (ViewCalculationConfiguration calcConfig : viewDef.getAllCalculationConfigurations()) {
       List<GridColumn> columns = Lists.newArrayList();
       for (ValueRequirement specificRequirement : calcConfig.getSpecificRequirements()) {
@@ -61,7 +62,10 @@ public final class PrimitivesGridStructure extends MainGridStructure {
           Class<?> columnType = ValueTypes.getTypeForValueName(valueName);
           ValueProperties constraints = specificRequirement.getConstraints();
           ColumnSpecification columnSpec = new ColumnSpecification(calcConfig.getName(), valueName, constraints);
-          columns.add(GridColumn.forKey(columnSpec, columnType, targetLookup));
+          // ensure columnSpec isn't a duplicate
+          if (columnSpecs.add(columnSpec)) {
+            columns.add(GridColumn.forSpec(columnSpec, columnType, targetLookup));
+          }
         }
       }
       if (!columns.isEmpty()) {

@@ -58,7 +58,6 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
    * @param callbackId ID that's passed to listeners when the row and column structure of the grid changes
    * @param targetResolver For looking up the target of the calculation given its specification
    * @param viewportListener Receives notifications when any viewport changes
-   * @param cache
    * @return The grid
    */
   /* package */ static DependencyGraphGrid create(CompiledViewDefinition compiledViewDef,
