@@ -29,6 +29,7 @@ common/deploy.properties
 !/projects/OG-Util
 !/projects/OG-Web
 !/projects/OG-BloombergExample
+!/projects/Lambdava
 repository/
 ivy/
 bootstrap/
