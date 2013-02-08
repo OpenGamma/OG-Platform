@@ -41,7 +41,7 @@ $.register_module({
                 count[buckets-1][1] = count[buckets-1][1] + maxcount;
                 return {histogram_data: count, interval: interval};
             };
-            normpdf = function (x, mu, sigma, constant) {
+            /*normpdf = function (x, mu, sigma, constant) {
                 var diff = x-mu;
                 return (Math.exp(-( (diff*diff) / (2*(sigma*sigma)) ))) / (sigma*constant);
             };
@@ -57,14 +57,14 @@ $.register_module({
                     norm.push([value, (normpdf(value, mu, sigma, constant))]);
                 });
                 return {norm_pdf_data:norm};
-            };
+            };*/
             gadget.dataman = new og.analytics.Cell({
                 source: config.source, row: config.row, col: config.col, format: 'EXPANDED'}, 'histogram')
                 .on('data', function (value) {
                     var input, data = typeof value.v !== 'undefined' ? value.v : value;
                     if (!histogram && data && (typeof data === 'object')){
                         prepare_data(data);
-                        input = $.extend(true, {}, config,  histogram_data(), normpdf_data());
+                        input = $.extend(true, {}, config,  histogram_data()/*, normpdf_data()*/);
                         histogram = new og.common.gadgets.HistogramPlot(input);
                     }    
                 })
