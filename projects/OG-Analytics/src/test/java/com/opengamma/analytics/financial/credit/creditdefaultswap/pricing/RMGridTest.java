@@ -27,6 +27,7 @@ import com.opengamma.analytics.financial.credit.obligor.CreditRatingStandardAndP
 import com.opengamma.analytics.financial.credit.obligor.Region;
 import com.opengamma.analytics.financial.credit.obligor.Sector;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
+import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -253,7 +254,7 @@ public class RMGridTest {
 
     final int numberOfMaturities = 122;
 
-    final ZonedDateTime[] maturities = new ZonedDateTime[numberOfMaturities];
+    final ZonedDateTime[] bdaMaturities = new ZonedDateTime[numberOfMaturities];
 
     final double[] curveLevel = {
         48.40,
@@ -379,11 +380,23 @@ public class RMGridTest {
         319.82,
         324.01 };
 
-    maturities[0] = DateUtils.getUTCDate(2013, 2, 20);
+    bdaMaturities[0] = DateUtils.getUTCDate(2013, 2, 20);
 
-    // TODO : The maturities need to be business day adjusted
+    GenerateCreditDefaultSwapPremiumLegSchedule schedule = new GenerateCreditDefaultSwapPremiumLegSchedule();
+
+    final ZonedDateTime[] maturities = new ZonedDateTime[numberOfMaturities];
+
+    maturities[0] = bdaMaturities[0];
+
     for (int i = 1; i < numberOfMaturities; i++) {
+
       maturities[i] = maturities[i - 1].plusMonths(1);
+
+      //System.out.print(bdaMaturities[i] + "\t");
+
+      bdaMaturities[i] = schedule.businessDayAdjustDate(maturities[i], calendar, businessdayAdjustmentConvention);
+
+      //System.out.println(bdaMaturities[i]);
     }
 
     // The type of spread bump to apply
@@ -430,7 +443,7 @@ public class RMGridTest {
       }
 
       // Set the maturity of the CDS to value
-      rollingCDS = rollingCDS.withMaturityDate(maturities[i]);
+      rollingCDS = rollingCDS.withMaturityDate(bdaMaturities[i]);
 
       // Compute the bucketed CS01 for this CDS
       final double bucketedCS01[] = cs01.getCS01BucketedCreditDefaultSwap(valuationDate, rollingCDS, yieldCurve, tenors, marketSpreads, spreadBump, spreadBumpType, priceType);
@@ -438,7 +451,7 @@ public class RMGridTest {
       // Output grid
       if (outputResults) {
 
-        System.out.print(marketSpreads[0] + "\t" + maturities[i] + "\t");
+        System.out.print(marketSpreads[0] + "\t" + bdaMaturities[i] + "\t");
 
         for (int m = 0; m < numberOfCalibrationCDS; m++) {
           System.out.print(/*"Tenor = " + tenors[m] + "\t" + "CDS bucketed CS01 = " + "\t" + */bucketedCS01[m] + "\t");
