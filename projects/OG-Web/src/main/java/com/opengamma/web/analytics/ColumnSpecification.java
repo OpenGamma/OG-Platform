@@ -9,12 +9,15 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * TODO javadoc
+ * Contains the details of the calculated analytics data displayed in a column in the analytics grid.
  */
 public class ColumnSpecification {
 
+  /** Name of the calculation configuration that produces the column data. */
   private final String _calcConfigName;
+  /** Value name of the column's data. */
   private final String _valueName;
+  /** Value properties used when calculating the column's data. */
   private final ValueProperties _valueProperties;
 
   /* package */ ColumnSpecification(String calcConfigName, String valueName, ValueProperties valueProperties) {

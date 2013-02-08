@@ -91,7 +91,7 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
   }
 
   @Override
-  protected Object propertyGet(final String propertyName, final boolean quiet) {
+  protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 207977419:  // underlyingSwapId
         return getUnderlyingSwapId();
@@ -102,7 +102,7 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
   }
 
   @Override
-  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 207977419:  // underlyingSwapId
         setUnderlyingSwapId((ExternalId) newValue);
@@ -122,12 +122,12 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final DeliverableSwapFutureSecurity other = (DeliverableSwapFutureSecurity) obj;
+      DeliverableSwapFutureSecurity other = (DeliverableSwapFutureSecurity) obj;
       return JodaBeanUtils.equal(getUnderlyingSwapId(), other.getUnderlyingSwapId()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
           super.equals(obj);
@@ -156,7 +156,7 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
    * Sets the underlying swap identifier.
    * @param underlyingSwapId  the new value of the property, not null
    */
-  public void setUnderlyingSwapId(final ExternalId underlyingSwapId) {
+  public void setUnderlyingSwapId(ExternalId underlyingSwapId) {
     JodaBeanUtils.notNull(underlyingSwapId, "underlyingSwapId");
     this._underlyingSwapId = underlyingSwapId;
   }
@@ -182,7 +182,7 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
    * Sets the swap notional.
    * @param notional  the new value of the property, not null
    */
-  public void setNotional(final double notional) {
+  public void setNotional(double notional) {
     JodaBeanUtils.notNull(notional, "notional");
     this._notional = notional;
   }
@@ -230,7 +230,7 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 207977419:  // underlyingSwapId
           return _underlyingSwapId;

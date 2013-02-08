@@ -6,15 +6,12 @@
 package com.opengamma.financial.analytics.model.equity;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
-import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -28,8 +25,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.value.ValueProperties.Builder;
-import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -44,10 +39,10 @@ import com.opengamma.util.async.AsynchronousExecution;
  */
 public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompiledInvoker {
 
-  private static final String s_priceShift = "PriceShift"; // Constraint configured by user
-  private static final String s_volShift = "VolShift"; // Constraint configured by user
-  private static final String s_priceShiftType = "PriceShiftType"; // Constraint configured by user
-  private static final String s_volShiftType = "VolShiftType"; // Constraint configured by user
+  private static final String s_priceShift = ScenarioPnLPropertyNamesAndValues.PROPERTY_PRICE_SHIFT;
+  private static final String s_volShift = ScenarioPnLPropertyNamesAndValues.PROPERTY_VOL_SHIFT;
+  private static final String s_priceShiftType = ScenarioPnLPropertyNamesAndValues.PROPERTY_PRICE_SHIFT_TYPE;
+  private static final String s_volShiftType = ScenarioPnLPropertyNamesAndValues.PROPERTY_VOL_SHIFT_TYPE; 
   
   private String getValueRequirementName() {
     return ValueRequirementNames.PNL;
@@ -73,15 +68,15 @@ public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompi
       
       final Double shiftStock = Double.valueOf(stockConstraint);
       
-      if (priceShiftTypeConstraint.equals("Multiplicative")) {
-        // The market value under shift, d = (1 + d ) * market_value, hence pnl = scenario_value - market_value = d * market_value
-        pnl = shiftStock * price;
-      } else if (priceShiftTypeConstraint.equals("Additive")) {
+      if (priceShiftTypeConstraint.equals("Additive")) {
         // The shift is itself the pnl
         pnl = shiftStock;
+      } else if (priceShiftTypeConstraint.equals("Multiplicative")) {
+        // The market value under shift, d = (1 + d ) * market_value, hence pnl = scenario_value - market_value = d * market_value
+        pnl = shiftStock * price;
       } else {
-        pnl = 0.0;
-        s_logger.error("In ScenarioPnLFunctions, only PriceShiftType of Additive or Multiplicative are accepted. Found: " + priceShiftTypeConstraint);
+        s_logger.debug("Valid PriceShiftType's: Additive and Multiplicative. Found: " + priceShiftTypeConstraint + " Defaulting to Multiplicative.");
+        pnl = shiftStock * price;
       }
     }
     
@@ -142,9 +137,9 @@ public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompi
     final Set<String> priceShiftTypeSet = constraints.getValues(s_priceShiftType);
     if (priceShiftTypeSet == null || priceShiftTypeSet.isEmpty()) {
       if (scenarioDefaults == null) {
-        scenarioDefaults = constraints.copy().withoutAny(s_priceShiftType).with(s_priceShiftType, "");
+        scenarioDefaults = constraints.copy().withoutAny(s_priceShiftType).with(s_priceShiftType, "Multiplicative");
       } else {
-        scenarioDefaults = scenarioDefaults.withoutAny(s_priceShiftType).with(s_priceShiftType, "");
+        scenarioDefaults = scenarioDefaults.withoutAny(s_priceShiftType).with(s_priceShiftType, "Multiplicative");
       }
     }
     final Set<String> volShiftSet = constraints.getValues(s_volShift);
@@ -158,9 +153,9 @@ public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompi
     final Set<String> volShiftSetType = constraints.getValues(s_volShiftType);
     if (volShiftSetType == null || volShiftSetType.isEmpty()) {
       if (scenarioDefaults == null) {
-        scenarioDefaults = constraints.copy().withoutAny(s_volShiftType).with(s_volShiftType, "");
+        scenarioDefaults = constraints.copy().withoutAny(s_volShiftType).with(s_volShiftType, "Multiplicative");
       } else {
-        scenarioDefaults = scenarioDefaults.withoutAny(s_volShiftType).with(s_volShiftType, "");
+        scenarioDefaults = scenarioDefaults.withoutAny(s_volShiftType).with(s_volShiftType, "Multiplicative");
       }
     }
     

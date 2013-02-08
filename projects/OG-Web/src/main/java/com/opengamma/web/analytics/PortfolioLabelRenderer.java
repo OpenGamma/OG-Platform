@@ -31,23 +31,25 @@ import com.opengamma.util.ArgumentChecker;
     PortfolioGridRow row = _rows.get(rowIndex);
     ComputationTargetSpecification target = row.getTarget();
     ComputationTargetType targetType = target.getType();
+    // TODO do I need to use the target type to figure out the row type? can I just have different row types?
     if (targetType.isTargetType(ComputationTargetType.POSITION)) {
       RowTarget rowTarget;
       if (isOtc(row.getSecurity())) {
         // OTC trades and positions are shown as a single row as there's always one trade per position
-        // TODO this is the trade ID, need the position ID?
-        rowTarget = new OtcTradeTarget(row.getName(), target.getUniqueId());
+        rowTarget = new OtcTradeTarget(row.getName(), row.getNodeId(), row.getPositionId(), row.getTradeId());
       } else {
         // Positions in fungible trades can contain multiple trades so the position has its own row and child rows
         // for each of its trades
-        rowTarget = new PositionTarget(row.getName(), target.getUniqueId());
+        rowTarget = new PositionTarget(row.getName(), row.getNodeId(), row.getPositionId());
       }
       return ResultsCell.forStaticValue(rowTarget, columnType);
     } else if (targetType.isTargetType(ComputationTargetType.PORTFOLIO_NODE)) {
-      return ResultsCell.forStaticValue(new NodeTarget(row.getName(), target.getUniqueId()), columnType);
+      return ResultsCell.forStaticValue(new NodeTarget(row.getName(), row.getNodeId()), columnType);
     } else if (targetType.isTargetType(ComputationTargetType.TRADE)) {
       // only fungible trades have their own row, OTC trades are shown on the same row as their parent position
-      return ResultsCell.forStaticValue(new FungibleTradeTarget(row.getName(), target.getUniqueId()), columnType);
+      FungibleTradeTarget tradeTarget =
+          new FungibleTradeTarget(row.getName(), row.getNodeId(), row.getPositionId(), row.getTradeId());
+      return ResultsCell.forStaticValue(tradeTarget, columnType);
     }
     throw new IllegalArgumentException("Unexpected target type for row: " + targetType);
   }

@@ -75,15 +75,15 @@ public class EquityOptionBjerksundStenslandScenarioPnLFunction extends EquityOpt
       fwdCurveScen = market.getForwardCurve(); // use base market prices
     } else {
       final Double fractionalShift;
-      if (priceShiftTypeConstraint.equals("Multiplicative")) {
-        fractionalShift = Double.valueOf(stockConstraint);
-      } else if (priceShiftTypeConstraint.equals("Additive")) {
+      if (priceShiftTypeConstraint.equalsIgnoreCase("Additive")) {
         final Double absShift = Double.valueOf(stockConstraint);
         final double spotPrice = market.getForwardCurve().getSpot();
         fractionalShift = absShift / spotPrice;
+      } else if (priceShiftTypeConstraint.equalsIgnoreCase("Multiplicative")) {
+        fractionalShift = Double.valueOf(stockConstraint);
       } else {
-        fractionalShift = 0.0;
-        s_logger.error("In ScenarioPnLFunctions, only PriceShiftType of Additive or Multiplicative are accepted. Found: " + priceShiftTypeConstraint);
+        fractionalShift = Double.valueOf(stockConstraint);
+        s_logger.debug("Valid PriceShiftType's: Additive and Multiplicative. Found: " + priceShiftTypeConstraint + " Defaulting to Multiplicative.");
       }
       fwdCurveScen = market.getForwardCurve().withFractionalShift(fractionalShift);
     }
@@ -97,13 +97,13 @@ public class EquityOptionBjerksundStenslandScenarioPnLFunction extends EquityOpt
       final Double shiftVol = Double.valueOf(volConstraint);
       String volShiftTypeConstraint = constraints.getValues(s_volShiftType).iterator().next();
       final boolean additiveShift;
-      if (volShiftTypeConstraint.equals("Multiplicative")) {
-        additiveShift = false;
-      } else if (volShiftTypeConstraint.equals("Additive")) {
+      if (volShiftTypeConstraint.equalsIgnoreCase("Additive")) {
         additiveShift = true;
-      } else {
+      } else if (volShiftTypeConstraint.equalsIgnoreCase("Multiplicative")) {
         additiveShift = false;
-        s_logger.error("In ScenarioPnLFunctions, only VolShiftType of Additive or Multiplicative are accepted. Found: " + volShiftTypeConstraint);
+      } else {
+        s_logger.debug("In ScenarioPnLFunctions, VolShiftType's are Additive and Multiplicative. Found: " + priceShiftTypeConstraint + " Defaulting to Multiplicative.");
+        additiveShift = false;
       }
       volSurfScen = market.getVolatilitySurface().withShift(shiftVol, additiveShift);
     }
@@ -135,9 +135,9 @@ public class EquityOptionBjerksundStenslandScenarioPnLFunction extends EquityOpt
     final Set<String> priceShiftTypeSet = constraints.getValues(s_priceShiftType);
     if (priceShiftTypeSet == null || priceShiftTypeSet.isEmpty()) {
       if (scenarioDefaults == null) {
-        scenarioDefaults = constraints.copy().withoutAny(s_priceShiftType).with(s_priceShiftType, "");
+        scenarioDefaults = constraints.copy().withoutAny(s_priceShiftType).with(s_priceShiftType, "Multiplicative");
       } else {
-        scenarioDefaults = scenarioDefaults.withoutAny(s_priceShiftType).with(s_priceShiftType, "");
+        scenarioDefaults = scenarioDefaults.withoutAny(s_priceShiftType).with(s_priceShiftType, "Multiplicative");
       }
     }
     final Set<String> volShiftSet = constraints.getValues(s_volShift);
@@ -151,9 +151,9 @@ public class EquityOptionBjerksundStenslandScenarioPnLFunction extends EquityOpt
     final Set<String> volShiftSetType = constraints.getValues(s_volShiftType);
     if (volShiftSetType == null || volShiftSetType.isEmpty()) {
       if (scenarioDefaults == null) {
-        scenarioDefaults = constraints.copy().withoutAny(s_volShiftType).with(s_volShiftType, "");
+        scenarioDefaults = constraints.copy().withoutAny(s_volShiftType).with(s_volShiftType, "Multiplicative");
       } else {
-        scenarioDefaults = scenarioDefaults.withoutAny(s_volShiftType).with(s_volShiftType, "");
+        scenarioDefaults = scenarioDefaults.withoutAny(s_volShiftType).with(s_volShiftType, "Multiplicative");
       }
     }
     
@@ -182,5 +182,4 @@ public class EquityOptionBjerksundStenslandScenarioPnLFunction extends EquityOpt
         
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));    
   }
-
 }

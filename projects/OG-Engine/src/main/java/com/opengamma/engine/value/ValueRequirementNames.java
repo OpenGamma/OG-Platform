@@ -130,6 +130,11 @@ public final class ValueRequirementNames {
    */
   public static final String PROJECTED_FLOATING_RECEIVE_CASH_FLOWS = "Projected Floating Receive Cash-Flows";
 
+  /**
+   * (For barrier options) The absolute difference between the nearest barrier and the spot.
+   */
+  public static final String BARRIER_DISTANCE = "BarrierDistance";
+
   ///// Curves
   /**
    * Curve containing (date, discount factor) pairs.
