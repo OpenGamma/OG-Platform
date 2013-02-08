@@ -10,7 +10,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.calibratehazardratecurve.legacy.CalibrateHazardRateCurveLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.cds.ISDACurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -31,7 +31,7 @@ public class CalibrateAndPriceLegacyCreditDefaultSwap {
 
   public double calibrateAndGetPresentValue(
       final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
+      final/*LegacyVanilla*/LegacyCreditDefaultSwapDefinition cds,
       final ZonedDateTime[] marketTenors,
       final double[] spreads,
       final ISDACurve yieldCurve,
@@ -50,10 +50,10 @@ public class CalibrateAndPriceLegacyCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Create a CDS for calibration
-    final LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
+    final/*LegacyVanilla*/LegacyCreditDefaultSwapDefinition calibrationCDS = cds;
 
     // Create a CDS for valuation
-    final LegacyVanillaCreditDefaultSwapDefinition valuationCDS = cds;
+    final/*LegacyVanilla*/LegacyCreditDefaultSwapDefinition valuationCDS = cds;
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

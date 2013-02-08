@@ -12,7 +12,7 @@ import com.opengamma.id.UniqueId;
  */
 public class NodeTarget extends RowTarget {
 
-  /* package */ NodeTarget(String name, UniqueId id) {
-    super(name, id);
+  /* package */ NodeTarget(String name, UniqueId nodeId) {
+    super(name, nodeId);
   }
 }
