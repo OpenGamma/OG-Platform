@@ -435,11 +435,11 @@ $.register_module({
                 return rep_memo[times] = result;
             };
             var unravel = function (arr, result, indent) {
-                var start = arr[0], end = arr[1], children = arr[2], prefix, last_end = null, str,
+                var start = arr[0], end = arr[1], children = arr[2], expand = !arr[3], prefix, last_end = null, str,
                     i, j, len = children.length, child, curr_start, curr_end, html;
                 html = '<span data-row="' + start + '" class="node {{state}}"></span>&nbsp;'
                 prefix = cache[rep(indent) + html] = counter++;
-                result.push({prefix: prefix, node: true, indent: indent, length: end - start});
+                result.push({prefix: prefix, node: true, indent: indent, length: end - start, expand: expand});
                 for (i = 0; i < len; i += 1) {
                     child = children[i]; curr_start = child[0]; curr_end = child[1]; j = (last_end || start) + 1;
                     if (j < curr_start) prefix = (str = rep(indent + 2)) in cache ? cache[str] : cache[str] = counter++;
@@ -457,7 +457,7 @@ $.register_module({
                 unraveled = meta.structure.length ? unravel(meta.structure, [], 0) : all(meta.data_rows);
                 meta.nodes = unraveled.reduce(function (acc, val, idx) {
                     if (!val.node) return acc;
-                    acc[idx] = true;
+                    acc[idx] = val.expand;
                     acc.all.push(idx);
                     acc.ranges.push(val.length);
                     if (val.indent > 1) acc.collapse.push(idx);
