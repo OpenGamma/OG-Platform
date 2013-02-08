@@ -7,13 +7,13 @@ package com.opengamma.util.ehcache;
 
 import java.util.Collection;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
-
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Utilities for working with EHCache.
@@ -38,7 +38,7 @@ public final class EHCacheUtils {
    */
   public static CacheManager createCacheManager() {
     try {
-      return CacheManager.create();
+      return CacheManager.getInstance();
     } catch (CacheException ex) {
       throw new OpenGammaRuntimeException("Unable to create CacheManager", ex);
     }
