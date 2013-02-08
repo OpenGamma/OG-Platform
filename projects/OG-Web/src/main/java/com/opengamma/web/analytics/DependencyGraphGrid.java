@@ -49,8 +49,6 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
 
   /**
    * Creates a new grid for displaying a dependency graph of calculations.
-   *
-   *
    * @param compiledViewDef The view definition from which the graph and calculations were derived
    * @param target The object whose dependency graph is being displayed
    * @param calcConfigName The calculation configuration used for the calculations
@@ -66,10 +64,9 @@ public class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> 
                                                   ViewCycle cycle,
                                                   String callbackId,
                                                   ComputationTargetResolver targetResolver,
-                                                  ViewportListener viewportListener,
-                                                  ResultsCache cache) {
+                                                  ViewportListener viewportListener) {
     DependencyGraphStructureBuilder builder =
-        new DependencyGraphStructureBuilder(compiledViewDef, target, calcConfigName, targetResolver, cache);
+        new DependencyGraphStructureBuilder(compiledViewDef, target, calcConfigName, targetResolver);
     return new DependencyGraphGrid(builder.getStructure(), calcConfigName, callbackId, cycle, viewportListener);
   }
 
