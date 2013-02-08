@@ -166,10 +166,6 @@ public class AnalyticsNodeBuilderTest {
     4  |_pos2
     5     |_trade3
     */
-    /*FXForwardSecurity security = new FXForwardSecurity(Currency.GBP, 123,
-                                                       Currency.USD, 321,
-                                                       LocalDate.of(2012, 12, 21).atTime(11, 0).atZone(ZoneOffset.UTC),
-                                                       ExternalId.of("Reg", "ABC"));*/
     EquitySecurity security = new EquitySecurity("exchange", "exchangeCode", "companyName", Currency.USD);
     SimplePortfolioNode portfolioRoot = new SimplePortfolioNode();
     SimplePosition position1 = new SimplePosition();
